@@ -71,7 +71,7 @@ function getAvailableDomains($templateId)
     $db = getDb();
     
     try {
-        $stmt = $db->prepare("SELECT * FROM domains WHERE template_id = ? AND status = 'available' ORDER BY domain_name");
+        $stmt = $db->prepare("SELECT * FROM domains WHERE template_id = ? AND status = 'available' AND assigned_order_id IS NULL ORDER BY domain_name");
         $stmt->execute([$templateId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -308,7 +308,7 @@ function logActivity($action, $details = '', $userId = null)
 
 function generateWhatsAppLink($orderData, $template)
 {
-    $number = WHATSAPP_NUMBER;
+    $number = preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER);
     
     $message = "Hello! I would like to order a website:\n\n";
     $message .= "Template: " . $template['name'] . "\n";

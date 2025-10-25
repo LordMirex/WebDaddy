@@ -105,9 +105,9 @@ $affiliateCode = getAffiliateCode();
                                 View Demo
                             </button>
                             <?php endif; ?>
-                            <a href="/public/order.php?template=<?php echo $template['id']; ?>" 
+                            <a href="order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
                                class="btn btn-primary">
-                                Get This Website
+                                Order Now
                             </a>
                         </div>
                     </div>
