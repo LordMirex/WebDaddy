@@ -1,0 +1,32 @@
+<?php
+
+// Database Configuration
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'template_store');
+define('DB_USER', 'your_db_user');
+define('DB_PASS', 'your_db_password');
+
+// WhatsApp Configuration
+define('WHATSAPP_NUMBER', '+2348012345678');
+
+// SMTP/Email Configuration
+define('SMTP_HOST', 'smtp.example.com');
+define('SMTP_PORT', 587);
+define('SMTP_USER', 'noreply@example.com');
+define('SMTP_PASS', 'your_smtp_password');
+define('SMTP_FROM_EMAIL', 'noreply@example.com');
+define('SMTP_FROM_NAME', 'Template Marketplace');
+
+// Affiliate Settings
+define('AFFILIATE_COOKIE_DAYS', 30);
+define('AFFILIATE_COMMISSION_RATE', 0.30);
+
+// Site Settings
+define('SITE_NAME', 'Template Marketplace');
+define('SITE_URL', 'https://yourdomain.com');
+
+// Security Settings
+define('SESSION_LIFETIME', 3600);
+
+// Error Display (set to false in production)
+define('DISPLAY_ERRORS', true);

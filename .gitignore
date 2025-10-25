@@ -1,0 +1,34 @@
+# Sensitive configuration files
+includes/config.php
+
+# Vendor dependencies
+vendor/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Log files
+*.log
+error_log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Environment files
+.env
+.env.local
+
+# Backup files
+*.bak
+*.backup
+
+# Upload directories (if any)
+uploads/*
+!uploads/.gitkeep
