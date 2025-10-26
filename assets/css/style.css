@@ -1,13 +1,16 @@
 :root {
-    --primary-color: #6366f1;
-    --primary-dark: #4f46e5;
-    --secondary-color: #8b5cf6;
+    --primary-color: #1e3a8a;
+    --primary-dark: #1e40af;
+    --secondary-color: #d4af37;
+    --gold-color: #d4af37;
+    --royal-blue: #1e3a8a;
+    --navy-blue: #0f172a;
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
     --info-color: #06b6d4;
     --light-bg: #f9fafb;
-    --dark-bg: #111827;
+    --dark-bg: #0f172a;
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
@@ -41,8 +44,8 @@ body {
 
 .template-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15) !important;
-    border-color: var(--primary-color);
+    box-shadow: 0 20px 40px rgba(30, 58, 138, 0.15) !important;
+    border-color: var(--gold-color);
 }
 
 .template-card img {
@@ -69,7 +72,7 @@ body {
 .template-card .price {
     font-size: 1.75rem;
     font-weight: 800;
-    color: var(--primary-color);
+    color: var(--gold-color);
     margin-bottom: 0;
 }
 
@@ -82,7 +85,7 @@ body {
 }
 
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, var(--royal-blue) 0%, var(--navy-blue) 100%);
     color: white;
     padding: 4rem 0 5rem 0 !important;
     position: relative;
@@ -199,7 +202,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--royal-blue) 0%, var(--navy-blue) 100%);
 }
 
 .login-card {
@@ -294,7 +297,7 @@ footer {
 }
 
 .earnings-summary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--royal-blue) 0%, var(--navy-blue) 100%);
     color: white;
     padding: 2rem;
     border-radius: 0.5rem;

@@ -38,7 +38,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     
     <style>
         .template-hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(135deg, var(--royal-blue) 0%, var(--navy-blue) 100%);
             padding: 3rem 0;
         }
         .preview-image {
@@ -66,8 +66,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-                <i class="bi bi-lightning-charge-fill text-primary me-2" style="font-size: 1.5rem;"></i>
-                <?php echo SITE_NAME; ?>
+                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="height: 50px; margin-right: 10px;">
+                <span style="color: var(--royal-blue);"><?php echo SITE_NAME; ?></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
