@@ -62,7 +62,7 @@ $affiliateCode = getAffiliateCode();
                 <div class="col-lg-10 mx-auto text-center">
                     <h1 class="display-4 fw-bold mb-3">Professional Websites. Ready in 24 Hours.</h1>
                     <p class="lead mb-4">Choose a template below, select a domain, and launch your business online today.</p>
-                    <div class="d-flex gap-3 justify-content-center align-items-center mb-3">
+                    <div class="trust-indicators-wrapper mb-3">
                         <div class="trust-indicator">
                             <i class="bi bi-check-circle-fill text-warning me-2"></i>
                             <span>Domain Included</span>

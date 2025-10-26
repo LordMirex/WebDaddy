@@ -81,12 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </form>
                             
                             <div class="mt-4 text-center">
-                                <small class="text-muted">
-                                    <i class="bi bi-info-circle"></i> Default: admin@example.com / admin123
-                                </small>
-                            </div>
-                            
-                            <div class="mt-3 text-center">
                                 <a href="/" class="text-decoration-none">
                                     <i class="bi bi-arrow-left"></i> Back to Site
                                 </a>

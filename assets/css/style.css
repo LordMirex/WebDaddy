@@ -238,6 +238,16 @@ body {
     align-items: center;
     font-size: 0.875rem;
     color: white;
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+}
+
+.trust-indicators-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
 }
 
 /* ========================================
@@ -585,7 +595,7 @@ body {
    FOOTER
    ======================================== */
 .footer-simple {
-    background: var(--gray-900);
+    background: linear-gradient(135deg, var(--royal-blue) 0%, var(--navy-blue) 100%);
     color: white;
     padding: 3rem 0 1.5rem 0;
     margin-top: 4rem;
@@ -598,13 +608,21 @@ body {
 }
 
 .footer-simple a {
-    color: var(--gray-400);
+    color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .footer-simple a:hover {
     color: var(--gold-color);
+}
+
+.footer-simple .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.footer-simple hr {
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ========================================
@@ -691,6 +709,12 @@ body {
     
     .trust-indicator {
         font-size: 0.75rem;
+        padding: 0.35rem 0.75rem;
+    }
+    
+    .trust-indicators-wrapper {
+        gap: 0.5rem;
+        row-gap: 0.75rem;
     }
     
     .stat-card {
@@ -699,5 +723,60 @@ body {
     
     .admin-sidebar, .affiliate-sidebar {
         min-height: auto;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        font-size: 0.9rem;
+    }
+    
+    .hero-section-compact h1 {
+        font-size: 1.75rem;
+    }
+    
+    .hero-section-compact .lead {
+        font-size: 1rem;
+    }
+    
+    .trust-indicator {
+        font-size: 0.7rem;
+        width: 100%;
+        justify-content: center;
+        padding: 0.5rem;
+    }
+    
+    .trust-indicators-wrapper {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .template-card .card-body {
+        padding: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    .navbar-brand img {
+        height: 35px !important;
+    }
+    
+    .login-card .card-body {
+        padding: 2rem 1.5rem !important;
     }
 }
