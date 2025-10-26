@@ -22,7 +22,7 @@ if (!$template) {
 $availableDomains = getAvailableDomains($templateId);
 
 if (empty($availableDomains)) {
-    $error = 'Sorry, no domains are currently available for this template. Please check back later.';
+    $error = 'Sorry, no domains are currently available for this template. Please contact us for custom domains.';
 }
 
 $customFields = !empty($template['custom_fields']) ? json_decode($template['custom_fields'], true) : [];
@@ -180,218 +180,299 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
 }
 
 $pageTitle = 'Order ' . htmlspecialchars($template['name']);
+$features = $template['features'] ? explode(',', $template['features']) : [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $pageTitle; ?> - Template Marketplace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../assets/css/style.css" rel="stylesheet">
+    <title><?php echo $pageTitle; ?> - <?php echo SITE_NAME; ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    
+    <style>
+        .order-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 3rem 0 2rem 0;
+        }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+        .step-indicator {
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content-center;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="index.php">Template Marketplace</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Templates</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../admin/login.php">Admin</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../affiliate/login.php">Affiliate</a>
-                    </li>
-                </ul>
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+                <i class="bi bi-lightning-charge-fill text-primary me-2" style="font-size: 1.5rem;"></i>
+                <?php echo SITE_NAME; ?>
+            </a>
+            <div class="ms-auto">
+                <a href="/" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back
+                </a>
             </div>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <div class="row">
-            <div class="col-lg-5 mb-4">
-                <div class="card">
-                    <img src="<?php echo htmlspecialchars($template['preview_image']); ?>" 
-                         class="card-img-top" 
-                         alt="<?php echo htmlspecialchars($template['name']); ?>"
-                         onerror="this.src='https://via.placeholder.com/400x300?text=<?php echo urlencode($template['name']); ?>'">
-                    <div class="card-body">
-                        <h3><?php echo htmlspecialchars($template['name']); ?></h3>
-                        <p class="text-muted"><?php echo htmlspecialchars($template['description']); ?></p>
-                        <h4 class="text-primary"><?php echo formatCurrency($template['price']); ?></h4>
-                        
-                        <?php if (!empty($template['features'])): 
-                            $features = json_decode($template['features'], true);
-                            if ($features):
-                        ?>
-                        <hr>
-                        <h5>Features:</h5>
-                        <ul class="list-unstyled">
-                            <?php foreach ($features as $feature): ?>
-                            <li><i class="bi bi-check-circle-fill text-success"></i> <?php echo htmlspecialchars($feature); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <?php endif; endif; ?>
-                        
-                        <?php if (!empty($template['demo_url'])): ?>
-                        <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
-                           class="btn btn-outline-primary btn-sm" 
-                           target="_blank">View Demo</a>
-                        <?php endif; ?>
-                    </div>
+    <section class="order-hero text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-5 fw-bold mb-3">Complete Your Order</h1>
+                    <p class="lead">You're just one step away from launching your website</p>
                 </div>
             </div>
-            
-            <div class="col-lg-7">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Complete Your Order</h4>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <?php if (!empty($error)): ?>
+                <div class="alert alert-warning border-0 shadow-sm mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <?php echo htmlspecialchars($error); ?>
+                    <hr>
+                    <p class="mb-0">
+                        <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="alert-link" target="_blank">
+                            <i class="bi bi-whatsapp me-2"></i>Contact us on WhatsApp
+                        </a> for custom domain options
+                    </p>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger border-0 shadow-sm mb-4">
+                    <h5 class="alert-heading"><i class="bi bi-exclamation-circle me-2"></i>Please fix the following errors:</h5>
+                    <ul class="mb-0">
+                        <?php foreach ($errors as $err): ?>
+                        <li><?php echo htmlspecialchars($err); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (empty($error)): ?>
+                <form method="POST" action="" id="orderForm">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <span class="step-indicator me-3">1</span>
+                                <h3 class="h4 fw-bold mb-0">Your Information</h3>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="customer_name" class="form-label fw-semibold">
+                                        Full Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="customer_name" 
+                                           name="customer_name" 
+                                           value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
+                                           required
+                                           placeholder="John Doe">
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="customer_email" class="form-label fw-semibold">
+                                        Email Address <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control form-control-lg" 
+                                           id="customer_email" 
+                                           name="customer_email" 
+                                           value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
+                                           required
+                                           placeholder="john@example.com">
+                                    <small class="text-muted">Your login credentials will be sent here</small>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="customer_phone" class="form-label fw-semibold">
+                                        WhatsApp Number <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" 
+                                           class="form-control form-control-lg" 
+                                           id="customer_phone" 
+                                           name="customer_phone" 
+                                           value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
+                                           required
+                                           placeholder="+234...">
+                                    <small class="text-muted">For order updates and support</small>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="business_name" class="form-label fw-semibold">
+                                        Business Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg" 
+                                           id="business_name" 
+                                           name="business_name" 
+                                           value="<?php echo htmlspecialchars($_POST['business_name'] ?? ''); ?>" 
+                                           required
+                                           placeholder="My Business">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <?php if (!empty($error)): ?>
-                        <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-                        <?php endif; ?>
+                    
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <span class="step-indicator me-3">2</span>
+                                <h3 class="h4 fw-bold mb-0">Choose Your Domain</h3>
+                            </div>
+                            
+                            <label for="chosen_domain" class="form-label fw-semibold">
+                                Select a Domain <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select form-select-lg" id="chosen_domain" name="chosen_domain" required>
+                                <option value="">-- Select your preferred domain --</option>
+                                <?php foreach ($availableDomains as $domain): ?>
+                                <option value="<?php echo $domain['id']; ?>" 
+                                        <?php echo (isset($_POST['chosen_domain']) && $_POST['chosen_domain'] == $domain['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($domain['domain_name']); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <?php echo count($availableDomains); ?> premium domain(s) available
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <?php if (!empty($customFields)): ?>
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <span class="step-indicator me-3">3</span>
+                                <h3 class="h4 fw-bold mb-0">Additional Information</h3>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <?php foreach ($customFields as $field): ?>
+                                <div class="col-12">
+                                    <label for="custom_<?php echo htmlspecialchars($field['name']); ?>" class="form-label fw-semibold">
+                                        <?php echo htmlspecialchars($field['label']); ?>
+                                        <?php if (!empty($field['required'])): ?>
+                                        <span class="text-danger">*</span>
+                                        <?php endif; ?>
+                                    </label>
+                                    
+                                    <?php if ($field['type'] === 'textarea'): ?>
+                                    <textarea class="form-control" 
+                                              id="custom_<?php echo htmlspecialchars($field['name']); ?>" 
+                                              name="custom_<?php echo htmlspecialchars($field['name']); ?>" 
+                                              rows="3" 
+                                              <?php echo !empty($field['required']) ? 'required' : ''; ?>><?php echo htmlspecialchars($_POST['custom_' . $field['name']] ?? ''); ?></textarea>
+                                    <?php else: ?>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="custom_<?php echo htmlspecialchars($field['name']); ?>" 
+                                           name="custom_<?php echo htmlspecialchars($field['name']); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['custom_' . $field['name']] ?? ''); ?>" 
+                                           <?php echo !empty($field['required']) ? 'required' : ''; ?>>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($field['description'])): ?>
+                                    <small class="text-muted"><?php echo htmlspecialchars($field['description']); ?></small>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>What Happens Next?</h5>
+                            <ol class="mb-0 ps-3">
+                                <li class="mb-2">Click <strong>"Continue to WhatsApp"</strong> below</li>
+                                <li class="mb-2">You'll be redirected to WhatsApp with your order details pre-filled</li>
+                                <li class="mb-2">Send the message to our team</li>
+                                <li class="mb-2">Make payment via bank transfer (details will be provided)</li>
+                                <li>Receive your website login credentials within <strong>24 hours</strong></li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-3 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg py-3 fw-bold" id="submitBtn">
+                            <i class="bi bi-whatsapp me-2"></i>Continue to WhatsApp
+                        </button>
+                        <a href="template.php?id=<?php echo $template['id']; ?>" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Template Details
+                        </a>
+                    </div>
+                </form>
+                <?php endif; ?>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm position-sticky" style="top: 100px;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Order Summary</h5>
                         
-                        <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                <?php foreach ($errors as $err): ?>
-                                <li><?php echo htmlspecialchars($err); ?></li>
+                        <div class="mb-4">
+                            <img src="<?php echo htmlspecialchars($template['thumbnail_url']); ?>" 
+                                 alt="<?php echo htmlspecialchars($template['name']); ?>" 
+                                 class="img-fluid rounded mb-3"
+                                 onerror="this.src='/assets/images/placeholder.jpg'">
+                            <h5 class="fw-bold"><?php echo htmlspecialchars($template['name']); ?></h5>
+                            <span class="badge bg-light text-dark"><?php echo htmlspecialchars($template['category']); ?></span>
+                        </div>
+                        
+                        <?php if (!empty($features)): ?>
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3">Includes:</h6>
+                            <ul class="list-unstyled small">
+                                <?php foreach (array_slice($features, 0, 4) as $feature): ?>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <?php echo htmlspecialchars(trim($feature)); ?>
+                                </li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>
                         <?php endif; ?>
                         
-                        <?php if (empty($error)): ?>
-                        <form method="POST" action="">
-                            <div class="mb-3">
-                                <label for="customer_name" class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="customer_name" 
-                                       name="customer_name" 
-                                       value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
-                                       required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="customer_email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                                <input type="email" 
-                                       class="form-control" 
-                                       id="customer_email" 
-                                       name="customer_email" 
-                                       value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
-                                       required>
-                                <small class="form-text text-muted">We'll send your login credentials here</small>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="customer_phone" class="form-label">WhatsApp Number <span class="text-danger">*</span></label>
-                                <input type="tel" 
-                                       class="form-control" 
-                                       id="customer_phone" 
-                                       name="customer_phone" 
-                                       value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
-                                       placeholder="+234..." 
-                                       required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="business_name" class="form-label">Business Name <span class="text-danger">*</span></label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="business_name" 
-                                       name="business_name" 
-                                       value="<?php echo htmlspecialchars($_POST['business_name'] ?? ''); ?>" 
-                                       required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="chosen_domain" class="form-label">Choose Your Domain <span class="text-danger">*</span></label>
-                                <select class="form-select" id="chosen_domain" name="chosen_domain" required>
-                                    <option value="">Select a domain...</option>
-                                    <?php foreach ($availableDomains as $domain): ?>
-                                    <option value="<?php echo $domain['id']; ?>" 
-                                            <?php echo (isset($_POST['chosen_domain']) && $_POST['chosen_domain'] == $domain['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($domain['domain_name']); ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <small class="form-text text-muted"><?php echo count($availableDomains); ?> domain(s) available</small>
-                            </div>
-                            
-                            <?php if (!empty($customFields)): ?>
-                            <hr>
-                            <h5>Additional Information</h5>
-                            <?php foreach ($customFields as $field): ?>
-                            <div class="mb-3">
-                                <label for="custom_<?php echo htmlspecialchars($field['name']); ?>" class="form-label">
-                                    <?php echo htmlspecialchars($field['label']); ?>
-                                    <?php if (!empty($field['required'])): ?>
-                                    <span class="text-danger">*</span>
-                                    <?php endif; ?>
-                                </label>
-                                
-                                <?php if ($field['type'] === 'textarea'): ?>
-                                <textarea class="form-control" 
-                                          id="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                          name="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                          rows="3" 
-                                          <?php echo !empty($field['required']) ? 'required' : ''; ?>><?php echo htmlspecialchars($_POST['custom_' . $field['name']] ?? ''); ?></textarea>
-                                <?php else: ?>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                       name="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                       value="<?php echo htmlspecialchars($_POST['custom_' . $field['name']] ?? ''); ?>" 
-                                       <?php echo !empty($field['required']) ? 'required' : ''; ?>>
-                                <?php endif; ?>
-                                
-                                <?php if (!empty($field['description'])): ?>
-                                <small class="form-text text-muted"><?php echo htmlspecialchars($field['description']); ?></small>
-                                <?php endif; ?>
-                            </div>
-                            <?php endforeach; ?>
-                            <?php endif; ?>
-                            
-                            <hr>
-                            <div class="bg-light p-3 rounded mb-3">
-                                <h5>Order Summary</h5>
-                                <div class="d-flex justify-content-between">
-                                    <span>Template:</span>
-                                    <strong><?php echo htmlspecialchars($template['name']); ?></strong>
-                                </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <span>Price:</span>
-                                    <strong class="text-primary"><?php echo formatCurrency($template['price']); ?></strong>
-                                </div>
-                            </div>
-                            
-                            <div class="alert alert-info">
-                                <strong>Next Steps:</strong><br>
-                                1. Click "Continue to WhatsApp" below<br>
-                                2. You'll be redirected to WhatsApp with your order details pre-filled<br>
-                                3. Send the message to complete your order<br>
-                                4. Make payment via bank transfer (details will be provided)<br>
-                                5. Receive your website login credentials via email within 24 hours of payment confirmation
-                            </div>
-                            
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    <i class="bi bi-whatsapp"></i> Continue to WhatsApp
-                                </button>
-                            </div>
-                        </form>
-                        <?php endif; ?>
+                        <hr>
                         
-                        <div class="mt-3 text-center">
-                            <a href="index.php" class="btn btn-link">← Back to Templates</a>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Template Price:</span>
+                            <strong><?php echo formatCurrency($template['price']); ?></strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Domain:</span>
+                            <strong>Included</strong>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-0">
+                            <h5 class="fw-bold mb-0">Total:</h5>
+                            <h4 class="text-primary fw-bold mb-0"><?php echo formatCurrency($template['price']); ?></h4>
                         </div>
                     </div>
                 </div>
@@ -401,10 +482,17 @@ $pageTitle = 'Order ' . htmlspecialchars($template['name']);
 
     <footer class="bg-dark text-white py-4 mt-5">
         <div class="container text-center">
-            <p class="mb-0">&copy; <?php echo date('Y'); ?> Template Marketplace. All rights reserved.</p>
+            <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('orderForm')?.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+        });
+    </script>
 </body>
 </html>
