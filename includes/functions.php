@@ -154,7 +154,7 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
 {
     $db = getDb();
     
-    $db->begin_transaction();
+    $db->beginTransaction();
     
     try {
         $order = getOrderById($orderId);
@@ -163,8 +163,7 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         }
         
         $stmt = $db->prepare("UPDATE pending_orders SET status = 'paid' WHERE id = ?");
-        $stmt->bind_param('i', $orderId);
-        $stmt->execute();
+        $stmt->execute([$orderId]);
         
         $commissionAmount = 0;
         $affiliateId = null;
@@ -184,13 +183,12 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_notes)
             VALUES (?, ?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param('iiddis', $orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes);
-        $stmt->execute();
+        $stmt->execute([$orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes]);
         
         $db->commit();
         return true;
     } catch (Exception $e) {
-        $db->rollback();
+        $db->rollBack();
         error_log('Error marking order paid: ' . $e->getMessage());
         return false;
     }

@@ -20,14 +20,17 @@ class Database
             
             if ($databaseUrl && strpos($databaseUrl, 'postgresql://') === 0) {
                 $parsedUrl = parse_url($databaseUrl);
-                parse_str($parsedUrl['query'] ?? '', $params);
+                $queryParams = [];
+                if (isset($parsedUrl['query'])) {
+                    parse_str($parsedUrl['query'], $queryParams);
+                }
                 
                 $dsn = sprintf(
                     'pgsql:host=%s;port=%d;dbname=%s;sslmode=%s',
                     $parsedUrl['host'],
                     $parsedUrl['port'] ?? 5432,
                     ltrim($parsedUrl['path'], '/'),
-                    $params['sslmode'] ?? 'prefer'
+                    $queryParams['sslmode'] ?? 'prefer'
                 );
                 
                 $this->connection = new PDO(
