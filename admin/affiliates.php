@@ -567,4 +567,35 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 <?php endif; ?>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if ($successMessage): ?>
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+        if (bootstrapModal) {
+            bootstrapModal.hide();
+        }
+    });
+    
+    setTimeout(function() {
+        if (window.location.href.indexOf('?') > -1 || window.location.href.indexOf('&') > -1) {
+            window.location.href = '/admin/affiliates.php';
+        }
+    }, 100);
+    <?php endif; ?>
+    
+    const forms = document.querySelectorAll('.modal form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            }
+        });
+    });
+});
+</script>
+
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

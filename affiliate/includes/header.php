@@ -85,6 +85,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>" href="/affiliate/settings.php">
+                                <i class="bi bi-gear"></i> Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="/affiliate/logout.php">
                                 <i class="bi bi-box-arrow-right"></i> Logout
                             </a>

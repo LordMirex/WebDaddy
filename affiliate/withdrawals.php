@@ -22,18 +22,33 @@ $affiliateId = getAffiliateId();
 $error = '';
 $success = '';
 
+$stmt = $db->prepare("SELECT bank_details FROM users WHERE id = ?");
+$stmt->execute([$_SESSION['affiliate_user_id']]);
+$userBankInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+$savedBankDetails = null;
+if (!empty($userBankInfo['bank_details'])) {
+    $savedBankDetails = json_decode($userBankInfo['bank_details'], true);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_withdrawal'])) {
     $amount = floatval($_POST['amount'] ?? 0);
-    $bankName = sanitizeInput($_POST['bank_name'] ?? '');
-    $accountNumber = sanitizeInput($_POST['account_number'] ?? '');
-    $accountName = sanitizeInput($_POST['account_name'] ?? '');
+    
+    if ($savedBankDetails) {
+        $bankName = $savedBankDetails['bank_name'];
+        $accountNumber = $savedBankDetails['account_number'];
+        $accountName = $savedBankDetails['account_name'];
+    } else {
+        $bankName = sanitizeInput($_POST['bank_name'] ?? '');
+        $accountNumber = sanitizeInput($_POST['account_number'] ?? '');
+        $accountName = sanitizeInput($_POST['account_name'] ?? '');
+    }
     
     if ($amount <= 0) {
         $error = 'Please enter a valid amount.';
     } elseif ($amount > $affiliateInfo['commission_pending']) {
         $error = 'Insufficient balance. Available: ' . formatCurrency($affiliateInfo['commission_pending']);
     } elseif (empty($bankName) || empty($accountNumber) || empty($accountName)) {
-        $error = 'Please fill in all bank details.';
+        $error = 'Please fill in all bank details or save them in your settings.';
     } else {
         $bankDetails = json_encode([
             'bank_name' => $bankName,
@@ -146,69 +161,117 @@ require_once __DIR__ . '/includes/header.php';
                         <i class="bi bi-info-circle"></i> You don't have any pending commission available for withdrawal.
                     </div>
                 <?php else: ?>
+                    <?php if ($savedBankDetails): ?>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i> <strong>Bank details loaded from settings!</strong><br>
+                            <small>Payment will be sent to: <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?> - <?php echo htmlspecialchars($savedBankDetails['account_number']); ?></small>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>No saved bank details</strong><br>
+                            <small>
+                                You can <a href="/affiliate/settings.php" class="alert-link">save your bank details in settings</a> 
+                                to make future withdrawals faster!
+                            </small>
+                        </div>
+                    <?php endif; ?>
+                    
                     <form method="POST" action="">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="amount" class="form-label">
-                                        <i class="bi bi-currency-exchange"></i> Withdrawal Amount
-                                    </label>
-                                    <input type="number" 
-                                           class="form-control" 
-                                           id="amount" 
-                                           name="amount" 
-                                           step="0.01"
-                                           max="<?php echo $affiliateInfo['commission_pending']; ?>"
-                                           placeholder="Enter amount"
-                                           value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
-                                           required>
-                                    <small class="text-muted">
-                                        Available: <?php echo formatCurrency($affiliateInfo['commission_pending']); ?>
-                                    </small>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="bank_name" class="form-label">
-                                        <i class="bi bi-bank"></i> Bank Name
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="bank_name" 
-                                           name="bank_name" 
-                                           placeholder="e.g., First Bank"
-                                           value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
-                                           required>
-                                </div>
+                        <?php if ($savedBankDetails): ?>
+                            <div class="mb-4">
+                                <label for="amount" class="form-label fs-5">
+                                    <i class="bi bi-currency-exchange"></i> How much would you like to withdraw?
+                                </label>
+                                <input type="number" 
+                                       class="form-control form-control-lg" 
+                                       id="amount" 
+                                       name="amount" 
+                                       step="0.01"
+                                       max="<?php echo $affiliateInfo['commission_pending']; ?>"
+                                       placeholder="Enter amount to withdraw"
+                                       value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
+                                       required
+                                       autofocus>
+                                <small class="text-muted">
+                                    Available balance: <strong><?php echo formatCurrency($affiliateInfo['commission_pending']); ?></strong>
+                                </small>
                             </div>
                             
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="account_number" class="form-label">
-                                        <i class="bi bi-credit-card"></i> Account Number
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="account_number" 
-                                           name="account_number" 
-                                           placeholder="Enter account number"
-                                           value="<?php echo htmlspecialchars($_POST['account_number'] ?? ''); ?>"
-                                           required>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="account_name" class="form-label">
-                                        <i class="bi bi-person"></i> Account Name
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="account_name" 
-                                           name="account_name" 
-                                           placeholder="Enter account name"
-                                           value="<?php echo htmlspecialchars($_POST['account_name'] ?? ''); ?>"
-                                           required>
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Payment will be sent to:</h6>
+                                    <p class="mb-1"><strong>Bank:</strong> <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?></p>
+                                    <p class="mb-1"><strong>Account Number:</strong> <?php echo htmlspecialchars($savedBankDetails['account_number']); ?></p>
+                                    <p class="mb-0"><strong>Account Name:</strong> <?php echo htmlspecialchars($savedBankDetails['account_name']); ?></p>
+                                    <small class="text-muted">
+                                        <a href="/affiliate/settings.php">Change bank details</a>
+                                    </small>
                                 </div>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">
+                                            <i class="bi bi-currency-exchange"></i> Withdrawal Amount
+                                        </label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="amount" 
+                                               name="amount" 
+                                               step="0.01"
+                                               max="<?php echo $affiliateInfo['commission_pending']; ?>"
+                                               placeholder="Enter amount"
+                                               value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
+                                               required>
+                                        <small class="text-muted">
+                                            Available: <?php echo formatCurrency($affiliateInfo['commission_pending']); ?>
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="bank_name" class="form-label">
+                                            <i class="bi bi-bank"></i> Bank Name
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="bank_name" 
+                                               name="bank_name" 
+                                               placeholder="e.g., First Bank"
+                                               value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
+                                               required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="account_number" class="form-label">
+                                            <i class="bi bi-credit-card"></i> Account Number
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="account_number" 
+                                               name="account_number" 
+                                               placeholder="Enter account number"
+                                               value="<?php echo htmlspecialchars($_POST['account_number'] ?? ''); ?>"
+                                               required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="account_name" class="form-label">
+                                            <i class="bi bi-person"></i> Account Name
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="account_name" 
+                                               name="account_name" 
+                                               placeholder="Enter account name"
+                                               value="<?php echo htmlspecialchars($_POST['account_name'] ?? ''); ?>"
+                                               required>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                         
                         <div class="d-grid">
                             <button type="submit" name="request_withdrawal" class="btn btn-primary btn-lg">
