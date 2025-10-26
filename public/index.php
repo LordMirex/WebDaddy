@@ -18,15 +18,20 @@ $affiliateCode = getAffiliateCode();
     <title><?php echo SITE_NAME; ?> - Launch Your Business Website in Minutes</title>
     <meta name="description" content="Professional, pre-built website templates with domains included. Get your business online fast with our ready-to-use templates.">
     
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top" id="mainNav">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="height: 50px; margin-right: 10px;">
+                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="height: 50px; margin-right: 10px;" onerror="this.style.display='none'">
                 <span style="color: var(--royal-blue);"><?php echo SITE_NAME; ?></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -39,6 +44,9 @@ $affiliateCode = getAffiliateCode();
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fw-semibold" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#testimonials">Testimonials</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fw-semibold" href="#faq">FAQ</a>
@@ -56,7 +64,7 @@ $affiliateCode = getAffiliateCode();
             <div class="row align-items-center">
                 <div class="col-lg-10 mx-auto text-center">
                     <?php if ($affiliateCode): ?>
-                    <div class="alert alert-light border-0 d-inline-block mb-4" style="background: rgba(255,255,255,0.2); color: white;">
+                    <div class="alert alert-light border-0 d-inline-block mb-4 glassmorphism" style="color: white;">
                         <i class="bi bi-gift-fill me-2"></i>
                         <strong>Special Offer:</strong> Affiliate discount applied with code <?php echo htmlspecialchars($affiliateCode); ?>
                     </div>
@@ -66,11 +74,11 @@ $affiliateCode = getAffiliateCode();
                         Skip the hassle of building from scratch. Get a professional, fully-functional website with a premium domain included.
                         Perfect for businesses ready to go online today.
                     </p>
-                    <div class="d-flex gap-3 justify-content-center flex-wrap">
-                        <a href="#templates" class="btn btn-light btn-lg px-5 py-3 fw-bold">
+                    <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+                        <a href="#templates" class="btn btn-light btn-lg px-5">
                             <i class="bi bi-grid-3x3-gap me-2"></i>Browse Templates
                         </a>
-                        <a href="#how-it-works" class="btn btn-outline-light btn-lg px-5 py-3 fw-semibold">
+                        <a href="#how-it-works" class="btn btn-outline-light btn-lg px-5">
                             Learn More
                         </a>
                     </div>
@@ -78,20 +86,20 @@ $affiliateCode = getAffiliateCode();
                         <div class="row g-4 text-center">
                             <div class="col-md-4">
                                 <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-check-circle-fill text-white me-2" style="font-size: 1.5rem;"></i>
-                                    <span class="fs-5">Domain Included</span>
+                                    <i class="bi bi-check-circle-fill me-2" style="font-size: 1.75rem; color: var(--gold-color);"></i>
+                                    <span class="fs-5 fw-semibold">Domain Included</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-check-circle-fill text-white me-2" style="font-size: 1.5rem;"></i>
-                                    <span class="fs-5">Ready in 24 Hours</span>
+                                    <i class="bi bi-check-circle-fill me-2" style="font-size: 1.75rem; color: var(--gold-color);"></i>
+                                    <span class="fs-5 fw-semibold">Ready in 24 Hours</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-check-circle-fill text-white me-2" style="font-size: 1.5rem;"></i>
-                                    <span class="fs-5">Full Customization</span>
+                                    <i class="bi bi-check-circle-fill me-2" style="font-size: 1.75rem; color: var(--gold-color);"></i>
+                                    <span class="fs-5 fw-semibold">Full Customization</span>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +109,38 @@ $affiliateCode = getAffiliateCode();
         </div>
     </header>
 
-    <section class="py-5 bg-light" id="how-it-works">
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="p-4">
+                        <h2 class="display-4 fw-bold gradient-text counter" data-target="500">0</h2>
+                        <p class="text-muted fw-semibold">Happy Clients</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4">
+                        <h2 class="display-4 fw-bold gradient-text counter" data-target="<?php echo count($templates); ?>">0</h2>
+                        <p class="text-muted fw-semibold">Premium Templates</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4">
+                        <h2 class="display-4 fw-bold gradient-text counter" data-target="24">0</h2>
+                        <p class="text-muted fw-semibold">Hours Setup Time</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4">
+                        <h2 class="display-4 fw-bold gradient-text counter" data-target="100">0</h2>
+                        <p class="text-muted fw-semibold">Satisfaction Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light scroll-reveal" id="how-it-works">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center mb-5">
@@ -111,10 +150,10 @@ $affiliateCode = getAffiliateCode();
             </div>
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                    <div class="card border-0 shadow-premium h-100 text-center p-4 hover-lift">
                         <div class="card-body">
-                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                <i class="bi bi-1-circle-fill text-primary" style="font-size: 2.5rem;"></i>
+                            <div class="feature-icon">
+                                <i class="bi bi-1-circle-fill"></i>
                             </div>
                             <h3 class="h4 fw-bold mb-3">Choose Your Template</h3>
                             <p class="text-muted">Browse our collection of professional templates and select the one that fits your business perfectly.</p>
@@ -122,10 +161,10 @@ $affiliateCode = getAffiliateCode();
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                    <div class="card border-0 shadow-premium h-100 text-center p-4 hover-lift">
                         <div class="card-body">
-                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                <i class="bi bi-2-circle-fill text-primary" style="font-size: 2.5rem;"></i>
+                            <div class="feature-icon">
+                                <i class="bi bi-2-circle-fill"></i>
                             </div>
                             <h3 class="h4 fw-bold mb-3">Select Your Domain</h3>
                             <p class="text-muted">Pick from our available premium domains or request a custom domain for your brand.</p>
@@ -133,10 +172,10 @@ $affiliateCode = getAffiliateCode();
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100 text-center p-4">
+                    <div class="card border-0 shadow-premium h-100 text-center p-4 hover-lift">
                         <div class="card-body">
-                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                                <i class="bi bi-3-circle-fill text-primary" style="font-size: 2.5rem;"></i>
+                            <div class="feature-icon">
+                                <i class="bi bi-3-circle-fill"></i>
                             </div>
                             <h3 class="h4 fw-bold mb-3">Launch & Customize</h3>
                             <p class="text-muted">Receive your login credentials and start customizing your site with your content, brand colors, and images.</p>
@@ -147,7 +186,7 @@ $affiliateCode = getAffiliateCode();
         </div>
     </section>
 
-    <section class="py-5 bg-white" id="templates">
+    <section class="py-5 bg-white scroll-reveal" id="templates">
         <div class="container">
             <div class="row mb-5">
                 <div class="col-lg-8 mx-auto text-center">
@@ -173,9 +212,8 @@ $affiliateCode = getAffiliateCode();
                 ?>
                 <div class="col-md-6 col-lg-4">
                     <div class="card template-card h-100">
-                        <div class="position-relative">
+                        <div class="template-card-img-wrapper">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
-                                 class="card-img-top" 
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): ?>
@@ -230,7 +268,7 @@ $affiliateCode = getAffiliateCode();
         </div>
     </section>
 
-    <section class="py-5 bg-light" id="features">
+    <section class="py-5 bg-light scroll-reveal" id="features">
         <div class="container">
             <div class="row mb-5">
                 <div class="col-lg-8 mx-auto text-center">
@@ -241,8 +279,8 @@ $affiliateCode = getAffiliateCode();
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
                     <div class="text-center">
-                        <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 70px; height: 70px;">
-                            <i class="bi bi-lightning-charge-fill text-primary" style="font-size: 2rem;"></i>
+                        <div class="feature-icon">
+                            <i class="bi bi-lightning-charge-fill"></i>
                         </div>
                         <h4 class="fw-bold">Fast Setup</h4>
                         <p class="text-muted">Get your website live within 24 hours of payment confirmation</p>
@@ -250,8 +288,8 @@ $affiliateCode = getAffiliateCode();
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="text-center">
-                        <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 70px; height: 70px;">
-                            <i class="bi bi-phone-fill text-primary" style="font-size: 2rem;"></i>
+                        <div class="feature-icon">
+                            <i class="bi bi-phone-fill"></i>
                         </div>
                         <h4 class="fw-bold">Mobile Ready</h4>
                         <p class="text-muted">All templates are fully responsive and mobile-optimized</p>
@@ -259,8 +297,8 @@ $affiliateCode = getAffiliateCode();
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="text-center">
-                        <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 70px; height: 70px;">
-                            <i class="bi bi-shield-check text-primary" style="font-size: 2rem;"></i>
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-check"></i>
                         </div>
                         <h4 class="fw-bold">Secure & Reliable</h4>
                         <p class="text-muted">Built with security best practices and reliable hosting</p>
@@ -268,8 +306,8 @@ $affiliateCode = getAffiliateCode();
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="text-center">
-                        <div class="rounded-circle bg-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 70px; height: 70px;">
-                            <i class="bi bi-headset text-primary" style="font-size: 2rem;"></i>
+                        <div class="feature-icon">
+                            <i class="bi bi-headset"></i>
                         </div>
                         <h4 class="fw-bold">24/7 Support</h4>
                         <p class="text-muted">Get help anytime via WhatsApp or email support</p>
@@ -279,7 +317,89 @@ $affiliateCode = getAffiliateCode();
         </div>
     </section>
 
-    <section class="py-5 bg-white" id="faq">
+    <section class="py-5 bg-white scroll-reveal" id="testimonials">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 fw-bold mb-3">What Our Clients Say</h2>
+                    <p class="lead text-muted">Join hundreds of satisfied customers</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-premium h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                            </div>
+                            <p class="mb-4">"WebDaddy Empire made launching my online store so easy! The template was perfect and the setup was incredibly fast."</p>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <strong>AO</strong>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Adewale Okonkwo</h6>
+                                    <small class="text-muted">E-commerce Business Owner</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-premium h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                            </div>
+                            <p class="mb-4">"Professional service and beautiful templates. My portfolio website looks amazing and I got it in less than 24 hours!"</p>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <strong>CN</strong>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Chioma Nwosu</h6>
+                                    <small class="text-muted">Creative Designer</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-premium h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                                <i class="bi bi-star-fill text-warning"></i>
+                            </div>
+                            <p class="mb-4">"Best investment for my business. The support team was very helpful and the website performs flawlessly."</p>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                    <strong>EB</strong>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Emeka Balogun</h6>
+                                    <small class="text-muted">Startup Founder</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light scroll-reveal" id="faq">
         <div class="container">
             <div class="row mb-5">
                 <div class="col-lg-8 mx-auto text-center">
@@ -344,19 +464,81 @@ $affiliateCode = getAffiliateCode();
         </div>
     </section>
 
-    <section class="py-5 bg-primary text-white">
+    <section class="py-5 bg-gradient-primary text-white">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-8 mx-auto text-center">
                     <h2 class="display-5 fw-bold mb-4">Ready to Launch Your Website?</h2>
                     <p class="lead mb-4">Join hundreds of businesses that trust us with their online presence</p>
-                    <a href="#templates" class="btn btn-light btn-lg px-5 py-3 fw-bold">
-                        Get Started Now
+                    <a href="#templates" class="btn btn-light btn-lg px-5">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
                     </a>
                 </div>
             </div>
         </div>
     </section>
+
+    <footer class="premium-footer">
+        <div class="container">
+            <div class="row g-5 mb-5">
+                <div class="col-md-4">
+                    <h5 class="mb-4">
+                        <i class="bi bi-lightning-charge-fill me-2"></i><?php echo SITE_NAME; ?>
+                    </h5>
+                    <p class="text-white-50 mb-4">Professional website templates with domains included. Launch your business online in minutes with our premium solutions.</p>
+                    <div class="social-icons">
+                        <a href="#" class="text-white"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="mb-4">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><a href="#templates" class="d-inline-block">Templates</a></li>
+                        <li class="mb-3"><a href="#how-it-works" class="d-inline-block">How It Works</a></li>
+                        <li class="mb-3"><a href="#testimonials" class="d-inline-block">Testimonials</a></li>
+                        <li class="mb-3"><a href="#faq" class="d-inline-block">FAQ</a></li>
+                        <li class="mb-3"><a href="/affiliate/" class="d-inline-block">Become an Affiliate</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="mb-4">Contact</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-whatsapp me-2"></i>
+                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="d-inline-block">
+                                <?php echo WHATSAPP_NUMBER; ?>
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-envelope me-2"></i>
+                            <a href="mailto:info@webdaddyempire.com" class="d-inline-block">Contact Us</a>
+                        </li>
+                        <li class="mb-3"><a href="/admin/login.php" class="d-inline-block">Admin Login</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="mb-4">Trust & Security</h5>
+                    <div class="trust-badge">
+                        <i class="bi bi-shield-check me-2"></i>
+                        Secure
+                    </div>
+                    <div class="trust-badge">
+                        <i class="bi bi-lock-fill me-2"></i>
+                        SSL
+                    </div>
+                </div>
+            </div>
+            <hr class="border-secondary opacity-25 my-4">
+            <div class="row">
+                <div class="col-12 text-center text-white-50">
+                    <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved. Built with excellence.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">
@@ -372,57 +554,67 @@ $affiliateCode = getAffiliateCode();
         </div>
     </div>
 
-    <footer class="bg-dark text-white py-5 mt-5">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <h5 class="fw-bold mb-3">
-                        <i class="bi bi-lightning-charge-fill me-2"></i><?php echo SITE_NAME; ?>
-                    </h5>
-                    <p class="text-white-50">Professional website templates with domains included. Launch your business online in minutes.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5 class="fw-bold mb-3">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#templates" class="text-white-50 text-decoration-none">Templates</a></li>
-                        <li class="mb-2"><a href="#how-it-works" class="text-white-50 text-decoration-none">How It Works</a></li>
-                        <li class="mb-2"><a href="#faq" class="text-white-50 text-decoration-none">FAQ</a></li>
-                        <li class="mb-2"><a href="/affiliate/" class="text-white-50 text-decoration-none">Become an Affiliate</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5 class="fw-bold mb-3">Contact</h5>
-                    <ul class="list-unstyled text-white-50">
-                        <li class="mb-2">
-                            <i class="bi bi-whatsapp me-2"></i>
-                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="text-white-50 text-decoration-none">
-                                <?php echo WHATSAPP_NUMBER; ?>
-                            </a>
-                        </li>
-                        <li class="mb-2"><a href="/admin/login.php" class="text-white-50 text-decoration-none">Admin Login</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="border-white-50 my-4">
-            <div class="row">
-                <div class="col-12 text-center text-white-50">
-                    <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        window.addEventListener('load', function() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+            }, 500);
+        });
+
+        const navbar = document.getElementById('mainNav');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        scrollRevealElements.forEach(el => revealObserver.observe(el));
+
+        const counters = document.querySelectorAll('.counter');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = +counter.getAttribute('data-target');
+                    const increment = target / 100;
+                    let current = 0;
+                    
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            counter.textContent = Math.ceil(current);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+                    
+                    updateCounter();
+                    counterObserver.unobserve(counter);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => counterObserver.observe(counter));
+
         function openDemo(url, title) {
             document.getElementById('demoModalLabel').textContent = title + ' - Demo';
             document.getElementById('demoIframe').src = url;
             new bootstrap.Modal(document.getElementById('demoModal')).show();
         }
-
-        document.getElementById('demoModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('demoIframe').src = '';
-        });
 
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
