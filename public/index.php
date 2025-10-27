@@ -76,7 +76,7 @@ $affiliateCode = getAffiliateCode();
                             Full Customization
                         </span>
                     </div>
-                    <a href="#templates" class="btn btn-light btn-lg px-5 fw-600">
+                    <a href="#templates" class="btn btn-light px-4 fw-600">
                         <i class="bi bi-arrow-down me-2"></i>Explore Templates
                     </a>
                 </div>
@@ -105,10 +105,8 @@ $affiliateCode = getAffiliateCode();
                 </div>
             </div>
             <?php else: ?>
-            <div class="row g-4">
-                <?php foreach ($templates as $template): 
-                    $features = $template['features'] ? explode(',', $template['features']) : [];
-                ?>
+            <div class="row g-3">
+                <?php foreach ($templates as $template): ?>
                 <div class="col-md-6 col-lg-4">
                     <div class="template-card">
                         <div class="template-card-img">
@@ -116,41 +114,27 @@ $affiliateCode = getAffiliateCode();
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): ?>
-                            <button class="btn-preview" onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')">
-                                <i class="bi bi-eye"></i> Preview
-                            </button>
+                            <div class="preview-overlay">
+                                <button class="btn-preview" onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')">
+                                    <i class="bi bi-eye"></i> Preview Demo
+                                </button>
+                            </div>
                             <?php endif; ?>
                         </div>
                         <div class="template-card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h3 class="h5 fw-700 mb-0"><?php echo htmlspecialchars($template['name']); ?></h3>
-                                <span class="badge bg-primary-light text-primary"><?php echo htmlspecialchars($template['category']); ?></span>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h3 class="h6 fw-700 mb-0"><?php echo htmlspecialchars($template['name']); ?></h3>
+                                <span class="badge-cat"><?php echo htmlspecialchars($template['category']); ?></span>
                             </div>
-                            <p class="text-muted small mb-3">
-                                <?php echo htmlspecialchars($template['description'] ?? ''); ?>
-                            </p>
-                            <?php if (!empty($features) && count($features) > 0): ?>
-                            <ul class="features-list small mb-4">
-                                <?php foreach (array_slice($features, 0, 3) as $feature): ?>
-                                <li>
-                                    <i class="bi bi-check-circle-fill text-success"></i>
-                                    <?php echo htmlspecialchars(trim($feature)); ?>
-                                </li>
-                                <?php endforeach; ?>
-                            </ul>
-                            <?php endif; ?>
-                            <div class="card-footer-custom">
-                                <div>
-                                    <small class="text-muted d-block">Starting at</small>
-                                    <h4 class="price mb-0"><?php echo formatCurrency($template['price']); ?></h4>
-                                </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price-tag"><?php echo formatCurrency($template['price']); ?></div>
                                 <div class="btn-group-custom">
                                     <a href="template.php?id=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
-                                       class="btn btn-outline-primary btn-sm">
-                                        Details
+                                       class="btn-compact btn-outline">
+                                        View
                                     </a>
                                     <a href="order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
-                                       class="btn btn-primary btn-sm">
+                                       class="btn-compact btn-solid">
                                         Order
                                     </a>
                                 </div>
@@ -272,7 +256,7 @@ $affiliateCode = getAffiliateCode();
                 <div class="col-lg-8 mx-auto text-center">
                     <h2 class="h2 fw-800 mb-3">Ready to Launch Your Website?</h2>
                     <p class="fs-5 mb-4 text-white-80">Join hundreds of businesses that trust us with their online presence</p>
-                    <a href="#templates" class="btn btn-light btn-lg px-5 fw-600">
+                    <a href="#templates" class="btn btn-light px-4 fw-600">
                         <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
                     </a>
                 </div>
