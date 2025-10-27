@@ -27,28 +27,28 @@ $affiliateCode = getAffiliateCode();
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top" id="mainNav">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="height: 45px; margin-right: 12px;" onerror="this.style.display='none'">
-                <span style="color: var(--royal-blue);"><?php echo SITE_NAME; ?></span>
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" class="navbar-logo" onerror="this.style.display='none'">
+                <span class="brand-text"><?php echo SITE_NAME; ?></span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-lg-center">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link fw-600" href="#templates">Templates</a>
+                        <a class="nav-link" href="#templates">Templates</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-600" href="#how-it-works">How It Works</a>
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-600" href="#faq">FAQ</a>
+                        <a class="nav-link" href="#faq">FAQ</a>
                     </li>
-                    <li class="nav-item ms-lg-3">
-                        <a class="btn btn-primary btn-sm px-4" href="/affiliate/">Become an Affiliate</a>
+                    <li class="nav-item">
+                        <a class="nav-link nav-cta" href="/affiliate/">Become an Affiliate</a>
                     </li>
                 </ul>
             </div>
@@ -114,18 +114,17 @@ $affiliateCode = getAffiliateCode();
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): ?>
-                            <div class="preview-overlay">
-                                <button class="btn-preview" onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')">
-                                    <i class="bi bi-eye"></i> Preview Demo
-                                </button>
-                            </div>
+                            <button class="btn-preview" onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')">
+                                <i class="bi bi-eye"></i>
+                            </button>
                             <?php endif; ?>
                         </div>
                         <div class="template-card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h3 class="h6 fw-700 mb-0"><?php echo htmlspecialchars($template['name']); ?></h3>
                                 <span class="badge-cat"><?php echo htmlspecialchars($template['category']); ?></span>
                             </div>
+                            <p class="text-muted small mb-3 template-desc"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="price-tag"><?php echo formatCurrency($template['price']); ?></div>
                                 <div class="btn-group-custom">
