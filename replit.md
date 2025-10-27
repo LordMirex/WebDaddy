@@ -69,9 +69,11 @@
   - Buttons: Compact design showing "View" and "Order"
 - **Preview Button - Always Visible & Accessible:**
   - **Fixed:** No longer hidden behind hover overlay (bad for mobile/touch)
-  - Now a circular icon button in top-right corner
+  - Positioned in top-right corner of template image
   - Always visible on all devices
-  - Just shows eye icon (clean and recognizable)
+  - Shows eye icon + "Preview Demo" text (clear and descriptive)
+  - Semi-transparent white background with shadow for visibility
+  - Responsive: Adjusts font size on mobile (0.8rem)
   - Works perfectly on mobile/touch devices
 - **Navigation - Professional & Consistent:**
   - Clean, minimal design

@@ -115,7 +115,7 @@ $affiliateCode = getAffiliateCode();
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): ?>
                             <button class="btn-preview" onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')">
-                                <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye me-1"></i> Preview Demo
                             </button>
                             <?php endif; ?>
                         </div>
