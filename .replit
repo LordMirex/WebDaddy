@@ -1,4 +1,4 @@
-modules = ["php-8.2", "postgresql-16", "python-3.11"]
+modules = ["php-8.2", "web", "postgresql-16"]
 [agent]
 expertMode = true
 
@@ -35,10 +35,6 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 35371
-externalPort = 5000
-
-[[ports]]
 localPort = 35701
 externalPort = 3001
 
@@ -61,3 +57,7 @@ externalPort = 3000
 [[ports]]
 localPort = 41869
 externalPort = 6000
+
+[[ports]]
+localPort = 43419
+externalPort = 5000
