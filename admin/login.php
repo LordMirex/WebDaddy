@@ -56,6 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <?php endif; ?>
                             
+                            <div class="alert alert-info" role="alert">
+                                <i class="bi bi-info-circle"></i> <strong>Default Admin Credentials:</strong><br>
+                                <small>
+                                    <strong>Email:</strong> admin@example.com<br>
+                                    <strong>Password:</strong> admin123
+                                </small>
+                            </div>
+                            
                             <form method="POST" action="">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>
