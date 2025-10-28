@@ -185,7 +185,7 @@ INSERT INTO settings (setting_key, setting_value) VALUES
 
 -- Insert Default Admin User (password: admin123 - CHANGE IN PRODUCTION!)
 INSERT INTO users (name, email, phone, password_hash, role) VALUES
-('Admin User', 'admin@example.com', '08012345678', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+('Admin User', 'admin@example.com', '08012345678', '$2y$10$0pQ/10kvKYTQuZ.zKAPF2OWo4YPzDs472F3r.L/8gUvY04IAfivAe', 'admin');
 
 -- Insert Sample Templates
 INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, active) VALUES
