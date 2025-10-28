@@ -1054,7 +1054,7 @@ h6 {
 }
 
 .stat-card .card-body {
-  padding: 1.5rem;
+  padding: 1.25rem;
 }
 
 .stat-card h6 {
@@ -1073,8 +1073,8 @@ h6 {
 }
 
 .stat-card .stat-number {
-  font-size: 2rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--primary-color);
   line-height: 1;
   margin-bottom: 0.5rem;
