@@ -40,8 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active]);
-                        $successMessage = 'Template added successfully!';
+                        $_SESSION['success_message'] = 'Template added successfully!';
                         logActivity('template_created', "Template created: $name", getAdminId());
+                        header('Location: ' . $_SERVER['PHP_SELF']);
+                        exit;
                     } else {
                         $id = intval($_POST['id']);
                         $stmt = $db->prepare("
@@ -50,8 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             WHERE id = ?
                         ");
                         $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active, $id]);
-                        $successMessage = 'Template updated successfully!';
+                        $_SESSION['success_message'] = 'Template updated successfully!';
                         logActivity('template_updated', "Template updated: $name", getAdminId());
+                        header('Location: ' . $_SERVER['PHP_SELF']);
+                        exit;
                     }
                 } catch (PDOException $e) {
                     $errorMessage = 'Database error: ' . $e->getMessage();
@@ -63,8 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $template = getTemplateById($id);
                 $stmt = $db->prepare("DELETE FROM templates WHERE id = ?");
                 $stmt->execute([$id]);
-                $successMessage = 'Template deleted successfully!';
+                $_SESSION['success_message'] = 'Template deleted successfully!';
                 logActivity('template_deleted', "Template deleted: " . ($template['name'] ?? $id), getAdminId());
+                header('Location: ' . $_SERVER['PHP_SELF']);
+                exit;
             } catch (PDOException $e) {
                 $errorMessage = 'Cannot delete template: ' . $e->getMessage();
             }
@@ -73,12 +79,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $db->prepare("UPDATE templates SET active = CASE WHEN active = true THEN false ELSE true END WHERE id = ?");
                 $stmt->execute([$id]);
-                $successMessage = 'Template status updated!';
+                $_SESSION['success_message'] = 'Template status updated!';
+                header('Location: ' . $_SERVER['PHP_SELF']);
+                exit;
             } catch (PDOException $e) {
                 $errorMessage = 'Database error: ' . $e->getMessage();
             }
         }
     }
+}
+
+// Get success message from session
+if (isset($_SESSION['success_message'])) {
+    $successMessage = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
 }
 
 $searchTerm = $_GET['search'] ?? '';
