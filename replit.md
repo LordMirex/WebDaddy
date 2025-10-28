@@ -13,14 +13,16 @@ WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace design
 
 ## Recent Changes
 
-### October 28, 2025 - Project Import to Replit Environment
+### October 28, 2025 - Project Import to Replit Environment & Admin Login Fix
 - **Environment Setup:** Successfully migrated project to Replit environment
 - **PHP Installation:** Installed PHP 8.2 module with Composer package manager
 - **PostgreSQL Database:** Created and configured PostgreSQL database with full schema
 - **Database Tables:** Created all 9 tables (settings, users, templates, affiliates, domains, pending_orders, sales, withdrawal_requests, activity_logs)
-- **Sample Data:** Inserted default admin user (email: admin@example.com, password: admin123), 3 sample templates, and 6 sample domains
+- **Sample Data:** Inserted default admin user, 3 sample templates, and 6 sample domains
 - **Configuration:** Created `includes/config.php` with environment-based configuration for Replit PostgreSQL
 - **Web Server:** Configured PHP development server on port 5000 with webview output
+- **Admin Login Fix:** Fixed password hash issue - regenerated correct hash for admin account
+- **Admin Credentials:** Email: admin@example.com | Password: admin123
 - **Verification:** Tested homepage and admin login - both working perfectly
 - **Files Created/Modified:** `includes/config.php`, `.gitignore`
 
