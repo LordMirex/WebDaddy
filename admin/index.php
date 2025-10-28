@@ -13,7 +13,7 @@ requireAdmin();
 $db = getDb();
 
 $totalTemplates = $db->query("SELECT COUNT(*) FROM templates")->fetchColumn();
-$activeTemplates = $db->query("SELECT COUNT(*) FROM templates WHERE active = 1")->fetchColumn();
+$activeTemplates = $db->query("SELECT COUNT(*) FROM templates WHERE active = true")->fetchColumn();
 $totalOrders = $db->query("SELECT COUNT(*) FROM pending_orders")->fetchColumn();
 $pendingOrders = $db->query("SELECT COUNT(*) FROM pending_orders WHERE status = 'pending'")->fetchColumn();
 $totalSales = $db->query("SELECT COUNT(*) FROM sales")->fetchColumn();

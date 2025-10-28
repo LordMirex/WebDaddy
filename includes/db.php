@@ -16,38 +16,21 @@ class Database
     private function connect()
     {
         try {
-            $databaseUrl = getenv('DATABASE_URL');
+            // PostgreSQL DSN from constants
+            $dsn = sprintf(
+                'pgsql:host=%s;port=%d;dbname=%s;sslmode=%s',
+                DB_HOST,
+                DB_PORT,
+                DB_NAME,
+                DB_SSLMODE
+            );
             
-            if ($databaseUrl && strpos($databaseUrl, 'postgresql://') === 0) {
-                $parsedUrl = parse_url($databaseUrl);
-                $queryParams = [];
-                if (isset($parsedUrl['query'])) {
-                    parse_str($parsedUrl['query'], $queryParams);
-                }
-                
-                $dsn = sprintf(
-                    'pgsql:host=%s;port=%d;dbname=%s;sslmode=%s',
-                    $parsedUrl['host'],
-                    $parsedUrl['port'] ?? 5432,
-                    ltrim($parsedUrl['path'], '/'),
-                    $queryParams['sslmode'] ?? 'prefer'
-                );
-                
-                $this->connection = new PDO(
-                    $dsn,
-                    $parsedUrl['user'] ?? '',
-                    $parsedUrl['pass'] ?? ''
-                );
-                $this->dbType = 'pgsql';
-            } else {
-                $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-                $this->connection = new PDO($dsn, DB_USER, DB_PASS, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES => false
-                ]);
-                $this->dbType = 'mysql';
-            }
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false
+            ];
+            $this->connection = new PDO($dsn, DB_USER, DB_PASS, $options);
             
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -88,19 +71,11 @@ class Database
     public function prepare($sql)
     {
         try {
-            if ($this->dbType === 'pgsql') {
-                $sql = $this->convertMySQLToPgSQL($sql);
-            }
             return $this->connection->prepare($sql);
         } catch (PDOException $e) {
             error_log('Prepare Error: ' . $e->getMessage() . ' | SQL: ' . $sql);
             return false;
         }
-    }
-
-    private function convertMySQLToPgSQL($sql)
-    {
-        return $sql;
     }
 
     public function escapeString($string)
@@ -110,10 +85,7 @@ class Database
 
     public function getLastInsertId($sequenceName = null)
     {
-        if ($this->dbType === 'pgsql' && $sequenceName) {
-            return $this->connection->lastInsertId($sequenceName);
-        }
-        return $this->connection->lastInsertId();
+        return $this->connection->lastInsertId($sequenceName);
     }
 
     public function beginTransaction()
@@ -131,11 +103,7 @@ class Database
         return $this->connection->rollBack();
     }
 
-    public function getDbType()
-    {
-        return $this->dbType;
-    }
-
+    
     private function __clone()
     {
     }
@@ -153,5 +121,5 @@ function getDb()
 
 function getDbType()
 {
-    return Database::getInstance()->getDbType();
+    return 'pgsql';
 }

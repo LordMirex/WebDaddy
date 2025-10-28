@@ -4,6 +4,11 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # Ensure trailing slash for directories and route everything to root index where appropriate
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php [QSA,L]
+
   # Block direct access to sensitive directories
   RewriteRule ^includes/ - [F,L]
   RewriteRule ^database/ - [F,L]

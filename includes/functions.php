@@ -7,6 +7,7 @@ function sanitizeInput($input)
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
 
+
 function validateEmail($email)
 {
     return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
@@ -23,7 +24,7 @@ function getTemplates($activeOnly = true)
     
     $sql = "SELECT * FROM templates WHERE 1=1";
     if ($activeOnly) {
-        $sql .= " AND active = 1";
+        $sql .= " AND active = true";
     }
     $sql .= " ORDER BY created_at DESC";
     
@@ -106,12 +107,8 @@ function createPendingOrder($data)
             $data['ip_address']
         ]);
         
-        $dbType = getDbType();
-        if ($dbType === 'pgsql') {
-            return $db->lastInsertId('pending_orders_id_seq');
-        } else {
-            return $db->lastInsertId();
-        }
+        $lastId = $db->lastInsertId('pending_orders_id_seq');
+        return $lastId !== false ? $lastId : $db->lastInsertId();
     } catch (PDOException $e) {
         error_log('Error creating pending order: ' . $e->getMessage());
         return false;

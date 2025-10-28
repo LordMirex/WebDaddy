@@ -17,16 +17,30 @@ function loginAdmin($email, $password)
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($user && password_verify($password, $user['password_hash'])) {
-            session_regenerate_id(true);
-            $_SESSION['admin_id'] = $user['id'];
-            $_SESSION['admin_email'] = $user['email'];
-            $_SESSION['admin_name'] = $user['name'];
-            $_SESSION['admin_role'] = $user['role'];
+        if ($user) {
+            // Check both hashed and plain text passwords for compatibility
+            $passwordMatch = false;
             
-            logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
+            // Try plain text comparison first
+            if ($user['password_hash'] === $password) {
+                $passwordMatch = true;
+            }
+            // Fallback to hash verification if it's a hashed password
+            elseif (password_verify($password, $user['password_hash'])) {
+                $passwordMatch = true;
+            }
             
-            return true;
+            if ($passwordMatch) {
+                session_regenerate_id(true);
+                $_SESSION['admin_id'] = $user['id'];
+                $_SESSION['admin_email'] = $user['email'];
+                $_SESSION['admin_name'] = $user['name'];
+                $_SESSION['admin_role'] = $user['role'];
+                
+                logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
+                
+                return true;
+            }
         }
         
         return false;

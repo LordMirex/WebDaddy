@@ -40,7 +40,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top" id="mainNav">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="height: 50px; margin-right: 12px;">
+                <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" style="height: 50px; margin-right: 12px;">
                 <span style="color: var(--royal-blue);"><?php echo SITE_NAME; ?></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

@@ -76,6 +76,12 @@
                                 Affiliates
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'active' : ''; ?>" href="/admin/database.php">
+                                <i class="bi bi-database"></i>
+                                Database
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

@@ -1,48 +1,60 @@
--- Template Marketplace Database Schema
--- MySQL 5.7+ Compatible
--- Production-Ready with Foreign Keys and Indexes
+-- Template Marketplace Database Schema - PostgreSQL Version
+-- Compatible with Replit PostgreSQL
+-- This application now runs on PostgreSQL only
 
--- Drop existing tables (in reverse dependency order)
-DROP TABLE IF EXISTS activity_logs;
-DROP TABLE IF EXISTS withdrawal_requests;
-DROP TABLE IF EXISTS sales;
-DROP TABLE IF EXISTS pending_orders;
-DROP TABLE IF EXISTS domains;
-DROP TABLE IF EXISTS affiliates;
-DROP TABLE IF EXISTS templates;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS settings;
+-- Drop existing types and tables (in reverse dependency order)
+DROP TABLE IF EXISTS activity_logs CASCADE;
+DROP TABLE IF EXISTS withdrawal_requests CASCADE;
+DROP TABLE IF EXISTS sales CASCADE;
+DROP TABLE IF EXISTS pending_orders CASCADE;
+DROP TABLE IF EXISTS domains CASCADE;
+DROP TABLE IF EXISTS affiliates CASCADE;
+DROP TABLE IF EXISTS templates CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS settings CASCADE;
+
+-- Drop existing types
+DROP TYPE IF EXISTS withdrawal_status_enum CASCADE;
+DROP TYPE IF EXISTS order_status_enum CASCADE;
+DROP TYPE IF EXISTS domain_status_enum CASCADE;
+DROP TYPE IF EXISTS status_enum CASCADE;
+DROP TYPE IF EXISTS role_enum CASCADE;
 
 -- Settings Table
 CREATE TABLE settings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     setting_key VARCHAR(100) NOT NULL UNIQUE,
     setting_value TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_setting_key (setting_key)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_settings_key ON settings(setting_key);
 
 -- Users Table (Admin and Affiliates)
+CREATE TYPE role_enum AS ENUM ('admin', 'affiliate');
+CREATE TYPE status_enum AS ENUM ('active', 'inactive', 'suspended');
+
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(30),
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('admin','affiliate') NOT NULL,
+    role role_enum NOT NULL,
     bank_details TEXT,
-    status ENUM('active','inactive','suspended') DEFAULT 'active',
+    status status_enum DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_email (email),
-    INDEX idx_role (role),
-    INDEX idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_status ON users(status);
 
 -- Templates Table
 CREATE TABLE templates (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
     price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -52,146 +64,149 @@ CREATE TABLE templates (
     demo_url VARCHAR(500),
     thumbnail_url VARCHAR(500),
     video_links TEXT,
-    active TINYINT(1) DEFAULT 1,
+    active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_slug (slug),
-    INDEX idx_active (active),
-    INDEX idx_category (category)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_templates_slug ON templates(slug);
+CREATE INDEX idx_templates_active ON templates(active);
+CREATE INDEX idx_templates_category ON templates(category);
 
 -- Affiliates Table
 CREATE TABLE affiliates (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     code VARCHAR(50) NOT NULL UNIQUE,
-    total_clicks INT DEFAULT 0,
-    total_sales INT DEFAULT 0,
+    total_clicks INTEGER DEFAULT 0,
+    total_sales INTEGER DEFAULT 0,
     commission_earned DECIMAL(10,2) DEFAULT 0.00,
     commission_pending DECIMAL(10,2) DEFAULT 0.00,
     commission_paid DECIMAL(10,2) DEFAULT 0.00,
-    status ENUM('active','inactive','suspended') DEFAULT 'active',
+    status status_enum DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_code (code),
-    INDEX idx_user_id (user_id),
-    INDEX idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
--- Domains Table
+CREATE INDEX idx_affiliates_code ON affiliates(code);
+CREATE INDEX idx_affiliates_user_id ON affiliates(user_id);
+CREATE INDEX idx_affiliates_status ON affiliates(status);
+
+-- Domains Table (without foreign key to pending_orders - will be added later)
+CREATE TYPE domain_status_enum AS ENUM ('available', 'in_use', 'suspended');
+
 CREATE TABLE domains (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    template_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    template_id INTEGER NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
     domain_name VARCHAR(255) NOT NULL UNIQUE,
-    status ENUM('available','in_use','suspended') DEFAULT 'available',
-    assigned_customer_id INT NULL,
-    assigned_order_id INT NULL,
+    status domain_status_enum DEFAULT 'available',
+    assigned_customer_id INTEGER,
+    assigned_order_id INTEGER,
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE,
-    INDEX idx_template_id (template_id),
-    INDEX idx_status (status),
-    INDEX idx_domain_name (domain_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_domains_template_id ON domains(template_id);
+CREATE INDEX idx_domains_status ON domains(status);
+CREATE INDEX idx_domains_domain_name ON domains(domain_name);
 
 -- Pending Orders Table
+CREATE TYPE order_status_enum AS ENUM ('pending', 'paid', 'cancelled');
+
 CREATE TABLE pending_orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    template_id INT NOT NULL,
-    chosen_domain_id INT NULL,
+    id SERIAL PRIMARY KEY,
+    template_id INTEGER NOT NULL REFERENCES templates(id) ON DELETE RESTRICT,
+    chosen_domain_id INTEGER REFERENCES domains(id) ON DELETE SET NULL,
     customer_name VARCHAR(255) NOT NULL,
     customer_email VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(30) NOT NULL,
     business_name VARCHAR(255),
     custom_fields TEXT,
-    affiliate_code VARCHAR(50) NULL,
+    affiliate_code VARCHAR(50) REFERENCES affiliates(code) ON DELETE SET NULL,
     session_id VARCHAR(255),
     message_text TEXT,
-    status ENUM('pending','paid','cancelled') DEFAULT 'pending',
+    status order_status_enum DEFAULT 'pending',
     ip_address VARCHAR(45),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE RESTRICT,
-    FOREIGN KEY (chosen_domain_id) REFERENCES domains(id) ON DELETE SET NULL,
-    INDEX idx_template_id (template_id),
-    INDEX idx_status (status),
-    INDEX idx_affiliate_code (affiliate_code),
-    INDEX idx_customer_email (customer_email),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_pending_orders_template_id ON pending_orders(template_id);
+CREATE INDEX idx_pending_orders_status ON pending_orders(status);
+CREATE INDEX idx_pending_orders_affiliate_code ON pending_orders(affiliate_code);
+CREATE INDEX idx_pending_orders_customer_email ON pending_orders(customer_email);
+CREATE INDEX idx_pending_orders_created_at ON pending_orders(created_at);
 
 -- Sales Table
 CREATE TABLE sales (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    pending_order_id INT NOT NULL,
-    admin_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    pending_order_id INTEGER NOT NULL REFERENCES pending_orders(id) ON DELETE RESTRICT,
+    admin_id INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     amount_paid DECIMAL(10,2) NOT NULL,
     commission_amount DECIMAL(10,2) DEFAULT 0.00,
-    affiliate_id INT NULL,
+    affiliate_id INTEGER REFERENCES affiliates(id) ON DELETE SET NULL,
     payment_method VARCHAR(100) DEFAULT 'WhatsApp',
     payment_notes TEXT,
     payment_confirmed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (pending_order_id) REFERENCES pending_orders(id) ON DELETE RESTRICT,
-    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE RESTRICT,
-    FOREIGN KEY (affiliate_id) REFERENCES affiliates(id) ON DELETE SET NULL,
-    INDEX idx_pending_order_id (pending_order_id),
-    INDEX idx_admin_id (admin_id),
-    INDEX idx_affiliate_id (affiliate_id),
-    INDEX idx_payment_confirmed_at (payment_confirmed_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_sales_pending_order_id ON sales(pending_order_id);
+CREATE INDEX idx_sales_admin_id ON sales(admin_id);
+CREATE INDEX idx_sales_affiliate_id ON sales(affiliate_id);
+CREATE INDEX idx_sales_payment_confirmed_at ON sales(payment_confirmed_at);
 
 -- Withdrawal Requests Table
+CREATE TYPE withdrawal_status_enum AS ENUM ('pending', 'approved', 'rejected', 'paid');
+
 CREATE TABLE withdrawal_requests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    affiliate_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
     amount DECIMAL(10,2) NOT NULL,
     bank_details_json TEXT NOT NULL,
-    status ENUM('pending','approved','rejected','paid') DEFAULT 'pending',
+    status withdrawal_status_enum DEFAULT 'pending',
     admin_notes TEXT,
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    processed_at TIMESTAMP NULL,
-    processed_by INT NULL,
-    FOREIGN KEY (affiliate_id) REFERENCES affiliates(id) ON DELETE CASCADE,
-    FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_affiliate_id (affiliate_id),
-    INDEX idx_status (status),
-    INDEX idx_requested_at (requested_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    processed_at TIMESTAMP,
+    processed_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_withdrawal_requests_affiliate_id ON withdrawal_requests(affiliate_id);
+CREATE INDEX idx_withdrawal_requests_status ON withdrawal_requests(status);
+CREATE INDEX idx_withdrawal_requests_requested_at ON withdrawal_requests(requested_at);
 
 -- Activity Logs Table
 CREATE TABLE activity_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     action VARCHAR(255) NOT NULL,
     details TEXT,
     ip_address VARCHAR(45),
     user_agent TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_user_id (user_id),
-    INDEX idx_action (action),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id);
+CREATE INDEX idx_activity_logs_action ON activity_logs(action);
+CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at);
 
 -- Insert Default Settings
 INSERT INTO settings (setting_key, setting_value) VALUES
 ('whatsapp_number', '+2348012345678'),
-('site_name', 'Template Marketplace'),
+('site_name', 'WebDaddy Empire'),
 ('commission_rate', '0.30'),
 ('affiliate_cookie_days', '30');
 
--- Insert Default Admin User (password: admin123 - CHANGE IN PRODUCTION!)
+-- Insert Default Admin User (password: admin123)
 INSERT INTO users (name, email, phone, password_hash, role) VALUES
-('Admin User', 'admin@example.com', '08012345678', '$2y$10$0pQ/10kvKYTQuZ.zKAPF2OWo4YPzDs472F3r.L/8gUvY04IAfivAe', 'admin');
+('Admin User', 'admin@example.com', '08012345678', 'admin123', 'admin');
 
 -- Insert Sample Templates
 INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, active) VALUES
-('E-commerce Store', 'ecommerce-store', 200000.00, 'Business', 'Complete online store with product catalog, cart, and checkout', 'Product Management, Shopping Cart, Order Tracking, Payment Integration', 'https://demo.example.com/ecommerce', 'https://via.placeholder.com/400x300/28a745/ffffff?text=E-commerce', 1),
-('Portfolio Website', 'portfolio-site', 150000.00, 'Personal', 'Professional portfolio to showcase your work and skills', 'Gallery, About Section, Contact Form, Responsive Design', 'https://demo.example.com/portfolio', 'https://via.placeholder.com/400x300/007bff/ffffff?text=Portfolio', 1),
-('Business Website', 'business-site', 180000.00, 'Business', 'Corporate website for businesses and startups', 'About Us, Services, Team, Contact Form, Blog', 'https://demo.example.com/business', 'https://via.placeholder.com/400x300/6c757d/ffffff?text=Business', 1);
+('E-commerce Store', 'ecommerce-store', 200000.00, 'Business', 'Complete online store with product catalog, cart, and checkout', 'Product Management, Shopping Cart, Order Tracking, Payment Integration', 'https://demo.example.com/ecommerce', 'https://via.placeholder.com/400x300/28a745/ffffff?text=E-commerce', true),
+('Portfolio Website', 'portfolio-site', 150000.00, 'Personal', 'Professional portfolio to showcase your work and skills', 'Gallery, About Section, Contact Form, Responsive Design', 'https://demo.example.com/portfolio', 'https://via.placeholder.com/400x300/007bff/ffffff?text=Portfolio', true),
+('Business Website', 'business-site', 180000.00, 'Business', 'Corporate website for businesses and startups', 'About Us, Services, Team, Contact Form, Blog', 'https://demo.example.com/business', 'https://via.placeholder.com/400x300/6c757d/ffffff?text=Business', true);
 
 -- Insert Sample Domains
 INSERT INTO domains (template_id, domain_name, status) VALUES
@@ -201,3 +216,8 @@ INSERT INTO domains (template_id, domain_name, status) VALUES
 (2, 'janedesigns.com', 'available'),
 (3, 'bizpro.ng', 'available'),
 (3, 'startupco.com.ng', 'available');
+
+-- Add foreign key constraint for domains.assigned_order_id (after pending_orders table exists)
+ALTER TABLE domains 
+ADD CONSTRAINT fk_domains_pending_orders 
+FOREIGN KEY (assigned_order_id) REFERENCES pending_orders(id) ON DELETE SET NULL;

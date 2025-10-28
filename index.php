@@ -30,7 +30,7 @@ $affiliateCode = getAffiliateCode();
     <nav id="mainNav" class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" class="navbar-logo" onerror="this.style.display='none'">
+                <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="navbar-logo" onerror="this.style.display='none'">
                 <span class="brand-text"><?php echo SITE_NAME; ?></span>
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -269,7 +269,7 @@ $affiliateCode = getAffiliateCode();
             <div class="row g-5 mb-5">
                 <div class="col-md-4">
                     <h5 class="fw-700 mb-3">
-                        <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="height: 35px; margin-right: 10px;" onerror="this.style.display='none'">
+                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" style="height: 35px; margin-right: 10px;" onerror="this.style.display='none'">
                         <?php echo SITE_NAME; ?>
                     </h5>
                     <p class="text-muted small">Professional website templates with domains included. Launch your business online in minutes.</p>

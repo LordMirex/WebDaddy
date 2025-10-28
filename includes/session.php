@@ -5,15 +5,23 @@ function startSecureSession()
     if (session_status() === PHP_SESSION_NONE) {
         $sessionPath = '/tmp/php_sessions';
         if (!is_dir($sessionPath)) {
-            mkdir($sessionPath, 0777, true);
+            if (!mkdir($sessionPath, 0777, true)) {
+                error_log('Unable to create custom session path: ' . $sessionPath . '. Using system default.');
+                $sessionPath = null;
+            }
+        } elseif (!is_writable($sessionPath)) {
+            error_log('Session path not writable: ' . $sessionPath . '. Using system default.');
+            $sessionPath = null;
         }
         
-        session_save_path($sessionPath);
+        if ($sessionPath) {
+            session_save_path($sessionPath);
+        }
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_samesite', 'Lax');
         ini_set('session.cookie_lifetime', 0);
-        ini_set('session.gc_maxlifetime', 86400);
+        ini_set('session.gc_maxlifetime', SESSION_LIFETIME ?: 86400);
         
         session_start();
     }
@@ -22,21 +30,23 @@ function startSecureSession()
 function handleAffiliateTracking()
 {
     if (isset($_GET['aff']) && !empty($_GET['aff'])) {
-        $affiliateCode = sanitizeInput($_GET['aff']);
+        $affiliateCode = function_exists('sanitizeInput') ? sanitizeInput($_GET['aff']) : trim($_GET['aff']);
         
         $_SESSION['affiliate_code'] = $affiliateCode;
         
         setcookie(
             'affiliate_code',
             $affiliateCode,
-            time() + (AFFILIATE_COOKIE_DAYS * 24 * 60 * 60),
+            time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
             '/',
             '',
             isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
             true
         );
         
-        incrementAffiliateClick($affiliateCode);
+        if (function_exists('incrementAffiliateClick')) {
+            incrementAffiliateClick($affiliateCode);
+        }
     }
     
     if (empty($_SESSION['affiliate_code']) && isset($_COOKIE['affiliate_code'])) {

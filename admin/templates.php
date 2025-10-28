@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'toggle_active') {
             $id = intval($_POST['id']);
             try {
-                $stmt = $db->prepare("UPDATE templates SET active = CASE WHEN active = 1 THEN 0 ELSE 1 END WHERE id = ?");
+                $stmt = $db->prepare("UPDATE templates SET active = CASE WHEN active = true THEN false ELSE true END WHERE id = ?");
                 $stmt->execute([$id]);
                 $successMessage = 'Template status updated!';
             } catch (PDOException $e) {
@@ -103,7 +103,7 @@ if (!empty($filterCategory)) {
 
 if ($filterStatus !== '') {
     $sql .= " AND active = ?";
-    $params[] = intval($filterStatus);
+    $params[] = ($filterStatus === '1' || $filterStatus === 'true') ? true : false;
 }
 
 $sql .= " ORDER BY created_at DESC";

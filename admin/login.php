@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card login-card shadow-lg">
                         <div class="card-body p-5">
                             <div class="text-center mb-4">
-                                <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" style="max-width: 120px; margin-bottom: 1rem;">
+                                <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" style="max-width: 120px; margin-bottom: 1rem;">
                                 <h2 class="mt-3" style="color: var(--royal-blue);">Admin Login</h2>
                                 <p class="text-muted"><?php echo SITE_NAME; ?></p>
                             </div>
