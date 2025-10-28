@@ -13,9 +13,12 @@ WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace design
 
 ## Recent Changes
 
-### October 28, 2025 - Admin UI Optimization
+### October 28, 2025 - Session & Admin Panel Fix
+- **Critical Session Fix:** Configured PHP session save path to `/tmp/php_sessions` - sessions now persist correctly
+- **Admin Login Fix:** Admin panel now works properly - no more redirect loops
+- **Button Responsiveness:** Fixed Bootstrap JS loading and session issues that prevented buttons from working
 - **UI Refinement:** Reduced stat card number sizes and padding for more compact admin dashboard
-- **Files Modified:** `assets/css/style.css`
+- **Files Modified:** `includes/session.php`, `assets/css/style.css`
 
 ### October 28, 2025 - Project Import to Replit Environment & Admin Login Fix
 - **Environment Setup:** Successfully migrated project to Replit environment

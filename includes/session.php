@@ -3,10 +3,17 @@
 function startSecureSession()
 {
     if (session_status() === PHP_SESSION_NONE) {
+        $sessionPath = '/tmp/php_sessions';
+        if (!is_dir($sessionPath)) {
+            mkdir($sessionPath, 0777, true);
+        }
+        
+        session_save_path($sessionPath);
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 1 : 0);
         ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.cookie_lifetime', 0);
+        ini_set('session.gc_maxlifetime', 86400);
         
         session_start();
     }
