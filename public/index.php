@@ -27,7 +27,7 @@ $affiliateCode = getAffiliateCode();
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+    <nav id="mainNav" class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="/assets/images/webdaddy-logo.jpg" alt="WebDaddy Empire" class="navbar-logo" onerror="this.style.display='none'">

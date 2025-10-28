@@ -52,10 +52,9 @@ $pageTitle = 'Affiliate Dashboard';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="bi bi-speedometer2"></i> Dashboard
-    </h1>
+<div class="page-header">
+    <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+    <p>Welcome back, <?php echo htmlspecialchars(getAffiliateName()); ?>!</p>
 </div>
 
 <div class="row mb-4">
@@ -81,48 +80,40 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-mouse"></i> Total Clicks
-                </h6>
-                <h2 class="card-title mb-0"><?php echo number_format($stats['total_clicks']); ?></h2>
-            </div>
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="info-card info-info">
+            <h6>
+                <i class="bi bi-mouse"></i> Total Clicks
+            </h6>
+            <h2><?php echo number_format($stats['total_clicks']); ?></h2>
         </div>
     </div>
     
-    <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-cart-check"></i> Total Sales
-                </h6>
-                <h2 class="card-title mb-0"><?php echo number_format($stats['total_sales']); ?></h2>
-            </div>
+    <div class="col-md-3">
+        <div class="info-card info-success">
+            <h6>
+                <i class="bi bi-cart-check"></i> Total Sales
+            </h6>
+            <h2><?php echo number_format($stats['total_sales']); ?></h2>
         </div>
     </div>
     
-    <div class="col-md-3 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-hourglass-split"></i> Pending
-                </h6>
-                <h2 class="card-title mb-0"><?php echo formatCurrency($stats['commission_pending']); ?></h2>
-            </div>
+    <div class="col-md-3">
+        <div class="info-card info-primary">
+            <h6>
+                <i class="bi bi-hourglass-split"></i> Pending
+            </h6>
+            <h2><?php echo formatCurrency($stats['commission_pending']); ?></h2>
         </div>
     </div>
     
-    <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-check-circle"></i> Paid
-                </h6>
-                <h2 class="card-title mb-0"><?php echo formatCurrency($stats['commission_paid']); ?></h2>
-            </div>
+    <div class="col-md-3">
+        <div class="info-card info-warning">
+            <h6>
+                <i class="bi bi-check-circle"></i> Paid
+            </h6>
+            <h2><?php echo formatCurrency($stats['commission_paid']); ?></h2>
         </div>
     </div>
 </div>
