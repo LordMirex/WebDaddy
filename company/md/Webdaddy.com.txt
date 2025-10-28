@@ -1,0 +1,1865 @@
+Below is a concise yet complete Product Document tailored for your client. It avoids technical jargon, highlights the value proposition, and outlines the system’s flow and benefits in a clear, professional manner. This document is designed to give your client a high-level understanding of the project while addressing their needs (e.g., the celebrity deal, faster delivery, and affiliate tracking). It’s brief but covers all key points from our discussions, including the updated flow where customers don’t register, affiliates are admin-created, and post-sale management happens via WhatsApp.
+
+---
+
+# Product Document: Website Template Marketplace for [Your Agency Name]
+
+## Introduction
+We’re excited to partner with you to build a streamlined, professional website template marketplace for [Your Agency Name]. This system will showcase your expertly crafted website templates, streamline client onboarding, and support your recent celebrity affiliate deal by tracking commissions and ensuring fast delivery. Our goal is to create a solution that saves time, boosts sales, and delivers a seamless experience for both you and your clients.
+
+## Project Overview
+This marketplace will allow your agency to sell pre-built website templates (e.g., E-commerce, Portfolio, Business, Restaurant) to clients quickly and efficiently. With a new celebrity partnership bringing in clients, we’ve designed a system to handle increased demand, track affiliate performance, and provide a polished online presence. The focus is on simplicity and speed, with all post-sale support managed personally via WhatsApp to keep things flexible and client-friendly.
+
+## Key Features and Benefits
+### For Clients (End Users)
+- **Easy Access**: Clients visit your portfolio site, browse templates with live demos, and select their favorite.
+- **Quick Purchase**: They fill a simple form (name, email, WhatsApp, business name, optional affiliate/referral code), choose from available pre-hosted domains, and pay upfront (e.g., ₦200,000, adjustable per template).
+- **Instant Delivery**: After payment via Paystack, clients receive a pop-up with their website details (URL, admin login, tutorial videos, WhatsApp support) and the same details via email. A “copy” button and reminder ensure they save this critical information.
+- **No Hassle**: No account creation—everything post-purchase (customizations, ₦10,000/month maintenance, referral bonuses) is handled via WhatsApp with your team.
+- **Discounts**: Referral codes offer 30% off (e.g., ₦60,000 off), while affiliate codes support the celebrity deal.
+
+### For You (The Agency)
+- **Efficient Management**: You pre-buy and host domains (e.g., 5 ready at ₦5,000 each), assign them to templates, and mark them as “available” or “sold” through a simple admin dashboard.
+- **Celebrity Partnership Support**: The system tracks the celebrity’s unique code (e.g., “CEL-JOHN-2025”), calculates their 30% commission (e.g., ₦60,000 per sale), and lets them view earnings and request payouts via a basic dashboard you create for them.
+- **Referral Incentives**: If a client uses a referral code, the referrer earns a ₦120,000 credit (1 year free maintenance), tracked automatically but applied manually via WhatsApp.
+- **Control Center**: Your admin dashboard shows all sales, customer details, domain status, and affiliate earnings, with options to suspend sites or process refunds manually.
+
+### For the Celebrity Affiliate
+- **Simple Tracking**: The celebrity logs in with credentials you provide, seeing their unique code, referral link, total clicks, sales, and commission (e.g., ₦450,000 earned). They can request withdrawals anytime.
+- **No Complexity**: No access to templates—just earnings and payout history.
+
+## How It Works: Step-by-Step Process
+1. **Your Preparation**: Buy 5 domains (e.g., luxebiz.com, smartstore.ng), host them with templates installed, and mark them as “available” in your admin panel.
+2. **Client Journey**:
+   - Browses your portfolio site and selects a template.
+   - Fills a form, picks an available domain, and pays via Paystack.
+   - Receives instant details in a pop-up and email, with a WhatsApp link for support.
+3. **Post-Sale**: You manage maintenance payments (₦10,000/month), customizations, and referral credits via WhatsApp chats.
+4. **Celebrity Tracking**: You create their account; they log in to see commissions and request payouts.
+5. **Your Oversight**: Use the admin dashboard to monitor sales, update domains, and handle affiliate requests.
+
+## Timeline and Next Steps
+- **Development**: We’ll build this using familiar tools (PHP, MySQL, cPanel) for a fast turnaround—targeting completion within 2-3 weeks from approval.
+- **Launch**: Ready for your celebrity campaign once domains are prepared.
+- **Next**: Please review this document. Let us know your feedback, preferred domain names, template prices, and any specific client needs. We’ll refine the plan and start setup.
+
+## Why This Works for You
+- **Speed**: Clients get websites instantly, addressing your delivery bottleneck.
+- **Profit**: High upfront sales (e.g., ₦200,000) cover domain costs, with maintenance adding recurring revenue.
+- **Partnership**: The celebrity’s ₦30,000 upfront and 30% commission are fully supported, ensuring a win-win.
+- **Simplicity**: No complex systems—manual control keeps it manageable with your current skills.
+
+This solution is designed to make your agency stand out, leverage the celebrity deal, and grow efficiently. We’re confident it will deliver a professional, converting platform. Please let us know your thoughts or schedule a call to discuss further!
+
+---
+
+### Notes for You
+- This is client-facing, so it omits technical details (e.g., PHP code, DB schema) but reflects all functional requirements.
+- Adjust placeholders (e.g., [Your Agency Name], domain examples) with real data before sending.
+- If your client asks for more details, you can reference our internal docs or ask me to expand specific sections.
+
+Okay, I get it now—let's simplify this even further based on your latest thoughts. You've realized that adding customer dashboards and registrations was overcomplicating things, making it harder for users and more work for you to code. That's a smart pivot! We're keeping everything lean, professional, and focused on conversions. No customer accounts or logins at all—they just browse, select a template, fill a simple form (name, email, WhatsApp number, optional affiliate/referral code, choose domain if available), pay via Paystack, and immediately get their website details in a modal popup (with a copy button and strict reminder to save it), plus the same details emailed to them. All ongoing stuff like subscriptions, referral bonuses, customizations, or support happens via WhatsApp chat with you (the developer). This reduces code complexity a ton—no need for user auth, password resets, or fancy portals.
+
+For affiliates (like the celebrity), you'll create their accounts manually in the admin dashboard (just their code like "JOHNNY", email, and a temporary password). They login with email/password, can edit their details (e.g., add bank info for payouts), and see a super simple dashboard: just earnings, payout history, and a request withdrawal button. No access to templates, markets, or anything else—keeps it foolish-proof and focused.
+
+Since you're using plain PHP (no frameworks like Laravel to avoid stress), MySQL via phpMyAdmin, and cPanel hosting, I'll document everything around that. This is all about preparation: a full system spec doc with flows, features, database design, integration guides, and step-by-step build plan. Once you're ready, you can follow these steps to code it yourself. I'll make it long and detailed for full understanding, but easy to follow—like a blueprint.
+
+I'll structure this doc as a professional system specification. Read it line by line as you asked. This incorporates EVERYTHING from our conversation: the portfolio showcase, pre-buying domains (5 ready per template or so), affiliate tracking (30% commission on sales via their code), referral bonuses (30% off for buyer, ₦120k maintenance credit for referrer—but handled manually via WhatsApp), automated email after payment, domain marking as "in use", monthly maintenance (₦10k, but payments/reminders via WhatsApp), and more. No automation for suspensions or reminders yet (you can add later if needed); keep it manual via admin or WhatsApp to start.
+
+---
+
+# System Documentation: Portfolio Marketplace for Template-Based Websites
+
+## 1. System Overview
+### Purpose
+This system is a simple, converting portfolio marketplace for your software agency. It showcases 4 top website templates (e.g., E-commerce, Portfolio, Business, Restaurant). Customers browse demos, select a template, fill a basic form, choose from available pre-hosted domains (you buy and prepare them in advance), apply optional codes for discounts/commissions, pay upfront (e.g., ₦200,000 minus discounts), and get instant delivery via modal and email. No customer login or dashboard—everything post-sale (subscriptions, bonuses, support) is handled via WhatsApp.
+
+Affiliates (e.g., the celebrity) get a basic dashboard to track earnings (30% commission on sales from their code) and request withdrawals. You (admin) have full control to manage templates, domains, customers, affiliates, and sales.
+
+### Key Principles
+- **Simplicity First**: No user registrations. Customers don't create accounts. Affiliates login only after you create their account.
+- **Manual + Light Automation**: Auto-mark domains as "in use" after payment. Auto-send email with details. Everything else (subs, bonuses) manual via WhatsApp or admin.
+- **Tech Stack**: Plain PHP (for speed and your familiarity), MySQL database (via phpMyAdmin), cPanel hosting. Use PHPMailer for emails. Paystack for payments (easy PHP integration). HTML/CSS/JS for frontend (keep it beautiful with Bootstrap for quick styling).
+- **Scale Plan**: Start with 5 domains ready (e.g., 3 for E-commerce template, 2 for Portfolio). When one sells, manually prepare a new one via cPanel.
+- **Business Model**:
+  - Upfront sale: ₦200,000 (adjustable per template).
+  - Monthly maintenance: ₦10k (handled via WhatsApp payments, e.g., bank transfer).
+  - Affiliate: 30% commission on upfront sale (tracked auto, paid manual).
+  - Referral: 30% off upfront for buyer; ₦120k credit (1 year free maintenance) for referrer (tracked auto, applied manual via WhatsApp).
+- **Security**: Use HTTPS, sanitize inputs to prevent SQL injection, hash affiliate passwords.
+- **Performance**: Plain PHP is fast on cPanel. Use caching if needed later. No lag since no heavy features.
+
+### Assumptions from Conversation
+- Templates built in whatever tech you use (e.g., WordPress, custom PHP)—system doesn't care, as long as you pre-install on domains.
+- Domains cost ~₦5k each (₦3k domain + ₦1k hosting + charges)—affordable, and first sale covers many.
+- Celebrity deal: ₦30k upfront paid; 30% ongoing commission via their code.
+- No mobile app—web only.
+- Timeline: Build fast since plain PHP.
+
+## 2. User Roles and Flows
+### Public User (Customer) Flow
+1. Visit homepage: See hero section, list of templates with screenshots, features, prices, [View Demo] (opens iframe), [Get This Website] buttons.
+2. Click [Get This Website] on a template: Go to order page.
+3. Order Page:
+   - Form: Full Name, Email, WhatsApp Number, Business Name, Optional Affiliate Code (for 30% commission to affiliate), Optional Referral Code (for 30% off upfront).
+   - Domain Dropdown: Shows only available domains for this template (e.g., luxebiz.com, smartstore.ng). If none: "Sorry, all sold out—check back soon!"
+   - Final Price: Calculates discounts (e.g., Original ₦200,000 - ₦60,000 = ₦140,000).
+   - [Proceed to Payment] button.
+4. Payment: Redirect to Paystack popup. After success (verified via webhook or callback):
+   - Show modal: "Success! Copy these details:" (Website URL, Admin Username/Password, Tutorial Video Links, WhatsApp Support Number, Reminder: "Save this—it's your only copy! Chat us on WhatsApp for subscriptions, customizations, or help.").
+   - Copy button for all text.
+   - "Chat with Developer" button links to whatsapp://send?phone=YOUR_NUMBER.
+   - Simultaneously send email with same details (use PHPMailer).
+5. Post-Sale: No login. They contact you on WhatsApp for ₦10k monthly (e.g., send proof, you confirm). For referrals: If code used, note it in admin; apply bonus manually (e.g., tell referrer "You get 1 year free!").
+
+### Affiliate Flow
+1. You create account in admin: Code (e.g., "JOHNNY"), Email, Temp Password.
+2. Affiliate visits /affiliate-login.php: Enters email/password.
+3. Dashboard (/affiliate-dashboard.php):
+   - Shows: Unique Code (JOHNNY), Referral Link (yoursite.com/order?aff=JOHNNY).
+   - Earnings: Total Commission (e.g., ₦450,000 from sales).
+   - Payouts: History (e.g., "₦200,000 paid on Oct 15"), Pending.
+   - [Request Withdrawal] button: Form for amount (min ₦10k?), bank details. Submits to you for approval.
+   - [Edit Details] button: Update password, bank info.
+   - No other features—no templates, no markets.
+
+### Admin Flow
+1. Login at /admin-login.php (hardcode your credentials or use simple auth).
+2. Dashboard (/admin-dashboard.php):
+   - Overview: Total Revenue, Recent Sales, Available Domains (by template).
+   - Templates: Add/Edit (name, description, price, demo URL, video links).
+   - Domains: Add/Edit (domain name, assigned template, status: Available/In Use/Suspended, linked customer if sold).
+   - Customers: List (from sales: name, email, WhatsApp, purchased domain, sale date, codes used). Actions: Suspend domain (manual via cPanel), Note subs/bonuses.
+   - Affiliates: Add (code, email, temp password), List (earnings, requests). Actions: Approve/Reject withdrawals, Pay (manual).
+   - Sales: List all, with commissions/bonuses tracked.
+   - Settings: Update prices, commissions, email templates, WhatsApp number, Paystack keys.
+
+## 3. Features Breakdown
+### Public Site (Portfolio/Storefront)
+- Homepage: Hero ("Get Your Website Ready in Minutes!"), Template Grid (4 cards: image, name, price, buttons).
+- Template Detail Page: Full desc, iframe demo, features list, video embeds, [Get This Website].
+- Order Page: Form as above, domain dropdown (query DB for available), price calc (PHP logic for discounts), Paystack button.
+
+### Automations
+- After Paystack success: Update DB (mark domain In Use, record sale/customer, calculate commission/bonus).
+- Send email with details.
+- No auto-reminders/suspensions—handle via WhatsApp or manual admin.
+
+### Admin Dashboard
+- Full CRUD (Create, Read, Update, Delete) for templates, domains, affiliates, customers.
+- View reports: Sales, commissions owed.
+
+### Affiliate Dashboard
+- View-only for stats, form for withdrawal request, edit profile.
+
+### Integrations
+- **Paystack**: Use their PHP SDK. Init payment on order page, verify on callback page.
+- **Email**: PHPMailer library (include in PHP files).
+- **WhatsApp**: Simple links, no API.
+
+## 4. Database Schema (MySQL via phpMyAdmin)
+Create database "marketplace". Tables:
+
+- **templates** (id INT PK AUTO, name VARCHAR(100), description TEXT, price DECIMAL(10,2), demo_url VARCHAR(255), video_links TEXT, status ENUM('active','inactive')).
+- **domains** (id INT PK AUTO, domain_name VARCHAR(100), template_id INT, status ENUM('available','in_use','suspended'), customer_id INT NULL).
+- **customers** (id INT PK AUTO, full_name VARCHAR(100), email VARCHAR(100), whatsapp VARCHAR(20), business_name VARCHAR(100), purchased_domain_id INT, sale_date DATE, affiliate_code VARCHAR(50) NULL, referral_code VARCHAR(50) NULL, upfront_amount DECIMAL(10,2)).
+- **affiliates** (id INT PK AUTO, code VARCHAR(50) UNIQUE, email VARCHAR(100), password VARCHAR(255) (hashed), bank_details TEXT, total_earnings DECIMAL(10,2), paid_out DECIMAL(10,2)).
+- **sales** (id INT PK AUTO, customer_id INT, amount DECIMAL(10,2), commission DECIMAL(10,2), date DATE).
+- **withdrawal_requests** (id INT PK AUTO, affiliate_id INT, amount DECIMAL(10,2), status ENUM('pending','approved','rejected'), date DATE).
+
+Use FOREIGN KEYS for relations (e.g., domains.template_id -> templates.id).
+
+## 5. Security and Best Practices
+- Sanitize all inputs: mysqli_real_escape_string().
+- Hash passwords: password_hash() for affiliates.
+- Verify Paystack payments: Use webhooks or callback with secret key.
+- Error Handling: Show user-friendly messages, log errors.
+- Backup: Use cPanel for DB backups.
+
+## 6. Integration Guides
+### Paystack Setup
+1. Sign up at paystack.com, get public/secret keys (test mode first).
+2. In PHP: Include Paystack library (download from GitHub, upload to cPanel).
+3. On order page: <script src="https://js.paystack.co/v1/inline.js"></script>, then JS function to init payment with public key, email, amount.
+4. Callback page (e.g., payment-callback.php): Use $_GET['reference'], curl to Paystack API with secret key to verify. If success, update DB, show modal, send email.
+5. Test with small amounts.
+
+### Email Setup
+1. Download PHPMailer (github.com/PHPMailer/PHPMailer), upload to includes/ folder.
+2. In payment-callback.php: require 'PHPMailer.php'; Set SMTP (use your host's, like Gmail if allowed). Compose HTML email with details, send to customer's email.
+
+### WhatsApp Link
+Simple: <a href="https://wa.me/YOUR_NUMBER?text=Hi, I just bought luxebiz.com">Chat Now</a>.
+
+## 7. Step-by-Step Build Plan
+Build in plain PHP—create folders in cPanel File Manager: includes/ (for DB connect, functions), assets/ (CSS/JS), admin/, affiliate/.
+
+### Phase 1: Setup Basics (1-2 days)
+1. Create DB in phpMyAdmin, add tables as above.
+2. includes/db.php: <?php $conn = mysqli_connect('localhost', 'user', 'pass', 'db'); ?> (use your cPanel creds).
+3. includes/functions.php: Add helpers like sanitize($str), calculate_price($original, $ref_code).
+
+### Phase 2: Public Site (2-3 days)
+1. index.php: HTML hero + loop DB for templates (mysqli_query($conn, "SELECT * FROM templates WHERE status='active'")).
+2. template-detail.php?id=1: Query template by ID, show details/iframe.
+3. order.php?template=1: Form HTML, dropdown: query "SELECT * FROM domains WHERE template_id=1 AND status='available'". JS for price calc. Paystack script.
+
+### Phase 3: Payment & Delivery (2 days)
+1. payment-callback.php: Verify Paystack, insert to customers/sales, update domain status, calculate commission (update affiliates.total_earnings += amount*0.3), send email via PHPMailer.
+2. Add modal HTML/JS: Use Bootstrap modal, copy button (navigator.clipboard.writeText()).
+
+### Phase 4: Affiliate Section (1 day)
+1. affiliate-login.php: Form, check DB for email/password_verify().
+2. affiliate-dashboard.php: Session check, query DB for their code/link/earnings. Withdrawal form: insert to withdrawal_requests.
+
+### Phase 5: Admin Section (2 days)
+1. admin-login.php: Simple form (email/pass match hardcoded or DB).
+2. admin-dashboard.php: Sections with queries/forms for CRUD (e.g., add template: INSERT INTO templates...).
+3. Use POST for actions, redirect after.
+
+### Phase 6: Testing & Polish (1 day)
+1. Test flows: Buy with code, check DB updates, email.
+2. Add CSS (Bootstrap CDN) for beauty.
+3. Deploy: Upload all to cPanel, set index.php as default.
+
+This gets you a working MVP fast. If stuck on any step, ask for clarification—we can refine. Once built, you can add features like auto-reminders later. Let's make this converting!Perfect — now I fully understand what you want. ✅
+
+Let me restate it to make sure we’re on the same page before I show you the exact approach:
+
+
+---
+
+🔍 What You’re Actually Building
+
+A template marketplace built in plain PHP (no frameworks).
+
+No registration or login for customers — just select a template, fill contact details, pay, get confirmation + email + WhatsApp link.
+
+Affiliate accounts are only created by the admin from dashboard (each with code, email, password).
+
+Affiliates log in using that account → see a very simple dashboard (earnings, payout, maybe referral link).
+
+Admin controls everything (templates, affiliates, orders, payouts).
+
+You want a nice UI, but written in a way you can understand — simple, clean HTML/CSS/JS (no React, no frameworks).
+
+You’d also like sample repositories or starter projects in plain PHP with good UI and structure, so you can learn from them and build yours.
+
+
+
+---
+
+Let’s build this roadmap for plain PHP and then I’ll give you:
+
+1. How to get a nice UI while using plain PHP
+
+
+2. Project folder structure + file explanations
+
+
+3. Open-source repos (real PHP projects) close to what you’re trying to build
+
+
+4. Step-by-step how to start your marketplace
+
+
+
+
+---
+
+🧱 1. How to Get a Good UI in Plain PHP
+
+Since you’re good with PHP but not design tools, do this:
+
+Option 1 — Use a ready-made admin template (Bootstrap-based)
+
+Use Bootstrap 5 HTML admin templates. They’re plug-and-play, only need you to add PHP tags into the HTML.
+Examples:
+
+AdminLTE – free, responsive, easy to integrate.
+
+SB Admin 2 – lightweight, perfect for dashboards.
+
+NiceAdmin – modern look.
+
+
+You can use any of them by:
+
+1. Downloading the HTML files.
+
+
+2. Renaming .html to .php.
+
+
+3. Adding your PHP logic between <?php ... ?>.
+
+
+
+Example:
+
+<?php include('header.php'); ?>
+<div class="container">
+  <h3>Templates</h3>
+  <?php
+    $templates = getTemplates();
+    foreach($templates as $t) {
+        echo "<div class='card p-3 my-2'>
+                <h4>{$t['title']}</h4>
+                <p>Price: ₦{$t['price']}</p>
+                <a href='buy.php?id={$t['id']}' class='btn btn-primary'>Buy Now</a>
+              </div>";
+    }
+  ?>
+</div>
+<?php include('footer.php'); ?>
+
+That’s it — Bootstrap handles the nice look, you just add your PHP logic.
+
+
+---
+
+🗂️ 2. Recommended Folder Structure (Plain PHP)
+
+Here’s a simple way to structure your project cleanly:
+
+project/
+│
+├── config/
+│   └── db.php             # database connection
+│
+├── admin/
+│   ├── index.php          # admin dashboard
+│   ├── affiliates.php     # manage affiliates
+│   ├── templates.php      # manage templates
+│   └── payouts.php
+│
+├── affiliate/
+│   ├── login.php
+│   ├── dashboard.php
+│   └── logout.php
+│
+├── public/
+│   ├── index.php          # template marketplace homepage
+│   ├── buy.php            # user purchase form
+│   ├── success.php        # payment success modal
+│   └── assets/
+│       ├── css/
+│       ├── js/
+│       └── images/
+│
+├── includes/
+│   ├── header.php
+│   ├── footer.php
+│   ├── functions.php      # common reusable functions
+│
+├── webhook.php            # handles payment webhooks
+├── verify.php             # verify payment manually
+└── README.md
+
+This keeps your logic clean and lets you include header/footer for consistent UI.
+
+
+---
+
+💡 3. Real Repos & Examples to Learn From
+
+These are plain PHP repos (no Laravel, no frameworks) that you can learn from and reuse parts of their UI & structure.
+
+Purpose	Repo	Description
+
+✅ Admin panel + login + CRUD	php-login-system	A good starting point to build your admin/affiliate system.
+✅ Full Bootstrap dashboard	AdminLTE	Add PHP logic on top of it for your admin area.
+✅ Payment integration (Paystack in PHP)	Paystack PHP Example	Actual PHP code for Paystack verification + webhook.
+✅ Small PHP marketplace	php-multi-vendor-marketplace	A bit bigger, but shows product listing & user flow.
+✅ Email sending example	PHPMailer	Use this to send purchase confirmation emails.
+
+
+These will give you everything you need to piece together your own project confidently.
+
+
+---
+
+🛠️ 4. Step-by-Step Plan to Build It Yourself (Plain PHP)
+
+Step 1 — Setup database & config
+
+Tables: admins, affiliates, templates, orders, payouts.
+
+Create config/db.php:
+
+<?php
+$mysqli = new mysqli("localhost", "root", "", "marketplace");
+if ($mysqli->connect_errno) {
+  die("Database connection failed: " . $mysqli->connect_error);
+}
+?>
+
+Step 2 — Admin: Create Affiliate
+
+Form with affiliate_code, email, password.
+
+Insert into DB.
+
+Optionally send them their login details using PHPMailer.
+
+
+Step 3 — Affiliate Dashboard
+
+Simple login form → verify email/password.
+
+Dashboard shows:
+
+echo "Total Earnings: ₦" . getEarnings($affiliate_id);
+echo "Total Payouts: ₦" . getPayouts($affiliate_id);
+
+
+Step 4 — Template Marketplace
+
+index.php lists all templates.
+
+Each “Buy Now” links to buy.php?id=XX.
+
+On buy.php, show contact form (name, email, WhatsApp) and call Paystack API for payment.
+
+
+Step 5 — Payment Integration (Paystack)
+
+Use Paystack’s sample PHP backend: https://github.com/PaystackHQ/sample-php-backend
+
+In your webhook:
+
+Verify payment using reference.
+
+If success → update order → send email + show modal.
+
+
+Step 6 — Email + Modal
+
+Use PHPMailer to send email:
+
+$mail->Subject = "Your Purchase Details";
+$mail->Body = "Template: XYZ\nOrder Ref: 12345\nPlease save this info!";
+$mail->send();
+
+In modal (success.php):
+
+<div class="alert alert-success">
+  <h4>Payment Successful 🎉</h4>
+  <p>Here are your details:</p>
+  <textarea readonly class="form-control">Order Ref: 12345...</textarea>
+  <button onclick="copyText()" class="btn btn-secondary">Copy Text</button>
+  <a href="https://wa.me/234XXXXXXXXXX?text=I%20just%20paid%20for%20template%20REF12345" class="btn btn-success mt-2">Chat with Developer</a>
+</div>
+
+Step 7 — Admin Dashboard
+
+Add links: “Manage Templates”, “View Orders”, “Add Affiliate”, “Payouts”.
+
+Use AdminLTE or SB Admin HTML for layout.
+
+
+
+---
+
+🎨 5. How to Get a Beautiful UI Quickly (No CSS Skills Needed)
+
+Just use Bootstrap 5 — you don’t need to design from scratch.
+
+Add this line in your header:
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+Then you can wrap everything easily:
+
+<div class="container mt-5">
+  <div class="card p-3">
+    <h3>Buy Template</h3>
+    <form> ... </form>
+  </div>
+</div>
+
+Bootstrap will make it look modern automatically.
+
+
+---
+
+🔗 Next Step Options for You
+
+If you want, I can:
+
+1. Build you a clean folder starter (zip) — plain PHP + Bootstrap + working admin/affiliate/login structure (no frameworks).
+
+
+2. Or write the full PHP implementation plan for your payment + modal + email system (just PHP, step-by-step).
+
+
+3. Or help you customize AdminLTE into your project structure so it’s ready for your own files.
+
+
+
+Which one should I do next for you?
+
+Ok, for the implementations now, I will be thinking of it a lot. Here is a simple workflow of what we are working with. A user lands on the homepage. What we just see when scrolling are categories of products, with showing their prices and buttons to say, ok, view a demo or get this website. When I click view a demo, it will show on a container, so I don't know how to do that. We will load it on a container, iframe container. These are all our sites, so we can have permission to load it on the container. Why I am doing this, so I don't want the user having to be navigating the browser. So I want everything done on my page. So what will happen is that, it will be very light or very fast, so that it will not be 100%, let me say 80% of the screen. So the user will actually know it is still on this page. So, it will just be like iframe now. We should almost take the whole page. Then, we have buttons at the down, where the user navigates. So, you might have things at the down like, go back. So I will go back and close it, to close the iframe mode or the mode I opened. We can have something like, get the website. We can have something like, admin. We have a button there, that is admin page. So instead of user now finding the URL of the admin, we already added the URL. So that when you click it, it will still load inside that same iframe. So it is just like a mini browser we opened, to load inside the iframe. So, the user can actually test the website properly. For the login pages of the website, we already added the password. So, it will also feed the password. And the user can just click login, so things like that. That is what I wanted to know. And also, for those buttons, you might just be back, get this website, on page. And there will be admin page, something like that, or more. Then, to be showing the price. Yeah, to show the price. And when user now clicks, get the website. If the user asks, if we check the URL, and the affiliate key is available, having the affiliate key and the value, we can now show the user that, okay, you are being affiliated by this affiliate. So, you get 30% off. Any affiliate has to be 30% off the user's cost. So, it will be slashed. The user will see the design, slash price. So, something like 100,000, it will be charged 17,000. So, we will now go for information like, simple information like, simple information, this part is just very simple. This part is information like, select the website you want. It's out of the available ones, just like before. Select the available ones you want. Then, it's custom. This form is actually custom to each of the website templates available. Because you might have options like, enter your phone number. Maybe the phone number is needed on the website. Or they might say, enter your email. So, it's custom. They can say, enter your PTC wallet. Maybe they need the wallet to be added to the code. So, things like that. And after the user has filled it, you will press, you do not press submit, or get the website. You need to press, get the website. We don't want to add any connection, gateway, like P-Stack or anything. So, to make this easier, as the user clicks get now, we just get the link that you are converting the form to a WhatsApp link. So, that will be a WhatsApp link with the messages. So, the messages, the form will be sent in the form of message. So, the form might contain something like, okay, I want to buy this website. I was referred to from this blah, blah, blah person. You see, I was referred from this blah, blah, blah person. Here is my name, my email. That is from the form. It will be autofilled by the code I wrote. This, this, this, this, all the details the user has. So, you will not see what, the end will not be, what accounts am I pinning to, as a question mark. What accounts am I pinning the 7? How can I pin the 7? The, let me say the 70,000. The user can just edit the message or send the message direct, because it's already autofilled. And all users are on WhatsApp. So, something like that. And also, when the admin now sees that, is the admin duty now to not send the user the full details, that is the tutorial videos, the links and everything. Why this format is better is because of the maintenance and the literature, the tech education. Not all users would know how to be using card2pay. Not all users want to use their card2pay. Not all users would like to be sharing their information like that. So, being on WhatsApp mutually is better.
+Perfect — I’ve gone through every single line of what you wrote, and I get your vision clearly.
+You’ve described a full workflow of a template marketplace or website store, but powered by plain PHP and a front-end that feels modern, smooth, and fast — without frameworks like Laravel or React.
+
+Let’s restate and structure your plan properly so we can design it step-by-step using just PHP, HTML, CSS, and minimal JS.
+
+
+---
+
+💡 PROJECT SUMMARY: “Website Template Marketplace”
+
+Goal:
+Let users browse available website templates, preview demos directly on your page (via iframe), and order one through WhatsApp — with affiliate discounts automatically applied if a referral link is used.
+
+
+---
+
+⚙️ MAIN WORKFLOW
+
+1. Homepage (index.php)
+
+Shows all website templates (each has a thumbnail, price, and buttons):
+
+View Demo
+
+Get This Website
+
+
+Layout: Grid of cards (responsive).
+
+
+Example layout:
+
+<div class="template-card">
+  <img src="thumbnail.jpg" alt="Template Preview">
+  <h3>Modern Portfolio</h3>
+  <p class="price">₦100,000</p>
+  <button onclick="openDemo('portfolio.html')">View Demo</button>
+  <button onclick="openBuyForm('portfolio')">Get This Website</button>
+</div>
+
+
+---
+
+2. View Demo (in iframe mode)
+
+When user clicks View Demo:
+
+A container (iframe modal) opens (takes ~80% of screen height).
+
+Inside iframe, the template demo loads.
+
+Below iframe, you show:
+
+🔙 Back
+
+🧾 Admin Page
+
+💸 Get This Website
+
+💰 Price (with discount if affiliate key exists)
+
+
+
+We can achieve this with simple HTML + JavaScript modal:
+
+function openDemo(url) {
+  document.getElementById('iframeContainer').style.display = 'block';
+  document.getElementById('demoFrame').src = url;
+}
+
+The iframe area might look like:
+
+<div id="iframeContainer" style="display:none;">
+  <iframe id="demoFrame"></iframe>
+  <div class="demo-controls">
+    <button onclick="closeDemo()">Back</button>
+    <button onclick="loadAdmin()">Admin Page</button>
+    <button onclick="openBuyForm()">Get This Website</button>
+    <span class="price">₦100,000</span>
+  </div>
+</div>
+
+
+---
+
+3. Affiliate System (URL-based)
+
+When user visits:
+
+https://yourdomain.com/?aff=emma
+
+You detect the aff parameter in PHP:
+
+if (isset($_GET['aff'])) {
+  $affiliate = $_GET['aff'];
+  $discount = 0.3; // 30%
+}
+
+Then dynamically show discounted price:
+
+$new_price = $price - ($price * $discount);
+echo "<p>₦<del>$price</del> ₦$new_price (30% off - referred by $affiliate)</p>";
+
+
+---
+
+4. Get Website Form (Dynamic / Custom)
+
+Each website template may require different inputs:
+
+Email
+
+Business name
+
+WhatsApp number
+
+Wallet ID, etc.
+
+
+You can define a small JSON file for each template:
+
+{
+  "portfolio": ["Full Name", "Business Name", "Email", "Phone Number"],
+  "ecommerce": ["Store Name", "Email", "Payment Wallet"]
+}
+
+PHP reads it and dynamically builds the form.
+
+
+---
+
+5. WhatsApp Integration (Instead of Paystack)
+
+When the user submits, you don’t use a payment gateway. You just redirect to a WhatsApp chat with autofilled message:
+
+$message = urlencode("Hello, I want to buy the $template_name website.
+My details:
+Name: $name
+Email: $email
+Phone: $phone
+Affiliate: $affiliate
+How do I pay?");
+header("Location: https://wa.me/234XXXXXXXXXX?text=$message");
+
+This opens the admin’s WhatsApp chat with a ready-to-send message.
+Super simple, no backend payment complexity.
+
+
+---
+
+6. Admin’s Job
+
+Admin receives the WhatsApp message and:
+
+Sends the tutorial links
+
+Sends downloadable files
+
+Completes the deal manually
+
+
+
+---
+
+🧩 UI / FRONT-END NOTES
+
+Since you said you’re not good with design, I recommend:
+
+Use Bootstrap 5 (CDN version — no setup needed).
+
+Combine with FontAwesome for icons.
+
+Add smooth modals and layout with simple JS.
+
+
+It will still be plain PHP, but with a clean UI that looks professional.
+
+Example include:
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+---
+
+🗂️ FILE STRUCTURE (Simple)
+
+project/
+│
+├── index.php           # Homepage
+├── templates/          # Template JSON definitions
+│   └── portfolio.json
+│   └── ecommerce.json
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── img/
+├── includes/
+│   └── header.php
+│   └── footer.php
+├── demo/               # Demo sites (iframe loads from here)
+│   └── portfolio/
+│   └── ecommerce/
+└── buy.php             # Handles "Get This Website" and WhatsApp redirect
+
+
+---
+
+🧠 NEXT STEPS
+
+Here’s how we can proceed (your choice):
+
+1. I’ll create the first version of index.php — with the product cards, iframe preview, and affiliate discount logic.
+
+
+2. Then we’ll add the buy.php page that builds WhatsApp messages.
+
+
+3. Then we’ll improve the UI design (using Bootstrap).
+
+
+
+Would you like me to start by showing you the first version of index.php (homepage + iframe preview + discount system) — all done in plain PHP?
+
+There are other things that I will be talking about in the conversation that I can't go and be copying them. Now that you have seen the last review I have on the website, you can unbeat them now and see the whole executive summary, the project, documents, requirements, what the developer needs, notes, and everything that you know that once you get it, the whole site is set. I need your help on that please. Everything, you can check the conversation history for guides. Remember, you are using PHP. It is a simple site with few pages. Let me say, okay, there is just a landing page. The landing page is just there. It is just a single page, PHP page that can just select the form, view a demo on iframe, then fill the form, then we handle the form with WhatsApp. Then the admin page will be now more complex because the admin page is able to post different categories, create an affiliate because there is no sign-up account, just a login account. So the admin is to create the account, the affiliate email address, then send the details to the affiliate. So the admin is to create the affiliate link for the affiliate, the email and his password. Then you can go and, you can, the affiliate account, the admin account is also able to track, can also be able to feed. Guys, the admin now, after a domain was selected on WhatsApp, maybe you use the same thing that you want this domain. The admin will now have to go to the domain, the templates or the available domain, or the domain points you to a template or categories and now say, okay, deactivates or is being used. So when, it's not deactivated because you should be able to track the history that this domain was used before. So it will be like now used, it will not be shown for a new user, something like that. So other things, the other thing I need you to think for me, you see the admin now, don't have payments, there's no payment integration. So it can just go for the, if affiliter, it can be able to pay manually. So the affilite accounts, there'll be change of password, of profile, updating of profile, changing of email, all that. There'll be emailing service, so there should be emailing service in the website so that both for the client and the admin, there's no need for email. The admin will be chatting to the client directly on WhatsApp. While for the affilite, there might be email communications needed, like the admin should be able to send the affilite email. Okay, this is a new update, this is our new rules, things like that. And the affilite can be able to put his account number. And then you can let me think about the payment, because let me see if the affilite is getting 30% of each payment. Remember we are slashing the price off by 30%, then the affilite is getting 30%. It will be cheating to us because the affilite now has made us lose 60%, but there's no issue with that. Just make sure that the affilite gets 30% of the purchase. So when the admin now counts, now checks that, okay, the admin, when the admin, usually the admin is the one that will see the affilite link that the client sent on WhatsApp. So the affilite, the person, the admin has to now go to the website and search for the affilite. Okay, they now register marks to make the system easy so that the admin doesn't have to calculate. To just type the total amount of the product, the total amount of the product and mark as, okay, this affilite sold this product for us. And if you mark it, the affilite will record on the affilite site as one sales has occurred and this was your percentage. So there might be a time-loss stuff, like every 30 days. So the affilite can put his account number. So every 30 days, his balance will be sent to that account by the admin manually. So the admin can just copy the account and send it. Other things, other providers I don't know about, I'm not big into tech now, but I need you to help me research. I'll give you a very long documentation on everything I need.
+
+
+Nice — I read everything you wrote (every line) and I’ve pulled it all together into a single, practical, plain-PHP specification + implementation plan you can hand to a developer or use to build yourself.
+
+I’ll give you:
+
+A concise executive summary (so you can hand this to someone),
+
+The exact data model (SQL) you need,
+
+The PHP pages / endpoints and what each does,
+
+UI behavior (iframe demo, controls, auto-login notes),
+
+The affiliate / admin flows (how commissions are tracked & paid),
+
+Security and operational notes,
+
+A step-by-step implementation roadmap (milestones + checklist),
+
+Ready copyable code snippets you can drop into your project (plain PHP + JS),
+
+Clear next steps I can do for you immediately (pick one).
+
+
+Let’s go.
+
+Executive summary
+
+You’ll build a small template marketplace in plain PHP with one public landing page and a separate admin area. Customers do not register. They:
+
+1. Browse templates (by category), see price and buttons: View Demo and Get This Website.
+
+
+2. View Demo opens an in-page demo in a large iframe (≈80% of screen) with navigation controls (Back, Admin, Get This Website, price).
+
+
+3. Get This Website opens a dynamic form (fields are template-specific); on submit the site creates an order record and redirects the user to WhatsApp (wa.me) with an autofilled message containing the form values and affiliate code (if any). Admin completes sale, sends deliverables and tutorial via WhatsApp or email.
+
+
+4. Affiliates are created only by the admin (no signup). Admin creates an affiliate code + email + password and emails the affiliate. Affiliates log in and can view earnings and request payout.
+
+
+5. No payment gateway. Affiliate payouts are manual, computed automatically by the system when admin marks the sale as attributed to an affiliate. Commission = 30% of product price.
+
+
+6. Admin manages templates, categories, demo sites, domains (mark domain used/unavailable; history), orders, affiliates, and payouts.
+
+
+
+Important technical notes (iframe + auto-login)
+
+You want the demo to be a “mini browser” inside your page and allow testing the admin page and auto-filled credentials. There are two cases:
+
+A — Demos hosted under the same origin/domain as your main site
+
+Best for simplicity. If demos are /demo/portfolio/... then parent page can directly access iframe DOM and prefill fields (e.g., admin login). Example (direct access):
+
+Parent JS:
+
+function openDemo(url){
+  const frame = document.getElementById('demoFrame');
+  frame.src = url;
+  document.getElementById('iframeContainer').classList.add('open');
+}
+
+function fillLoginInIframe(username, password){
+  const frame = document.getElementById('demoFrame').contentWindow;
+  // directly access DOM only if same-origin
+  try {
+    frame.document.getElementById('email').value = username;
+    frame.document.getElementById('password').value = password;
+  } catch(e) {
+    console.error('Cannot access iframe DOM', e);
+  }
+}
+
+B — Demos possibly on a different origin (or you want a safer approach)
+
+Use postMessage() to securely send messages to the iframe. This is robust and recommended if domains/subdomains differ.
+
+Parent JS (sender):
+
+function sendToIframe(action, payload){
+  const frame = document.getElementById('demoFrame').contentWindow;
+  frame.postMessage({action, payload}, '*'); // replace * with specific origin if you know it
+}
+
+Iframe JS (receiver; place inside demo pages):
+
+window.addEventListener('message', function(e){
+  const msg = e.data || {};
+  if(msg.action === 'prefillLogin'){
+    document.querySelector('#email').value = msg.payload.email;
+    document.querySelector('#password').value = msg.payload.password;
+  }
+});
+
+Conclusion: Host demos under the same domain if you want the easiest DOM access. If not, implement postMessage.
+
+DB schema (core tables) — copy & paste SQL
+
+Below is a straightforward schema to get all features you described.
+
+-- admins (single admin account)
+CREATE TABLE admins (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- affiliates (created by admin)
+CREATE TABLE affiliates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(64) UNIQUE NOT NULL, -- e.g. JOHNNY
+  email VARCHAR(255) UNIQUE,
+  password_hash VARCHAR(255),
+  display_name VARCHAR(150),
+  phone VARCHAR(32),
+  bank_account VARCHAR(255), -- JSON or string for account info
+  earnings DECIMAL(12,2) DEFAULT 0.00, -- running balance
+  total_sales INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP
+);
+
+-- categories
+CREATE TABLE categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  slug VARCHAR(150) UNIQUE NOT NULL
+);
+
+-- templates
+CREATE TABLE templates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(150) UNIQUE NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  category_id INT,
+  price DECIMAL(12,2) NOT NULL,
+  thumbnail VARCHAR(512),
+  demo_path VARCHAR(512), -- path used in iframe e.g. /demo/portfolio/index.html
+  custom_fields JSON, -- JSON array describing form fields for this template
+  available TINYINT(1) DEFAULT 1, -- 0 if unavailable or assigned
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+-- domains (domains pointing to templates; admin can mark used)
+CREATE TABLE domains (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  domain VARCHAR(255) UNIQUE NOT NULL,
+  template_id INT,
+  is_assigned TINYINT(1) DEFAULT 0,
+  assigned_to_order INT NULL,
+  assigned_at TIMESTAMP NULL,
+  history JSON, -- optional history of assignments
+  FOREIGN KEY (template_id) REFERENCES templates(id)
+);
+
+-- orders (created when user clicks Get This Website; status tracked)
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  reference VARCHAR(128) UNIQUE NOT NULL,
+  template_id INT,
+  template_snapshot JSON, -- snapshot of template info at purchase time
+  buyer_name VARCHAR(255),
+  buyer_email VARCHAR(255),
+  buyer_phone VARCHAR(50),
+  affiliate_code VARCHAR(64) NULL,
+  amount DECIMAL(12,2),
+  discount_amount DECIMAL(12,2) DEFAULT 0.00,
+  final_amount DECIMAL(12,2),
+  whatsapp_message TEXT, -- what was sent to admin via wa.me
+  status ENUM('pending','contacted','completed','cancelled') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP
+);
+
+-- affiliate_sales (records when admin attributes an order to an affiliate)
+CREATE TABLE affiliate_sales (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  affiliate_id INT NOT NULL,
+  order_id INT NOT NULL,
+  sale_amount DECIMAL(12,2),
+  commission DECIMAL(12,2), -- 30% of sale_amount
+  paid TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (affiliate_id) REFERENCES affiliates(id),
+  FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+-- payouts (admin manual payout records)
+CREATE TABLE payouts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  affiliate_id INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  status ENUM('requested','processed','failed') DEFAULT 'requested',
+  processed_by INT NULL,
+  processed_at TIMESTAMP NULL,
+  note TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (affiliate_id) REFERENCES affiliates(id)
+);
+
+-- audit logs for actions
+CREATE TABLE audit_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actor VARCHAR(150),
+  action VARCHAR(255),
+  payload JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Page / endpoint list (what to build)
+
+Public / client:
+
+index.php — landing, categories, template cards, view demo modal (iframe), affiliate detection via ?aff=CODE.
+
+buy.php — handles form rendering and submission; creates order record and redirects to wa.me with prefilled message.
+
+demo/* — demo sites (one directory per template). Prefer same origin.
+
+assets/* — CSS/JS/images.
+
+
+Admin (protected behind login):
+
+admin/login.php, admin/logout.php
+
+admin/index.php — admin dashboard overview
+
+admin/templates.php — create/update templates; control available and demo path; set custom_fields JSON.
+
+admin/categories.php
+
+admin/domains.php — list domains, assign domain to order (mark as used, with history).
+
+admin/orders.php — list orders; open order detail; mark as contacted/completed; assign affiliate sale.
+
+admin/affiliates.php — create affiliate (code, email, temp password), edit, change password, set bank details.
+
+admin/affiliate_sales.php — view sales and commissions; mark payouts processed.
+
+admin/payouts.php — view payout requests / manual processing.
+
+admin/email.php — send email to affiliate (use PHPMailer).
+
+webhook.php — (not used here since no payment gateway; optional for future).
+
+
+Affiliate (restricted):
+
+affiliate/login.php, affiliate/dashboard.php — earnings, payout history, profile management, change password, add bank details, download CSV of sales.
+
+
+How the user “Get This Website” flow works (detailed)
+
+1. User clicks “Get This Website” on a template card or inside the iframe demo control.
+
+
+2. buy.php?template=slug&aff=CODE — server reads template custom fields (JSON) and builds the form.
+
+
+3. User fills form (required fields vary by template).
+
+
+4. On submit:
+
+Backend validates and creates an orders row with a unique reference (e.g. WS-20251019-0001).
+
+The server builds a WhatsApp link with the order details prefilled (URL encode the message).
+
+Redirect user to https://wa.me/ADMIN_NUMBER?text=<encoded message> (or open in new tab).
+
+
+
+5. The message will contain: template name, buyer details, affiliate code, order reference, price, instructions.
+
+
+6. Admin receives the WhatsApp message and processes the order manually (send tutorial and deliverables).
+
+
+7. Admin then goes to admin/orders.php, finds the order, marks it contacted or completed.
+
+
+8. If the admin confirms sale via the affiliate code, they use “Record sale” / “Assign to affiliate” action: this creates a row in affiliate_sales with commission = 0.3 * final_amount and increments affiliate earnings and total_sales.
+
+
+
+Commission math (explicit)
+
+Template price = P
+
+Discount shown to user when aff is present = 30% (your rule)
+
+shown_price = P - (P * 0.30) = P * 0.70
+
+
+Admin records sale and affiliate commission:
+
+commission = P * 0.30  (we compute commission on original full price)
+
+affiliate.earnings += commission
+
+
+
+(You mentioned discount may make the platform lose some margin — system will still track affiliate commission as 30% of the product price. Admin confirms sales to ensure correct accounting.)
+
+Example PHP: creating an order and redirecting to WhatsApp
+
+Drop this into buy.php (simplified, use prepared statements in production):
+
+<?php
+require 'config/db.php'; // $mysqli
+
+$template_slug = $_GET['template'] ?? '';
+$aff = $_GET['aff'] ?? null;
+
+// Fetch template
+$stmt = $mysqli->prepare("SELECT id, title, price FROM templates WHERE slug = ?");
+$stmt->bind_param('s', $template_slug);
+$stmt->execute();
+$res = $stmt->get_result();
+$template = $res->fetch_assoc();
+
+if($_SERVER['REQUEST_METHOD'] === 'POST'){
+  $name = trim($_POST['name']);
+  $email = trim($_POST['email']);
+  $phone = trim($_POST['phone']);
+  // ... collect any other custom fields
+
+  // create order
+  $ref = 'ORD-'.time();
+  $price = $template['price'];
+  $discount = ($aff) ? ($price * 0.30) : 0;
+  $final = $price - $discount;
+  $msg = "OrderRef: $ref\nTemplate: {$template['title']}\nName: $name\nEmail: $email\nPhone: $phone\nAffiliate: $aff\nPrice: $final";
+
+  $ins = $mysqli->prepare("INSERT INTO orders (reference, template_id, buyer_name, buyer_email, buyer_phone, affiliate_code, amount, discount_amount, final_amount, whatsapp_message) VALUES (?,?,?,?,?,?,?,?,?,?)");
+  $ins->bind_param('siissddds', $ref, $template['id'], $name, $email, $phone, $aff, $price, $discount, $final, $msg);
+  $ins->execute();
+
+  $adminNumber = '234XXXXXXXXXX';
+  $encoded = urlencode($msg);
+  header("Location: https://wa.me/{$adminNumber}?text={$encoded}");
+  exit;
+}
+?>
+
+> Important: Convert the sample to prepared statements and proper error handling. Save template snapshot JSON as needed.
+
+
+
+Domain & template availability
+
+Admin marks a domain is_assigned=1 when assigned to an order; put assigned_at and assigned_to_order.
+
+Keep history JSON (or domain_assignments table) for audit trail.
+
+When a domain is assigned, available of corresponding template may also be toggled to 0 if you want to hide the template.
+
+
+Emailing (for admin→affiliate notifications)
+
+Use PHPMailer (simple SMTP). Admin can send messages to affiliates (new rules, pay info, updates).
+
+You’ll have a small admin/email.php page that selects affiliate(s), writes subject & message, and sends.
+
+Save outbound email to audit_logs for traceability.
+
+
+Admin workflow for marking affiliate sale & payouts
+
+1. Admin receives WhatsApp message from buyer.
+
+
+2. Admin confirms sale and performs manual accounting.
+
+
+3. In admin/orders.php the admin clicks Assign to Affiliate and selects an affiliate (or auto-match by affiliate_code).
+
+
+4. System inserts affiliate_sales and increases affiliate earnings by commission.
+
+
+5. Every 30 days, admin runs payouts: filter affiliates with earnings > 0, process bank transfers manually, then create a payouts record status=processed and set affiliate earnings = 0 (or subtract amount processed).
+
+
+6. Affiliate can login to view earnings and see payout history.
+
+
+
+Affiliate account flow
+
+Admin creates affiliate via admin/affiliates.php form: code, email, temp_password.
+
+System saves hashed password (password_hash()), sends email to affiliate with initial credentials and a reminder to change password.
+
+Affiliate can login to affiliate/login.php, update profile and bank account info, request payout (creates payouts request).
+
+
+Security & best practices (must do)
+
+Use password_hash() / password_verify() for passwords.
+
+Use prepared statements for ALL SQL to prevent SQL injection.
+
+Sanitize and validate email/phone values.
+
+Use CSRF tokens for admin/affiliate forms.
+
+Use HTTPS on the site.
+
+Store environment secrets (DB creds, SMTP creds) in a config file outside web root or in environment variables.
+
+Enforce strong admin password and limit login attempts.
+
+Log actions in audit_logs (who did what and when).
+
+Minimal PII retention: delete or archive old orders if necessary, comply with local laws.
+
+
+UX / UI details to implement
+
+Use Bootstrap 5 CDN for a professional look with minimal effort.
+
+Template card shows thumbnail, title, price, View Demo, Get This Website.
+
+In iframe demo mode, provide a bottom control bar with clear actions:
+
+Back → close iframe
+
+Admin Page → load demo/admin-login.html inside iframe (and prefill credentials)
+
+Get This Website → open buy form with current template + aff code
+
+Price → show original price and discounted price if affiliate present
+
+
+Show a small “This is a demo — you are still on our site” indicator.
+
+
+Implementation roadmap (milestones & checklist)
+
+Phase 1 — MVP (public + basic admin):
+
+[ ] Create DB and run SQL migrations above.
+
+[ ] Build index.php listing templates by category.
+
+[ ] Build demo folder and ensure demos load inside iframe (same origin preferred).
+
+[ ] Build buy.php with dynamic form builder that reads custom_fields JSON and creates order & WhatsApp redirect.
+
+[ ] Implement admin login and admin/templates.php crud (add demo_path, custom_fields).
+
+[ ] Implement admin admin/affiliates.php create and send credentials via PHPMailer.
+
+[ ] Implement admin/orders.php and ability to mark order status and assign affiliate sale (creating affiliate_sales record automatically computing commission).
+
+[ ] Implement affiliate login & simple dashboard (view earnings, change password, set bank).
+
+
+Phase 2 — polish & ops:
+
+[ ] Add domain management (assign/mark used and history).
+
+[ ] Add email sender UI and audit logs.
+
+[ ] Add CSV export for payouts and affiliate sales.
+
+[ ] Add small chart or summary metrics in admin.
+
+[ ] Deploy to a public server with HTTPS and monitoring.
+
+
+Example custom_fields JSON structure (templates.custom_fields)
+
+[
+  {"name":"business_name","label":"Business Name","type":"text","required":true},
+  {"name":"email","label":"Business Email","type":"email","required":true},
+  {"name":"phone","label":"WhatsApp Number","type":"tel","required":true},
+  {"name":"wallet_id","label":"Payment Wallet ID","type":"text","required":false}
+]
+
+Your buy.php reads this JSON and renders the matching inputs.
+
+What I can deliver right now (pick 1)
+
+I can immediately produce any one of the following in plain PHP (ready to copy/paste):
+
+A. A complete index.php + JS demo modal (shows categories, template cards, opens iframe modal, supports ?aff= discount display and Admin button prefill via postMessage) — 1 file + small CSS/JS.
+
+B. A buy.php implementation that reads custom_fields JSON, validates input, writes an orders row (SQL), builds the WhatsApp message, and redirects to wa.me — including the DB insert code.
+
+C. A full SQL migration file + admin skeleton pages (login.php, templates.php, affiliates.php) with sample forms (no styling beyond Bootstrap) to bootstrap your admin area.
+
+D. A detailed developer handoff document (one-page, copyable) you can send to a developer that includes the DB schema, endpoints, UI wireframe text, and acceptance tests.
+
+Tell me which of A/B/C/D you want now and I’ll generate it right here in plain PHP (no external frameworks). If you want A or B I’ll include the exact code you can paste into your project and test immediately.
+
+
+---
+
+If you want, I’ll start with A: index + iframe demo modal (with affiliate discount detection & postMessage auto-login) so you can see the entire user flow visually. Which do you prefer?
+
+Great — I hear you. You want a complete, exhaustive developer handoff document for the entire site: every page, every table, every API/endpoint, every UI behavior (iframe demo + admin auto-login), business rules, affiliate accounting, emails/WhatsApp copy, deployment, testing/acceptance criteria, maintenance, and exactly what a developer needs to implement this in plain PHP (no frameworks) — ready to hand off or to follow yourself.
+
+Below is a single, long, fully detailed developer specification and implementation guide. It’s written so a PHP developer can start building immediately and so you can review and test each milestone. I include SQL, PHP snippets (plain PHP), UI wireframe descriptions, exact WhatsApp message formats, audit & logging, backups, deployment recommendations, and an acceptance-test checklist.
+
+If you want, after reading this I’ll:
+
+produce the actual ready-to-run index.php + buy.php + admin skeleton files (A/B/C from the earlier list) with the code wired to the DB schema below, or
+
+produce a single downloadable zip of starter files you can run locally.
+
+
+Say which and I’ll generate it next — for now, the full spec:
+
+1) Executive summary (one-paragraph)
+
+A small marketplace built in plain PHP where customers do not register. They browse templates by category, preview demos in an in-page iframe modal that behaves like a mini-browser (admin demo + pre-filled login possible), and order a site by filling a template-specific form. Orders are delivered by the admin via WhatsApp (no payment integration). Affiliates are created only by the admin — each affiliate has a code (e.g., JOHNNY) and receives 30% commission on confirmed sales. Admins manage templates, categories, domains (assign/unassign), affiliates, orders and payouts via an admin panel.
+
+
+---
+
+2) Goals & non-goals
+
+Goals
+
+Plain PHP codebase, minimal dependencies, Bootstrap for UI.
+
+Fast, single landing page for users + admin area for management.
+
+Demo preview loaded in-page in an iframe (≈80% of screen), with controls.
+
+No signup for customers — WhatsApp-based order flow.
+
+Admin-only creation of affiliates; affiliate dashboard for earnings/payouts only.
+
+Clear accounting for affiliate commissions and manual payout workflow.
+
+Audit logs for operations and domain assignment history.
+
+Email ability for admin → affiliates and admin → buyers when desired.
+
+
+Non-goals (explicit)
+
+No in-app card or online payment integration for customers in MVP.
+
+No SaaS multi-tenancy (one installation only).
+
+No automatic provisioning of websites (manual or semi-manual by admin after sale).
+
+No heavy frontend frameworks — keep to plain JS + Bootstrap.
+
+
+
+---
+
+3) Actors & user stories
+
+Actors
+
+Visitor / Buyer (anonymous): Browses templates, views demo, submits buy form → WhatsApp redirect.
+
+Admin: Full control — manage templates, categories, affiliates, domains, orders, payouts, emails.
+
+Affiliate: Account created by admin; logs in; sees earnings, payout history, profile.
+
+Developer / Maintainer: Implements, deploys, tests, and maintains site.
+
+
+Key user stories
+
+1. As a visitor I can browse templates by category and see price and demo.
+
+
+2. As a visitor I can open a demo in a modal iframe, test the template (including admin panel if demo supports it), and close the demo to return to the site.
+
+
+3. As a visitor I can click “Get This Website”, fill a template-custom form, and be redirected to WhatsApp with a prefilled message to the admin including affiliate code if present.
+
+
+4. As an admin I can create/update/delete templates, categories, domains and demos, and upload demo files.
+
+
+5. As an admin I can create affiliate accounts (code, email, password), edit profiles and view earnings/payouts.
+
+
+6. As an admin I can mark domains as assigned to an order and keep assignment history.
+
+
+7. As an admin I can view orders, mark an order as confirmed/completed, and attribute an order to an affiliate; the system will record a 30% commission and add earnings to affiliate balance.
+
+
+8. As an affiliate I can log in, update my profile/bank details, view earnings and sales, request payout (creates a payout request).
+
+
+9. As an admin I can process payouts and mark them processed (manual transfer externally).
+
+
+10. As a developer I can run the app on LAMP stack and the system logs audit events and sends email via SMTP.
+
+
+
+
+---
+
+4) System architecture (high-level)
+
+Web server: Apache or Nginx + PHP 8.x (FPM)
+
+Database: MySQL / MariaDB or PostgreSQL (SQL below provided for MySQL/MariaDB)
+
+Storage: local file system for demo sites + uploads; optional S3 later
+
+Email: SMTP via PHPMailer (SendGrid/Mailgun or SMTP credentials)
+
+UI: HTML + Bootstrap 5 (CDN), vanilla JS, small helper JS file for iframe & postMessage
+
+Authentication: session-based for admin & affiliates (plain PHP $_SESSION)
+
+Config: config.php outside web root or protected in server (DB creds, admin email, WhatsApp number)
+
+Logging: DB audit_logs + error log file
+
+Backups: periodic DB dump + archive of demo/ directory
+
+
+
+---
+
+5) Database schema (FULL SQL — copy & paste)
+
+This is the canonical DB schema for the app (MySQL / MariaDB). Run in your DB to create tables.
+
+-- 1. Admins
+CREATE TABLE admins (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2. Affiliates (admin creates)
+CREATE TABLE affiliates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(64) UNIQUE NOT NULL, -- e.g. JOHNNY
+  email VARCHAR(255) UNIQUE,
+  password_hash VARCHAR(255),
+  display_name VARCHAR(150),
+  phone VARCHAR(32),
+  bank_info JSON DEFAULT NULL, -- JSON object with bank_name, account_number, account_name
+  earnings DECIMAL(12,2) DEFAULT 0.00,
+  total_sales INT DEFAULT 0,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL
+);
+
+-- 3. Categories
+CREATE TABLE categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  slug VARCHAR(150) UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Templates
+CREATE TABLE templates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  slug VARCHAR(150) UNIQUE NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  category_id INT,
+  price DECIMAL(12,2) NOT NULL,
+  thumbnail VARCHAR(512) DEFAULT NULL,
+  demo_path VARCHAR(512) DEFAULT NULL, -- path used by iframe e.g. /demo/portfolio/index.html
+  custom_fields JSON DEFAULT NULL, -- JSON array describing form fields
+  description TEXT,
+  available TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
+
+-- 5. Domains (domains pointing to templates)
+CREATE TABLE domains (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  domain VARCHAR(255) UNIQUE NOT NULL,
+  template_id INT,
+  is_assigned TINYINT(1) DEFAULT 0,
+  assigned_to_order INT DEFAULT NULL,
+  assigned_at TIMESTAMP NULL,
+  history JSON DEFAULT NULL, -- e.g. [{"order":ref,"assigned_at":"...","admin":"..."}]
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE SET NULL
+);
+
+-- 6. Orders (created when buyer submits the form)
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  reference VARCHAR(128) UNIQUE NOT NULL,
+  template_id INT DEFAULT NULL,
+  template_snapshot JSON DEFAULT NULL,
+  buyer_name VARCHAR(255),
+  buyer_email VARCHAR(255),
+  buyer_phone VARCHAR(50),
+  custom_data JSON DEFAULT NULL, -- form responses
+  affiliate_code VARCHAR(64) DEFAULT NULL,
+  amount DECIMAL(12,2) DEFAULT 0.00, -- original price
+  discount_amount DECIMAL(12,2) DEFAULT 0.00,
+  final_amount DECIMAL(12,2) DEFAULT 0.00,
+  whatsapp_message TEXT DEFAULT NULL,
+  status ENUM('pending','contacted','completed','cancelled') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL,
+  FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE SET NULL
+);
+
+-- 7. Affiliate sales: recorded when admin attributes an order to an affiliate
+CREATE TABLE affiliate_sales (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  affiliate_id INT NOT NULL,
+  order_id INT NOT NULL,
+  sale_amount DECIMAL(12,2) NOT NULL,
+  commission DECIMAL(12,2) NOT NULL,
+  paid TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (affiliate_id) REFERENCES affiliates(id),
+  FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+-- 8. Payouts (admin processes manually)
+CREATE TABLE payouts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  affiliate_id INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  status ENUM('requested','processed','failed') DEFAULT 'requested',
+  processed_by INT DEFAULT NULL, -- admin id
+  processed_at TIMESTAMP NULL,
+  note TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (affiliate_id) REFERENCES affiliates(id),
+  FOREIGN KEY (processed_by) REFERENCES admins(id)
+);
+
+-- 9. Audit logs
+CREATE TABLE audit_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actor VARCHAR(150),
+  action VARCHAR(255),
+  payload JSON DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+---
+
+6) Files & folder layout (recommended)
+
+/project-root
+│
+├── config/
+│   └── config.php           # DB and global config
+│
+├── public/                  # web root; point Apache/Nginx here
+│   ├── index.php            # landing page (browse + iframe)
+│   ├── buy.php              # build form + create order + redirect to WhatsApp
+│   ├── demo/                # demo files for templates (same-origin recommended)
+│   │   └── <template_slug>/index.html
+│   ├── assets/
+│   │   ├── css/
+│   │   └── js/
+│   └── img/
+│
+├── admin/                   # admin panel (session-protected)
+│   ├── login.php
+│   ├── logout.php
+│   ├── index.php
+│   ├── templates.php
+│   ├── templates-edit.php
+│   ├── categories.php
+│   ├── affiliates.php
+│   ├── affiliates-edit.php
+│   ├── domains.php
+│   ├── orders.php
+│   ├── orders-view.php
+│   ├── payouts.php
+│   ├── email.php            # send email to affiliates/buyers
+│   └── partials/
+│       └── header.php, footer.php
+│
+├── affiliate/               # affiliate-facing pages
+│   ├── login.php
+│   ├── dashboard.php
+│   └── profile.php
+│
+├── includes/
+│   ├── functions.php        # helper functions (DB, auth, utils)
+│   ├── mailer.php           # PHPMailer wrapper
+│   └── csrf.php
+│
+├── storage/
+│   └── uploads/             # uploaded thumbnails, etc.
+│
+├── logs/
+│   └── app.log
+└── README.md
+
+
+---
+
+7) Detailed page & endpoint specs (what to implement)
+
+I’ll document each page (UI + backend behavior + validation + acceptance criteria).
+
+
+---
+
+PUBLIC: index.php — Landing / marketplace
+
+Purpose
+
+Main page showing categories and templates. Each template card shows thumbnail, title, price (with affiliate discount if aff present), buttons: View Demo, Get This Website.
+
+Inputs
+
+Optional ?aff=AFFCODE in URL (detect & store in session for subsequent actions).
+
+Template data read from templates table.
+
+
+Behavior
+
+Detect affiliate param: if (isset($_GET['aff'])) { $_SESSION['affiliate'] = sanitize($_GET['aff']); }
+
+Template card shows price and, if affiliate code present and valid (exists in affiliates and is active), show discounted price and label “30% off — referred by AFFNAME”.
+
+View Demo button: calls JS openDemo(url, template_slug, demo_admin_path, demo_admin_username, demo_admin_password) — opens iframe modal and loads demo.
+
+Get This Website button: navigates to buy.php?template=slug (append aff from session if present).
+
+
+UI details
+
+Grid of cards (Bootstrap row / col) with card.
+
+Demo modal: fixed position element covering center of page, overlay + container width 100% and height 80% (or height: 80vh). Card has iframe and bottom control bar with:
+
+Back (close modal)
+
+Admin Page (loads demo admin URL inside iframe)
+
+Get This Website (open buy.php?template=slug)
+
+Price (original & discounted if any)
+
+Copy URL (optional)
+
+
+Provide postMessage / direct DOM prefill for admin login: on Admin Page click, send message to iframe to prefill login fields. See later for exact postMessage format.
+
+
+Validation & acceptance
+
+Must list categories and templates.
+
+Affiliate discount displays correctly if aff query param is valid.
+
+Demo loads inside iframe (no external navigation).
+
+Admin Page button triggers the prefill attempt (works when demo includes postMessage listener or is same-origin).
+
+
+
+---
+
+PUBLIC: buy.php — Template-specific form and WhatsApp redirect
+
+Purpose
+
+Render dynamic form based on templates.custom_fields. Create orders record on POST, build a WhatsApp message, redirect to wa.me/ADMIN_NUMBER?text=... with the encoded message.
+
+Behavior (GET)
+
+Requires template slug param; fetch template and custom_fields JSON.
+
+Show price and (if aff in session) show discounted price.
+
+Build form inputs according to custom_fields JSON (type, required, placeholder).
+
+Hidden inputs: template_id, template_slug, affiliate_code (from session if set).
+
+
+Behavior (POST)
+
+Validate required fields (server-side).
+
+Build custom_data JSON from form responses.
+
+Compute discount_amount = price * 0.30 if affiliate_code present and valid, else 0.
+
+Compute final_amount.
+
+Generate unique reference (e.g., WS-YYYYMMDD-HHMMSS-XXXX).
+
+Insert row into orders with status pending. Include whatsapp_message field containing the exact text that will be sent.
+
+Redirect to https://wa.me/ADMIN_NUMBER?text=<urlencoded message>.
+
+Log action in audit_logs.
+
+
+WhatsApp message format (exact template)
+
+New Website Order
+OrderRef: {{REFERENCE}}
+Template: {{TEMPLATE_TITLE}} ({{TEMPLATE_SLUG}})
+Price: {{FINAL_AMOUNT}} NGN
+Affiliate: {{AFF_CODE}} (if any)
+
+Buyer:
+Name: {{BUYER_NAME}}
+Email: {{BUYER_EMAIL}}
+Phone/WhatsApp: {{BUYER_PHONE}}
+
+Form data:
+{{FIELD_LABEL_1}}: {{value}}
+{{FIELD_LABEL_2}}: {{value}}
+...
+
+Notes:
+- Please confirm and reply with next steps.
+- Order created at: {{created_at}}
+
+(Replace newlines with %0A for URL-encoding; link will open WhatsApp chat with this message.)
+
+Validation & acceptance
+
+Order row inserted correctly with all fields.
+
+WhatsApp redirection occurs and message is prefilled correctly.
+
+If affiliate_code present, discount_amount and final_amount calculated properly.
+
+audit_logs entry created.
+
+
+
+---
+
+PUBLIC: demo pages (under /public/demo/<template_slug>/...)
+
+Purpose
+
+Full demo site for each template. Ideally same-origin so parent can access DOM; otherwise implement postMessage listener to accept commands (e.g., prefillLogin).
+
+Requirements for each demo
+
+Should include an admin login page at a defined path, e.g. /public/demo/<slug>/admin/login.html (or admin/index.html).
+
+Demo pages must include this JS snippet to accept postMessage commands (if cross-origin or if you prefer postMessage approach):
+
+
+<script>
+window.addEventListener('message', function(e){
+  const data = e.data || {};
+  if(data && data.action === 'prefillLogin'){
+    const email = data.payload.email || '';
+    const password = data.payload.password || '';
+    // Attempt to find common selectors; demos should include these IDs
+    const emailEl = document.querySelector('#email') || document.querySelector('input[type="email"]');
+    const passEl = document.querySelector('#password') || document.querySelector('input[type="password"]');
+    if(emailEl) emailEl.value = email;
+    if(passEl) passEl.value = password;
+  }
+  // Could extend: navigateTo(path), setField(name,value), etc.
+});
+</script>
+
+Acceptance
+
+Parent can send postMessage to prefill login fields and the demo responds.
+
+Demos load quickly; internal nav stays inside the iframe (not open a new tab unless intentionally coded).
+
+
+
+---
+
+ADMIN: login.php / admin/index.php
+
+Admin login (admin/login.php)
+
+Admin email + password fields.
+
+On login success, set $_SESSION['admin_id'], redirect to admin/index.php.
+
+
+Admin dashboard (admin/index.php)
+
+Show counts: Templates, Orders (pending), Affiliates, Earnings summary (optional).
+
+Quick actions: Create template, Create affiliate, View pending orders.
+
+Use AdminLTE or SB Admin 2 HTML templates (rename .html to .php and include PHP logic).
+
+
+Admin pages: templates.php / templates-edit.php
+
+CRUD for templates: slug, title, category, price, thumbnail upload, demo_path, custom_fields JSON editor (UI with fields builder), description, available toggle.
+
+Accepts thumbnail upload to storage/uploads/ or public/img/.
+
+
+Admin pages: affiliates.php
+
+Create affiliate: code (unique), email, temp_password (or auto-generate), display_name, phone.
+
+When created: store password_hash, send email to affiliate with instructions and temporary password (PHPMailer).
+
+Admin can edit affiliate profile, set bank_info JSON (bank_name, account_number, account_name).
+
+Admin can set affiliate is_active toggle.
+
+
+Admin pages: orders.php / orders-view.php
+
+List orders with filters (status, date, affiliate).
+
+View order details and whatsapp_message (copy button).
+
+Buttons: Mark as contacted, completed, cancelled.
+
+Action: Assign to Affiliate (dropdown of affiliates). When assigned:
+
+Create affiliate_sales row: affiliate_id, order_id, sale_amount = order.final_amount, commission = round( sale_amount * 0.30, 2 )
+
+Update affiliates.earnings += commission, affiliates.total_sales += 1
+
+Log action in audit_logs.
+
+
+
+Admin pages: domains.php
+
+List domains, show assigned status and history JSON (editable).
+
+Assign domain to order: set is_assigned=1, assigned_to_order=order.id, assigned_at=NOW(), append to history JSON with admin and timestamp.
+
+Unassign domain: set is_assigned=0, add history entry marking unassignment.
+
+
+Admin pages: payouts.php
+
+List affiliates with earnings > 0; admin can create payout: record payouts row with status=processed and processed_by admin id and processed_at=NOW(), and subtract earnings accordingly (or set to 0 if paying full).
+
+Provide CSV export for payouts.
+
+
+Admin pages: email.php
+
+Form to send email to affiliate or buyer (select recipient(s), write subject & message). Use PHPMailer wrapper. Save email activity in audit_logs.
+
+
+Acceptance
+
+Admin pages protect with session-based login and CSRF tokens.
+
+Admin can create, edit, delete templates and affiliates.
+
+Admin can assign orders to affiliate; commissions and earnings updated correctly.
+
+
+
+---
+
+AFFILIATE: login.php / dashboard.php
+
+Affiliate login
+
+Email + password.
+
+Use session $_SESSION['affiliate_id'].
+
+
+Affiliate dashboard
+
+Show earnings (current balance), total_sales, list of affiliate_sales with order refs, sale_amount, commission, paid status.
+
+Buttons: Request payout (creates payouts row with status='requested'), Edit profile, Update bank_info.
+
+Accepts bank info via JSON: { "bank_name": "...", "account_number": "...", "account_name": "..." }.
+
+
+Acceptance
+
+Affiliate can login, view earnings and sales, request payouts.
+
+
+
+---
+
+8) Business logic & rules (detailed)
+
+Affiliate & discount rules
+
+If visitor uses ?aff=CODE or otherwise sets affiliate code in session, display discount = 30% of template price.
+
+Buyer pays or arranges payment outside system (WhatsApp). System does not auto-deduct or transfer payments.
+
+When admin attributes sale to affiliate, commission = 30% of sale_amount (sale_amount is final_value admin recorded).
+
+Affiliate earnings updated immediately when sale assigned (credited as unpaid).
+
+Payouts processed manually by admin every N days (your choice, default 30 days). Admin will create payouts records marking processed and optionally reduce affiliates.earnings.
+
+
+Domain allocation rules
+
+Domains table stores domain -> template mapping. When admin assigns domain to an order, set is_assigned=1 and assigned_to_order=ORDER_ID.
+
+Domain remains unavailable for new purchases until unassigned.
+
+Always append an entry to history JSON with admin, order_ref, action (assigned/unassigned), timestamp.
+
+
+Orders & statuses
+
+Orders start as pending (created when buyer completes form and is redirected to WhatsApp).
+
+Admin manually sets contacted (when admin acknowledged the WhatsApp), complet

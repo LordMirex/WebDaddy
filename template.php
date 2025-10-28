@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/functions.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -10,13 +10,13 @@ handleAffiliateTracking();
 $templateId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!$templateId) {
-    header('Location: index.php');
+    header('Location: /');
     exit;
 }
 
 $template = getTemplateById($templateId);
 if (!$template) {
-    header('Location: index.php');
+    header('Location: /');
     exit;
 }
 
@@ -197,7 +197,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             </div>
 
                             <div class="d-grid gap-3 mb-4">
-                                <a href="order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                                <a href="/order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
                                    class="btn btn-primary btn-lg py-3 fw-700">
                                     <i class="bi bi-cart-plus me-2"></i>Order Now
                                 </a>
@@ -251,7 +251,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 <div class="col-lg-8 mx-auto text-center">
                     <h2 class="h3 fw-800 mb-3">Ready to Get Started?</h2>
                     <p class="text-muted mb-4">Join hundreds of businesses using our templates</p>
-                    <a href="order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                    <a href="/order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
                        class="btn btn-primary btn-lg px-5 fw-700">
                         Order This Template Now
                     </a>
