@@ -7,16 +7,29 @@ A PHP/PostgreSQL web application for selling website templates with bundled doma
 ### Step 1: Install Docker Desktop
 Download and install from: https://www.docker.com/products/docker-desktop
 
-### Step 2: Run the Application
-Double-click `start.bat` (or run in terminal):
+### Step 2: Build the Application (One-Time, Requires Internet)
+Double-click `build.bat` - this downloads and builds the Docker images:
 ```bash
-docker-compose up -d --build
+build.bat
+```
+**Note:** You only need to do this once, or when you update the Dockerfile.
+
+### Step 3: Start the Application (Works Offline!)
+Double-click `start.bat` to start the containers:
+```bash
+start.bat
 ```
 
-### Step 3: Open Your Browser
+### Step 4: Open Your Browser
 Go to: **http://localhost:8080**
 
 **That's it! You're done!** 🎉
+
+### 🔄 Daily Usage
+- **Start**: Run `start.bat` (works offline after initial build)
+- **Stop**: Run `stop.bat`
+- **Restart**: Run `restart.bat`
+- **Rebuild** (only if Dockerfile changes): Run `build.bat` (requires internet)
 
 ---
 

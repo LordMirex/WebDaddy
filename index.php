@@ -16,7 +16,10 @@ $affiliateCode = getAffiliateCode();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title><?php echo SITE_NAME; ?> - Professional Website Templates with Domains</title>
     <meta name="description" content="Professional website templates with domains included. Launch your business online in 24 hours.">
     
@@ -48,7 +51,7 @@ $affiliateCode = getAffiliateCode();
                         <a class="nav-link" href="#faq">FAQ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-cta" href="/affiliate/">Become an Affiliate</a>
+                        <a class="nav-link nav-cta" href="/affiliate/register.php">Become an Affiliate</a>
                     </li>
                 </ul>
             </div>
@@ -60,22 +63,47 @@ $affiliateCode = getAffiliateCode();
         <div class="container">
             <div class="row align-items-center min-vh-50">
                 <div class="col-lg-10 mx-auto text-center">
-                    <h1 class="display-3 fw-800 mb-4 text-white">Professional Websites.<br>Ready in 24 Hours.</h1>
-                    <p class="lead text-white-80 mb-5">Choose a template, select your domain, and launch your business online today. Everything you need is included.</p>
-                    <div class="trust-badges mb-5">
-                        <span class="trust-badge">
-                            <i class="bi bi-check-circle-fill"></i>
-                            Domain Included
-                        </span>
-                        <span class="trust-badge">
-                            <i class="bi bi-check-circle-fill"></i>
-                            24-Hour Setup
-                        </span>
-                        <span class="trust-badge">
-                            <i class="bi bi-check-circle-fill"></i>
-                            Full Customization
-                        </span>
+                    <h1 class="display-4 fw-800 mb-3 text-white">Launch Your Business Online</h1>
+                    <p class="lead text-white-80 mb-4">Professional website templates with domains included. Get online in 24 hours or less.</p>
+                    
+                    <!-- Trust Elements -->
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                        <div class="trust-badge">
+                            <i class="bi bi-shield-check text-success me-2"></i>
+                            <span class="small fw-600">30-Day Money Back</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="bi bi-lightning text-warning me-2"></i>
+                            <span class="small fw-600">24hr Setup</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="bi bi-headset text-primary me-2"></i>
+                            <span class="small fw-600">24/7 Support</span>
+                        </div>
                     </div>
+                    
+                    <!-- Success Metrics -->
+                    <div class="row justify-content-center text-center mb-4">
+                        <div class="col-auto">
+                            <div class="metric-item">
+                                <div class="metric-number text-white fw-800">500+</div>
+                                <div class="metric-label text-white-75 small">Websites Launched</div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="metric-item">
+                                <div class="metric-number text-white fw-800">98%</div>
+                                <div class="metric-label text-white-75 small">Happy Customers</div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="metric-item">
+                                <div class="metric-number text-white fw-800">24hrs</div>
+                                <div class="metric-label text-white-75 small">Average Setup</div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <a href="#templates" class="btn btn-light px-4 fw-600">
                         <i class="bi bi-arrow-down me-2"></i>Explore Templates
                     </a>
@@ -134,7 +162,7 @@ $affiliateCode = getAffiliateCode();
                                     </a>
                                     <a href="order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
                                        class="btn-compact btn-solid">
-                                        Order
+                                        <i class="bi bi-lightning me-1"></i>Order Now
                                     </a>
                                 </div>
                             </div>
@@ -147,8 +175,70 @@ $affiliateCode = getAffiliateCode();
         </div>
     </section>
 
+    <!-- Testimonials Section -->
+    <section class="py-6 bg-light">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="h2 fw-800 mb-3">Trusted by Businesses Like Yours</h2>
+                    <p class="text-muted fs-5">See what our customers say about launching their online presence</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="testimonial-text mb-3">"Amazing service! My restaurant website was live in 24 hours. The template looks professional and my customers love it."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-name fw-600">Adebayo Johnson</div>
+                            <div class="testimonial-title small text-muted">Bella's Kitchen, Lagos</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="testimonial-text mb-3">"From zero to online business in one day! The setup was seamless and the support team is incredible."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-name fw-600">Ngozi Okoro</div>
+                            <div class="testimonial-title small text-muted">Fashion Boutique, Abuja</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars mb-3">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                        </div>
+                        <p class="testimonial-text mb-3">"Professional, fast, and affordable. My law firm website attracts new clients every week. Highly recommended!"</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-name fw-600">Barrister Emeka</div>
+                            <div class="testimonial-title small text-muted">Legal Services, Port Harcourt</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- How It Works -->
-    <section class="py-6 bg-light" id="how-it-works">
+    <section class="py-6 bg-white" id="how-it-works">
         <div class="container">
             <div class="row mb-5">
                 <div class="col-lg-8 mx-auto text-center">
@@ -248,20 +338,6 @@ $affiliateCode = getAffiliateCode();
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="py-6 bg-primary text-white">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mx-auto text-center">
-                    <h2 class="h2 fw-800 mb-3">Ready to Launch Your Website?</h2>
-                    <p class="fs-5 mb-4 text-white-80">Join hundreds of businesses that trust us with their online presence</p>
-                    <a href="#templates" class="btn btn-light px-4 fw-600">
-                        <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Footer -->
     <footer class="footer-custom">
@@ -280,7 +356,7 @@ $affiliateCode = getAffiliateCode();
                         <li class="mb-2"><a href="#templates" class="text-muted small text-decoration-none">Templates</a></li>
                         <li class="mb-2"><a href="#how-it-works" class="text-muted small text-decoration-none">How It Works</a></li>
                         <li class="mb-2"><a href="#faq" class="text-muted small text-decoration-none">FAQ</a></li>
-                        <li class="mb-2"><a href="/affiliate/" class="text-muted small text-decoration-none">Become an Affiliate</a></li>
+                        <li class="mb-2"><a href="/affiliate/register.php" class="text-muted small text-decoration-none">Become an Affiliate</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
@@ -288,8 +364,8 @@ $affiliateCode = getAffiliateCode();
                     <ul class="list-unstyled">
                         <li class="mb-2">
                             <i class="bi bi-whatsapp me-2 text-success"></i>
-                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="text-muted small text-decoration-none">
-                                <?php echo WHATSAPP_NUMBER; ?>
+                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" class="text-muted small text-decoration-none">
+                                <?php echo getSetting('whatsapp_number', '+2349132672126'); ?>
                             </a>
                         </li>
                         <li class="mb-2"><a href="/admin/login.php" class="text-muted small text-decoration-none">Admin Login</a></li>

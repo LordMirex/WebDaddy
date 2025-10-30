@@ -233,7 +233,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 <i class="bi bi-whatsapp text-success me-2"></i>Need Help?
                             </h6>
                             <p class="small text-muted mb-3">Have questions? Contact us on WhatsApp</p>
-                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" 
+                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" 
                                class="btn btn-success btn-sm w-100"
                                target="_blank">
                                 <i class="bi bi-whatsapp me-2"></i>Chat with Us

@@ -89,8 +89,9 @@ function createPendingOrder($data)
         $stmt = $db->prepare("
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
-             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, 
+             discounted_price, discount_amount, affiliate_discount_rate, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
         ");
         
         $stmt->execute([
@@ -104,7 +105,10 @@ function createPendingOrder($data)
             $data['affiliate_code'],
             $data['session_id'],
             $data['message_text'],
-            $data['ip_address']
+            $data['ip_address'],
+            $data['discounted_price'] ?? null,
+            $data['discount_amount'] ?? 0,
+            $data['affiliate_discount_rate'] ?? 0
         ]);
         
         $lastId = $db->lastInsertId('pending_orders_id_seq');
@@ -168,8 +172,9 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         if (!empty($order['affiliate_code'])) {
             $affiliate = getAffiliateByCode($order['affiliate_code']);
             if ($affiliate) {
-                $template = getTemplateById($order['template_id']);
-                $commissionAmount = $template['price'] * AFFILIATE_COMMISSION_RATE;
+                // Use discounted price if available, otherwise fall back to original template price
+                $commissionBase = $order['discounted_price'] ?? $order['template_price'];
+                $commissionAmount = $commissionBase * AFFILIATE_COMMISSION_RATE;
                 $affiliateId = $affiliate['id'];
                 
                 updateAffiliateCommission($affiliateId, $commissionAmount);
@@ -303,24 +308,17 @@ function logActivity($action, $details = '', $userId = null)
 
 function generateWhatsAppLink($orderData, $template)
 {
-    $number = preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER);
+    $number = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));
     
     $message = "Hello! I would like to order a website:\n\n";
     $message .= "Template: " . $template['name'] . "\n";
     $message .= "Name: " . $orderData['customer_name'] . "\n";
-    $message .= "Email: " . $orderData['customer_email'] . "\n";
-    $message .= "Phone: " . $orderData['customer_phone'] . "\n";
+    $message .= "WhatsApp: " . $orderData['customer_phone'] . "\n";
+    $message .= "Price: " . formatCurrency($template['price']) . "\n";
     
-    if (!empty($orderData['business_name'])) {
-        $message .= "Business: " . $orderData['business_name'] . "\n";
+    if (!empty($orderData['order_id'])) {
+        $message .= "\nOrder ID: " . $orderData['order_id'];
     }
-    
-    if (!empty($orderData['domain_name'])) {
-        $message .= "Domain: " . $orderData['domain_name'] . "\n";
-    }
-    
-    $message .= "\nOrder ID: " . $orderData['order_id'] . "\n";
-    $message .= "Price: " . formatCurrency($template['price']);
     
     $encodedMessage = rawurlencode($message);
     

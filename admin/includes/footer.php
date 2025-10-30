@@ -30,8 +30,13 @@
                 }, 100);
                 
                 // Redirect to same page without POST data after a short delay
+                // Preserve query parameters (like ?view=2)
                 setTimeout(() => {
-                    window.location.href = window.location.pathname + window.location.search;
+                    const url = window.location.pathname + window.location.search;
+                    // Only redirect if we're not already on a clean URL
+                    if (window.performance && window.performance.navigation.type !== 1) {
+                        window.location.replace(url);
+                    }
                 }, 1500);
             }
         });

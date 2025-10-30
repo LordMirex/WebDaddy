@@ -16,6 +16,9 @@ function loginAffiliate($emailOrCode, $password)
     $db = getDb();
     
     try {
+        // Convert affiliate code to uppercase for case-insensitive matching
+        $loginInput = strtoupper($emailOrCode);
+        
         $stmt = $db->prepare("
             SELECT u.*, a.id as affiliate_id, a.code as affiliate_code, a.status as affiliate_status 
             FROM users u
@@ -24,7 +27,7 @@ function loginAffiliate($emailOrCode, $password)
             AND u.role = 'affiliate' 
             AND u.status = 'active'
         ");
-        $stmt->execute([$emailOrCode, $emailOrCode]);
+        $stmt->execute([$emailOrCode, $loginInput]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user && password_verify($password, $user['password_hash'])) {

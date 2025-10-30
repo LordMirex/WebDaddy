@@ -193,7 +193,7 @@ CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at);
 
 -- Insert Default Settings
 INSERT INTO settings (setting_key, setting_value) VALUES
-('whatsapp_number', '+2348012345678'),
+('whatsapp_number', '+2349132672126'),
 ('site_name', 'WebDaddy Empire'),
 ('commission_rate', '0.30'),
 ('affiliate_cookie_days', '30');
@@ -204,18 +204,85 @@ INSERT INTO users (name, email, phone, password_hash, role) VALUES
 
 -- Insert Sample Templates
 INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, active) VALUES
-('E-commerce Store', 'ecommerce-store', 200000.00, 'Business', 'Complete online store with product catalog, cart, and checkout', 'Product Management, Shopping Cart, Order Tracking, Payment Integration', 'https://demo.example.com/ecommerce', 'https://via.placeholder.com/400x300/28a745/ffffff?text=E-commerce', true),
-('Portfolio Website', 'portfolio-site', 150000.00, 'Personal', 'Professional portfolio to showcase your work and skills', 'Gallery, About Section, Contact Form, Responsive Design', 'https://demo.example.com/portfolio', 'https://via.placeholder.com/400x300/007bff/ffffff?text=Portfolio', true),
-('Business Website', 'business-site', 180000.00, 'Business', 'Corporate website for businesses and startups', 'About Us, Services, Team, Contact Form, Blog', 'https://demo.example.com/business', 'https://via.placeholder.com/400x300/6c757d/ffffff?text=Business', true);
+('E-commerce Store', 'ecommerce-store', 200000.00, 'Business', 'Complete online store with product catalog, cart, and checkout', 'Product Management, Shopping Cart, Order Tracking, Payment Integration', 'https://startbootstrap.com/previews/shop-homepage', 'https://via.placeholder.com/400x300/28a745/ffffff?text=E-commerce', true),
+('Portfolio Website', 'portfolio-site', 150000.00, 'Personal', 'Professional portfolio to showcase your work and skills', 'Gallery, About Section, Contact Form, Responsive Design', 'https://startbootstrap.com/previews/freelancer', 'https://via.placeholder.com/400x300/007bff/ffffff?text=Portfolio', true),
+('Business Website', 'business-site', 180000.00, 'Business', 'Corporate website for businesses and startups', 'About Us, Services, Team, Contact Form, Blog', 'https://startbootstrap.com/previews/creative', 'https://via.placeholder.com/400x300/6c757d/ffffff?text=Business', true),
+('Restaurant & Cafe', 'restaurant-cafe', 160000.00, 'Food & Beverage', 'Beautiful restaurant website with menu display, reservations, and gallery', 'Online Menu, Reservation System, Photo Gallery, Location Map, Customer Reviews', 'https://startbootstrap.com/previews/grayscale', 'https://via.placeholder.com/400x300/DC3545/ffffff?text=Restaurant', true),
+('Real Estate Agency', 'real-estate-agency', 220000.00, 'Real Estate', 'Professional real estate website with property listings and agent profiles', 'Property Listings, Search Filters, Agent Profiles, Mortgage Calculator, Property Details', 'https://startbootstrap.com/previews/heroic-features', 'https://via.placeholder.com/400x300/17A2B8/ffffff?text=Real+Estate', true),
+('Fitness & Gym', 'fitness-gym', 140000.00, 'Health & Fitness', 'Modern gym website with class schedules, trainer profiles, and membership options', 'Class Schedule, Trainer Profiles, Membership Plans, BMI Calculator, Gallery', 'https://startbootstrap.com/previews/bare', 'https://via.placeholder.com/400x300/28A745/ffffff?text=Fitness+Gym', true),
+('Beauty Salon', 'beauty-salon', 130000.00, 'Beauty & Spa', 'Elegant beauty salon website with service booking and stylist profiles', 'Service Booking, Stylist Profiles, Price List, Appointment System, Gallery', 'https://startbootstrap.com/previews/stylish-portfolio', 'https://via.placeholder.com/400x300/E83E8C/ffffff?text=Beauty+Salon', true),
+('Blog & Magazine', 'blog-magazine', 120000.00, 'Media', 'Modern blog and magazine website with multiple layouts and categories', 'Multiple Layouts, Categories, Author Profiles, Social Sharing, Newsletter', 'https://startbootstrap.com/previews/clean-blog', 'https://via.placeholder.com/400x300/6F42C1/ffffff?text=Blog+Magazine', true),
+('Photography Studio', 'photography-studio', 170000.00, 'Creative', 'Stunning photography portfolio with gallery and booking system', 'Photo Gallery, Portfolio, Client Showcase, Booking System, About Page', 'https://startbootstrap.com/previews/photography', 'https://via.placeholder.com/400x300/20C997/ffffff?text=Photography', true),
+('Consulting Firm', 'consulting-firm', 190000.00, 'Business', 'Professional consulting website with services, case studies, and team profiles', 'Service Pages, Case Studies, Team Profiles, Testimonials, Contact Forms', 'https://startbootstrap.com/previews/business-frontpage', 'https://via.placeholder.com/400x300/FD7E14/ffffff?text=Consulting', true),
+('Law Firm', 'law-firm', 210000.00, 'Legal', 'Authoritative law firm website with practice areas and attorney profiles', 'Practice Areas, Attorney Profiles, Case Results, Contact Forms, Blog', 'https://startbootstrap.com/previews/modern-business', 'https://via.placeholder.com/400x300/6C757D/ffffff?text=Law+Firm', true);
 
 -- Insert Sample Domains
 INSERT INTO domains (template_id, domain_name, status) VALUES
+-- E-commerce Store (template_id: 1)
 (1, 'mystore.ng', 'available'),
 (1, 'newshop.com.ng', 'available'),
+(1, 'shoponline.ng', 'available'),
+(1, 'ecommerce.ng', 'available'),
+
+-- Portfolio Website (template_id: 2)
 (2, 'johnportfolio.ng', 'available'),
 (2, 'janedesigns.com', 'available'),
+(2, 'myportfolio.ng', 'available'),
+(2, 'creativework.ng', 'available'),
+
+-- Business Website (template_id: 3)
 (3, 'bizpro.ng', 'available'),
-(3, 'startupco.com.ng', 'available');
+(3, 'startupco.com.ng', 'available'),
+(3, 'corporate.ng', 'available'),
+(3, 'businesspro.ng', 'available'),
+
+-- Restaurant & Cafe (template_id: 4)
+(4, 'delicious.ng', 'available'),
+(4, 'cafe-corner.ng', 'available'),
+(4, 'restaurant.ng', 'available'),
+(4, 'foodie.ng', 'available'),
+
+-- Real Estate Agency (template_id: 5)
+(5, 'property.ng', 'available'),
+(5, 'realestate.ng', 'available'),
+(5, 'homes.ng', 'available'),
+(5, 'propertypro.ng', 'available'),
+
+-- Fitness & Gym (template_id: 6)
+(6, 'fitlife.ng', 'available'),
+(6, 'gympro.ng', 'available'),
+(6, 'fitness.ng', 'available'),
+(6, 'workout.ng', 'available'),
+
+-- Beauty Salon (template_id: 7)
+(7, 'beautysalon.ng', 'available'),
+(7, 'spa.ng', 'available'),
+(7, 'beautypro.ng', 'available'),
+(7, 'salon.ng', 'available'),
+
+-- Blog & Magazine (template_id: 8)
+(8, 'blog.ng', 'available'),
+(8, 'magazine.ng', 'available'),
+(8, 'news.ng', 'available'),
+(8, 'articles.ng', 'available'),
+
+-- Photography Studio (template_id: 9)
+(9, 'photostudio.ng', 'available'),
+(9, 'camerawork.ng', 'available'),
+(9, 'photography.ng', 'available'),
+(9, 'lens.ng', 'available'),
+
+-- Consulting Firm (template_id: 10)
+(10, 'consulting.ng', 'available'),
+(10, 'advisors.ng', 'available'),
+(10, 'consultpro.ng', 'available'),
+(10, 'expert.ng', 'available'),
+
+-- Law Firm (template_id: 11)
+(11, 'lawfirm.ng', 'available'),
+(11, 'legal.ng', 'available'),
+(11, 'attorneys.ng', 'available'),
+(11, 'lawpro.ng', 'available');
 
 -- Add foreign key constraint for domains.assigned_order_id (after pending_orders table exists)
 ALTER TABLE domains 

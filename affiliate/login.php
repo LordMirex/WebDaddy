@@ -104,8 +104,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             </form>
                             
+                            <div class="text-center mt-4">
+                                <p class="mb-2">Don't have an account?</p>
+                                <a href="/affiliate/register.php" class="btn btn-outline-primary">
+                                    <i class="bi bi-person-plus"></i> Become an Affiliate
+                                </a>
+                            </div>
+                            
                             <div class="mt-3 text-center">
-                                <a href="/" class="text-decoration-none">
+                                <a href="/" class="text-decoration-none text-muted">
                                     <i class="bi bi-arrow-left"></i> Back to Home
                                 </a>
                             </div>

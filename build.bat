@@ -1,7 +1,10 @@
 @echo off
 echo ========================================
-echo   WebDaddy - Starting Application
+echo   WebDaddy - Building Application
 echo ========================================
+echo.
+echo NOTE: This requires internet connection!
+echo This only needs to be run once, or when you update the Dockerfile.
 echo.
 
 echo Checking Docker...
@@ -28,14 +31,14 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Docker daemon is running! Starting containers...
+echo Docker daemon is running! Building containers...
 echo.
 
-docker-compose up -d
+docker-compose build
 
 if errorlevel 1 (
     echo.
-    echo ERROR: Failed to start containers!
+    echo ERROR: Failed to build containers!
     echo Check the error messages above.
     pause
     exit /b 1
@@ -43,13 +46,9 @@ if errorlevel 1 (
 
 echo.
 echo ========================================
-echo   SUCCESS! Application is running!
+echo   BUILD SUCCESSFUL!
 echo ========================================
 echo.
-echo Your site is available at:
-echo   http://localhost:8080
-echo.
-echo To stop the application, run: stop.bat
-echo Or use: docker-compose down
+echo You can now run start.bat to start the application (even offline).
 echo.
 pause

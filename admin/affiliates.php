@@ -19,17 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'];
         
         if ($action === 'create_affiliate') {
-            $name = sanitizeInput($_POST['name']);
             $email = sanitizeInput($_POST['email']);
-            $phone = sanitizeInput($_POST['phone']);
             $password = $_POST['password'];
-            $code = sanitizeInput($_POST['code']);
-            $bankDetails = sanitizeInput($_POST['bank_details'] ?? '');
+            $code = strtoupper(sanitizeInput($_POST['code']));
             
-            if (empty($name) || empty($email) || empty($password) || empty($code)) {
+            if (empty($email) || empty($password) || empty($code)) {
                 $errorMessage = 'All required fields must be filled.';
             } elseif (!validateEmail($email)) {
                 $errorMessage = 'Invalid email address.';
+            } elseif (!preg_match('/^[A-Z0-9]{4,20}$/', $code)) {
+                $errorMessage = 'Affiliate code must be 4-20 characters (letters and numbers only).';
             } else {
                 $db->beginTransaction();
                 try {
@@ -46,8 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                    $stmt = $db->prepare("INSERT INTO users (name, email, phone, password_hash, role, bank_details, status) VALUES (?, ?, ?, ?, 'affiliate', ?, 'active')");
-                    $stmt->execute([$name, $email, $phone, $passwordHash, $bankDetails]);
+                    
+                    // Auto-generate name from email
+                    $name = explode('@', $email)[0];
+                    
+                    $stmt = $db->prepare("INSERT INTO users (name, email, phone, password_hash, role, status) VALUES (?, ?, '', ?, 'affiliate', 'active')");
+                    $stmt->execute([$name, $email, $passwordHash]);
                     
                     $dbType = getDbType();
                     if ($dbType === 'pgsql') {
@@ -438,30 +441,18 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="hidden" name="action" value="create_affiliate">
                     
                     <div class="mb-3">
-                        <label class="form-label">Name *</label>
-                        <input type="text" class="form-control" name="name" required>
+                        <label class="form-label">Affiliate Code *</label>
+                        <input type="text" class="form-control" name="code" required pattern="[A-Za-z0-9]{4,20}" placeholder="Enter unique code (e.g., ADMIN2024)">
+                        <small class="text-muted">4-20 characters, letters and numbers only</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email *</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Phone</label>
-                        <input type="tel" class="form-control" name="phone">
+                        <input type="email" class="form-control" name="email" required placeholder="Enter email address">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password *</label>
-                        <input type="password" class="form-control" name="password" required minlength="6">
+                        <input type="password" class="form-control" name="password" required minlength="6" placeholder="Enter password">
                         <small class="text-muted">Minimum 6 characters</small>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Affiliate Code *</label>
-                        <input type="text" class="form-control" name="code" required pattern="[A-Za-z0-9_-]+" placeholder="e.g., AFFILIATE2024">
-                        <small class="text-muted">Alphanumeric, dashes and underscores only</small>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Bank Details (JSON)</label>
-                        <textarea class="form-control" name="bank_details" rows="3" placeholder='{"bank_name": "Example Bank", "account_number": "1234567890", "account_name": "John Doe"}'></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -13,8 +13,16 @@ define('DB_PASS', 'postgres');       // Database password
 define('DB_PORT', 5432);             // Database port
 define('DB_SSLMODE', 'prefer');      // SSL mode (prefer, require, disable)
 
-// WhatsApp Configuration
-define('WHATSAPP_NUMBER', '+2348012345678'); // Your WhatsApp number with country code
+// WhatsApp Configuration - Now pulled from database
+// This will be loaded after database connection
+$whatsappNumber = '+2349132672126'; // Default fallback
+if (function_exists('getSetting')) {
+    $dbWhatsApp = getSetting('whatsapp_number');
+    if ($dbWhatsApp) {
+        $whatsappNumber = $dbWhatsApp;
+    }
+}
+define('WHATSAPP_NUMBER', $whatsappNumber);
 
 // SMTP/Email Configuration (for sending emails)
 define('SMTP_HOST', 'smtp.example.com');           // SMTP server

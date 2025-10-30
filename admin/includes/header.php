@@ -77,9 +77,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'active' : ''; ?>" href="/admin/database.php">
-                                <i class="bi bi-database"></i>
-                                Database
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>" href="/admin/settings.php">
+                                <i class="bi bi-gear"></i>
+                                Settings
                             </a>
                         </li>
                     </ul>

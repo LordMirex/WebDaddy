@@ -29,8 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $db->prepare("INSERT INTO domains (template_id, domain_name, status, notes) VALUES (?, ?, 'available', ?)");
                     $stmt->execute([$templateId, $domainName, $notes]);
-                    $successMessage = 'Domain added successfully!';
+                    $_SESSION['success_message'] = 'Domain added successfully!';
                     logActivity('domain_created', "Domain created: $domainName", getAdminId());
+                    header('Location: ' . $_SERVER['PHP_SELF']);
+                    exit;
                 } catch (PDOException $e) {
                     $errorMessage = 'Database error: ' . $e->getMessage();
                 }
@@ -48,8 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $db->prepare("UPDATE domains SET template_id = ?, domain_name = ?, status = ?, notes = ? WHERE id = ?");
                     $stmt->execute([$templateId, $domainName, $status, $notes, $id]);
-                    $successMessage = 'Domain updated successfully!';
+                    $_SESSION['success_message'] = 'Domain updated successfully!';
                     logActivity('domain_updated', "Domain updated: $domainName", getAdminId());
+                    header('Location: ' . $_SERVER['PHP_SELF']);
+                    exit;
                 } catch (PDOException $e) {
                     $errorMessage = 'Database error: ' . $e->getMessage();
                 }
@@ -65,8 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$id]);
                 
                 if ($stmt->rowCount() > 0) {
-                    $successMessage = 'Domain deleted successfully!';
+                    $_SESSION['success_message'] = 'Domain deleted successfully!';
                     logActivity('domain_deleted', "Domain deleted: " . ($domain['domain_name'] ?? $id), getAdminId());
+                    header('Location: ' . $_SERVER['PHP_SELF']);
+                    exit;
                 } else {
                     $errorMessage = 'Cannot delete domain. It may be in use or already assigned.';
                 }
@@ -98,15 +104,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 if ($addedCount > 0) {
-                    $successMessage = "Successfully added $addedCount domain(s)!";
+                    $_SESSION['success_message'] = "Successfully added $addedCount domain(s)!";
                     logActivity('domains_bulk_created', "Bulk added $addedCount domains", getAdminId());
-                }
-                if (!empty($errors)) {
+                    if (!empty($errors)) {
+                        $_SESSION['error_message'] = 'Some domains could not be added: ' . implode(', ', $errors);
+                    }
+                    header('Location: ' . $_SERVER['PHP_SELF']);
+                    exit;
+                } elseif (!empty($errors)) {
                     $errorMessage = 'Some domains could not be added: ' . implode(', ', $errors);
                 }
             }
         }
     }
+}
+
+// Get success/error messages from session
+if (isset($_SESSION['success_message'])) {
+    $successMessage = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+if (isset($_SESSION['error_message'])) {
+    $errorMessage = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
 }
 
 $searchTerm = $_GET['search'] ?? '';

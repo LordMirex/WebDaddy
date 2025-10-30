@@ -6,175 +6,145 @@ require_once __DIR__ . '/includes/functions.php';
 startSecureSession();
 handleAffiliateTracking();
 
-$templateId = isset($_GET['template']) ? (int)$_GET['template'] : 0;
-
-if (!$templateId) {
-    header('Location: index.php');
-    exit;
-}
-
+$templateId = (int)($_GET['template'] ?? 0);
 $template = getTemplateById($templateId);
+
 if (!$template) {
-    header('Location: index.php');
+    header('Location: /');
     exit;
 }
 
 $availableDomains = getAvailableDomains($templateId);
-
-if (empty($availableDomains)) {
-    $error = 'Sorry, no domains are currently available for this template. Please contact us for custom domains.';
-}
 
 $customFields = !empty($template['custom_fields']) ? json_decode($template['custom_fields'], true) : [];
 
 $errors = [];
 $success = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
+$affiliateDiscountRate = 0.20; // 20% discount
+$affiliateDiscountPercent = (int)($affiliateDiscountRate * 100);
+$originalPrice = $template['price'];
+
+$affiliateCode = getAffiliateCode();
+$affiliateData = null;
+$hasAffiliate = false;
+
+if (!empty($affiliateCode)) {
+    $affiliateData = getAffiliateByCode($affiliateCode);
+    if ($affiliateData) {
+        $hasAffiliate = true;
+    } else {
+        $affiliateCode = null;
+    }
+}
+
+$submittedAffiliateCode = isset($_POST['affiliate_code']) ? trim($_POST['affiliate_code']) : '';
+if (!empty($submittedAffiliateCode) && function_exists('sanitizeInput')) {
+    $submittedAffiliateCode = sanitizeInput($submittedAffiliateCode);
+}
+
+$affiliateInvalid = false;
+
+if (!empty($submittedAffiliateCode) && !$hasAffiliate) {
+    $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
+    if ($lookupAffiliate) {
+        $affiliateData = $lookupAffiliate;
+        $affiliateCode = $submittedAffiliateCode;
+        $hasAffiliate = true;
+        $_SESSION['affiliate_code'] = $affiliateCode;
+        setcookie(
+            'affiliate_code',
+            $affiliateCode,
+            time() + ((defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400),
+            '/',
+            '',
+            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+            true
+        );
+    } else {
+        $affiliateInvalid = true;
+    }
+}
+
+$discountedPrice = $originalPrice;
+$discountAmount = 0;
+
+if ($hasAffiliate) {
+    $discountedPrice = round($originalPrice * (1 - $affiliateDiscountRate), 2);
+    $discountAmount = max(0, $originalPrice - $discountedPrice);
+}
+
+$isApplyAffiliate = isset($_POST['apply_affiliate']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate && $affiliateInvalid) {
+    $errors[] = 'Affiliate code not found. Please try again.';
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
     $customerName = trim($_POST['customer_name'] ?? '');
-    $customerEmail = trim($_POST['customer_email'] ?? '');
     $customerPhone = trim($_POST['customer_phone'] ?? '');
-    $businessName = trim($_POST['business_name'] ?? '');
-    $chosenDomainId = (int)($_POST['chosen_domain'] ?? 0);
     
     if (empty($customerName)) {
         $errors[] = 'Please enter your full name';
     }
     
-    if (empty($customerEmail) || !filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Please enter a valid email address';
-    }
-    
     if (empty($customerPhone)) {
-        $errors[] = 'Please enter your phone number';
-    }
-    
-    if (empty($businessName)) {
-        $errors[] = 'Please enter your business name';
-    }
-    
-    if ($chosenDomainId <= 0) {
-        $errors[] = 'Please select a domain';
-    } else {
-        $domainValid = false;
-        foreach ($availableDomains as $domain) {
-            if ($domain['id'] == $chosenDomainId) {
-                $domainValid = true;
-                $chosenDomain = $domain;
-                break;
-            }
-        }
-        if (!$domainValid) {
-            $errors[] = 'Selected domain is not valid';
-        }
-    }
-    
-    $customFieldData = [];
-    if (!empty($customFields)) {
-        foreach ($customFields as $field) {
-            $fieldName = 'custom_' . $field['name'];
-            $fieldValue = trim($_POST[$fieldName] ?? '');
-            
-            if (!empty($field['required']) && empty($fieldValue)) {
-                $errors[] = 'Please enter ' . htmlspecialchars($field['label']);
-            }
-            
-            $customFieldData[$field['name']] = $fieldValue;
-        }
+        $errors[] = 'Please enter your WhatsApp number';
     }
     
     if (empty($errors)) {
-        $db = getDb();
-        
-        try {
-            $db->beginTransaction();
-            
-            $stmt = $db->prepare("SELECT id, domain_name FROM domains WHERE id = ? AND status = 'available' AND assigned_order_id IS NULL FOR UPDATE");
-            $stmt->execute([$chosenDomainId]);
-            $domainCheck = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$domainCheck) {
-                $db->rollBack();
-                $errors[] = 'Sorry, this domain is no longer available. Please select another domain.';
-            }
-        } catch (PDOException $e) {
-            if ($db->inTransaction()) {
-                $db->rollBack();
-            }
-            $errors[] = 'An error occurred. Please try again.';
-            error_log('Domain availability check failed: ' . $e->getMessage());
-        }
-    }
-    
-    if (empty($errors)) {
-        $affiliateCode = getAffiliateCode();
-        $chosenDomain = $domainCheck;
+        $payableAmount = $discountedPrice;
+        $activeAffiliateCode = $hasAffiliate ? $affiliateCode : null;
         
         $message = "Hello! I would like to order:\n\n";
         $message .= "Template: " . $template['name'] . "\n";
-        $message .= "Domain: " . $chosenDomain['domain_name'] . "\n";
-        $message .= "Price: " . formatCurrency($template['price']) . "\n\n";
+        if ($hasAffiliate) {
+            $message .= "Original Price: " . formatCurrency($originalPrice) . "\n";
+            $message .= "Affiliate Discount ({$affiliateDiscountPercent}%): -" . formatCurrency($discountAmount) . "\n";
+            $message .= "Price to Pay: " . formatCurrency($payableAmount) . "\n";
+            $message .= "Affiliate Code: " . $activeAffiliateCode . "\n\n";
+        } else {
+            $message .= "Price: " . formatCurrency($payableAmount) . "\n\n";
+        }
         $message .= "Customer Details:\n";
         $message .= "Name: " . $customerName . "\n";
-        $message .= "Email: " . $customerEmail . "\n";
-        $message .= "Phone: " . $customerPhone . "\n";
-        $message .= "Business: " . $businessName . "\n";
-        
-        if (!empty($customFieldData)) {
-            $message .= "\nAdditional Information:\n";
-            foreach ($customFields as $field) {
-                if (!empty($customFieldData[$field['name']])) {
-                    $message .= $field['label'] . ": " . $customFieldData[$field['name']] . "\n";
-                }
-            }
-        }
+        $message .= "WhatsApp: " . $customerPhone . "\n";
         
         $orderData = [
             'template_id' => $templateId,
-            'chosen_domain_id' => $chosenDomainId,
+            'chosen_domain_id' => null, // No domain selected yet
             'customer_name' => $customerName,
-            'customer_email' => $customerEmail,
+            'customer_email' => '', // Empty since we don't collect email
             'customer_phone' => $customerPhone,
-            'business_name' => $businessName,
-            'custom_fields' => !empty($customFieldData) ? json_encode($customFieldData) : null,
-            'affiliate_code' => $affiliateCode,
+            'business_name' => '', // Empty since we don't collect business name
+            'custom_fields' => null,
+            'affiliate_code' => $activeAffiliateCode,
             'session_id' => session_id(),
             'message_text' => $message,
-            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'discounted_price' => $payableAmount,
+            'discount_amount' => $discountAmount,
+            'affiliate_discount_rate' => $hasAffiliate ? $affiliateDiscountRate : 0
         ];
         
         $orderId = createPendingOrder($orderData);
         
-        if ($orderId) {
-            try {
-                $updateStmt = $db->prepare("UPDATE domains SET assigned_order_id = ? WHERE id = ? AND assigned_order_id IS NULL");
-                $updateStmt->execute([$orderId, $chosenDomainId]);
-                
-                if ($updateStmt->rowCount() === 0) {
-                    $db->rollBack();
-                    $errors[] = 'Sorry, this domain was just taken by another customer. Please select a different domain.';
-                } else {
-                    $db->commit();
-                }
-            } catch (PDOException $e) {
-                $db->rollBack();
-                error_log('Failed to assign domain to order: ' . $e->getMessage());
-                $errors[] = 'An error occurred while processing your order. Please try again.';
-            }
-        }
-        
         if ($orderId && empty($errors)) {
             logActivity('order_initiated', 'Order #' . $orderId . ' for template ' . $template['name']);
             
-            $whatsappNumber = preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER);
-            $whatsappLink = "https://wa.me/" . $whatsappNumber . "?text=" . urlencode($message);
+            // Add order_id to orderData for WhatsApp message
+            $orderData['order_id'] = $orderId;
             
-            header('Location: ' . $whatsappLink);
+            // Build WhatsApp link directly with the custom message
+            $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));
+            $encodedMessage = rawurlencode($message);
+            $whatsappLink = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
+            
+            // Use JavaScript redirect for better WhatsApp compatibility
+            echo "<script>
+                window.location.href = '" . addslashes($whatsappLink) . "';
+            </script>";
             exit;
-        }
-        
-        if (!empty($errors) && isset($db) && $db->inTransaction()) {
-            $db->rollBack();
         }
     }
 }
@@ -227,7 +197,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     <?php echo htmlspecialchars($error); ?>
                     <hr>
                     <p class="mb-0">
-                        <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="alert-link fw-600" target="_blank">
+                        <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" class="alert-link fw-600" target="_blank">
                             <i class="bi bi-whatsapp me-2"></i>Contact us on WhatsApp
                         </a> for custom domain options
                     </p>
@@ -246,7 +216,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 <?php endif; ?>
                 
                 <?php if (empty($error)): ?>
-                <form method="POST" action="" id="orderForm">
+                    <form method="POST" action="" id="orderForm">
                     <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
                         <div class="card-body p-5">
                             <div class="d-flex align-items-center mb-4">
@@ -269,20 +239,6 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <label for="customer_email" class="form-label fw-700">
-                                        Email Address <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="email" 
-                                           class="form-control form-control-lg" 
-                                           id="customer_email" 
-                                           name="customer_email" 
-                                           value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
-                                           required
-                                           placeholder="john@example.com">
-                                    <small class="text-muted">Your login credentials will be sent here</small>
-                                </div>
-                                
-                                <div class="col-md-6">
                                     <label for="customer_phone" class="form-label fw-700">
                                         WhatsApp Number <span class="text-danger">*</span>
                                     </label>
@@ -295,91 +251,55 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                            placeholder="+234...">
                                     <small class="text-muted">For order updates and support</small>
                                 </div>
-                                
-                                <div class="col-md-6">
-                                    <label for="business_name" class="form-label fw-700">
-                                        Business Name <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control form-control-lg" 
-                                           id="business_name" 
-                                           name="business_name" 
-                                           value="<?php echo htmlspecialchars($_POST['business_name'] ?? ''); ?>" 
-                                           required
-                                           placeholder="My Business">
-                                </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
                         <div class="card-body p-5">
                             <div class="d-flex align-items-center mb-4">
                                 <span class="step-badge me-3">2</span>
-                                <h3 class="h4 fw-800 mb-0">Choose Your Domain</h3>
+                                <div>
+                                    <h3 class="h4 fw-800 mb-1">Affiliate Bonus</h3>
+                                    <p class="mb-0 text-muted small">Unlock a 20% discount instantly when you use a valid affiliate code.</p>
+                                </div>
                             </div>
-                            
-                            <label for="chosen_domain" class="form-label fw-700">
-                                Select a Domain <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select form-select-lg" id="chosen_domain" name="chosen_domain" required>
-                                <option value="">-- Select your preferred domain --</option>
-                                <?php foreach ($availableDomains as $domain): ?>
-                                <option value="<?php echo $domain['id']; ?>" 
-                                        <?php echo (isset($_POST['chosen_domain']) && $_POST['chosen_domain'] == $domain['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($domain['domain_name']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <small class="text-muted">
-                                <i class="bi bi-info-circle me-1"></i>
-                                <?php echo count($availableDomains); ?> premium domain(s) available
-                            </small>
-                        </div>
-                    </div>
-                    
-                    <?php if (!empty($customFields)): ?>
-                    <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
-                        <div class="card-body p-5">
-                            <div class="d-flex align-items-center mb-4">
-                                <span class="step-badge me-3">3</span>
-                                <h3 class="h4 fw-800 mb-0">Additional Information</h3>
-                            </div>
-                            
-                            <div class="row g-4">
-                                <?php foreach ($customFields as $field): ?>
-                                <div class="col-12">
-                                    <label for="custom_<?php echo htmlspecialchars($field['name']); ?>" class="form-label fw-700">
-                                        <?php echo htmlspecialchars($field['label']); ?>
-                                        <?php if (!empty($field['required'])): ?>
-                                        <span class="text-danger">*</span>
-                                        <?php endif; ?>
-                                    </label>
-                                    
-                                    <?php if ($field['type'] === 'textarea'): ?>
-                                    <textarea class="form-control" 
-                                              id="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                              name="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                              rows="3" 
-                                              <?php echo !empty($field['required']) ? 'required' : ''; ?>><?php echo htmlspecialchars($_POST['custom_' . $field['name']] ?? ''); ?></textarea>
-                                    <?php else: ?>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                           name="custom_<?php echo htmlspecialchars($field['name']); ?>" 
-                                           value="<?php echo htmlspecialchars($_POST['custom_' . $field['name']] ?? ''); ?>" 
-                                           <?php echo !empty($field['required']) ? 'required' : ''; ?>>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (!empty($field['description'])): ?>
-                                    <small class="text-muted"><?php echo htmlspecialchars($field['description']); ?></small>
+
+                            <?php if ($hasAffiliate): ?>
+                                <div class="alert alert-success d-flex align-items-center" role="alert">
+                                    <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+                                    <div>
+                                        <h5 class="fw-700 mb-1">Affiliate code applied!</h5>
+                                        <p class="mb-0 text-success">You're saving <strong><?php echo formatCurrency($discountAmount); ?></strong> today.</p>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-700">Affiliate Code</label>
+                                    <input type="text" class="form-control form-control-lg" value="<?php echo htmlspecialchars($affiliateCode); ?>" readonly>
+                                    <small class="text-muted">Affiliate bonuses are applied automatically.</small>
+                                </div>
+                            <?php else: ?>
+                                <div class="mb-3">
+                                    <label for="affiliate_code" class="form-label fw-700">Affiliate Code (optional)</label>
+                                    <div class="input-group input-group-lg">
+                                        <input type="text" 
+                                               class="form-control <?php echo !empty($submittedAffiliateCode) && empty($affiliateData) ? 'is-invalid' : ''; ?>" 
+                                               id="affiliate_code" 
+                                               name="affiliate_code" 
+                                               value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
+                                               placeholder="Enter affiliate code">
+                                        <button class="btn btn-outline-primary" type="button" name="apply_affiliate" value="1">
+                                            Apply & Save 20%
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Know someone who referred you? Use their code and save.</small>
+                                    <?php if (!empty($submittedAffiliateCode) && empty($affiliateData)): ?>
+                                        <div class="invalid-feedback d-block">Affiliate code not found. Please check and try again.</div>
                                     <?php endif; ?>
                                 </div>
-                                <?php endforeach; ?>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <?php endif; ?>
                     
                     <div class="card border-0 bg-primary bg-opacity-10 rounded-3 mb-4 overflow-hidden">
                         <div class="card-body p-5">
@@ -396,7 +316,9 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     
                     <div class="d-grid gap-3 mb-4">
                         <button type="submit" class="btn btn-success btn-lg py-3 fw-800" id="submitBtn">
-                            <i class="bi bi-whatsapp me-2"></i>Continue to WhatsApp
+                            <i class="bi bi-whatsapp me-2"></i>
+                            <span class="d-none d-md-inline">Continue to WhatsApp</span>
+                            <span class="d-md-none">Order Now</span>
                         </button>
                         <a href="template.php?id=<?php echo $template['id']; ?>" class="btn btn-outline-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Back to Template Details
@@ -436,21 +358,27 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                         
                         <hr>
                         
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Template Price:</span>
-                            <strong><?php echo formatCurrency($template['price']); ?></strong>
-                        </div>
                         <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted">Domain:</span>
-                            <strong>Included</strong>
+                            <span class="text-muted">Template Price:</span>
+                            <strong><?php echo formatCurrency($originalPrice); ?></strong>
                         </div>
+
+                        <?php if ($hasAffiliate): ?>
+                            <div class="d-flex justify-content-between mb-3 text-success">
+                                <span>Affiliate Discount (<?php echo $affiliateDiscountPercent; ?>%):</span>
+                                <strong>-<?php echo formatCurrency($discountAmount); ?></strong>
+                            </div>
+                        <?php endif; ?>
                         
                         <hr class="my-3">
                         
                         <div class="d-flex justify-content-between align-items-center mb-0">
-                            <h5 class="fw-800 mb-0">Total:</h5>
-                            <h4 class="text-primary fw-800 mb-0"><?php echo formatCurrency($template['price']); ?></h4>
+                            <h5 class="fw-800 mb-0">You Pay:</h5>
+                            <h4 class="text-primary fw-800 mb-0"><?php echo formatCurrency($discountedPrice); ?></h4>
                         </div>
+                        <?php if ($hasAffiliate): ?>
+                            <small class="text-success d-block text-end">Savings applied!</small>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -467,9 +395,104 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <script>
         document.getElementById('orderForm')?.addEventListener('submit', function(e) {
             const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            }
+            // Don't prevent default - let the form submit
         });
+        
+        // Affiliate code input handling
+        const affiliateInput = document.getElementById('affiliate_code');
+        const applyBtn = document.querySelector('button[name="apply_affiliate"]');
+        const affiliateSection = document.querySelector('.card-body:has(.alert)');
+        
+        if (affiliateInput) {
+            // Convert to uppercase as user types
+            affiliateInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+            
+            // Handle affiliate code application
+            if (applyBtn) {
+                applyBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const code = affiliateInput.value.trim().toUpperCase();
+                    if (!code) {
+                        showAffiliateMessage('Please enter an affiliate code', 'danger');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    applyBtn.disabled = true;
+                    applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Applying...';
+                    
+                    // Send AJAX request to apply affiliate code
+                    fetch('/apply_affiliate.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'affiliate_code=' + encodeURIComponent(code)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message and reload to show updated pricing
+                            showAffiliateMessage('Affiliate code applied successfully! Updating prices...', 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            showAffiliateMessage(data.message, 'danger');
+                            applyBtn.disabled = false;
+                            applyBtn.innerHTML = 'Apply & Save 20%';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAffiliateMessage('Network error. Please try again.', 'danger');
+                        applyBtn.disabled = false;
+                        applyBtn.innerHTML = 'Apply & Save 20%';
+                    });
+                });
+            }
+        }
+        
+        function showAffiliateMessage(message, type) {
+            // Remove existing message
+            const existingMsg = document.querySelector('.affiliate-message');
+            if (existingMsg) {
+                existingMsg.remove();
+            }
+            
+            // Create new message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} affiliate-message mt-2`;
+            alertDiv.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}`;
+            
+            // Insert after the input group
+            const inputGroup = document.querySelector('.input-group');
+            if (inputGroup && inputGroup.parentNode) {
+                inputGroup.parentNode.insertBefore(alertDiv, inputGroup.nextSibling);
+                
+                // Auto-hide success messages after 3 seconds
+                if (type === 'success') {
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 3000);
+                }
+            }
+        }
+        
+        // Mobile WhatsApp optimization
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            const whatsappBtn = document.getElementById('submitBtn');
+            if (whatsappBtn) {
+                whatsappBtn.setAttribute('data-mobile', 'true');
+            }
+        }
     </script>
 </body>
 </html>
