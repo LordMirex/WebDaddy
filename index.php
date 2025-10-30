@@ -135,7 +135,7 @@ $affiliateCode = getAffiliateCode();
             <?php else: ?>
             <div class="row g-3">
                 <?php foreach ($templates as $template): ?>
-                <div class="col-md-6 col-lg-4">
+                <div class="col-12 col-sm-6 col-lg-4">
                     <div class="template-card">
                         <div class="template-card-img">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
@@ -185,7 +185,7 @@ $affiliateCode = getAffiliateCode();
                 </div>
             </div>
             <div class="row g-4">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="testimonial-card">
                         <div class="testimonial-stars mb-3">
                             <i class="bi bi-star-fill text-warning"></i>
@@ -201,7 +201,7 @@ $affiliateCode = getAffiliateCode();
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="testimonial-card">
                         <div class="testimonial-stars mb-3">
                             <i class="bi bi-star-fill text-warning"></i>
@@ -217,7 +217,7 @@ $affiliateCode = getAffiliateCode();
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="testimonial-card">
                         <div class="testimonial-stars mb-3">
                             <i class="bi bi-star-fill text-warning"></i>
@@ -247,21 +247,21 @@ $affiliateCode = getAffiliateCode();
                 </div>
             </div>
             <div class="row g-4">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <h4 class="fw-700 mb-2">Choose Template</h4>
                         <p class="text-muted small">Browse our collection and select the template that perfectly fits your business needs.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <h4 class="fw-700 mb-2">Pick Domain & Pay</h4>
                         <p class="text-muted small">Select your preferred domain and complete payment securely via WhatsApp.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <h4 class="fw-700 mb-2">Launch & Grow</h4>
@@ -343,7 +343,7 @@ $affiliateCode = getAffiliateCode();
     <footer class="footer-custom">
         <div class="container">
             <div class="row g-5 mb-5">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <h5 class="fw-700 mb-3">
                         <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" style="height: 35px; margin-right: 10px;" onerror="this.style.display='none'">
                         <?php echo SITE_NAME; ?>

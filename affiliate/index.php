@@ -81,7 +81,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="info-card info-info">
             <h6>
                 <i class="bi bi-mouse"></i> Total Clicks
@@ -90,7 +90,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="info-card info-success">
             <h6>
                 <i class="bi bi-cart-check"></i> Total Sales
@@ -99,7 +99,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="info-card info-primary">
             <h6>
                 <i class="bi bi-hourglass-split"></i> Pending
@@ -108,7 +108,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="info-card info-warning">
             <h6>
                 <i class="bi bi-check-circle"></i> Paid

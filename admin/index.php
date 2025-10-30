@@ -33,7 +33,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div class="row g-4 mb-4">
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card stat-card h-100">
             <div class="card-body">
                 <h6 class="text-muted mb-2"><i class="bi bi-grid"></i> Templates</h6>
@@ -43,7 +43,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card stat-card h-100">
             <div class="card-body">
                 <h6 class="text-muted mb-2"><i class="bi bi-cart"></i> Orders</h6>
@@ -53,7 +53,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card stat-card h-100">
             <div class="card-body">
                 <h6 class="text-muted mb-2"><i class="bi bi-check-circle"></i> Sales</h6>
@@ -63,7 +63,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card stat-card h-100">
             <div class="card-body">
                 <h6 class="text-muted mb-2"><i class="bi bi-people"></i> Affiliates</h6>

@@ -158,7 +158,7 @@ require_once __DIR__ . '/includes/header.php';
                 <label class="form-label">Search</label>
                 <input type="text" class="form-control" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone...">
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <label class="form-label">Template</label>
                 <select class="form-select" name="template">
                     <option value="">All Templates</option>
@@ -169,7 +169,7 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <label class="form-label">Status</label>
                 <select class="form-select" name="status">
                     <option value="">All Status</option>

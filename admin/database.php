@@ -41,7 +41,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="row">
     <!-- Tables List -->
-    <div class="col-md-3">
+    <div class="col-6 col-md-3">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Tables (<?php echo count($tables); ?>)</h5>

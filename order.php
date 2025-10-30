@@ -225,7 +225,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             </div>
                             
                             <div class="row g-4">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="customer_name" class="form-label fw-700">
                                         Full Name <span class="text-danger">*</span>
                                     </label>
@@ -238,7 +238,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                            placeholder="John Doe">
                                 </div>
                                 
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label for="customer_phone" class="form-label fw-700">
                                         WhatsApp Number <span class="text-danger">*</span>
                                     </label>
