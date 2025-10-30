@@ -5,12 +5,12 @@
 // Just edit the values below directly!
 // ============================================
 
-// Database Configuration - PostgreSQL
-define('DB_HOST', 'db');             // Database server ('db' for Docker, 'localhost' for local install)
-define('DB_NAME', 'template_store'); // Database name
-define('DB_USER', 'postgres');       // Database username
-define('DB_PASS', 'postgres');       // Database password
-define('DB_PORT', 5432);             // Database port
+// Database Configuration - PostgreSQL (Replit Environment)
+define('DB_HOST', getenv('PGHOST') ?: 'db');             // Database server
+define('DB_NAME', getenv('PGDATABASE') ?: 'template_store'); // Database name
+define('DB_USER', getenv('PGUSER') ?: 'postgres');       // Database username
+define('DB_PASS', getenv('PGPASSWORD') ?: 'postgres');       // Database password
+define('DB_PORT', getenv('PGPORT') ?: 5432);             // Database port
 define('DB_SSLMODE', 'prefer');      // SSL mode (prefer, require, disable)
 
 // WhatsApp Configuration - Now pulled from database
