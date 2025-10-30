@@ -38,33 +38,9 @@ if (!empty($affiliateCode)) {
     }
 }
 
-$submittedAffiliateCode = isset($_POST['affiliate_code']) ? trim($_POST['affiliate_code']) : '';
-if (!empty($submittedAffiliateCode) && function_exists('sanitizeInput')) {
-    $submittedAffiliateCode = sanitizeInput($submittedAffiliateCode);
-}
-
+// Track submitted affiliate code for error display
+$submittedAffiliateCode = '';
 $affiliateInvalid = false;
-
-if (!empty($submittedAffiliateCode) && !$hasAffiliate) {
-    $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
-    if ($lookupAffiliate) {
-        $affiliateData = $lookupAffiliate;
-        $affiliateCode = $submittedAffiliateCode;
-        $hasAffiliate = true;
-        $_SESSION['affiliate_code'] = $affiliateCode;
-        setcookie(
-            'affiliate_code',
-            $affiliateCode,
-            time() + ((defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400),
-            '/',
-            '',
-            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-            true
-        );
-    } else {
-        $affiliateInvalid = true;
-    }
-}
 
 $discountedPrice = $originalPrice;
 $discountAmount = 0;
@@ -74,12 +50,52 @@ if ($hasAffiliate) {
     $discountAmount = max(0, $originalPrice - $discountedPrice);
 }
 
+// Handle affiliate code application (separate from order submission)
 $isApplyAffiliate = isset($_POST['apply_affiliate']);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate && $affiliateInvalid) {
-    $errors[] = 'Affiliate code not found. Please try again.';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isApplyAffiliate) {
+    // User is applying affiliate code - preserve their form data
+    $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
+    $submittedName = trim($_POST['customer_name'] ?? '');
+    $submittedPhone = trim($_POST['customer_phone'] ?? '');
+    
+    if (!empty($submittedAffiliateCode)) {
+        $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
+        if ($lookupAffiliate) {
+            $affiliateData = $lookupAffiliate;
+            $affiliateCode = $submittedAffiliateCode;
+            $hasAffiliate = true;
+            $_SESSION['affiliate_code'] = $affiliateCode;
+            setcookie(
+                'affiliate_code',
+                $affiliateCode,
+                time() + ((defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400),
+                '/',
+                '',
+                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                true
+            );
+            
+            // Recalculate prices with affiliate discount
+            $discountedPrice = round($originalPrice * (1 - $affiliateDiscountRate), 2);
+            $discountAmount = max(0, $originalPrice - $discountedPrice);
+            
+            // Redirect back with form data preserved
+            $redirectUrl = preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']);
+            $params = ['template' => $templateId];
+            if (!empty($submittedName)) $params['name'] = $submittedName;
+            if (!empty($submittedPhone)) $params['phone'] = $submittedPhone;
+            
+            header('Location: ' . $redirectUrl . '?' . http_build_query($params));
+            exit;
+        } else {
+            $affiliateInvalid = true;
+            // Keep the submitted values for display
+        }
+    }
 }
 
+// Handle order submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
     $customerName = trim($_POST['customer_name'] ?? '');
     $customerPhone = trim($_POST['customer_phone'] ?? '');
@@ -112,19 +128,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
         
         $orderData = [
             'template_id' => $templateId,
-            'chosen_domain_id' => null, // No domain selected yet
+            'chosen_domain_id' => null,
             'customer_name' => $customerName,
-            'customer_email' => '', // Empty since we don't collect email
+            'customer_email' => '',
             'customer_phone' => $customerPhone,
-            'business_name' => '', // Empty since we don't collect business name
+            'business_name' => '',
             'custom_fields' => null,
             'affiliate_code' => $activeAffiliateCode,
             'session_id' => session_id(),
             'message_text' => $message,
-            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
-            'discounted_price' => $payableAmount,
-            'discount_amount' => $discountAmount,
-            'affiliate_discount_rate' => $hasAffiliate ? $affiliateDiscountRate : 0
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
         ];
         
         $orderId = createPendingOrder($orderData);
@@ -132,25 +145,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
         if ($orderId && empty($errors)) {
             logActivity('order_initiated', 'Order #' . $orderId . ' for template ' . $template['name']);
             
-            // Add order_id to orderData for WhatsApp message
-            $orderData['order_id'] = $orderId;
-            
-            // Build WhatsApp link directly with the custom message
+            // Build WhatsApp link
             $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));
             $encodedMessage = rawurlencode($message);
             $whatsappLink = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
             
-            // Use JavaScript redirect for better WhatsApp compatibility
-            echo "<script>
-                window.location.href = '" . addslashes($whatsappLink) . "';
-            </script>";
-            exit;
+            // Set flag for redirect
+            $redirectToWhatsApp = true;
+        } else if ($orderId) {
+            $errors[] = 'Order created but there was an issue. Please contact support.';
+        } else {
+            global $lastDbError;
+            if (!empty($lastDbError)) {
+                $errors[] = 'Database Error: ' . $lastDbError;
+            } else {
+                $errors[] = 'Failed to create order. Please try again or contact support.';
+            }
         }
     }
 }
 
 $pageTitle = 'Order ' . htmlspecialchars($template['name']);
 $features = $template['features'] ? explode(',', $template['features']) : [];
+
+// If we need to redirect to WhatsApp, do it before any output
+if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
+    // Try header redirect first
+    if (!headers_sent()) {
+        header('Location: ' . $whatsappLink);
+        exit;
+    }
+    // If headers already sent, use JavaScript fallback
+    echo '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>';
+    echo '<script>window.location.href = ' . json_encode($whatsappLink) . ';</script>';
+    echo '<p>Redirecting to WhatsApp... <a href="' . htmlspecialchars($whatsappLink) . '">Click here if not redirected</a></p>';
+    echo '</body></html>';
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -233,7 +264,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                            class="form-control form-control-lg" 
                                            id="customer_name" 
                                            name="customer_name" 
-                                           value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['customer_name'] ?? $_GET['name'] ?? ''); ?>" 
                                            required
                                            placeholder="John Doe">
                                 </div>
@@ -246,7 +277,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                            class="form-control form-control-lg" 
                                            id="customer_phone" 
                                            name="customer_phone" 
-                                           value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
+                                           value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? $_GET['phone'] ?? ''); ?>" 
                                            required
                                            placeholder="+234...">
                                     <small class="text-muted">For order updates and support</small>
@@ -283,18 +314,18 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     <label for="affiliate_code" class="form-label fw-700">Affiliate Code (optional)</label>
                                     <div class="input-group input-group-lg">
                                         <input type="text" 
-                                               class="form-control <?php echo !empty($submittedAffiliateCode) && empty($affiliateData) ? 'is-invalid' : ''; ?>" 
+                                               class="form-control <?php echo $affiliateInvalid ? 'is-invalid' : ''; ?>" 
                                                id="affiliate_code" 
                                                name="affiliate_code" 
                                                value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
                                                placeholder="Enter affiliate code">
-                                        <button class="btn btn-outline-primary" type="button" name="apply_affiliate" value="1">
+                                        <button class="btn btn-outline-primary" type="submit" name="apply_affiliate" value="1">
                                             Apply & Save 20%
                                         </button>
                                     </div>
                                     <small class="text-muted">Know someone who referred you? Use their code and save.</small>
-                                    <?php if (!empty($submittedAffiliateCode) && empty($affiliateData)): ?>
-                                        <div class="invalid-feedback d-block">Affiliate code not found. Please check and try again.</div>
+                                    <?php if ($affiliateInvalid): ?>
+                                        <div class="invalid-feedback d-block">Affiliate code "<?php echo htmlspecialchars($submittedAffiliateCode); ?>" not found. Please check and try again.</div>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
@@ -393,105 +424,24 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Simple form submission with loading state
         document.getElementById('orderForm')?.addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            // Check if this is the main order submission (not affiliate application)
+            if (!e.submitter || e.submitter.name !== 'apply_affiliate') {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Redirecting to WhatsApp...';
+                }
             }
-            // Don't prevent default - let the form submit
         });
         
-        // Affiliate code input handling
+        // Affiliate code input handling - convert to uppercase
         const affiliateInput = document.getElementById('affiliate_code');
-        const applyBtn = document.querySelector('button[name="apply_affiliate"]');
-        const affiliateSection = document.querySelector('.card-body:has(.alert)');
-        
         if (affiliateInput) {
-            // Convert to uppercase as user types
             affiliateInput.addEventListener('input', function() {
                 this.value = this.value.toUpperCase();
             });
-            
-            // Handle affiliate code application
-            if (applyBtn) {
-                applyBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const code = affiliateInput.value.trim().toUpperCase();
-                    if (!code) {
-                        showAffiliateMessage('Please enter an affiliate code', 'danger');
-                        return;
-                    }
-                    
-                    // Show loading state
-                    applyBtn.disabled = true;
-                    applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Applying...';
-                    
-                    // Send AJAX request to apply affiliate code
-                    fetch('/apply_affiliate.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: 'affiliate_code=' + encodeURIComponent(code)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Show success message and reload to show updated pricing
-                            showAffiliateMessage('Affiliate code applied successfully! Updating prices...', 'success');
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        } else {
-                            showAffiliateMessage(data.message, 'danger');
-                            applyBtn.disabled = false;
-                            applyBtn.innerHTML = 'Apply & Save 20%';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAffiliateMessage('Network error. Please try again.', 'danger');
-                        applyBtn.disabled = false;
-                        applyBtn.innerHTML = 'Apply & Save 20%';
-                    });
-                });
-            }
-        }
-        
-        function showAffiliateMessage(message, type) {
-            // Remove existing message
-            const existingMsg = document.querySelector('.affiliate-message');
-            if (existingMsg) {
-                existingMsg.remove();
-            }
-            
-            // Create new message
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} affiliate-message mt-2`;
-            alertDiv.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}`;
-            
-            // Insert after the input group
-            const inputGroup = document.querySelector('.input-group');
-            if (inputGroup && inputGroup.parentNode) {
-                inputGroup.parentNode.insertBefore(alertDiv, inputGroup.nextSibling);
-                
-                // Auto-hide success messages after 3 seconds
-                if (type === 'success') {
-                    setTimeout(() => {
-                        alertDiv.remove();
-                    }, 3000);
-                }
-            }
-        }
-        
-        // Mobile WhatsApp optimization
-        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            const whatsappBtn = document.getElementById('submitBtn');
-            if (whatsappBtn) {
-                whatsappBtn.setAttribute('data-mobile', 'true');
-            }
         }
     </script>
 </body>

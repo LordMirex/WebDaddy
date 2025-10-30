@@ -89,12 +89,15 @@ function createPendingOrder($data)
         $stmt = $db->prepare("
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
-             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, 
-             discounted_price, discount_amount, affiliate_discount_rate, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
         ");
         
-        $stmt->execute([
+        if (!$stmt) {
+            throw new PDOException('Failed to prepare statement');
+        }
+        
+        $params = [
             $data['template_id'],
             $data['chosen_domain_id'],
             $data['customer_name'],
@@ -105,16 +108,22 @@ function createPendingOrder($data)
             $data['affiliate_code'],
             $data['session_id'],
             $data['message_text'],
-            $data['ip_address'],
-            $data['discounted_price'] ?? null,
-            $data['discount_amount'] ?? 0,
-            $data['affiliate_discount_rate'] ?? 0
-        ]);
+            $data['ip_address']
+        ];
+        
+        $result = $stmt->execute($params);
         
         $lastId = $db->lastInsertId('pending_orders_id_seq');
-        return $lastId !== false ? $lastId : $db->lastInsertId();
+        if (!$lastId) {
+            $lastId = $db->lastInsertId();
+        }
+        
+        return $lastId !== false ? $lastId : false;
     } catch (PDOException $e) {
         error_log('Error creating pending order: ' . $e->getMessage());
+        // Store error in global for display in development
+        global $lastDbError;
+        $lastDbError = $e->getMessage();
         return false;
     }
 }
