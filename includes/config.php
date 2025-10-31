@@ -25,16 +25,19 @@ if (function_exists('getSetting')) {
 define('WHATSAPP_NUMBER', $whatsappNumber);
 
 // SMTP/Email Configuration (for sending emails)
-define('SMTP_HOST', 'smtp.example.com');           // SMTP server
-define('SMTP_PORT', 587);                          // SMTP port
-define('SMTP_USER', 'noreply@example.com');        // SMTP username
-define('SMTP_PASS', 'your_smtp_password');         // SMTP password
-define('SMTP_FROM_EMAIL', 'noreply@example.com');  // From email address
-define('SMTP_FROM_NAME', 'Template Marketplace');  // From name
+// Update these with your actual SMTP credentials
+define('SMTP_HOST', 'mail.teslareturns.online');           // SMTP server
+define('SMTP_PORT', 465);                                  // SMTP port (465 for SSL, 587 for TLS)
+define('SMTP_SECURE', 'ssl');                              // SSL or TLS
+define('SMTP_USER', 'support@teslareturns.online');        // SMTP username
+define('SMTP_PASS', 'ItuZq%kF%5oE');                       // SMTP password
+define('SMTP_FROM_EMAIL', 'support@teslareturns.online');  // From email address
+define('SMTP_FROM_NAME', 'WebDaddy Empire');               // From name
 
 // Affiliate Settings
 define('AFFILIATE_COOKIE_DAYS', 30);        // How long affiliate cookies last
 define('AFFILIATE_COMMISSION_RATE', 0.30);  // 30% commission rate
+define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using affiliate links
 
 // Site Settings
 define('SITE_URL', 'http://localhost:8080');  // Your site URL (change to your domain)

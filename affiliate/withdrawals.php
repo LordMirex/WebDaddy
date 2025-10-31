@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -62,15 +63,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_withdrawal'])
                 VALUES (?, ?, ?, 'pending')
             ");
             
-            if ($stmt->execute([$affiliateId, $amount, $bankDetails])) {
-                $success = 'Withdrawal request submitted successfully! We will process it soon.';
-                $_POST = [];
+            $success = $stmt->execute([
+                $_SESSION['affiliate_id'],
+                $amount,
+                $bankDetails
+            ]);
+            
+            if ($success) {
+                $withdrawalId = $db->lastInsertId('withdrawal_requests_id_seq') ?: $db->lastInsertId();
+                logActivity('withdrawal_requested', "Withdrawal request #{$withdrawalId} for " . formatCurrency($amount), $_SESSION['affiliate_user_id']);
+                
+                // Send notification email to admin
+                $stmt = $db->prepare("
+                    SELECT u.name, u.email
+                    FROM users u
+                    JOIN affiliates a ON u.id = a.user_id
+                    WHERE a.id = ?
+                ");
+                $stmt->execute([$_SESSION['affiliate_id']]);
+                $affiliateInfo_email = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($affiliateInfo_email) {
+                    sendWithdrawalRequestToAdmin(
+                        $affiliateInfo_email['name'],
+                        $affiliateInfo_email['email'],
+                        number_format($amount, 2),
+                        $withdrawalId
+                    );
+                }
+                
+                $success = 'Withdrawal request submitted successfully! We will process it within 24-48 hours.';
             } else {
                 $error = 'Failed to submit withdrawal request. Please try again.';
             }
         } catch (PDOException $e) {
-            error_log('Withdrawal request error: ' . $e->getMessage());
-            $error = 'An error occurred. Please try again later.';
+            error_log('Error creating withdrawal request: ' . $e->getMessage());
+            $error = 'Database error. Please try again later.';
         }
     }
 }

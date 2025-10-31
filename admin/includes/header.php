@@ -31,6 +31,10 @@
                             <i class="bi bi-person-circle"></i> <?php echo htmlspecialchars(getAdminName()); ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/admin/profile.php">
+                                <i class="bi bi-person"></i> Profile & Settings
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="/admin/logout.php">
                                 <i class="bi bi-box-arrow-right"></i> Logout
                             </a></li>
@@ -53,6 +57,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : ''; ?>" href="/admin/reports.php">
+                                <i class="bi bi-graph-up"></i>
+                                Reports & Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'templates.php' ? 'active' : ''; ?>" href="/admin/templates.php">
                                 <i class="bi bi-grid"></i>
                                 Templates
@@ -62,6 +72,12 @@
                             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'domains.php' ? 'active' : ''; ?>" href="/admin/domains.php">
                                 <i class="bi bi-globe"></i>
                                 Domains
+                            </a>
+                        </li>
+                        <li class="nav-item ms-3">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'bulk_import_domains.php' ? 'active' : ''; ?>" href="/admin/bulk_import_domains.php">
+                                <i class="bi bi-upload"></i>
+                                Bulk Import
                             </a>
                         </li>
                         <li class="nav-item">
@@ -77,9 +93,21 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'email_affiliate.php' ? 'active' : ''; ?>" href="/admin/email_affiliate.php">
+                                <i class="bi bi-envelope"></i>
+                                Email Affiliate
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>" href="/admin/settings.php">
                                 <i class="bi bi-gear"></i>
                                 Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'active' : ''; ?>" href="/admin/activity_logs.php">
+                                <i class="bi bi-clock-history"></i>
+                                Activity Logs
                             </a>
                         </li>
                     </ul>

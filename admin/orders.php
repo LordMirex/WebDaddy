@@ -78,8 +78,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (PDOException $e) {
                 $errorMessage = 'Database error: ' . $e->getMessage();
             }
+        } elseif ($action === 'bulk_mark_paid') {
+            $orderIds = $_POST['order_ids'] ?? [];
+            $successCount = 0;
+            $failCount = 0;
+            
+            foreach ($orderIds as $orderId) {
+                $orderId = intval($orderId);
+                if ($orderId > 0) {
+                    // Get order details for amount calculation
+                    $stmt = $db->prepare("
+                        SELECT po.*, t.price as template_price
+                        FROM pending_orders po
+                        JOIN templates t ON po.template_id = t.id
+                        WHERE po.id = ? AND po.status = 'pending'
+                    ");
+                    $stmt->execute([$orderId]);
+                    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($order) {
+                        // Calculate payable amount (with affiliate discount if applicable)
+                        $payableAmount = $order['template_price'];
+                        if ($order['affiliate_code']) {
+                            $discountRate = CUSTOMER_DISCOUNT_RATE;
+                            $payableAmount = $order['template_price'] * (1 - $discountRate);
+                        }
+                        
+                        if (markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed')) {
+                            $successCount++;
+                        } else {
+                            $failCount++;
+                        }
+                    } else {
+                        $failCount++;
+                    }
+                }
+            }
+            
+            if ($successCount > 0) {
+                $successMessage = "Successfully marked {$successCount} order(s) as paid";
+                if ($failCount > 0) {
+                    $successMessage .= ". {$failCount} failed.";
+                }
+                logActivity('bulk_orders_processed', "Bulk processed {$successCount} orders", getAdminId());
+            } else {
+                $errorMessage = 'No orders were processed.';
+            }
+        } elseif ($action === 'bulk_cancel') {
+            $orderIds = $_POST['order_ids'] ?? [];
+            $successCount = 0;
+            
+            foreach ($orderIds as $orderId) {
+                $orderId = intval($orderId);
+                if ($orderId > 0) {
+                    $stmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled' WHERE id = ? AND status = 'pending'");
+                    $stmt->execute([$orderId]);
+                    if ($stmt->rowCount() > 0) {
+                        $successCount++;
+                    }
+                }
+            }
+            
+            if ($successCount > 0) {
+                $successMessage = "Cancelled {$successCount} order(s) successfully!";
+                logActivity('bulk_orders_cancelled', "Bulk cancelled {$successCount} orders", getAdminId());
+            } else {
+                $errorMessage = 'No orders were cancelled.';
+            }
         }
     }
+}
+
+// CSV Export
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    $sql = "SELECT po.*, t.name as template_name, t.price as template_price, d.domain_name,
+            (SELECT COUNT(*) FROM sales WHERE pending_order_id = po.id) as is_paid
+            FROM pending_orders po
+            LEFT JOIN templates t ON po.template_id = t.id
+            LEFT JOIN domains d ON po.chosen_domain_id = d.id
+            ORDER BY po.created_at DESC";
+    
+    $orders = $db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=orders_export_' . date('Y-m-d') . '.csv');
+    
+    $output = fopen('php://output', 'w');
+    
+    // CSV Headers
+    fputcsv($output, ['Order ID', 'Customer Name', 'Email', 'Phone', 'Business Name', 'Template', 'Price', 'Affiliate Code', 'Domain', 'Status', 'Is Paid', 'Order Date']);
+    
+    // CSV Data
+    foreach ($orders as $order) {
+        // Calculate payable amount (with affiliate discount if applicable)
+        $payableAmount = $order['template_price'];
+        if ($order['affiliate_code']) {
+            $discountRate = CUSTOMER_DISCOUNT_RATE;
+            $payableAmount = $order['template_price'] * (1 - $discountRate);
+        }
+        
+        fputcsv($output, [
+            $order['id'],
+            $order['customer_name'],
+            $order['customer_email'],
+            $order['customer_phone'],
+            $order['business_name'],
+            $order['template_name'],
+            number_format($payableAmount, 2),
+            $order['affiliate_code'] ?? 'Direct',
+            $order['domain_name'] ?? 'Not assigned',
+            $order['status'],
+            $order['is_paid'] ? 'Yes' : 'No',
+            date('Y-m-d H:i:s', strtotime($order['created_at']))
+        ]);
+    }
+    
+    fclose($output);
+    exit;
 }
 
 $searchTerm = $_GET['search'] ?? '';
@@ -187,24 +302,43 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-cart"></i> Orders (<?php echo count($orders); ?>)</h5>
+        <div>
+            <a href="/admin/orders.php?export=csv" class="btn btn-sm btn-success me-2">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+            <button type="button" class="btn btn-sm btn-primary" id="bulkMarkPaidBtn" disabled>
+                <i class="bi bi-check-circle"></i> Mark Selected as Paid
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" id="bulkCancelBtn" disabled>
+                <i class="bi bi-x-circle"></i> Cancel Selected
+            </button>
+        </div>
+    </div>
     <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Template</th>
-                        <th>Domain</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+        <form id="bulkActionsForm" method="POST" action="">
+            <input type="hidden" name="action" id="bulkAction" value="">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Template</th>
+                            <th>Domain</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
                 <tbody>
                     <?php if (empty($orders)): ?>
                     <tr>
-                        <td colspan="7" class="text-center py-4">
+                        <td colspan="8" class="text-center py-4">
                             <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
                             <p class="text-muted mt-2">No orders found</p>
                         </td>
@@ -212,6 +346,11 @@ require_once __DIR__ . '/includes/header.php';
                     <?php else: ?>
                     <?php foreach ($orders as $order): ?>
                     <tr>
+                        <td>
+                            <?php if ($order['status'] === 'pending'): ?>
+                            <input type="checkbox" name="order_ids[]" value="<?php echo $order['id']; ?>" class="form-check-input order-checkbox">
+                            <?php endif; ?>
+                        </td>
                         <td><strong>#<?php echo $order['id']; ?></strong></td>
                         <td>
                             <?php echo htmlspecialchars($order['customer_name']); ?><br>
@@ -262,8 +401,55 @@ require_once __DIR__ . '/includes/header.php';
                 </tbody>
             </table>
         </div>
+        </form>
     </div>
 </div>
+
+<script>
+// Select All functionality
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    toggleBulkButtons();
+});
+
+// Individual checkbox change
+document.querySelectorAll('.order-checkbox').forEach(cb => {
+    cb.addEventListener('change', toggleBulkButtons);
+});
+
+function toggleBulkButtons() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    const markPaidBtn = document.getElementById('bulkMarkPaidBtn');
+    const cancelBtn = document.getElementById('bulkCancelBtn');
+    
+    if (checked.length > 0) {
+        markPaidBtn.disabled = false;
+        cancelBtn.disabled = false;
+    } else {
+        markPaidBtn.disabled = true;
+        cancelBtn.disabled = true;
+    }
+}
+
+// Bulk Mark Paid
+document.getElementById('bulkMarkPaidBtn').addEventListener('click', function() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    if (checked.length > 0 && confirm(`Mark ${checked.length} order(s) as paid?`)) {
+        document.getElementById('bulkAction').value = 'bulk_mark_paid';
+        document.getElementById('bulkActionsForm').submit();
+    }
+});
+
+// Bulk Cancel
+document.getElementById('bulkCancelBtn').addEventListener('click', function() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    if (checked.length > 0 && confirm(`Cancel ${checked.length} order(s)? This cannot be undone.`)) {
+        document.getElementById('bulkAction').value = 'bulk_cancel';
+        document.getElementById('bulkActionsForm').submit();
+    }
+});
+</script>
 
 <?php if ($viewOrder): ?>
 <div class="modal fade show" id="viewOrderModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">

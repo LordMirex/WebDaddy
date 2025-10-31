@@ -83,6 +83,7 @@ CREATE TABLE affiliates (
     commission_earned DECIMAL(10,2) DEFAULT 0.00,
     commission_pending DECIMAL(10,2) DEFAULT 0.00,
     commission_paid DECIMAL(10,2) DEFAULT 0.00,
+    custom_commission_rate DECIMAL(5,4) DEFAULT NULL,
     status status_enum DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

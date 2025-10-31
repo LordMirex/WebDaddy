@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/mailer.php';
 
 function sanitizeInput($input)
 {
@@ -181,9 +182,13 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         if (!empty($order['affiliate_code'])) {
             $affiliate = getAffiliateByCode($order['affiliate_code']);
             if ($affiliate) {
-                // Use discounted price if available, otherwise fall back to original template price
-                $commissionBase = $order['discounted_price'] ?? $order['template_price'];
-                $commissionAmount = $commissionBase * AFFILIATE_COMMISSION_RATE;
+                // ALWAYS use original template price for commission calculation
+                // Affiliates earn commission on full price, even if customer gets discount
+                $commissionBase = $order['template_price'];
+                
+                // Use custom commission rate if set, otherwise use default
+                $commissionRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
+                $commissionAmount = $commissionBase * $commissionRate;
                 $affiliateId = $affiliate['id'];
                 
                 updateAffiliateCommission($affiliateId, $commissionAmount);
@@ -197,6 +202,34 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         $stmt->execute([$orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes]);
         
         $db->commit();
+        
+        // Send payment confirmation email to customer
+        if (!empty($order['customer_email'])) {
+            $template = getTemplateById($order['template_id']);
+            sendPaymentConfirmationEmail(
+                $order['customer_name'],
+                $order['customer_email'],
+                $template['name'] ?? 'Template',
+                $order['domain_name'] ?? 'Your Domain',
+                null // Credentials can be added later
+            );
+        }
+        
+        // Send commission earned email to affiliate
+        if ($affiliateId && $affiliate) {
+            $affiliateUser = getUserById($affiliate['user_id']);
+            if ($affiliateUser && !empty($affiliateUser['email'])) {
+                $template = getTemplateById($order['template_id']);
+                sendCommissionEarnedEmail(
+                    $affiliateUser['name'],
+                    $affiliateUser['email'],
+                    $orderId,
+                    $commissionAmount,
+                    $template['name'] ?? 'Template'
+                );
+            }
+        }
+        
         return true;
     } catch (Exception $e) {
         $db->rollBack();
@@ -257,6 +290,21 @@ function getAffiliateByCode($code)
         return $result ? $result : null;
     } catch (PDOException $e) {
         error_log('Error fetching affiliate: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function getUserById($userId)
+{
+    $db = getDb();
+    
+    try {
+        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result : null;
+    } catch (PDOException $e) {
+        error_log('Error fetching user: ' . $e->getMessage());
         return null;
     }
 }

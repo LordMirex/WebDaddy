@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -82,6 +83,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (PDOException $e) {
                 $errorMessage = 'Database error: ' . $e->getMessage();
             }
+        } elseif ($action === 'update_commission_rate') {
+            $affiliateId = intval($_POST['affiliate_id']);
+            $customRate = $_POST['custom_rate'] ?? '';
+            
+            try {
+                // If empty or 'default', set to NULL to use system default
+                if (empty($customRate) || $customRate === 'default') {
+                    $stmt = $db->prepare("UPDATE affiliates SET custom_commission_rate = NULL WHERE id = ?");
+                    $stmt->execute([$affiliateId]);
+                    $successMessage = 'Commission rate reset to default (' . (AFFILIATE_COMMISSION_RATE * 100) . '%)';
+                } else {
+                    // Validate rate (should be between 0 and 1)
+                    $rate = floatval($customRate);
+                    if ($rate < 0 || $rate > 1) {
+                        throw new Exception('Commission rate must be between 0% and 100%');
+                    }
+                    
+                    $stmt = $db->prepare("UPDATE affiliates SET custom_commission_rate = ? WHERE id = ?");
+                    $stmt->execute([$rate, $affiliateId]);
+                    $successMessage = 'Custom commission rate updated to ' . ($rate * 100) . '%';
+                }
+                logActivity('affiliate_commission_updated', "Affiliate #$affiliateId commission rate updated", getAdminId());
+            } catch (Exception $e) {
+                $errorMessage = $e->getMessage();
+            } catch (PDOException $e) {
+                $errorMessage = 'Database error: ' . $e->getMessage();
+            }
         } elseif ($action === 'process_withdrawal') {
             $requestId = intval($_POST['request_id']);
             $withdrawalStatus = sanitizeInput($_POST['withdrawal_status']);
@@ -107,6 +135,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 $db->commit();
+                
+                // Get affiliate details for email
+                $stmt = $db->prepare("
+                    SELECT u.name, u.email 
+                    FROM affiliates a
+                    JOIN users u ON a.user_id = u.id
+                    WHERE a.id = ?
+                ");
+                $stmt->execute([$request['affiliate_id']]);
+                $affiliateUser = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // Send appropriate email based on status
+                if ($affiliateUser && !empty($affiliateUser['email'])) {
+                    if ($withdrawalStatus === 'paid' || $withdrawalStatus === 'approved') {
+                        sendWithdrawalApprovedEmail(
+                            $affiliateUser['name'],
+                            $affiliateUser['email'],
+                            number_format($request['amount'], 2),
+                            $requestId
+                        );
+                    } elseif ($withdrawalStatus === 'rejected') {
+                        sendWithdrawalRejectedEmail(
+                            $affiliateUser['name'],
+                            $affiliateUser['email'],
+                            number_format($request['amount'], 2),
+                            $requestId,
+                            $adminNotes
+                        );
+                    }
+                }
+                
                 $successMessage = "Withdrawal request $withdrawalStatus successfully!";
                 logActivity('withdrawal_processed', "Withdrawal #$requestId $withdrawalStatus", getAdminId());
             } catch (Exception $e) {
@@ -260,6 +319,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <th>Clicks</th>
                                 <th>Sales</th>
                                 <th>Earnings</th>
+                                <th>Commission Rate</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -267,7 +327,7 @@ require_once __DIR__ . '/includes/header.php';
                         <tbody>
                             <?php if (empty($affiliates)): ?>
                             <tr>
-                                <td colspan="8" class="text-center py-4">
+                                <td colspan="9" class="text-center py-4">
                                     <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
                                     <p class="text-muted mt-2">No affiliates found</p>
                                 </td>
@@ -287,6 +347,20 @@ require_once __DIR__ . '/includes/header.php';
                                     <strong><?php echo formatCurrency($affiliate['commission_earned']); ?></strong><br>
                                     <small class="text-warning">Pending: <?php echo formatCurrency($affiliate['commission_pending']); ?></small><br>
                                     <small class="text-success">Paid: <?php echo formatCurrency($affiliate['commission_paid']); ?></small>
+                                </td>
+                                <td>
+                                    <?php
+                                    $displayRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
+                                    $isCustom = $affiliate['custom_commission_rate'] !== null;
+                                    ?>
+                                    <span class="badge <?php echo $isCustom ? 'bg-info' : 'bg-secondary'; ?>">
+                                        <?php echo number_format($displayRate * 100, 1); ?>%
+                                    </span>
+                                    <?php if (!$isCustom): ?>
+                                    <br><small class="text-muted">Default</small>
+                                    <?php else: ?>
+                                    <br><small class="text-info">Custom</small>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <form method="POST" style="display: inline;">
@@ -495,6 +569,69 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 
+                <!-- Custom Commission Rate -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-percent"></i> Commission Rate Settings</h6>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        $currentRate = $viewAffiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
+                        $isCustomRate = $viewAffiliate['custom_commission_rate'] !== null;
+                        ?>
+                        <div class="alert <?php echo $isCustomRate ? 'alert-info' : 'alert-secondary'; ?>">
+                            <strong>Current Rate:</strong> <?php echo number_format($currentRate * 100, 1); ?>%
+                            <?php if ($isCustomRate): ?>
+                            <span class="badge bg-info">Custom Rate</span>
+                            <?php else: ?>
+                            <span class="badge bg-secondary">Default Rate</span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <form method="POST" class="row g-3">
+                            <input type="hidden" name="action" value="update_commission_rate">
+                            <input type="hidden" name="affiliate_id" value="<?php echo $viewAffiliate['id']; ?>">
+                            
+                            <div class="col-md-8">
+                                <label class="form-label">Set Custom Commission Rate</label>
+                                <div class="input-group">
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        name="custom_rate" 
+                                        step="0.01" 
+                                        min="0" 
+                                        max="1" 
+                                        placeholder="e.g., 0.35 for 35%"
+                                        value="<?php echo $isCustomRate ? $currentRate : ''; ?>"
+                                    >
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <small class="text-muted">
+                                    Enter a decimal (e.g., 0.35 for 35%, 0.40 for 40%). 
+                                    Default: <?php echo (AFFILIATE_COMMISSION_RATE * 100); ?>%
+                                </small>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="d-grid gap-2 w-100">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Update Rate
+                                    </button>
+                                    <?php if ($isCustomRate): ?>
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-outline-secondary"
+                                        onclick="document.querySelector('[name=custom_rate]').value='default'; this.form.submit();"
+                                    >
+                                        <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 <?php if (!empty($viewAffiliate['bank_details'])): ?>
                 <div class="mb-4">
                     <h6 class="text-muted mb-2">Bank Details</h6>
@@ -507,11 +644,12 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="mb-4">
                     <h6 class="text-muted mb-2">Referral Link</h6>
                     <div class="input-group">
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . '/?ref=' . $viewAffiliate['code']); ?>" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)">
+                        <input type="text" class="form-control" id="affiliateRefLink" value="<?php echo htmlspecialchars(SITE_URL . '/?aff=' . $viewAffiliate['code']); ?>" readonly>
+                        <button class="btn btn-outline-primary" type="button" onclick="copyAffiliateLink()">
                             <i class="bi bi-clipboard"></i> Copy
                         </button>
                     </div>
+                    <small class="text-muted">Share this link to track referrals for this affiliate</small>
                 </div>
                 
                 <h6 class="text-muted mb-2">Sales History</h6>
@@ -587,6 +725,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function copyAffiliateLink() {
+    const linkInput = document.getElementById('affiliateRefLink');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(linkInput.value).then(function() {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-success');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-primary');
+        }, 2000);
+    }).catch(function(err) {
+        alert('Failed to copy link: ' + err);
+    });
+}
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

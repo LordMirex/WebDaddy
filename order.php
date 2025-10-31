@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/mailer.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -144,6 +145,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
         
         if ($orderId && empty($errors)) {
             logActivity('order_initiated', 'Order #' . $orderId . ' for template ' . $template['name']);
+            
+            // Send order confirmation email to customer (if email provided)
+            if (!empty($customerEmail)) {
+                sendOrderConfirmationEmail(
+                    $orderId,
+                    $customerName,
+                    $customerEmail,
+                    $template['name'],
+                    formatCurrency($payableAmount)
+                );
+            }
+            
+            // Send new order notification to admin
+            sendNewOrderNotificationToAdmin(
+                $orderId,
+                $customerName,
+                $customerPhone,
+                $template['name'],
+                formatCurrency($payableAmount),
+                $activeAffiliateCode
+            );
             
             // Build WhatsApp link
             $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -76,6 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // Log activity
                     logActivity('affiliate_registration', "New affiliate registered: $email", $userId);
+                    
+                    // Send welcome email to new affiliate
+                    sendAffiliateWelcomeEmail($name, $email, $affiliateCode);
                     
                     // Auto-login the user
                     $stmt = $db->prepare("SELECT id FROM affiliates WHERE user_id = ?");

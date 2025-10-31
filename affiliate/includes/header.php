@@ -53,6 +53,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'earnings.php' ? 'active' : ''; ?>" href="/affiliate/earnings.php">
+                                <i class="bi bi-currency-dollar"></i>
+                                Earnings History
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'withdrawals.php' ? 'active' : ''; ?>" href="/affiliate/withdrawals.php">
                                 <i class="bi bi-wallet2"></i>
                                 Withdrawals
