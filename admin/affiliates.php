@@ -110,6 +110,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (PDOException $e) {
                 $errorMessage = 'Database error: ' . $e->getMessage();
             }
+        } elseif ($action === 'email_all_affiliates') {
+            $subject = sanitizeInput($_POST['email_subject']);
+            $message = sanitizeInput($_POST['email_message']);
+            
+            if (empty($subject) || empty($message)) {
+                $errorMessage = 'Subject and message are required.';
+            } else {
+                try {
+                    // Get all active affiliates
+                    $stmt = $db->query("
+                        SELECT u.email, u.name 
+                        FROM affiliates a
+                        JOIN users u ON a.user_id = u.id
+                        WHERE a.status = 'active' AND u.status = 'active'
+                    ");
+                    $affiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    $sentCount = 0;
+                    $failedCount = 0;
+                    
+                    foreach ($affiliates as $affiliate) {
+                        try {
+                            sendEmail(
+                                $affiliate['email'],
+                                $subject,
+                                $message,
+                                $affiliate['name']
+                            );
+                            $sentCount++;
+                        } catch (Exception $e) {
+                            $failedCount++;
+                            error_log('Failed to send email to ' . $affiliate['email'] . ': ' . $e->getMessage());
+                        }
+                    }
+                    
+                    $successMessage = "Email sent to $sentCount affiliate(s). Failed: $failedCount";
+                    logActivity('email_all_affiliates', "Sent bulk email: $subject", getAdminId());
+                } catch (PDOException $e) {
+                    $errorMessage = 'Database error: ' . $e->getMessage();
+                }
+            }
+        } elseif ($action === 'create_announcement') {
+            $title = sanitizeInput($_POST['announcement_title']);
+            $message = sanitizeInput($_POST['announcement_message']);
+            $type = sanitizeInput($_POST['announcement_type'] ?? 'info');
+            
+            if (empty($title) || empty($message)) {
+                $errorMessage = 'Title and message are required.';
+            } else {
+                try {
+                    $stmt = $db->prepare("
+                        INSERT INTO announcements (title, message, type, is_active, created_by)
+                        VALUES (?, ?, ?, true, ?)
+                    ");
+                    $stmt->execute([$title, $message, $type, getAdminId()]);
+                    
+                    $successMessage = 'Announcement posted successfully! It will appear on all affiliate dashboards.';
+                    logActivity('announcement_created', "Posted announcement: $title", getAdminId());
+                } catch (PDOException $e) {
+                    $errorMessage = 'Database error: ' . $e->getMessage();
+                }
+            }
         } elseif ($action === 'process_withdrawal') {
             $requestId = intval($_POST['request_id']);
             $withdrawalStatus = sanitizeInput($_POST['withdrawal_status']);
@@ -244,9 +306,17 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="bi bi-people"></i> Affiliates Management</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAffiliateModal">
-        <i class="bi bi-plus-circle"></i> Create Affiliate Account
-    </button>
+    <div>
+        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#emailAllAffiliatesModal">
+            <i class="bi bi-envelope"></i> Email All Affiliates
+        </button>
+        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#announcementModal">
+            <i class="bi bi-megaphone"></i> Post Announcement
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAffiliateModal">
+            <i class="bi bi-plus-circle"></i> Create Affiliate
+        </button>
+    </div>
 </div>
 
 <?php if ($successMessage): ?>
@@ -540,6 +610,87 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Email All Affiliates Modal -->
+<div class="modal fade" id="emailAllAffiliatesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-envelope"></i> Email All Affiliates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="email_all_affiliates">
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> This will send an email to all active affiliates.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Subject *</label>
+                        <input type="text" class="form-control" name="email_subject" required placeholder="Email subject">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message *</label>
+                        <textarea class="form-control" name="email_message" rows="6" required placeholder="Type your message here..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-send"></i> Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Post Announcement Modal -->
+<div class="modal fade" id="announcementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-megaphone"></i> Post Announcement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="create_announcement">
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> This will appear on all affiliate dashboards.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Title *</label>
+                        <input type="text" class="form-control" name="announcement_title" required placeholder="Announcement title">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message *</label>
+                        <textarea class="form-control" name="announcement_message" rows="4" required placeholder="Type announcement message..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="announcement_type">
+                            <option value="info">Info (Blue)</option>
+                            <option value="success">Success (Green)</option>
+                            <option value="warning">Warning (Yellow)</option>
+                            <option value="danger">Important (Red)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-megaphone"></i> Post Announcement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php if ($viewAffiliate): ?>
 <div class="modal fade show" id="viewAffiliateModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-lg">
@@ -645,7 +796,7 @@ require_once __DIR__ . '/includes/header.php';
                     <h6 class="text-muted mb-2">Referral Link</h6>
                     <div class="input-group">
                         <input type="text" class="form-control" id="affiliateRefLink" value="<?php echo htmlspecialchars(SITE_URL . '/?aff=' . $viewAffiliate['code']); ?>" readonly>
-                        <button class="btn btn-outline-primary" type="button" onclick="copyAffiliateLink()">
+                        <button class="btn btn-outline-primary" type="button" onclick="copyAffiliateLink(event)">
                             <i class="bi bi-clipboard"></i> Copy
                         </button>
                     </div>
@@ -726,7 +877,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function copyAffiliateLink() {
+function copyAffiliateLink(event) {
     const linkInput = document.getElementById('affiliateRefLink');
     linkInput.select();
     linkInput.setSelectionRange(0, 99999);

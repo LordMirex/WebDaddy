@@ -192,6 +192,21 @@ CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id);
 CREATE INDEX idx_activity_logs_action ON activity_logs(action);
 CREATE INDEX idx_activity_logs_created_at ON activity_logs(created_at);
 
+-- Announcements Table (for affiliate dashboard)
+CREATE TABLE announcements (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'info',
+    is_active BOOLEAN DEFAULT true,
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_announcements_is_active ON announcements(is_active);
+CREATE INDEX idx_announcements_created_at ON announcements(created_at);
+
 -- Insert Default Settings
 INSERT INTO settings (setting_key, setting_value) VALUES
 ('whatsapp_number', '+2349132672126'),

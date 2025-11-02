@@ -46,6 +46,19 @@ try {
     $recentSales = [];
 }
 
+// Get active announcements
+try {
+    $announcements = $db->query("
+        SELECT * FROM announcements 
+        WHERE is_active = true 
+        ORDER BY created_at DESC 
+        LIMIT 5
+    ")->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log('Error fetching announcements: ' . $e->getMessage());
+    $announcements = [];
+}
+
 $referralLink = SITE_URL . '/?aff=' . $affiliateCode;
 
 $pageTitle = 'Affiliate Dashboard';
@@ -56,6 +69,26 @@ require_once __DIR__ . '/includes/header.php';
     <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
     <p>Welcome back, <?php echo htmlspecialchars(getAffiliateName()); ?>!</p>
 </div>
+
+<?php if (!empty($announcements)): ?>
+<div class="row mb-4">
+    <div class="col-12">
+        <?php foreach ($announcements as $announcement): ?>
+        <div class="alert alert-<?php echo htmlspecialchars($announcement['type']); ?> alert-dismissible fade show" role="alert">
+            <h5 class="alert-heading">
+                <i class="bi bi-megaphone"></i> <?php echo htmlspecialchars($announcement['title']); ?>
+            </h5>
+            <p class="mb-0"><?php echo nl2br(htmlspecialchars($announcement['message'])); ?></p>
+            <hr>
+            <small class="text-muted">
+                <i class="bi bi-clock"></i> <?php echo date('M d, Y \a\t g:i A', strtotime($announcement['created_at'])); ?>
+            </small>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <div class="row mb-4">
     <div class="col-md-12">
@@ -70,7 +103,7 @@ require_once __DIR__ . '/includes/header.php';
                            id="referralLink" 
                            value="<?php echo htmlspecialchars($referralLink); ?>" 
                            readonly>
-                    <button class="btn btn-primary" type="button" onclick="copyReferralLink()">
+                    <button class="btn btn-primary" type="button" onclick="copyReferralLink(event)">
                         <i class="bi bi-clipboard"></i> Copy
                     </button>
                 </div>
@@ -207,7 +240,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-function copyReferralLink() {
+function copyReferralLink(event) {
     const linkInput = document.getElementById('referralLink');
     linkInput.select();
     linkInput.setSelectionRange(0, 99999);
