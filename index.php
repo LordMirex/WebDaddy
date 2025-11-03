@@ -7,10 +7,12 @@ require_once __DIR__ . '/includes/functions.php';
 startSecureSession();
 handleAffiliateTracking();
 
-// Limit to 10 templates for single-page layout
-$allTemplates = getTemplates(true);
-$templates = array_slice($allTemplates, 0, 10);
+// Get all active templates for filtering
+$templates = getTemplates(true);
 $affiliateCode = getAffiliateCode();
+
+// Get unique categories
+$categories = array_unique(array_column($templates, 'category'));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,6 +29,7 @@ $affiliateCode = getAffiliateCode();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/forms.js" defer></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -115,10 +118,47 @@ $affiliateCode = getAffiliateCode();
     <!-- Templates Section -->
     <section class="py-6 bg-white" id="templates">
         <div class="container">
-            <div class="row mb-5">
+            <div class="row mb-4">
                 <div class="col-lg-8 mx-auto text-center">
                     <h2 class="h2 fw-800 mb-3">Choose Your Template</h2>
                     <p class="text-muted fs-5">Pick a professionally designed website and get started instantly</p>
+                </div>
+            </div>
+
+            <!-- Template Filters -->
+            <div class="template-filters">
+                <div class="row mb-3">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="template-search">
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Search templates..." 
+                                   data-template-search>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="category-filters justify-content-center">
+                            <button class="category-filter-btn active" data-category-filter="all">
+                                All Categories
+                            </button>
+                            <?php foreach ($categories as $category): ?>
+                            <button class="category-filter-btn" data-category-filter="<?php echo htmlspecialchars(strtolower($category)); ?>">
+                                <?php echo htmlspecialchars($category); ?>
+                            </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="results-count" data-results-count>
+                            <?php echo count($templates); ?> template<?php echo count($templates) !== 1 ? 's' : ''; ?> found
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -133,13 +173,19 @@ $affiliateCode = getAffiliateCode();
                 </div>
             </div>
             <?php else: ?>
-            <div class="row g-3">
+            <div class="row g-3" data-templates-grid>
                 <?php foreach ($templates as $template): ?>
-                <div class="col-12 col-sm-6 col-lg-4">
+                <div class="col-12 col-sm-6 col-lg-4" 
+                     data-template
+                     data-template-name="<?php echo htmlspecialchars($template['name']); ?>"
+                     data-template-category="<?php echo htmlspecialchars($template['category']); ?>"
+                     data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
                     <div class="template-card">
                         <div class="template-card-img">
-                            <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
+                            <img data-src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                                 src="/assets/images/placeholder.jpg"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
+                                 class="lazy"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): ?>
                             <button class="btn-preview" onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')">
@@ -170,6 +216,13 @@ $affiliateCode = getAffiliateCode();
                     </div>
                 </div>
                 <?php endforeach; ?>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div data-pagination></div>
+                </div>
             </div>
             <?php endif; ?>
         </div>

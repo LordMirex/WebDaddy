@@ -20,6 +20,7 @@ $availableDomains = getAvailableDomains($templateId);
 $customFields = !empty($template['custom_fields']) ? json_decode($template['custom_fields'], true) : [];
 
 $errors = [];
+$error = '';
 $success = false;
 
 $affiliateDiscountRate = 0.20; // 20% discount
@@ -99,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isApplyAffiliate) {
 // Handle order submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
     $customerName = trim($_POST['customer_name'] ?? '');
+    $customerEmail = trim($_POST['customer_email'] ?? '');
     $customerPhone = trim($_POST['customer_phone'] ?? '');
     
     if (empty($customerName)) {
@@ -131,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
             'template_id' => $templateId,
             'chosen_domain_id' => null,
             'customer_name' => $customerName,
-            'customer_email' => '',
+            'customer_email' => $customerEmail,
             'customer_phone' => $customerPhone,
             'business_name' => '',
             'custom_fields' => null,
@@ -214,6 +216,7 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="/assets/css/style.css" rel="stylesheet">
+    <script src="/assets/js/forms.js" defer></script>
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top" id="mainNav">
@@ -269,7 +272,7 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                 <?php endif; ?>
                 
                 <?php if (empty($error)): ?>
-                    <form method="POST" action="" id="orderForm">
+                    <form method="POST" action="" id="orderForm" data-validate data-loading>
                     <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
                         <div class="card-body p-5">
                             <div class="d-flex align-items-center mb-4">
@@ -368,7 +371,7 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                     </div>
                     
                     <div class="d-grid gap-3 mb-4">
-                        <button type="submit" class="btn btn-success btn-lg py-3 fw-800" id="submitBtn">
+                        <button type="submit" class="btn btn-success btn-lg py-3 fw-800" id="submitBtn" data-loading-text="Processing...">
                             <i class="bi bi-whatsapp me-2"></i>
                             <span class="d-none d-md-inline">Continue to WhatsApp</span>
                             <span class="d-md-none">Order Now</span>

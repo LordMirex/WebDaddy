@@ -121,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/forms.js" defer></script>
 </head>
 <body>
     <div class="login-container">
@@ -149,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <?php endif; ?>
                             
-                            <form method="POST" action="">
+                            <form method="POST" action="" data-validate data-loading>
                                 <div class="mb-3">
                                     <label for="my_affiliate_code" class="form-label">Choose Your Affiliate Code <span class="text-danger">*</span></label>
                                     <div class="input-group">
@@ -161,9 +162,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                placeholder="Enter your unique code (e.g., JOHN2024)"
                                                value="<?php echo htmlspecialchars($_POST['my_affiliate_code'] ?? ''); ?>"
                                                pattern="[A-Za-z0-9]{4,20}"
+                                               data-pattern-message="Must be 4-20 characters, letters and numbers only"
+                                               minlength="4"
+                                               maxlength="20"
                                                required autofocus>
                                     </div>
                                     <small class="text-muted">4-20 characters, letters and numbers only. This will be YOUR affiliate code.</small>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="mb-3">
@@ -178,6 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                                required>
                                     </div>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="mb-4">
@@ -189,12 +195,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                id="password" 
                                                name="password" 
                                                placeholder="Create a password (min 6 characters)"
+                                               minlength="6"
                                                required>
                                     </div>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="d-grid mb-3">
-                                    <button type="submit" class="btn btn-primary btn-lg">
+                                    <button type="submit" class="btn btn-primary btn-lg" data-loading-text="Creating account...">
                                         <i class="bi bi-person-check"></i> Register as Affiliate
                                     </button>
                                 </div>

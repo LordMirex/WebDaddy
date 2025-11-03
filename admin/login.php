@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/forms.js" defer></script>
 </head>
 <body>
     <div class="login-container">
@@ -64,25 +65,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </small>
                             </div>
                             
-                            <form method="POST" action="">
+                            <form method="POST" action="" data-validate data-loading>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                         <input type="email" class="form-control" id="email" name="email" required autofocus>
                                     </div>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Password</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                        <input type="password" class="form-control" id="password" name="password" required>
+                                        <input type="password" class="form-control" id="password" name="password" required minlength="6">
                                     </div>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary btn-lg">
+                                    <button type="submit" class="btn btn-primary btn-lg" data-loading-text="Logging in...">
                                         <i class="bi bi-box-arrow-in-right"></i> Login
                                     </button>
                                 </div>

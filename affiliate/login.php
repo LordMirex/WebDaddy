@@ -41,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/forms.js" defer></script>
 </head>
 <body>
     <div class="login-container">
@@ -69,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <?php endif; ?>
                             
-                            <form method="POST" action="">
+                            <form method="POST" action="" data-validate data-loading>
                                 <div class="mb-3">
                                     <label for="email_or_code" class="form-label">Email or Affiliate Code</label>
                                     <div class="input-group">
@@ -82,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                value="<?php echo htmlspecialchars($_POST['email_or_code'] ?? ''); ?>"
                                                required autofocus>
                                     </div>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="mb-3">
@@ -93,12 +95,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                id="password" 
                                                name="password" 
                                                placeholder="Enter password"
-                                               required>
+                                               required minlength="6">
                                     </div>
+                                    <div class="invalid-feedback"></div>
                                 </div>
                                 
                                 <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary btn-lg">
+                                    <button type="submit" class="btn btn-primary btn-lg" data-loading-text="Logging in...">
                                         <i class="bi bi-box-arrow-in-right"></i> Login
                                     </button>
                                 </div>
