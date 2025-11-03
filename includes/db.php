@@ -6,7 +6,7 @@ class Database
 {
     private static $instance = null;
     private $connection;
-    private $dbType = 'pgsql';
+    private $dbType = 'sqlite';
 
     private function __construct()
     {
@@ -16,24 +16,23 @@ class Database
     private function connect()
     {
         try {
-            // PostgreSQL DSN from constants
-            $dsn = sprintf(
-                'pgsql:host=%s;port=%d;dbname=%s;sslmode=%s',
-                DB_HOST,
-                DB_PORT,
-                DB_NAME,
-                DB_SSLMODE
-            );
+            // SQLite DSN - single file database
+            $dbPath = __DIR__ . '/../webdaddy.db';
+            $dsn = 'sqlite:' . $dbPath;
             
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false
             ];
-            $this->connection = new PDO($dsn, DB_USER, DB_PASS, $options);
+            
+            $this->connection = new PDO($dsn, null, null, $options);
             
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            
+            // Enable foreign key constraints (critical for SQLite)
+            $this->connection->exec('PRAGMA foreign_keys = ON;');
         } catch (PDOException $e) {
             error_log('Database Connection Error: ' . $e->getMessage());
             
@@ -121,5 +120,5 @@ function getDb()
 
 function getDbType()
 {
-    return 'pgsql';
+    return 'sqlite';
 }

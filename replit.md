@@ -1,7 +1,7 @@
 # WebDaddy Empire - Template Marketplace
 
 ## Overview
-WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace designed for selling website templates with pre-configured domains. Its core purpose is to provide a platform for customers to purchase templates with a unique WhatsApp-first manual payment processing system, supported by an admin management panel and an affiliate tracking system. The business vision is to offer a professional and conversion-optimized platform for acquiring website templates, targeting a market that values simplicity and direct interaction for purchases.
+WebDaddy Empire is a production-ready PHP/SQLite template marketplace designed for selling website templates with pre-configured domains. Its core purpose is to provide a platform for customers to purchase templates with a unique WhatsApp-first manual payment processing system, supported by an admin management panel and an affiliate tracking system. The business vision is to offer a professional and conversion-optimized platform for acquiring website templates, targeting a market that values simplicity and direct interaction for purchases. The application uses a single portable SQLite database file (`webdaddy.db`) that makes it easy to deploy anywhere PHP runs.
 
 ## User Preferences
 - Code style: PSR-12 compliant, 4 spaces, camelCase variables
@@ -12,6 +12,25 @@ WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace design
 - UPDATE REPLIT.MD WITH EVERY CHANGE
 
 ## Recent Changes
+
+### November 03, 2025 - PostgreSQL to SQLite Migration (COMPLETED)
+- **Database Migration:** Successfully migrated from PostgreSQL to SQLite for maximum portability and simplicity
+- **Single File Database:** Created `webdaddy.db` - one portable file containing all application data (200KB)
+- **Schema Conversion:** Converted PostgreSQL schema to SQLite format:
+  - Replaced SERIAL with INTEGER PRIMARY KEY AUTOINCREMENT
+  - Converted ENUMs to TEXT with CHECK constraints
+  - Changed DECIMAL to REAL for numeric values
+  - Updated TIMESTAMP to TEXT (SQLite datetime format)
+  - Converted BOOLEAN to INTEGER (0/1)
+- **Database Connection:** Updated `includes/db.php` to use SQLite PDO connection with foreign key support
+- **Configuration Cleanup:** Removed PostgreSQL-specific configuration from `includes/config.php`
+- **Data Preservation:** Migrated all sample data (1 admin user, 11 templates, 44 domains)
+- **Version Control:** Updated `.gitignore` to exclude database files (*.db, *.sqlite, *.sqlite3)
+- **System Dependencies:** Installed SQLite system package for database management
+- **Verification:** Tested homepage, admin login, and database queries - all working perfectly
+- **Benefits:** Single portable file, works anywhere PHP runs, zero server configuration, easy backups, simple schema changes
+- **Files Modified:** `includes/db.php`, `includes/config.php`, `.gitignore`
+- **Files Created:** `database/schema_sqlite.sql`, `webdaddy.db`
 
 ### October 30, 2025 - Comprehensive Mobile Responsiveness Overhaul (COMPLETED)
 - **Mobile-First CSS:** Added 400+ lines of comprehensive mobile-responsive CSS with media queries for tablets (≤768px), mobile devices (≤576px), and orientation-specific optimizations
@@ -36,14 +55,15 @@ WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace design
 - **Architect Review:** Passed comprehensive review - proper stacking behavior confirmed, no conflicts or regressions
 - **Target Audience:** Fully optimized for mobile users as the primary user base
 
-### October 30, 2025 - Project Import to Replit Environment Completed
-- **Database Setup:** Created PostgreSQL database using Replit's built-in database service
-- **Configuration Update:** Modified `includes/config.php` to use Replit environment variables (PGHOST, PGDATABASE, PGUSER, PGPASSWORD, PGPORT)
+### October 30, 2025 - Project Import to Replit Environment Completed (Later Migrated to SQLite)
+- **Database Setup:** Initially created PostgreSQL database using Replit's built-in database service (migrated to SQLite on Nov 3)
+- **Configuration Update:** Modified `includes/config.php` to use Replit environment variables (later simplified for SQLite)
 - **Database Schema:** Successfully executed `database/schema.sql` to create all tables, types, and sample data
 - **Admin Password:** Updated admin password hash for proper authentication
 - **Verification:** Tested homepage and admin login page - both working perfectly
 - **Server Status:** PHP development server running on port 5000 with webview output
 - **Import Status:** Project import completed successfully and ready for development
+- **Note:** This PostgreSQL setup was later migrated to SQLite on November 3, 2025 for better portability
 
 ### October 28, 2025 - Session & Admin Panel Fix
 - **Critical Session Fix:** Configured PHP session save path to `/tmp/php_sessions` - sessions now persist correctly
@@ -52,18 +72,19 @@ WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace design
 - **UI Refinement:** Reduced stat card number sizes and padding for more compact admin dashboard
 - **Files Modified:** `includes/session.php`, `assets/css/style.css`
 
-### October 28, 2025 - Project Import to Replit Environment & Admin Login Fix
+### October 28, 2025 - Project Import to Replit Environment & Admin Login Fix (Later Migrated to SQLite)
 - **Environment Setup:** Successfully migrated project to Replit environment
 - **PHP Installation:** Installed PHP 8.2 module with Composer package manager
-- **PostgreSQL Database:** Created and configured PostgreSQL database with full schema
+- **Database Setup:** Initially created and configured PostgreSQL database with full schema (migrated to SQLite on Nov 3)
 - **Database Tables:** Created all 9 tables (settings, users, templates, affiliates, domains, pending_orders, sales, withdrawal_requests, activity_logs)
 - **Sample Data:** Inserted default admin user, 3 sample templates, and 6 sample domains
-- **Configuration:** Created `includes/config.php` with environment-based configuration for Replit PostgreSQL
+- **Configuration:** Created `includes/config.php` with environment-based configuration (later simplified for SQLite)
 - **Web Server:** Configured PHP development server on port 5000 with webview output
 - **Admin Login Fix:** Fixed password hash issue - regenerated correct hash for admin account
 - **Admin Credentials:** Email: admin@example.com | Password: admin123
 - **Verification:** Tested homepage and admin login - both working perfectly
 - **Files Created/Modified:** `includes/config.php`, `.gitignore`
+- **Note:** This PostgreSQL setup was later migrated to SQLite on November 3, 2025 for better portability
 
 ### October 28, 2025 - Frontend UI Enhancement
 - **Comprehensive CSS Overhaul:** Added 500+ lines of professional styling for admin and affiliate sections in `assets/css/style.css`, ensuring visual consistency across all three main sections (Landing Page, Admin Panel, Affiliate Portal)
@@ -80,7 +101,7 @@ WebDaddy Empire is a production-ready PHP/PostgreSQL template marketplace design
 The design theme is professional, clean, and conversion-focused, utilizing a brand identity centered around "WebDaddy Empire" with a royal crown logo and a color scheme of Royal Blue (#1e3a8a), Gold (#d4af37), and Accent Navy Blue (#0f172a). The design prioritizes minimalism, consistency, and responsiveness across all devices, eliminating excessive animations or "gimmicky" elements. All three main sections (Landing Page, Admin Panel, Affiliate Portal) now share unified design language with royal blue gradient navigation, professional white cards with colored accent borders, and consistent spacing and typography. The homepage is specifically designed for conversion, placing templates above the fold with a compact hero section, simplified "How It Works," and an FAQ accordion.
 
 ### Technical Implementations
-The backend is built with plain PHP 8.x, interacting with a PostgreSQL database. The frontend uses Bootstrap 5.3.2 for styling and Vanilla JavaScript for interactivity. The system employs prepared statements for SQL injection prevention, `password_hash/verify` for authentication, session regeneration, HttpOnly + Secure cookies, HTTPS enforcement, and input sanitization to ensure security.
+The backend is built with plain PHP 8.x, interacting with a SQLite database (single portable file: `webdaddy.db`). The frontend uses Bootstrap 5.3.2 for styling and Vanilla JavaScript for interactivity. The system employs prepared statements for SQL injection prevention, `password_hash/verify` for authentication, session regeneration, HttpOnly + Secure cookies, HTTPS enforcement, and input sanitization to ensure security. Foreign key constraints are enabled via PRAGMA for referential integrity.
 
 ### Feature Specifications
 - **Public Features:** Conversion-optimized homepage, template browsing with detail pages and live previews, affiliate tracking (30-day persistence), order form with domain selection and WhatsApp payment redirect, and a simple FAQ.
@@ -91,7 +112,7 @@ The backend is built with plain PHP 8.x, interacting with a PostgreSQL database.
 The folder structure is organized into `public/` (customer-facing), `admin/` (admin panel), `affiliate/` (affiliate dashboard), `includes/` (shared PHP), `assets/` (CSS, JS, images), and `database/` (SQL schema). The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Business rules dictate a 30% affiliate commission, 30-day affiliate persistence, a specific order flow from form submission to domain assignment, and a homepage template limit of 10 for optimal conversion.
 
 ## External Dependencies
-- **Database:** PostgreSQL (Neon-backed via Replit)
+- **Database:** SQLite (Single portable file: webdaddy.db)
 - **Frontend Framework:** Bootstrap 5.3.2
 - **Icons:** Bootstrap Icons
-- **Hosting:** Replit Development Environment
+- **Hosting:** Portable - works on any PHP environment

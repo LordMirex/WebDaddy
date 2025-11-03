@@ -5,13 +5,9 @@
 // Just edit the values below directly!
 // ============================================
 
-// Database Configuration - PostgreSQL (Replit Environment)
-define('DB_HOST', getenv('PGHOST') ?: 'db');             // Database server
-define('DB_NAME', getenv('PGDATABASE') ?: 'template_store'); // Database name
-define('DB_USER', getenv('PGUSER') ?: 'postgres');       // Database username
-define('DB_PASS', getenv('PGPASSWORD') ?: 'postgres');       // Database password
-define('DB_PORT', getenv('PGPORT') ?: 5432);             // Database port
-define('DB_SSLMODE', 'prefer');      // SSL mode (prefer, require, disable)
+// Database Configuration - SQLite (Single File Database)
+// Database file: webdaddy.db (located in root directory)
+// No server, no credentials needed - just one portable file!
 
 // WhatsApp Configuration - Now pulled from database
 // This will be loaded after database connection
@@ -64,7 +60,8 @@ if (DISPLAY_ERRORS) {
     ini_set('display_errors', 0);
 }
 
-// Early sanity check
-if (!defined('DB_HOST') || !defined('DB_NAME') || !defined('DB_USER') || !defined('DB_PASS') || !defined('DB_PORT')) {
-    die('Database configuration is missing or incomplete. Please check includes/config.php.');
+// SQLite Database Check - verify database file exists
+$dbFile = __DIR__ . '/../webdaddy.db';
+if (!file_exists($dbFile)) {
+    die('Database file not found! Please ensure webdaddy.db exists in the root directory.');
 }
