@@ -13,6 +13,19 @@ WebDaddy Empire is a production-ready PHP/SQLite template marketplace designed f
 
 ## Recent Changes
 
+### November 04, 2025 - SQLite Migration Bug Fixes (COMPLETED)
+- **Critical Fixes:** Fixed all PostgreSQL-specific SQL syntax that was breaking the site after SQLite migration
+- **Database Viewer Fix:** Updated `admin/database.php` to use SQLite's `sqlite_master` instead of PostgreSQL's `information_schema.tables` for listing tables
+- **Settings Update Fix:** Fixed `admin/settings.php` to use SQLite-compatible `INSERT ... ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value` syntax
+- **Bulk Import Fix:** Changed `admin/bulk_import_domains.php` from `NOW()` to `CURRENT_TIMESTAMP` for SQLite compatibility
+- **Missing Asset Fix:** Created `placeholder.svg` file to resolve 404 errors in template demo iframe
+- **Comprehensive Testing:** Tested all admin pages (database viewer, settings, bulk import), affiliate pages, and public pages - all working correctly
+- **Verification:** Ran SQL tests confirming table listing, settings upsert, and domain insertion all work properly with SQLite
+- **Architect Review:** All fixes reviewed and approved - no remaining PostgreSQL-specific syntax in PHP code
+- **Files Modified:** `admin/database.php`, `admin/settings.php`, `admin/bulk_import_domains.php`
+- **Files Created:** `placeholder.svg`
+- **Result:** Site is now fully functional with SQLite database - all features working as expected
+
 ### November 03, 2025 - PostgreSQL to SQLite Migration (COMPLETED)
 - **Database Migration:** Successfully migrated from PostgreSQL to SQLite for maximum portability and simplicity
 - **Single File Database:** Created `webdaddy.db` - one portable file containing all application data (200KB)
