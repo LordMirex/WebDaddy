@@ -241,20 +241,6 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
         </div>
     </div>
 
-    <!-- CTA Section -->
-    <section class="bg-gray-100 py-12 sm:py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center">
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4">Ready to Get Started?</h2>
-                <p class="text-lg text-gray-600 mb-8">Join hundreds of businesses using our templates</p>
-                <a href="/order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
-                   class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg">
-                    Order This Template Now
-                </a>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
