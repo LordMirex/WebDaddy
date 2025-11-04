@@ -164,6 +164,7 @@ require_once __DIR__ . '/includes/header.php';
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     // Initialize Quill editor
     var quill = new Quill('#editor', {
         theme: 'snow',
@@ -182,25 +183,39 @@ require_once __DIR__ . '/includes/header.php';
 
     // Set editor font styling
     var editorContainer = document.querySelector('#editor .ql-editor');
-    editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
-    editorContainer.style.fontSize = '15px';
-    editorContainer.style.lineHeight = '1.6';
-    editorContainer.style.color = '#374151';
-    editorContainer.style.minHeight = '250px';
+    if (editorContainer) {
+        editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+        editorContainer.style.fontSize = '15px';
+        editorContainer.style.lineHeight = '1.6';
+        editorContainer.style.color = '#374151';
+        editorContainer.style.minHeight = '250px';
+    }
 
     // Sync Quill content to hidden textarea before form submission
     var form = document.querySelector('form');
-    form.onsubmit = function() {
-        var messageField = document.querySelector('#message');
-        messageField.value = quill.root.innerHTML;
-        
-        // Validate that content exists
-        if (quill.getText().trim().length === 0) {
-            alert('Please enter a message before sending.');
-            return false;
-        }
-        return true;
-    };
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            var messageField = document.querySelector('#message');
+            messageField.value = quill.root.innerHTML;
+            
+            // Validate that content exists
+            if (quill.getText().trim().length === 0) {
+                e.preventDefault();
+                alert('Please enter a message before sending.');
+                return false;
+            }
+            
+            // Show loading state on submit button
+            var submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+            }
+            
+            return true;
+        });
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
