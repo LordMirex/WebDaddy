@@ -251,6 +251,38 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
         }
     </script>
     <script src="/assets/js/forms.js" defer></script>
+    <style>
+        /* Prevent horizontal overflow on mobile */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+        
+        /* Optimize spinner animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Better touch targets on mobile */
+        @media (max-width: 640px) {
+            button, a[role="button"], input[type="button"] {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        /* Smooth transitions */
+        input, button {
+            transition: all 0.2s ease;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -330,14 +362,14 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                 
                 <?php if (empty($error)): ?>
                     <!-- Discount Code Section -->
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-lg p-3 sm:p-4 mb-4" id="discountSection">
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-lg p-3 sm:p-4 mb-4 max-w-full overflow-hidden" id="discountSection">
                         <?php if ($hasAffiliate): ?>
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <div class="flex items-center min-w-0">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-xs sm:text-sm font-semibold text-green-800 truncate">20% OFF! (<?php echo htmlspecialchars($affiliateCode); ?>)</span>
+                                <span class="text-xs sm:text-sm font-semibold text-green-800 break-words">20% OFF! Code: <?php echo htmlspecialchars($affiliateCode); ?></span>
                             </div>
                             <span class="text-xs sm:text-sm font-bold text-green-700 shrink-0">-<?php echo formatCurrency($discountAmount); ?></span>
                         </div>
@@ -350,14 +382,15 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                                 </svg>
                                 <p class="text-xs sm:text-sm font-semibold text-gray-900">Save 20% with code</p>
                             </div>
-                            <div class="flex gap-2" id="affiliateForm">
+                            <div class="flex gap-2 max-w-full" id="affiliateForm">
                                 <input type="text" 
                                        class="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm border <?php echo $affiliateInvalid ? 'border-red-500' : 'border-gray-300'; ?> rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase" 
                                        id="affiliate_code" 
                                        value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
-                                       placeholder="CODE"
+                                       placeholder="ENTER CODE"
+                                       maxlength="20"
                                        autocomplete="off">
-                                <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 transition-colors shrink-0" 
+                                <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 transition-colors shrink-0" 
                                         type="button"
                                         id="applyAffiliateBtn"
                                         onclick="applyAffiliateCode()">
@@ -365,7 +398,7 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                                 </button>
                             </div>
                             <?php if ($affiliateInvalid): ?>
-                                <p class="mt-1.5 text-xs text-red-600" id="affiliateError">Invalid code</p>
+                                <p class="mt-1.5 text-xs text-red-600 font-medium" id="affiliateError">Invalid code. Please check and try again.</p>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
