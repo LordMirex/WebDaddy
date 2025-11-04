@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif ($action === 'email_all_affiliates') {
             $subject = sanitizeInput($_POST['email_subject']);
-            $message = sanitizeInput($_POST['email_message']);
+            $message = trim($_POST['email_message'] ?? '');
             
             if (empty($subject) || empty($message)) {
                 $errorMessage = 'Subject and message are required.';
@@ -674,7 +674,9 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Message *</label>
-                        <textarea class="form-control" name="email_message" rows="6" required placeholder="Type your message here..."></textarea>
+                        <div id="bulk-email-editor" style="min-height: 200px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
+                        <textarea id="email_message" name="email_message" style="display:none;" required></textarea>
+                        <small class="text-muted">Use the editor toolbar to format your message</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -889,6 +891,10 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 <?php endif; ?>
 
+<!-- Quill Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     <?php if ($successMessage): ?>
@@ -917,6 +923,52 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
+
+// Initialize Quill editor for bulk email modal if it exists
+document.addEventListener('DOMContentLoaded', function() {
+    const bulkEditorElement = document.getElementById('bulk-email-editor');
+    if (bulkEditorElement) {
+        const bulkQuill = new Quill('#bulk-email-editor', {
+            theme: 'snow',
+            placeholder: 'Type your message here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [2, 3, 4, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set editor font styling
+        const editorContainer = document.querySelector('#bulk-email-editor .ql-editor');
+        if (editorContainer) {
+            editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            editorContainer.style.fontSize = '15px';
+            editorContainer.style.lineHeight = '1.6';
+            editorContainer.style.color = '#374151';
+            editorContainer.style.minHeight = '180px';
+        }
+
+        // Sync Quill content to hidden textarea before form submission
+        const bulkEmailForm = document.querySelector('#emailAllAffiliatesModal form');
+        if (bulkEmailForm) {
+            bulkEmailForm.addEventListener('submit', function(e) {
+                const messageField = document.querySelector('#email_message');
+                messageField.value = bulkQuill.root.innerHTML;
+                
+                // Validate that content exists
+                if (bulkQuill.getText().trim().length === 0) {
+                    e.preventDefault();
+                    alert('Please enter a message before sending.');
+                    return false;
+                }
+            });
+        }
+    }
 });
 
 function copyAffiliateLink(event) {
