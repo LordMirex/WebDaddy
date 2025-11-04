@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Insert domain
                 $stmt = $db->prepare("
                     INSERT INTO domains (domain_name, template_id, status, created_at)
-                    VALUES (?, ?, 'available', NOW())
+                    VALUES (?, ?, 'available', CURRENT_TIMESTAMP)
                 ");
                 $stmt->execute([$domainName, $templateId]);
                 

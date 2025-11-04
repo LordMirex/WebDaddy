@@ -33,10 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("
                         INSERT INTO settings (setting_key, setting_value, updated_at)
                         VALUES (?, ?, CURRENT_TIMESTAMP)
-                        ON CONFLICT (setting_key)
-                        DO UPDATE SET setting_value = ?, updated_at = CURRENT_TIMESTAMP
+                        ON CONFLICT(setting_key)
+                        DO UPDATE SET setting_value = excluded.setting_value, updated_at = CURRENT_TIMESTAMP
                     ");
-                    $stmt->execute([$key, $value, $value]);
+                    $stmt->execute([$key, $value]);
                 }
 
                 $db->commit();
