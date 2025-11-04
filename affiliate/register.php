@@ -18,17 +18,20 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = sanitizeInput($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $myAffiliateCode = strtoupper(sanitizeInput($_POST['my_affiliate_code'] ?? ''));
-    
-    // Auto-generate name from email
-    $name = explode('@', $email)[0];
-    $phone = '';
-    
-    // Validation
-    if (empty($email) || empty($password) || empty($myAffiliateCode)) {
-        $error = 'Please fill in all required fields.';
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Security validation failed. Please try again.';
+    } else {
+        $email = sanitizeInput($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $myAffiliateCode = strtoupper(sanitizeInput($_POST['my_affiliate_code'] ?? ''));
+        
+        // Auto-generate name from email
+        $name = explode('@', $email)[0];
+        $phone = '';
+        
+        // Validation
+        if (empty($email) || empty($password) || empty($myAffiliateCode)) {
+            $error = 'Please fill in all required fields.';
     } elseif (!validateEmail($email)) {
         $error = 'Please enter a valid email address.';
     } elseif (strlen($password) < 6) {
@@ -131,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'An error occurred during registration. Please try again.';
         }
     }
+    }
 }
 
 ?>
@@ -174,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
                             
                             <form method="POST" action="" data-validate data-loading>
+                                <?php echo csrfTokenField(); ?>
                                 <div class="mb-3">
                                     <label for="my_affiliate_code" class="form-label">Choose Your Affiliate Code <span class="text-danger">*</span></label>
                                     <div class="input-group">

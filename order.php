@@ -99,16 +99,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isApplyAffiliate) {
 
 // Handle order submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
-    $customerName = trim($_POST['customer_name'] ?? '');
-    $customerEmail = trim($_POST['customer_email'] ?? '');
-    $customerPhone = trim($_POST['customer_phone'] ?? '');
-    
-    if (empty($customerName)) {
-        $errors[] = 'Please enter your full name';
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $errors[] = 'Security validation failed. Please refresh the page and try again.';
     }
     
-    if (empty($customerPhone)) {
-        $errors[] = 'Please enter your WhatsApp number';
+    if (empty($errors)) {
+        $customerName = trim($_POST['customer_name'] ?? '');
+        $customerEmail = trim($_POST['customer_email'] ?? '');
+        $customerPhone = trim($_POST['customer_phone'] ?? '');
+        
+        if (empty($customerName)) {
+            $errors[] = 'Please enter your full name';
+        }
+        
+        if (empty($customerPhone)) {
+            $errors[] = 'Please enter your WhatsApp number';
+        }
     }
     
     if (empty($errors)) {
@@ -274,6 +280,7 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                 
                 <?php if (empty($error)): ?>
                     <form method="POST" action="" id="orderForm" data-validate data-loading>
+                    <?php echo csrfTokenField(); ?>
                     <div class="card border-0 shadow-sm mb-4 rounded-3 overflow-hidden">
                         <div class="card-body p-5">
                             <div class="d-flex align-items-center mb-4">

@@ -15,14 +15,22 @@ if (isset($_SESSION['admin_id'])) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    
-    if (loginAdmin($email, $password)) {
-        header('Location: /admin/');
-        exit;
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Security validation failed. Please try again.';
     } else {
-        $error = 'Invalid email or password.';
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        
+        if (isRateLimited($email, 'admin')) {
+            $error = getRateLimitMessage($email, 'admin');
+        } elseif (loginAdmin($email, $password)) {
+            clearLoginAttempts($email, 'admin');
+            header('Location: /admin/');
+            exit;
+        } else {
+            trackLoginAttempt($email, 'admin');
+            $error = 'Invalid email or password.';
+        }
     }
 }
 ?>
@@ -57,15 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <?php endif; ?>
                             
-                            <div class="alert alert-info" role="alert">
-                                <i class="bi bi-info-circle"></i> <strong>Default Admin Credentials:</strong><br>
-                                <small>
-                                    <strong>Email:</strong> admin@example.com<br>
-                                    <strong>Password:</strong> admin123
-                                </small>
-                            </div>
-                            
                             <form method="POST" action="" data-validate data-loading>
+                                <?php echo csrfTokenField(); ?>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>
                                     <div class="input-group">

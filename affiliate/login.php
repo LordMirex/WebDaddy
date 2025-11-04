@@ -16,17 +16,25 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $emailOrCode = sanitizeInput($_POST['email_or_code'] ?? '');
-    $password = $_POST['password'] ?? '';
-    
-    if (empty($emailOrCode) || empty($password)) {
-        $error = 'Please enter your email/code and password.';
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = 'Security validation failed. Please try again.';
     } else {
-        if (loginAffiliate($emailOrCode, $password)) {
-            header('Location: /affiliate/');
-            exit;
+        $emailOrCode = sanitizeInput($_POST['email_or_code'] ?? '');
+        $password = $_POST['password'] ?? '';
+        
+        if (empty($emailOrCode) || empty($password)) {
+            $error = 'Please enter your email/code and password.';
+        } elseif (isRateLimited($emailOrCode, 'affiliate')) {
+            $error = getRateLimitMessage($emailOrCode, 'affiliate');
         } else {
-            $error = 'Invalid credentials or inactive account. Please check your email/affiliate code and password.';
+            if (loginAffiliate($emailOrCode, $password)) {
+                clearLoginAttempts($emailOrCode, 'affiliate');
+                header('Location: /affiliate/');
+                exit;
+            } else {
+                trackLoginAttempt($emailOrCode, 'affiliate');
+                $error = 'Invalid credentials or inactive account. Please check your email/affiliate code and password.';
+            }
         }
     }
 }
@@ -71,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php endif; ?>
                             
                             <form method="POST" action="" data-validate data-loading>
+                                <?php echo csrfTokenField(); ?>
                                 <div class="mb-3">
                                     <label for="email_or_code" class="form-label">Email or Affiliate Code</label>
                                     <div class="input-group">
