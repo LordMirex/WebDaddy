@@ -387,24 +387,31 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                                 </svg>
                                 <p class="text-xs sm:text-sm font-semibold text-gray-900">Save 20% with code</p>
                             </div>
-                            <div class="flex gap-2 max-w-full" id="affiliateForm">
-                                <input type="text" 
-                                       class="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm border <?php echo $affiliateInvalid ? 'border-red-500' : 'border-gray-300'; ?> rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase" 
-                                       id="affiliate_code" 
-                                       value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
-                                       placeholder="ENTER CODE"
-                                       maxlength="20"
-                                       autocomplete="off">
-                                <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 transition-colors shrink-0" 
-                                        type="button"
-                                        id="applyAffiliateBtn"
-                                        onclick="applyAffiliateCode()">
-                                    Apply
-                                </button>
+                            <div class="w-full">
+                                <div class="flex gap-2" id="affiliateForm">
+                                    <input type="text" 
+                                           class="flex-1 min-w-0 px-3 py-2 text-xs sm:text-sm border <?php echo $affiliateInvalid ? 'border-red-500' : 'border-gray-300'; ?> rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase" 
+                                           id="affiliate_code" 
+                                           value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
+                                           placeholder="ENTER AFFILIATE CODE"
+                                           maxlength="20"
+                                           autocomplete="off">
+                                    <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 active:bg-orange-800 transition-colors shrink-0" 
+                                            type="button"
+                                            id="applyAffiliateBtn"
+                                            onclick="applyAffiliateCode()">
+                                        Apply
+                                    </button>
+                                </div>
+                                <?php if ($affiliateInvalid): ?>
+                                    <p class="mt-2 text-xs text-red-600 font-medium flex items-center" id="affiliateError">
+                                        <svg class="w-4 h-4 mr-1 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Invalid code. Please check and try again.
+                                    </p>
+                                <?php endif; ?>
                             </div>
-                            <?php if ($affiliateInvalid): ?>
-                                <p class="mt-1.5 text-xs text-red-600 font-medium" id="affiliateError">Invalid code. Please check and try again.</p>
-                            <?php endif; ?>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -600,10 +607,23 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
             if (!errorEl) {
                 errorEl = document.createElement('p');
                 errorEl.id = 'affiliateError';
-                errorEl.className = 'mt-1.5 text-xs text-red-600 font-medium';
-                document.getElementById('affiliateForm').appendChild(errorEl);
+                errorEl.className = 'mt-2 text-xs text-red-600 font-medium flex items-center';
+                errorEl.innerHTML = `
+                    <svg class="w-4 h-4 mr-1 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${message}</span>
+                `;
+                // Append to the parent container of affiliateForm
+                const formContainer = document.getElementById('affiliateForm').parentElement;
+                formContainer.appendChild(errorEl);
+            } else {
+                // Update existing error
+                const errorText = errorEl.querySelector('span');
+                if (errorText) {
+                    errorText.textContent = message;
+                }
             }
-            errorEl.textContent = message;
         }
         
         function hideAffiliateError() {
