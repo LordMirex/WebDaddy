@@ -120,196 +120,214 @@ $pageTitle = 'Withdrawals';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="bi bi-wallet2"></i> Withdrawals
-    </h1>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-cash-stack"></i> Available Balance
-                </h6>
-                <h2 class="card-title mb-0"><?php echo formatCurrency($affiliateInfo['commission_pending']); ?></h2>
-            </div>
+<!-- Page Header -->
+<div class="mb-8 pb-4 border-b border-gray-200">
+    <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-green-600 to-green-800 rounded-lg flex items-center justify-center shadow-lg">
+            <i class="bi bi-wallet2 text-2xl text-gold"></i>
         </div>
-    </div>
-    
-    <div class="col-md-4 mb-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-check-circle"></i> Total Paid
-                </h6>
-                <h2 class="card-title mb-0"><?php echo formatCurrency($affiliateInfo['commission_paid']); ?></h2>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 opacity-75">
-                    <i class="bi bi-hourglass-split"></i> Total Earned
-                </h6>
-                <h2 class="card-title mb-0"><?php echo formatCurrency($affiliateInfo['commission_earned']); ?></h2>
-            </div>
-        </div>
+        <h1 class="text-3xl font-bold text-gray-900">Withdrawals</h1>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-plus-circle"></i> Request Withdrawal
-                </h5>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <!-- Available Balance -->
+    <div class="bg-gradient-to-br from-primary-600 to-primary-800 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
+        <h6 class="text-sm font-semibold opacity-90 mb-2 flex items-center">
+            <i class="bi bi-cash-stack mr-2"></i> Available Balance
+        </h6>
+        <h2 class="text-3xl font-bold"><?php echo formatCurrency($affiliateInfo['commission_pending']); ?></h2>
+    </div>
+    
+    <!-- Total Paid -->
+    <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
+        <h6 class="text-sm font-semibold opacity-90 mb-2 flex items-center">
+            <i class="bi bi-check-circle mr-2"></i> Total Paid
+        </h6>
+        <h2 class="text-3xl font-bold"><?php echo formatCurrency($affiliateInfo['commission_paid']); ?></h2>
+    </div>
+    
+    <!-- Total Earned -->
+    <div class="bg-gradient-to-br from-yellow-500 to-yellow-700 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
+        <h6 class="text-sm font-semibold opacity-90 mb-2 flex items-center">
+            <i class="bi bi-hourglass-split mr-2"></i> Total Earned
+        </h6>
+        <h2 class="text-3xl font-bold"><?php echo formatCurrency($affiliateInfo['commission_earned']); ?></h2>
+    </div>
+</div>
+
+<!-- Request Withdrawal Form -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden mb-6" x-data="{ showForm: false }">
+    <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4 text-white">
+        <h5 class="text-xl font-bold flex items-center">
+            <i class="bi bi-plus-circle mr-2"></i> Request Withdrawal
+        </h5>
+    </div>
+    
+    <div class="p-6">
+        <?php if ($error): ?>
+        <div x-data="{ show: true }" x-show="show" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-4 relative">
+            <button @click="show = false" class="absolute top-4 right-4 text-red-500 hover:text-red-700">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="flex items-center pr-8">
+                <i class="bi bi-exclamation-triangle text-red-600 text-xl mr-3"></i>
+                <p class="text-red-700"><?php echo htmlspecialchars($error); ?></p>
             </div>
-            <div class="card-body">
-                <?php if ($error): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
+        
+        <?php if ($success): ?>
+        <div x-data="{ show: true }" x-show="show" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-4 relative">
+            <button @click="show = false" class="absolute top-4 right-4 text-green-500 hover:text-green-700">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="flex items-center pr-8">
+                <i class="bi bi-check-circle text-green-600 text-xl mr-3"></i>
+                <p class="text-green-700"><?php echo htmlspecialchars($success); ?></p>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <?php if ($affiliateInfo['commission_pending'] <= 0): ?>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                <div class="flex items-center">
+                    <i class="bi bi-info-circle text-blue-600 text-xl mr-3"></i>
+                    <p class="text-blue-700">You don't have any pending commission available for withdrawal.</p>
+                </div>
+            </div>
+        <?php else: ?>
+            <?php if ($savedBankDetails): ?>
+            <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-4">
+                <div class="flex items-start">
+                    <i class="bi bi-check-circle text-green-600 text-xl mr-3 mt-0.5"></i>
+                    <div>
+                        <p class="text-green-700 font-bold">Bank details loaded from settings!</p>
+                        <p class="text-sm text-green-600 mt-1">
+                            Payment will be sent to: <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?> - <?php echo htmlspecialchars($savedBankDetails['account_number']); ?>
+                        </p>
                     </div>
-                <?php endif; ?>
-                
-                <?php if ($success): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($success); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+            <?php else: ?>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-4">
+                <div class="flex items-start">
+                    <i class="bi bi-exclamation-triangle text-yellow-600 text-xl mr-3 mt-0.5"></i>
+                    <div>
+                        <p class="text-yellow-700 font-bold">No saved bank details</p>
+                        <p class="text-sm text-yellow-600 mt-1">
+                            You can <a href="/affiliate/settings.php" class="underline hover:text-yellow-800">save your bank details in settings</a> 
+                            to make future withdrawals faster!
+                        </p>
                     </div>
-                <?php endif; ?>
-                
-                <?php if ($affiliateInfo['commission_pending'] <= 0): ?>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> You don't have any pending commission available for withdrawal.
+                </div>
+            </div>
+            <?php endif; ?>
+                    
+            <form method="POST" action="" x-data="{ submitting: false }" @submit="submitting = true">
+                <?php if ($savedBankDetails): ?>
+                    <div class="mb-6">
+                        <label for="amount" class="block text-lg font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="bi bi-currency-exchange mr-2"></i> How much would you like to withdraw?
+                        </label>
+                        <input type="number" 
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-lg" 
+                               id="amount" 
+                               name="amount" 
+                               step="0.01"
+                               max="<?php echo $affiliateInfo['commission_pending']; ?>"
+                               placeholder="Enter amount to withdraw"
+                               value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
+                               required
+                               autofocus>
+                        <p class="text-sm text-gray-600 mt-2">
+                            Available balance: <strong class="text-primary-700"><?php echo formatCurrency($affiliateInfo['commission_pending']); ?></strong>
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                        <h6 class="font-bold text-gray-900 mb-3">Payment will be sent to:</h6>
+                        <div class="space-y-2 text-sm">
+                            <p class="text-gray-700"><strong class="text-gray-900">Bank:</strong> <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?></p>
+                            <p class="text-gray-700"><strong class="text-gray-900">Account Number:</strong> <?php echo htmlspecialchars($savedBankDetails['account_number']); ?></p>
+                            <p class="text-gray-700"><strong class="text-gray-900">Account Name:</strong> <?php echo htmlspecialchars($savedBankDetails['account_name']); ?></p>
+                        </div>
+                        <a href="/affiliate/settings.php" class="text-sm text-primary-600 hover:text-primary-800 underline mt-2 inline-block">
+                            Change bank details
+                        </a>
                     </div>
                 <?php else: ?>
-                    <?php if ($savedBankDetails): ?>
-                        <div class="alert alert-success">
-                            <i class="bi bi-check-circle"></i> <strong>Bank details loaded from settings!</strong><br>
-                            <small>Payment will be sent to: <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?> - <?php echo htmlspecialchars($savedBankDetails['account_number']); ?></small>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label for="amount" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="bi bi-currency-exchange mr-2"></i> Withdrawal Amount
+                            </label>
+                            <input type="number" 
+                                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                                   id="amount" 
+                                   name="amount" 
+                                   step="0.01"
+                                   max="<?php echo $affiliateInfo['commission_pending']; ?>"
+                                   placeholder="Enter amount"
+                                   value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
+                                   required>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Available: <?php echo formatCurrency($affiliateInfo['commission_pending']); ?>
+                            </p>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle"></i> <strong>No saved bank details</strong><br>
-                            <small>
-                                You can <a href="/affiliate/settings.php" class="alert-link">save your bank details in settings</a> 
-                                to make future withdrawals faster!
-                            </small>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <form method="POST" action="">
-                        <?php if ($savedBankDetails): ?>
-                            <div class="mb-4">
-                                <label for="amount" class="form-label fs-5">
-                                    <i class="bi bi-currency-exchange"></i> How much would you like to withdraw?
-                                </label>
-                                <input type="number" 
-                                       class="form-control form-control-lg" 
-                                       id="amount" 
-                                       name="amount" 
-                                       step="0.01"
-                                       max="<?php echo $affiliateInfo['commission_pending']; ?>"
-                                       placeholder="Enter amount to withdraw"
-                                       value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
-                                       required
-                                       autofocus>
-                                <small class="text-muted">
-                                    Available balance: <strong><?php echo formatCurrency($affiliateInfo['commission_pending']); ?></strong>
-                                </small>
-                            </div>
-                            
-                            <div class="card bg-light mb-3">
-                                <div class="card-body">
-                                    <h6 class="card-title">Payment will be sent to:</h6>
-                                    <p class="mb-1"><strong>Bank:</strong> <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?></p>
-                                    <p class="mb-1"><strong>Account Number:</strong> <?php echo htmlspecialchars($savedBankDetails['account_number']); ?></p>
-                                    <p class="mb-0"><strong>Account Name:</strong> <?php echo htmlspecialchars($savedBankDetails['account_name']); ?></p>
-                                    <small class="text-muted">
-                                        <a href="/affiliate/settings.php">Change bank details</a>
-                                    </small>
-                                </div>
-                            </div>
-                        <?php else: ?>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="amount" class="form-label">
-                                            <i class="bi bi-currency-exchange"></i> Withdrawal Amount
-                                        </label>
-                                        <input type="number" 
-                                               class="form-control" 
-                                               id="amount" 
-                                               name="amount" 
-                                               step="0.01"
-                                               max="<?php echo $affiliateInfo['commission_pending']; ?>"
-                                               placeholder="Enter amount"
-                                               value="<?php echo htmlspecialchars($_POST['amount'] ?? ''); ?>"
-                                               required>
-                                        <small class="text-muted">
-                                            Available: <?php echo formatCurrency($affiliateInfo['commission_pending']); ?>
-                                        </small>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="bank_name" class="form-label">
-                                            <i class="bi bi-bank"></i> Bank Name
-                                        </label>
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="bank_name" 
-                                               name="bank_name" 
-                                               placeholder="e.g., First Bank"
-                                               value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
-                                               required>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="account_number" class="form-label">
-                                            <i class="bi bi-credit-card"></i> Account Number
-                                        </label>
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="account_number" 
-                                               name="account_number" 
-                                               placeholder="Enter account number"
-                                               value="<?php echo htmlspecialchars($_POST['account_number'] ?? ''); ?>"
-                                               required>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="account_name" class="form-label">
-                                            <i class="bi bi-person"></i> Account Name
-                                        </label>
-                                        <input type="text" 
-                                               class="form-control" 
-                                               id="account_name" 
-                                               name="account_name" 
-                                               placeholder="Enter account name"
-                                               value="<?php echo htmlspecialchars($_POST['account_name'] ?? ''); ?>"
-                                               required>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
                         
-                        <div class="d-grid">
-                            <button type="submit" name="request_withdrawal" class="btn btn-primary btn-lg">
-                                <i class="bi bi-send"></i> Submit Withdrawal Request
-                            </button>
+                        <div>
+                            <label for="bank_name" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="bi bi-bank mr-2"></i> Bank Name
+                            </label>
+                            <input type="text" 
+                                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                                   id="bank_name" 
+                                   name="bank_name" 
+                                   placeholder="e.g., First Bank"
+                                   value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
+                                   required>
                         </div>
-                    </form>
+                        
+                        <div>
+                            <label for="account_number" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="bi bi-credit-card mr-2"></i> Account Number
+                            </label>
+                            <input type="text" 
+                                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                                   id="account_number" 
+                                   name="account_number" 
+                                   placeholder="Enter account number"
+                                   value="<?php echo htmlspecialchars($_POST['account_number'] ?? ''); ?>"
+                                   required>
+                        </div>
+                        
+                        <div>
+                            <label for="account_name" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="bi bi-person mr-2"></i> Account Name
+                            </label>
+                            <input type="text" 
+                                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                                   id="account_name" 
+                                   name="account_name" 
+                                   placeholder="Enter account name"
+                                   value="<?php echo htmlspecialchars($_POST['account_name'] ?? ''); ?>"
+                                   required>
+                        </div>
+                    </div>
                 <?php endif; ?>
-            </div>
-        </div>
+                
+                <button type="submit" 
+                        name="request_withdrawal" 
+                        :disabled="submitting"
+                        class="w-full px-6 py-4 bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-900 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2">
+                    <i class="bi bi-send text-lg" x-show="!submitting"></i>
+                    <i class="bi bi-arrow-repeat animate-spin text-lg" x-show="submitting" style="display: none;"></i>
+                    <span x-text="submitting ? 'Submitting...' : 'Submit Withdrawal Request'">Submit Withdrawal Request</span>
+                </button>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
 
