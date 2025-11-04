@@ -382,6 +382,7 @@ function sanitizeEmailHtml($html) {
     $html = preg_replace('/<([a-z][a-z0-9]*)\s+[^>]*?(on\w+\s*=\s*\w+)/i', '<$1>', $html);
     
     // Sanitize all href attributes to remove dangerous protocols
+    // First, handle quoted href attributes
     $html = preg_replace_callback(
         '/<a\s+([^>]*href\s*=\s*["\'])([^"\']*)(["\'[^>]*>)/i',
         function($matches) {
@@ -404,6 +405,38 @@ function sanitizeEmailHtml($html) {
             
             // Dangerous or unknown protocol - replace with #
             return '<a ' . $matches[1] . '#' . $matches[3];
+        },
+        $html
+    );
+    
+    // Second, handle unquoted href attributes (security fix for bypasses)
+    $html = preg_replace_callback(
+        '/<a\s+([^>]*href\s*=\s*)([^\s>]+)([^>]*>)/i',
+        function($matches) {
+            // Skip if this is already a quoted attribute (handled above)
+            if (preg_match('/^["\']/', $matches[2])) {
+                return $matches[0];
+            }
+            
+            $url = $matches[2];
+            
+            // Decode HTML entities and trim whitespace
+            $url = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+            $url = trim($url);
+            
+            // Convert to lowercase for protocol check
+            $urlLower = strtolower($url);
+            
+            // Only allow http, https, and mailto protocols (or relative URLs)
+            if (preg_match('/^(https?|mailto):/i', $urlLower) || 
+                preg_match('/^[\/\.]/', $url) || 
+                preg_match('/^#/', $url)) {
+                // URL is safe, re-encode with quotes and return
+                return '<a ' . $matches[1] . '"' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"' . $matches[3];
+            }
+            
+            // Dangerous or unknown protocol - replace with #
+            return '<a ' . $matches[1] . '"#"' . $matches[3];
         },
         $html
     );

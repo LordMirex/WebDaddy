@@ -27,8 +27,13 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 ### System Design Choices
 The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10.
 
+## Recent Changes
+- **Email System Fix (Nov 4, 2025):** Fixed "Email all affiliates" feature to use proper email templates. All bulk emails now use the professional affiliate template with crown icon, gradient header, and consistent branding - matching individual email design.
+- **Security Enhancement (Nov 4, 2025):** Fixed XSS vulnerability in email HTML sanitization where unquoted href attributes bypassed security filters. Now properly sanitizes both quoted and unquoted href attributes.
+
 ## External Dependencies
 - **Database:** SQLite (webdaddy.db)
 - **Frontend Framework:** Bootstrap 5.3.2
 - **Icons:** Bootstrap Icons
 - **Hosting:** Any PHP environment
+- **Email:** PHPMailer for SMTP email delivery

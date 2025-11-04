@@ -174,11 +174,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     foreach ($affiliates as $affiliate) {
                         try {
-                            sendEmail(
+                            sendCustomEmailToAffiliate(
+                                $affiliate['name'],
                                 $affiliate['email'],
                                 $subject,
-                                $message,
-                                $affiliate['name']
+                                $message
                             );
                             $sentCount++;
                         } catch (Exception $e) {
