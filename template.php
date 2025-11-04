@@ -162,93 +162,40 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 <?php endif; ?>
 
                 <?php if (!empty($features)): ?>
-                <section class="mb-12">
+                <section class="mb-8">
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-6">What's Included</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <?php foreach ($features as $feature): ?>
-                        <div class="flex items-start p-4 bg-white rounded-lg border border-gray-200 hover:border-primary-300 transition-colors">
-                            <svg class="w-6 h-6 text-green-500 mr-3 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            <h5 class="font-semibold text-gray-900"><?php echo htmlspecialchars(trim($feature)); ?></h5>
+                    <div class="bg-white rounded-xl p-6 border border-gray-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <?php foreach (array_slice($features, 0, 6) as $feature): ?>
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-gray-700"><?php echo htmlspecialchars(trim($feature)); ?></span>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
-                        <?php endforeach; ?>
+                        <?php if (count($features) > 6): ?>
+                        <p class="mt-4 text-sm text-gray-500 text-center">+ <?php echo count($features) - 6; ?> more features included</p>
+                        <?php endif; ?>
                     </div>
                 </section>
                 <?php endif; ?>
-
-                <section class="mb-12">
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-6">What You Get</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <svg class="w-12 h-12 text-primary-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <h5 class="font-bold text-gray-900 mb-2">Premium Domain</h5>
-                            <p class="text-gray-600 text-sm">Choose from <?php echo count($availableDomains); ?> available premium domain names</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <svg class="w-12 h-12 text-primary-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                            <h5 class="font-bold text-gray-900 mb-2">Fast Setup</h5>
-                            <p class="text-gray-600 text-sm">Your website will be ready within 24 hours of payment</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <svg class="w-12 h-12 text-primary-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                            </svg>
-                            <h5 class="font-bold text-gray-900 mb-2">Full Customization</h5>
-                            <p class="text-gray-600 text-sm">Complete control to customize colors, text, and images</p>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow">
-                            <svg class="w-12 h-12 text-primary-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            <h5 class="font-bold text-gray-900 mb-2">24/7 Support</h5>
-                            <p class="text-gray-600 text-sm">Get help anytime via WhatsApp support</p>
-                        </div>
-                    </div>
-                </section>
             </div>
 
             <div class="lg:col-span-1">
-                <div class="sticky top-24 space-y-6">
+                <div class="sticky top-24">
                     <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                         <div class="p-6 sm:p-8">
                             <div class="text-center mb-6 pb-6 border-b border-gray-200">
-                                <div class="text-sm text-gray-500 font-semibold mb-2">Price</div>
+                                <div class="text-sm text-gray-500 font-semibold mb-2">Starting at</div>
                                 <h2 class="text-4xl font-extrabold text-primary-600"><?php echo formatCurrency($template['price']); ?></h2>
-                            </div>
-
-                            <div class="mb-6">
-                                <h5 class="font-bold text-gray-900 mb-4">Available Domains</h5>
-                                <?php if (count($availableDomains) > 0): ?>
-                                <div class="space-y-2">
-                                    <?php foreach (array_slice($availableDomains, 0, 5) as $domain): ?>
-                                    <div class="flex items-center p-2 bg-gray-50 rounded-lg">
-                                        <svg class="w-5 h-5 text-green-500 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <span class="font-semibold text-gray-700 text-sm"><?php echo htmlspecialchars($domain['domain_name']); ?></span>
-                                    </div>
-                                    <?php endforeach; ?>
-                                    <?php if (count($availableDomains) > 5): ?>
-                                    <div class="text-sm text-gray-500 mt-3">
-                                        +<?php echo count($availableDomains) - 5; ?> more domains available
-                                    </div>
-                                    <?php endif; ?>
-                                </div>
-                                <?php else: ?>
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
-                                    No domains currently available. Contact us for custom domains.
-                                </div>
-                                <?php endif; ?>
+                                <p class="text-sm text-gray-500 mt-2">Includes domain & hosting</p>
                             </div>
 
                             <div class="space-y-3 mb-6">
                                 <a href="/order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
-                                   class="w-full inline-flex items-center justify-center px-6 py-3.5 border border-transparent text-base font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg">
+                                   class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                     </svg>
@@ -269,44 +216,24 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
 
                             <div class="space-y-3 border-t border-gray-200 pt-6">
                                 <div class="flex items-center text-sm text-gray-700">
-                                    <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    <svg class="w-5 h-5 text-green-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
-                                    <span>Secure Payment</span>
+                                    <span>Ready in 24 hours</span>
                                 </div>
                                 <div class="flex items-center text-sm text-gray-700">
-                                    <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                    <svg class="w-5 h-5 text-green-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
-                                    <span>24/7 Support</span>
+                                    <span><?php echo count($availableDomains); ?> domains available</span>
                                 </div>
                                 <div class="flex items-center text-sm text-gray-700">
-                                    <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                                    <svg class="w-5 h-5 text-green-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
-                                    <span>Free Updates</span>
+                                    <span>24/7 WhatsApp support</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-100 rounded-xl overflow-hidden">
-                        <div class="p-6">
-                            <h6 class="font-bold text-gray-900 mb-3 flex items-center">
-                                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                </svg>
-                                Need Help?
-                            </h6>
-                            <p class="text-sm text-gray-600 mb-4">Have questions? Contact us on WhatsApp</p>
-                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" 
-                               class="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 transition-all"
-                               target="_blank">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                </svg>
-                                Chat with Us
-                            </a>
                         </div>
                     </div>
                 </div>
