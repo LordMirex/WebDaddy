@@ -18,13 +18,22 @@ WebDaddy Empire is a production-ready PHP/SQLite template marketplace designed f
 - **Database Viewer Fix:** Updated `admin/database.php` to use SQLite's `sqlite_master` instead of PostgreSQL's `information_schema.tables` for listing tables
 - **Settings Update Fix:** Fixed `admin/settings.php` to use SQLite-compatible `INSERT ... ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value` syntax
 - **Bulk Import Fix:** Changed `admin/bulk_import_domains.php` from `NOW()` to `CURRENT_TIMESTAMP` for SQLite compatibility
+- **Date Function Fixes:** Replaced all PostgreSQL date/time functions with SQLite equivalents:
+  - Changed `CURRENT_DATE` to `DATE('now')` in all date filters
+  - Replaced `INTERVAL '7 days'` with `datetime('now', '-7 days')` syntax
+  - Changed `TO_CHAR(created_at, 'YYYY-MM')` to `strftime('%Y-%m', datetime(created_at))` for monthly grouping
+  - **Critical:** Normalized all timestamp comparisons using `datetime(created_at)` wrapper to ensure consistent filtering
+- **Reports Fix:** Admin reports page (`admin/reports.php`) now works correctly with all date filters (today, week, month, custom range)
+- **Earnings Fix:** Affiliate earnings page (`affiliate/earnings.php`) now displays monthly earnings correctly with SQLite-compatible date functions
+- **Activity Logs Fix:** Updated `admin/activity_logs.php` to use normalized date comparisons for today's activity count
 - **Missing Asset Fix:** Created `placeholder.svg` file to resolve 404 errors in template demo iframe
-- **Comprehensive Testing:** Tested all admin pages (database viewer, settings, bulk import), affiliate pages, and public pages - all working correctly
-- **Verification:** Ran SQL tests confirming table listing, settings upsert, and domain insertion all work properly with SQLite
-- **Architect Review:** All fixes reviewed and approved - no remaining PostgreSQL-specific syntax in PHP code
-- **Files Modified:** `admin/database.php`, `admin/settings.php`, `admin/bulk_import_domains.php`
+- **Timestamp Normalization Convention:** All date/time queries now use `datetime(created_at)` wrapper for consistent comparison with TEXT-stored timestamps
+- **Comprehensive Testing:** Tested all admin pages (database viewer, settings, bulk import, reports, activity logs), affiliate pages (earnings), and public pages - all working correctly
+- **Verification:** Ran SQL tests confirming all date filters, monthly grouping, and timestamp comparisons work properly with SQLite
+- **Architect Review:** All fixes reviewed and approved - datetime() normalization resolves SQLite date filtering inconsistencies
+- **Files Modified:** `admin/database.php`, `admin/settings.php`, `admin/bulk_import_domains.php`, `admin/reports.php`, `affiliate/earnings.php`, `admin/activity_logs.php`
 - **Files Created:** `placeholder.svg`
-- **Result:** Site is now fully functional with SQLite database - all features working as expected
+- **Result:** Site is now fully functional with SQLite database - all features including reports and earnings working perfectly
 
 ### November 03, 2025 - PostgreSQL to SQLite Migration (COMPLETED)
 - **Database Migration:** Successfully migrated from PostgreSQL to SQLite for maximum portability and simplicity
