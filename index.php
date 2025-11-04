@@ -68,7 +68,6 @@ $categories = array_unique(array_column($templates, 'category'));
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#templates" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Templates</a>
-                    <a href="#how-it-works" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">How It Works</a>
                     <a href="#faq" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">FAQ</a>
                     <a href="/affiliate/register.php" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
                         Become an Affiliate
@@ -89,7 +88,6 @@ $categories = array_unique(array_column($templates, 'category'));
         <div x-show="open" @click.away="open = false" class="md:hidden bg-white border-t border-gray-200" style="display: none;">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="#templates" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Templates</a>
-                <a href="#how-it-works" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">How It Works</a>
                 <a href="#faq" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">FAQ</a>
                 <a href="/affiliate/register.php" class="block px-3 py-2 rounded-md text-white bg-primary-600 hover:bg-primary-700 font-medium">Become an Affiliate</a>
             </div>
@@ -98,7 +96,6 @@ $categories = array_unique(array_column($templates, 'category'));
 
     <!-- Hero Section -->
     <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-20 sm:py-32">
-        <div class="absolute inset-0 bg-black opacity-10"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Launch Your Business Online</h1>
@@ -162,36 +159,15 @@ $categories = array_unique(array_column($templates, 'category'));
 
             <!-- Template Filters -->
             <div class="mb-12">
-                <div class="max-w-2xl mx-auto mb-6">
-                    <div class="relative">
-                        <input type="text" 
-                               class="w-full px-4 py-3 pl-11 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
-                               placeholder="Search templates..." 
-                               data-template-search>
-                        <svg class="absolute left-3 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </div>
-                </div>
-                
-                <div class="flex flex-wrap justify-center gap-3 mb-6">
-                    <button class="px-4 py-2 rounded-lg font-medium transition-colors bg-primary-600 text-white" data-category-filter="all">
-                        All Categories
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button class="px-6 py-2.5 rounded-lg font-medium transition-all duration-200 bg-primary-600 text-white shadow-sm hover:bg-primary-700 hover:shadow-md" data-category-filter="all">
+                        All Templates
                     </button>
                     <?php foreach ($categories as $category): ?>
-                    <button class="px-4 py-2 rounded-lg font-medium transition-colors bg-white text-gray-700 border border-gray-300 hover:border-primary-500 hover:text-primary-600" data-category-filter="<?php echo htmlspecialchars(strtolower($category)); ?>">
+                    <button class="px-6 py-2.5 rounded-lg font-medium transition-all duration-200 bg-white text-gray-700 border-2 border-gray-200 hover:border-primary-500 hover:text-primary-600 hover:shadow-sm" data-category-filter="<?php echo htmlspecialchars(strtolower($category)); ?>">
                         <?php echo htmlspecialchars($category); ?>
                     </button>
                     <?php endforeach; ?>
-                </div>
-                
-                <div class="text-center">
-                    <div class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg" data-results-count>
-                        <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                        </svg>
-                        <?php echo count($templates); ?> template<?php echo count($templates) !== 1 ? 's' : ''; ?> found
-                    </div>
                 </div>
             </div>
 
@@ -323,33 +299,6 @@ $categories = array_unique(array_column($templates, 'category'));
         </div>
     </section>
 
-    <!-- How It Works -->
-    <section class="py-16 bg-white" id="how-it-works">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">How It Works</h2>
-                <p class="text-xl text-gray-600">Get your business online in 3 simple steps</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center">
-                    <div class="mx-auto w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mb-6">1</div>
-                    <h4 class="text-xl font-bold text-gray-900 mb-3">Choose Template</h4>
-                    <p class="text-gray-600">Browse our collection and select the template that perfectly fits your business needs.</p>
-                </div>
-                <div class="text-center">
-                    <div class="mx-auto w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mb-6">2</div>
-                    <h4 class="text-xl font-bold text-gray-900 mb-3">Pick Domain & Pay</h4>
-                    <p class="text-gray-600">Select your preferred domain and complete payment securely via WhatsApp.</p>
-                </div>
-                <div class="text-center">
-                    <div class="mx-auto w-16 h-16 bg-primary-600 text-white rounded-full flex items-center justify-center text-2xl font-extrabold mb-6">3</div>
-                    <h4 class="text-xl font-bold text-gray-900 mb-3">Launch & Grow</h4>
-                    <p class="text-gray-600">Receive your login credentials and start customizing your website immediately.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- FAQ Section -->
     <section class="py-16 bg-gray-100" id="faq">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -409,39 +358,72 @@ $categories = array_unique(array_column($templates, 'category'));
 
     <!-- Footer -->
     <footer class="bg-navy text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div class="md:col-span-2">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                <!-- Company Info -->
+                <div>
                     <div class="flex items-center mb-4">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-9 mr-3" onerror="this.style.display='none'">
-                        <span class="text-xl font-bold"><?php echo SITE_NAME; ?></span>
+                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-10 mr-3" onerror="this.style.display='none'">
+                        <span class="text-2xl font-bold"><?php echo SITE_NAME; ?></span>
                     </div>
-                    <p class="text-gray-300 text-sm">Professional website templates with domains included. Launch your business online in minutes.</p>
+                    <p class="text-gray-300 text-base mb-6 leading-relaxed">Professional website templates with domains included. Launch your business online in 24 hours or less.</p>
+                    
+                    <!-- Trust Badges -->
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                            <svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <span class="text-sm font-semibold">Secure Payment</span>
+                        </div>
+                        <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                            <svg class="w-5 h-5 text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span class="text-sm font-semibold">SSL Protected</span>
+                        </div>
+                        <div class="flex items-center bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                            <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                            </svg>
+                            <span class="text-sm font-semibold">Trusted by 500+</span>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Contact Section -->
                 <div>
-                    <h6 class="font-bold mb-3">Quick Links</h6>
-                    <ul class="space-y-2">
-                        <li><a href="#templates" class="text-gray-300 hover:text-white text-sm transition-colors">Templates</a></li>
-                        <li><a href="#how-it-works" class="text-gray-300 hover:text-white text-sm transition-colors">How It Works</a></li>
-                        <li><a href="#faq" class="text-gray-300 hover:text-white text-sm transition-colors">FAQ</a></li>
-                        <li><a href="/affiliate/register.php" class="text-gray-300 hover:text-white text-sm transition-colors">Become an Affiliate</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h6 class="font-bold mb-3">Contact</h6>
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" class="flex items-center text-gray-300 hover:text-white text-sm transition-colors">
-                                <svg class="w-4 h-4 mr-2 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                    <h3 class="text-xl font-bold mb-6">Get In Touch</h3>
+                    <div class="space-y-4">
+                        <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" 
+                           class="flex items-center p-4 bg-green-600 hover:bg-green-700 rounded-lg transition-colors group">
+                            <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                                 </svg>
-                                WhatsApp Support
-                            </a>
-                        </li>
-                        <li><a href="/admin/login.php" class="text-gray-300 hover:text-white text-sm transition-colors">Admin Login</a></li>
-                    </ul>
+                            </div>
+                            <div>
+                                <div class="text-white font-semibold mb-1">WhatsApp Support</div>
+                                <div class="text-green-100 text-sm">Chat with us 24/7</div>
+                            </div>
+                        </a>
+                        
+                        <a href="/affiliate/register.php" 
+                           class="flex items-center p-4 bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors group">
+                            <div class="flex-shrink-0 w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-white font-semibold mb-1">Become an Affiliate</div>
+                                <div class="text-primary-100 text-sm">Earn 30% commission</div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
+            
             <div class="border-t border-gray-700 pt-8">
                 <div class="text-center">
                     <p class="text-gray-400 text-sm">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>

@@ -199,9 +199,6 @@ class TemplateFilter {
     constructor() {
         this.templates = [];
         this.currentCategory = 'all';
-        this.searchQuery = '';
-        this.currentPage = 1;
-        this.itemsPerPage = 9;
         
         this.initializeFilter();
     }
@@ -212,25 +209,10 @@ class TemplateFilter {
 
         this.templates = Array.from(templateGrid.querySelectorAll('[data-template]')).map(el => ({
             element: el,
-            name: el.getAttribute('data-template-name') || '',
-            category: el.getAttribute('data-template-category') || '',
-            price: parseFloat(el.getAttribute('data-template-price') || '0')
+            category: el.getAttribute('data-template-category') || ''
         }));
 
-        this.setupSearchBar();
         this.setupCategoryFilter();
-        this.setupPagination();
-    }
-
-    setupSearchBar() {
-        const searchInput = document.querySelector('[data-template-search]');
-        if (!searchInput) return;
-
-        searchInput.addEventListener('input', (e) => {
-            this.searchQuery = e.target.value.toLowerCase();
-            this.currentPage = 1;
-            this.filterTemplates();
-        });
     }
 
     setupCategoryFilter() {
@@ -238,95 +220,28 @@ class TemplateFilter {
         categoryButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                categoryButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                
+                categoryButtons.forEach(b => {
+                    b.classList.remove('bg-primary-600', 'text-white', 'shadow-sm');
+                    b.classList.add('bg-white', 'text-gray-700', 'border-2', 'border-gray-200');
+                });
+                
+                btn.classList.remove('bg-white', 'text-gray-700', 'border-2', 'border-gray-200');
+                btn.classList.add('bg-primary-600', 'text-white', 'shadow-sm');
                 
                 this.currentCategory = btn.getAttribute('data-category-filter');
-                this.currentPage = 1;
                 this.filterTemplates();
             });
         });
     }
 
     filterTemplates() {
-        const filtered = this.templates.filter(template => {
-            const matchesSearch = !this.searchQuery || 
-                template.name.toLowerCase().includes(this.searchQuery) ||
-                template.category.toLowerCase().includes(this.searchQuery);
-            
+        this.templates.forEach(template => {
             const matchesCategory = this.currentCategory === 'all' || 
                 template.category.toLowerCase() === this.currentCategory.toLowerCase();
-
-            return matchesSearch && matchesCategory;
+            
+            template.element.style.display = matchesCategory ? '' : 'none';
         });
-
-        const totalPages = Math.ceil(filtered.length / this.itemsPerPage);
-        const start = (this.currentPage - 1) * this.itemsPerPage;
-        const end = start + this.itemsPerPage;
-        const paginated = filtered.slice(start, end);
-
-        this.templates.forEach(template => {
-            template.element.style.display = 'none';
-        });
-
-        paginated.forEach(template => {
-            template.element.style.display = '';
-        });
-
-        this.updatePagination(filtered.length, totalPages);
-        this.updateResultsCount(filtered.length);
-    }
-
-    setupPagination() {
-        const paginationContainer = document.querySelector('[data-pagination]');
-        if (!paginationContainer) return;
-
-        paginationContainer.addEventListener('click', (e) => {
-            if (e.target.hasAttribute('data-page')) {
-                e.preventDefault();
-                this.currentPage = parseInt(e.target.getAttribute('data-page'));
-                this.filterTemplates();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        });
-    }
-
-    updatePagination(totalItems, totalPages) {
-        const paginationContainer = document.querySelector('[data-pagination]');
-        if (!paginationContainer || totalPages <= 1) {
-            if (paginationContainer) paginationContainer.innerHTML = '';
-            return;
-        }
-
-        let html = '<ul class="pagination justify-content-center">';
-        
-        if (this.currentPage > 1) {
-            html += `<li class="page-item"><a class="page-link" href="#" data-page="${this.currentPage - 1}">Previous</a></li>`;
-        }
-
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === this.currentPage) {
-                html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
-            } else if (i === 1 || i === totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
-                html += `<li class="page-item"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
-            } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
-                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-            }
-        }
-
-        if (this.currentPage < totalPages) {
-            html += `<li class="page-item"><a class="page-link" href="#" data-page="${this.currentPage + 1}">Next</a></li>`;
-        }
-
-        html += '</ul>';
-        paginationContainer.innerHTML = html;
-    }
-
-    updateResultsCount(count) {
-        const resultsElement = document.querySelector('[data-results-count]');
-        if (resultsElement) {
-            resultsElement.textContent = `${count} template${count !== 1 ? 's' : ''} found`;
-        }
     }
 }
 

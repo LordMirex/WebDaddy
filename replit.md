@@ -29,6 +29,19 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10.
 
 ## Recent Changes
+- **Homepage Redesign & Simplification (Nov 4, 2025):**
+  - **Hero Section:** Removed cloudy black overlay for cleaner, more professional appearance
+  - **Navigation:** Removed "How It Works" links from desktop and mobile menus
+  - **Removed Section:** Completely removed "How It Works" section to streamline user flow
+  - **Simplified Filters:** Removed search bar and results count - kept only clean category buttons with improved styling
+  - **Category Filter UX:** Enhanced button active states with proper color toggling (primary blue when active, white with border when inactive)
+  - **Footer Redesign:** 
+    - Simplified 4-column to 2-column layout
+    - Added trust/security badges (Secure Payment, SSL Protected, Trusted by 500+)
+    - Prominent WhatsApp and Affiliate contact cards with icons
+    - Removed Quick Links column
+    - Removed Admin Login link for cleaner public-facing footer
+  - **JavaScript Updates:** Streamlined TemplateFilter class to remove search and pagination logic
 - **Frontend Migration to Tailwind CSS (Nov 4, 2025):**
   - **Zero-Installation Approach:** Migrated from Bootstrap 5 to Tailwind CSS 3.x via CDN for complete portability
   - **Alpine.js Integration:** Added Alpine.js 3.x and Collapse plugin via CDN for interactive components (mobile menu, FAQ accordions)
