@@ -29,13 +29,35 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10.
 
 ## Recent Changes
+- **Page Simplification & Affiliate Section Redesign (Nov 4, 2025):**
+  - **Template Page Simplification (template.php):**
+    - Removed "What You Get" section with 4 benefit cards to reduce information overload
+    - Simplified "What's Included" to show only first 6 features in a single compact card
+    - Streamlined sidebar: removed domain list and WhatsApp help card
+    - Sidebar now shows only pricing, CTAs, and 3 essential bullet points
+    - Cleaner, more focused page that highlights template preview and order button
+  - **Order Page Affiliate Section Redesign (order.php):**
+    - Completely redesigned affiliate section with prominent gold-gradient design
+    - When no code: Large "Save 20% Instantly!" heading with eye-catching gold-accented card
+    - When code applied: Green gradient success banner showing savings amount prominently
+    - Enlarged input field (text-lg) and button for better mobile UX
+    - Input auto-converts to uppercase and supports Enter key submission
+    - Removed "What Happens Next?" section for cleaner, simpler page
+  - **JavaScript Improvements:**
+    - Separate event handling for affiliate button vs. main order submit button
+    - Affiliate button shows "Applying..." loading state during validation
+    - Fixed issue where affiliate button would incorrectly trigger WhatsApp redirect
+    - Affiliate code validation now happens independently of order submission
+  - **Conversion Optimization:**
+    - Affiliate section now much more visually prominent to encourage code usage
+    - Simplified pages focus user attention on key actions (preview, order, save)
+    - Reduced cognitive load by removing redundant information
 - **Complete Tailwind Migration - Order & Template Pages (Nov 4, 2025):**
   - **Order Page (order.php):** Fully converted from Bootstrap to Tailwind CSS
     - Responsive navigation with consistent branding
     - Modern gradient hero section with improved typography
     - Step-by-step form sections with numbered badges
     - Enhanced customer information inputs with focus states
-    - Improved affiliate code application with better visual feedback
     - Redesigned order summary sidebar with sticky positioning
     - All form elements use Tailwind utility classes
     - Professional error/warning messages with icons
@@ -45,12 +67,6 @@ The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `
     - Gradient hero section matching home page design
     - Large template preview with shadow effects
     - Live preview iframe with responsive height
-    - Feature cards with hover effects and icons
-    - "What You Get" section with icon-based benefit cards
-    - Redesigned sidebar with pricing and CTAs
-    - Available domains list with improved styling
-    - Trust badges with icon indicators
-    - WhatsApp help card for support
     - Responsive CTA section and footer
   - **Technical Details:**
     - Both pages now use Tailwind CSS 3.x via CDN
