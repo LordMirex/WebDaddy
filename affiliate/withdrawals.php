@@ -331,95 +331,153 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">
-                    <i class="bi bi-clock-history"></i> Withdrawal History
-                </h5>
+<!-- Withdrawal History -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                <i class="bi bi-clock-history text-xl text-primary-600"></i>
             </div>
-            <div class="card-body">
-                <?php if (empty($withdrawalRequests)): ?>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No withdrawal requests yet.
-                    </div>
-                <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Bank Details</th>
-                                    <th>Status</th>
-                                    <th>Processed Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($withdrawalRequests as $request): ?>
-                                    <?php 
-                                        $bankDetails = json_decode($request['bank_details_json'], true);
-                                        
-                                        $statusBadge = '';
-                                        switch ($request['status']) {
-                                            case 'pending':
-                                                $statusBadge = '<span class="badge bg-warning">Pending</span>';
-                                                break;
-                                            case 'approved':
-                                                $statusBadge = '<span class="badge bg-info">Approved</span>';
-                                                break;
-                                            case 'paid':
-                                                $statusBadge = '<span class="badge bg-success">Paid</span>';
-                                                break;
-                                            case 'rejected':
-                                                $statusBadge = '<span class="badge bg-danger">Rejected</span>';
-                                                break;
-                                            default:
-                                                $statusBadge = '<span class="badge bg-secondary">' . htmlspecialchars($request['status']) . '</span>';
-                                        }
-                                    ?>
-                                    <tr>
-                                        <td>
-                                            <small><?php echo date('M d, Y', strtotime($request['requested_at'])); ?></small>
-                                        </td>
-                                        <td>
-                                            <strong><?php echo formatCurrency($request['amount']); ?></strong>
-                                        </td>
-                                        <td>
-                                            <strong><?php echo htmlspecialchars($bankDetails['bank_name'] ?? 'N/A'); ?></strong><br>
-                                            <small class="text-muted">
-                                                <?php echo htmlspecialchars($bankDetails['account_number'] ?? 'N/A'); ?><br>
-                                                <?php echo htmlspecialchars($bankDetails['account_name'] ?? 'N/A'); ?>
-                                            </small>
-                                        </td>
-                                        <td><?php echo $statusBadge; ?></td>
-                                        <td>
-                                            <?php if ($request['processed_at']): ?>
-                                                <small><?php echo date('M d, Y', strtotime($request['processed_at'])); ?></small>
-                                            <?php else: ?>
-                                                <span class="text-muted">-</span>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                    <?php if (!empty($request['admin_notes'])): ?>
-                                        <tr>
-                                            <td colspan="5" class="bg-light">
-                                                <small>
-                                                    <strong>Admin Notes:</strong> 
-                                                    <?php echo htmlspecialchars($request['admin_notes']); ?>
-                                                </small>
-                                            </td>
-                                        </tr>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
-            </div>
+            <h5 class="text-xl font-bold text-gray-900">Withdrawal History</h5>
         </div>
     </div>
+    
+    <?php if (empty($withdrawalRequests)): ?>
+    <div class="p-12 text-center">
+        <i class="bi bi-inbox text-6xl text-gray-300 mb-4 block"></i>
+        <p class="text-gray-600 font-medium">No withdrawal requests yet.</p>
+    </div>
+    <?php else: ?>
+        <!-- Desktop Table -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Amount</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Bank Details</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Processed Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php foreach ($withdrawalRequests as $request): ?>
+                        <?php $bankDetails = json_decode($request['bank_details_json'], true); ?>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">
+                                <?php echo date('M d, Y', strtotime($request['requested_at'])); ?>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <span class="text-sm font-bold text-gray-900"><?php echo formatCurrency($request['amount']); ?></span>
+                            </td>
+                            <td class="px-4 py-4 text-sm">
+                                <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($bankDetails['bank_name'] ?? 'N/A'); ?></div>
+                                <div class="text-xs text-gray-500">
+                                    <?php echo htmlspecialchars($bankDetails['account_number'] ?? 'N/A'); ?><br>
+                                    <?php echo htmlspecialchars($bankDetails['account_name'] ?? 'N/A'); ?>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <?php 
+                                switch ($request['status']) {
+                                    case 'pending':
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="bi bi-clock mr-1"></i> Pending</span>';
+                                        break;
+                                    case 'approved':
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-check-circle mr-1"></i> Approved</span>';
+                                        break;
+                                    case 'paid':
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-check2-circle mr-1"></i> Paid</span>';
+                                        break;
+                                    case 'rejected':
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="bi bi-x-circle mr-1"></i> Rejected</span>';
+                                        break;
+                                    default:
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">' . htmlspecialchars($request['status']) . '</span>';
+                                }
+                                ?>
+                            </td>
+                            <td class="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">
+                                <?php if ($request['processed_at']): ?>
+                                    <?php echo date('M d, Y', strtotime($request['processed_at'])); ?>
+                                <?php else: ?>
+                                    <span class="text-gray-400">-</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php if (!empty($request['admin_notes'])): ?>
+                            <tr>
+                                <td colspan="5" class="px-4 py-3 bg-blue-50">
+                                    <div class="text-sm">
+                                        <strong class="text-gray-900">Admin Notes:</strong> 
+                                        <span class="text-gray-700"><?php echo htmlspecialchars($request['admin_notes']); ?></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Mobile Cards -->
+        <div class="lg:hidden p-4 space-y-4">
+            <?php foreach ($withdrawalRequests as $request): ?>
+                <?php $bankDetails = json_decode($request['bank_details_json'], true); ?>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-sm text-gray-600"><?php echo date('M d, Y', strtotime($request['requested_at'])); ?></span>
+                        <?php 
+                        switch ($request['status']) {
+                            case 'pending':
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="bi bi-clock mr-1"></i> Pending</span>';
+                                break;
+                            case 'approved':
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-check-circle mr-1"></i> Approved</span>';
+                                break;
+                            case 'paid':
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-check2-circle mr-1"></i> Paid</span>';
+                                break;
+                            case 'rejected':
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="bi bi-x-circle mr-1"></i> Rejected</span>';
+                                break;
+                            default:
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">' . htmlspecialchars($request['status']) . '</span>';
+                        }
+                        ?>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between border-b border-gray-300 pb-2">
+                            <span class="text-gray-600 font-semibold">Amount:</span>
+                            <span class="text-gray-900 font-bold"><?php echo formatCurrency($request['amount']); ?></span>
+                        </div>
+                        <div>
+                            <div class="text-gray-600 font-semibold mb-1">Bank Details:</div>
+                            <div class="text-gray-900"><?php echo htmlspecialchars($bankDetails['bank_name'] ?? 'N/A'); ?></div>
+                            <div class="text-xs text-gray-500">
+                                <?php echo htmlspecialchars($bankDetails['account_number'] ?? 'N/A'); ?><br>
+                                <?php echo htmlspecialchars($bankDetails['account_name'] ?? 'N/A'); ?>
+                            </div>
+                        </div>
+                        <?php if ($request['processed_at']): ?>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Processed:</span>
+                            <span class="text-gray-900"><?php echo date('M d, Y', strtotime($request['processed_at'])); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!empty($request['admin_notes'])): ?>
+                        <div class="mt-3 pt-3 border-t border-gray-300">
+                            <div class="text-sm">
+                                <strong class="text-gray-900">Admin Notes:</strong> 
+                                <span class="text-gray-700"><?php echo htmlspecialchars($request['admin_notes']); ?></span>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

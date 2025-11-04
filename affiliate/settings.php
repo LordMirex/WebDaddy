@@ -125,218 +125,273 @@ $pageTitle = 'Settings';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="bi bi-gear"></i> Account Settings
-    </h1>
+<!-- Page Header -->
+<div class="mb-8 pb-4 border-b border-gray-200">
+    <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-800 rounded-lg flex items-center justify-center shadow-lg">
+            <i class="bi bi-gear text-2xl text-gold"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
+    </div>
 </div>
 
 <?php if ($error): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div x-data="{ show: true }" x-show="show" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6 relative">
+    <button @click="show = false" class="absolute top-4 right-4 text-red-500 hover:text-red-700">
+        <i class="bi bi-x-lg"></i>
+    </button>
+    <div class="flex items-center pr-8">
+        <i class="bi bi-exclamation-triangle text-red-600 text-xl mr-3"></i>
+        <p class="text-red-700"><?php echo htmlspecialchars($error); ?></p>
     </div>
+</div>
 <?php endif; ?>
 
 <?php if ($success): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($success); ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div x-data="{ show: true }" x-show="show" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6 relative">
+    <button @click="show = false" class="absolute top-4 right-4 text-green-500 hover:text-green-700">
+        <i class="bi bi-x-lg"></i>
+    </button>
+    <div class="flex items-center pr-8">
+        <i class="bi bi-check-circle text-green-600 text-xl mr-3"></i>
+        <p class="text-green-700"><?php echo htmlspecialchars($success); ?></p>
     </div>
+</div>
 <?php endif; ?>
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-person"></i> Profile Information
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Full Name</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="name" 
-                               name="name" 
-                               value="<?php echo htmlspecialchars($userInfo['name'] ?? ''); ?>" 
-                               required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email Address</label>
-                        <input type="email" 
-                               class="form-control" 
-                               id="email" 
-                               value="<?php echo htmlspecialchars($userInfo['email'] ?? ''); ?>" 
-                               disabled>
-                        <small class="text-muted">Email cannot be changed</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Phone Number</label>
-                        <input type="tel" 
-                               class="form-control" 
-                               id="phone" 
-                               name="phone" 
-                               value="<?php echo htmlspecialchars($userInfo['phone'] ?? ''); ?>">
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" name="update_profile" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Update Profile
-                        </button>
-                    </div>
-                </form>
-            </div>
+<!-- Settings Cards Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Profile Information -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-4 text-white">
+            <h5 class="text-xl font-bold flex items-center">
+                <i class="bi bi-person mr-2"></i> Profile Information
+            </h5>
+        </div>
+        <div class="p-6">
+            <form method="POST" x-data="{ submitting: false }" @submit="submitting = true">
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <input type="text" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                           id="name" 
+                           name="name" 
+                           value="<?php echo htmlspecialchars($userInfo['name'] ?? ''); ?>" 
+                           required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                    <input type="email" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
+                           id="email" 
+                           value="<?php echo htmlspecialchars($userInfo['email'] ?? ''); ?>" 
+                           disabled>
+                    <p class="text-sm text-gray-500 mt-1">Email cannot be changed</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                    <input type="tel" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                           id="phone" 
+                           name="phone" 
+                           value="<?php echo htmlspecialchars($userInfo['phone'] ?? ''); ?>">
+                </div>
+                
+                <button type="submit" 
+                        name="update_profile" 
+                        :disabled="submitting"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-800 hover:from-primary-700 hover:to-primary-900 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2">
+                    <i class="bi bi-save text-lg" x-show="!submitting"></i>
+                    <i class="bi bi-arrow-repeat animate-spin text-lg" x-show="submitting" style="display: none;"></i>
+                    <span x-text="submitting ? 'Updating...' : 'Update Profile'">Update Profile</span>
+                </button>
+            </form>
         </div>
     </div>
     
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-bank"></i> Bank Account Details
-                </h5>
-            </div>
-            <div class="card-body">
-                <?php if ($savedBankDetails): ?>
-                    <div class="alert alert-success mb-3">
-                        <i class="bi bi-check-circle"></i> <strong>Bank details saved!</strong><br>
-                        <small>These will be used automatically for withdrawal requests.</small>
+    <!-- Bank Account Details -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-green-600 to-green-800 px-6 py-4 text-white">
+            <h5 class="text-xl font-bold flex items-center">
+                <i class="bi bi-bank mr-2"></i> Bank Account Details
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if ($savedBankDetails): ?>
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-4">
+                    <div class="flex items-start">
+                        <i class="bi bi-check-circle text-green-600 text-xl mr-3 mt-0.5"></i>
+                        <div>
+                            <p class="text-green-700 font-bold">Bank details saved!</p>
+                            <p class="text-sm text-green-600 mt-1">These will be used automatically for withdrawal requests.</p>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <p class="mb-1"><strong>Bank Name:</strong> <?php echo htmlspecialchars($savedBankDetails['bank_name']); ?></p>
-                        <p class="mb-1"><strong>Account Number:</strong> <?php echo htmlspecialchars($savedBankDetails['account_number']); ?></p>
-                        <p class="mb-1"><strong>Account Name:</strong> <?php echo htmlspecialchars($savedBankDetails['account_name']); ?></p>
+                </div>
+                <div class="mb-4 bg-gray-50 rounded-lg p-4">
+                    <p class="mb-2"><strong class="text-gray-900">Bank Name:</strong> <span class="text-gray-700"><?php echo htmlspecialchars($savedBankDetails['bank_name']); ?></span></p>
+                    <p class="mb-2"><strong class="text-gray-900">Account Number:</strong> <span class="text-gray-700"><?php echo htmlspecialchars($savedBankDetails['account_number']); ?></span></p>
+                    <p class="mb-0"><strong class="text-gray-900">Account Name:</strong> <span class="text-gray-700"><?php echo htmlspecialchars($savedBankDetails['account_name']); ?></span></p>
+                </div>
+                <div class="border-t border-gray-200 pt-4 mb-4"></div>
+                <p class="text-sm text-gray-600 mb-4">Update your bank details below if needed:</p>
+            <?php else: ?>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+                    <div class="flex items-start">
+                        <i class="bi bi-info-circle text-blue-600 text-xl mr-3 mt-0.5"></i>
+                        <div>
+                            <p class="text-blue-700 font-bold">Save your bank details</p>
+                            <p class="text-sm text-blue-600 mt-1">This will make withdrawal requests faster - you'll only need to enter the amount!</p>
+                        </div>
                     </div>
-                    <hr>
-                    <p class="text-muted small mb-3">Update your bank details below if needed:</p>
-                <?php else: ?>
-                    <div class="alert alert-info mb-3">
-                        <i class="bi bi-info-circle"></i> <strong>Save your bank details</strong><br>
-                        <small>This will make withdrawal requests faster - you'll only need to enter the amount!</small>
-                    </div>
-                <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            
+            <form method="POST" x-data="{ submitting: false }" @submit="submitting = true">
+                <div class="mb-4">
+                    <label for="bank_name" class="block text-sm font-semibold text-gray-700 mb-2">Bank Name</label>
+                    <input type="text" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                           id="bank_name" 
+                           name="bank_name" 
+                           value="<?php echo htmlspecialchars($savedBankDetails['bank_name'] ?? ''); ?>" 
+                           placeholder="e.g., First Bank, GTBank, etc."
+                           required>
+                </div>
                 
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="bank_name" class="form-label">Bank Name</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="bank_name" 
-                               name="bank_name" 
-                               value="<?php echo htmlspecialchars($savedBankDetails['bank_name'] ?? ''); ?>" 
-                               placeholder="e.g., First Bank, GTBank, etc."
-                               required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="account_number" class="form-label">Account Number</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="account_number" 
-                               name="account_number" 
-                               value="<?php echo htmlspecialchars($savedBankDetails['account_number'] ?? ''); ?>" 
-                               placeholder="Enter your account number"
-                               required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="account_name" class="form-label">Account Name</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="account_name" 
-                               name="account_name" 
-                               value="<?php echo htmlspecialchars($savedBankDetails['account_name'] ?? ''); ?>" 
-                               placeholder="Enter account holder's name"
-                               required>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" name="update_bank_details" class="btn btn-success">
-                            <i class="bi bi-save"></i> <?php echo $savedBankDetails ? 'Update Bank Details' : 'Save Bank Details'; ?>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="mb-4">
+                    <label for="account_number" class="block text-sm font-semibold text-gray-700 mb-2">Account Number</label>
+                    <input type="text" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                           id="account_number" 
+                           name="account_number" 
+                           value="<?php echo htmlspecialchars($savedBankDetails['account_number'] ?? ''); ?>" 
+                           placeholder="Enter your account number"
+                           required>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="account_name" class="block text-sm font-semibold text-gray-700 mb-2">Account Name</label>
+                    <input type="text" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" 
+                           id="account_name" 
+                           name="account_name" 
+                           value="<?php echo htmlspecialchars($savedBankDetails['account_name'] ?? ''); ?>" 
+                           placeholder="Enter account holder's name"
+                           required>
+                </div>
+                
+                <button type="submit" 
+                        name="update_bank_details" 
+                        :disabled="submitting"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2">
+                    <i class="bi bi-save text-lg" x-show="!submitting"></i>
+                    <i class="bi bi-arrow-repeat animate-spin text-lg" x-show="submitting" style="display: none;"></i>
+                    <span x-text="submitting ? 'Saving...' : '<?php echo $savedBankDetails ? "Update Bank Details" : "Save Bank Details"; ?>'">
+                        <?php echo $savedBankDetails ? 'Update Bank Details' : 'Save Bank Details'; ?>
+                    </span>
+                </button>
+            </form>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0">
-                    <i class="bi bi-shield-lock"></i> Change Password
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="current_password" class="form-label">Current Password</label>
-                        <input type="password" 
-                               class="form-control" 
-                               id="current_password" 
-                               name="current_password" 
-                               required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="new_password" class="form-label">New Password</label>
-                        <input type="password" 
-                               class="form-control" 
-                               id="new_password" 
-                               name="new_password" 
-                               minlength="6"
-                               required>
-                        <small class="text-muted">Minimum 6 characters</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="confirm_password" class="form-label">Confirm New Password</label>
-                        <input type="password" 
-                               class="form-control" 
-                               id="confirm_password" 
-                               name="confirm_password" 
-                               minlength="6"
-                               required>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" name="change_password" class="btn btn-warning">
-                            <i class="bi bi-key"></i> Change Password
-                        </button>
-                    </div>
-                </form>
-            </div>
+<!-- Bottom Grid: Password & Account Info -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Change Password -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-yellow-500 to-yellow-700 px-6 py-4 text-white">
+            <h5 class="text-xl font-bold flex items-center">
+                <i class="bi bi-shield-lock mr-2"></i> Change Password
+            </h5>
+        </div>
+        <div class="p-6">
+            <form method="POST" x-data="{ submitting: false }" @submit="submitting = true">
+                <div class="mb-4">
+                    <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                    <input type="password" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                           id="current_password" 
+                           name="current_password" 
+                           required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                    <input type="password" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                           id="new_password" 
+                           name="new_password" 
+                           minlength="6"
+                           required>
+                    <p class="text-sm text-gray-500 mt-1">Minimum 6 characters</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+                    <input type="password" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           minlength="6"
+                           required>
+                </div>
+                
+                <button type="submit" 
+                        name="change_password" 
+                        :disabled="submitting"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-600 hover:to-yellow-800 text-white font-bold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center space-x-2">
+                    <i class="bi bi-key text-lg" x-show="!submitting"></i>
+                    <i class="bi bi-arrow-repeat animate-spin text-lg" x-show="submitting" style="display: none;"></i>
+                    <span x-text="submitting ? 'Changing...' : 'Change Password'">Change Password</span>
+                </button>
+            </form>
         </div>
     </div>
     
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-info-circle"></i> Account Information
-                </h5>
-            </div>
-            <div class="card-body">
-                <p class="mb-2"><strong>Affiliate Code:</strong> <code><?php echo htmlspecialchars($affiliateInfo['code']); ?></code></p>
-                <p class="mb-2"><strong>Account Status:</strong> 
-                    <span class="badge <?php echo $affiliateInfo['status'] === 'active' ? 'bg-success' : 'bg-warning'; ?>">
+    <!-- Account Information -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4 text-white">
+            <h5 class="text-xl font-bold flex items-center">
+                <i class="bi bi-info-circle mr-2"></i> Account Information
+            </h5>
+        </div>
+        <div class="p-6">
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Affiliate Code:</span>
+                    <code class="px-3 py-1 bg-gray-100 text-primary-700 rounded font-mono font-bold"><?php echo htmlspecialchars($affiliateInfo['code']); ?></code>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Account Status:</span>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold <?php echo $affiliateInfo['status'] === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'; ?>">
                         <?php echo ucfirst($affiliateInfo['status']); ?>
                     </span>
-                </p>
-                <p class="mb-2"><strong>Member Since:</strong> <?php echo date('M d, Y', strtotime($affiliateInfo['created_at'])); ?></p>
-                <hr>
-                <div class="mt-3">
-                    <h6>Performance Summary</h6>
-                    <p class="mb-1"><strong>Total Clicks:</strong> <?php echo number_format($affiliateInfo['total_clicks']); ?></p>
-                    <p class="mb-1"><strong>Total Sales:</strong> <?php echo number_format($affiliateInfo['total_sales']); ?></p>
-                    <p class="mb-1"><strong>Commission Earned:</strong> <?php echo formatCurrency($affiliateInfo['commission_earned']); ?></p>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-700">Member Since:</span>
+                    <span class="text-sm text-gray-900"><?php echo date('M d, Y', strtotime($affiliateInfo['created_at'])); ?></span>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-4">
+                <h6 class="font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="bi bi-graph-up mr-2 text-primary-600"></i> Performance Summary
+                </h6>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Total Clicks:</span>
+                        <span class="text-sm font-bold text-gray-900"><?php echo number_format($affiliateInfo['total_clicks']); ?></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Total Sales:</span>
+                        <span class="text-sm font-bold text-gray-900"><?php echo number_format($affiliateInfo['total_sales']); ?></span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-gray-200 pt-3">
+                        <span class="text-sm font-semibold text-gray-700">Commission Earned:</span>
+                        <span class="text-base font-bold text-green-600"><?php echo formatCurrency($affiliateInfo['commission_earned']); ?></span>
+                    </div>
                 </div>
             </div>
         </div>
