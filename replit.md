@@ -33,6 +33,7 @@ The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `
   - Fixed critical bug where `sanitizeInput()` was stripping all HTML formatting from emails
   - Added rich text editor (Quill) to "Email All Affiliates" modal for better formatting
   - Fixed JavaScript timing issue preventing form submission in email_affiliate.php
+  - Fixed HTML5 validation blocking form submission on hidden textarea fields (removed `required` attribute, validation now handled by JavaScript)
   - Added loading state feedback when sending emails (button shows "Sending..." with spinner)
   - All bulk emails now use the professional affiliate template with crown icon, gradient header, and consistent branding
   - Individual and bulk emails now both support formatted content (bold, lists, links, headings, etc.)

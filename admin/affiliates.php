@@ -675,7 +675,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="mb-3">
                         <label class="form-label">Message *</label>
                         <div id="bulk-email-editor" style="min-height: 200px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
-                        <textarea id="email_message" name="email_message" style="display:none;" required></textarea>
+                        <textarea id="email_message" name="email_message" style="display:none;"></textarea>
                         <small class="text-muted">Use the editor toolbar to format your message</small>
                     </div>
                 </div>

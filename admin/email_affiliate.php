@@ -111,7 +111,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="mb-3">
                         <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
                         <div id="editor" style="min-height: 300px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
-                        <textarea id="message" name="message" style="display:none;" required></textarea>
+                        <textarea id="message" name="message" style="display:none;"></textarea>
                         <small class="text-muted">Use the editor toolbar to format your message with headings, bold, lists, links, etc.</small>
                     </div>
                     
