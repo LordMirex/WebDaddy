@@ -19,15 +19,19 @@ if (function_exists('getSetting')) {
     }
 }
 define('WHATSAPP_NUMBER', $whatsappNumber);
+// ============================================
+// SIMPLE CONFIGURATION - ALL HARDCODED
+// Just edit the values below directly!
+// ============================================
 
 // SMTP/Email Configuration (for sending emails)
 // Update these with your actual SMTP credentials
-define('SMTP_HOST', 'mail.teslareturns.online');           // SMTP server
+define('SMTP_HOST', 'mail.webdaddy.online');           // SMTP server
 define('SMTP_PORT', 465);                                  // SMTP port (465 for SSL, 587 for TLS)
 define('SMTP_SECURE', 'ssl');                              // SSL or TLS
-define('SMTP_USER', 'support@teslareturns.online');        // SMTP username
+define('SMTP_USER', 'admin@webdaddy.online');        // SMTP username
 define('SMTP_PASS', 'ItuZq%kF%5oE');                       // SMTP password
-define('SMTP_FROM_EMAIL', 'support@teslareturns.online');  // From email address
+define('SMTP_FROM_EMAIL', 'admin@webdaddy.online');  // From email address
 define('SMTP_FROM_NAME', 'WebDaddy Empire');               // From name
 
 // Affiliate Settings
@@ -36,7 +40,7 @@ define('AFFILIATE_COMMISSION_RATE', 0.30);  // 30% commission rate
 define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using affiliate links
 
 // Site Settings
-define('SITE_URL', 'http://localhost:8080');  // Your site URL (change to your domain)
+define('SITE_URL', 'http://webdaddy.online');  // Your site URL
 define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 
 // Default Admin Credentials (stored as plain text - no hashing!)
