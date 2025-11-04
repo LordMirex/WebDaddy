@@ -217,12 +217,17 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title><?php echo $pageTitle; ?> - <?php echo SITE_NAME; ?></title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    
+    <!-- Preconnect to external resources for faster loading -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -625,6 +630,10 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
         if (affiliateInput) {
             affiliateInput.addEventListener('input', function(e) {
                 this.value = this.value.toUpperCase();
+                // Remove error styling when user starts typing
+                if (this.classList.contains('border-red-500')) {
+                    hideAffiliateError();
+                }
             });
             
             affiliateInput.addEventListener('keypress', function(e) {
@@ -634,6 +643,16 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                 }
             });
         }
+        
+        // Add visual feedback for button taps on mobile
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('touchstart', function() {
+                this.style.opacity = '0.8';
+            });
+            btn.addEventListener('touchend', function() {
+                this.style.opacity = '1';
+            });
+        });
     </script>
 </body>
 </html>
