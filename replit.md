@@ -29,6 +29,37 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10.
 
 ## Recent Changes
+- **Complete Tailwind Migration - Order & Template Pages (Nov 4, 2025):**
+  - **Order Page (order.php):** Fully converted from Bootstrap to Tailwind CSS
+    - Responsive navigation with consistent branding
+    - Modern gradient hero section with improved typography
+    - Step-by-step form sections with numbered badges
+    - Enhanced customer information inputs with focus states
+    - Improved affiliate code application with better visual feedback
+    - Redesigned order summary sidebar with sticky positioning
+    - All form elements use Tailwind utility classes
+    - Professional error/warning messages with icons
+    - Responsive grid layout (3-column on desktop, stacked on mobile)
+  - **Template Detail Page (template.php):** Fully converted from Bootstrap to Tailwind CSS
+    - Mobile-responsive navigation with Alpine.js toggle
+    - Gradient hero section matching home page design
+    - Large template preview with shadow effects
+    - Live preview iframe with responsive height
+    - Feature cards with hover effects and icons
+    - "What You Get" section with icon-based benefit cards
+    - Redesigned sidebar with pricing and CTAs
+    - Available domains list with improved styling
+    - Trust badges with icon indicators
+    - WhatsApp help card for support
+    - Responsive CTA section and footer
+  - **Technical Details:**
+    - Both pages now use Tailwind CSS 3.x via CDN
+    - Alpine.js for mobile navigation interactivity
+    - Same custom color palette as home page (primary blues, gold, navy)
+    - Removed all Bootstrap dependencies (CSS, JS, Icons)
+    - Maintained all PHP functionality and business logic
+    - Responsive breakpoints: mobile-first design with sm/md/lg variants
+    - Consistent spacing, shadows, and border radius across all pages
 - **WhatsApp Integration & Hero Enhancement (Nov 4, 2025):**
   - **Enhanced Hero Section:**
     - Updated headline: "Turn Your Website Idea Into Reality" - emphasizes both templates and custom development
