@@ -113,179 +113,212 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1><i class="bi bi-person-circle"></i> Admin Profile</h1>
-    <p class="text-muted">Manage your account settings</p>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-person-circle text-primary-600"></i> Admin Profile
+    </h1>
+    <p class="text-gray-600 mt-2">Manage your account settings</p>
 </div>
 
 <?php if ($success): ?>
-<div class="alert alert-success alert-dismissible fade show">
-    <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($success); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-check-circle text-xl"></i>
+        <span><?php echo htmlspecialchars($success); ?></span>
+    </div>
+    <button @click="show = false" class="text-green-700 hover:text-green-900">
+        <i class="bi bi-x-lg"></i>
+    </button>
 </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-<div class="alert alert-danger alert-dismissible fade show">
-    <i class="bi bi-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-exclamation-circle text-xl"></i>
+        <span><?php echo htmlspecialchars($error); ?></span>
+    </div>
+    <button @click="show = false" class="text-red-700 hover:text-red-900">
+        <i class="bi bi-x-lg"></i>
+    </button>
 </div>
 <?php endif; ?>
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-person"></i> Profile Information</h5>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="space-y-6">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-person text-primary-600"></i> Profile Information
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="p-6">
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="update_profile">
                     
-                    <div class="mb-3">
-                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name <span class="text-red-600">*</span></label>
                         <input 
                             type="text" 
                             name="name" 
-                            class="form-control" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                             value="<?php echo htmlspecialchars($admin['name']); ?>" 
                             required
                         >
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address <span class="text-red-600">*</span></label>
                         <input 
                             type="email" 
                             name="email" 
-                            class="form-control" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                             value="<?php echo htmlspecialchars($admin['email']); ?>" 
                             required
                         >
-                        <small class="text-muted">This email is used for login and notifications</small>
+                        <small class="text-gray-500 text-sm">This email is used for login and notifications</small>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Phone Number</label>
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
                         <input 
                             type="tel" 
                             name="phone" 
-                            class="form-control" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                             value="<?php echo htmlspecialchars($admin['phone']); ?>"
                         >
                     </div>
                     
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Update Profile
-                        </button>
-                    </div>
+                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg">
+                        <i class="bi bi-save mr-2"></i> Update Profile
+                    </button>
                 </form>
             </div>
         </div>
         
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Account Information</h5>
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-info-circle text-primary-600"></i> Account Information
+                </h5>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <p class="mb-2"><strong>Role:</strong></p>
-                        <p class="text-muted"><span class="badge bg-danger">Administrator</span></p>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Role:</p>
+                        <p><span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">Administrator</span></p>
                     </div>
-                    <div class="col-6">
-                        <p class="mb-2"><strong>Status:</strong></p>
-                        <p class="text-muted"><span class="badge bg-success">Active</span></p>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Status:</p>
+                        <p><span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">Active</span></p>
                     </div>
-                    <div class="col-6">
-                        <p class="mb-2"><strong>User ID:</strong></p>
-                        <p class="text-muted">#<?php echo $admin['id']; ?></p>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">User ID:</p>
+                        <p class="text-gray-900">#<?php echo $admin['id']; ?></p>
                     </div>
-                    <div class="col-6">
-                        <p class="mb-2"><strong>Created:</strong></p>
-                        <p class="text-muted"><?php echo date('M d, Y', strtotime($admin['created_at'])); ?></p>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Created:</p>
+                        <p class="text-gray-900"><?php echo date('M d, Y', strtotime($admin['created_at'])); ?></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-shield-lock"></i> Change Password</h5>
+    <div class="space-y-6">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-shield-lock text-primary-600"></i> Change Password
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="p-6">
                 <?php
                 // Check if password is hashed or plain text
                 $isHashed = password_get_info($admin['password_hash'])['algo'] !== null;
                 ?>
                 
                 <?php if (!$isHashed): ?>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle"></i> 
-                    <strong>Security Warning:</strong> Your password is currently stored as plain text. 
-                    Please change it to enable secure password hashing.
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg mb-6 flex items-start gap-3">
+                    <i class="bi bi-exclamation-triangle text-xl mt-0.5"></i>
+                    <div>
+                        <strong class="font-semibold">Security Warning:</strong> Your password is currently stored as plain text. 
+                        Please change it to enable secure password hashing.
+                    </div>
                 </div>
                 <?php endif; ?>
                 
                 <form method="POST" action="">
                     <input type="hidden" name="action" value="change_password">
                     
-                    <div class="mb-3">
-                        <label class="form-label">Current Password <span class="text-danger">*</span></label>
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Current Password <span class="text-red-600">*</span></label>
                         <input 
                             type="password" 
                             name="current_password" 
-                            class="form-control" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                             required
                         >
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">New Password <span class="text-danger">*</span></label>
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">New Password <span class="text-red-600">*</span></label>
                         <input 
                             type="password" 
                             name="new_password" 
-                            class="form-control" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                             minlength="6" 
                             required
                         >
-                        <small class="text-muted">Minimum 6 characters</small>
+                        <small class="text-gray-500 text-sm">Minimum 6 characters</small>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password <span class="text-red-600">*</span></label>
                         <input 
                             type="password" 
                             name="confirm_password" 
-                            class="form-control" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                             minlength="6" 
                             required
                         >
                     </div>
                     
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-key"></i> Change Password
-                        </button>
-                    </div>
+                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg">
+                        <i class="bi bi-key mr-2"></i> Change Password
+                    </button>
                 </form>
             </div>
         </div>
         
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-shield-check"></i> Password Security Tips</h6>
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h6 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-shield-check text-green-600"></i> Password Security Tips
+                </h6>
             </div>
-            <div class="card-body">
-                <ul class="mb-0">
-                    <li>Use at least 8 characters</li>
-                    <li>Include uppercase and lowercase letters</li>
-                    <li>Add numbers and special characters</li>
-                    <li>Don't use common words or patterns</li>
-                    <li>Change your password regularly</li>
+            <div class="p-6">
+                <ul class="space-y-2 text-gray-700">
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                        <span>Use at least 8 characters</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                        <span>Include uppercase and lowercase letters</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                        <span>Add numbers and special characters</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                        <span>Don't use common words or patterns</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                        <span>Change your password regularly</span>
+                    </li>
                 </ul>
             </div>
         </div>

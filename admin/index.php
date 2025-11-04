@@ -27,102 +27,103 @@ $recentOrders = array_slice($recentOrders, 0, 5);
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
-    <p class="text-muted">Welcome back, <?php echo htmlspecialchars(getAdminName()); ?>!</p>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-speedometer2 text-primary-600"></i> Dashboard
+    </h1>
+    <p class="text-gray-600 mt-2">Welcome back, <?php echo htmlspecialchars(getAdminName()); ?>!</p>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="card stat-card h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-grid"></i> Templates</h6>
-                <div class="stat-number"><?php echo $activeTemplates; ?></div>
-                <small class="text-muted"><?php echo $totalTemplates; ?> total</small>
-            </div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Templates</h6>
+            <i class="bi bi-grid text-2xl text-primary-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $activeTemplates; ?></div>
+        <small class="text-sm text-gray-500"><?php echo $totalTemplates; ?> total</small>
     </div>
     
-    <div class="col-6 col-md-3">
-        <div class="card stat-card h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-cart"></i> Orders</h6>
-                <div class="stat-number"><?php echo $pendingOrders; ?></div>
-                <small class="text-muted"><?php echo $totalOrders; ?> total</small>
-            </div>
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Orders</h6>
+            <i class="bi bi-cart text-2xl text-blue-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $pendingOrders; ?></div>
+        <small class="text-sm text-gray-500"><?php echo $totalOrders; ?> total</small>
     </div>
     
-    <div class="col-6 col-md-3">
-        <div class="card stat-card h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-check-circle"></i> Sales</h6>
-                <div class="stat-number"><?php echo $totalSales; ?></div>
-                <small class="text-muted"><?php echo formatCurrency($totalRevenue); ?> revenue</small>
-            </div>
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Sales</h6>
+            <i class="bi bi-check-circle text-2xl text-green-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $totalSales; ?></div>
+        <small class="text-sm text-gray-500"><?php echo formatCurrency($totalRevenue); ?> revenue</small>
     </div>
     
-    <div class="col-6 col-md-3">
-        <div class="card stat-card h-100">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-people"></i> Affiliates</h6>
-                <div class="stat-number"><?php echo $totalAffiliates; ?></div>
-                <small class="text-muted"><?php echo $pendingWithdrawals; ?> pending withdrawals</small>
-            </div>
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Affiliates</h6>
+            <i class="bi bi-people text-2xl text-purple-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $totalAffiliates; ?></div>
+        <small class="text-sm text-gray-500"><?php echo $pendingWithdrawals; ?> pending withdrawals</small>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Pending Orders</h5>
-                <a href="/admin/orders.php" class="btn btn-sm btn-primary">View All</a>
-            </div>
-            <div class="card-body">
-                <?php if (empty($recentOrders)): ?>
-                <div class="alert alert-info mb-0">
-                    <i class="bi bi-info-circle"></i> No pending orders at the moment.
-                </div>
-                <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Template</th>
-                                <th>Domain</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($recentOrders as $order): ?>
-                            <tr>
-                                <td><strong>#<?php echo $order['id']; ?></strong></td>
-                                <td>
-                                    <?php echo htmlspecialchars($order['customer_name']); ?><br>
-                                    <small class="text-muted"><?php echo htmlspecialchars($order['customer_email']); ?></small>
-                                </td>
-                                <td><?php echo htmlspecialchars($order['template_name']); ?></td>
-                                <td><?php echo htmlspecialchars($order['domain_name'] ?? 'Not selected'); ?></td>
-                                <td><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
-                                <td>
-                                    <a href="/admin/orders.php?view=<?php echo $order['id']; ?>" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-eye"></i> View
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <?php endif; ?>
-            </div>
+<div class="bg-white rounded-xl shadow-md border border-gray-100">
+    <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-clock-history text-primary-600"></i> Recent Pending Orders
+        </h5>
+        <a href="/admin/orders.php" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors text-sm">
+            View All
+        </a>
+    </div>
+    <div class="p-6">
+        <?php if (empty($recentOrders)): ?>
+        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg flex items-center gap-3">
+            <i class="bi bi-info-circle text-xl"></i>
+            <span>No pending orders at the moment.</span>
         </div>
+        <?php else: ?>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Order ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Customer</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Template</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Domain</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Date</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php foreach ($recentOrders as $order): ?>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <strong class="text-primary-600">#<?php echo $order['id']; ?></strong>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($order['customer_name']); ?></div>
+                            <div class="text-sm text-gray-500"><?php echo htmlspecialchars($order['customer_email']); ?></div>
+                        </td>
+                        <td class="py-3 px-4 text-gray-900"><?php echo htmlspecialchars($order['template_name']); ?></td>
+                        <td class="py-3 px-4 text-gray-700"><?php echo htmlspecialchars($order['domain_name'] ?? 'Not selected'); ?></td>
+                        <td class="py-3 px-4 text-gray-700"><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
+                        <td class="py-3 px-4">
+                            <a href="/admin/orders.php?view=<?php echo $order['id']; ?>" class="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors text-sm">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
