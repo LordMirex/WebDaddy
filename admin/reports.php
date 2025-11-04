@@ -22,13 +22,13 @@ $dateFilter = '';
 $params = [];
 
 if ($period === 'today') {
-    $dateFilter = "AND DATE(s.created_at) = CURRENT_DATE";
+    $dateFilter = "AND DATE(datetime(s.created_at)) = DATE('now')";
 } elseif ($period === 'week') {
-    $dateFilter = "AND s.created_at >= CURRENT_DATE - INTERVAL '7 days'";
+    $dateFilter = "AND datetime(s.created_at) >= datetime('now', '-7 days')";
 } elseif ($period === 'month') {
-    $dateFilter = "AND s.created_at >= CURRENT_DATE - INTERVAL '30 days'";
+    $dateFilter = "AND datetime(s.created_at) >= datetime('now', '-30 days')";
 } elseif ($period === 'custom' && $startDate && $endDate) {
-    $dateFilter = "AND DATE(s.created_at) BETWEEN ? AND ?";
+    $dateFilter = "AND DATE(datetime(s.created_at)) BETWEEN ? AND ?";
     $params = [$startDate, $endDate];
 }
 
@@ -116,12 +116,12 @@ $recentSales = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Sales by day (last 30 days for chart)
 $query = "
     SELECT 
-        DATE(created_at) as sale_date,
+        DATE(datetime(created_at)) as sale_date,
         COUNT(*) as orders,
         SUM(amount_paid) as revenue
     FROM sales
-    WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
-    GROUP BY DATE(created_at)
+    WHERE datetime(created_at) >= datetime('now', '-30 days')
+    GROUP BY DATE(datetime(created_at))
     ORDER BY sale_date ASC
 ";
 $salesByDay = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);

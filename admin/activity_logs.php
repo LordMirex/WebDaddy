@@ -147,7 +147,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="card-body">
                 <h6 class="text-muted mb-2">Today's Activities</h6>
                 <?php
-                $todayCount = $db->query("SELECT COUNT(*) FROM activity_logs WHERE DATE(created_at) = CURRENT_DATE")->fetchColumn();
+                $todayCount = $db->query("SELECT COUNT(*) FROM activity_logs WHERE DATE(datetime(created_at)) = DATE('now')")->fetchColumn();
                 ?>
                 <div class="h3 mb-0"><?php echo number_format($todayCount); ?></div>
             </div>

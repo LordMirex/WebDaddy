@@ -50,12 +50,12 @@ $totalPages = ceil($totalSales / $perPage);
 // Calculate monthly earnings
 $monthlyQuery = "
     SELECT 
-        TO_CHAR(created_at, 'YYYY-MM') as month,
+        strftime('%Y-%m', datetime(created_at)) as month,
         COUNT(*) as sales_count,
         SUM(commission_amount) as total_commission
     FROM sales
     WHERE affiliate_id = ?
-    GROUP BY TO_CHAR(created_at, 'YYYY-MM')
+    GROUP BY strftime('%Y-%m', datetime(created_at))
     ORDER BY month DESC
     LIMIT 12
 ";
