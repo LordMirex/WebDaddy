@@ -60,45 +60,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isApplyAffiliate) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
         $affiliateInvalid = true;
     } else {
-        // User is applying affiliate code - preserve their form data
         $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
-        $submittedName = trim($_POST['customer_name'] ?? '');
-        $submittedPhone = trim($_POST['customer_phone'] ?? '');
         
         if (!empty($submittedAffiliateCode)) {
-        $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
-        if ($lookupAffiliate) {
-            $affiliateData = $lookupAffiliate;
-            $affiliateCode = $submittedAffiliateCode;
-            $hasAffiliate = true;
-            $_SESSION['affiliate_code'] = $affiliateCode;
-            setcookie(
-                'affiliate_code',
-                $affiliateCode,
-                time() + ((defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400),
-                '/',
-                '',
-                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-                true
-            );
-            
-            // Recalculate prices with affiliate discount
-            $discountedPrice = round($originalPrice * (1 - $affiliateDiscountRate), 2);
-            $discountAmount = max(0, $originalPrice - $discountedPrice);
-            
-            // Redirect back with form data preserved
-            $redirectUrl = preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']);
-            $params = ['template' => $templateId];
-            if (!empty($submittedName)) $params['name'] = $submittedName;
-            if (!empty($submittedPhone)) $params['phone'] = $submittedPhone;
-            
-            header('Location: ' . $redirectUrl . '?' . http_build_query($params));
-            exit;
-        } else {
-            $affiliateInvalid = true;
-            // Keep the submitted values for display
+            $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
+            if ($lookupAffiliate) {
+                $affiliateData = $lookupAffiliate;
+                $affiliateCode = $submittedAffiliateCode;
+                $hasAffiliate = true;
+                $_SESSION['affiliate_code'] = $affiliateCode;
+                setcookie(
+                    'affiliate_code',
+                    $affiliateCode,
+                    time() + ((defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400),
+                    '/',
+                    '',
+                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                    true
+                );
+                
+                // Recalculate prices with affiliate discount
+                $discountedPrice = round($originalPrice * (1 - $affiliateDiscountRate), 2);
+                $discountAmount = max(0, $originalPrice - $discountedPrice);
+                
+                // Redirect back to apply the discount
+                $redirectUrl = preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']);
+                $params = ['template' => $templateId];
+                
+                header('Location: ' . $redirectUrl . '?' . http_build_query($params));
+                exit;
+            } else {
+                $affiliateInvalid = true;
+            }
         }
-    }
     }
 }
 
@@ -282,11 +276,11 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16">
+    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-6 sm:py-8">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl mx-auto text-center">
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3">Complete Your Order</h1>
-                <p class="text-lg sm:text-xl text-white/90">You're just one step away from launching your website</p>
+                <h1 class="text-2xl sm:text-3xl font-bold mb-1">Complete Your Order</h1>
+                <p class="text-sm sm:text-base text-white/90">One step away from launching your website</p>
             </div>
         </div>
     </header>
@@ -335,6 +329,46 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                 <?php endif; ?>
                 
                 <?php if (empty($error)): ?>
+                    <?php if ($hasAffiliate): ?>
+                    <div class="bg-green-50 border-l-4 border-green-500 rounded-lg p-4 mb-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm font-medium text-green-800">20% discount applied (<?php echo htmlspecialchars($affiliateCode); ?>)</span>
+                            </div>
+                            <span class="text-sm font-bold text-green-700">-<?php echo formatCurrency($discountAmount); ?></span>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+                        <form method="POST" action="" id="affiliateForm">
+                            <?php echo csrfTokenField(); ?>
+                            <label for="affiliate_code" class="block text-sm font-medium text-gray-700 mb-2">Have a discount code?</label>
+                            <div class="flex gap-2">
+                                <input type="text" 
+                                       class="flex-1 px-3 py-2 text-sm border <?php echo $affiliateInvalid ? 'border-red-500' : 'border-gray-300'; ?> rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent uppercase" 
+                                       id="affiliate_code" 
+                                       name="affiliate_code" 
+                                       value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
+                                       placeholder="ENTER CODE"
+                                       autocomplete="off">
+                                <button class="px-4 py-2 text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap" 
+                                        type="submit" 
+                                        name="apply_affiliate" 
+                                        value="1"
+                                        id="applyAffiliateBtn">
+                                    Apply
+                                </button>
+                            </div>
+                            <?php if ($affiliateInvalid): ?>
+                                <p class="mt-2 text-sm text-red-600">Invalid code. Please check and try again.</p>
+                            <?php endif; ?>
+                        </form>
+                    </div>
+                    <?php endif; ?>
+
                     <form method="POST" action="" id="orderForm" data-validate data-loading>
                     <?php echo csrfTokenField(); ?>
                     <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
@@ -374,76 +408,6 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                             </div>
                         </div>
                     </div>
-
-                    <?php if ($hasAffiliate): ?>
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg border-2 border-green-400 mb-6 overflow-hidden">
-                        <div class="p-6 sm:p-8">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center">
-                                    <svg class="w-12 h-12 text-white mr-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <div>
-                                        <h3 class="text-2xl font-extrabold text-white mb-1">Discount Applied!</h3>
-                                        <p class="text-green-50">Affiliate code: <strong><?php echo htmlspecialchars($affiliateCode); ?></strong></p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-white/80 text-sm mb-1">You're Saving</div>
-                                    <div class="text-3xl font-extrabold text-white"><?php echo formatCurrency($discountAmount); ?></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php else: ?>
-                    <div class="bg-gradient-to-br from-gold/10 to-primary-50 rounded-xl shadow-md border-2 border-gold mb-6 overflow-hidden">
-                        <div class="p-6 sm:p-8">
-                            <div class="text-center mb-6">
-                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold text-white mb-4">
-                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <h3 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">Save 20% Instantly!</h3>
-                                <p class="text-lg text-gray-700">Have an affiliate code? Enter it below to unlock your discount</p>
-                            </div>
-                            
-                            <div class="bg-white rounded-lg p-6 shadow-inner">
-                                <label for="affiliate_code" class="block text-base font-bold text-gray-900 mb-3">Enter Affiliate Code</label>
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <input type="text" 
-                                           class="flex-1 px-4 py-4 text-lg border-2 <?php echo $affiliateInvalid ? 'border-red-500' : 'border-gray-300'; ?> rounded-lg focus:ring-2 focus:ring-gold focus:border-gold transition-all uppercase" 
-                                           id="affiliate_code" 
-                                           name="affiliate_code" 
-                                           value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
-                                           placeholder="ENTER CODE"
-                                           autocomplete="off">
-                                    <button class="px-8 py-4 text-lg font-extrabold rounded-lg text-white bg-gold hover:bg-gold/90 transition-all shadow-lg whitespace-nowrap" 
-                                            type="submit" 
-                                            name="apply_affiliate" 
-                                            value="1"
-                                            id="applyAffiliateBtn">
-                                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        Apply & Save 20%
-                                    </button>
-                                </div>
-                                <?php if ($affiliateInvalid): ?>
-                                    <div class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start">
-                                        <svg class="w-5 h-5 text-red-600 mr-2 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <p class="text-red-800 font-medium">Code "<?php echo htmlspecialchars($submittedAffiliateCode); ?>" not found. Please check and try again.</p>
-                                    </div>
-                                <?php else: ?>
-                                    <p class="mt-3 text-sm text-gray-600 text-center">No code? No problem! Proceed to checkout below.</p>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                     
                     <div class="space-y-3">
                         <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-base font-bold rounded-lg text-white bg-green-600 hover:bg-green-700 transition-all shadow-lg" id="submitBtn" data-loading-text="Processing...">
@@ -531,44 +495,29 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
     </footer>
 
     <script>
-        // Form submission handling
+        // Affiliate form submission handling
+        document.getElementById('affiliateForm')?.addEventListener('submit', function(e) {
+            const applyBtn = document.getElementById('applyAffiliateBtn');
+            if (applyBtn) {
+                applyBtn.disabled = true;
+                applyBtn.textContent = 'Applying...';
+            }
+        });
+
+        // Order form submission handling
         document.getElementById('orderForm')?.addEventListener('submit', function(e) {
-            const submitter = e.submitter;
-            
-            // Handle affiliate code application
-            if (submitter && submitter.name === 'apply_affiliate') {
-                const applyBtn = document.getElementById('applyAffiliateBtn');
-                if (applyBtn) {
-                    applyBtn.disabled = true;
-                    applyBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Applying...';
-                }
-            } 
-            // Handle main order submission
-            else if (!submitter || submitter.id === 'submitBtn') {
-                const submitBtn = document.getElementById('submitBtn');
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Redirecting to WhatsApp...';
-                }
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
             }
         });
         
-        // Affiliate code input handling - convert to uppercase
+        // Affiliate code input - convert to uppercase
         const affiliateInput = document.getElementById('affiliate_code');
         if (affiliateInput) {
             affiliateInput.addEventListener('input', function(e) {
                 this.value = this.value.toUpperCase();
-            });
-            
-            // Allow Enter key to submit affiliate code
-            affiliateInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const applyBtn = document.getElementById('applyAffiliateBtn');
-                    if (applyBtn) {
-                        applyBtn.click();
-                    }
-                }
             });
         }
     </script>
