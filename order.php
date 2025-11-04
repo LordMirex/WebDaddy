@@ -56,12 +56,16 @@ if ($hasAffiliate) {
 $isApplyAffiliate = isset($_POST['apply_affiliate']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isApplyAffiliate) {
-    // User is applying affiliate code - preserve their form data
-    $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
-    $submittedName = trim($_POST['customer_name'] ?? '');
-    $submittedPhone = trim($_POST['customer_phone'] ?? '');
-    
-    if (!empty($submittedAffiliateCode)) {
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $errors[] = 'Security validation failed. Please refresh the page and try again.';
+        $affiliateInvalid = true;
+    } else {
+        // User is applying affiliate code - preserve their form data
+        $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
+        $submittedName = trim($_POST['customer_name'] ?? '');
+        $submittedPhone = trim($_POST['customer_phone'] ?? '');
+        
+        if (!empty($submittedAffiliateCode)) {
         $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
         if ($lookupAffiliate) {
             $affiliateData = $lookupAffiliate;
@@ -94,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isApplyAffiliate) {
             $affiliateInvalid = true;
             // Keep the submitted values for display
         }
+    }
     }
 }
 
