@@ -1,6 +1,6 @@
 # WebDaddy Empire - Template Marketplace
 
-A complete PHP/PostgreSQL platform for selling website templates bundled with premium domains, featuring WhatsApp-based payment processing, affiliate marketing system, and comprehensive admin management.
+A complete PHP/SQLite platform for selling website templates bundled with premium domains, featuring WhatsApp-based payment processing, affiliate marketing system, and comprehensive admin management.
 
 ---
 
@@ -338,7 +338,7 @@ The system manages 9 core data entities:
 
 ### Backend Stack
 - **Language**: PHP 8.2+
-- **Database**: PostgreSQL 15 with foreign keys, enums, indexes
+- **Database**: SQLite with foreign keys and indexes
 - **Database Access**: PDO with prepared statements
 - **Session Storage**: Custom file-based sessions in `/tmp/php_sessions`
 
@@ -356,7 +356,7 @@ The system manages 9 core data entities:
 - **JSON Storage**: Bank details and custom fields stored as JSON
 
 ### Configuration
-- **Environment Variables**: PostgreSQL credentials from Replit environment
+- **Environment Variables**: SQLite database file path
 - **Config File**: `includes/config.php` for all hardcoded settings
 - **Database Settings**: Settings table overrides config constants
 - **Flexible Setup**: Works with both environment and manual configuration
@@ -404,7 +404,7 @@ The system manages 9 core data entities:
 │   ├── css/style.css           # Custom styling (800+ lines)
 │   └── images/                 # Logos, placeholders, template images
 ├── database/
-│   └── schema.sql              # PostgreSQL schema with sample data
+│   └── schema.sql              # SQLite schema with sample data
 └── mailer/                      # PHPMailer library
 ```
 
