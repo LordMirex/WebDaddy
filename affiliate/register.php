@@ -41,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // Check if email already exists
             $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+            if ($stmt === false) {
+                throw new PDOException('Failed to prepare statement');
+            }
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
                 $error = 'This email is already registered. <a href="/affiliate/login.php">Login here</a>.';
@@ -50,6 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Check if chosen affiliate code already exists
                 $stmt = $db->prepare("SELECT id FROM affiliates WHERE code = ?");
+                if ($stmt === false) {
+                    throw new PDOException('Failed to prepare statement');
+                }
                 $stmt->execute([$myAffiliateCode]);
                 if ($stmt->fetch()) {
                     $error = 'This affiliate code is already taken. Please choose another one.';
@@ -63,7 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         INSERT INTO users (name, email, phone, password_hash, role, status)
                         VALUES (?, ?, ?, ?, 'affiliate', 'active')
                     ");
-                    $stmt->execute([$name, $email, $phone, $passwordHash]);
+                    if ($stmt === false) {
+                        throw new PDOException('Failed to prepare statement');
+                    }
+                    $result = $stmt->execute([$name, $email, $phone, $passwordHash]);
+                    if ($result === false) {
+                        throw new PDOException('Failed to create user account');
+                    }
                     $userId = $db->lastInsertId('users_id_seq') ?: $db->lastInsertId();
                     
                     // Insert affiliate record
@@ -71,7 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         INSERT INTO affiliates (user_id, code, status)
                         VALUES (?, ?, 'active')
                     ");
-                    $stmt->execute([$userId, $affiliateCode]);
+                    if ($stmt === false) {
+                        throw new PDOException('Failed to prepare statement');
+                    }
+                    $result = $stmt->execute([$userId, $affiliateCode]);
+                    if ($result === false) {
+                        throw new PDOException('Failed to create affiliate record');
+                    }
                     
                     $db->commit();
                     
@@ -83,6 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // Auto-login the user
                     $stmt = $db->prepare("SELECT id FROM affiliates WHERE user_id = ?");
+                    if ($stmt === false) {
+                        throw new PDOException('Failed to prepare statement');
+                    }
                     $stmt->execute([$userId]);
                     $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
                     
@@ -97,6 +118,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         header('Location: /affiliate/');
                         exit;
+                    } else {
+                        throw new PDOException('Failed to retrieve affiliate record');
                     }
                 }
             }

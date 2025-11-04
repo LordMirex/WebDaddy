@@ -39,7 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, video_links, active)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
-                        $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active]);
+                        if ($stmt === false) {
+                            throw new PDOException('Failed to prepare statement');
+                        }
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active]);
+                        if ($result === false) {
+                            throw new PDOException('Failed to execute statement');
+                        }
                         $_SESSION['success_message'] = 'Template added successfully!';
                         logActivity('template_created', "Template created: $name", getAdminId());
                         header('Location: ' . $_SERVER['PHP_SELF']);
@@ -51,14 +57,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, demo_url = ?, thumbnail_url = ?, video_links = ?, active = ?
                             WHERE id = ?
                         ");
-                        $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active, $id]);
+                        if ($stmt === false) {
+                            throw new PDOException('Failed to prepare statement');
+                        }
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active, $id]);
+                        if ($result === false) {
+                            throw new PDOException('Failed to execute statement');
+                        }
                         $_SESSION['success_message'] = 'Template updated successfully!';
                         logActivity('template_updated', "Template updated: $name", getAdminId());
                         header('Location: ' . $_SERVER['PHP_SELF']);
                         exit;
                     }
                 } catch (PDOException $e) {
-                    $errorMessage = 'Database error: ' . $e->getMessage();
+                    error_log('Template add/edit error: ' . $e->getMessage());
+                    $errorMessage = 'Database error occurred. Please try again.';
                 }
             }
         } elseif ($action === 'delete') {
@@ -66,24 +79,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $template = getTemplateById($id);
                 $stmt = $db->prepare("DELETE FROM templates WHERE id = ?");
-                $stmt->execute([$id]);
+                if ($stmt === false) {
+                    throw new PDOException('Failed to prepare statement');
+                }
+                $result = $stmt->execute([$id]);
+                if ($result === false) {
+                    throw new PDOException('Failed to execute statement');
+                }
                 $_SESSION['success_message'] = 'Template deleted successfully!';
                 logActivity('template_deleted', "Template deleted: " . ($template['name'] ?? $id), getAdminId());
                 header('Location: ' . $_SERVER['PHP_SELF']);
                 exit;
             } catch (PDOException $e) {
-                $errorMessage = 'Cannot delete template: ' . $e->getMessage();
+                error_log('Template delete error: ' . $e->getMessage());
+                $errorMessage = 'Cannot delete template. Please try again.';
             }
         } elseif ($action === 'toggle_active') {
             $id = intval($_POST['id']);
             try {
                 $stmt = $db->prepare("UPDATE templates SET active = CASE WHEN active = true THEN false ELSE true END WHERE id = ?");
-                $stmt->execute([$id]);
+                if ($stmt === false) {
+                    throw new PDOException('Failed to prepare statement');
+                }
+                $result = $stmt->execute([$id]);
+                if ($result === false) {
+                    throw new PDOException('Failed to execute statement');
+                }
                 $_SESSION['success_message'] = 'Template status updated!';
                 header('Location: ' . $_SERVER['PHP_SELF']);
                 exit;
             } catch (PDOException $e) {
-                $errorMessage = 'Database error: ' . $e->getMessage();
+                error_log('Template toggle error: ' . $e->getMessage());
+                $errorMessage = 'Database error occurred. Please try again.';
             }
         }
     }

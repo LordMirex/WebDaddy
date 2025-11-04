@@ -180,8 +180,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
             $errors[] = 'Order created but there was an issue. Please contact support.';
         } else {
             global $lastDbError;
-            if (!empty($lastDbError)) {
-                $errors[] = 'Database Error: ' . $lastDbError;
+            if (isset($lastDbError) && !empty($lastDbError)) {
+                error_log('Order creation failed: ' . $lastDbError);
+                $errors[] = 'Failed to create order. Please try again or contact support.';
             } else {
                 $errors[] = 'Failed to create order. Please try again or contact support.';
             }

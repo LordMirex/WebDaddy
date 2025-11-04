@@ -43,17 +43,11 @@ define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using 
 define('SITE_URL', 'http://webdaddy.online');  // Your site URL
 define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 
-// Default Admin Credentials (stored as plain text - no hashing!)
-define('ADMIN_EMAIL', 'admin@example.com');
-define('ADMIN_PASSWORD', 'admin123');         // Plain text password - change this!
-define('ADMIN_NAME', 'Admin User');
-define('ADMIN_PHONE', '08012345678');
-
 // Security Settings
 define('SESSION_LIFETIME', 3600);
 
 // Error Display (set to false in production)
-define('DISPLAY_ERRORS', true);
+define('DISPLAY_ERRORS', false);
 
 // PHP Error Reporting
 if (DISPLAY_ERRORS) {

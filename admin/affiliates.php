@@ -34,12 +34,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->beginTransaction();
                 try {
                     $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+                    if ($stmt === false) {
+                        throw new Exception('Database error occurred.');
+                    }
                     $stmt->execute([$email]);
                     if ($stmt->fetch()) {
                         throw new Exception('Email already exists.');
                     }
                     
                     $stmt = $db->prepare("SELECT id FROM affiliates WHERE code = ?");
+                    if ($stmt === false) {
+                        throw new Exception('Database error occurred.');
+                    }
                     $stmt->execute([$code]);
                     if ($stmt->fetch()) {
                         throw new Exception('Affiliate code already exists.');
@@ -51,7 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $name = explode('@', $email)[0];
                     
                     $stmt = $db->prepare("INSERT INTO users (name, email, phone, password_hash, role, status) VALUES (?, ?, '', ?, 'affiliate', 'active')");
-                    $stmt->execute([$name, $email, $passwordHash]);
+                    if ($stmt === false) {
+                        throw new Exception('Database error occurred.');
+                    }
+                    $result = $stmt->execute([$name, $email, $passwordHash]);
+                    if ($result === false) {
+                        throw new Exception('Failed to create user account.');
+                    }
                     
                     $dbType = getDbType();
                     if ($dbType === 'pgsql') {
@@ -61,13 +73,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     $stmt = $db->prepare("INSERT INTO affiliates (user_id, code, status) VALUES (?, ?, 'active')");
-                    $stmt->execute([$userId, $code]);
+                    if ($stmt === false) {
+                        throw new Exception('Database error occurred.');
+                    }
+                    $result = $stmt->execute([$userId, $code]);
+                    if ($result === false) {
+                        throw new Exception('Failed to create affiliate record.');
+                    }
                     
                     $db->commit();
                     $successMessage = 'Affiliate account created successfully!';
                     logActivity('affiliate_created', "Affiliate created: $email", getAdminId());
                 } catch (Exception $e) {
-                    $db->rollBack();
+                    if ($db->inTransaction()) {
+                        $db->rollBack();
+                    }
+                    error_log('Affiliate creation error: ' . $e->getMessage());
                     $errorMessage = $e->getMessage();
                 }
             }
@@ -77,11 +98,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             try {
                 $stmt = $db->prepare("UPDATE affiliates SET status = ? WHERE id = ?");
-                $stmt->execute([$status, $affiliateId]);
+                if ($stmt === false) {
+                    throw new PDOException('Failed to prepare statement');
+                }
+                $result = $stmt->execute([$status, $affiliateId]);
+                if ($result === false) {
+                    throw new PDOException('Failed to update status');
+                }
                 $successMessage = 'Affiliate status updated!';
                 logActivity('affiliate_status_updated', "Affiliate #$affiliateId status: $status", getAdminId());
             } catch (PDOException $e) {
-                $errorMessage = 'Database error: ' . $e->getMessage();
+                error_log('Affiliate status update error: ' . $e->getMessage());
+                $errorMessage = 'Database error occurred. Please try again.';
             }
         } elseif ($action === 'update_commission_rate') {
             $affiliateId = intval($_POST['affiliate_id']);
@@ -91,7 +119,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // If empty or 'default', set to NULL to use system default
                 if (empty($customRate) || $customRate === 'default') {
                     $stmt = $db->prepare("UPDATE affiliates SET custom_commission_rate = NULL WHERE id = ?");
-                    $stmt->execute([$affiliateId]);
+                    if ($stmt === false) {
+                        throw new PDOException('Failed to prepare statement');
+                    }
+                    $result = $stmt->execute([$affiliateId]);
+                    if ($result === false) {
+                        throw new PDOException('Failed to update commission rate');
+                    }
                     $successMessage = 'Commission rate reset to default (' . (AFFILIATE_COMMISSION_RATE * 100) . '%)';
                 } else {
                     // Validate rate (should be between 0 and 1)
@@ -101,14 +135,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     $stmt = $db->prepare("UPDATE affiliates SET custom_commission_rate = ? WHERE id = ?");
-                    $stmt->execute([$rate, $affiliateId]);
+                    if ($stmt === false) {
+                        throw new PDOException('Failed to prepare statement');
+                    }
+                    $result = $stmt->execute([$rate, $affiliateId]);
+                    if ($result === false) {
+                        throw new PDOException('Failed to update commission rate');
+                    }
                     $successMessage = 'Custom commission rate updated to ' . ($rate * 100) . '%';
                 }
                 logActivity('affiliate_commission_updated', "Affiliate #$affiliateId commission rate updated", getAdminId());
             } catch (Exception $e) {
+                error_log('Commission rate update error: ' . $e->getMessage());
                 $errorMessage = $e->getMessage();
             } catch (PDOException $e) {
-                $errorMessage = 'Database error: ' . $e->getMessage();
+                error_log('Commission rate update error: ' . $e->getMessage());
+                $errorMessage = 'Database error occurred. Please try again.';
             }
         } elseif ($action === 'email_all_affiliates') {
             $subject = sanitizeInput($_POST['email_subject']);
