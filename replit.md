@@ -29,6 +29,24 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10.
 
 ## Recent Changes
+- **WhatsApp Integration & Hero Enhancement (Nov 4, 2025):**
+  - **Enhanced Hero Section:**
+    - Updated headline: "Turn Your Website Idea Into Reality" - emphasizes both templates and custom development
+    - Clear dual value proposition: "ready-made templates" OR "custom website built just for you"
+    - Two prominent CTA buttons side-by-side (responsive: stacked on mobile, row on desktop)
+    - "Browse Templates" button (outlined white)
+    - "Get Custom Website" button with WhatsApp icon (solid white, opens WhatsApp)
+  - **Floating WhatsApp Button:**
+    - Fixed position bottom-right corner (green circular button)
+    - WhatsApp icon with hover tooltip: "Chat with us on WhatsApp"
+    - Smooth scale animation on hover
+    - Pre-filled message for custom website inquiries
+    - Always visible and accessible across all pages
+  - **Responsive Improvements:**
+    - Trust badges resize properly on all screen sizes
+    - CTA buttons stack vertically on mobile, horizontal on tablet+
+    - Success metrics scale smoothly from mobile to desktop
+    - Optimized spacing and padding for all breakpoints
 - **Preview Badge & Demo Modal Enhancement (Nov 4, 2025):**
   - **Visible Preview Badge:** Added a prominent "Preview" badge in the top-right corner of each template card (blue button, always visible)
   - **Improved Demo Modal:** Fixed the demo preview functionality with proper modal open/close behavior
