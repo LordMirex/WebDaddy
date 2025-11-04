@@ -29,6 +29,17 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10.
 
 ## Recent Changes
+- **Preview Badge & Demo Modal Enhancement (Nov 4, 2025):**
+  - **Visible Preview Badge:** Added a prominent "Preview" badge in the top-right corner of each template card (blue button, always visible)
+  - **Improved Demo Modal:** Fixed the demo preview functionality with proper modal open/close behavior
+  - **Modal Features:**
+    - Full-screen responsive modal (90vh height, max-width 6xl)
+    - Click outside to close
+    - ESC key to close
+    - Clean header with template name
+    - Proper iframe loading for template demos
+  - **Dual Preview Access:** Users can click either the visible "Preview" badge or the hover overlay "Click to Preview" button
+  - **Better UX:** Preview badge makes it immediately clear that templates can be previewed without requiring hover
 - **Homepage Redesign & Simplification (Nov 4, 2025):**
   - **Hero Section:** Removed cloudy black overlay for cleaner, more professional appearance
   - **Navigation:** Removed "How It Works" links from desktop and mobile menus

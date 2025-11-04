@@ -196,13 +196,17 @@ $categories = array_unique(array_column($templates, 'category'));
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): ?>
                             <button onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')" 
+                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                Preview
+                            </button>
+                            <button onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')" 
                                     class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
-                                    Preview Demo
+                                    Click to Preview
                                 </span>
                             </button>
                             <?php endif; ?>
@@ -433,20 +437,20 @@ $categories = array_unique(array_column($templates, 'category'));
     </footer>
 
     <!-- Demo Modal -->
-    <div id="demoModal" class="fixed inset-0 z-50 hidden" x-data="{ show: false, url: '', title: '' }">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div @click="show = false" class="fixed inset-0 bg-black opacity-75"></div>
-            <div class="relative bg-white rounded-lg shadow-xl w-full h-screen max-w-full">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                    <h5 class="text-xl font-bold" x-text="title + ' - Demo'"></h5>
-                    <button @click="show = false; url = ''" class="text-gray-400 hover:text-gray-600">
+    <div id="demoModal" class="fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div onclick="closeDemo()" class="fixed inset-0 bg-black bg-opacity-75"></div>
+            <div class="relative bg-white rounded-lg shadow-xl w-full max-w-6xl" style="height: 90vh;">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h5 class="text-xl font-bold text-gray-900" id="demoTitle">Template Preview</h5>
+                    <button onclick="closeDemo()" class="text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
-                <div class="p-0 h-full">
-                    <iframe :src="url" frameborder="0" class="w-full h-full"></iframe>
+                <div class="p-0" style="height: calc(90vh - 73px);">
+                    <iframe id="demoFrame" src="" frameborder="0" class="w-full h-full"></iframe>
                 </div>
             </div>
         </div>
@@ -464,12 +468,33 @@ $categories = array_unique(array_column($templates, 'category'));
             });
         });
 
-        // Demo modal function
+        // Demo modal functions
         function openDemo(url, title) {
             const modal = document.getElementById('demoModal');
+            const iframe = document.getElementById('demoFrame');
+            const titleEl = document.getElementById('demoTitle');
+            
+            titleEl.textContent = title + ' - Preview';
+            iframe.src = url;
             modal.classList.remove('hidden');
-            Alpine.store('demo', { show: true, url: url, title: title });
+            document.body.style.overflow = 'hidden';
         }
+
+        function closeDemo() {
+            const modal = document.getElementById('demoModal');
+            const iframe = document.getElementById('demoFrame');
+            
+            modal.classList.add('hidden');
+            iframe.src = '';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDemo();
+            }
+        });
 
         // Navbar scroll effect
         const navbar = document.getElementById('mainNav');
