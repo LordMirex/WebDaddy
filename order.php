@@ -276,11 +276,11 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-6 sm:py-8">
+    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-4 sm:py-6 lg:py-8">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl mx-auto text-center">
-                <h1 class="text-2xl sm:text-3xl font-bold mb-1">Complete Your Order</h1>
-                <p class="text-sm sm:text-base text-white/90">One step away from launching your website</p>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-1">Complete Your Order</h1>
+                <p class="text-xs sm:text-sm lg:text-base text-white/90">One step away from launching your website</p>
             </div>
         </div>
     </header>
@@ -431,26 +431,26 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
             </div>
             
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 sticky top-24 overflow-hidden">
-                    <div class="p-6 sm:p-8">
-                        <h5 class="font-extrabold text-gray-900 mb-6">Order Summary</h5>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 lg:sticky lg:top-24 overflow-hidden">
+                    <div class="p-4 sm:p-6 lg:p-8">
+                        <h5 class="font-extrabold text-gray-900 mb-4 text-base sm:text-lg">Order Summary</h5>
                         
-                        <div class="mb-6">
+                        <div class="mb-4">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url']); ?>" 
                                  alt="<?php echo htmlspecialchars($template['name']); ?>" 
                                  class="w-full rounded-lg mb-3"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
-                            <h5 class="font-bold text-gray-900 mb-2"><?php echo htmlspecialchars($template['name']); ?></h5>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"><?php echo htmlspecialchars($template['category']); ?></span>
+                            <h5 class="font-bold text-gray-900 mb-2 text-sm sm:text-base"><?php echo htmlspecialchars($template['name']); ?></h5>
+                            <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"><?php echo htmlspecialchars($template['category']); ?></span>
                         </div>
                         
                         <?php if (!empty($features)): ?>
-                        <div class="mb-6">
-                            <h6 class="font-bold text-gray-900 mb-3">Includes:</h6>
-                            <ul class="space-y-2 text-sm">
+                        <div class="mb-4 hidden sm:block">
+                            <h6 class="font-bold text-gray-900 mb-3 text-sm">Includes:</h6>
+                            <ul class="space-y-2 text-xs sm:text-sm">
                                 <?php foreach (array_slice($features, 0, 4) as $feature): ?>
                                 <li class="flex items-start">
-                                    <svg class="w-5 h-5 text-green-500 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-500 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
                                     <span class="text-gray-700"><?php echo htmlspecialchars(trim($feature)); ?></span>
@@ -460,28 +460,28 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                         </div>
                         <?php endif; ?>
                         
-                        <div class="border-t border-gray-200 pt-4 mb-4"></div>
+                        <div class="border-t border-gray-200 pt-3 mb-3"></div>
                         
-                        <div class="flex justify-between mb-3 text-gray-700">
-                            <span>Template Price:</span>
-                            <strong><?php echo formatCurrency($originalPrice); ?></strong>
+                        <div class="flex justify-between mb-2 text-gray-700 text-xs sm:text-sm">
+                            <span class="truncate mr-2">Template Price:</span>
+                            <strong class="shrink-0"><?php echo formatCurrency($originalPrice); ?></strong>
                         </div>
 
                         <?php if ($hasAffiliate): ?>
-                            <div class="flex justify-between mb-3 text-green-600">
-                                <span>Affiliate Discount (<?php echo $affiliateDiscountPercent; ?>%):</span>
-                                <strong>-<?php echo formatCurrency($discountAmount); ?></strong>
+                            <div class="flex justify-between mb-2 text-green-600 text-xs sm:text-sm">
+                                <span class="truncate mr-2">Discount (<?php echo $affiliateDiscountPercent; ?>%):</span>
+                                <strong class="shrink-0">-<?php echo formatCurrency($discountAmount); ?></strong>
                             </div>
                         <?php endif; ?>
                         
-                        <div class="border-t border-gray-200 pt-4 mb-4"></div>
+                        <div class="border-t border-gray-200 pt-3 mb-3"></div>
                         
-                        <div class="flex justify-between items-center">
-                            <h5 class="font-extrabold text-gray-900">You Pay:</h5>
-                            <h4 class="text-2xl font-extrabold text-primary-600"><?php echo formatCurrency($discountedPrice); ?></h4>
+                        <div class="flex justify-between items-center flex-wrap gap-2">
+                            <h5 class="font-extrabold text-gray-900 text-sm sm:text-base">You Pay:</h5>
+                            <h4 class="text-xl sm:text-2xl font-extrabold text-primary-600"><?php echo formatCurrency($discountedPrice); ?></h4>
                         </div>
                         <?php if ($hasAffiliate): ?>
-                            <p class="text-sm text-green-600 text-right mt-1">Savings applied!</p>
+                            <p class="text-xs sm:text-sm text-green-600 text-right mt-1">Savings applied!</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -504,12 +504,17 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
             const code = affiliateInput.value.trim().toUpperCase();
             
             if (!code) {
+                showAffiliateError('Please enter a code');
                 return;
             }
             
+            // Clear previous error
+            hideAffiliateError();
+            
             // Show loading state
             applyBtn.disabled = true;
-            applyBtn.textContent = 'Applying...';
+            const originalText = applyBtn.textContent;
+            applyBtn.innerHTML = '<svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
             
             // Get CSRF token from the form
             const csrfToken = document.querySelector('input[name="csrf_token"]').value;
@@ -522,15 +527,55 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                 },
                 body: `csrf_token=${encodeURIComponent(csrfToken)}&affiliate_code=${encodeURIComponent(code)}&apply_affiliate=1`
             })
-            .then(() => {
-                // Reload to show the discount
-                window.location.reload();
+            .then(response => response.text())
+            .then(html => {
+                // Check if the response contains the success indicator (discount applied)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const hasDiscount = doc.querySelector('.text-green-600');
+                
+                if (hasDiscount) {
+                    // Success - reload to show the discount
+                    window.location.reload();
+                } else {
+                    // Invalid code
+                    showAffiliateError('Invalid code. Please check and try again.');
+                    applyBtn.disabled = false;
+                    applyBtn.innerHTML = originalText;
+                    affiliateInput.classList.add('border-red-500');
+                    affiliateInput.focus();
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
+                showAffiliateError('Something went wrong. Please try again.');
                 applyBtn.disabled = false;
-                applyBtn.textContent = 'Apply';
+                applyBtn.innerHTML = originalText;
             });
+        }
+        
+        function showAffiliateError(message) {
+            const affiliateInput = document.getElementById('affiliate_code');
+            affiliateInput.classList.add('border-red-500');
+            
+            let errorEl = document.getElementById('affiliateError');
+            if (!errorEl) {
+                errorEl = document.createElement('p');
+                errorEl.id = 'affiliateError';
+                errorEl.className = 'mt-1.5 text-xs text-red-600 font-medium';
+                document.getElementById('affiliateForm').appendChild(errorEl);
+            }
+            errorEl.textContent = message;
+        }
+        
+        function hideAffiliateError() {
+            const affiliateInput = document.getElementById('affiliate_code');
+            affiliateInput.classList.remove('border-red-500');
+            
+            const errorEl = document.getElementById('affiliateError');
+            if (errorEl) {
+                errorEl.remove();
+            }
         }
 
         // Order form submission handling
