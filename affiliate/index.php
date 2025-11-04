@@ -65,202 +65,247 @@ $pageTitle = 'Affiliate Dashboard';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
-    <p>Welcome back, <?php echo htmlspecialchars(getAffiliateName()); ?>!</p>
+<!-- Page Header -->
+<div class="mb-8">
+    <div class="flex items-center space-x-3 mb-2">
+        <div class="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-800 rounded-lg flex items-center justify-center shadow-lg">
+            <i class="bi bi-speedometer2 text-2xl text-gold"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="text-gray-600">Welcome back, <span class="font-semibold text-primary-700"><?php echo htmlspecialchars(getAffiliateName()); ?></span>!</p>
+        </div>
+    </div>
 </div>
 
+<!-- Announcements -->
 <?php if (!empty($announcements)): ?>
-<div class="row mb-4">
-    <div class="col-12">
-        <?php foreach ($announcements as $announcement): ?>
-        <div class="alert alert-<?php echo htmlspecialchars($announcement['type']); ?> alert-dismissible fade show" role="alert">
-            <h5 class="alert-heading">
-                <i class="bi bi-megaphone"></i> <?php echo htmlspecialchars($announcement['title']); ?>
-            </h5>
-            <p class="mb-0"><?php echo nl2br(htmlspecialchars($announcement['message'])); ?></p>
-            <hr>
-            <small class="text-muted">
-                <i class="bi bi-clock"></i> <?php echo date('M d, Y \a\t g:i A', strtotime($announcement['created_at'])); ?>
-            </small>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="mb-6 space-y-4 bg-green-50 bg-yellow-50 bg-red-50 bg-blue-50 border-green-500 border-yellow-500 border-red-500 border-blue-500 text-green-600 text-yellow-600 text-red-600 text-blue-600 hidden">
+    <!-- Safelist for Tailwind CDN -->
+</div>
+<div class="mb-6 space-y-4">
+    <?php foreach ($announcements as $announcement): ?>
+    <div x-data="{ open: true }" x-show="open" class="bg-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-50 border-l-4 border-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-500 p-6 rounded-lg shadow-sm relative">
+        <button @click="open = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="flex items-start space-x-3">
+            <i class="bi bi-megaphone text-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-600 text-2xl mt-1"></i>
+            <div class="flex-1 pr-8">
+                <h5 class="font-bold text-gray-900 mb-2 text-lg">
+                    <?php echo htmlspecialchars($announcement['title']); ?>
+                </h5>
+                <p class="text-gray-700 mb-3"><?php echo nl2br(htmlspecialchars($announcement['message'])); ?></p>
+                <p class="text-sm text-gray-500 flex items-center">
+                    <i class="bi bi-clock mr-2"></i>
+                    <?php echo date('M d, Y \a\t g:i A', strtotime($announcement['created_at'])); ?>
+                </p>
+            </div>
         </div>
-        <?php endforeach; ?>
     </div>
+    <?php endforeach; ?>
 </div>
 <?php endif; ?>
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card border-primary">
-            <div class="card-body">
-                <h5 class="card-title">
-                    <i class="bi bi-link-45deg"></i> Your Referral Link
-                </h5>
-                <div class="input-group">
-                    <input type="text" 
-                           class="form-control form-control-lg" 
-                           id="referralLink" 
-                           value="<?php echo htmlspecialchars($referralLink); ?>" 
-                           readonly>
-                    <button class="btn btn-primary" type="button" onclick="copyReferralLink(event)">
-                        <i class="bi bi-clipboard"></i> Copy
-                    </button>
+<!-- Referral Link Card -->
+<div class="bg-gradient-to-r from-primary-600 to-primary-800 rounded-xl shadow-xl p-6 mb-6">
+    <div class="flex items-center space-x-3 mb-4">
+        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+            <i class="bi bi-link-45deg text-2xl text-gold"></i>
+        </div>
+        <h5 class="text-xl font-bold text-white">Your Referral Link</h5>
+    </div>
+    
+    <div x-data="{ copied: false }" class="flex flex-col sm:flex-row gap-3">
+        <input type="text" 
+               id="referralLink" 
+               value="<?php echo htmlspecialchars($referralLink); ?>" 
+               readonly
+               class="flex-1 px-4 py-3 bg-white border-2 border-white/30 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-gold focus:border-gold">
+        <button @click="
+            navigator.clipboard.writeText('<?php echo htmlspecialchars($referralLink); ?>').then(() => {
+                copied = true;
+                setTimeout(() => copied = false, 2000);
+            })
+        " 
+                x-bind:class="{ 'bg-green-500 hover:bg-green-600': copied, 'bg-white hover:bg-gray-100': !copied }"
+                class="px-6 py-3 bg-white hover:bg-gray-100 bg-green-500 hover:bg-green-600 text-primary-900 font-bold rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl flex items-center justify-center space-x-2 whitespace-nowrap">
+            <i x-bind:class="{ 'bi-check-lg': copied, 'bi-clipboard': !copied }" class="text-lg bi-clipboard bi-check-lg"></i>
+            <span x-text="copied ? 'Copied!' : 'Copy'">Copy</span>
+        </button>
+    </div>
+    
+    <p class="text-white/90 text-sm mt-3">
+        <i class="bi bi-person-badge mr-2"></i>
+        Your Affiliate Code: <strong class="text-gold"><?php echo htmlspecialchars($affiliateCode); ?></strong>
+    </p>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Total Clicks -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-blue-500">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="bi bi-mouse text-2xl text-blue-600"></i>
+            </div>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-600 mb-1">Total Clicks</h6>
+        <h2 class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['total_clicks']); ?></h2>
+    </div>
+    
+    <!-- Total Sales -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="bi bi-cart-check text-2xl text-green-600"></i>
+            </div>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-600 mb-1">Total Sales</h6>
+        <h2 class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['total_sales']); ?></h2>
+    </div>
+    
+    <!-- Pending Commission -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i class="bi bi-hourglass-split text-2xl text-yellow-600"></i>
+            </div>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-600 mb-1">Pending</h6>
+        <h2 class="text-3xl font-bold text-gray-900"><?php echo formatCurrency($stats['commission_pending']); ?></h2>
+    </div>
+    
+    <!-- Paid Commission -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-purple-500">
+        <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="bi bi-check-circle text-2xl text-purple-600"></i>
+            </div>
+        </div>
+        <h6 class="text-sm font-semibold text-gray-600 mb-1">Paid</h6>
+        <h2 class="text-3xl font-bold text-gray-900"><?php echo formatCurrency($stats['commission_paid']); ?></h2>
+    </div>
+</div>
+
+<!-- Commission Summary -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex items-center space-x-3 mb-6">
+        <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-bar-chart text-xl text-primary-600"></i>
+        </div>
+        <h5 class="text-xl font-bold text-gray-900">Commission Summary</h5>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+            <h6 class="text-sm font-semibold text-gray-600 mb-2">Total Earned</h6>
+            <h3 class="text-3xl font-bold text-green-600"><?php echo formatCurrency($stats['commission_earned']); ?></h3>
+        </div>
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+            <h6 class="text-sm font-semibold text-gray-600 mb-2">Pending Commission</h6>
+            <h3 class="text-3xl font-bold text-primary-600"><?php echo formatCurrency($stats['commission_pending']); ?></h3>
+        </div>
+        <div class="text-center p-4 bg-purple-50 rounded-lg">
+            <h6 class="text-sm font-semibold text-gray-600 mb-2">Total Paid Out</h6>
+            <h3 class="text-3xl font-bold text-purple-600"><?php echo formatCurrency($stats['commission_paid']); ?></h3>
+        </div>
+    </div>
+    
+    <?php if ($stats['commission_pending'] > 0): ?>
+    <div class="text-center">
+        <a href="/affiliate/withdrawals.php" class="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+            <i class="bi bi-wallet2 text-xl"></i>
+            <span>Request Withdrawal</span>
+        </a>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Recent Sales -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                <i class="bi bi-clock-history text-xl text-primary-600"></i>
+            </div>
+            <h5 class="text-xl font-bold text-gray-900">Recent Sales</h5>
+        </div>
+    </div>
+    
+    <div class="p-6">
+        <?php if (empty($recentSales)): ?>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                <div class="flex items-center">
+                    <i class="bi bi-info-circle text-blue-600 text-xl mr-3"></i>
+                    <p class="text-blue-700 font-medium">No sales yet. Share your referral link to start earning commissions!</p>
                 </div>
-                <small class="text-muted">Your Affiliate Code: <strong><?php echo htmlspecialchars($affiliateCode); ?></strong></small>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="info-card info-info">
-            <h6>
-                <i class="bi bi-mouse"></i> Total Clicks
-            </h6>
-            <h2><?php echo number_format($stats['total_clicks']); ?></h2>
-        </div>
-    </div>
-    
-    <div class="col-6 col-md-3">
-        <div class="info-card info-success">
-            <h6>
-                <i class="bi bi-cart-check"></i> Total Sales
-            </h6>
-            <h2><?php echo number_format($stats['total_sales']); ?></h2>
-        </div>
-    </div>
-    
-    <div class="col-6 col-md-3">
-        <div class="info-card info-primary">
-            <h6>
-                <i class="bi bi-hourglass-split"></i> Pending
-            </h6>
-            <h2><?php echo formatCurrency($stats['commission_pending']); ?></h2>
-        </div>
-    </div>
-    
-    <div class="col-6 col-md-3">
-        <div class="info-card info-warning">
-            <h6>
-                <i class="bi bi-check-circle"></i> Paid
-            </h6>
-            <h2><?php echo formatCurrency($stats['commission_paid']); ?></h2>
-        </div>
-    </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">
-                    <i class="bi bi-bar-chart"></i> Commission Summary
-                </h5>
+        <?php else: ?>
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Template</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <?php foreach ($recentSales as $sale): ?>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">
+                                <?php echo date('M d, Y', strtotime($sale['payment_confirmed_at'])); ?>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($sale['customer_name']); ?></div>
+                                <div class="text-sm text-gray-500"><?php echo htmlspecialchars($sale['customer_email']); ?></div>
+                            </td>
+                            <td class="px-4 py-4 text-sm text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></td>
+                            <td class="px-4 py-4 text-sm font-semibold text-gray-900"><?php echo formatCurrency($sale['amount_paid']); ?></td>
+                            <td class="px-4 py-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                                    <?php echo formatCurrency($sale['commission_amount']); ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 text-center mb-3">
-                        <h6 class="text-muted">Total Earned</h6>
-                        <h3 class="text-success"><?php echo formatCurrency($stats['commission_earned']); ?></h3>
+            
+            <!-- Mobile Cards -->
+            <div class="md:hidden space-y-4">
+                <?php foreach ($recentSales as $sale): ?>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($sale['customer_name']); ?></div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                            <?php echo formatCurrency($sale['commission_amount']); ?>
+                        </span>
                     </div>
-                    <div class="col-md-4 text-center mb-3">
-                        <h6 class="text-muted">Pending Commission</h6>
-                        <h3 class="text-primary"><?php echo formatCurrency($stats['commission_pending']); ?></h3>
-                    </div>
-                    <div class="col-md-4 text-center mb-3">
-                        <h6 class="text-muted">Total Paid Out</h6>
-                        <h3 class="text-info"><?php echo formatCurrency($stats['commission_paid']); ?></h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Date:</span>
+                            <span class="text-gray-900 font-medium"><?php echo date('M d, Y', strtotime($sale['payment_confirmed_at'])); ?></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Template:</span>
+                            <span class="text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Amount:</span>
+                            <span class="text-gray-900 font-semibold"><?php echo formatCurrency($sale['amount_paid']); ?></span>
+                        </div>
                     </div>
                 </div>
-                <?php if ($stats['commission_pending'] > 0): ?>
-                    <div class="text-center mt-3">
-                        <a href="/affiliate/withdrawals.php" class="btn btn-success btn-lg">
-                            <i class="bi bi-wallet2"></i> Request Withdrawal
-                        </a>
-                    </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 </div>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">
-                    <i class="bi bi-clock-history"></i> Recent Sales
-                </h5>
-            </div>
-            <div class="card-body">
-                <?php if (empty($recentSales)): ?>
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No sales yet. Share your referral link to start earning commissions!
-                    </div>
-                <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Customer</th>
-                                    <th>Template</th>
-                                    <th>Amount</th>
-                                    <th>Commission</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($recentSales as $sale): ?>
-                                    <tr>
-                                        <td>
-                                            <small><?php echo date('M d, Y', strtotime($sale['payment_confirmed_at'])); ?></small>
-                                        </td>
-                                        <td>
-                                            <?php echo htmlspecialchars($sale['customer_name']); ?><br>
-                                            <small class="text-muted"><?php echo htmlspecialchars($sale['customer_email']); ?></small>
-                                        </td>
-                                        <td><?php echo htmlspecialchars($sale['template_name']); ?></td>
-                                        <td><?php echo formatCurrency($sale['amount_paid']); ?></td>
-                                        <td>
-                                            <span class="badge bg-success">
-                                                <?php echo formatCurrency($sale['commission_amount']); ?>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function copyReferralLink(event) {
-    const linkInput = document.getElementById('referralLink');
-    linkInput.select();
-    linkInput.setSelectionRange(0, 99999);
-    
-    navigator.clipboard.writeText(linkInput.value).then(function() {
-        const btn = event.target.closest('button');
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
-        btn.classList.remove('btn-primary');
-        btn.classList.add('btn-success');
-        
-        setTimeout(function() {
-            btn.innerHTML = originalHTML;
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-primary');
-        }, 2000);
-    }).catch(function(err) {
-        alert('Failed to copy: ' + err);
-    });
-}
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
