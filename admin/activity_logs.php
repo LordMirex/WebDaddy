@@ -82,18 +82,20 @@ $users = $db->query("
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1><i class="bi bi-clock-history"></i> Activity Logs</h1>
-    <p class="text-muted">System activity and audit trail</p>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-clock-history text-primary-600"></i> Activity Logs
+    </h1>
+    <p class="text-gray-600 mt-2">System activity and audit trail</p>
 </div>
 
 <!-- Filters -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" action="" class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Action Type</label>
-                <select name="action" class="form-select">
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+    <div class="p-6">
+        <form method="GET" action="" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Action Type</label>
+                <select name="action" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
                     <option value="">All Actions</option>
                     <?php foreach ($actionTypes as $type): ?>
                     <option value="<?php echo htmlspecialchars($type); ?>" <?php echo $actionFilter === $type ? 'selected' : ''; ?>>
@@ -103,9 +105,9 @@ require_once __DIR__ . '/includes/header.php';
                 </select>
             </div>
             
-            <div class="col-md-3">
-                <label class="form-label">User</label>
-                <select name="user" class="form-select">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">User</label>
+                <select name="user" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
                     <option value="">All Users</option>
                     <?php foreach ($users as $user): ?>
                     <option value="<?php echo $user['id']; ?>" <?php echo $userFilter == $user['id'] ? 'selected' : ''; ?>>
@@ -115,17 +117,17 @@ require_once __DIR__ . '/includes/header.php';
                 </select>
             </div>
             
-            <div class="col-md-3">
-                <label class="form-label">Date</label>
-                <input type="date" name="date" class="form-control" value="<?php echo htmlspecialchars($dateFilter); ?>">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Date</label>
+                <input type="date" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($dateFilter); ?>">
             </div>
             
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
+            <div class="flex items-end gap-2">
+                <button type="submit" class="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
                     <i class="bi bi-filter"></i> Filter
                 </button>
-                <a href="/admin/activity_logs.php" class="btn btn-secondary">
-                    <i class="bi bi-x-circle"></i> Reset
+                <a href="/admin/activity_logs.php" class="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <i class="bi bi-x-circle"></i>
                 </a>
             </div>
         </form>
@@ -133,107 +135,93 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Stats -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Total Logs</h6>
-                <div class="h3 mb-0"><?php echo number_format($totalLogs); ?></div>
-            </div>
-        </div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Total Logs</h6>
+        <div class="text-3xl font-bold text-gray-900"><?php echo number_format($totalLogs); ?></div>
     </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Today's Activities</h6>
-                <?php
-                $todayCount = $db->query("SELECT COUNT(*) FROM activity_logs WHERE DATE(datetime(created_at)) = DATE('now')")->fetchColumn();
-                ?>
-                <div class="h3 mb-0"><?php echo number_format($todayCount); ?></div>
-            </div>
-        </div>
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Today's Activities</h6>
+        <?php
+        $todayCount = $db->query("SELECT COUNT(*) FROM activity_logs WHERE DATE(datetime(created_at)) = DATE('now')")->fetchColumn();
+        ?>
+        <div class="text-3xl font-bold text-gray-900"><?php echo number_format($todayCount); ?></div>
     </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Unique Users</h6>
-                <?php
-                $uniqueUsers = $db->query("SELECT COUNT(DISTINCT user_id) FROM activity_logs WHERE user_id IS NOT NULL")->fetchColumn();
-                ?>
-                <div class="h3 mb-0"><?php echo number_format($uniqueUsers); ?></div>
-            </div>
-        </div>
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Unique Users</h6>
+        <?php
+        $uniqueUsers = $db->query("SELECT COUNT(DISTINCT user_id) FROM activity_logs WHERE user_id IS NOT NULL")->fetchColumn();
+        ?>
+        <div class="text-3xl font-bold text-gray-900"><?php echo number_format($uniqueUsers); ?></div>
     </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2">Action Types</h6>
-                <div class="h3 mb-0"><?php echo count($actionTypes); ?></div>
-            </div>
-        </div>
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Action Types</h6>
+        <div class="text-3xl font-bold text-gray-900"><?php echo count($actionTypes); ?></div>
     </div>
 </div>
 
 <!-- Logs Table -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Activity Logs (<?php echo number_format($totalLogs); ?> total)</h5>
+<div class="bg-white rounded-xl shadow-md border border-gray-100">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-list-ul text-primary-600"></i> Activity Logs (<?php echo number_format($totalLogs); ?> total)
+        </h5>
     </div>
-    <div class="card-body p-0">
+    <div>
         <?php if (empty($logs)): ?>
-        <div class="p-4 text-center text-muted">
-            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-            <p class="mt-2">No activity logs found</p>
+        <div class="p-12 text-center text-gray-400">
+            <i class="bi bi-inbox text-8xl opacity-30"></i>
+            <p class="mt-4 text-gray-500">No activity logs found</p>
         </div>
         <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
+        <div class="overflow-x-auto">
+            <table class="w-full">
                 <thead>
-                    <tr>
-                        <th style="width: 60px;">ID</th>
-                        <th style="width: 180px;">Timestamp</th>
-                        <th style="width: 150px;">Action Type</th>
-                        <th style="width: 200px;">User</th>
-                        <th>Details</th>
-                        <th style="width: 120px;">IP Address</th>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm w-16">ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Timestamp</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Action Type</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">User</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Details</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">IP Address</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     <?php foreach ($logs as $log): ?>
-                    <tr>
-                        <td><small class="text-muted">#<?php echo $log['id']; ?></small></td>
-                        <td>
-                            <small>
-                                <?php echo date('M d, Y', strtotime($log['created_at'])); ?><br>
-                                <span class="text-muted"><?php echo date('h:i:s A', strtotime($log['created_at'])); ?></span>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-3 px-4"><small class="text-gray-500">#<?php echo $log['id']; ?></small></td>
+                        <td class="py-3 px-4">
+                            <small class="block text-gray-900">
+                                <?php echo date('M d, Y', strtotime($log['created_at'])); ?>
                             </small>
+                            <small class="text-gray-500"><?php echo date('h:i:s A', strtotime($log['created_at'])); ?></small>
                         </td>
-                        <td>
+                        <td class="py-3 px-4">
                             <?php
-                            $badgeClass = 'bg-secondary';
-                            if (strpos($log['action'], 'login') !== false) $badgeClass = 'bg-success';
-                            if (strpos($log['action'], 'logout') !== false) $badgeClass = 'bg-warning';
-                            if (strpos($log['action'], 'delete') !== false || strpos($log['action'], 'reject') !== false) $badgeClass = 'bg-danger';
-                            if (strpos($log['action'], 'create') !== false || strpos($log['action'], 'register') !== false) $badgeClass = 'bg-primary';
-                            if (strpos($log['action'], 'update') !== false || strpos($log['action'], 'edit') !== false) $badgeClass = 'bg-info';
+                            $badgeClass = 'bg-gray-100 text-gray-800';
+                            if (strpos($log['action'], 'login') !== false) $badgeClass = 'bg-green-100 text-green-800';
+                            if (strpos($log['action'], 'logout') !== false) $badgeClass = 'bg-yellow-100 text-yellow-800';
+                            if (strpos($log['action'], 'delete') !== false || strpos($log['action'], 'reject') !== false) $badgeClass = 'bg-red-100 text-red-800';
+                            if (strpos($log['action'], 'create') !== false || strpos($log['action'], 'register') !== false) $badgeClass = 'bg-blue-100 text-blue-800';
+                            if (strpos($log['action'], 'update') !== false || strpos($log['action'], 'edit') !== false) $badgeClass = 'bg-cyan-100 text-cyan-800';
                             ?>
-                            <span class="badge <?php echo $badgeClass; ?>">
+                            <span class="px-2 py-1 <?php echo $badgeClass; ?> rounded-full text-xs font-semibold">
                                 <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $log['action']))); ?>
                             </span>
                         </td>
-                        <td>
+                        <td class="py-3 px-4">
                             <?php if ($log['user_name']): ?>
-                            <strong><?php echo htmlspecialchars($log['user_name']); ?></strong><br>
-                            <small class="text-muted"><?php echo htmlspecialchars($log['user_email']); ?></small>
+                            <strong class="block text-gray-900"><?php echo htmlspecialchars($log['user_name']); ?></strong>
+                            <small class="text-gray-500"><?php echo htmlspecialchars($log['user_email']); ?></small>
                             <?php else: ?>
-                            <span class="text-muted">System</span>
+                            <span class="text-gray-500 italic">System</span>
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <small><?php echo htmlspecialchars($log['details'] ?: '-'); ?></small>
+                        <td class="py-3 px-4">
+                            <small class="text-gray-700"><?php echo htmlspecialchars($log['details'] ?: '-'); ?></small>
                         </td>
-                        <td>
-                            <small class="text-muted font-monospace">
+                        <td class="py-3 px-4">
+                            <small class="text-gray-500 font-mono text-xs">
                                 <?php echo htmlspecialchars($log['ip_address'] ?: '-'); ?>
                             </small>
                         </td>
@@ -246,12 +234,12 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     
     <?php if ($totalPages > 1): ?>
-    <div class="card-footer">
+    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
         <nav>
-            <ul class="pagination pagination-sm mb-0 justify-content-center">
+            <ul class="flex items-center justify-center gap-2">
                 <?php if ($page > 1): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page - 1; ?><?php echo $actionFilter ? '&action=' . urlencode($actionFilter) : ''; ?><?php echo $userFilter ? '&user=' . urlencode($userFilter) : ''; ?><?php echo $dateFilter ? '&date=' . urlencode($dateFilter) : ''; ?>">
+                <li>
+                    <a class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium" href="?page=<?php echo $page - 1; ?><?php echo $actionFilter ? '&action=' . urlencode($actionFilter) : ''; ?><?php echo $userFilter ? '&user=' . urlencode($userFilter) : ''; ?><?php echo $dateFilter ? '&date=' . urlencode($dateFilter) : ''; ?>">
                         <i class="bi bi-chevron-left"></i> Previous
                     </a>
                 </li>
@@ -263,23 +251,23 @@ require_once __DIR__ . '/includes/header.php';
                 
                 for ($i = $start; $i <= $end; $i++):
                 ?>
-                <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?><?php echo $actionFilter ? '&action=' . urlencode($actionFilter) : ''; ?><?php echo $userFilter ? '&user=' . urlencode($userFilter) : ''; ?><?php echo $dateFilter ? '&date=' . urlencode($dateFilter) : ''; ?>">
+                <li>
+                    <a class="px-4 py-2 border rounded-lg font-medium transition-colors <?php echo $i === $page ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'; ?>" href="?page=<?php echo $i; ?><?php echo $actionFilter ? '&action=' . urlencode($actionFilter) : ''; ?><?php echo $userFilter ? '&user=' . urlencode($userFilter) : ''; ?><?php echo $dateFilter ? '&date=' . urlencode($dateFilter) : ''; ?>">
                         <?php echo $i; ?>
                     </a>
                 </li>
                 <?php endfor; ?>
                 
                 <?php if ($page < $totalPages): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page + 1; ?><?php echo $actionFilter ? '&action=' . urlencode($actionFilter) : ''; ?><?php echo $userFilter ? '&user=' . urlencode($userFilter) : ''; ?><?php echo $dateFilter ? '&date=' . urlencode($dateFilter) : ''; ?>">
+                <li>
+                    <a class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium" href="?page=<?php echo $page + 1; ?><?php echo $actionFilter ? '&action=' . urlencode($actionFilter) : ''; ?><?php echo $userFilter ? '&user=' . urlencode($userFilter) : ''; ?><?php echo $dateFilter ? '&date=' . urlencode($dateFilter) : ''; ?>">
                         Next <i class="bi bi-chevron-right"></i>
                     </a>
                 </li>
                 <?php endif; ?>
             </ul>
         </nav>
-        <div class="text-center text-muted mt-2">
+        <div class="text-center text-gray-500 mt-3">
             <small>Page <?php echo $page; ?> of <?php echo $totalPages; ?> (<?php echo number_format($totalLogs); ?> logs)</small>
         </div>
     </div>

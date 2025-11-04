@@ -59,101 +59,141 @@ $affiliates = $db->query("
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1><i class="bi bi-envelope"></i> Email Affiliate</h1>
-    <p class="text-muted">Send custom email to an affiliate</p>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-envelope text-primary-600"></i> Email Affiliate
+    </h1>
+    <p class="text-gray-600 mt-2">Send custom email to an affiliate</p>
 </div>
 
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <?php if ($success): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle"></i> <?php echo $success; ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="max-w-4xl mx-auto">
+    <?php if ($success): ?>
+    <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-check-circle text-xl"></i>
+            <span><?php echo $success; ?></span>
         </div>
-        <?php endif; ?>
-        
-        <?php if ($error): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle"></i> <?php echo $error; ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <button @click="show = false" class="text-green-700 hover:text-green-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <?php endif; ?>
+    
+    <?php if ($error): ?>
+    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-xl"></i>
+            <span><?php echo $error; ?></span>
         </div>
-        <?php endif; ?>
-        
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-envelope-fill"></i> Compose Email</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label for="affiliate_id" class="form-label">Select Affiliate <span class="text-danger">*</span></label>
-                        <select class="form-select" id="affiliate_id" name="affiliate_id" required>
-                            <option value="">-- Choose Affiliate --</option>
-                            <?php foreach ($affiliates as $aff): ?>
-                            <option value="<?php echo $aff['id']; ?>">
-                                <?php echo htmlspecialchars($aff['name']); ?> 
-                                (<?php echo htmlspecialchars($aff['email']); ?>) 
-                                - Code: <?php echo htmlspecialchars($aff['code']); ?>
-                                <?php if ($aff['status'] !== 'active'): ?>
-                                    [<?php echo strtoupper($aff['status']); ?>]
-                                <?php endif; ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="subject" class="form-label">Email Subject <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="subject" name="subject" required placeholder="Enter email subject">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
-                        <div id="editor" style="min-height: 300px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
-                        <textarea id="message" name="message" style="display:none;"></textarea>
-                        <small class="text-muted">Use the editor toolbar to format your message with headings, bold, lists, links, etc.</small>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> <strong>Note:</strong> The email will be sent using the professional WebDaddy template with your custom message.
-                    </div>
-                    
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="/admin/affiliates.php" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Back
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-send"></i> Send Email
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <button @click="show = false" class="text-red-700 hover:text-red-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <?php endif; ?>
+    
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-envelope-fill text-primary-600"></i> Compose Email
+            </h5>
         </div>
-        
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-lightbulb"></i> Email Template Features</h6>
-            </div>
-            <div class="card-body">
-                <p class="mb-2"><strong>Your email will include:</strong></p>
-                <ul class="small mb-3">
-                    <li><strong>Professional Header:</strong> Royal blue gradient with crown icon and WebDaddy branding</li>
-                    <li><strong>Personalized Greeting:</strong> Affiliate's name prominently displayed</li>
-                    <li><strong>Your Custom Content:</strong> Beautifully formatted with gold accent border</li>
-                    <li><strong>Call-to-Action:</strong> Button linking to affiliate dashboard</li>
-                    <li><strong>Quick Tip Section:</strong> Helpful reminder about sharing referral links</li>
-                    <li><strong>Contact Information:</strong> WhatsApp support link</li>
-                    <li><strong>Professional Footer:</strong> Links to Home, Affiliate Portal, and Support</li>
-                </ul>
-                <div class="alert alert-warning mb-0">
-                    <i class="bi bi-palette"></i> <strong>Formatting Tips:</strong>
-                    <ul class="small mb-0 mt-2">
-                        <li>Use <strong>headings</strong> to organize content</li>
-                        <li>Use <strong>bold</strong> and <em>italic</em> for emphasis</li>
-                        <li>Create bullet points or numbered lists for clarity</li>
-                        <li>Add links to important resources</li>
-                    </ul>
+        <div class="p-6">
+            <form method="POST" action="">
+                <div class="mb-5">
+                    <label for="affiliate_id" class="block text-sm font-semibold text-gray-700 mb-2">Select Affiliate <span class="text-red-600">*</span></label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" id="affiliate_id" name="affiliate_id" required>
+                        <option value="">-- Choose Affiliate --</option>
+                        <?php foreach ($affiliates as $aff): ?>
+                        <option value="<?php echo $aff['id']; ?>">
+                            <?php echo htmlspecialchars($aff['name']); ?> 
+                            (<?php echo htmlspecialchars($aff['email']); ?>) 
+                            - Code: <?php echo htmlspecialchars($aff['code']); ?>
+                            <?php if ($aff['status'] !== 'active'): ?>
+                                [<?php echo strtoupper($aff['status']); ?>]
+                            <?php endif; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="mb-5">
+                    <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Email Subject <span class="text-red-600">*</span></label>
+                    <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" id="subject" name="subject" required placeholder="Enter email subject">
+                </div>
+                
+                <div class="mb-5">
+                    <label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Message <span class="text-red-600">*</span></label>
+                    <div id="editor" style="min-height: 300px; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem;"></div>
+                    <textarea id="message" name="message" style="display:none;"></textarea>
+                    <small class="text-gray-500 text-sm">Use the editor toolbar to format your message with headings, bold, lists, links, etc.</small>
+                </div>
+                
+                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
+                    <i class="bi bi-info-circle"></i> <strong>Note:</strong> The email will be sent using the professional WebDaddy template with your custom message.
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-3 md:justify-end">
+                    <a href="/admin/affiliates.php" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors text-center">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-send"></i> Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 mt-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h6 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-lightbulb text-yellow-500"></i> Email Template Features
+            </h6>
+        </div>
+        <div class="p-6">
+            <p class="mb-3 font-semibold text-gray-900">Your email will include:</p>
+            <ul class="space-y-2 text-sm text-gray-700 mb-4">
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Professional Header:</strong> Royal blue gradient with crown icon and WebDaddy branding</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Personalized Greeting:</strong> Affiliate's name prominently displayed</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Your Custom Content:</strong> Beautifully formatted with gold accent border</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Call-to-Action:</strong> Button linking to affiliate dashboard</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Quick Tip Section:</strong> Helpful reminder about sharing referral links</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Contact Information:</strong> WhatsApp support link</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i class="bi bi-check-circle text-green-600 mt-0.5"></i>
+                    <span><strong>Professional Footer:</strong> Links to Home, Affiliate Portal, and Support</span>
+                </li>
+            </ul>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg">
+                <div class="flex items-start gap-3">
+                    <i class="bi bi-palette text-xl mt-0.5"></i>
+                    <div>
+                        <strong class="font-semibold">Formatting Tips:</strong>
+                        <ul class="text-sm mt-2 space-y-1">
+                            <li>• Use <strong>headings</strong> to organize content</li>
+                            <li>• Use <strong>bold</strong> and <em>italic</em> for emphasis</li>
+                            <li>• Create bullet points or numbered lists for clarity</li>
+                            <li>• Add links to important resources</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
