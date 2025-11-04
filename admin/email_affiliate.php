@@ -37,8 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$affiliate) {
             $error = 'Affiliate not found.';
         } else {
-            // Send email
-            $message = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
+            // Send email with HTML content (sanitization handled in mailer function)
             if (sendCustomEmailToAffiliate($affiliate['name'], $affiliate['email'], $subject, $message)) {
                 $success = 'Email sent successfully to ' . htmlspecialchars($affiliate['name']) . '!';
                 logActivity('email_sent', "Admin sent email to affiliate: {$affiliate['email']}", getAdminId());
@@ -111,8 +110,9 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <div class="mb-3">
                         <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="message" name="message" rows="10" required placeholder="Type your message here..."></textarea>
-                        <small class="text-muted">The message will be formatted as HTML automatically.</small>
+                        <div id="editor" style="min-height: 300px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
+                        <textarea id="message" name="message" style="display:none;" required></textarea>
+                        <small class="text-muted">Use the editor toolbar to format your message with headings, bold, lists, links, etc.</small>
                     </div>
                     
                     <div class="alert alert-info">
@@ -133,20 +133,74 @@ require_once __DIR__ . '/includes/header.php';
         
         <div class="card mt-4">
             <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Email Preview</h6>
+                <h6 class="mb-0"><i class="bi bi-lightbulb"></i> Email Template Features</h6>
             </div>
             <div class="card-body">
-                <p class="mb-2"><strong>The email will include:</strong></p>
-                <ul class="small">
-                    <li>Professional WebDaddy header with logo</li>
-                    <li>Personalized greeting with affiliate's name</li>
-                    <li>Your custom subject and message</li>
-                    <li>Contact information and WhatsApp link</li>
-                    <li>Professional footer with links</li>
+                <p class="mb-2"><strong>Your email will include:</strong></p>
+                <ul class="small mb-3">
+                    <li><strong>Professional Header:</strong> Royal blue gradient with crown icon and WebDaddy branding</li>
+                    <li><strong>Personalized Greeting:</strong> Affiliate's name prominently displayed</li>
+                    <li><strong>Your Custom Content:</strong> Beautifully formatted with gold accent border</li>
+                    <li><strong>Call-to-Action:</strong> Button linking to affiliate dashboard</li>
+                    <li><strong>Quick Tip Section:</strong> Helpful reminder about sharing referral links</li>
+                    <li><strong>Contact Information:</strong> WhatsApp support link</li>
+                    <li><strong>Professional Footer:</strong> Links to Home, Affiliate Portal, and Support</li>
                 </ul>
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-palette"></i> <strong>Formatting Tips:</strong>
+                    <ul class="small mb-0 mt-2">
+                        <li>Use <strong>headings</strong> to organize content</li>
+                        <li>Use <strong>bold</strong> and <em>italic</em> for emphasis</li>
+                        <li>Create bullet points or numbered lists for clarity</li>
+                        <li>Add links to important resources</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Quill Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    // Initialize Quill editor
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Type your message here...',
+        modules: {
+            toolbar: [
+                [{ 'header': [2, 3, 4, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'align': [] }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Set editor font styling
+    var editorContainer = document.querySelector('#editor .ql-editor');
+    editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+    editorContainer.style.fontSize = '15px';
+    editorContainer.style.lineHeight = '1.6';
+    editorContainer.style.color = '#374151';
+    editorContainer.style.minHeight = '250px';
+
+    // Sync Quill content to hidden textarea before form submission
+    var form = document.querySelector('form');
+    form.onsubmit = function() {
+        var messageField = document.querySelector('#message');
+        messageField.value = quill.root.innerHTML;
+        
+        // Validate that content exists
+        if (quill.getText().trim().length === 0) {
+            alert('Please enter a message before sending.');
+            return false;
+        }
+        return true;
+    };
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

@@ -355,12 +355,157 @@ HTML;
  * Send custom email to affiliate (from admin panel)
  */
 function sendCustomEmailToAffiliate($affiliateName, $affiliateEmail, $subject, $message) {
-    $content = <<<HTML
-<div style="color:#374151; line-height:1.6;">
+    // Sanitize HTML content - remove dangerous attributes while preserving formatting
+    $message = sanitizeEmailHtml($message);
+    
+    // Apply professional styling to the custom message
+    $styledMessage = <<<HTML
+<div style="color:#374151; line-height:1.8; font-size:15px;">
     {$message}
 </div>
 HTML;
     
-    $emailBody = createEmailTemplate($subject, $content, $affiliateName);
+    // Use the affiliate-specific template with crown icon and enhanced styling
+    $emailBody = createAffiliateEmailTemplate($subject, $styledMessage, $affiliateName);
     return sendEmail($affiliateEmail, $subject, $emailBody);
+}
+
+/**
+ * Sanitize HTML content for emails - removes dangerous tags and attributes
+ */
+function sanitizeEmailHtml($html) {
+    // First, strip all tags except safe formatting ones
+    $html = strip_tags($html, '<p><br><strong><b><em><i><u><h2><h3><h4><ul><ol><li><a><span><div>');
+    
+    // Remove all event handler attributes (onclick, onload, onerror, etc.)
+    $html = preg_replace('/<([a-z][a-z0-9]*)\s+[^>]*?(on\w+\s*=\s*["\'][^"\']*["\'])/i', '<$1>', $html);
+    $html = preg_replace('/<([a-z][a-z0-9]*)\s+[^>]*?(on\w+\s*=\s*\w+)/i', '<$1>', $html);
+    
+    // Sanitize all href attributes to remove dangerous protocols
+    $html = preg_replace_callback(
+        '/<a\s+([^>]*href\s*=\s*["\'])([^"\']*)(["\'[^>]*>)/i',
+        function($matches) {
+            $url = $matches[2];
+            
+            // Decode HTML entities and trim whitespace
+            $url = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+            $url = trim($url);
+            
+            // Convert to lowercase for protocol check
+            $urlLower = strtolower($url);
+            
+            // Only allow http, https, and mailto protocols (or relative URLs)
+            if (preg_match('/^(https?|mailto):/i', $urlLower) || 
+                preg_match('/^[\/\.]/', $url) || 
+                preg_match('/^#/', $url)) {
+                // URL is safe, re-encode and return
+                return '<a ' . $matches[1] . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . $matches[3];
+            }
+            
+            // Dangerous or unknown protocol - replace with #
+            return '<a ' . $matches[1] . '#' . $matches[3];
+        },
+        $html
+    );
+    
+    // Remove style attributes that contain expressions (IE-specific attacks)
+    $html = preg_replace('/\s*style\s*=\s*["\'][^"\']*expression\s*\([^"\']*["\']/', '', $html);
+    
+    // Remove data-* attributes that could be dangerous
+    $html = preg_replace('/\s+data-[a-z0-9_-]+\s*=\s*["\'][^"\']*["\']/i', '', $html);
+    
+    // Remove all other potentially dangerous attributes
+    $dangerous_attrs = ['formaction', 'action', 'onclick', 'onerror', 'onload', 'onmouseover', 
+                       'onfocus', 'onblur', 'onchange', 'onsubmit', 'srcdoc', 'src'];
+    foreach ($dangerous_attrs as $attr) {
+        $html = preg_replace('/\s+' . preg_quote($attr, '/') . '\s*=\s*["\'][^"\']*["\']/i', '', $html);
+    }
+    
+    return $html;
+}
+
+/**
+ * Create affiliate-specific email template with enhanced styling
+ */
+function createAffiliateEmailTemplate($subject, $content, $affiliateName = 'Valued Affiliate') {
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'http://localhost:8080';
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $whatsapp = defined('WHATSAPP_NUMBER') ? WHATSAPP_NUMBER : '+2349132672126';
+    
+    $esc_subject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
+    $esc_name = htmlspecialchars($affiliateName, ENT_QUOTES, 'UTF-8');
+    $esc_siteUrl = htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8');
+    $esc_siteName = htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8');
+    $esc_whatsapp = htmlspecialchars($whatsapp, ENT_QUOTES, 'UTF-8');
+    
+    return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$esc_subject}</title>
+</head>
+<body style="margin:0; padding:0; background:#f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+    <div style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding:30px 20px; text-align:center;">
+            <div style="background:#ffffff; width:60px; height:60px; border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 6px rgba(0,0,0,0.2);">
+                <span style="font-size:32px;">👑</span>
+            </div>
+            <h1 style="color:#ffffff; margin:0; font-size:28px; font-weight:700; letter-spacing:0.5px;">{$esc_siteName}</h1>
+            <p style="color:rgba(255,255,255,0.9); margin:8px 0 0 0; font-size:14px;">Affiliate Program</p>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="padding:35px 30px;">
+            <div style="margin-bottom:25px;">
+                <p style="margin:0; font-size:16px; color:#374151;">Hello <strong style="color:#1e3a8a;">{$esc_name}</strong>,</p>
+            </div>
+            
+            <div style="background:#f9fafb; padding:25px; border-left:4px solid #d4af37; border-radius:8px; margin-bottom:30px;">
+                {$content}
+            </div>
+            
+            <div style="text-align:center; margin:35px 0;">
+                <a href="{$esc_siteUrl}/affiliate/login.php" style="display:inline-block; background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color:#ffffff; padding:14px 32px; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px; box-shadow:0 4px 6px rgba(30,58,138,0.3);">
+                    View Affiliate Dashboard
+                </a>
+            </div>
+            
+            <div style="margin-top:30px; padding-top:25px; border-top:2px solid #e5e7eb;">
+                <div style="background:#fffbeb; border-left:4px solid #d4af37; padding:15px; border-radius:6px; margin-bottom:20px;">
+                    <p style="margin:0; color:#92400e; font-size:14px; line-height:1.6;">
+                        <strong style="color:#78350f;">💡 Quick Tip:</strong> Share your affiliate link with potential customers to earn commissions. Log in to your dashboard to access your unique referral link and track your earnings.
+                    </p>
+                </div>
+                
+                <div style="color:#6b7280; font-size:14px; line-height:1.6;">
+                    <p style="margin:0 0 10px 0;">Need assistance? We're here to help!</p>
+                    <p style="margin:0;">
+                        <strong>WhatsApp:</strong> <a href="https://wa.me/{$esc_whatsapp}" style="color:#3b82f6; text-decoration:none; font-weight:600;">{$esc_whatsapp}</a>
+                    </p>
+                    <p style="margin:15px 0 0 0;">
+                        Best regards,<br>
+                        <strong style="color:#1e3a8a;">The {$esc_siteName} Team</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background:#1f2937; color:#9ca3af; padding:25px 20px; text-align:center; font-size:13px;">
+            <p style="margin:0 0 12px 0; color:#d1d5db;">&copy; 2025 {$esc_siteName}. All rights reserved.</p>
+            <p style="margin:0;">
+                <a href="{$esc_siteUrl}" style="color:#60a5fa; text-decoration:none; margin:0 8px; font-weight:500;">Home</a>
+                <span style="color:#4b5563;">|</span>
+                <a href="{$esc_siteUrl}/affiliate/login.php" style="color:#60a5fa; text-decoration:none; margin:0 8px; font-weight:500;">Affiliate Portal</a>
+                <span style="color:#4b5563;">|</span>
+                <a href="https://wa.me/{$esc_whatsapp}" style="color:#60a5fa; text-decoration:none; margin:0 8px; font-weight:500;">Support</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
 }
