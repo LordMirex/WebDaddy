@@ -172,140 +172,158 @@ if (isset($_GET['edit'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-globe"></i> Domains Management</h1>
-    <div>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#bulkAddModal">
-            <i class="bi bi-plus-circle-dotted"></i> Bulk Add Domains
-        </button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#domainModal">
-            <i class="bi bi-plus-circle"></i> Add Domain
+<div x-data="{ showModal: <?php echo $editDomain ? 'true' : 'false'; ?>, showBulkModal: false, deleteId: null }">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <i class="bi bi-globe text-primary-600"></i> Domains Management
+            </h1>
+        </div>
+        <div class="flex gap-3">
+            <button @click="showBulkModal = true" class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                <i class="bi bi-plus-circle-dotted mr-2"></i> Bulk Add Domains
+            </button>
+            <button @click="showModal = true" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                <i class="bi bi-plus-circle mr-2"></i> Add Domain
+            </button>
+        </div>
+    </div>
+
+    <?php if ($successMessage): ?>
+    <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-check-circle text-xl"></i>
+            <span><?php echo htmlspecialchars($successMessage); ?></span>
+        </div>
+        <button @click="show = false" class="text-green-700 hover:text-green-900">
+            <i class="bi bi-x-lg"></i>
         </button>
     </div>
-</div>
+    <?php endif; ?>
 
-<?php if ($successMessage): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($successMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-
-<?php if ($errorMessage): ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($errorMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Search Domain</label>
-                <input type="text" class="form-control" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by domain name...">
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label">Template</label>
-                <select class="form-select" name="template">
-                    <option value="">All Templates</option>
-                    <?php foreach ($templates as $tpl): ?>
-                    <option value="<?php echo $tpl['id']; ?>" <?php echo $filterTemplate == $tpl['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($tpl['name']); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status">
-                    <option value="">All Status</option>
-                    <option value="available" <?php echo $filterStatus === 'available' ? 'selected' : ''; ?>>Available</option>
-                    <option value="in_use" <?php echo $filterStatus === 'in_use' ? 'selected' : ''; ?>>In Use</option>
-                    <option value="suspended" <?php echo $filterStatus === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filter</button>
-            </div>
-        </form>
+    <?php if ($errorMessage): ?>
+    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-xl"></i>
+            <span><?php echo htmlspecialchars($errorMessage); ?></span>
+        </div>
+        <button @click="show = false" class="text-red-700 hover:text-red-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
-</div>
+    <?php endif; ?>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+        <div class="p-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search Domain</label>
+                    <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by domain name...">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Template</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template">
+                        <option value="">All Templates</option>
+                        <?php foreach ($templates as $tpl): ?>
+                        <option value="<?php echo $tpl['id']; ?>" <?php echo $filterTemplate == $tpl['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($tpl['name']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
+                        <option value="">All Status</option>
+                        <option value="available" <?php echo $filterStatus === 'available' ? 'selected' : ''; ?>>Available</option>
+                        <option value="in_use" <?php echo $filterStatus === 'in_use' ? 'selected' : ''; ?>>In Use</option>
+                        <option value="suspended" <?php echo $filterStatus === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-search mr-2"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="overflow-x-auto">
+            <table class="w-full">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Domain Name</th>
-                        <th>Template</th>
-                        <th>Status</th>
-                        <th>Order ID</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
+                    <tr class="border-b-2 border-gray-300">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Domain Name</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Template</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Status</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Order ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Notes</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     <?php if (empty($domains)): ?>
                     <tr>
-                        <td colspan="7" class="text-center py-4">
-                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-                            <p class="text-muted mt-2">No domains found</p>
+                        <td colspan="7" class="text-center py-12">
+                            <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                            <p class="text-gray-500 mt-4">No domains found</p>
                         </td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($domains as $domain): ?>
-                    <tr>
-                        <td><strong>#<?php echo $domain['id']; ?></strong></td>
-                        <td>
-                            <i class="bi bi-globe"></i> <strong><?php echo htmlspecialchars($domain['domain_name']); ?></strong>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 font-bold text-gray-900">#<?php echo $domain['id']; ?></td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2 text-gray-900 font-medium">
+                                <i class="bi bi-globe text-primary-600"></i>
+                                <?php echo htmlspecialchars($domain['domain_name']); ?>
+                            </div>
                         </td>
-                        <td><?php echo htmlspecialchars($domain['template_name']); ?></td>
-                        <td>
+                        <td class="py-3 px-4 text-gray-700"><?php echo htmlspecialchars($domain['template_name']); ?></td>
+                        <td class="py-3 px-4">
                             <?php
-                            $statusClass = [
-                                'available' => 'success',
-                                'in_use' => 'primary',
-                                'suspended' => 'danger'
+                            $statusColors = [
+                                'available' => 'bg-green-100 text-green-800',
+                                'in_use' => 'bg-blue-100 text-blue-800',
+                                'suspended' => 'bg-red-100 text-red-800'
                             ];
-                            $statusIcon = [
+                            $statusIcons = [
                                 'available' => 'check-circle',
                                 'in_use' => 'hourglass-split',
                                 'suspended' => 'x-circle'
                             ];
-                            $class = $statusClass[$domain['status']] ?? 'secondary';
-                            $icon = $statusIcon[$domain['status']] ?? 'circle';
+                            $color = $statusColors[$domain['status']] ?? 'bg-gray-100 text-gray-800';
+                            $icon = $statusIcons[$domain['status']] ?? 'circle';
                             ?>
-                            <span class="badge bg-<?php echo $class; ?>">
+                            <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
                                 <i class="bi bi-<?php echo $icon; ?>"></i> <?php echo ucfirst($domain['status']); ?>
                             </span>
                         </td>
-                        <td>
+                        <td class="py-3 px-4">
                             <?php if ($domain['assigned_order_id']): ?>
-                            <a href="/admin/orders.php?view=<?php echo $domain['assigned_order_id']; ?>">
+                            <a href="/admin/orders.php?view=<?php echo $domain['assigned_order_id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium">
                                 #<?php echo $domain['assigned_order_id']; ?>
                             </a>
                             <?php else: ?>
-                            <span class="text-muted">-</span>
+                            <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td>
+                        <td class="py-3 px-4">
                             <?php if (!empty($domain['notes'])): ?>
-                            <small><?php echo htmlspecialchars(substr($domain['notes'], 0, 50)); ?><?php echo strlen($domain['notes']) > 50 ? '...' : ''; ?></small>
+                            <span class="text-xs text-gray-600"><?php echo htmlspecialchars(substr($domain['notes'], 0, 50)); ?><?php echo strlen($domain['notes']) > 50 ? '...' : ''; ?></span>
                             <?php else: ?>
-                            <span class="text-muted">-</span>
+                            <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="?edit=<?php echo $domain['id']; ?>" class="btn btn-warning" title="Edit">
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
+                                <a href="?edit=<?php echo $domain['id']; ?>" class="px-3 py-1 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg transition-colors text-sm" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <?php if ($domain['status'] === 'available'): ?>
-                                <button type="button" class="btn btn-danger" onclick="confirmDelete(<?php echo $domain['id']; ?>, '<?php echo htmlspecialchars(addslashes($domain['domain_name'])); ?>')" title="Delete">
+                                <button type="button" @click="deleteId = <?php echo $domain['id']; ?>; if(confirm('Are you sure you want to delete the domain \\'<?php echo htmlspecialchars(addslashes($domain['domain_name'])); ?>\\'?')) { document.getElementById('deleteForm').submit(); }" class="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors text-sm" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </button>
                                 <?php endif; ?>
@@ -318,31 +336,47 @@ require_once __DIR__ . '/includes/header.php';
             </table>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="domainModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Domain Modal -->
+    <div x-show="showModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
             <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900">
                         <?php echo $editDomain ? 'Edit Domain' : 'Add New Domain'; ?>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </h3>
+                    <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="<?php echo $editDomain ? 'edit' : 'add'; ?>">
                     <?php if ($editDomain): ?>
                     <input type="hidden" name="id" value="<?php echo $editDomain['id']; ?>">
                     <?php endif; ?>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Domain Name *</label>
-                        <input type="text" class="form-control" name="domain_name" value="<?php echo htmlspecialchars($editDomain['domain_name'] ?? ''); ?>" placeholder="example.com" required>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Domain Name <span class="text-red-600">*</span></label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_name" value="<?php echo htmlspecialchars($editDomain['domain_name'] ?? ''); ?>" placeholder="example.com" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Template *</label>
-                        <select class="form-select" name="template_id" required>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Template <span class="text-red-600">*</span></label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template_id" required>
                             <option value="">Select Template</option>
                             <?php foreach ($templates as $tpl): ?>
                             <option value="<?php echo $tpl['id']; ?>" <?php echo ($editDomain && $editDomain['template_id'] == $tpl['id']) ? 'selected' : ''; ?>>
@@ -352,45 +386,63 @@ require_once __DIR__ . '/includes/header.php';
                         </select>
                     </div>
                     <?php if ($editDomain): ?>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
                             <option value="available" <?php echo $editDomain['status'] === 'available' ? 'selected' : ''; ?>>Available</option>
                             <option value="in_use" <?php echo $editDomain['status'] === 'in_use' ? 'selected' : ''; ?>>In Use</option>
                             <option value="suspended" <?php echo $editDomain['status'] === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
                         </select>
                     </div>
                     <?php endif; ?>
-                    <div class="mb-3">
-                        <label class="form-label">Notes</label>
-                        <textarea class="form-control" name="notes" rows="3"><?php echo htmlspecialchars($editDomain['notes'] ?? ''); ?></textarea>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="notes" rows="3"><?php echo htmlspecialchars($editDomain['notes'] ?? ''); ?></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> <?php echo $editDomain ? 'Update' : 'Add'; ?> Domain
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-save mr-2"></i> <?php echo $editDomain ? 'Update' : 'Add'; ?> Domain
                     </button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="bulkAddModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Bulk Add Modal -->
+    <div x-show="showBulkModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showBulkModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
             <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">Bulk Add Domains</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900">Bulk Add Domains</h3>
+                    <button type="button" @click="showBulkModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="bulk_add">
                     
-                    <div class="mb-3">
-                        <label class="form-label">Template *</label>
-                        <select class="form-select" name="template_id" required>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Template <span class="text-red-600">*</span></label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template_id" required>
                             <option value="">Select Template</option>
                             <?php foreach ($templates as $tpl): ?>
                             <option value="<?php echo $tpl['id']; ?>">
@@ -399,42 +451,28 @@ require_once __DIR__ . '/includes/header.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Domain List *</label>
-                        <textarea class="form-control" name="domain_list" rows="8" placeholder="example1.com&#10;example2.ng&#10;example3.com.ng" required></textarea>
-                        <small class="text-muted">Enter one domain per line</small>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Domain List <span class="text-red-600">*</span></label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all font-mono text-sm" name="domain_list" rows="8" placeholder="example1.com&#10;example2.ng&#10;example3.com.ng" required></textarea>
+                        <small class="text-gray-500 text-xs">Enter one domain per line</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-plus-circle-dotted"></i> Add Domains
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showBulkModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-plus-circle-dotted mr-2"></i> Add Domains
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <form method="POST" id="deleteForm" style="display: none;">
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="id" x-model="deleteId">
+    </form>
 </div>
-
-<form method="POST" id="deleteForm" style="display: none;">
-    <input type="hidden" name="action" value="delete">
-    <input type="hidden" name="id" id="deleteId">
-</form>
-
-<script>
-function confirmDelete(id, name) {
-    if (confirm('Are you sure you want to delete the domain "' + name + '"?')) {
-        document.getElementById('deleteId').value = id;
-        document.getElementById('deleteForm').submit();
-    }
-}
-
-<?php if ($editDomain): ?>
-document.addEventListener('DOMContentLoaded', function() {
-    var modal = new bootstrap.Modal(document.getElementById('domainModal'));
-    modal.show();
-});
-<?php endif; ?>
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

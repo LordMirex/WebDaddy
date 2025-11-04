@@ -346,147 +346,166 @@ if (isset($_GET['view'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-people"></i> Affiliates Management</h1>
-    <div>
-        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#emailAllAffiliatesModal">
-            <i class="bi bi-envelope"></i> Email All Affiliates
-        </button>
-        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#announcementModal">
-            <i class="bi bi-megaphone"></i> Post Announcement
-        </button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAffiliateModal">
-            <i class="bi bi-plus-circle"></i> Create Affiliate
+<div x-data="{ 
+    activeTab: 'affiliates', 
+    showCreateModal: false, 
+    showEmailModal: false, 
+    showAnnouncementModal: false,
+    processWithdrawalId: null
+}">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <i class="bi bi-people text-primary-600"></i> Affiliates Management
+        </h1>
+        <div class="flex flex-wrap gap-2">
+            <button @click="showEmailModal = true" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+                <i class="bi bi-envelope mr-1"></i> Email All Affiliates
+            </button>
+            <button @click="showAnnouncementModal = true" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm">
+                <i class="bi bi-megaphone mr-1"></i> Post Announcement
+            </button>
+            <button @click="showCreateModal = true" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm">
+                <i class="bi bi-plus-circle mr-1"></i> Create Affiliate
+            </button>
+        </div>
+    </div>
+
+    <?php if ($successMessage): ?>
+    <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-check-circle text-xl"></i>
+            <span><?php echo htmlspecialchars($successMessage); ?></span>
+        </div>
+        <button @click="show = false" class="text-green-700 hover:text-green-900">
+            <i class="bi bi-x-lg"></i>
         </button>
     </div>
-</div>
+    <?php endif; ?>
 
-<?php if ($successMessage): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($successMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
+    <?php if ($errorMessage): ?>
+    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-xl"></i>
+            <span><?php echo htmlspecialchars($errorMessage); ?></span>
+        </div>
+        <button @click="show = false" class="text-red-700 hover:text-red-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <?php endif; ?>
 
-<?php if ($errorMessage): ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($errorMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-
-<ul class="nav nav-tabs mb-4" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" href="#affiliates-tab">
-            <i class="bi bi-people"></i> Affiliates
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#withdrawals-tab">
+    <div class="flex border-b border-gray-300 mb-6">
+        <button @click="activeTab = 'affiliates'" 
+                :class="activeTab === 'affiliates' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-600 hover:text-gray-800'"
+                class="px-6 py-3 font-semibold transition-colors">
+            <i class="bi bi-people mr-2"></i> Affiliates
+        </button>
+        <button @click="activeTab = 'withdrawals'" 
+                :class="activeTab === 'withdrawals' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-600 hover:text-gray-800'"
+                class="px-6 py-3 font-semibold transition-colors flex items-center gap-2">
             <i class="bi bi-cash-coin"></i> Withdrawal Requests
             <?php 
             $pendingCount = count(array_filter($withdrawalRequests, fn($w) => $w['status'] === 'pending'));
             if ($pendingCount > 0): ?>
-            <span class="badge bg-danger"><?php echo $pendingCount; ?></span>
+            <span class="px-2 py-1 bg-red-600 text-white rounded-full text-xs font-bold"><?php echo $pendingCount; ?></span>
             <?php endif; ?>
-        </a>
-    </li>
-</ul>
+        </button>
+    </div>
 
-<div class="tab-content">
-    <div class="tab-pane fade show active" id="affiliates-tab">
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Search</label>
-                        <input type="text" class="form-control" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, code...">
+    <div x-show="activeTab === 'affiliates'">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+            <div class="p-6">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, code...">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
                             <option value="">All Status</option>
                             <option value="active" <?php echo $filterStatus === 'active' ? 'selected' : ''; ?>>Active</option>
                             <option value="inactive" <?php echo $filterStatus === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                             <option value="suspended" <?php echo $filterStatus === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filter</button>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                            <i class="bi bi-search mr-2"></i> Filter
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
         
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Clicks</th>
-                                <th>Sales</th>
-                                <th>Earnings</th>
-                                <th>Commission Rate</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                            <tr class="border-b-2 border-gray-300">
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">ID</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Name</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Code</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Clicks</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Sales</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Earnings</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Commission Rate</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Status</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200">
                             <?php if (empty($affiliates)): ?>
                             <tr>
-                                <td colspan="9" class="text-center py-4">
-                                    <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-                                    <p class="text-muted mt-2">No affiliates found</p>
+                                <td colspan="9" class="text-center py-12">
+                                    <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                                    <p class="text-gray-500 mt-4">No affiliates found</p>
                                 </td>
                             </tr>
                             <?php else: ?>
                             <?php foreach ($affiliates as $affiliate): ?>
-                            <tr>
-                                <td><strong>#<?php echo $affiliate['id']; ?></strong></td>
-                                <td>
-                                    <?php echo htmlspecialchars($affiliate['name']); ?><br>
-                                    <small class="text-muted"><?php echo htmlspecialchars($affiliate['email']); ?></small>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $affiliate['id']; ?></td>
+                                <td class="py-3 px-2">
+                                    <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($affiliate['name']); ?></div>
+                                    <div class="text-xs text-gray-500 mt-1"><?php echo htmlspecialchars($affiliate['email']); ?></div>
                                 </td>
-                                <td><code><?php echo htmlspecialchars($affiliate['code']); ?></code></td>
-                                <td><?php echo number_format($affiliate['total_clicks']); ?></td>
-                                <td><?php echo number_format($affiliate['total_sales']); ?></td>
-                                <td>
-                                    <strong><?php echo formatCurrency($affiliate['commission_earned']); ?></strong><br>
-                                    <small class="text-warning">Pending: <?php echo formatCurrency($affiliate['commission_pending']); ?></small><br>
-                                    <small class="text-success">Paid: <?php echo formatCurrency($affiliate['commission_paid']); ?></small>
+                                <td class="py-3 px-2"><code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono"><?php echo htmlspecialchars($affiliate['code']); ?></code></td>
+                                <td class="py-3 px-2 text-gray-700"><?php echo number_format($affiliate['total_clicks']); ?></td>
+                                <td class="py-3 px-2 text-gray-700"><?php echo number_format($affiliate['total_sales']); ?></td>
+                                <td class="py-3 px-2">
+                                    <div class="text-gray-900 font-bold"><?php echo formatCurrency($affiliate['commission_earned']); ?></div>
+                                    <div class="text-xs text-yellow-600 mt-1">Pending: <?php echo formatCurrency($affiliate['commission_pending']); ?></div>
+                                    <div class="text-xs text-green-600">Paid: <?php echo formatCurrency($affiliate['commission_paid']); ?></div>
                                 </td>
-                                <td>
+                                <td class="py-3 px-2">
                                     <?php
                                     $displayRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
                                     $isCustom = $affiliate['custom_commission_rate'] !== null;
                                     ?>
-                                    <span class="badge <?php echo $isCustom ? 'bg-info' : 'bg-secondary'; ?>">
-                                        <?php echo number_format($displayRate * 100, 1); ?>%
-                                    </span>
-                                    <?php if (!$isCustom): ?>
-                                    <br><small class="text-muted">Default</small>
-                                    <?php else: ?>
-                                    <br><small class="text-info">Custom</small>
-                                    <?php endif; ?>
+                                    <div>
+                                        <span class="px-3 py-1 <?php echo $isCustom ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'; ?> rounded-full text-xs font-semibold">
+                                            <?php echo number_format($displayRate * 100, 1); ?>%
+                                        </span>
+                                    </div>
+                                    <div class="text-xs <?php echo $isCustom ? 'text-blue-600' : 'text-gray-500'; ?> mt-1">
+                                        <?php echo $isCustom ? 'Custom' : 'Default'; ?>
+                                    </div>
                                 </td>
-                                <td>
+                                <td class="py-3 px-2">
                                     <form method="POST" style="display: inline;">
                                         <input type="hidden" name="action" value="update_status">
                                         <input type="hidden" name="affiliate_id" value="<?php echo $affiliate['id']; ?>">
-                                        <select class="form-select form-select-sm" name="status" onchange="this.form.submit()" style="width: auto;">
+                                        <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status" onchange="this.form.submit()">
                                             <option value="active" <?php echo $affiliate['status'] === 'active' ? 'selected' : ''; ?>>Active</option>
                                             <option value="inactive" <?php echo $affiliate['status'] === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
                                             <option value="suspended" <?php echo $affiliate['status'] === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
                                         </select>
                                     </form>
                                 </td>
-                                <td>
-                                    <a href="?view=<?php echo $affiliate['id']; ?>" class="btn btn-sm btn-primary">
+                                <td class="py-3 px-2">
+                                    <a href="?view=<?php echo $affiliate['id']; ?>" class="px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm inline-flex items-center gap-1">
                                         <i class="bi bi-eye"></i> View Details
                                     </a>
                                 </td>
@@ -500,108 +519,123 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     
-    <div class="tab-pane fade" id="withdrawals-tab">
-        <div class="card">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
+    <div x-show="activeTab === 'withdrawals'">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
                         <thead>
-                            <tr>
-                                <th>Request ID</th>
-                                <th>Affiliate</th>
-                                <th>Amount</th>
-                                <th>Bank Details</th>
-                                <th>Status</th>
-                                <th>Requested</th>
-                                <th>Actions</th>
+                            <tr class="border-b-2 border-gray-300">
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Request ID</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Affiliate</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Amount</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Bank Details</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Status</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Requested</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-gray-200">
                             <?php if (empty($withdrawalRequests)): ?>
                             <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-                                    <p class="text-muted mt-2">No withdrawal requests</p>
+                                <td colspan="7" class="text-center py-12">
+                                    <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                                    <p class="text-gray-500 mt-4">No withdrawal requests</p>
                                 </td>
                             </tr>
                             <?php else: ?>
                             <?php foreach ($withdrawalRequests as $wr): ?>
-                            <tr>
-                                <td><strong>#<?php echo $wr['id']; ?></strong></td>
-                                <td>
-                                    <?php echo htmlspecialchars($wr['affiliate_name']); ?><br>
-                                    <small class="text-muted"><code><?php echo htmlspecialchars($wr['affiliate_code']); ?></code></small>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $wr['id']; ?></td>
+                                <td class="py-3 px-2">
+                                    <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($wr['affiliate_name']); ?></div>
+                                    <div class="text-xs text-gray-500 mt-1"><code class="bg-gray-100 px-1 py-0.5 rounded"><?php echo htmlspecialchars($wr['affiliate_code']); ?></code></div>
                                 </td>
-                                <td><strong><?php echo formatCurrency($wr['amount']); ?></strong></td>
-                                <td>
+                                <td class="py-3 px-2 font-bold text-gray-900"><?php echo formatCurrency($wr['amount']); ?></td>
+                                <td class="py-3 px-2">
                                     <?php 
                                     $bankDetails = json_decode($wr['bank_details_json'], true);
                                     if ($bankDetails): ?>
-                                    <small>
-                                        <?php echo htmlspecialchars($bankDetails['bank_name'] ?? 'N/A'); ?><br>
-                                        <?php echo htmlspecialchars($bankDetails['account_number'] ?? 'N/A'); ?><br>
-                                        <?php echo htmlspecialchars($bankDetails['account_name'] ?? 'N/A'); ?>
-                                    </small>
+                                    <div class="text-xs text-gray-700 space-y-0.5">
+                                        <div><?php echo htmlspecialchars($bankDetails['bank_name'] ?? 'N/A'); ?></div>
+                                        <div><?php echo htmlspecialchars($bankDetails['account_number'] ?? 'N/A'); ?></div>
+                                        <div><?php echo htmlspecialchars($bankDetails['account_name'] ?? 'N/A'); ?></div>
+                                    </div>
                                     <?php else: ?>
-                                    <small class="text-muted">No details</small>
+                                    <span class="text-xs text-gray-400">No details</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td class="py-3 px-2">
                                     <?php
-                                    $statusClass = [
-                                        'pending' => 'warning',
-                                        'approved' => 'info',
-                                        'paid' => 'success',
-                                        'rejected' => 'danger'
+                                    $statusColors = [
+                                        'pending' => 'bg-yellow-100 text-yellow-800',
+                                        'approved' => 'bg-blue-100 text-blue-800',
+                                        'paid' => 'bg-green-100 text-green-800',
+                                        'rejected' => 'bg-red-100 text-red-800'
                                     ];
-                                    $class = $statusClass[$wr['status']] ?? 'secondary';
+                                    $color = $statusColors[$wr['status']] ?? 'bg-gray-100 text-gray-800';
                                     ?>
-                                    <span class="badge bg-<?php echo $class; ?>">
+                                    <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
                                         <?php echo ucfirst($wr['status']); ?>
                                     </span>
                                 </td>
-                                <td><?php echo date('M d, Y', strtotime($wr['requested_at'])); ?></td>
-                                <td>
+                                <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y', strtotime($wr['requested_at'])); ?></td>
+                                <td class="py-3 px-2">
                                     <?php if ($wr['status'] === 'pending'): ?>
-                                    <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#processWithdrawalModal<?php echo $wr['id']; ?>">
-                                        <i class="bi bi-check-circle"></i> Process
+                                    <button type="button" @click="processWithdrawalId = <?php echo $wr['id']; ?>" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm">
+                                        <i class="bi bi-check-circle mr-1"></i> Process
                                     </button>
                                     
-                                    <div class="modal fade" id="processWithdrawalModal<?php echo $wr['id']; ?>" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <form method="POST">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Process Withdrawal #<?php echo $wr['id']; ?></h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    <div x-show="processWithdrawalId === <?php echo $wr['id']; ?>" 
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0"
+                                         x-transition:enter-end="opacity-100"
+                                         x-transition:leave="transition ease-in duration-200"
+                                         x-transition:leave-start="opacity-100"
+                                         x-transition:leave-end="opacity-0"
+                                         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+                                         style="display: none;">
+                                        <div @click.away="processWithdrawalId = null" 
+                                             x-transition:enter="transition ease-out duration-300"
+                                             x-transition:enter-start="opacity-0 transform scale-95"
+                                             x-transition:enter-end="opacity-100 transform scale-100"
+                                             x-transition:leave="transition ease-in duration-200"
+                                             x-transition:leave-start="opacity-100 transform scale-100"
+                                             x-transition:leave-end="opacity-0 transform scale-95"
+                                             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+                                            <form method="POST">
+                                                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                                                    <h3 class="text-2xl font-bold text-gray-900">Process Withdrawal #<?php echo $wr['id']; ?></h3>
+                                                    <button type="button" @click="processWithdrawalId = null" class="text-gray-400 hover:text-gray-600 text-2xl">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="p-6 space-y-4">
+                                                    <input type="hidden" name="action" value="process_withdrawal">
+                                                    <input type="hidden" name="request_id" value="<?php echo $wr['id']; ?>">
+                                                    
+                                                    <div>
+                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status <span class="text-red-600">*</span></label>
+                                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="withdrawal_status" required>
+                                                            <option value="approved">Approve</option>
+                                                            <option value="paid">Mark as Paid</option>
+                                                            <option value="rejected">Reject</option>
+                                                        </select>
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <input type="hidden" name="action" value="process_withdrawal">
-                                                        <input type="hidden" name="request_id" value="<?php echo $wr['id']; ?>">
-                                                        
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Status *</label>
-                                                            <select class="form-select" name="withdrawal_status" required>
-                                                                <option value="approved">Approve</option>
-                                                                <option value="paid">Mark as Paid</option>
-                                                                <option value="rejected">Reject</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Admin Notes</label>
-                                                            <textarea class="form-control" name="admin_notes" rows="3"></textarea>
-                                                        </div>
+                                                    <div>
+                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Admin Notes</label>
+                                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="admin_notes" rows="3"></textarea>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-primary">Submit</button>
-                                                    </div>
-                                                </form>
-                                            </div>
+                                                </div>
+                                                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                                                    <button type="button" @click="processWithdrawalId = null" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
+                                                    <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">Submit</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
                                     <?php else: ?>
-                                    <span class="text-muted">-</span>
+                                    <span class="text-gray-400">-</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -615,108 +649,159 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="modal fade" id="createAffiliateModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Create Affiliate Modal -->
+    <div x-show="showCreateModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showCreateModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
             <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create Affiliate Account</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900">Create Affiliate Account</h3>
+                    <button type="button" @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="create_affiliate">
                     
-                    <div class="mb-3">
-                        <label class="form-label">Affiliate Code *</label>
-                        <input type="text" class="form-control" name="code" required pattern="[A-Za-z0-9]{4,20}" placeholder="Enter unique code (e.g., ADMIN2024)">
-                        <small class="text-muted">4-20 characters, letters and numbers only</small>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Affiliate Code <span class="text-red-600">*</span></label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="code" required pattern="[A-Za-z0-9]{4,20}" placeholder="Enter unique code (e.g., ADMIN2024)">
+                        <small class="text-gray-500 text-xs">4-20 characters, letters and numbers only</small>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Email *</label>
-                        <input type="email" class="form-control" name="email" required placeholder="Enter email address">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Email <span class="text-red-600">*</span></label>
+                        <input type="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="email" required placeholder="Enter email address">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password *</label>
-                        <input type="password" class="form-control" name="password" required minlength="6" placeholder="Enter password">
-                        <small class="text-muted">Minimum 6 characters</small>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Password <span class="text-red-600">*</span></label>
+                        <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="password" required minlength="6" placeholder="Enter password">
+                        <small class="text-gray-500 text-xs">Minimum 6 characters</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Create Affiliate
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showCreateModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">
+                        <i class="bi bi-plus-circle mr-2"></i> Create Affiliate
                     </button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
-<!-- Email All Affiliates Modal -->
-<div class="modal fade" id="emailAllAffiliatesModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Email All Affiliates Modal -->
+    <div x-show="showEmailModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showEmailModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
             <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-envelope"></i> Email All Affiliates</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <i class="bi bi-envelope text-green-600"></i> Email All Affiliates
+                    </h3>
+                    <button type="button" @click="showEmailModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="email_all_affiliates">
                     
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> This will send an email to all active affiliates.
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+                        <i class="bi bi-info-circle mr-2"></i> This will send an email to all active affiliates.
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Subject *</label>
-                        <input type="text" class="form-control" name="email_subject" required placeholder="Email subject">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Subject <span class="text-red-600">*</span></label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="email_subject" required placeholder="Email subject">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Message *</label>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Message <span class="text-red-600">*</span></label>
                         <div id="bulk-email-editor" style="min-height: 200px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
                         <textarea id="email_message" name="email_message" style="display:none;"></textarea>
-                        <small class="text-muted">Use the editor toolbar to format your message</small>
+                        <small class="text-gray-500 text-xs">Use the editor toolbar to format your message</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-send"></i> Send Email
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showEmailModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+                        <i class="bi bi-send mr-2"></i> Send Email
                     </button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
-<!-- Post Announcement Modal -->
-<div class="modal fade" id="announcementModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Post Announcement Modal -->
+    <div x-show="showAnnouncementModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showAnnouncementModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
             <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-megaphone"></i> Post Announcement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <i class="bi bi-megaphone text-primary-600"></i> Post Announcement
+                    </h3>
+                    <button type="button" @click="showAnnouncementModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="create_announcement">
                     
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> This will appear on all affiliate dashboards.
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+                        <i class="bi bi-info-circle mr-2"></i> This will appear on all affiliate dashboards.
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label">Title *</label>
-                        <input type="text" class="form-control" name="announcement_title" required placeholder="Announcement title">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Title <span class="text-red-600">*</span></label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_title" required placeholder="Announcement title">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Message *</label>
-                        <textarea class="form-control" name="announcement_message" rows="4" required placeholder="Type announcement message..."></textarea>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Message <span class="text-red-600">*</span></label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_message" rows="4" required placeholder="Type announcement message..."></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <select class="form-select" name="announcement_type">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_type">
                             <option value="info">Info (Blue)</option>
                             <option value="success">Success (Green)</option>
                             <option value="warning">Warning (Yellow)</option>
@@ -724,10 +809,10 @@ require_once __DIR__ . '/includes/header.php';
                         </select>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-megaphone"></i> Post Announcement
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showAnnouncementModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">
+                        <i class="bi bi-megaphone mr-2"></i> Post Announcement
                     </button>
                 </div>
             </form>
@@ -736,156 +821,159 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <?php if ($viewAffiliate): ?>
-<div class="modal fade show" id="viewAffiliateModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-person-circle"></i> Affiliate Details: <?php echo htmlspecialchars($viewAffiliate['name']); ?>
-                </h5>
-                <a href="/admin/affiliates.php" class="btn-close"></a>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <h6 class="text-muted mb-3">Personal Information</h6>
-                        <p class="mb-2"><strong>Name:</strong> <?php echo htmlspecialchars($viewAffiliate['name']); ?></p>
-                        <p class="mb-2"><strong>Email:</strong> <?php echo htmlspecialchars($viewAffiliate['email']); ?></p>
-                        <p class="mb-2"><strong>Phone:</strong> <?php echo htmlspecialchars($viewAffiliate['phone'] ?? 'N/A'); ?></p>
-                        <p class="mb-2"><strong>Code:</strong> <code><?php echo htmlspecialchars($viewAffiliate['code']); ?></code></p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-muted mb-3">Performance Statistics</h6>
-                        <p class="mb-2"><strong>Total Clicks:</strong> <?php echo number_format($viewAffiliate['total_clicks']); ?></p>
-                        <p class="mb-2"><strong>Total Sales:</strong> <?php echo number_format($viewAffiliate['total_sales']); ?></p>
-                        <p class="mb-2"><strong>Commission Earned:</strong> <?php echo formatCurrency($viewAffiliate['commission_earned']); ?></p>
-                        <p class="mb-2"><strong>Commission Pending:</strong> <span class="text-warning"><?php echo formatCurrency($viewAffiliate['commission_pending']); ?></span></p>
-                        <p class="mb-2"><strong>Commission Paid:</strong> <span class="text-success"><?php echo formatCurrency($viewAffiliate['commission_paid']); ?></span></p>
+<div class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+            <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-person-circle text-primary-600"></i> Affiliate Details: <?php echo htmlspecialchars($viewAffiliate['name']); ?>
+            </h3>
+            <a href="/admin/affiliates.php" class="text-gray-400 hover:text-gray-600 text-2xl">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+        <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Personal Information</h6>
+                    <div class="space-y-2">
+                        <p class="text-gray-700"><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($viewAffiliate['name']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($viewAffiliate['email']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Phone:</span> <?php echo htmlspecialchars($viewAffiliate['phone'] ?? 'N/A'); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Code:</span> <code class="bg-gray-100 px-2 py-1 rounded font-mono"><?php echo htmlspecialchars($viewAffiliate['code']); ?></code></p>
                     </div>
                 </div>
-                
-                <!-- Custom Commission Rate -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-percent"></i> Commission Rate Settings</h6>
+                <div>
+                    <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Performance Statistics</h6>
+                    <div class="space-y-2">
+                        <p class="text-gray-700"><span class="font-semibold">Total Clicks:</span> <?php echo number_format($viewAffiliate['total_clicks']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Total Sales:</span> <?php echo number_format($viewAffiliate['total_sales']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Commission Earned:</span> <?php echo formatCurrency($viewAffiliate['commission_earned']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Commission Pending:</span> <span class="text-yellow-600 font-semibold"><?php echo formatCurrency($viewAffiliate['commission_pending']); ?></span></p>
+                        <p class="text-gray-700"><span class="font-semibold">Commission Paid:</span> <span class="text-green-600 font-semibold"><?php echo formatCurrency($viewAffiliate['commission_paid']); ?></span></p>
                     </div>
-                    <div class="card-body">
-                        <?php
-                        $currentRate = $viewAffiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
-                        $isCustomRate = $viewAffiliate['custom_commission_rate'] !== null;
-                        ?>
-                        <div class="alert <?php echo $isCustomRate ? 'alert-info' : 'alert-secondary'; ?>">
-                            <strong>Current Rate:</strong> <?php echo number_format($currentRate * 100, 1); ?>%
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h6 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="bi bi-percent text-primary-600"></i> Commission Rate Settings
+                    </h6>
+                </div>
+                <div class="p-6">
+                    <?php
+                    $currentRate = $viewAffiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
+                    $isCustomRate = $viewAffiliate['custom_commission_rate'] !== null;
+                    ?>
+                    <div class="<?php echo $isCustomRate ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'; ?> border p-4 rounded-lg mb-4">
+                        <span class="font-semibold text-gray-900">Current Rate:</span> <?php echo number_format($currentRate * 100, 1); ?>%
+                        <?php if ($isCustomRate): ?>
+                        <span class="ml-3 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">Custom Rate</span>
+                        <?php else: ?>
+                        <span class="ml-3 px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">Default Rate</span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <form method="POST" class="grid md:grid-cols-3 gap-4">
+                        <input type="hidden" name="action" value="update_commission_rate">
+                        <input type="hidden" name="affiliate_id" value="<?php echo $viewAffiliate['id']; ?>">
+                        
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Set Custom Commission Rate</label>
+                            <div class="flex">
+                                <input 
+                                    type="number" 
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                    name="custom_rate" 
+                                    step="0.01" 
+                                    min="0" 
+                                    max="1" 
+                                    placeholder="e.g., 0.35 for 35%"
+                                    value="<?php echo $isCustomRate ? $currentRate : ''; ?>"
+                                >
+                                <span class="px-4 py-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-700 font-semibold">%</span>
+                            </div>
+                            <small class="text-gray-500 text-xs mt-1 block">
+                                Enter a decimal (e.g., 0.35 for 35%, 0.40 for 40%). 
+                                Default: <?php echo (AFFILIATE_COMMISSION_RATE * 100); ?>%
+                            </small>
+                        </div>
+                        <div class="flex flex-col justify-end gap-2">
+                            <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">
+                                <i class="bi bi-save mr-2"></i> Update Rate
+                            </button>
                             <?php if ($isCustomRate): ?>
-                            <span class="badge bg-info">Custom Rate</span>
-                            <?php else: ?>
-                            <span class="badge bg-secondary">Default Rate</span>
+                            <button 
+                                type="button" 
+                                class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors"
+                                onclick="document.querySelector('[name=custom_rate]').value='default'; this.form.submit();"
+                            >
+                                <i class="bi bi-arrow-counterclockwise mr-2"></i> Reset to Default
+                            </button>
                             <?php endif; ?>
                         </div>
-                        
-                        <form method="POST" class="row g-3">
-                            <input type="hidden" name="action" value="update_commission_rate">
-                            <input type="hidden" name="affiliate_id" value="<?php echo $viewAffiliate['id']; ?>">
-                            
-                            <div class="col-md-8">
-                                <label class="form-label">Set Custom Commission Rate</label>
-                                <div class="input-group">
-                                    <input 
-                                        type="number" 
-                                        class="form-control" 
-                                        name="custom_rate" 
-                                        step="0.01" 
-                                        min="0" 
-                                        max="1" 
-                                        placeholder="e.g., 0.35 for 35%"
-                                        value="<?php echo $isCustomRate ? $currentRate : ''; ?>"
-                                    >
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                <small class="text-muted">
-                                    Enter a decimal (e.g., 0.35 for 35%, 0.40 for 40%). 
-                                    Default: <?php echo (AFFILIATE_COMMISSION_RATE * 100); ?>%
-                                </small>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <div class="d-grid gap-2 w-100">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-save"></i> Update Rate
-                                    </button>
-                                    <?php if ($isCustomRate): ?>
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-outline-secondary"
-                                        onclick="document.querySelector('[name=custom_rate]').value='default'; this.form.submit();"
-                                    >
-                                        <i class="bi bi-arrow-counterclockwise"></i> Reset to Default
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-                <?php if (!empty($viewAffiliate['bank_details'])): ?>
-                <div class="mb-4">
-                    <h6 class="text-muted mb-2">Bank Details</h6>
-                    <div class="alert alert-secondary">
-                        <pre class="mb-0"><?php echo htmlspecialchars($viewAffiliate['bank_details']); ?></pre>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <div class="mb-4">
-                    <h6 class="text-muted mb-2">Referral Link</h6>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="affiliateRefLink" value="<?php echo htmlspecialchars(SITE_URL . '/?aff=' . $viewAffiliate['code']); ?>" readonly>
-                        <button class="btn btn-outline-primary" type="button" onclick="copyAffiliateLink(event)">
-                            <i class="bi bi-clipboard"></i> Copy
-                        </button>
-                    </div>
-                    <small class="text-muted">Share this link to track referrals for this affiliate</small>
-                </div>
-                
-                <h6 class="text-muted mb-2">Sales History</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Sale ID</th>
-                                <th>Customer</th>
-                                <th>Template</th>
-                                <th>Amount</th>
-                                <th>Commission</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($affiliateSales)): ?>
-                            <tr>
-                                <td colspan="6" class="text-center py-3">
-                                    <small class="text-muted">No sales yet</small>
-                                </td>
-                            </tr>
-                            <?php else: ?>
-                            <?php foreach ($affiliateSales as $sale): ?>
-                            <tr>
-                                <td>#<?php echo $sale['id']; ?></td>
-                                <td><?php echo htmlspecialchars($sale['customer_name']); ?></td>
-                                <td><?php echo htmlspecialchars($sale['template_name']); ?></td>
-                                <td><?php echo formatCurrency($sale['amount_paid']); ?></td>
-                                <td><?php echo formatCurrency($sale['commission_amount']); ?></td>
-                                <td><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                    </form>
                 </div>
             </div>
-            <div class="modal-footer">
-                <a href="/admin/affiliates.php" class="btn btn-secondary">Close</a>
+            
+            <?php if (!empty($viewAffiliate['bank_details'])): ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Bank Details</h6>
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                    <pre class="text-sm text-gray-700 whitespace-pre-wrap"><?php echo htmlspecialchars($viewAffiliate['bank_details']); ?></pre>
+                </div>
             </div>
+            <?php endif; ?>
+            
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Referral Link</h6>
+                <div class="flex">
+                    <input type="text" class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg bg-gray-50" id="affiliateRefLink" value="<?php echo htmlspecialchars(SITE_URL . '/?aff=' . $viewAffiliate['code']); ?>" readonly>
+                    <button class="px-6 py-3 bg-primary-100 hover:bg-primary-200 text-primary-700 border border-primary-300 rounded-r-lg transition-colors font-medium" type="button" onclick="copyAffiliateLink(event)">
+                        <i class="bi bi-clipboard mr-2"></i> Copy
+                    </button>
+                </div>
+                <small class="text-gray-500 text-xs mt-1 block">Share this link to track referrals for this affiliate</small>
+            </div>
+            
+            <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Sales History</h6>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b-2 border-gray-300">
+                            <th class="text-left py-2 px-2 font-semibold text-gray-700">Sale ID</th>
+                            <th class="text-left py-2 px-2 font-semibold text-gray-700">Customer</th>
+                            <th class="text-left py-2 px-2 font-semibold text-gray-700">Template</th>
+                            <th class="text-left py-2 px-2 font-semibold text-gray-700">Amount</th>
+                            <th class="text-left py-2 px-2 font-semibold text-gray-700">Commission</th>
+                            <th class="text-left py-2 px-2 font-semibold text-gray-700">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <?php if (empty($affiliateSales)): ?>
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-gray-500 text-sm">
+                                No sales yet
+                            </td>
+                        </tr>
+                        <?php else: ?>
+                        <?php foreach ($affiliateSales as $sale): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-2 px-2 text-gray-900">#<?php echo $sale['id']; ?></td>
+                            <td class="py-2 px-2 text-gray-700"><?php echo htmlspecialchars($sale['customer_name']); ?></td>
+                            <td class="py-2 px-2 text-gray-700"><?php echo htmlspecialchars($sale['template_name']); ?></td>
+                            <td class="py-2 px-2 text-gray-900 font-semibold"><?php echo formatCurrency($sale['amount_paid']); ?></td>
+                            <td class="py-2 px-2 text-green-600 font-semibold"><?php echo formatCurrency($sale['commission_amount']); ?></td>
+                            <td class="py-2 px-2 text-gray-600 text-xs"><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <a href="/admin/affiliates.php" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Close</a>
         </div>
     </div>
 </div>
@@ -898,14 +986,6 @@ require_once __DIR__ . '/includes/header.php';
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     <?php if ($successMessage): ?>
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        const bootstrapModal = bootstrap.Modal.getInstance(modal);
-        if (bootstrapModal) {
-            bootstrapModal.hide();
-        }
-    });
-    
     setTimeout(function() {
         if (window.location.href.indexOf('?') > -1 || window.location.href.indexOf('&') > -1) {
             window.location.href = '/admin/affiliates.php';
@@ -913,13 +993,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
     <?php endif; ?>
     
-    const forms = document.querySelectorAll('.modal form');
+    const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', function() {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                submitBtn.innerHTML = '<span class="inline-block animate-spin mr-2">&#8987;</span>Processing...';
             }
         });
     });
@@ -954,8 +1034,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Sync Quill content to hidden textarea before form submission
-        const bulkEmailForm = document.querySelector('#emailAllAffiliatesModal form');
-        if (bulkEmailForm) {
+        const bulkEmailForm = document.querySelector('form');
+        if (bulkEmailForm && bulkEmailForm.querySelector('#email_message')) {
             bulkEmailForm.addEventListener('submit', function(e) {
                 const messageField = document.querySelector('#email_message');
                 messageField.value = bulkQuill.root.innerHTML;
@@ -979,14 +1059,12 @@ function copyAffiliateLink(event) {
     navigator.clipboard.writeText(linkInput.value).then(function() {
         const btn = event.target.closest('button');
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
-        btn.classList.remove('btn-outline-primary');
-        btn.classList.add('btn-success');
+        btn.innerHTML = '<i class="bi bi-check mr-2"></i> Copied!';
+        btn.className = 'px-6 py-3 bg-green-600 text-white border border-green-700 rounded-r-lg transition-colors font-medium';
         
         setTimeout(function() {
             btn.innerHTML = originalHTML;
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-outline-primary');
+            btn.className = 'px-6 py-3 bg-primary-100 hover:bg-primary-200 text-primary-700 border border-primary-300 rounded-r-lg transition-colors font-medium';
         }, 2000);
     }).catch(function(err) {
         alert('Failed to copy link: ' + err);

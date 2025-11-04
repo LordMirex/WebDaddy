@@ -248,34 +248,46 @@ if (isset($_GET['view'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-cart"></i> Orders Management</h1>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-cart text-primary-600"></i> Orders Management
+    </h1>
 </div>
 
 <?php if ($successMessage): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($successMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-check-circle text-xl"></i>
+        <span><?php echo htmlspecialchars($successMessage); ?></span>
+    </div>
+    <button @click="show = false" class="text-green-700 hover:text-green-900">
+        <i class="bi bi-x-lg"></i>
+    </button>
 </div>
 <?php endif; ?>
 
 <?php if ($errorMessage): ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($errorMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-exclamation-triangle text-xl"></i>
+        <span><?php echo htmlspecialchars($errorMessage); ?></span>
+    </div>
+    <button @click="show = false" class="text-red-700 hover:text-red-900">
+        <i class="bi bi-x-lg"></i>
+    </button>
 </div>
 <?php endif; ?>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Search</label>
-                <input type="text" class="form-control" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone...">
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+    <div class="p-6">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone...">
             </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label">Template</label>
-                <select class="form-select" name="template">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Template</label>
+                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template">
                     <option value="">All Templates</option>
                     <?php foreach ($templates as $tpl): ?>
                     <option value="<?php echo $tpl['id']; ?>" <?php echo $filterTemplate == $tpl['id'] ? 'selected' : ''; ?>>
@@ -284,114 +296,117 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
                     <option value="">All Status</option>
                     <option value="pending" <?php echo $filterStatus === 'pending' ? 'selected' : ''; ?>>Pending</option>
                     <option value="paid" <?php echo $filterStatus === 'paid' ? 'selected' : ''; ?>>Paid</option>
                     <option value="cancelled" <?php echo $filterStatus === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filter</button>
+            <div class="flex items-end">
+                <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                    <i class="bi bi-search mr-2"></i> Filter
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-cart"></i> Orders (<?php echo count($orders); ?>)</h5>
-        <div>
-            <a href="/admin/orders.php?export=csv" class="btn btn-sm btn-success me-2">
-                <i class="bi bi-download"></i> Export CSV
+<div class="bg-white rounded-xl shadow-md border border-gray-100">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center px-6 py-4 border-b border-gray-200 gap-3">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-cart text-primary-600"></i> Orders (<?php echo count($orders); ?>)
+        </h5>
+        <div class="flex flex-wrap gap-2">
+            <a href="/admin/orders.php?export=csv" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+                <i class="bi bi-download mr-1"></i> Export CSV
             </a>
-            <button type="button" class="btn btn-sm btn-primary" id="bulkMarkPaidBtn" disabled>
-                <i class="bi bi-check-circle"></i> Mark Selected as Paid
+            <button type="button" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed" id="bulkMarkPaidBtn" disabled>
+                <i class="bi bi-check-circle mr-1"></i> Mark Selected as Paid
             </button>
-            <button type="button" class="btn btn-sm btn-danger" id="bulkCancelBtn" disabled>
-                <i class="bi bi-x-circle"></i> Cancel Selected
+            <button type="button" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed" id="bulkCancelBtn" disabled>
+                <i class="bi bi-x-circle mr-1"></i> Cancel Selected
             </button>
         </div>
     </div>
-    <div class="card-body">
+    <div class="p-6">
         <form id="bulkActionsForm" method="POST" action="">
             <input type="hidden" name="action" id="bulkAction" value="">
-            <div class="table-responsive">
-                <table class="table table-hover">
+            <div class="overflow-x-auto">
+                <table class="w-full">
                     <thead>
-                        <tr>
-                            <th style="width: 40px;">
-                                <input type="checkbox" id="selectAll" class="form-check-input">
+                        <tr class="border-b-2 border-gray-300">
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm" style="width: 40px;">
+                                <input type="checkbox" id="selectAll" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
                             </th>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Template</th>
-                            <th>Domain</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Order ID</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Domain</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Status</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Date</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
                         </tr>
                     </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     <?php if (empty($orders)): ?>
                     <tr>
-                        <td colspan="8" class="text-center py-4">
-                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-                            <p class="text-muted mt-2">No orders found</p>
+                        <td colspan="8" class="text-center py-12">
+                            <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                            <p class="text-gray-500 mt-4">No orders found</p>
                         </td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($orders as $order): ?>
-                    <tr>
-                        <td>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-2">
                             <?php if ($order['status'] === 'pending'): ?>
-                            <input type="checkbox" name="order_ids[]" value="<?php echo $order['id']; ?>" class="form-check-input order-checkbox">
+                            <input type="checkbox" name="order_ids[]" value="<?php echo $order['id']; ?>" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 order-checkbox">
                             <?php endif; ?>
                         </td>
-                        <td><strong>#<?php echo $order['id']; ?></strong></td>
-                        <td>
-                            <?php echo htmlspecialchars($order['customer_name']); ?><br>
-                            <small class="text-muted">
-                                <i class="bi bi-envelope"></i> <?php echo htmlspecialchars($order['customer_email']); ?><br>
-                                <i class="bi bi-phone"></i> <?php echo htmlspecialchars($order['customer_phone']); ?>
-                            </small>
+                        <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $order['id']; ?></td>
+                        <td class="py-3 px-2">
+                            <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($order['customer_name']); ?></div>
+                            <div class="text-xs text-gray-500 space-y-0.5 mt-1">
+                                <div><i class="bi bi-envelope"></i> <?php echo htmlspecialchars($order['customer_email']); ?></div>
+                                <div><i class="bi bi-phone"></i> <?php echo htmlspecialchars($order['customer_phone']); ?></div>
+                            </div>
                         </td>
-                        <td>
-                            <?php echo htmlspecialchars($order['template_name']); ?><br>
-                            <small class="text-muted"><?php echo formatCurrency($order['template_price']); ?></small>
+                        <td class="py-3 px-2">
+                            <div class="text-gray-900"><?php echo htmlspecialchars($order['template_name']); ?></div>
+                            <div class="text-xs text-gray-500 mt-1"><?php echo formatCurrency($order['template_price']); ?></div>
                         </td>
-                        <td>
+                        <td class="py-3 px-2">
                             <?php if ($order['domain_name']): ?>
-                            <i class="bi bi-globe"></i> <?php echo htmlspecialchars($order['domain_name']); ?>
+                            <span class="flex items-center gap-1 text-gray-700"><i class="bi bi-globe text-primary-600"></i> <?php echo htmlspecialchars($order['domain_name']); ?></span>
                             <?php else: ?>
-                            <span class="text-muted">Not assigned</span>
+                            <span class="text-gray-400">Not assigned</span>
                             <?php endif; ?>
                         </td>
-                        <td>
+                        <td class="py-3 px-2">
                             <?php
-                            $statusClass = [
-                                'pending' => 'warning',
-                                'paid' => 'success',
-                                'cancelled' => 'danger'
+                            $statusColors = [
+                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                'paid' => 'bg-green-100 text-green-800',
+                                'cancelled' => 'bg-red-100 text-red-800'
                             ];
-                            $statusIcon = [
+                            $statusIcons = [
                                 'pending' => 'hourglass-split',
                                 'paid' => 'check-circle',
                                 'cancelled' => 'x-circle'
                             ];
-                            $class = $statusClass[$order['status']] ?? 'secondary';
-                            $icon = $statusIcon[$order['status']] ?? 'circle';
+                            $color = $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800';
+                            $icon = $statusIcons[$order['status']] ?? 'circle';
                             ?>
-                            <span class="badge bg-<?php echo $class; ?>">
+                            <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
                                 <i class="bi bi-<?php echo $icon; ?>"></i> <?php echo ucfirst($order['status']); ?>
                             </span>
                         </td>
-                        <td><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>
-                        <td>
-                            <a href="?view=<?php echo $order['id']; ?>" class="btn btn-sm btn-primary">
+                        <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>
+                        <td class="py-3 px-2">
+                            <a href="?view=<?php echo $order['id']; ?>" class="px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm inline-flex items-center gap-1">
                                 <i class="bi bi-eye"></i> View
                             </a>
                         </td>
@@ -452,149 +467,158 @@ document.getElementById('bulkCancelBtn').addEventListener('click', function() {
 </script>
 
 <?php if ($viewOrder): ?>
-<div class="modal fade show" id="viewOrderModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-cart"></i> Order #<?php echo $viewOrder['id']; ?> Details
-                </h5>
-                <a href="/admin/orders.php" class="btn-close"></a>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <h6 class="text-muted mb-3">Customer Information</h6>
-                        <p class="mb-2"><strong>Name:</strong> <?php echo htmlspecialchars($viewOrder['customer_name']); ?></p>
-                        <p class="mb-2"><strong>Email:</strong> <?php echo htmlspecialchars($viewOrder['customer_email']); ?></p>
-                        <p class="mb-2"><strong>Phone:</strong> <?php echo htmlspecialchars($viewOrder['customer_phone']); ?></p>
+<div class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+            <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-cart text-primary-600"></i> Order #<?php echo $viewOrder['id']; ?> Details
+            </h3>
+            <a href="/admin/orders.php" class="text-gray-400 hover:text-gray-600 text-2xl">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+        <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Customer Information</h6>
+                    <div class="space-y-2">
+                        <p class="text-gray-700"><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($viewOrder['customer_name']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($viewOrder['customer_email']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Phone:</span> <?php echo htmlspecialchars($viewOrder['customer_phone']); ?></p>
                         <?php if (!empty($viewOrder['business_name'])): ?>
-                        <p class="mb-2"><strong>Business:</strong> <?php echo htmlspecialchars($viewOrder['business_name']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Business:</span> <?php echo htmlspecialchars($viewOrder['business_name']); ?></p>
                         <?php endif; ?>
                     </div>
-                    <div class="col-md-6">
-                        <h6 class="text-muted mb-3">Order Information</h6>
-                        <p class="mb-2"><strong>Template:</strong> <?php echo htmlspecialchars($viewOrder['template_name']); ?></p>
-                        <p class="mb-2"><strong>Price:</strong> <?php echo formatCurrency($viewOrder['template_price']); ?></p>
-                        <p class="mb-2"><strong>Status:</strong> 
-                            <span class="badge bg-<?php echo $statusClass[$viewOrder['status']] ?? 'secondary'; ?>">
+                </div>
+                <div>
+                    <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Order Information</h6>
+                    <div class="space-y-2">
+                        <p class="text-gray-700"><span class="font-semibold">Template:</span> <?php echo htmlspecialchars($viewOrder['template_name']); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Price:</span> <?php echo formatCurrency($viewOrder['template_price']); ?></p>
+                        <p class="text-gray-700 flex items-center gap-2">
+                            <span class="font-semibold">Status:</span>
+                            <?php
+                            $statusColors = ['pending' => 'bg-yellow-100 text-yellow-800', 'paid' => 'bg-green-100 text-green-800', 'cancelled' => 'bg-red-100 text-red-800'];
+                            $color = $statusColors[$viewOrder['status']] ?? 'bg-gray-100 text-gray-800';
+                            ?>
+                            <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
                                 <?php echo ucfirst($viewOrder['status']); ?>
                             </span>
                         </p>
-                        <p class="mb-2"><strong>Date:</strong> <?php echo date('M d, Y H:i', strtotime($viewOrder['created_at'])); ?></p>
+                        <p class="text-gray-700"><span class="font-semibold">Date:</span> <?php echo date('M d, Y H:i', strtotime($viewOrder['created_at'])); ?></p>
                         <?php if (!empty($viewOrder['affiliate_code'])): ?>
-                        <p class="mb-2"><strong>Affiliate Code:</strong> <code><?php echo htmlspecialchars($viewOrder['affiliate_code']); ?></code></p>
+                        <p class="text-gray-700"><span class="font-semibold">Affiliate Code:</span> <code class="bg-gray-100 px-2 py-1 rounded text-sm"><?php echo htmlspecialchars($viewOrder['affiliate_code']); ?></code></p>
                         <?php endif; ?>
                     </div>
                 </div>
-                
-                <?php if (!empty($viewOrder['message_text'])): ?>
-                <div class="mb-4">
-                    <h6 class="text-muted mb-2">Customer Message</h6>
-                    <div class="alert alert-info">
-                        <?php echo nl2br(htmlspecialchars($viewOrder['message_text'])); ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <?php if (!empty($viewOrder['custom_fields'])): ?>
-                <div class="mb-4">
-                    <h6 class="text-muted mb-2">Custom Fields</h6>
-                    <div class="alert alert-secondary">
-                        <pre class="mb-0"><?php echo htmlspecialchars($viewOrder['custom_fields']); ?></pre>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <div class="mb-4">
-                    <h6 class="text-muted mb-2">Domain Assignment</h6>
-                    <?php if ($viewOrder['domain_name']): ?>
-                    <div class="alert alert-success">
-                        <i class="bi bi-globe"></i> Assigned Domain: <strong><?php echo htmlspecialchars($viewOrder['domain_name']); ?></strong>
-                    </div>
-                    <?php else: ?>
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle"></i> No domain assigned yet
-                    </div>
-                    
-                    <?php if ($viewOrder['status'] !== 'cancelled' && !empty($availableDomains)): ?>
-                    <form method="POST" class="mt-3">
-                        <input type="hidden" name="action" value="assign_domain">
-                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                        <div class="row g-2">
-                            <div class="col-md-8">
-                                <select class="form-select" name="domain_id" required>
-                                    <option value="">Select a domain to assign...</option>
-                                    <?php foreach ($availableDomains as $domain): ?>
-                                    <option value="<?php echo $domain['id']; ?>">
-                                        <?php echo htmlspecialchars($domain['domain_name']); ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-success w-100">
-                                    <i class="bi bi-link"></i> Assign Domain
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <?php elseif ($viewOrder['status'] !== 'cancelled' && empty($availableDomains)): ?>
-                    <div class="alert alert-danger">
-                        <i class="bi bi-exclamation-circle"></i> No available domains for this template. <a href="/admin/domains.php">Add domains</a>
-                    </div>
-                    <?php endif; ?>
-                    <?php endif; ?>
-                </div>
-                
-                <?php if ($viewOrder['status'] === 'pending'): ?>
-                <div class="mb-4">
-                    <h6 class="text-muted mb-2">Payment Processing</h6>
-                    <form method="POST">
-                        <input type="hidden" name="action" value="mark_paid">
-                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                        
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Amount Paid *</label>
-                                <input type="number" class="form-control" name="amount_paid" value="<?php echo $viewOrder['template_price']; ?>" step="0.01" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Payment Method</label>
-                                <select class="form-select" name="payment_method">
-                                    <option value="WhatsApp">WhatsApp</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                    <option value="Card">Card</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Payment Notes</label>
-                                <textarea class="form-control" name="payment_notes" rows="2" placeholder="Optional notes about the payment..."></textarea>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-cash-coin"></i> Mark as Paid
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <?php endif; ?>
             </div>
-            <div class="modal-footer">
-                <?php if ($viewOrder['status'] === 'pending'): ?>
-                <form method="POST" style="display: inline;">
-                    <input type="hidden" name="action" value="cancel_order">
+            
+            <?php if (!empty($viewOrder['message_text'])): ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Customer Message</h6>
+                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+                    <?php echo nl2br(htmlspecialchars($viewOrder['message_text'])); ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($viewOrder['custom_fields'])): ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Custom Fields</h6>
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                    <pre class="text-sm text-gray-700 whitespace-pre-wrap"><?php echo htmlspecialchars($viewOrder['custom_fields']); ?></pre>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Domain Assignment</h6>
+                <?php if ($viewOrder['domain_name']): ?>
+                <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
+                    <i class="bi bi-globe"></i> Assigned Domain: <strong><?php echo htmlspecialchars($viewOrder['domain_name']); ?></strong>
+                </div>
+                <?php else: ?>
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg">
+                    <i class="bi bi-exclamation-triangle"></i> No domain assigned yet
+                </div>
+                
+                <?php if ($viewOrder['status'] !== 'cancelled' && !empty($availableDomains)): ?>
+                <form method="POST" class="mt-3">
+                    <input type="hidden" name="action" value="assign_domain">
                     <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">
-                        <i class="bi bi-x-circle"></i> Cancel Order
-                    </button>
+                    <div class="grid md:grid-cols-3 gap-2">
+                        <div class="md:col-span-2">
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_id" required>
+                                <option value="">Select a domain to assign...</option>
+                                <?php foreach ($availableDomains as $domain): ?>
+                                <option value="<?php echo $domain['id']; ?>">
+                                    <?php echo htmlspecialchars($domain['domain_name']); ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
+                                <i class="bi bi-link"></i> Assign Domain
+                            </button>
+                        </div>
+                    </div>
                 </form>
+                <?php elseif ($viewOrder['status'] !== 'cancelled' && empty($availableDomains)): ?>
+                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mt-3">
+                    <i class="bi bi-exclamation-circle"></i> No available domains for this template. <a href="/admin/domains.php" class="underline font-semibold">Add domains</a>
+                </div>
                 <?php endif; ?>
-                <a href="/admin/orders.php" class="btn btn-secondary">Close</a>
+                <?php endif; ?>
             </div>
+            
+            <?php if ($viewOrder['status'] === 'pending'): ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Payment Processing</h6>
+                <form method="POST">
+                    <input type="hidden" name="action" value="mark_paid">
+                    <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Amount Paid <span class="text-red-600">*</span></label>
+                            <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="amount_paid" value="<?php echo $viewOrder['template_price']; ?>" step="0.01" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_method">
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Card">Card</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Notes</label>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="2" placeholder="Optional notes about the payment..."></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+                                <i class="bi bi-cash-coin mr-2"></i> Mark as Paid
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <?php endif; ?>
+        </div>
+        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <?php if ($viewOrder['status'] === 'pending'): ?>
+            <form method="POST" style="display: inline;">
+                <input type="hidden" name="action" value="cancel_order">
+                <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors" onclick="return confirm('Are you sure you want to cancel this order?')">
+                    <i class="bi bi-x-circle mr-2"></i> Cancel Order
+                </button>
+            </form>
+            <?php endif; ?>
+            <a href="/admin/orders.php" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Close</a>
         </div>
     </div>
 </div>

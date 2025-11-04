@@ -163,118 +163,135 @@ if (isset($_GET['edit'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-grid"></i> Templates Management</h1>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#templateModal">
-        <i class="bi bi-plus-circle"></i> Add New Template
-    </button>
-</div>
-
-<?php if ($successMessage): ?>
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($successMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-
-<?php if ($errorMessage): ?>
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($errorMessage); ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-<?php endif; ?>
-
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Search</label>
-                <input type="text" class="form-control" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search templates...">
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label">Category</label>
-                <select class="form-select" name="category">
-                    <option value="">All Categories</option>
-                    <?php foreach ($categories as $cat): ?>
-                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $filterCategory === $cat ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($cat); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-6 col-md-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status">
-                    <option value="">All Status</option>
-                    <option value="1" <?php echo $filterStatus === '1' ? 'selected' : ''; ?>>Active</option>
-                    <option value="0" <?php echo $filterStatus === '0' ? 'selected' : ''; ?>>Inactive</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label">&nbsp;</label>
-                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filter</button>
-            </div>
-        </form>
+<div x-data="{ showModal: <?php echo $editTemplate ? 'true' : 'false'; ?>, deleteId: null, deleteName: '' }">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <i class="bi bi-grid text-primary-600"></i> Templates Management
+            </h1>
+        </div>
+        <button @click="showModal = true" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+            <i class="bi bi-plus-circle mr-2"></i> Add New Template
+        </button>
     </div>
-</div>
 
-<div class="card">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
+    <?php if ($successMessage): ?>
+    <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-check-circle text-xl"></i>
+            <span><?php echo htmlspecialchars($successMessage); ?></span>
+        </div>
+        <button @click="show = false" class="text-green-700 hover:text-green-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($errorMessage): ?>
+    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-xl"></i>
+            <span><?php echo htmlspecialchars($errorMessage); ?></span>
+        </div>
+        <button @click="show = false" class="text-red-700 hover:text-red-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <?php endif; ?>
+
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+        <div class="p-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                    <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search templates...">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="category">
+                        <option value="">All Categories</option>
+                        <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $filterCategory === $cat ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($cat); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
+                        <option value="">All Status</option>
+                        <option value="1" <?php echo $filterStatus === '1' ? 'selected' : ''; ?>>Active</option>
+                        <option value="0" <?php echo $filterStatus === '0' ? 'selected' : ''; ?>>Inactive</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-search mr-2"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="overflow-x-auto">
+            <table class="w-full">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Slug</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                    <tr class="border-b-2 border-gray-300">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Name</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Slug</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Category</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Price</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Status</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     <?php if (empty($templates)): ?>
                     <tr>
-                        <td colspan="7" class="text-center py-4">
-                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
-                            <p class="text-muted mt-2">No templates found</p>
+                        <td colspan="7" class="text-center py-12">
+                            <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                            <p class="text-gray-500 mt-4">No templates found</p>
                         </td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($templates as $template): ?>
-                    <tr>
-                        <td><strong>#<?php echo $template['id']; ?></strong></td>
-                        <td>
-                            <?php echo htmlspecialchars($template['name']); ?>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 font-bold text-gray-900">#<?php echo $template['id']; ?></td>
+                        <td class="py-3 px-4">
+                            <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($template['name']); ?></div>
                             <?php if (!empty($template['thumbnail_url'])): ?>
-                            <br><small class="text-muted"><i class="bi bi-image"></i> Has thumbnail</small>
+                            <div class="text-xs text-gray-500 mt-1"><i class="bi bi-image"></i> Has thumbnail</div>
                             <?php endif; ?>
                         </td>
-                        <td><code><?php echo htmlspecialchars($template['slug']); ?></code></td>
-                        <td><?php echo htmlspecialchars($template['category'] ?? '-'); ?></td>
-                        <td><strong><?php echo formatCurrency($template['price']); ?></strong></td>
-                        <td>
+                        <td class="py-3 px-4">
+                            <code class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs"><?php echo htmlspecialchars($template['slug']); ?></code>
+                        </td>
+                        <td class="py-3 px-4 text-gray-700"><?php echo htmlspecialchars($template['category'] ?? '-'); ?></td>
+                        <td class="py-3 px-4 font-bold text-gray-900"><?php echo formatCurrency($template['price']); ?></td>
+                        <td class="py-3 px-4">
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="action" value="toggle_active">
                                 <input type="hidden" name="id" value="<?php echo $template['id']; ?>">
-                                <button type="submit" class="btn btn-sm <?php echo $template['active'] ? 'btn-success' : 'btn-secondary'; ?>">
+                                <button type="submit" class="px-3 py-1 <?php echo $template['active'] ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'; ?> rounded-full text-xs font-semibold transition-colors">
                                     <i class="bi bi-<?php echo $template['active'] ? 'check-circle' : 'x-circle'; ?>"></i>
                                     <?php echo $template['active'] ? 'Active' : 'Inactive'; ?>
                                 </button>
                             </form>
                         </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
                                 <?php if (!empty($template['demo_url'])): ?>
-                                <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" target="_blank" class="btn btn-info" title="View Demo">
+                                <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" target="_blank" class="px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors text-sm" title="View Demo">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <?php endif; ?>
-                                <a href="?edit=<?php echo $template['id']; ?>" class="btn btn-warning" title="Edit">
+                                <a href="?edit=<?php echo $template['id']; ?>" class="px-3 py-1 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg transition-colors text-sm" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <button type="button" class="btn btn-danger" onclick="confirmDelete(<?php echo $template['id']; ?>, '<?php echo htmlspecialchars(addslashes($template['name'])); ?>')" title="Delete">
+                                <button type="button" @click="deleteId = <?php echo $template['id']; ?>; deleteName = '<?php echo htmlspecialchars(addslashes($template['name'])); ?>'; if(confirm('Are you sure you want to delete the template \\'' + deleteName + '\\'? This action cannot be undone.')) { document.getElementById('deleteForm').submit(); }" class="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors text-sm" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -286,104 +303,104 @@ require_once __DIR__ . '/includes/header.php';
             </table>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="templateModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+    <!-- Alpine.js Modal -->
+    <div x-show="showModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl">
+                    <h3 class="text-2xl font-bold text-gray-900">
                         <?php echo $editTemplate ? 'Edit Template' : 'Add New Template'; ?>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </h3>
+                    <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-                <div class="modal-body">
+                <div class="p-6">
                     <input type="hidden" name="action" value="<?php echo $editTemplate ? 'edit' : 'add'; ?>">
                     <?php if ($editTemplate): ?>
                     <input type="hidden" name="id" value="<?php echo $editTemplate['id']; ?>">
                     <?php endif; ?>
                     
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label class="form-label">Template Name *</label>
-                            <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($editTemplate['name'] ?? ''); ?>" required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-1">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Template Name <span class="text-red-600">*</span></label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="name" value="<?php echo htmlspecialchars($editTemplate['name'] ?? ''); ?>" required>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Price (₦) *</label>
-                            <input type="number" class="form-control" name="price" value="<?php echo $editTemplate['price'] ?? '0'; ?>" step="0.01" required>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Price (₦) <span class="text-red-600">*</span></label>
+                            <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="price" value="<?php echo $editTemplate['price'] ?? '0'; ?>" step="0.01" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Slug *</label>
-                            <input type="text" class="form-control" name="slug" value="<?php echo htmlspecialchars($editTemplate['slug'] ?? ''); ?>" required>
-                            <small class="text-muted">URL-friendly name (e.g., ecommerce-store)</small>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Slug <span class="text-red-600">*</span></label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="slug" value="<?php echo htmlspecialchars($editTemplate['slug'] ?? ''); ?>" required>
+                            <small class="text-gray-500 text-xs">URL-friendly name (e.g., ecommerce-store)</small>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Category</label>
-                            <input type="text" class="form-control" name="category" value="<?php echo htmlspecialchars($editTemplate['category'] ?? ''); ?>">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="category" value="<?php echo htmlspecialchars($editTemplate['category'] ?? ''); ?>">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description" rows="3"><?php echo htmlspecialchars($editTemplate['description'] ?? ''); ?></textarea>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="description" rows="3"><?php echo htmlspecialchars($editTemplate['description'] ?? ''); ?></textarea>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Features</label>
-                            <textarea class="form-control" name="features" rows="3"><?php echo htmlspecialchars($editTemplate['features'] ?? ''); ?></textarea>
-                            <small class="text-muted">Comma-separated list of features</small>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Features</label>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="features" rows="3"><?php echo htmlspecialchars($editTemplate['features'] ?? ''); ?></textarea>
+                            <small class="text-gray-500 text-xs">Comma-separated list of features</small>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Demo URL</label>
-                            <input type="url" class="form-control" name="demo_url" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
+                            <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>">
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Thumbnail URL</label>
-                            <input type="url" class="form-control" name="thumbnail_url" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail URL</label>
+                            <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label">Video Links</label>
-                            <textarea class="form-control" name="video_links" rows="2"><?php echo htmlspecialchars($editTemplate['video_links'] ?? ''); ?></textarea>
-                            <small class="text-muted">One URL per line</small>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Video Links</label>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="video_links" rows="2"><?php echo htmlspecialchars($editTemplate['video_links'] ?? ''); ?></textarea>
+                            <small class="text-gray-500 text-xs">One URL per line</small>
                         </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="active" <?php echo (!$editTemplate || $editTemplate['active']) ? 'checked' : ''; ?>>
-                                <label class="form-check-label" for="active">
-                                    Active (visible to customers)
-                                </label>
-                            </div>
+                        <div class="md:col-span-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" name="active" id="active" <?php echo (!$editTemplate || $editTemplate['active']) ? 'checked' : ''; ?>>
+                                <span class="text-sm font-medium text-gray-700">Active (visible to customers)</span>
+                            </label>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> <?php echo $editTemplate ? 'Update' : 'Create'; ?> Template
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-save mr-2"></i> <?php echo $editTemplate ? 'Update' : 'Create'; ?> Template
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <form method="POST" id="deleteForm" style="display: none;">
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="id" x-model="deleteId">
+    </form>
 </div>
-
-<form method="POST" id="deleteForm" style="display: none;">
-    <input type="hidden" name="action" value="delete">
-    <input type="hidden" name="id" id="deleteId">
-</form>
-
-<script>
-function confirmDelete(id, name) {
-    if (confirm('Are you sure you want to delete the template "' + name + '"? This action cannot be undone.')) {
-        document.getElementById('deleteId').value = id;
-        document.getElementById('deleteForm').submit();
-    }
-}
-
-<?php if ($editTemplate): ?>
-document.addEventListener('DOMContentLoaded', function() {
-    var modal = new bootstrap.Modal(document.getElementById('templateModal'));
-    modal.show();
-});
-<?php endif; ?>
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

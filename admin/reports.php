@@ -129,18 +129,20 @@ $salesByDay = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1><i class="bi bi-graph-up"></i> Sales Reports & Analytics</h1>
-    <p class="text-muted">Comprehensive sales and revenue analytics</p>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-graph-up text-primary-600"></i> Sales Reports & Analytics
+    </h1>
+    <p class="text-gray-600 mt-2">Comprehensive sales and revenue analytics</p>
 </div>
 
 <!-- Filter Section -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" action="" class="row g-3">
-            <div class="col-md-3">
-                <label class="form-label">Period</label>
-                <select name="period" id="periodSelect" class="form-select">
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+    <div class="p-6">
+        <form method="GET" action="" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Period</label>
+                <select name="period" id="periodSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
                     <option value="all" <?php echo $period === 'all' ? 'selected' : ''; ?>>All Time</option>
                     <option value="today" <?php echo $period === 'today' ? 'selected' : ''; ?>>Today</option>
                     <option value="week" <?php echo $period === 'week' ? 'selected' : ''; ?>>Last 7 Days</option>
@@ -149,22 +151,22 @@ require_once __DIR__ . '/includes/header.php';
                 </select>
             </div>
             
-            <div class="col-md-3" id="customDates" style="display: <?php echo $period === 'custom' ? 'block' : 'none'; ?>;">
-                <label class="form-label">Start Date</label>
-                <input type="date" name="start_date" class="form-control" value="<?php echo htmlspecialchars($startDate); ?>">
+            <div id="customDates" style="display: <?php echo $period === 'custom' ? 'block' : 'none'; ?>;">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Start Date</label>
+                <input type="date" name="start_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($startDate); ?>">
             </div>
             
-            <div class="col-md-3" id="customDatesEnd" style="display: <?php echo $period === 'custom' ? 'block' : 'none'; ?>;">
-                <label class="form-label">End Date</label>
-                <input type="date" name="end_date" class="form-control" value="<?php echo htmlspecialchars($endDate); ?>">
+            <div id="customDatesEnd" style="display: <?php echo $period === 'custom' ? 'block' : 'none'; ?>;">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">End Date</label>
+                <input type="date" name="end_date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($endDate); ?>">
             </div>
             
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="bi bi-filter"></i> Apply Filter
+            <div class="flex items-end gap-2">
+                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                    <i class="bi bi-filter mr-2"></i> Apply Filter
                 </button>
-                <a href="/admin/reports.php" class="btn btn-secondary">
-                    <i class="bi bi-x-circle"></i> Reset
+                <a href="/admin/reports.php" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <i class="bi bi-x-circle"></i>
                 </a>
             </div>
         </form>
@@ -172,194 +174,192 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Key Metrics -->
-<div class="row g-4 mb-4">
-    <div class="col-6 col-lg-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-currency-dollar"></i> Total Revenue</h6>
-                <div class="stat-number"><?php echo formatCurrency($totalRevenue); ?></div>
-                <small class="text-success"><i class="bi bi-arrow-up"></i> Gross</small>
-            </div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Revenue</h6>
+            <i class="bi bi-currency-dollar text-2xl text-green-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($totalRevenue); ?></div>
+        <small class="text-sm text-green-600 flex items-center gap-1"><i class="bi bi-arrow-up"></i> Gross</small>
     </div>
     
-    <div class="col-6 col-lg-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-graph-up"></i> Net Revenue</h6>
-                <div class="stat-number"><?php echo formatCurrency($netRevenue); ?></div>
-                <small class="text-muted">After commissions</small>
-            </div>
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Net Revenue</h6>
+            <i class="bi bi-graph-up text-2xl text-blue-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($netRevenue); ?></div>
+        <small class="text-sm text-gray-500">After commissions</small>
     </div>
     
-    <div class="col-6 col-lg-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-cart-check"></i> Total Orders</h6>
-                <div class="stat-number"><?php echo $totalOrders; ?></div>
-                <small class="text-muted">Completed sales</small>
-            </div>
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Orders</h6>
+            <i class="bi bi-cart-check text-2xl text-primary-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $totalOrders; ?></div>
+        <small class="text-sm text-gray-500">Completed sales</small>
     </div>
     
-    <div class="col-6 col-lg-3">
-        <div class="card stat-card">
-            <div class="card-body">
-                <h6 class="text-muted mb-2"><i class="bi bi-calculator"></i> Avg Order Value</h6>
-                <div class="stat-number"><?php echo formatCurrency($avgOrderValue); ?></div>
-                <small class="text-muted">Per order</small>
-            </div>
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Avg Order Value</h6>
+            <i class="bi bi-calculator text-2xl text-purple-600"></i>
         </div>
+        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($avgOrderValue); ?></div>
+        <small class="text-sm text-gray-500">Per order</small>
     </div>
 </div>
 
 <!-- Charts Row -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Sales Trend (Last 30 Days)</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="salesChart" height="80"></canvas>
-            </div>
+<div class="mb-6">
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-bar-chart text-primary-600"></i> Sales Trend (Last 30 Days)
+            </h5>
+        </div>
+        <div class="p-6">
+            <canvas id="salesChart" height="80"></canvas>
         </div>
     </div>
 </div>
 
 <!-- Top Performers -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-trophy"></i> Top Selling Templates</h5>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-trophy text-yellow-500"></i> Top Selling Templates
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if (empty($topTemplates)): ?>
+            <p class="text-gray-500">No sales data available</p>
+            <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
+                            <th class="text-center py-3 px-2 font-semibold text-gray-700 text-sm">Sales</th>
+                            <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php foreach ($topTemplates as $template): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-2 text-gray-900"><?php echo htmlspecialchars($template['name']); ?></td>
+                            <td class="text-center py-3 px-2">
+                                <span class="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-semibold"><?php echo $template['sales_count']; ?></span>
+                            </td>
+                            <td class="text-right py-3 px-2 font-bold text-gray-900">
+                                <?php echo formatCurrency($template['revenue']); ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <?php if (empty($topTemplates)): ?>
-                <p class="text-muted mb-0">No sales data available</p>
-                <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-sm mb-0">
-                        <thead>
-                            <tr>
-                                <th>Template</th>
-                                <th class="text-center">Sales</th>
-                                <th class="text-end">Revenue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($topTemplates as $template): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($template['name']); ?></td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary"><?php echo $template['sales_count']; ?></span>
-                                </td>
-                                <td class="text-end">
-                                    <strong><?php echo formatCurrency($template['revenue']); ?></strong>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
     
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-star"></i> Top Affiliates</h5>
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-star text-yellow-500"></i> Top Affiliates
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if (empty($topAffiliates)): ?>
+            <p class="text-gray-500">No affiliate sales data available</p>
+            <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Affiliate</th>
+                            <th class="text-center py-3 px-2 font-semibold text-gray-700 text-sm">Sales</th>
+                            <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Commission</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php foreach ($topAffiliates as $affiliate): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-3 px-2">
+                                <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($affiliate['affiliate_name']); ?></div>
+                                <div class="text-xs text-gray-500"><?php echo htmlspecialchars($affiliate['code']); ?></div>
+                            </td>
+                            <td class="text-center py-3 px-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold"><?php echo $affiliate['sales_count']; ?></span>
+                            </td>
+                            <td class="text-right py-3 px-2 font-bold text-gray-900">
+                                <?php echo formatCurrency($affiliate['total_commission']); ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                <?php if (empty($topAffiliates)): ?>
-                <p class="text-muted mb-0">No affiliate sales data available</p>
-                <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-sm mb-0">
-                        <thead>
-                            <tr>
-                                <th>Affiliate</th>
-                                <th class="text-center">Sales</th>
-                                <th class="text-end">Commission</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($topAffiliates as $affiliate): ?>
-                            <tr>
-                                <td>
-                                    <?php echo htmlspecialchars($affiliate['affiliate_name']); ?>
-                                    <br><small class="text-muted"><?php echo htmlspecialchars($affiliate['code']); ?></small>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-success"><?php echo $affiliate['sales_count']; ?></span>
-                                </td>
-                                <td class="text-end">
-                                    <strong><?php echo formatCurrency($affiliate['total_commission']); ?></strong>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <!-- Recent Sales Table -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Sales</h5>
-        <a href="/admin/orders.php?export=csv" class="btn btn-sm btn-success">
-            <i class="bi bi-download"></i> Export CSV
+<div class="bg-white rounded-xl shadow-md border border-gray-100">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center px-6 py-4 border-b border-gray-200 gap-3">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-clock-history text-primary-600"></i> Recent Sales
+        </h5>
+        <a href="/admin/orders.php?export=csv" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+            <i class="bi bi-download mr-1"></i> Export CSV
         </a>
     </div>
-    <div class="card-body">
+    <div class="p-6">
         <?php if (empty($recentSales)): ?>
-        <p class="text-muted mb-0">No sales found for the selected period</p>
+        <p class="text-gray-500">No sales found for the selected period</p>
         <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
+        <div class="overflow-x-auto">
+            <table class="w-full">
                 <thead>
-                    <tr>
-                        <th>Sale ID</th>
-                        <th>Customer</th>
-                        <th>Template</th>
-                        <th>Amount</th>
-                        <th>Commission</th>
-                        <th>Affiliate</th>
-                        <th>Date</th>
+                    <tr class="border-b-2 border-gray-300">
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Sale ID</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Amount</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Commission</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Affiliate</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Date</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     <?php foreach ($recentSales as $sale): ?>
-                    <tr>
-                        <td><strong>#<?php echo $sale['id']; ?></strong></td>
-                        <td>
-                            <?php echo htmlspecialchars($sale['customer_name']); ?>
-                            <br><small class="text-muted"><?php echo htmlspecialchars($sale['customer_email']); ?></small>
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $sale['id']; ?></td>
+                        <td class="py-3 px-2">
+                            <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($sale['customer_name']); ?></div>
+                            <div class="text-xs text-gray-500"><?php echo htmlspecialchars($sale['customer_email']); ?></div>
                         </td>
-                        <td><?php echo htmlspecialchars($sale['template_name']); ?></td>
-                        <td><strong><?php echo formatCurrency($sale['amount_paid']); ?></strong></td>
-                        <td>
+                        <td class="py-3 px-2 text-gray-700"><?php echo htmlspecialchars($sale['template_name']); ?></td>
+                        <td class="py-3 px-2 font-bold text-gray-900"><?php echo formatCurrency($sale['amount_paid']); ?></td>
+                        <td class="py-3 px-2">
                             <?php if ($sale['commission_amount'] > 0): ?>
-                            <span class="text-warning"><?php echo formatCurrency($sale['commission_amount']); ?></span>
+                            <span class="text-yellow-600 font-medium"><?php echo formatCurrency($sale['commission_amount']); ?></span>
                             <?php else: ?>
-                            <span class="text-muted">-</span>
+                            <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td>
+                        <td class="py-3 px-2">
                             <?php if ($sale['affiliate_code']): ?>
-                            <span class="badge bg-info"><?php echo htmlspecialchars($sale['affiliate_code']); ?></span>
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold"><?php echo htmlspecialchars($sale['affiliate_code']); ?></span>
                             <?php else: ?>
-                            <span class="text-muted">Direct</span>
+                            <span class="text-gray-500">Direct</span>
                             <?php endif; ?>
                         </td>
-                        <td><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
+                        <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
