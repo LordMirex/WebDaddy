@@ -46,14 +46,17 @@ try {
     $recentSales = [];
 }
 
-// Get active announcements
+// Get active announcements (for all affiliates or specifically for this affiliate)
 try {
-    $announcements = $db->query("
+    $stmt = $db->prepare("
         SELECT * FROM announcements 
         WHERE is_active = true 
+        AND (affiliate_id IS NULL OR affiliate_id = ?)
         ORDER BY created_at DESC 
         LIMIT 5
-    ")->fetchAll(PDO::FETCH_ASSOC);
+    ");
+    $stmt->execute([$affiliateId]);
+    $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     error_log('Error fetching announcements: ' . $e->getMessage());
     $announcements = [];

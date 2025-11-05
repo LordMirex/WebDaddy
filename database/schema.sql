@@ -200,12 +200,14 @@ CREATE TABLE announcements (
     type VARCHAR(50) DEFAULT 'info',
     is_active BOOLEAN DEFAULT true,
     created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    affiliate_id INTEGER DEFAULT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_announcements_is_active ON announcements(is_active);
 CREATE INDEX idx_announcements_created_at ON announcements(created_at);
+CREATE INDEX idx_announcements_affiliate_id ON announcements(affiliate_id);
 
 -- Insert Default Settings
 INSERT INTO settings (setting_key, setting_value) VALUES

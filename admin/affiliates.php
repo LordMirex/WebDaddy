@@ -197,18 +197,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title = sanitizeInput($_POST['announcement_title']);
             $message = sanitizeInput($_POST['announcement_message']);
             $type = sanitizeInput($_POST['announcement_type'] ?? 'info');
+            $affiliateId = !empty($_POST['announcement_affiliate_id']) ? intval($_POST['announcement_affiliate_id']) : null;
             
             if (empty($title) || empty($message)) {
                 $errorMessage = 'Title and message are required.';
             } else {
                 try {
                     $stmt = $db->prepare("
-                        INSERT INTO announcements (title, message, type, is_active, created_by)
-                        VALUES (?, ?, ?, true, ?)
+                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id)
+                        VALUES (?, ?, ?, true, ?, ?)
                     ");
-                    $stmt->execute([$title, $message, $type, getAdminId()]);
+                    $stmt->execute([$title, $message, $type, getAdminId(), $affiliateId]);
                     
-                    $successMessage = 'Announcement posted successfully! It will appear on all affiliate dashboards.';
+                    if ($affiliateId) {
+                        $stmt = $db->prepare("SELECT u.name FROM affiliates a JOIN users u ON a.user_id = u.id WHERE a.id = ?");
+                        $stmt->execute([$affiliateId]);
+                        $affiliateName = $stmt->fetchColumn();
+                        $successMessage = 'Announcement posted successfully! It will appear on ' . htmlspecialchars($affiliateName) . '\'s dashboard.';
+                    } else {
+                        $successMessage = 'Announcement posted successfully! It will appear on all affiliate dashboards.';
+                    }
                     logActivity('announcement_created', "Posted announcement: $title", getAdminId());
                 } catch (PDOException $e) {
                     $errorMessage = 'Database error: ' . $e->getMessage();
@@ -789,11 +797,25 @@ require_once __DIR__ . '/includes/header.php';
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
-                <div class="p-6 space-y-4">
+                <div class="p-6 space-y-4" x-data="{ selectedAffiliate: '' }">
                     <input type="hidden" name="action" value="create_announcement">
                     
                     <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
-                        <i class="bi bi-info-circle mr-2"></i> This will appear on all affiliate dashboards.
+                        <i class="bi bi-info-circle mr-2"></i> 
+                        <span x-show="!selectedAffiliate">This will appear on all affiliate dashboards.</span>
+                        <span x-show="selectedAffiliate" style="display: none;">This will appear only on the selected affiliate's dashboard.</span>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Target Audience</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_affiliate_id" x-model="selectedAffiliate">
+                            <option value="">All Affiliates</option>
+                            <?php foreach ($affiliates as $aff): ?>
+                            <option value="<?php echo $aff['id']; ?>">
+                                <?php echo htmlspecialchars($aff['name']); ?> (<?php echo htmlspecialchars($aff['code']); ?>)
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     
                     <div>

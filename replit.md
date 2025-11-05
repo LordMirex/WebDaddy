@@ -10,6 +10,14 @@ WebDaddy Empire is a PHP/SQLite template marketplace designed for selling websit
 - ✅ Phase 4: Landing Page UX - COMPLETED (November 5, 2025)
 - ✅ Phase 5: Polish & Testing - COMPLETED (November 5, 2025)
 
+**Database & Communication Features Fix:** (November 5, 2025)
+- ✅ Database initialized with complete schema (all tables created)
+- ✅ Announcements feature enhanced to support individual affiliate targeting
+- ✅ Email affiliate functionality verified and working
+- ✅ Bulk email to all affiliates functionality verified and working
+- ✅ Schema files updated to include affiliate_id column for fresh installations
+- ✅ All features tested and production-ready
+
 ## User Preferences
 - Code style: PSR-12 compliant, 4 spaces, camelCase variables
 - No frameworks - plain PHP only
@@ -33,7 +41,9 @@ The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.d
 - **Affiliate Features:** Login dashboard, earnings/commission tracking (30% commission), settings for profile and bank account management, simplified withdrawal requests, and password update functionality. Includes marketing tools like referral link variants and social media/email copy templates.
 
 ### System Design Choices
-The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, and `settings`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10. Modals are implemented using Alpine.js `x-show`/`x-data` patterns with Tailwind for styling, replacing all Bootstrap modal functionalities.
+The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, `settings`, and `announcements`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10. Modals are implemented using Alpine.js `x-show`/`x-data` patterns with Tailwind for styling, replacing all Bootstrap modal functionalities.
+
+**Announcements System:** The announcements table supports both broadcast announcements (for all affiliates) and targeted announcements (for specific affiliates). Admin can create announcements via the affiliate management panel and select either "All Affiliates" or a specific affiliate. Affiliates see announcements that are either global (affiliate_id IS NULL) or specifically targeted to them (affiliate_id matches their ID). The system uses a simple yet powerful filtering mechanism to ensure proper announcement delivery.
 
 ## External Dependencies
 - **Database:** SQLite (webdaddy.db)
