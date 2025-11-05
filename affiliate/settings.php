@@ -23,6 +23,9 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Debug: Write POST data to file
+    file_put_contents('/tmp/affiliate_post_debug.txt', date('Y-m-d H:i:s') . "\n" . print_r($_POST, true) . "\n\n", FILE_APPEND);
+    
     if (isset($_POST['update_profile'])) {
         $name = sanitizeInput($_POST['name'] ?? '');
         $phone = sanitizeInput($_POST['phone'] ?? '');
