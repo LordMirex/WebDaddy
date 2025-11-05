@@ -40,22 +40,30 @@
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
                 <!-- Mobile Menu Button & Logo -->
-                <div class="flex items-center space-x-3">
-                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-white hover:text-gold transition-colors p-2 rounded-lg hover:bg-primary-800">
-                        <i class="bi bi-list text-2xl"></i>
+                <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-white hover:text-gold transition-colors p-2 rounded-lg hover:bg-primary-800 flex-shrink-0">
+                        <i class="bi bi-list text-xl sm:text-2xl"></i>
                     </button>
-                    <a href="/affiliate/" class="flex items-center space-x-2 group">
-                        <i class="bi bi-cash-stack text-2xl text-gold group-hover:scale-110 transition-transform"></i>
-                        <span class="text-xl font-bold hidden sm:inline group-hover:text-gold transition-colors"><?php echo SITE_NAME; ?> <span class="text-gold">Affiliate</span></span>
+                    <a href="/affiliate/" class="flex items-center space-x-2 group min-w-0">
+                        <i class="bi bi-cash-stack text-xl sm:text-2xl text-gold group-hover:scale-110 transition-transform flex-shrink-0"></i>
+                        <span class="text-base sm:text-xl font-bold text-white group-hover:text-gold transition-colors truncate"><?php echo SITE_NAME; ?> <span class="text-gold text-sm sm:text-xl">Affiliate</span></span>
                     </a>
                 </div>
 
                 <!-- Desktop Navigation -->
-                <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
                     <!-- View Site Link -->
-                    <a href="/" target="_blank" class="hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-primary-800 transition-all group">
-                        <i class="bi bi-box-arrow-up-right group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium">View Site</span>
+                    <a href="/" target="_blank" class="hidden md:flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg hover:bg-primary-800 transition-all group">
+                        <i class="bi bi-box-arrow-up-right text-sm group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-sm">View Site</span>
+                    </a>
+                    
+                    <!-- Support Link -->
+                    <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER ?? ''); ?>?text=Hi%2C%20I%20need%20support%20with%20my%20affiliate%20account" 
+                       target="_blank" 
+                       class="hidden md:flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition-all group">
+                        <i class="bi bi-whatsapp text-sm group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-sm">Support</span>
                     </a>
 
                     <!-- User Dropdown -->

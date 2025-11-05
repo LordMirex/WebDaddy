@@ -38,20 +38,20 @@
     <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg sticky top-0 z-40">
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-white hover:text-gold transition-colors p-2 rounded-lg hover:bg-primary-800">
-                        <i class="bi bi-list text-2xl"></i>
+                <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-white hover:text-gold transition-colors p-2 rounded-lg hover:bg-primary-800 flex-shrink-0">
+                        <i class="bi bi-list text-xl sm:text-2xl"></i>
                     </button>
-                    <a href="/admin/" class="flex items-center space-x-2 group">
-                        <i class="bi bi-shield-lock text-2xl text-gold group-hover:scale-110 transition-transform"></i>
-                        <span class="text-xl font-bold hidden sm:inline group-hover:text-gold transition-colors"><?php echo SITE_NAME; ?> <span class="text-gold">Admin</span></span>
+                    <a href="/admin/" class="flex items-center space-x-2 group min-w-0">
+                        <i class="bi bi-shield-lock text-xl sm:text-2xl text-gold group-hover:scale-110 transition-transform flex-shrink-0"></i>
+                        <span class="text-base sm:text-xl font-bold text-white group-hover:text-gold transition-colors truncate"><?php echo SITE_NAME; ?> <span class="text-gold text-sm sm:text-xl">Admin</span></span>
                     </a>
                 </div>
 
-                <div class="flex items-center space-x-6">
-                    <a href="/" target="_blank" class="hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-primary-800 transition-all group">
-                        <i class="bi bi-box-arrow-up-right group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium">View Site</span>
+                <div class="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+                    <a href="/" target="_blank" class="hidden md:flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg hover:bg-primary-800 transition-all group">
+                        <i class="bi bi-box-arrow-up-right text-sm group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium text-sm">View Site</span>
                     </a>
 
                     <div class="relative" x-data="{ open: false }">

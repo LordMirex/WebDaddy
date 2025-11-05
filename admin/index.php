@@ -34,7 +34,7 @@ require_once __DIR__ . '/includes/header.php';
     <p class="text-gray-600 mt-2">Welcome back, <?php echo htmlspecialchars(getAdminName()); ?>!</p>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Templates</h6>
@@ -88,8 +88,9 @@ require_once __DIR__ . '/includes/header.php';
             <span>No pending orders at the moment.</span>
         </div>
         <?php else: ?>
-        <div class="overflow-x-auto">
-            <table class="w-full">
+        <div class="overflow-x-auto relative">
+            <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none lg:hidden"></div>
+            <table class="w-full min-w-[640px]">
                 <thead>
                     <tr class="border-b border-gray-200">
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Order ID</th>
