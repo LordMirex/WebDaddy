@@ -4,11 +4,23 @@
 WebDaddy Empire is a PHP/SQLite template marketplace for selling website templates with pre-configured domains. It features a unique WhatsApp-first manual payment system, an admin management panel, and an affiliate tracking system. The platform aims to offer a professional and conversion-optimized experience for acquiring website templates, emphasizing simplicity and direct interaction for purchases. The application uses a single, portable SQLite database file (`webdaddy.db`).
 
 ## Recent Fixes (November 5, 2025)
-**Alpine.js Form Submission Fix** - Fixed critical form submission issue affecting affiliate settings and withdrawals:
+
+### 1. Alpine.js Form Submission Fix
+Fixed critical form submission issue affecting affiliate settings and withdrawals:
 - **Issue**: Alpine.js `@submit` binding wasn't sending button names in POST data, causing forms to submit without processing
 - **Files Fixed**: `affiliate/settings.php`, `affiliate/withdrawals.php`
 - **Solution**: Changed form detection from `isset($_POST['button_name'])` to also check for field presence (e.g., `isset($_POST['bank_name'])`)
 - **Impact**: Affiliate bank details and withdrawal requests now work correctly
+
+### 2. Withdrawal Processing Balance Bugs
+Fixed critical bugs in admin withdrawal processing that caused incorrect commission balances:
+- **Bug #1 - Rejected Withdrawals**: When admin rejected a withdrawal, money was NOT returned to affiliate's pending balance
+- **Bug #2 - Double Deduction**: When admin marked withdrawal as paid, amount was deducted TWICE from commission_pending (once on request, once on payment)
+- **File Fixed**: `admin/affiliates.php`
+- **Solution**: 
+  - Rejected: Now returns amount to `commission_pending`
+  - Paid: Now only adds to `commission_paid` (no double deduction)
+- **Impact**: Correct commission tracking and fair treatment of affiliates
 
 ## User Preferences
 - Code style: PSR-12 compliant, 4 spaces, camelCase variables

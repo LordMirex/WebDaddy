@@ -233,9 +233,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$withdrawalStatus, $adminNotes, getAdminId(), $requestId]);
                 
                 if ($withdrawalStatus === 'paid') {
-                    $stmt = $db->prepare("UPDATE affiliates SET commission_pending = commission_pending - ?, commission_paid = commission_paid + ? WHERE id = ?");
-                    $stmt->execute([$request['amount'], $request['amount'], $request['affiliate_id']]);
+                    // Money was already deducted from commission_pending when request was made
+                    // Just move it to commission_paid
+                    $stmt = $db->prepare("UPDATE affiliates SET commission_paid = commission_paid + ? WHERE id = ?");
+                    $stmt->execute([$request['amount'], $request['affiliate_id']]);
                 } elseif ($withdrawalStatus === 'rejected') {
+                    // Return money to commission_pending since withdrawal was rejected
+                    $stmt = $db->prepare("UPDATE affiliates SET commission_pending = commission_pending + ? WHERE id = ?");
+                    $stmt->execute([$request['amount'], $request['affiliate_id']]);
                 }
                 
                 $db->commit();
