@@ -119,11 +119,6 @@
                     <span class="font-semibold">Domains</span>
                 </a>
 
-                <a href="/admin/bulk_import_domains.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group ml-8 <?php echo basename($_SERVER['PHP_SELF']) == 'bulk_import_domains.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-upload text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'bulk_import_domains.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
-                    <span class="font-semibold">Bulk Import</span>
-                </a>
-
                 <a href="/admin/orders.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-cart text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Orders</span>

@@ -22,6 +22,13 @@ Fixed critical bugs in admin withdrawal processing that caused incorrect commiss
   - Paid: Now only adds to `commission_paid` (no double deduction)
 - **Impact**: Correct commission tracking and fair treatment of affiliates
 
+### 3. Bulk Import Navigation Fix (Issue #004)
+Removed redundant "Bulk Import" link from admin sidebar navigation:
+- **Issue**: Bulk Import appeared both in sidebar and as modal button on domains page, causing confusion
+- **File Fixed**: `admin/includes/header.php`
+- **Solution**: Removed the sidebar link (lines 122-125), keeping only the modal button on domains page
+- **Impact**: Cleaner navigation, bulk import now accessed only via "Bulk Add Domains" button on domains page
+
 ## User Preferences
 - Code style: PSR-12 compliant, 4 spaces, camelCase variables
 - No frameworks - plain PHP only
