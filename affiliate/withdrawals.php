@@ -75,45 +75,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_withdrawal'])
             
             $withdrawalId = $db->lastInsertId('withdrawal_requests_id_seq') ?: $db->lastInsertId();
             
-            // ✅ FIX: Deduct amount from commission_pending immediately
+            // ✅ FIX: Deduct amount from commission_pending with atomic guard
             $stmt = $db->prepare("
                 UPDATE affiliates 
                 SET commission_pending = commission_pending - ? 
-                WHERE id = ?
+                WHERE id = ? AND commission_pending >= ?
             ");
-            $stmt->execute([$amount, $_SESSION['affiliate_id']]);
+            $stmt->execute([$amount, $_SESSION['affiliate_id'], $amount]);
             
-            // ✅ FIX: Commit transaction
-            $db->commit();
-            
-            // Log activity
-            if (function_exists('logActivity')) {
-                logActivity('withdrawal_requested', "Withdrawal request #{$withdrawalId} for " . formatCurrency($amount), $_SESSION['affiliate_user_id']);
+            // ✅ FIX: Verify the update succeeded (prevents race condition)
+            if ($stmt->rowCount() === 0) {
+                // Rollback if balance check failed (concurrent request issue)
+                $db->rollBack();
+                $error = 'Insufficient balance or concurrent request detected. Please try again.';
+            } else {
+                // ✅ FIX: Commit transaction only if balance was successfully deducted
+                $db->commit();
+                
+                // Log activity
+                if (function_exists('logActivity')) {
+                    logActivity('withdrawal_requested', "Withdrawal request #{$withdrawalId} for " . formatCurrency($amount), $_SESSION['affiliate_user_id']);
+                }
+                
+                // Send notification email to admin
+                $stmt = $db->prepare("
+                    SELECT u.name, u.email
+                    FROM users u
+                    JOIN affiliates a ON u.id = a.user_id
+                    WHERE a.id = ?
+                ");
+                $stmt->execute([$_SESSION['affiliate_id']]);
+                $affiliateInfo_email = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($affiliateInfo_email) {
+                    sendWithdrawalRequestToAdmin(
+                        $affiliateInfo_email['name'],
+                        $affiliateInfo_email['email'],
+                        number_format($amount, 2),
+                        $withdrawalId
+                    );
+                }
+                
+                // ✅ FIX: Refresh affiliate info to show updated balance
+                $affiliateInfo = getAffiliateInfo();
+                
+                $success = 'Withdrawal request submitted successfully! Reference: WD#' . $withdrawalId . '. We will process it within 24-48 hours. Your new available balance is: ' . formatCurrency($affiliateInfo['commission_pending']);
             }
-            
-            // Send notification email to admin
-            $stmt = $db->prepare("
-                SELECT u.name, u.email
-                FROM users u
-                JOIN affiliates a ON u.id = a.user_id
-                WHERE a.id = ?
-            ");
-            $stmt->execute([$_SESSION['affiliate_id']]);
-            $affiliateInfo_email = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($affiliateInfo_email) {
-                sendWithdrawalRequestToAdmin(
-                    $affiliateInfo_email['name'],
-                    $affiliateInfo_email['email'],
-                    number_format($amount, 2),
-                    $withdrawalId
-                );
-            }
-            
-            // ✅ FIX: Refresh affiliate info to show updated balance
-            $affiliateInfo = getAffiliateInfo();
-            
-            $success = 'Withdrawal request submitted successfully! Reference: WD#' . $withdrawalId . '. We will process it within 24-48 hours. Your new available balance is: ' . formatCurrency($affiliateInfo['commission_pending']);
             
         } catch (PDOException $e) {
             // ✅ FIX: Rollback transaction on error
