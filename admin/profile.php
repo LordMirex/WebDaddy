@@ -20,6 +20,12 @@ $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$adminId]);
 $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// Get saved bank details
+$savedBankDetails = null;
+if (!empty($admin['bank_details'])) {
+    $savedBankDetails = json_decode($admin['bank_details'], true);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
@@ -56,6 +62,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Update session
                     $_SESSION['admin_email'] = $email;
                     $_SESSION['admin_name'] = $name;
+                }
+            } catch (PDOException $e) {
+                $error = 'Database error: ' . $e->getMessage();
+            }
+        }
+    } elseif ($action === 'update_bank_details') {
+        $bankName = sanitizeInput($_POST['bank_name'] ?? '');
+        $accountNumber = sanitizeInput($_POST['account_number'] ?? '');
+        $accountName = sanitizeInput($_POST['account_name'] ?? '');
+        
+        if (empty($bankName) || empty($accountNumber) || empty($accountName)) {
+            $error = 'All bank details fields are required.';
+        } else {
+            $bankDetails = json_encode([
+                'bank_name' => $bankName,
+                'account_number' => $accountNumber,
+                'account_name' => $accountName
+            ]);
+            
+            try {
+                $stmt = $db->prepare("UPDATE users SET bank_details = ? WHERE id = ?");
+                if ($stmt->execute([$bankDetails, $adminId])) {
+                    $success = 'Bank details saved successfully!';
+                    logActivity('bank_details_updated', 'Admin updated their bank details', $adminId);
+                    
+                    // Refresh admin data
+                    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+                    $stmt->execute([$adminId]);
+                    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+                } else {
+                    $error = 'Failed to save bank details.';
                 }
             } catch (PDOException $e) {
                 $error = 'Database error: ' . $e->getMessage();
