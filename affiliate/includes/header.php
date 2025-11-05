@@ -44,8 +44,8 @@
                     <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-white hover:text-gold transition-colors p-2 rounded-lg hover:bg-primary-800 flex-shrink-0">
                         <i class="bi bi-list text-xl sm:text-2xl"></i>
                     </button>
-                    <a href="/affiliate/" class="flex items-center space-x-2 group min-w-0">
-                        <i class="bi bi-cash-stack text-xl sm:text-2xl text-gold group-hover:scale-110 transition-transform flex-shrink-0"></i>
+                    <a href="/affiliate/" class="flex items-center space-x-2 sm:space-x-3 group min-w-0">
+                        <img src="/assets/images/webdaddy-logo.png" alt="<?php echo SITE_NAME; ?>" class="h-8 sm:h-10 w-auto flex-shrink-0 group-hover:scale-105 transition-transform">
                         <span class="text-base sm:text-xl font-bold text-white group-hover:text-gold transition-colors truncate"><?php echo SITE_NAME; ?> <span class="text-gold text-sm sm:text-xl">Affiliate</span></span>
                     </a>
                 </div>

@@ -81,9 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="p-8 sm:p-10">
                 <!-- Logo & Header -->
                 <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-600 to-primary-800 rounded-full mb-4 shadow-lg">
-                        <i class="bi bi-cash-stack text-4xl text-gold"></i>
-                    </div>
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?php echo SITE_NAME; ?>" class="max-w-[120px] mx-auto mb-4">
                     <h2 class="text-3xl font-bold text-gray-900 mb-2">Affiliate Login</h2>
                     <p class="text-gray-500 font-medium"><?php echo SITE_NAME; ?></p>
                 </div>
