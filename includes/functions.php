@@ -19,6 +19,40 @@ function formatCurrency($amount)
     return '₦' . number_format($amount, 2);
 }
 
+function formatNumber($number)
+{
+    return number_format($number);
+}
+
+function truncateText($text, $length = 50)
+{
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    return substr($text, 0, $length) . '...';
+}
+
+function getRelativeTime($datetime)
+{
+    $timestamp = strtotime($datetime);
+    $diff = time() - $timestamp;
+    
+    if ($diff < 60) {
+        return 'Just now';
+    } elseif ($diff < 3600) {
+        $mins = floor($diff / 60);
+        return $mins . ' minute' . ($mins > 1 ? 's' : '') . ' ago';
+    } elseif ($diff < 86400) {
+        $hours = floor($diff / 3600);
+        return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+    } elseif ($diff < 604800) {
+        $days = floor($diff / 86400);
+        return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+    } else {
+        return date('M d, Y', $timestamp);
+    }
+}
+
 function getStatusBadge($status)
 {
     $badges = [

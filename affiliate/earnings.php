@@ -105,7 +105,7 @@ require_once __DIR__ . '/includes/header.php';
     <!-- Total Sales -->
     <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl shadow-lg p-4 sm:p-6 transform hover:scale-105 transition-transform overflow-hidden">
         <h6 class="text-xs sm:text-sm font-semibold opacity-90 mb-2 uppercase tracking-wide truncate">Total Sales</h6>
-        <h3 class="text-2xl sm:text-3xl font-bold mb-1 truncate"><?php echo $affiliate['total_sales']; ?></h3>
+        <h3 class="text-2xl sm:text-3xl font-bold mb-1 truncate"><?php echo formatNumber($affiliate['total_sales']); ?></h3>
         <small class="text-xs opacity-75 truncate block">Conversions</small>
     </div>
 </div>
@@ -146,7 +146,7 @@ require_once __DIR__ . '/includes/header.php';
                             </td>
                             <td class="px-4 py-4 text-center">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-800">
-                                    <?php echo $monthly['sales_count']; ?>
+                                    <?php echo formatNumber($monthly['sales_count']); ?>
                                 </span>
                             </td>
                             <td class="px-4 py-4 text-right text-sm font-bold text-gray-900">
@@ -161,7 +161,7 @@ require_once __DIR__ . '/includes/header.php';
                             <th class="px-4 py-4 text-center text-sm font-bold text-gray-900">
                                 <?php 
                                 $totalCount = array_sum(array_column($monthlyEarnings, 'sales_count'));
-                                echo $totalCount;
+                                echo formatNumber($totalCount);
                                 ?>
                             </th>
                             <th class="px-4 py-4 text-right text-sm font-bold text-gray-900">
@@ -189,7 +189,7 @@ require_once __DIR__ . '/includes/header.php';
                         <div>
                             <div class="text-sm text-gray-600 mb-1">Sales</div>
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-800">
-                                <?php echo $monthly['sales_count']; ?>
+                                <?php echo formatNumber($monthly['sales_count']); ?>
                             </span>
                         </div>
                         <div class="text-right">
@@ -206,7 +206,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="flex justify-between items-center">
                         <div>
                             <div class="text-sm text-gray-600 mb-1">Total Sales</div>
-                            <div class="font-bold text-gray-900"><?php echo array_sum(array_column($monthlyEarnings, 'sales_count')); ?></div>
+                            <div class="font-bold text-gray-900"><?php echo formatNumber(array_sum(array_column($monthlyEarnings, 'sales_count'))); ?></div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-600 mb-1">Total Earned</div>
@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
                 <i class="bi bi-list-ul text-xl text-primary-600"></i>
             </div>
-            <h5 class="text-xl font-bold text-gray-900">All Sales (<?php echo number_format($totalSales); ?>)</h5>
+            <h5 class="text-xl font-bold text-gray-900">All Sales (<?php echo formatNumber($totalSales); ?>)</h5>
         </div>
     </div>
     

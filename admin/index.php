@@ -40,8 +40,8 @@ require_once __DIR__ . '/includes/header.php';
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Templates</h6>
             <i class="bi bi-grid text-xl sm:text-2xl text-primary-600 flex-shrink-0"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $activeTemplates; ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo $totalTemplates; ?> total</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($activeTemplates); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($totalTemplates); ?> total</small>
     </div>
     
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
@@ -49,8 +49,8 @@ require_once __DIR__ . '/includes/header.php';
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Orders</h6>
             <i class="bi bi-cart text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $pendingOrders; ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo $totalOrders; ?> total</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($pendingOrders); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($totalOrders); ?> total</small>
     </div>
     
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
@@ -58,7 +58,7 @@ require_once __DIR__ . '/includes/header.php';
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Sales</h6>
             <i class="bi bi-check-circle text-xl sm:text-2xl text-green-600 flex-shrink-0"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $totalSales; ?></div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($totalSales); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatCurrency($totalRevenue); ?> revenue</small>
     </div>
     
@@ -67,8 +67,8 @@ require_once __DIR__ . '/includes/header.php';
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Affiliates</h6>
             <i class="bi bi-people text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $totalAffiliates; ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo $pendingWithdrawals; ?> pending withdrawals</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($totalAffiliates); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($pendingWithdrawals); ?> pending withdrawals</small>
     </div>
 </div>
 

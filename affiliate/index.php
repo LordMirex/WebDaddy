@@ -151,7 +151,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
         <h6 class="text-xs sm:text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide truncate">Total Clicks</h6>
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo number_format($stats['total_clicks']); ?></h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo formatNumber($stats['total_clicks']); ?></h2>
     </div>
     
     <!-- Total Sales -->
@@ -162,7 +162,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
         <h6 class="text-xs sm:text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide truncate">Total Sales</h6>
-        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo number_format($stats['total_sales']); ?></h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo formatNumber($stats['total_sales']); ?></h2>
     </div>
     
     <!-- Pending Commission -->

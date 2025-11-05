@@ -40,7 +40,7 @@ define('AFFILIATE_COMMISSION_RATE', 0.30);  // 30% commission rate
 define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using affiliate links
 
 // Site Settings
-define('SITE_URL', 'http://webdaddy.online');  // Your site URL
+define('SITE_URL', 'https://webdaddy.online');  // Your site URL
 define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 
 // Security Settings
