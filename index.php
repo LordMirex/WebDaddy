@@ -95,7 +95,7 @@ $categories = array_unique(array_column($templates, 'category'));
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-16 sm:py-24 lg:py-32">
+    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16 lg:py-20">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Turn Your Website Idea Into Reality</h1>
@@ -178,24 +178,47 @@ $categories = array_unique(array_column($templates, 'category'));
     </a>
 
     <!-- Templates Section -->
-    <section class="py-16 bg-white" id="templates">
+    <section class="py-12 bg-white" id="templates">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl mx-auto text-center mb-12">
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Choose Your Template</h2>
                 <p class="text-xl text-gray-600">Pick a professionally designed website and get started instantly</p>
             </div>
 
-            <!-- Template Filters -->
-            <div class="mb-12">
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button class="px-6 py-2.5 rounded-lg font-medium transition-all duration-200 bg-primary-600 text-white shadow-sm hover:bg-primary-700 hover:shadow-md" data-category-filter="all">
-                        All Templates
-                    </button>
-                    <?php foreach ($categories as $category): ?>
-                    <button class="px-6 py-2.5 rounded-lg font-medium transition-all duration-200 bg-white text-gray-700 border-2 border-gray-200 hover:border-primary-500 hover:text-primary-600 hover:shadow-sm" data-category-filter="<?php echo htmlspecialchars(strtolower($category)); ?>">
-                        <?php echo htmlspecialchars($category); ?>
-                    </button>
-                    <?php endforeach; ?>
+            <!-- Search and Filter Section -->
+            <div class="mb-8" x-data="{ category: 'all' }">
+                <div class="max-w-3xl mx-auto">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <!-- Search Input -->
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                   id="templateSearch" 
+                                   placeholder="Search templates by name or description..." 
+                                   class="w-full px-4 py-3 pl-11 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
+                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Category Dropdown -->
+                        <div class="sm:w-64">
+                            <select id="categoryFilter" 
+                                    x-model="category"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all bg-white">
+                                <option value="all">All Categories</option>
+                                <?php foreach ($categories as $category): ?>
+                                <option value="<?php echo htmlspecialchars(strtolower($category)); ?>"><?php echo htmlspecialchars($category); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Count -->
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-gray-600">
+                            Showing <span id="resultsCount" class="font-semibold text-primary-600"><?php echo count($templates); ?></span> template(s)
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -276,7 +299,7 @@ $categories = array_unique(array_column($templates, 'category'));
     </section>
 
     <!-- Testimonials Section -->
-    <section class="py-16 bg-gray-100">
+    <section class="py-12 bg-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-3xl mx-auto text-center mb-12">
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Trusted by Businesses Like Yours</h2>
@@ -332,7 +355,7 @@ $categories = array_unique(array_column($templates, 'category'));
     </section>
 
     <!-- FAQ Section -->
-    <section class="py-16 bg-gray-100" id="faq">
+    <section class="py-12 bg-gray-100" id="faq">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Frequently Asked Questions</h2>
@@ -390,7 +413,7 @@ $categories = array_unique(array_column($templates, 'category'));
 
     <!-- Footer -->
     <footer class="bg-navy text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
                 <!-- Company Info -->
                 <div>
@@ -533,6 +556,39 @@ $categories = array_unique(array_column($templates, 'category'));
                 navbar.classList.remove('shadow-lg');
             }
         });
+
+        // Template Search and Filter functionality
+        const searchInput = document.getElementById('templateSearch');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const resultsCount = document.getElementById('resultsCount');
+        const templates = document.querySelectorAll('[data-template]');
+        
+        function filterTemplates() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilter.value;
+            let visibleCount = 0;
+            
+            templates.forEach(template => {
+                const name = template.getAttribute('data-template-name').toLowerCase();
+                const category = template.getAttribute('data-template-category').toLowerCase();
+                
+                const matchesSearch = name.includes(searchTerm) || searchTerm === '';
+                const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+                
+                if (matchesSearch && matchesCategory) {
+                    template.style.display = '';
+                    visibleCount++;
+                } else {
+                    template.style.display = 'none';
+                }
+            });
+            
+            resultsCount.textContent = visibleCount;
+        }
+        
+        // Add event listeners
+        searchInput.addEventListener('input', filterTemplates);
+        categoryFilter.addEventListener('change', filterTemplates);
     </script>
 </body>
 </html>
