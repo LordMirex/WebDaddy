@@ -31,7 +31,7 @@ if (!empty($userBankInfo['bank_details'])) {
     $savedBankDetails = json_decode($userBankInfo['bank_details'], true);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_withdrawal'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['request_withdrawal']) || isset($_POST['amount']))) {
     $amount = floatval($_POST['amount'] ?? 0);
     
     if ($savedBankDetails) {
