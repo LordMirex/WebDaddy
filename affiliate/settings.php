@@ -23,10 +23,7 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Debug: Write POST data to file
-    file_put_contents('/tmp/affiliate_post_debug.txt', date('Y-m-d H:i:s') . "\n" . print_r($_POST, true) . "\n\n", FILE_APPEND);
-    
-    if (isset($_POST['update_profile'])) {
+    if (isset($_POST['update_profile']) || isset($_POST['name'])) {
         $name = sanitizeInput($_POST['name'] ?? '');
         $phone = sanitizeInput($_POST['phone'] ?? '');
         
@@ -46,17 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'An error occurred. Please try again.';
             }
         }
-    } elseif (isset($_POST['update_bank_details'])) {
-        error_log('Bank details form submitted');
+    } elseif (isset($_POST['update_bank_details']) || isset($_POST['bank_name'])) {
         $bankName = sanitizeInput($_POST['bank_name'] ?? '');
         $accountNumber = sanitizeInput($_POST['account_number'] ?? '');
         $accountName = sanitizeInput($_POST['account_name'] ?? '');
         
-        error_log("Bank details received - Name: $bankName, Acc: $accountNumber, Holder: $accountName");
-        
         if (empty($bankName) || empty($accountNumber) || empty($accountName)) {
             $error = 'All bank details fields are required.';
-            error_log('Bank details validation failed - empty fields');
         } else {
             $bankDetails = json_encode([
                 'bank_name' => $bankName,
@@ -64,29 +57,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'account_name' => $accountName
             ]);
             
-            error_log("Attempting to save bank details for user ID: $userId");
-            error_log("Bank details JSON: $bankDetails");
-            
             try {
                 $stmt = $db->prepare("UPDATE users SET bank_details = ? WHERE id = ?");
-                $result = $stmt->execute([$bankDetails, $userId]);
-                $rowCount = $stmt->rowCount();
-                
-                error_log("Update result: $result, Rows affected: $rowCount");
-                
-                if ($result && $rowCount > 0) {
+                if ($stmt->execute([$bankDetails, $userId])) {
                     $success = 'Bank details saved successfully! You can now request withdrawals easily.';
-                    error_log('Bank details saved successfully');
                 } else {
                     $error = 'Failed to save bank details.';
-                    error_log('Bank details save failed - no rows affected');
                 }
             } catch (PDOException $e) {
                 error_log('Bank details update error: ' . $e->getMessage());
                 $error = 'An error occurred. Please try again.';
             }
         }
-    } elseif (isset($_POST['change_password'])) {
+    } elseif (isset($_POST['change_password']) || isset($_POST['current_password'])) {
         $currentPassword = $_POST['current_password'] ?? '';
         $newPassword = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
