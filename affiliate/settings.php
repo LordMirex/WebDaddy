@@ -44,12 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif (isset($_POST['update_bank_details'])) {
+        error_log('Bank details form submitted');
         $bankName = sanitizeInput($_POST['bank_name'] ?? '');
         $accountNumber = sanitizeInput($_POST['account_number'] ?? '');
         $accountName = sanitizeInput($_POST['account_name'] ?? '');
         
+        error_log("Bank details received - Name: $bankName, Acc: $accountNumber, Holder: $accountName");
+        
         if (empty($bankName) || empty($accountNumber) || empty($accountName)) {
             $error = 'All bank details fields are required.';
+            error_log('Bank details validation failed - empty fields');
         } else {
             $bankDetails = json_encode([
                 'bank_name' => $bankName,
@@ -57,12 +61,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'account_name' => $accountName
             ]);
             
+            error_log("Attempting to save bank details for user ID: $userId");
+            error_log("Bank details JSON: $bankDetails");
+            
             try {
                 $stmt = $db->prepare("UPDATE users SET bank_details = ? WHERE id = ?");
-                if ($stmt->execute([$bankDetails, $userId])) {
+                $result = $stmt->execute([$bankDetails, $userId]);
+                $rowCount = $stmt->rowCount();
+                
+                error_log("Update result: $result, Rows affected: $rowCount");
+                
+                if ($result && $rowCount > 0) {
                     $success = 'Bank details saved successfully! You can now request withdrawals easily.';
+                    error_log('Bank details saved successfully');
                 } else {
                     $error = 'Failed to save bank details.';
+                    error_log('Bank details save failed - no rows affected');
                 }
             } catch (PDOException $e) {
                 error_log('Bank details update error: ' . $e->getMessage());
