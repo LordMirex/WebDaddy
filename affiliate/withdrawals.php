@@ -58,45 +58,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_withdrawal'])
         ]);
         
         try {
+            // ✅ FIX: Start transaction for atomic operation
+            $db->beginTransaction();
+            
+            // Create withdrawal request
             $stmt = $db->prepare("
                 INSERT INTO withdrawal_requests (affiliate_id, amount, bank_details_json, status)
                 VALUES (?, ?, ?, 'pending')
             ");
             
-            $success = $stmt->execute([
+            $stmt->execute([
                 $_SESSION['affiliate_id'],
                 $amount,
                 $bankDetails
             ]);
             
-            if ($success) {
-                $withdrawalId = $db->lastInsertId('withdrawal_requests_id_seq') ?: $db->lastInsertId();
+            $withdrawalId = $db->lastInsertId('withdrawal_requests_id_seq') ?: $db->lastInsertId();
+            
+            // ✅ FIX: Deduct amount from commission_pending immediately
+            $stmt = $db->prepare("
+                UPDATE affiliates 
+                SET commission_pending = commission_pending - ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$amount, $_SESSION['affiliate_id']]);
+            
+            // ✅ FIX: Commit transaction
+            $db->commit();
+            
+            // Log activity
+            if (function_exists('logActivity')) {
                 logActivity('withdrawal_requested', "Withdrawal request #{$withdrawalId} for " . formatCurrency($amount), $_SESSION['affiliate_user_id']);
-                
-                // Send notification email to admin
-                $stmt = $db->prepare("
-                    SELECT u.name, u.email
-                    FROM users u
-                    JOIN affiliates a ON u.id = a.user_id
-                    WHERE a.id = ?
-                ");
-                $stmt->execute([$_SESSION['affiliate_id']]);
-                $affiliateInfo_email = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($affiliateInfo_email) {
-                    sendWithdrawalRequestToAdmin(
-                        $affiliateInfo_email['name'],
-                        $affiliateInfo_email['email'],
-                        number_format($amount, 2),
-                        $withdrawalId
-                    );
-                }
-                
-                $success = 'Withdrawal request submitted successfully! We will process it within 24-48 hours.';
-            } else {
-                $error = 'Failed to submit withdrawal request. Please try again.';
             }
+            
+            // Send notification email to admin
+            $stmt = $db->prepare("
+                SELECT u.name, u.email
+                FROM users u
+                JOIN affiliates a ON u.id = a.user_id
+                WHERE a.id = ?
+            ");
+            $stmt->execute([$_SESSION['affiliate_id']]);
+            $affiliateInfo_email = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($affiliateInfo_email) {
+                sendWithdrawalRequestToAdmin(
+                    $affiliateInfo_email['name'],
+                    $affiliateInfo_email['email'],
+                    number_format($amount, 2),
+                    $withdrawalId
+                );
+            }
+            
+            // ✅ FIX: Refresh affiliate info to show updated balance
+            $affiliateInfo = getAffiliateInfo();
+            
+            $success = 'Withdrawal request submitted successfully! Reference: WD#' . $withdrawalId . '. We will process it within 24-48 hours. Your new available balance is: ' . formatCurrency($affiliateInfo['commission_pending']);
+            
         } catch (PDOException $e) {
+            // ✅ FIX: Rollback transaction on error
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             error_log('Error creating withdrawal request: ' . $e->getMessage());
             $error = 'Database error. Please try again later.';
         }
