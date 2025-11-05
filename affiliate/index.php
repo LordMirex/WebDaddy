@@ -142,49 +142,49 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Stats Grid -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
     <!-- Total Clicks -->
-    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-blue-500">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-4 sm:p-6 border-l-4 border-blue-500 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i class="bi bi-mouse text-2xl text-blue-600"></i>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-mouse text-xl sm:text-2xl text-blue-600"></i>
             </div>
         </div>
-        <h6 class="text-sm font-semibold text-gray-600 mb-1">Total Clicks</h6>
-        <h2 class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['total_clicks']); ?></h2>
+        <h6 class="text-xs sm:text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide truncate">Total Clicks</h6>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo number_format($stats['total_clicks']); ?></h2>
     </div>
     
     <!-- Total Sales -->
-    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-green-500">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-4 sm:p-6 border-l-4 border-green-500 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <i class="bi bi-cart-check text-2xl text-green-600"></i>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-cart-check text-xl sm:text-2xl text-green-600"></i>
             </div>
         </div>
-        <h6 class="text-sm font-semibold text-gray-600 mb-1">Total Sales</h6>
-        <h2 class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['total_sales']); ?></h2>
+        <h6 class="text-xs sm:text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide truncate">Total Sales</h6>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo number_format($stats['total_sales']); ?></h2>
     </div>
     
     <!-- Pending Commission -->
-    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-yellow-500">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-4 sm:p-6 border-l-4 border-yellow-500 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <i class="bi bi-hourglass-split text-2xl text-yellow-600"></i>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-hourglass-split text-xl sm:text-2xl text-yellow-600"></i>
             </div>
         </div>
-        <h6 class="text-sm font-semibold text-gray-600 mb-1">Pending</h6>
-        <h2 class="text-3xl font-bold text-gray-900"><?php echo formatCurrency($stats['commission_pending']); ?></h2>
+        <h6 class="text-xs sm:text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide truncate">Pending</h6>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo formatCurrency($stats['commission_pending']); ?></h2>
     </div>
     
     <!-- Paid Commission -->
-    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border-l-4 border-purple-500">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-4 sm:p-6 border-l-4 border-purple-500 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i class="bi bi-check-circle text-2xl text-purple-600"></i>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="bi bi-check-circle text-xl sm:text-2xl text-purple-600"></i>
             </div>
         </div>
-        <h6 class="text-sm font-semibold text-gray-600 mb-1">Paid</h6>
-        <h2 class="text-3xl font-bold text-gray-900"><?php echo formatCurrency($stats['commission_paid']); ?></h2>
+        <h6 class="text-xs sm:text-sm font-semibold text-gray-600 mb-1 uppercase tracking-wide truncate">Paid</h6>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 truncate"><?php echo formatCurrency($stats['commission_paid']); ?></h2>
     </div>
 </div>
 

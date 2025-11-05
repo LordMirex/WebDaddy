@@ -174,41 +174,41 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Key Metrics -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Revenue</h6>
-            <i class="bi bi-currency-dollar text-2xl text-green-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Total Revenue</h6>
+            <i class="bi bi-currency-dollar text-xl sm:text-2xl text-green-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($totalRevenue); ?></div>
-        <small class="text-sm text-green-600 flex items-center gap-1"><i class="bi bi-arrow-up"></i> Gross</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalRevenue); ?></div>
+        <small class="text-xs sm:text-sm text-green-600 flex items-center gap-1 truncate"><i class="bi bi-arrow-up"></i> Gross</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Net Revenue</h6>
-            <i class="bi bi-graph-up text-2xl text-blue-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Net Revenue</h6>
+            <i class="bi bi-graph-up text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($netRevenue); ?></div>
-        <small class="text-sm text-gray-500">After commissions</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($netRevenue); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">After commissions</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Orders</h6>
-            <i class="bi bi-cart-check text-2xl text-primary-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Total Orders</h6>
+            <i class="bi bi-cart-check text-xl sm:text-2xl text-primary-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $totalOrders; ?></div>
-        <small class="text-sm text-gray-500">Completed sales</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $totalOrders; ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Completed sales</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Avg Order Value</h6>
-            <i class="bi bi-calculator text-2xl text-purple-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Avg Order Value</h6>
+            <i class="bi bi-calculator text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($avgOrderValue); ?></div>
-        <small class="text-sm text-gray-500">Per order</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($avgOrderValue); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Per order</small>
     </div>
 </div>
 

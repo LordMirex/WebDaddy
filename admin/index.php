@@ -34,41 +34,41 @@ require_once __DIR__ . '/includes/header.php';
     <p class="text-gray-600 mt-2">Welcome back, <?php echo htmlspecialchars(getAdminName()); ?>!</p>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Templates</h6>
-            <i class="bi bi-grid text-2xl text-primary-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Templates</h6>
+            <i class="bi bi-grid text-xl sm:text-2xl text-primary-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $activeTemplates; ?></div>
-        <small class="text-sm text-gray-500"><?php echo $totalTemplates; ?> total</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $activeTemplates; ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo $totalTemplates; ?> total</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Orders</h6>
-            <i class="bi bi-cart text-2xl text-blue-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Orders</h6>
+            <i class="bi bi-cart text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $pendingOrders; ?></div>
-        <small class="text-sm text-gray-500"><?php echo $totalOrders; ?> total</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $pendingOrders; ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo $totalOrders; ?> total</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Sales</h6>
-            <i class="bi bi-check-circle text-2xl text-green-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Sales</h6>
+            <i class="bi bi-check-circle text-xl sm:text-2xl text-green-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $totalSales; ?></div>
-        <small class="text-sm text-gray-500"><?php echo formatCurrency($totalRevenue); ?> revenue</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $totalSales; ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatCurrency($totalRevenue); ?> revenue</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-100">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Affiliates</h6>
-            <i class="bi bi-people text-2xl text-purple-600"></i>
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Affiliates</h6>
+            <i class="bi bi-people text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
         </div>
-        <div class="text-3xl font-bold text-gray-900 mb-1"><?php echo $totalAffiliates; ?></div>
-        <small class="text-sm text-gray-500"><?php echo $pendingWithdrawals; ?> pending withdrawals</small>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $totalAffiliates; ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo $pendingWithdrawals; ?> pending withdrawals</small>
     </div>
 </div>
 

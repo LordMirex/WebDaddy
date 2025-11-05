@@ -80,33 +80,33 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Summary Cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
     <!-- Total Earned -->
-    <div class="bg-gradient-to-br from-primary-600 to-primary-800 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
-        <h6 class="text-sm font-semibold opacity-90 mb-2">Total Earned</h6>
-        <h3 class="text-3xl font-bold mb-1"><?php echo formatCurrency($affiliate['commission_earned']); ?></h3>
-        <small class="text-xs opacity-75">All-time</small>
+    <div class="bg-gradient-to-br from-primary-600 to-primary-800 text-white rounded-xl shadow-lg p-4 sm:p-6 transform hover:scale-105 transition-transform overflow-hidden">
+        <h6 class="text-xs sm:text-sm font-semibold opacity-90 mb-2 uppercase tracking-wide truncate">Total Earned</h6>
+        <h3 class="text-2xl sm:text-3xl font-bold mb-1 truncate"><?php echo formatCurrency($affiliate['commission_earned']); ?></h3>
+        <small class="text-xs opacity-75 truncate block">All-time</small>
     </div>
     
     <!-- Pending -->
-    <div class="bg-gradient-to-br from-yellow-500 to-yellow-700 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
-        <h6 class="text-sm font-semibold opacity-90 mb-2">Pending</h6>
-        <h3 class="text-3xl font-bold mb-1"><?php echo formatCurrency($affiliate['commission_pending']); ?></h3>
-        <small class="text-xs opacity-75">Available for withdrawal</small>
+    <div class="bg-gradient-to-br from-yellow-500 to-yellow-700 text-white rounded-xl shadow-lg p-4 sm:p-6 transform hover:scale-105 transition-transform overflow-hidden">
+        <h6 class="text-xs sm:text-sm font-semibold opacity-90 mb-2 uppercase tracking-wide truncate">Pending</h6>
+        <h3 class="text-2xl sm:text-3xl font-bold mb-1 truncate"><?php echo formatCurrency($affiliate['commission_pending']); ?></h3>
+        <small class="text-xs opacity-75 truncate block">Available for withdrawal</small>
     </div>
     
     <!-- Paid Out -->
-    <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
-        <h6 class="text-sm font-semibold opacity-90 mb-2">Paid Out</h6>
-        <h3 class="text-3xl font-bold mb-1"><?php echo formatCurrency($affiliate['commission_paid']); ?></h3>
-        <small class="text-xs opacity-75">Withdrawn</small>
+    <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow-lg p-4 sm:p-6 transform hover:scale-105 transition-transform overflow-hidden">
+        <h6 class="text-xs sm:text-sm font-semibold opacity-90 mb-2 uppercase tracking-wide truncate">Paid Out</h6>
+        <h3 class="text-2xl sm:text-3xl font-bold mb-1 truncate"><?php echo formatCurrency($affiliate['commission_paid']); ?></h3>
+        <small class="text-xs opacity-75 truncate block">Withdrawn</small>
     </div>
     
     <!-- Total Sales -->
-    <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform">
-        <h6 class="text-sm font-semibold opacity-90 mb-2">Total Sales</h6>
-        <h3 class="text-3xl font-bold mb-1"><?php echo $affiliate['total_sales']; ?></h3>
-        <small class="text-xs opacity-75">Conversions</small>
+    <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl shadow-lg p-4 sm:p-6 transform hover:scale-105 transition-transform overflow-hidden">
+        <h6 class="text-xs sm:text-sm font-semibold opacity-90 mb-2 uppercase tracking-wide truncate">Total Sales</h6>
+        <h3 class="text-2xl sm:text-3xl font-bold mb-1 truncate"><?php echo $affiliate['total_sales']; ?></h3>
+        <small class="text-xs opacity-75 truncate block">Conversions</small>
     </div>
 </div>
     
