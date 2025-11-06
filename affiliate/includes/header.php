@@ -100,7 +100,7 @@
         <!-- Sidebar - Desktop: Always visible, Mobile: Slide-in drawer -->
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-50 shadow-xl lg:shadow-none mt-[57px] lg:mt-0 -translate-x-full">
+            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none mt-[57px] lg:mt-0 -translate-x-full">
             
             <!-- Close button for mobile -->
             <div class="lg:hidden flex justify-end p-4">
@@ -131,6 +131,13 @@
                     <span class="font-semibold">Marketing Tools</span>
                 </a>
 
+                <a href="/affiliate/support.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-headset text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Support</span>
+                </a>
+
+                <div class="border-t border-gray-200 my-2"></div>
+
                 <a href="/affiliate/settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-gear text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Settings</span>
@@ -156,7 +163,7 @@
              x-transition:leave="transition-opacity ease-linear duration-300"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="fixed inset-0 bg-gray-900 bg-opacity-50 lg:hidden z-40"
+             class="fixed inset-0 bg-gray-900 bg-opacity-50 lg:hidden z-20"
              style="display: none;">
         </div>
 

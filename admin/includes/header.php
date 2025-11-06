@@ -90,7 +90,7 @@
     <div class="flex min-h-screen">
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-50 shadow-xl lg:shadow-none mt-[57px] lg:mt-0 -translate-x-full">
+            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none mt-[57px] lg:mt-0 -translate-x-full overflow-y-auto">
             
             <div class="lg:hidden flex justify-end p-4">
                 <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">
@@ -98,70 +98,70 @@
                 </button>
             </div>
 
-            <nav class="px-3 py-4 space-y-1">
-                <a href="/admin/" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-speedometer2 text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+            <nav class="px-3 py-3 space-y-0.5">
+                <a href="/admin/" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-speedometer2 <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Dashboard</span>
                 </a>
 
-                <a href="/admin/analytics.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'analytics.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-bar-chart-line text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'analytics.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/analytics.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'analytics.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-bar-chart-line <?php echo basename($_SERVER['PHP_SELF']) == 'analytics.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Analytics</span>
                 </a>
 
-                <a href="/admin/reports.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-graph-up text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/reports.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-graph-up <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Reports</span>
                 </a>
 
-                <a href="/admin/support.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-headset text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/support.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-headset <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Support</span>
                 </a>
 
                 <div class="border-t border-gray-200 my-2"></div>
 
-                <a href="/admin/templates.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'templates.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-grid text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'templates.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/templates.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'templates.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-grid <?php echo basename($_SERVER['PHP_SELF']) == 'templates.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Templates</span>
                 </a>
 
-                <a href="/admin/domains.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'domains.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-globe text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'domains.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/domains.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'domains.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-globe <?php echo basename($_SERVER['PHP_SELF']) == 'domains.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Domains</span>
                 </a>
 
-                <a href="/admin/orders.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-cart text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/orders.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-cart <?php echo basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Orders</span>
                 </a>
 
-                <a href="/admin/affiliates.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'affiliates.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-people text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'affiliates.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/affiliates.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'affiliates.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-people <?php echo basename($_SERVER['PHP_SELF']) == 'affiliates.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Affiliates</span>
                 </a>
 
                 <div class="border-t border-gray-200 my-2"></div>
 
-                <a href="/admin/settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-gear text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/settings.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-gear <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Settings</span>
                 </a>
 
-                <a href="/admin/activity_logs.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-clock-history text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/activity_logs.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-clock-history <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Activity Logs</span>
                 </a>
 
-                <a href="/admin/database.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-database-gear text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                <a href="/admin/database.php" class="flex items-center space-x-2 px-3 py-2 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-database-gear <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Database</span>
                 </a>
 
-                <div class="border-t border-gray-200 my-3"></div>
+                <div class="border-t border-gray-200 my-2"></div>
 
-                <a href="/admin/logout.php" class="lg:hidden flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all group">
-                    <i class="bi bi-box-arrow-right text-lg"></i>
+                <a href="/admin/logout.php" class="lg:hidden flex items-center space-x-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-all group text-sm">
+                    <i class="bi bi-box-arrow-right"></i>
                     <span class="font-semibold">Logout</span>
                 </a>
             </nav>
@@ -175,7 +175,7 @@
              x-transition:leave="transition-opacity ease-linear duration-300"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="fixed inset-0 bg-gray-900 bg-opacity-50 lg:hidden z-40"
+             class="fixed inset-0 bg-gray-900 bg-opacity-50 lg:hidden z-20"
              style="display: none;">
         </div>
 
