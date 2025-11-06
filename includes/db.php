@@ -17,7 +17,7 @@ class Database
     {
         try {
             // SQLite DSN - single file database
-            $dbPath = __DIR__ . '/../webdaddy.db';
+            $dbPath = __DIR__ . '/../database/webdaddy.db';
             $dsn = 'sqlite:' . $dbPath;
             
             $options = [

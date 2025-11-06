@@ -319,14 +319,14 @@ require_once __DIR__ . '/includes/header.php';
         <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
             <i class="bi bi-cart text-primary-600"></i> Orders (<?php echo count($orders); ?>)
         </h5>
-        <div class="flex flex-wrap gap-2">
-            <a href="/admin/orders.php?export=csv" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <a href="/admin/orders.php?export=csv" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                 <i class="bi bi-download mr-1"></i> Export CSV
             </a>
-            <button type="button" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed" id="bulkMarkPaidBtn" disabled>
+            <button type="button" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap" id="bulkMarkPaidBtn" disabled>
                 <i class="bi bi-check-circle mr-1"></i> Mark Selected as Paid
             </button>
-            <button type="button" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed" id="bulkCancelBtn" disabled>
+            <button type="button" class="w-full sm:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap" id="bulkCancelBtn" disabled>
                 <i class="bi bi-x-circle mr-1"></i> Cancel Selected
             </button>
         </div>
@@ -400,8 +400,9 @@ require_once __DIR__ . '/includes/header.php';
                             $color = $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800';
                             $icon = $statusIcons[$order['status']] ?? 'circle';
                             ?>
-                            <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
-                                <i class="bi bi-<?php echo $icon; ?>"></i> <?php echo ucfirst($order['status']); ?>
+                            <span class="inline-flex items-center px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold whitespace-nowrap">
+                                <i class="bi bi-<?php echo $icon; ?>"></i>
+                                <span class="hidden sm:inline sm:ml-1"><?php echo ucfirst($order['status']); ?></span>
                             </span>
                         </td>
                         <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>

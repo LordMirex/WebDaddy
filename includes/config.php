@@ -6,7 +6,7 @@
 // ============================================
 
 // Database Configuration - SQLite (Single File Database)
-// Database file: webdaddy.db (located in root directory)
+// Database file: webdaddy.db (located in database folder)
 // No server, no credentials needed - just one portable file!
 
 // WhatsApp Configuration - Now pulled from database
@@ -59,7 +59,7 @@ if (DISPLAY_ERRORS) {
 }
 
 // SQLite Database Check - verify database file exists
-$dbFile = __DIR__ . '/../webdaddy.db';
+$dbFile = __DIR__ . '/../database/webdaddy.db';
 if (!file_exists($dbFile)) {
-    die('Database file not found! Please ensure webdaddy.db exists in the root directory.');
+    die('Database file not found! Please ensure webdaddy.db exists in the database folder.');
 }

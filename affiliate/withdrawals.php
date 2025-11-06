@@ -411,19 +411,19 @@ require_once __DIR__ . '/includes/header.php';
                                 <?php 
                                 switch ($request['status']) {
                                     case 'pending':
-                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="bi bi-clock mr-1"></i> Pending</span>';
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 whitespace-nowrap"><i class="bi bi-clock"></i><span class="hidden sm:inline sm:ml-1">Pending</span></span>';
                                         break;
                                     case 'approved':
-                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-check-circle mr-1"></i> Approved</span>';
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap"><i class="bi bi-check-circle"></i><span class="hidden sm:inline sm:ml-1">Approved</span></span>';
                                         break;
                                     case 'paid':
-                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-check2-circle mr-1"></i> Paid</span>';
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 whitespace-nowrap"><i class="bi bi-check2-circle"></i><span class="hidden sm:inline sm:ml-1">Paid</span></span>';
                                         break;
                                     case 'rejected':
-                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="bi bi-x-circle mr-1"></i> Rejected</span>';
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 whitespace-nowrap"><i class="bi bi-x-circle"></i><span class="hidden sm:inline sm:ml-1">Rejected</span></span>';
                                         break;
                                     default:
-                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">' . htmlspecialchars($request['status']) . '</span>';
+                                        echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 whitespace-nowrap">' . htmlspecialchars($request['status']) . '</span>';
                                 }
                                 ?>
                             </td>
@@ -460,19 +460,19 @@ require_once __DIR__ . '/includes/header.php';
                         <?php 
                         switch ($request['status']) {
                             case 'pending':
-                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="bi bi-clock mr-1"></i> Pending</span>';
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 whitespace-nowrap"><i class="bi bi-clock mr-1"></i> Pending</span>';
                                 break;
                             case 'approved':
-                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-check-circle mr-1"></i> Approved</span>';
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 whitespace-nowrap"><i class="bi bi-check-circle mr-1"></i> Approved</span>';
                                 break;
                             case 'paid':
-                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-check2-circle mr-1"></i> Paid</span>';
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 whitespace-nowrap"><i class="bi bi-check2-circle mr-1"></i> Paid</span>';
                                 break;
                             case 'rejected':
-                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="bi bi-x-circle mr-1"></i> Rejected</span>';
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 whitespace-nowrap"><i class="bi bi-x-circle mr-1"></i> Rejected</span>';
                                 break;
                             default:
-                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">' . htmlspecialchars($request['status']) . '</span>';
+                                echo '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 whitespace-nowrap">' . htmlspecialchars($request['status']) . '</span>';
                         }
                         ?>
                     </div>

@@ -222,6 +222,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errorMessage = 'Database error: ' . $e->getMessage();
                 }
             }
+        } elseif ($action === 'email_single_affiliate') {
+            $affiliateId = intval($_POST['affiliate_id'] ?? 0);
+            $subject = sanitizeInput($_POST['subject'] ?? '');
+            $message = trim($_POST['message'] ?? '');
+            
+            if (empty($affiliateId) || empty($subject) || empty($message)) {
+                $errorMessage = 'All fields are required.';
+            } else {
+                try {
+                    $stmt = $db->prepare("
+                        SELECT u.name, u.email 
+                        FROM affiliates a
+                        JOIN users u ON a.user_id = u.id
+                        WHERE a.id = ?
+                    ");
+                    $stmt->execute([$affiliateId]);
+                    $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if (!$affiliate) {
+                        $errorMessage = 'Affiliate not found.';
+                    } else {
+                        sendCustomEmailToAffiliate(
+                            $affiliate['name'],
+                            $affiliate['email'],
+                            $subject,
+                            $message
+                        );
+                        $successMessage = 'Email sent successfully to ' . htmlspecialchars($affiliate['name']) . '!';
+                        logActivity('email_single_affiliate', "Sent email to affiliate: {$affiliate['email']} - Subject: $subject", getAdminId());
+                    }
+                } catch (Exception $e) {
+                    error_log('Single affiliate email error: ' . $e->getMessage());
+                    $errorMessage = 'Failed to send email. Please check your email configuration.';
+                }
+            }
         } elseif ($action === 'process_withdrawal') {
             $requestId = intval($_POST['request_id']);
             $withdrawalStatus = sanitizeInput($_POST['withdrawal_status']);
@@ -363,21 +398,25 @@ require_once __DIR__ . '/includes/header.php';
     activeTab: 'affiliates', 
     showCreateModal: false, 
     showEmailModal: false, 
+    showEmailSingleModal: false,
     showAnnouncementModal: false,
     processWithdrawalId: null
 }">
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <i class="bi bi-people text-primary-600"></i> Affiliates Management
         </h1>
-        <div class="flex flex-wrap gap-2">
-            <button @click="showEmailModal = true" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button @click="showEmailModal = true" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-envelope mr-1"></i> Email All Affiliates
             </button>
-            <button @click="showAnnouncementModal = true" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm">
+            <button @click="showEmailSingleModal = true" class="w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
+                <i class="bi bi-envelope-fill mr-1"></i> Email Single Affiliate
+            </button>
+            <button @click="showAnnouncementModal = true" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-megaphone mr-1"></i> Post Announcement
             </button>
-            <button @click="showCreateModal = true" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm">
+            <button @click="showCreateModal = true" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-plus-circle mr-1"></i> Create Affiliate
             </button>
         </div>
@@ -586,10 +625,18 @@ require_once __DIR__ . '/includes/header.php';
                                         'paid' => 'bg-green-100 text-green-800',
                                         'rejected' => 'bg-red-100 text-red-800'
                                     ];
+                                    $statusIcons = [
+                                        'pending' => 'clock',
+                                        'approved' => 'check-circle',
+                                        'paid' => 'check2-circle',
+                                        'rejected' => 'x-circle'
+                                    ];
                                     $color = $statusColors[$wr['status']] ?? 'bg-gray-100 text-gray-800';
+                                    $icon = $statusIcons[$wr['status']] ?? 'circle';
                                     ?>
-                                    <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
-                                        <?php echo ucfirst($wr['status']); ?>
+                                    <span class="inline-flex items-center px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold whitespace-nowrap">
+                                        <i class="bi bi-<?php echo $icon; ?>"></i>
+                                        <span class="hidden sm:inline sm:ml-1"><?php echo ucfirst($wr['status']); ?></span>
                                     </span>
                                 </td>
                                 <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y', strtotime($wr['requested_at'])); ?></td>
@@ -845,6 +892,79 @@ require_once __DIR__ . '/includes/header.php';
             </form>
         </div>
     </div>
+
+    <!-- Email Single Affiliate Modal -->
+    <div x-show="showEmailSingleModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showEmailSingleModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+            <form method="POST">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <i class="bi bi-envelope-fill text-blue-600"></i> Email Single Affiliate
+                    </h3>
+                    <button type="button" @click="showEmailSingleModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <input type="hidden" name="action" value="email_single_affiliate">
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Select Affiliate <span class="text-red-600">*</span></label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="affiliate_id" required>
+                            <option value="">-- Choose Affiliate --</option>
+                            <?php foreach ($affiliates as $aff): ?>
+                            <option value="<?php echo $aff['id']; ?>">
+                                <?php echo htmlspecialchars($aff['name']); ?> 
+                                (<?php echo htmlspecialchars($aff['email']); ?>) 
+                                - Code: <?php echo htmlspecialchars($aff['code']); ?>
+                                <?php if ($aff['status'] !== 'active'): ?>
+                                    [<?php echo strtoupper($aff['status']); ?>]
+                                <?php endif; ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Subject <span class="text-red-600">*</span></label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="subject" required placeholder="Email subject">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Message <span class="text-red-600">*</span></label>
+                        <div id="single-email-editor" style="min-height: 250px; background: white; border: 1px solid #d1d5db; border-radius: 0.5rem;"></div>
+                        <textarea id="single_email_message" name="message" style="display:none;"></textarea>
+                        <small class="text-gray-500 text-xs">Use the editor toolbar to format your message with headings, bold, lists, links, etc.</small>
+                    </div>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+                        <i class="bi bi-info-circle mr-2"></i> The email will be sent using the professional WebDaddy template with your custom message.
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showEmailSingleModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors">
+                        <i class="bi bi-send mr-2"></i> Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <?php if ($viewAffiliate): ?>
@@ -1069,6 +1189,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Validate that content exists
                 if (bulkQuill.getText().trim().length === 0) {
+                    e.preventDefault();
+                    alert('Please enter a message before sending.');
+                    return false;
+                }
+            });
+        }
+    }
+});
+
+// Initialize Quill editor for single email modal if it exists
+document.addEventListener('DOMContentLoaded', function() {
+    const singleEditorElement = document.getElementById('single-email-editor');
+    if (singleEditorElement) {
+        const singleQuill = new Quill('#single-email-editor', {
+            theme: 'snow',
+            placeholder: 'Type your message here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [2, 3, 4, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set editor font styling
+        const editorContainer = document.querySelector('#single-email-editor .ql-editor');
+        if (editorContainer) {
+            editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            editorContainer.style.fontSize = '15px';
+            editorContainer.style.lineHeight = '1.6';
+            editorContainer.style.color = '#374151';
+            editorContainer.style.minHeight = '220px';
+        }
+
+        // Sync Quill content to hidden textarea before form submission
+        const singleEmailForm = singleEditorElement.closest('form');
+        if (singleEmailForm) {
+            singleEmailForm.addEventListener('submit', function(e) {
+                const messageField = document.querySelector('#single_email_message');
+                messageField.value = singleQuill.root.innerHTML;
+                
+                // Validate that content exists
+                if (singleQuill.getText().trim().length === 0) {
                     e.preventDefault();
                     alert('Please enter a message before sending.');
                     return false;

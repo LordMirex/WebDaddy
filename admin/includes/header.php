@@ -129,11 +129,6 @@
                     <span class="font-semibold">Affiliates</span>
                 </a>
 
-                <a href="/admin/email_affiliate.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'email_affiliate.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
-                    <i class="bi bi-envelope text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'email_affiliate.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
-                    <span class="font-semibold">Email Affiliate</span>
-                </a>
-
                 <a href="/admin/settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-gear text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Settings</span>
@@ -142,6 +137,11 @@
                 <a href="/admin/activity_logs.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-clock-history text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'activity_logs.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Activity Logs</span>
+                </a>
+
+                <a href="/admin/database.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-all group <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-database-gear text-lg <?php echo basename($_SERVER['PHP_SELF']) == 'database.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Database</span>
                 </a>
 
                 <div class="border-t border-gray-200 my-3"></div>

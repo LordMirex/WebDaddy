@@ -163,14 +163,14 @@ if (isset($_GET['edit'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div x-data="{ showModal: <?php echo $editTemplate ? 'true' : 'false'; ?>, deleteId: null, deleteName: '' }">
-    <div class="flex justify-between items-center mb-8">
+<div x-data="{ showModal: <?php echo $editTemplate ? 'true' : 'false'; ?> }">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <i class="bi bi-grid text-primary-600"></i> Templates Management
             </h1>
         </div>
-        <button @click="showModal = true" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+        <button @click="showModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
             <i class="bi bi-plus-circle mr-2"></i> Add New Template
         </button>
     </div>
@@ -291,9 +291,13 @@ require_once __DIR__ . '/includes/header.php';
                                 <a href="?edit=<?php echo $template['id']; ?>" class="px-3 py-1 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg transition-colors text-sm" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <button type="button" @click="deleteId = <?php echo $template['id']; ?>; deleteName = '<?php echo htmlspecialchars(addslashes($template['name'])); ?>'; if(confirm('Are you sure you want to delete the template \\'' + deleteName + '\\'? This action cannot be undone.')) { document.getElementById('deleteForm').submit(); }" class="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors text-sm" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this template? This action cannot be undone.')">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="<?php echo $template['id']; ?>">
+                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors text-sm" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -397,10 +401,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <form method="POST" id="deleteForm" style="display: none;">
-        <input type="hidden" name="action" value="delete">
-        <input type="hidden" name="id" x-model="deleteId">
-    </form>
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

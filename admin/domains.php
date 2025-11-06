@@ -172,18 +172,18 @@ if (isset($_GET['edit'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div x-data="{ showModal: <?php echo $editDomain ? 'true' : 'false'; ?>, showBulkModal: false, deleteId: null }">
-    <div class="flex justify-between items-center mb-8">
+<div x-data="{ showModal: <?php echo $editDomain ? 'true' : 'false'; ?>, showBulkModal: false }">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <i class="bi bi-globe text-primary-600"></i> Domains Management
             </h1>
         </div>
-        <div class="flex gap-3">
-            <button @click="showBulkModal = true" class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition-all shadow-lg">
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            <button @click="showBulkModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition-all shadow-lg whitespace-nowrap">
                 <i class="bi bi-plus-circle-dotted mr-2"></i> Bulk Add Domains
             </button>
-            <button @click="showModal = true" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+            <button @click="showModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg whitespace-nowrap">
                 <i class="bi bi-plus-circle mr-2"></i> Add Domain
             </button>
         </div>
@@ -297,8 +297,9 @@ require_once __DIR__ . '/includes/header.php';
                             $color = $statusColors[$domain['status']] ?? 'bg-gray-100 text-gray-800';
                             $icon = $statusIcons[$domain['status']] ?? 'circle';
                             ?>
-                            <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
-                                <i class="bi bi-<?php echo $icon; ?>"></i> <?php echo ucfirst($domain['status']); ?>
+                            <span class="inline-flex items-center px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold whitespace-nowrap">
+                                <i class="bi bi-<?php echo $icon; ?>"></i>
+                                <span class="hidden sm:inline sm:ml-1"><?php echo ucfirst($domain['status']); ?></span>
                             </span>
                         </td>
                         <td class="py-3 px-4">
@@ -323,9 +324,13 @@ require_once __DIR__ . '/includes/header.php';
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <?php if ($domain['status'] === 'available'): ?>
-                                <button type="button" @click="deleteId = <?php echo $domain['id']; ?>; if(confirm('Are you sure you want to delete the domain \\'<?php echo htmlspecialchars(addslashes($domain['domain_name'])); ?>\\'?')) { document.getElementById('deleteForm').submit(); }" class="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors text-sm" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this domain? This action cannot be undone.')">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="<?php echo $domain['id']; ?>">
+                                    <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg transition-colors text-sm" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                                 <?php endif; ?>
                             </div>
                         </td>
@@ -469,10 +474,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <form method="POST" id="deleteForm" style="display: none;">
-        <input type="hidden" name="action" value="delete">
-        <input type="hidden" name="id" x-model="deleteId">
-    </form>
 </div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

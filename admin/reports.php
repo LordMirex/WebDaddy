@@ -220,8 +220,8 @@ require_once __DIR__ . '/includes/header.php';
                 <i class="bi bi-bar-chart text-primary-600"></i> Sales Trend (Last 30 Days)
             </h5>
         </div>
-        <div class="p-6">
-            <canvas id="salesChart" height="80"></canvas>
+        <div class="p-6" style="position: relative; height: 400px;">
+            <canvas id="salesChart"></canvas>
         </div>
     </div>
 </div>
@@ -314,7 +314,7 @@ require_once __DIR__ . '/includes/header.php';
         <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
             <i class="bi bi-clock-history text-primary-600"></i> Recent Sales
         </h5>
-        <a href="/admin/orders.php?export=csv" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+        <a href="/admin/orders.php?export=csv" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm text-center whitespace-nowrap">
             <i class="bi bi-download mr-1"></i> Export CSV
         </a>
     </div>
@@ -378,13 +378,25 @@ document.getElementById('periodSelect').addEventListener('change', function() {
     document.getElementById('customDatesEnd').style.display = isCustom ? 'block' : 'none';
 });
 
-// Sales Chart
+// Sales Chart with Enhanced Styling
 const ctx = document.getElementById('salesChart').getContext('2d');
 const salesData = <?php echo json_encode($salesByDay); ?>;
 
-const labels = salesData.map(d => d.sale_date);
+const labels = salesData.map(d => {
+    const date = new Date(d.sale_date);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+});
 const orders = salesData.map(d => parseInt(d.orders));
 const revenue = salesData.map(d => parseFloat(d.revenue));
+
+// Create gradients
+const ordersGradient = ctx.createLinearGradient(0, 0, 0, 400);
+ordersGradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+ordersGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+const revenueGradient = ctx.createLinearGradient(0, 0, 0, 400);
+revenueGradient.addColorStop(0, 'rgba(16, 185, 129, 0.5)');
+revenueGradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
 
 new Chart(ctx, {
     type: 'line',
@@ -394,47 +406,166 @@ new Chart(ctx, {
             {
                 label: 'Orders',
                 data: orders,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: ordersGradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: 'rgb(59, 130, 246)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverBackgroundColor: 'rgb(59, 130, 246)',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3,
                 yAxisID: 'y',
             },
             {
                 label: 'Revenue (₦)',
                 data: revenue,
-                borderColor: 'rgb(54, 162, 235)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgb(16, 185, 129)',
+                backgroundColor: revenueGradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                pointBackgroundColor: 'rgb(16, 185, 129)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverBackgroundColor: 'rgb(16, 185, 129)',
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 3,
                 yAxisID: 'y1',
             }
         ]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: {
             mode: 'index',
             intersect: false,
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    padding: 15,
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    }
+                }
+            },
+            tooltip: {
+                enabled: true,
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                borderWidth: 1,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            if (context.dataset.label.includes('Revenue')) {
+                                label += '₦' + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            } else {
+                                label += context.parsed.y;
+                            }
+                        }
+                        return label;
+                    }
+                }
+            }
         },
         scales: {
             y: {
                 type: 'linear',
                 display: true,
                 position: 'left',
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                    drawBorder: false,
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    color: '#6b7280',
+                    padding: 8
+                },
                 title: {
                     display: true,
-                    text: 'Orders'
+                    text: 'Orders',
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    },
+                    color: '#374151',
+                    padding: 10
                 }
             },
             y1: {
                 type: 'linear',
                 display: true,
                 position: 'right',
-                title: {
-                    display: true,
-                    text: 'Revenue (₦)'
-                },
+                beginAtZero: true,
                 grid: {
                     drawOnChartArea: false,
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    color: '#6b7280',
+                    padding: 8,
+                    callback: function(value) {
+                        return '₦' + value.toLocaleString();
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Revenue (₦)',
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    },
+                    color: '#374151',
+                    padding: 10
                 }
             },
+            x: {
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                    drawBorder: false,
+                },
+                ticks: {
+                    font: {
+                        size: 11,
+                        weight: '500'
+                    },
+                    color: '#6b7280',
+                    maxRotation: 45,
+                    minRotation: 0
+                }
+            }
+        },
+        animation: {
+            duration: 1500,
+            easing: 'easeInOutQuart'
         }
     }
 });
