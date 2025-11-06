@@ -57,9 +57,7 @@
   - Calculate platform revenue: final_amount - commission_amount
 
 ### Phase 2: Database Cleanup & Schema Updates - ⚪ NOT STARTED (0/4 complete)
-- [ ] **Task #008** - Verify no penny_orders table exists (CONFIRMED: doesn't exist) - ⚪ PENDING
-  - Document: penny_orders table does NOT exist in database
-  - No migration needed
+- [ ] **Task #008** - Verify pending ordertable exists (CONFIRMED: doesn't exist) - ⚪ PENDING
   
 - [ ] **Task #009** - Export database backup before changes - ⚪ PENDING
   - Run: `cp database/webdaddy.db database/full_backup_2025_11_06.db`
