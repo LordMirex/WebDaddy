@@ -32,29 +32,32 @@ if ($period === 'today') {
     $params = [$startDate, $endDate];
 }
 
-// Total Sales Revenue
-$query = "SELECT COALESCE(SUM(amount_paid), 0) as total FROM sales s WHERE 1=1 $dateFilter";
+// Calculate comprehensive revenue metrics
+$query = "
+    SELECT 
+        COALESCE(SUM(original_price), SUM(amount_paid), 0) as total_original,
+        COALESCE(SUM(discount_amount), 0) as total_discount,
+        COALESCE(SUM(final_amount), SUM(amount_paid), 0) as total_final,
+        COALESCE(SUM(commission_amount), 0) as total_commission,
+        COUNT(*) as total_orders
+    FROM sales s 
+    WHERE 1=1 $dateFilter
+";
 $stmt = $db->prepare($query);
 $stmt->execute($params);
-$totalRevenue = $stmt->fetchColumn();
+$metrics = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Total Orders
-$query = "SELECT COUNT(*) FROM sales s WHERE 1=1 $dateFilter";
-$stmt = $db->prepare($query);
-$stmt->execute($params);
-$totalOrders = $stmt->fetchColumn();
+$totalOriginal = $metrics['total_original'];
+$totalDiscount = $metrics['total_discount'];
+$totalRevenue = $metrics['total_final'];  // Revenue is what customers actually paid
+$totalCommission = $metrics['total_commission'];
+$totalOrders = $metrics['total_orders'];
+
+// Net Revenue (after commission) = platform's take
+$netRevenue = $totalRevenue - $totalCommission;
 
 // Average Order Value
 $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
-
-// Total Commission Paid
-$query = "SELECT COALESCE(SUM(commission_amount), 0) FROM sales s WHERE 1=1 $dateFilter";
-$stmt = $db->prepare($query);
-$stmt->execute($params);
-$totalCommission = $stmt->fetchColumn();
-
-// Net Revenue (after commission)
-$netRevenue = $totalRevenue - $totalCommission;
 
 // Top Selling Templates
 $query = "
@@ -93,14 +96,19 @@ $stmt = $db->prepare($query);
 $stmt->execute($params);
 $topAffiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Recent Sales
+// Recent Sales with full breakdown
 $query = "
     SELECT 
         s.*,
         po.customer_name,
         po.customer_email,
         t.name as template_name,
-        a.code as affiliate_code
+        t.price as template_price,
+        a.code as affiliate_code,
+        COALESCE(s.original_price, t.price) as sale_original,
+        COALESCE(s.discount_amount, 0) as sale_discount,
+        COALESCE(s.final_amount, s.amount_paid) as sale_final,
+        COALESCE(s.final_amount, s.amount_paid) - COALESCE(s.commission_amount, 0) as platform_revenue
     FROM sales s
     JOIN pending_orders po ON s.pending_order_id = po.id
     JOIN templates t ON po.template_id = t.id
@@ -174,41 +182,50 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Key Metrics -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Total Revenue</h6>
-            <i class="bi bi-currency-dollar text-xl sm:text-2xl text-green-600 flex-shrink-0"></i>
+            <h6 class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total Revenue</h6>
+            <i class="bi bi-currency-dollar text-2xl text-green-600"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalRevenue); ?></div>
-        <small class="text-xs sm:text-sm text-green-600 flex items-center gap-1 truncate"><i class="bi bi-arrow-up"></i> Gross</small>
+        <div class="text-2xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($totalRevenue); ?></div>
+        <small class="text-xs text-green-600 flex items-center gap-1"><i class="bi bi-check-circle"></i> Customer Paid</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Net Revenue</h6>
-            <i class="bi bi-graph-up text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
+            <h6 class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total Discount</h6>
+            <i class="bi bi-percent text-2xl text-orange-600"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($netRevenue); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">After commissions</small>
+        <div class="text-2xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($totalDiscount); ?></div>
+        <small class="text-xs text-gray-500">Given to customers</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Total Orders</h6>
-            <i class="bi bi-cart-check text-xl sm:text-2xl text-primary-600 flex-shrink-0"></i>
+            <h6 class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Commission Paid</h6>
+            <i class="bi bi-people text-2xl text-purple-600"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo $totalOrders; ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">Completed sales</small>
+        <div class="text-2xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($totalCommission); ?></div>
+        <small class="text-xs text-gray-500">To affiliates</small>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100">
         <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Avg Order Value</h6>
-            <i class="bi bi-calculator text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
+            <h6 class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Platform Revenue</h6>
+            <i class="bi bi-graph-up text-2xl text-blue-600"></i>
         </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($avgOrderValue); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">Per order</small>
+        <div class="text-2xl font-bold text-gray-900 mb-1"><?php echo formatCurrency($netRevenue); ?></div>
+        <small class="text-xs text-gray-500">After all costs</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs font-semibold text-gray-600 uppercase tracking-wide">Total Orders</h6>
+            <i class="bi bi-cart-check text-2xl text-primary-600"></i>
+        </div>
+        <div class="text-2xl font-bold text-gray-900 mb-1"><?php echo $totalOrders; ?></div>
+        <small class="text-xs text-gray-500">Completed sales</small>
     </div>
 </div>
 
@@ -329,9 +346,11 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Sale ID</th>
                         <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
                         <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
-                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Amount</th>
-                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Commission</th>
-                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Affiliate</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Original</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Discount</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Final</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Commission</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Platform</th>
                         <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Date</th>
                     </tr>
                 </thead>
@@ -342,24 +361,29 @@ require_once __DIR__ . '/includes/header.php';
                         <td class="py-3 px-2">
                             <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($sale['customer_name']); ?></div>
                             <div class="text-xs text-gray-500"><?php echo htmlspecialchars($sale['customer_email']); ?></div>
+                            <?php if ($sale['affiliate_code']): ?>
+                            <div class="text-xs text-blue-600 font-medium mt-1">via <?php echo htmlspecialchars($sale['affiliate_code']); ?></div>
+                            <?php endif; ?>
                         </td>
                         <td class="py-3 px-2 text-gray-700"><?php echo htmlspecialchars($sale['template_name']); ?></td>
-                        <td class="py-3 px-2 font-bold text-gray-900"><?php echo formatCurrency($sale['amount_paid']); ?></td>
-                        <td class="py-3 px-2">
-                            <?php if ($sale['commission_amount'] > 0): ?>
-                            <span class="text-yellow-600 font-medium"><?php echo formatCurrency($sale['commission_amount']); ?></span>
+                        <td class="py-3 px-2 text-right text-gray-600"><?php echo formatCurrency($sale['sale_original']); ?></td>
+                        <td class="py-3 px-2 text-right">
+                            <?php if ($sale['sale_discount'] > 0): ?>
+                            <span class="text-orange-600 font-medium">-<?php echo formatCurrency($sale['sale_discount']); ?></span>
                             <?php else: ?>
                             <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2">
-                            <?php if ($sale['affiliate_code']): ?>
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold"><?php echo htmlspecialchars($sale['affiliate_code']); ?></span>
+                        <td class="py-3 px-2 text-right font-bold text-gray-900"><?php echo formatCurrency($sale['sale_final']); ?></td>
+                        <td class="py-3 px-2 text-right">
+                            <?php if ($sale['commission_amount'] > 0): ?>
+                            <span class="text-purple-600 font-medium">-<?php echo formatCurrency($sale['commission_amount']); ?></span>
                             <?php else: ?>
-                            <span class="text-gray-500">Direct</span>
+                            <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
+                        <td class="py-3 px-2 text-right font-bold text-blue-600"><?php echo formatCurrency($sale['platform_revenue']); ?></td>
+                        <td class="py-3 px-2 text-gray-700 text-sm whitespace-nowrap"><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
