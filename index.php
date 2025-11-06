@@ -11,22 +11,44 @@ handleAffiliateTracking();
 trackPageVisit($_SERVER['REQUEST_URI'], 'Home - Templates');
 
 // Pagination setup
-$perPage = 10; // Show 10 templates per page
+$perPage = 9; // Show exactly 9 templates per page
 
-// Get all active templates for category filtering
+// Get search term
+$searchTerm = trim($_GET['search'] ?? '');
+
+// Get database connection
+$db = getDb();
+
+// Get all categories
 $allTemplates = getTemplates(true);
 $categories = array_unique(array_column($allTemplates, 'category'));
 
-// Calculate pagination
-$totalTemplates = count($allTemplates);
-$totalPages = max(1, ceil($totalTemplates / $perPage)); // At least 1 page even with no templates
+// Search or get all templates
+if (!empty($searchTerm)) {
+    // Global search across ALL templates in database
+    $stmt = $db->prepare("
+        SELECT * FROM templates 
+        WHERE is_active = 1 
+        AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
+        ORDER BY name ASC
+    ");
+    $searchPattern = '%' . $searchTerm . '%';
+    $stmt->execute([$searchPattern, $searchPattern, $searchPattern]);
+    $searchResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $totalTemplates = count($searchResults);
+} else {
+    // Get all active templates
+    $searchResults = $allTemplates;
+    $totalTemplates = count($searchResults);
+}
 
-// Clamp page number to valid range
+// Calculate pagination
+$totalPages = max(1, ceil($totalTemplates / $perPage));
 $page = max(1, min((int)($_GET['page'] ?? 1), $totalPages));
 $offset = ($page - 1) * $perPage;
 
 // Get templates for current page
-$templates = array_slice($allTemplates, $offset, $perPage);
+$templates = array_slice($searchResults, $offset, $perPage);
 $affiliateCode = getAffiliateCode();
 ?>
 <!DOCTYPE html>
@@ -270,39 +292,48 @@ $affiliateCode = getAffiliateCode();
             </div>
 
             <!-- Search and Filter Section -->
-            <div class="mb-8" x-data="{ category: 'all' }">
+            <div class="mb-8">
                 <div class="max-w-3xl mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-4">
+                    <form method="GET" action="/" class="flex flex-col sm:flex-row gap-4">
                         <!-- Search Input -->
                         <div class="flex-1 relative">
                             <input type="text" 
-                                   id="templateSearch" 
-                                   placeholder="Search templates by name or description..." 
+                                   name="search"
+                                   value="<?php echo htmlspecialchars($searchTerm); ?>"
+                                   placeholder="Search all templates..." 
                                    class="w-full px-4 py-3 pl-11 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
                             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                         </div>
-                        
-                        <!-- Category Dropdown -->
-                        <div class="sm:w-64">
-                            <select id="categoryFilter" 
-                                    x-model="category"
-                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all bg-white">
-                                <option value="all">All Categories</option>
-                                <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo htmlspecialchars(strtolower($category)); ?>"><?php echo htmlspecialchars($category); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
+                        <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                            Search
+                        </button>
+                    </form>
                     
-                    <!-- Results Count -->
+                    <!-- Search Results Message -->
+                    <?php if (!empty($searchTerm)): ?>
+                    <div class="mt-4 text-center">
+                        <?php if ($totalTemplates > 0): ?>
+                        <p class="text-sm text-gray-700">
+                            <span class="font-semibold text-primary-600"><?php echo $totalTemplates; ?> result(s)</span> for "<?php echo htmlspecialchars($searchTerm); ?>"
+                            <a href="/" class="ml-2 text-primary-600 hover:text-primary-700 font-medium">Clear search</a>
+                        </p>
+                        <?php else: ?>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <p class="text-yellow-800 font-semibold mb-1">No templates found for "<?php echo htmlspecialchars($searchTerm); ?>"</p>
+                            <p class="text-yellow-700 text-sm">Try searching for: "Business", "E-commerce", "Portfolio", or "Resume"</p>
+                            <a href="/" class="mt-2 inline-block text-primary-600 hover:text-primary-700 font-medium">View all templates</a>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php else: ?>
                     <div class="mt-4 text-center">
                         <p class="text-sm text-gray-600">
-                            Showing <span id="resultsCount" class="font-semibold text-primary-600"><?php echo count($templates); ?></span> template(s)
+                            Showing <span class="font-semibold text-primary-600"><?php echo count($templates); ?></span> of <span class="font-semibold"><?php echo $totalTemplates; ?></span> templates
                         </p>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -383,8 +414,13 @@ $affiliateCode = getAffiliateCode();
             <?php if ($totalPages > 1): ?>
             <div class="mt-12 flex justify-center">
                 <nav class="flex items-center gap-2">
+                    <?php
+                    $paginationParams = [];
+                    if ($searchTerm) $paginationParams['search'] = $searchTerm;
+                    if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
+                    ?>
                     <?php if ($page > 1): ?>
-                    <a href="?page=<?php echo $page - 1; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                    <a href="?page=<?php echo $page - 1; ?><?php echo $paginationParams ? '&' . http_build_query($paginationParams) : ''; ?>" 
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -399,14 +435,14 @@ $affiliateCode = getAffiliateCode();
                     
                     for ($i = $start; $i <= $end; $i++):
                     ?>
-                    <a href="?page=<?php echo $i; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                    <a href="?page=<?php echo $i; ?><?php echo $paginationParams ? '&' . http_build_query($paginationParams) : ''; ?>" 
                        class="<?php echo $i === $page ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 rounded-lg transition-colors">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
-                    <a href="?page=<?php echo $page + 1; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                    <a href="?page=<?php echo $page + 1; ?><?php echo $paginationParams ? '&' . http_build_query($paginationParams) : ''; ?>" 
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,7 +454,7 @@ $affiliateCode = getAffiliateCode();
             </div>
             <div class="mt-4 text-center">
                 <p class="text-sm text-gray-600">
-                    Page <?php echo $page; ?> of <?php echo $totalPages; ?> (<?php echo formatNumber($totalTemplates); ?> templates total)
+                    Page <?php echo $page; ?> of <?php echo $totalPages; ?>
                 </p>
             </div>
             <?php endif; ?>

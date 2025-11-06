@@ -520,16 +520,8 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                                 <span class="truncate mr-2">Discount (<?php echo $affiliateDiscountPercent; ?>%):</span>
                                 <strong class="shrink-0">-<?php echo formatCurrency($discountAmount); ?></strong>
                             </div>
-                            <?php 
-                            // Calculate affiliate commission from discounted price
-                            $affiliateCommissionRate = AFFILIATE_COMMISSION_RATE; // 0.30 (30%)
-                            $affiliateCommission = $discountedPrice * $affiliateCommissionRate;
-                            ?>
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-2">
-                                <div class="text-xs text-blue-800">
-                                    <p class="font-semibold mb-1">💰 You saved <?php echo formatCurrency($discountAmount); ?> (<?php echo $affiliateDiscountPercent; ?>%) thanks to <?php echo htmlspecialchars($affiliateData['name'] ?? 'your affiliate'); ?>!</p>
-                                    <p class="text-blue-600"><?php echo htmlspecialchars($affiliateData['name'] ?? 'Affiliate'); ?> earns <?php echo formatCurrency($affiliateCommission); ?> from this sale.</p>
-                                </div>
+                            <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-2">
+                                <p class="text-xs text-green-800 font-semibold">💰 You saved <?php echo formatCurrency($discountAmount); ?> (<?php echo $affiliateDiscountPercent; ?>%) thanks to <?php echo htmlspecialchars($affiliateData['name'] ?? 'your affiliate'); ?>!</p>
                             </div>
                         <?php endif; ?>
                         
