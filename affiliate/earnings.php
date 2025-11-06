@@ -29,7 +29,10 @@ $query = "
         s.*,
         po.customer_name,
         t.name as template_name,
-        t.price as template_price
+        t.price as template_price,
+        COALESCE(s.original_price, t.price) as sale_original_price,
+        COALESCE(s.discount_amount, 0) as sale_discount,
+        COALESCE(s.final_amount, s.amount_paid) as sale_final_amount
     FROM sales s
     JOIN pending_orders po ON s.pending_order_id = po.id
     JOIN templates t ON po.template_id = t.id
@@ -75,6 +78,26 @@ require_once __DIR__ . '/includes/header.php';
         <div>
             <h1 class="text-3xl font-bold text-gray-900">Earnings History</h1>
             <p class="text-gray-600">Track all your commissions and sales</p>
+        </div>
+    </div>
+    
+    <!-- Commission Info Banner -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+        <div class="flex items-start gap-3">
+            <div class="shrink-0">
+                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h6 class="font-bold text-blue-900 mb-1">💰 How Your Commission Works</h6>
+                <p class="text-sm text-blue-800">
+                    You earn <strong>30% commission</strong> on every sale from your referral link. 
+                    Your commission is calculated from the <strong>discounted price</strong> (what the customer actually pays after the 20% discount), not the original price. 
+                    This keeps everything transparent and fair! 
+                    <span class="font-semibold">Example:</span> Product costs ₦10,000 → Customer gets 20% off → Pays ₦8,000 → You earn ₦2,400 (30% of ₦8,000).
+                </p>
+            </div>
         </div>
     </div>
 </div>
@@ -245,8 +268,8 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sale ID</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Customer</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Template</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Template Price</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Your Commission</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sale Amount</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Your Commission (30%)</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                     </tr>
                 </thead>
@@ -263,7 +286,14 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-900"><?php echo htmlspecialchars($sale['customer_name']); ?></td>
                         <td class="px-4 py-4 text-sm text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></td>
-                        <td class="px-4 py-4 text-sm text-gray-900"><?php echo formatCurrency($sale['template_price']); ?></td>
+                        <td class="px-4 py-4 text-sm text-gray-900">
+                            <?php echo formatCurrency($sale['sale_final_amount']); ?>
+                            <?php if ($sale['sale_discount'] > 0): ?>
+                            <div class="text-xs text-green-600">
+                                (<?php echo formatCurrency($sale['sale_discount']); ?> saved)
+                            </div>
+                            <?php endif; ?>
+                        </td>
                         <td class="px-4 py-4 text-sm font-bold text-green-600">
                             <?php echo formatCurrency($sale['commission_amount']); ?>
                         </td>
@@ -304,11 +334,16 @@ require_once __DIR__ . '/includes/header.php';
                         <span class="text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">Price:</span>
-                        <span class="text-gray-900"><?php echo formatCurrency($sale['template_price']); ?></span>
+                        <span class="text-gray-600">Sale Amount:</span>
+                        <span class="text-gray-900">
+                            <?php echo formatCurrency($sale['sale_final_amount']); ?>
+                            <?php if ($sale['sale_discount'] > 0): ?>
+                            <span class="text-xs text-green-600 block">(<?php echo formatCurrency($sale['sale_discount']); ?> saved)</span>
+                            <?php endif; ?>
+                        </span>
                     </div>
                     <div class="flex justify-between border-t border-gray-300 pt-2 mt-2">
-                        <span class="text-gray-600 font-semibold">Your Commission:</span>
+                        <span class="text-gray-600 font-semibold">Your Commission (30%):</span>
                         <span class="text-green-600 font-bold"><?php echo formatCurrency($sale['commission_amount']); ?></span>
                     </div>
                 </div>

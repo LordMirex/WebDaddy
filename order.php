@@ -145,7 +145,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
             'affiliate_code' => $activeAffiliateCode,
             'session_id' => session_id(),
             'message_text' => $message,
-            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'original_price' => $originalPrice,
+            'discount_amount' => $discountAmount,
+            'final_amount' => $payableAmount
         ];
         
         $orderId = createPendingOrder($orderData);
@@ -516,6 +519,17 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                             <div class="flex justify-between mb-2 text-green-600 text-xs sm:text-sm">
                                 <span class="truncate mr-2">Discount (<?php echo $affiliateDiscountPercent; ?>%):</span>
                                 <strong class="shrink-0">-<?php echo formatCurrency($discountAmount); ?></strong>
+                            </div>
+                            <?php 
+                            // Calculate affiliate commission from discounted price
+                            $affiliateCommissionRate = AFFILIATE_COMMISSION_RATE; // 0.30 (30%)
+                            $affiliateCommission = $discountedPrice * $affiliateCommissionRate;
+                            ?>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mb-2">
+                                <div class="text-xs text-blue-800">
+                                    <p class="font-semibold mb-1">💰 You saved <?php echo formatCurrency($discountAmount); ?> (<?php echo $affiliateDiscountPercent; ?>%) thanks to <?php echo htmlspecialchars($affiliateData['name'] ?? 'your affiliate'); ?>!</p>
+                                    <p class="text-blue-600"><?php echo htmlspecialchars($affiliateData['name'] ?? 'Affiliate'); ?> earns <?php echo formatCurrency($affiliateCommission); ?> from this sale.</p>
+                                </div>
                             </div>
                         <?php endif; ?>
                         

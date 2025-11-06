@@ -156,8 +156,9 @@ function createPendingOrder($data)
         $stmt = $db->prepare("
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
-             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status,
+             original_price, discount_amount, final_amount)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
         ");
         
         if (!$stmt) {
@@ -175,7 +176,10 @@ function createPendingOrder($data)
             $data['affiliate_code'],
             $data['session_id'],
             $data['message_text'],
-            $data['ip_address']
+            $data['ip_address'],
+            $data['original_price'] ?? null,
+            $data['discount_amount'] ?? 0,
+            $data['final_amount'] ?? null
         ];
         
         $result = $stmt->execute($params);
@@ -245,12 +249,18 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         $commissionAmount = 0;
         $affiliateId = null;
         
+        // Extract price breakdown from order
+        $originalPrice = $order['original_price'] ?? $order['template_price'];
+        $discountAmount = $order['discount_amount'] ?? 0;
+        $finalAmount = $order['final_amount'] ?? $amountPaid;
+        
         if (!empty($order['affiliate_code'])) {
             $affiliate = getAffiliateByCode($order['affiliate_code']);
             if ($affiliate) {
-                // ALWAYS use original template price for commission calculation
-                // Affiliates earn commission on full price, even if customer gets discount
-                $commissionBase = $order['template_price'];
+                // CRITICAL FIX: Commission calculated from DISCOUNTED price (what customer actually paid)
+                // NOT from original price. This is transparent and fair to affiliates.
+                // Example: Product ₦10,000 → 20% discount → Customer pays ₦8,000 → Affiliate gets 30% of ₦8,000 = ₦2,400
+                $commissionBase = $finalAmount;
                 
                 // Use custom commission rate if set, otherwise use default
                 $commissionRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
@@ -262,10 +272,12 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         }
         
         $stmt = $db->prepare("
-            INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_notes)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_notes,
+                             original_price, discount_amount, final_amount)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes]);
+        $stmt->execute([$orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes,
+                       $originalPrice, $discountAmount, $finalAmount]);
         
         $db->commit();
         
@@ -350,7 +362,12 @@ function getAffiliateByCode($code)
     $db = getDb();
     
     try {
-        $stmt = $db->prepare("SELECT * FROM affiliates WHERE code = ? AND status = 'active'");
+        $stmt = $db->prepare("
+            SELECT a.*, u.name, u.email
+            FROM affiliates a
+            LEFT JOIN users u ON a.user_id = u.id
+            WHERE a.code = ? AND a.status = 'active'
+        ");
         $stmt->execute([$code]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? $result : null;
