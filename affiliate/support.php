@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($stmt->fetch()) {
                     $stmt = $db->prepare("INSERT INTO ticket_replies (ticket_id, user_id, is_admin, message) VALUES (?, ?, 0, ?)");
-                    $stmt->execute([$ticketId, getUserId(), $message]);
+                    $stmt->execute([$ticketId, $affiliateId, $message]);
                     
                     $stmt = $db->prepare("UPDATE support_tickets SET status = 'open', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
                     $stmt->execute([$ticketId]);
