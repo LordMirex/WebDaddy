@@ -36,6 +36,8 @@ if (!empty($searchTerm)) {
     $stmt->execute([$searchPattern, $searchPattern, $searchPattern]);
     $searchResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $totalTemplates = count($searchResults);
+    
+    trackSearch($searchTerm, $totalTemplates);
 } else {
     // Get all active templates
     $searchResults = $allTemplates;

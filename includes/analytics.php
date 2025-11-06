@@ -102,3 +102,124 @@ function trackTemplateClick($templateId) {
         return false;
     }
 }
+
+function trackSearch($searchTerm, $resultsCount = 0) {
+    if (!isset($_SESSION['analytics_session_id'])) {
+        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO page_interactions (session_id, page_url, action_type, action_target, time_spent)
+            VALUES (?, ?, 'search', ?, ?)
+        ");
+        $stmt->execute([
+            $_SESSION['analytics_session_id'],
+            $_SERVER['REQUEST_URI'] ?? '',
+            $searchTerm,
+            $resultsCount
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        error_log('Search tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function trackButtonClick($buttonName, $buttonContext = '') {
+    if (!isset($_SESSION['analytics_session_id'])) {
+        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO page_interactions (session_id, page_url, action_type, action_target)
+            VALUES (?, ?, 'button_click', ?)
+        ");
+        $target = $buttonContext ? $buttonName . ' - ' . $buttonContext : $buttonName;
+        $stmt->execute([
+            $_SESSION['analytics_session_id'],
+            $_SERVER['REQUEST_URI'] ?? '',
+            $target
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        error_log('Button click tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function trackFormSubmission($formName, $formData = []) {
+    if (!isset($_SESSION['analytics_session_id'])) {
+        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO page_interactions (session_id, page_url, action_type, action_target)
+            VALUES (?, ?, 'form_submit', ?)
+        ");
+        $stmt->execute([
+            $_SESSION['analytics_session_id'],
+            $_SERVER['REQUEST_URI'] ?? '',
+            $formName
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        error_log('Form submission tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function trackAffiliateClick($affiliateCode) {
+    if (!isset($_SESSION['analytics_session_id'])) {
+        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO page_interactions (session_id, page_url, action_type, action_target)
+            VALUES (?, ?, 'affiliate_click', ?)
+        ");
+        $stmt->execute([
+            $_SESSION['analytics_session_id'],
+            $_SERVER['REQUEST_URI'] ?? '',
+            $affiliateCode
+        ]);
+        
+        $stmt = $db->prepare("UPDATE affiliates SET total_clicks = total_clicks + 1 WHERE code = ?");
+        $stmt->execute([$affiliateCode]);
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log('Affiliate click tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function trackOrderStart($templateId) {
+    if (!isset($_SESSION['analytics_session_id'])) {
+        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO page_interactions (session_id, page_url, action_type, action_target, template_id)
+            VALUES (?, ?, 'order_start', 'template', ?)
+        ");
+        $stmt->execute([
+            $_SESSION['analytics_session_id'],
+            $_SERVER['REQUEST_URI'] ?? '',
+            $templateId
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        error_log('Order start tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
