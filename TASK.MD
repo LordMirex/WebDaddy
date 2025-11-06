@@ -40,7 +40,7 @@
 - [x] **Task #005** - Update checkout page to show discount breakdown - ✅ COMPLETED
   - File: `order.php` (lines 521-528)
   - Shows discount percentage and amount saved
-  - Shows "You saved ₦X thanks to [Affiliate]!" message
+  - Shows "You saved ₦X thanks to message
   - FIXED: Removed affiliate earnings display (customers don't need to see this)
   
 - [x] **Task #006** - Update affiliate dashboard to show correct commission source - ✅ COMPLETED
@@ -65,7 +65,7 @@
   - ✓ Schema exported: `database/schema_updates.sql` (9.7KB)
   
 - [x] **Task #010** - Verify page_visits has data - ✅ COMPLETED
-  - Data exists: 35 visit records (updated from 27)
+  - Data exists: No visit records (updated from 27)
   - Ready for analytics dashboard implementation
   - Do NOT delete
   
@@ -135,10 +135,13 @@
   - Remove navigation links
   - Document deletion
   
-- [ ] **Task #023** - Add "Announcements" tab to admin/affiliates.php modal - ⚪ PENDING
+- [ ] **Task #023** - Update the "Announcements" tab in admin/affiliates.php with the similar system to the annocement.phph deleted as what we we really want to update is the timer and autoremoval of nannoncement  - ⚪ PENDING, and also for the affliate accounts, on registration a annocement is being created just for them with a timer of 7days this mmediately they land on the dashboard and it should be clear so they understand that they would be receiveing mails for payments and withdaraw approves or successufl purchases wth their affliate code, all just to make sure they check their spam then mark us as safe.
+- [ ] 
   - File: `admin/affiliates.php`
   - Add tab inside existing modal (alongside other tabs)
-  - Tab content: List all announcements (date, title, status, recipients)
+  - Merge the (Email All Affiliates and Email Single Affiliate) on one modal
+  - Tab content: List all announcements (date, title, status, recipients and more)
+  - The Announcements Management on affilate.php should be moved inside the announcement modal
   
 - [ ] **Task #024** - Build "Send New Announcement" form in modal - ⚪ PENDING
   - Form fields:
@@ -147,6 +150,10 @@
     - Recipients dropdown: All | This affiliate | >5 sales | Joined last 7 days
     - Schedule: datetime picker or "Send Now"
     - Delivery: Checkboxes for In-app, Email
+    - Duration (Permanent (No Expiry) Timed (Auto-Remove) 1Hours 30Minutes
+
+Email example
+ Announcement will automatically disappear after 0 hours and 30 minutes
   - Preview button shows email template
   - Actions: "Save as Draft" | "Send"
   

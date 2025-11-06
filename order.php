@@ -521,7 +521,7 @@ if (isset($redirectToWhatsApp) && $redirectToWhatsApp) {
                                 <strong class="shrink-0">-<?php echo formatCurrency($discountAmount); ?></strong>
                             </div>
                             <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-2">
-                                <p class="text-xs text-green-800 font-semibold">💰 You saved <?php echo formatCurrency($discountAmount); ?> (<?php echo $affiliateDiscountPercent; ?>%) thanks to <?php echo htmlspecialchars($affiliateData['name'] ?? 'your affiliate'); ?>!</p>
+                                <p class="text-xs text-green-800 font-semibold">💰 You saved <?php echo formatCurrency($discountAmount); ?> (<?php echo $affiliateDiscountPercent; ?>%) thanks to your affiliate! </p>
                             </div>
                         <?php endif; ?>
                         
