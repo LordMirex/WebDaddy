@@ -128,16 +128,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (!empty($tableName)) {
             try {
-                $db->exec("DELETE FROM \"$tableName\"");
-                $deleted = $db->exec("SELECT changes()")->fetchColumn();
+                $stmt = $db->prepare("DELETE FROM \"$tableName\"");
+                $stmt->execute();
+                $deleted = $stmt->rowCount();
                 
-                $successMessage = "Table '{$tableName}' emptied successfully";
-                logActivity('database_table_empty', "Emptied table: {$tableName}", getAdminId());
+                $successMessage = "Table '{$tableName}' emptied successfully. {$deleted} record(s) deleted.";
+                logActivity('database_table_empty', "Emptied table: {$tableName} ({$deleted} records)", getAdminId());
             } catch (PDOException $e) {
                 $errorMessage = "Failed to empty table: " . $e->getMessage();
             }
         }
     }
+    
+    elseif ($action === 'cleanup_backups') {
+        try {
+            $backupDir = __DIR__ . '/../database/backups';
+            $deleted = 0;
+            
+            if (is_dir($backupDir)) {
+                $backups = glob($backupDir . '/webdaddy_backup_*.db');
+                if (count($backups) > 5) {
+                    // Sort by modification time, oldest first
+                    usort($backups, function($a, $b) {
+                        return filemtime($a) - filemtime($b);
+                    });
+                    
+                    // Keep only the 5 most recent backups
+                    $toDelete = array_slice($backups, 0, count($backups) - 5);
+                    foreach ($toDelete as $file) {
+                        if (unlink($file)) {
+                            $deleted++;
+                        }
+                    }
+                }
+            }
+            
+            $successMessage = "Cleanup completed. {$deleted} old backup(s) deleted. Keeping the 5 most recent backups.";
+            logActivity('database_backup_cleanup', "Cleaned up {$deleted} old backups", getAdminId());
+        } catch (Exception $e) {
+            $errorMessage = "Backup cleanup failed: " . $e->getMessage();
+        }
+    }
+}
+
+// Handle backup download requests
+if (isset($_GET['download_backup'])) {
+    $backupFile = basename($_GET['download_backup']);
+    $backupPath = __DIR__ . '/../database/backups/' . $backupFile;
+    
+    if (file_exists($backupPath) && strpos($backupFile, 'webdaddy_backup_') === 0) {
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $backupFile . '"');
+        header('Content-Length: ' . filesize($backupPath));
+        header('Cache-Control: no-cache');
+        readfile($backupPath);
+        exit;
+    }
+}
+
+// Handle current database download
+if (isset($_GET['download_current'])) {
+    $currentDbFile = 'webdaddy_current_' . date('Y-m-d_H-i-s') . '.db';
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $currentDbFile . '"');
+    header('Content-Length: ' . filesize($dbPath));
+    header('Cache-Control: no-cache');
+    readfile($dbPath);
+    exit;
 }
 
 $dbSize = file_exists($dbPath) ? filesize($dbPath) : 0;
@@ -265,18 +322,27 @@ require_once __DIR__ . '/includes/header.php';
             <form method="POST" class="space-y-3">
                 <button type="submit" name="action" value="backup_database" class="w-full flex items-center justify-between px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
                     <span class="flex items-center gap-2">
-                        <i class="bi bi-download"></i> Create Backup
+                        <i class="bi bi-download"></i> Create New Backup
                     </span>
                     <i class="bi bi-arrow-right"></i>
                 </button>
             </form>
             
-            <a href="../database/webdaddy.db" download class="w-full flex items-center justify-between px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+            <a href="?download_current=1" class="w-full flex items-center justify-between px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
                 <span class="flex items-center gap-2">
-                    <i class="bi bi-file-earmark-arrow-down"></i> Download Database File
+                    <i class="bi bi-file-earmark-arrow-down"></i> Download Current Database
                 </span>
                 <i class="bi bi-arrow-right"></i>
             </a>
+            
+            <?php if ($lastBackup): ?>
+            <a href="?download_backup=<?php echo urlencode(basename($lastBackup)); ?>" class="w-full flex items-center justify-between px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">
+                <span class="flex items-center gap-2">
+                    <i class="bi bi-cloud-arrow-down"></i> Download Latest Backup
+                </span>
+                <i class="bi bi-arrow-right"></i>
+            </a>
+            <?php endif; ?>
             
             <form method="POST" onsubmit="return confirm('Are you sure you want to optimize the database? This may take a few moments.');" class="space-y-3">
                 <button type="submit" name="action" value="vacuum" class="w-full flex items-center justify-between px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
@@ -286,6 +352,31 @@ require_once __DIR__ . '/includes/header.php';
                     <i class="bi bi-arrow-right"></i>
                 </button>
             </form>
+            
+            <form method="POST" onsubmit="return confirm('Delete old backups? This will keep only the 5 most recent backups.');">
+                <button type="submit" name="action" value="cleanup_backups" class="w-full flex items-center justify-between px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="bi bi-folder-x"></i> Cleanup Old Backups
+                    </span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3 rounded-lg text-sm">
+                <div class="font-semibold mb-1 flex items-center gap-2">
+                    <i class="bi bi-info-circle"></i> Auto-Backup with Cron Job
+                </div>
+                <div class="text-xs space-y-1">
+                    <p>Add this to your crontab for daily backups at 2 AM:</p>
+                    <code class="block bg-blue-100 p-2 rounded mt-1 font-mono text-blue-900">
+                        0 2 * * * php /path/to/project/admin/database.php backup_cli
+                    </code>
+                    <p class="mt-2">For hourly backups:</p>
+                    <code class="block bg-blue-100 p-2 rounded mt-1 font-mono text-blue-900">
+                        0 * * * * php /path/to/project/admin/database.php backup_cli
+                    </code>
+                </div>
+            </div>
         </div>
     </div>
     

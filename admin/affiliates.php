@@ -257,6 +257,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errorMessage = 'Failed to send email. Please check your email configuration.';
                 }
             }
+        } elseif ($action === 'toggle_announcement') {
+            $announcementId = intval($_POST['announcement_id'] ?? 0);
+            $currentStatus = intval($_POST['current_status'] ?? 0);
+            $newStatus = $currentStatus ? 0 : 1;
+            
+            try {
+                $stmt = $db->prepare("UPDATE announcements SET is_active = ? WHERE id = ?");
+                $stmt->execute([$newStatus, $announcementId]);
+                
+                $successMessage = $newStatus ? 'Announcement activated successfully!' : 'Announcement deactivated successfully!';
+                logActivity('announcement_toggled', "Toggled announcement #$announcementId to " . ($newStatus ? 'active' : 'inactive'), getAdminId());
+            } catch (PDOException $e) {
+                $errorMessage = 'Failed to update announcement: ' . $e->getMessage();
+            }
+        } elseif ($action === 'delete_announcement') {
+            $announcementId = intval($_POST['announcement_id'] ?? 0);
+            
+            try {
+                $stmt = $db->prepare("DELETE FROM announcements WHERE id = ?");
+                $stmt->execute([$announcementId]);
+                
+                $successMessage = 'Announcement deleted successfully!';
+                logActivity('announcement_deleted', "Deleted announcement #$announcementId", getAdminId());
+            } catch (PDOException $e) {
+                $errorMessage = 'Failed to delete announcement: ' . $e->getMessage();
+            }
         } elseif ($action === 'process_withdrawal') {
             $requestId = intval($_POST['request_id']);
             $withdrawalStatus = sanitizeInput($_POST['withdrawal_status']);
@@ -356,6 +382,19 @@ $sql .= " ORDER BY a.created_at DESC";
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $affiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all announcements
+$announcementsQuery = "
+    SELECT ann.*, 
+           u.name as created_by_name,
+           a.code as affiliate_code,
+           (SELECT name FROM users WHERE id = (SELECT user_id FROM affiliates WHERE id = ann.affiliate_id)) as target_affiliate_name
+    FROM announcements ann
+    LEFT JOIN users u ON ann.created_by = u.id
+    LEFT JOIN affiliates a ON ann.affiliate_id = a.id
+    ORDER BY ann.created_at DESC
+";
+$allAnnouncements = $db->query($announcementsQuery)->fetchAll(PDO::FETCH_ASSOC);
 
 $withdrawalRequests = $db->query("
     SELECT wr.*, a.code as affiliate_code, u.name as affiliate_name, u.email as affiliate_email
@@ -708,6 +747,112 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
+    <!-- Announcements Management Section -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 mt-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-megaphone text-primary-600"></i> Announcements Management
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">View and manage all announcements sent to affiliates</p>
+        </div>
+        <div class="p-6">
+            <?php if (empty($allAnnouncements)): ?>
+            <div class="text-center py-12">
+                <i class="bi bi-inbox text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">No announcements posted yet</p>
+                <button @click="showAnnouncementModal = true" class="mt-4 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                    <i class="bi bi-plus-circle mr-2"></i> Post Your First Announcement
+                </button>
+            </div>
+            <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Target</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Type</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Created</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <?php foreach ($allAnnouncements as $announcement): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4">
+                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($announcement['title']); ?></div>
+                                <div class="text-sm text-gray-500 line-clamp-2"><?php echo htmlspecialchars(substr($announcement['message'], 0, 100)); ?>...</div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <?php if ($announcement['affiliate_id']): ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="bi bi-person-fill mr-1"></i>
+                                    <?php echo htmlspecialchars($announcement['target_affiliate_name'] ?: 'Unknown'); ?>
+                                </span>
+                                <?php else: ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    <i class="bi bi-people-fill mr-1"></i> All Affiliates
+                                </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-4 py-4">
+                                <?php
+                                $typeColors = [
+                                    'info' => 'bg-blue-100 text-blue-800',
+                                    'success' => 'bg-green-100 text-green-800',
+                                    'warning' => 'bg-yellow-100 text-yellow-800',
+                                    'danger' => 'bg-red-100 text-red-800'
+                                ];
+                                $colorClass = $typeColors[$announcement['type']] ?? 'bg-gray-100 text-gray-800';
+                                ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?php echo $colorClass; ?>">
+                                    <?php echo ucfirst($announcement['type']); ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-4">
+                                <?php if ($announcement['is_active']): ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="bi bi-check-circle-fill mr-1"></i> Active
+                                </span>
+                                <?php else: ?>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="bi bi-x-circle-fill mr-1"></i> Inactive
+                                </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-4 py-4 text-sm text-gray-600">
+                                <?php echo date('M d, Y', strtotime($announcement['created_at'])); ?>
+                                <div class="text-xs text-gray-400"><?php echo date('H:i', strtotime($announcement['created_at'])); ?></div>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-2">
+                                    <form method="POST" class="inline">
+                                        <input type="hidden" name="action" value="toggle_announcement">
+                                        <input type="hidden" name="announcement_id" value="<?php echo $announcement['id']; ?>">
+                                        <input type="hidden" name="current_status" value="<?php echo $announcement['is_active']; ?>">
+                                        <button type="submit" class="text-sm px-3 py-1.5 <?php echo $announcement['is_active'] ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'; ?> text-white rounded transition-colors" title="<?php echo $announcement['is_active'] ? 'Deactivate' : 'Activate'; ?>">
+                                            <i class="bi bi-<?php echo $announcement['is_active'] ? 'pause' : 'play'; ?>-fill"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" onsubmit="return confirm('Delete this announcement? This cannot be undone.');" class="inline">
+                                        <input type="hidden" name="action" value="delete_announcement">
+                                        <input type="hidden" name="announcement_id" value="<?php echo $announcement['id']; ?>">
+                                        <button type="submit" class="text-sm px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded transition-colors" title="Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Create Affiliate Modal -->
     <div x-show="showCreateModal" 
          x-transition:enter="transition ease-out duration-300"
@@ -725,7 +870,7 @@ require_once __DIR__ . '/includes/header.php';
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <form method="POST">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900">Create Affiliate Account</h3>
@@ -778,7 +923,7 @@ require_once __DIR__ . '/includes/header.php';
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <form method="POST">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -833,7 +978,7 @@ require_once __DIR__ . '/includes/header.php';
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <form method="POST">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -909,7 +1054,7 @@ require_once __DIR__ . '/includes/header.php';
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full">
+             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <form method="POST">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -1181,11 +1326,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Sync Quill content to hidden textarea before form submission
-        const bulkEmailForm = document.querySelector('form');
-        if (bulkEmailForm && bulkEmailForm.querySelector('#email_message')) {
+        const bulkEmailForm = bulkEditorElement.closest('form');
+        if (bulkEmailForm) {
             bulkEmailForm.addEventListener('submit', function(e) {
                 const messageField = document.querySelector('#email_message');
-                messageField.value = bulkQuill.root.innerHTML;
+                if (messageField) {
+                    messageField.value = bulkQuill.root.innerHTML;
+                }
                 
                 // Validate that content exists
                 if (bulkQuill.getText().trim().length === 0) {
