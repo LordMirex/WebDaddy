@@ -80,41 +80,38 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     <title>{$esc_subject}</title>
 </head>
 <body style="margin:0; padding:0; background:#f4f4f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-    <div style="max-width:600px; margin:15px auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-        <!-- Header with Logo -->
-        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding:20px; text-align:center;">
-            <img src="{$logoUrl}" alt="{$esc_siteName}" style="max-width:180px; height:auto; margin-bottom:10px;" onerror="this.style.display='none'">
-            <h1 style="color:#ffffff; margin:5px 0 0 0; font-size:24px; font-weight:700;">{$esc_siteName}</h1>
-            <p style="color:rgba(255,255,255,0.9); margin:5px 0 0 0; font-size:13px;">Professional Website Templates</p>
+    <div style="max-width:600px; margin:10px auto; background:#ffffff; border-radius:6px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding:15px; text-align:center;">
+            <img src="{$logoUrl}" alt="{$esc_siteName}" style="max-width:160px; height:auto; margin-bottom:8px;" onerror="this.style.display='none'">
+            <h1 style="color:#ffffff; margin:3px 0 0 0; font-size:22px; font-weight:700;">{$esc_siteName}</h1>
+            <p style="color:rgba(255,255,255,0.9); margin:3px 0 0 0; font-size:12px;">Professional Website Templates</p>
         </div>
         
-        <!-- Main Content -->
-        <div style="padding:20px;">
-            <p style="margin:0 0 15px 0; font-size:15px; color:#374151;">Hello <strong>{$esc_name}</strong>,</p>
+        <div style="padding:15px;">
+            <p style="margin:0 0 12px 0; font-size:14px; color:#374151;">Hello <strong>{$esc_name}</strong>,</p>
             
-            <div style="background:#f9fafb; padding:15px; border-left:3px solid #3b82f6; border-radius:4px; margin-bottom:15px;">
+            <div style="background:#f9fafb; padding:12px; border-left:3px solid #3b82f6; border-radius:4px; margin-bottom:12px;">
                 {$content}
             </div>
             
-            <div style="text-align:center; margin:20px 0;">
-                <a href="{$esc_siteUrl}" style="display:inline-block; background:#1e3a8a; color:#ffffff; padding:12px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:15px;">
+            <div style="text-align:center; margin:15px 0;">
+                <a href="{$esc_siteUrl}" style="display:inline-block; background:#1e3a8a; color:#ffffff; padding:10px 24px; text-decoration:none; border-radius:5px; font-weight:600; font-size:14px;">
                     Visit Our Website
                 </a>
             </div>
             
-            <div style="margin-top:20px; padding-top:15px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:13px;">
-                <p style="margin:0 0 8px 0;">Need help? Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color:#3b82f6; text-decoration:none;">{$whatsapp}</a></p>
+            <div style="margin-top:15px; padding-top:12px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:12px;">
+                <p style="margin:0 0 6px 0;">Need help? Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color:#3b82f6; text-decoration:none;">{$whatsapp}</a></p>
                 <p style="margin:0;">Best regards,<br><strong>The {$esc_siteName} Team</strong></p>
             </div>
         </div>
         
-        <!-- Footer -->
-        <div style="background:#1f2937; color:#9ca3af; padding:15px; text-align:center; font-size:12px;">
-            <p style="margin:0 0 8px 0;">&copy; 2025 {$esc_siteName}. All rights reserved.</p>
+        <div style="background:#1f2937; color:#9ca3af; padding:12px; text-align:center; font-size:11px;">
+            <p style="margin:0 0 6px 0;">&copy; 2025 {$esc_siteName}. All rights reserved.</p>
             <p style="margin:0;">
-                <a href="{$esc_siteUrl}" style="color:#60a5fa; text-decoration:none; margin:0 8px;">Home</a> |
-                <a href="{$esc_siteUrl}/admin/login.php" style="color:#60a5fa; text-decoration:none; margin:0 8px;">Admin</a> |
-                <a href="{$esc_siteUrl}/affiliate/login.php" style="color:#60a5fa; text-decoration:none; margin:0 8px;">Affiliate</a>
+                <a href="{$esc_siteUrl}" style="color:#60a5fa; text-decoration:none; margin:0 6px;">Home</a> |
+                <a href="{$esc_siteUrl}/admin/login.php" style="color:#60a5fa; text-decoration:none; margin:0 6px;">Admin</a> |
+                <a href="{$esc_siteUrl}/affiliate/login.php" style="color:#60a5fa; text-decoration:none; margin:0 6px;">Affiliate</a>
             </p>
         </div>
     </div>

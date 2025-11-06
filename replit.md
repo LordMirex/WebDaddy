@@ -1,73 +1,216 @@
-# WebDaddy Empire - Template Marketplace
+# WebDaddy Empire - Affiliate Platform
 
-## Overview
-WebDaddy Empire is a PHP/SQLite template marketplace designed for selling website templates bundled with pre-configured domains. It features a unique WhatsApp-first manual payment system, an administrative management panel, and an affiliate tracking system. The platform aims to provide a professional and conversion-optimized experience for acquiring website templates, focusing on simplicity and direct interaction for purchases. The application uses a single, portable SQLite database file (`webdaddy.db`). This project envisions becoming a leading platform for ready-to-launch websites, simplifying the online presence creation for small businesses and individuals.
+## Project Overview
+A complete affiliate marketing platform for selling website templates with domains included. Built with PHP 8.x and SQLite for easy deployment on cPanel environments.
 
-**Current Refactoring Progress:** 100% Complete (27/27 issues resolved)
-- ✅ Phase 1: Critical Functionality Fixes - COMPLETED
-- ✅ Phase 2: Mobile Responsive Fixes - COMPLETED (November 5, 2025)
-- ✅ Phase 3: Branding & Navigation - COMPLETED (November 5, 2025)
-- ✅ Phase 4: Landing Page UX - COMPLETED (November 5, 2025)
-- ✅ Phase 5: Polish & Testing - COMPLETED (November 5, 2025)
+## Recent Updates (November 2025)
 
-**Database & Communication Features Fix:** (November 5, 2025)
-- ✅ Database initialized with complete schema (all tables created)
-- ✅ Announcements feature enhanced to support individual affiliate targeting
-- ✅ Email affiliate functionality verified and working
-- ✅ Bulk email to all affiliates functionality verified and working
-- ✅ Schema files updated to include affiliate_id column for fresh installations
-- ✅ All features tested and production-ready
+### Production Readiness Improvements
+1. **Homepage Pagination**: Fixed to show 10 templates per page instead of 9
+2. **Email System**: 
+   - Optimized template spacing (reduced padding/margins)
+   - Fixed character encoding for₦ (Naira symbol) and emojis
+   - Added spam folder warnings to affiliate emails
+   - Logo properly configured (JPG format)
+3. **CSV Exports**: 
+   - Fixed UTF-8 encoding with BOM for Excel compatibility
+   - Proper column alignment and quoting
+   - Null value handling
+4. **Affiliate Communication**:
+   - WhatsApp floating button on all affiliate pages
+   - Support ticket system fully functional
+   - Direct admin contact via WhatsApp
+5. **Database Optimization**:
+   - VACUUM, ANALYZE, OPTIMIZE commands available
+   - Manual and automated optimization
+   - Session write optimization
+6. **Analytics**: 
+   - Comprehensive dashboard with charts
+   - Top 10 templates tracking (views + clicks)
+   - Bounce rate and time on site metrics
+   - CSV export for all analytics data
 
-**Production-Ready Improvements:** (November 6, 2025)
-- ✅ Database relocated from root to `database/` folder for cleaner project structure
-- ✅ All database references updated across includes/config.php, includes/db.php, and admin pages
-- ✅ Schema consolidated to single SQLite file (schema_sqlite.sql) - PostgreSQL version removed
-- ✅ Enhanced statistics chart with professional gradients, smooth animations, and formatted tooltips
-- ✅ Fixed template and domain deletion with simplified POST handlers
-- ✅ Made all admin pages fully responsive (action buttons, status columns, tables)
-- ✅ Integrated Email Single Affiliate modal into affiliates.php (removed separate page)
-- ✅ Created comprehensive database management page (admin/database.php) with:
-  - Database visualization showing tables, record counts, and sizes
-  - SQL query interface with syntax warnings and execution time
-  - Backup creation and download functionality
-  - Database cleanup tools (VACUUM, old logs, old orders)
-  - Table management (view structure, empty tables)
-  - Activity logging for all database operations
-- ✅ Added formatBytes helper function to includes/functions.php
-- ✅ All Quill editors properly initialized with validation
-- ✅ Project structure optimized for minimal files and clean deployment
+## Important: SQLite vs phpMyAdmin
+
+**This project uses SQLite, NOT MySQL/MariaDB!**
+
+- phpMyAdmin does NOT work with SQLite databases
+- Use `admin/database.php` for database management
+- To view structure: `PRAGMA table_info(table_name);`
+- SQLite stores everything in a single file: `database/webdaddy.db`
+
+## Project Structure
+
+```
+/
+├── admin/              # Admin panel
+├── affiliate/          # Affiliate dashboard  
+├── public/             # Public-facing pages (templates, homepage)
+├── includes/           # Shared PHP code
+├── database/           # SQLite database + backups
+├── cron/               # Backup and maintenance scripts
+├── assets/             # CSS, JS, images
+└── mailer/             # PHPMailer library
+```
+
+## Key Technologies
+
+- **PHP** 8.x+
+- **SQLite** (portable, file-based database)
+- **Tailwind CSS** (via CDN)
+- **Alpine.js** (lightweight interactivity)
+- **PHPMailer** (email delivery)
+- **Chart.js** (analytics charts)
+
+## Timezone Configuration
+
+All timestamps use **Africa/Lagos (GMT+1 / WAT)**
+- Set in `includes/config.php`
+- Applies to all date/time functions across the application
+
+## Backup System
+
+### Configuration
+- **Twice Weekly**: Tuesday & Friday at 2 AM WAT
+- **Monthly**: 1st of each month at 3 AM WAT (with email)
+- **Retention**: Last 4 weekly + 12 monthly backups
+- See `cron/CRON_INSTRUCTIONS.md` for setup details
+
+### Cron Jobs to Add
+```bash
+# Weekly backups
+0 2 * * 2,5 /usr/bin/php /path/to/cron/backup.php weekly
+
+# Monthly backups with email
+0 3 1 * * /usr/bin/php /path/to/cron/backup.php monthly
+```
+
+## Production Deployment
+
+**Before going live, review:**
+1. `PRODUCTION_CHECKLIST.md` - Complete checklist
+2. `cron/CRON_INSTRUCTIONS.md` - Backup configuration
+3. Set file permissions:
+   ```bash
+   chmod 640 database/webdaddy.db
+   chmod 750 database/backups
+   chmod 644 includes/*.php
+   ```
+4. Verify `DISPLAY_ERRORS = false` in `includes/config.php`
+5. Test email delivery (check spam folder)
+6. Set up cron jobs for backups
+
+## Database Management
+
+Access: `/admin/database.php`
+
+Features:
+- Execute SQL queries
+- VACUUM optimization
+- Manual backups
+- Database cleanup
+- View table statistics
+
+Common queries:
+```sql
+-- View all tables
+SELECT name FROM sqlite_master WHERE type='table';
+
+-- View table structure
+PRAGMA table_info(templates);
+
+-- Database optimization
+VACUUM;
+ANALYZE;
+PRAGMA optimize;
+```
+
+## Email Configuration
+
+SMTP settings in `includes/config.php`:
+- **Host**: mail.webdaddy.online
+- **Port**: 465 (SSL)
+- **From**: admin@webdaddy.online
+
+**Important**: Emails include spam folder warnings for affiliates.
 
 ## User Preferences
-- Code style: PSR-12 compliant, 4 spaces, camelCase variables
-- No frameworks - plain PHP only
-- Tailwind CSS via CDN (zero-install, portable approach) - NO npm, NO build tools
-- Alpine.js via CDN for interactive components
-- Professional, production-ready code
-- Focus on conversion optimization and professional design
-- UPDATE REPLIT.MD WITH EVERY CHANGE
 
-## System Architecture
+### Coding Style
+- Consistent indentation (4 spaces)
+- Clear, descriptive function names
+- Security-first approach (sanitize all inputs)
+- Use prepared statements for all database queries
 
-### UI/UX Decisions
-The design is professional, clean, and conversion-focused, built around the "WebDaddy Empire" brand with a royal crown logo and a color scheme of Royal Blue (#1e3a8a), Gold (#d4af37), and Accent Navy Blue (#0f172a). Tailwind CSS via CDN is used for modern utility-first styling, and Alpine.js handles interactive components (e.g., mobile menu, FAQ accordions) via CDN, ensuring portability. The UI prioritizes minimalism, consistency, and responsiveness with a unified design, royal blue gradient navigation, professional white cards with colored accent borders, and consistent typography. The homepage is optimized for conversion, featuring templates above the fold, a modern instant search bar with category filtering, a simplified "How It Works" section, an FAQ accordion, and optimized spacing throughout. The template browsing experience includes real-time JavaScript-powered search and category filtering with a live results counter. Mobile responsiveness is comprehensively addressed with mobile-first Tailwind utilities and responsive grid classes across all public, affiliate, and admin interfaces. **Branding is consistently implemented across all pages using the webdaddy-logo.png file (assets/images/webdaddy-logo.png) in headers (admin, affiliate), login pages, and registration pages, replacing all previous icon-based logos for professional brand presentation.**
+### Performance
+- Optimize database regularly (VACUUM)
+- Pagination on all large datasets
+- Session optimization enabled
+- Database connection pooling via singleton
 
-### Technical Implementations
-The backend uses plain PHP 8.x and interacts with a SQLite database (`webdaddy.db`). The frontend utilizes Tailwind CSS 3.x via CDN and Alpine.js 3.x via CDN for interactivity, ensuring zero-installation deployment by loading resources directly from unpkg/jsdelivr. Security measures include CSRF protection on all forms, rate limiting on login attempts, prepared statements for SQL injection prevention, `password_hash/verify` for authentication, session regeneration, HttpOnly + Secure cookies, HTTPS enforcement, input sanitization, and comprehensive security headers (X-XSS-Protection, CSP, HSTS). Foreign key constraints are enabled via PRAGMA. Error handling is improved with database operation validation and user-friendly messages. The system is SEO-ready with robots.txt and sitemap.xml, and includes professional error pages (404, 500). All Bootstrap dependencies have been completely removed and replaced with Tailwind CSS and Alpine.js for a leaner, faster frontend.
+### Security
+- CSRF protection on forms
+- XSS protection via htmlspecialchars()
+- Session hijacking prevention
+- Rate limiting on login attempts
+- Error messages don't expose sensitive info
 
-### Feature Specifications
-- **Public Features:** Conversion-optimized homepage, template browsing with detail pages and live previews, 30-day affiliate tracking, an order form with domain selection and WhatsApp payment redirect, and a simple FAQ.
-- **Admin Features:** Secure login, dashboard with statistics, CRUD operations for templates/domains, order processing, affiliate management (including withdrawal processing and commission rate management), and CSV exports. The admin panel includes comprehensive tools for managing users, sales, and content.
-- **Affiliate Features:** Login dashboard, earnings/commission tracking (30% commission), settings for profile and bank account management, simplified withdrawal requests, and password update functionality. Includes marketing tools like referral link variants and social media/email copy templates.
+## Common Tasks
 
-### System Design Choices
-The project is structured into `public/`, `admin/`, `affiliate/`, `includes/`, `assets/`, and `database/` folders. The database schema includes tables for `users`, `templates`, `domains`, `pending_orders`, `sales`, `affiliates`, `withdrawal_requests`, `activity_logs`, `settings`, and `announcements`. Key business rules include a 30% affiliate commission, 30-day affiliate persistence, a specific order flow, and a homepage template limit of 10. Modals are implemented using Alpine.js `x-show`/`x-data` patterns with Tailwind for styling, replacing all Bootstrap modal functionalities.
+### Run Database Optimization
+```bash
+php admin/database.php --vacuum
+```
 
-**Announcements System:** The announcements table supports both broadcast announcements (for all affiliates) and targeted announcements (for specific affiliates). Admin can create announcements via the affiliate management panel and select either "All Affiliates" or a specific affiliate. Affiliates see announcements that are either global (affiliate_id IS NULL) or specifically targeted to them (affiliate_id matches their ID). The system uses a simple yet powerful filtering mechanism to ensure proper announcement delivery.
+### Create Manual Backup
+```bash
+php cron/backup.php weekly
+```
 
-## External Dependencies
-- **Database:** SQLite (webdaddy.db)
-- **Frontend Framework:** Tailwind CSS 3.x (via CDN)
-- **JavaScript Library:** Alpine.js 3.x (via CDN)
-- **Icons:** Heroicons SVG (inline)
-- **Email:** PHPMailer for SMTP email delivery
-- **Rich Text Editor:** Quill (for admin bulk email functionality)
+### View Analytics
+Navigate to: `/admin/analytics.php`
+
+## Troubleshooting
+
+### "Database structure won't load in phpMyAdmin"
+- **Expected behavior!** SQLite doesn't work with phpMyAdmin
+- Use `/admin/database.php` instead
+
+### "Emails landing in spam"
+- Ensure SPF/DKIM/DMARC records configured
+- Affiliates are warned to check spam folder
+- Warm up IP address gradually
+
+### "CSV exports have broken columns"
+- Fixed! Now includes UTF-8 BOM and proper quoting
+- Should open correctly in Excel
+
+### "Site time is wrong"
+- Already fixed! Set to Africa/Lagos timezone
+- Verify in `includes/config.php`
+
+## Support
+
+- **WhatsApp**: +2349132672126
+- **Admin Email**: admin@webdaddy.online
+- **Affiliate Support**: Via ticket system or WhatsApp button
+
+## Recent Architecture Decisions
+
+1. **SQLite over MySQL**: Easier deployment on shared hosting
+2. **Tailwind CDN over compiled**: Faster development, no build step
+3. **Session optimization**: Write-close pattern to prevent locks
+4. **UTF-8 everywhere**: Proper character encoding for international symbols
+5. **Twice-weekly backups**: Balance between safety and storage
+
+## Next Steps
+
+1. Test all features in staging environment
+2. Set up production cron jobs
+3. Configure email warmup schedule
+4. Monitor analytics for first week
+5. Gather user feedback on affiliate dashboard
+
+---
+
+Last Updated: November 6, 2025

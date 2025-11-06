@@ -32,14 +32,17 @@ switch ($period) {
 
 if (isset($_GET['export_csv'])) {
     $exportType = $_GET['export_csv'];
-    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="analytics_' . $exportType . '_' . date('Y-m-d') . '.csv"');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     
     $output = fopen('php://output', 'w');
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
     
     if ($exportType === 'visits') {
-        fputcsv($output, ['Date', 'Page URL', 'Page Title', 'Referrer', 'IP Address', 'User Agent']);
+        fputcsv($output, ['Date', 'Page URL', 'Page Title', 'Referrer', 'IP Address', 'User Agent'], ',', '"');
         
         $query = "SELECT visit_date, page_url, page_title, referrer, ip_address, user_agent 
                   FROM page_visits 
@@ -49,10 +52,17 @@ if (isset($_GET['export_csv'])) {
         $results = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
         
         foreach ($results as $row) {
-            fputcsv($output, $row);
+            fputcsv($output, [
+                $row['visit_date'] ?? '',
+                $row['page_url'] ?? '',
+                $row['page_title'] ?? '',
+                $row['referrer'] ?? '',
+                $row['ip_address'] ?? '',
+                $row['user_agent'] ?? ''
+            ], ',', '"');
         }
     } elseif ($exportType === 'templates') {
-        fputcsv($output, ['Template Name', 'Total Views', 'Total Clicks', 'View/Click Ratio']);
+        fputcsv($output, ['Template Name', 'Total Views', 'Total Clicks', 'View/Click Ratio'], ',', '"');
         
         $query = "SELECT 
                     t.name,
@@ -69,7 +79,12 @@ if (isset($_GET['export_csv'])) {
         $results = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
         
         foreach ($results as $row) {
-            fputcsv($output, [$row['name'], $row['views'], $row['clicks'], $row['ratio'] . '%']);
+            fputcsv($output, [
+                $row['name'] ?? '',
+                (string)($row['views'] ?? 0),
+                (string)($row['clicks'] ?? 0),
+                number_format($row['ratio'] ?? 0, 2, '.', '') . '%'
+            ], ',', '"');
         }
     }
     

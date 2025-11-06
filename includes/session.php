@@ -206,3 +206,16 @@ function getRateLimitMessage($identifier, $type = 'admin', $lockoutTime = 900)
     
     return "Too many failed login attempts. Please try again in {$minutes} minute(s).";
 }
+
+function optimizeSessionWrite()
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+}
+
+register_shutdown_function(function() {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+});

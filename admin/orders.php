@@ -160,37 +160,38 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     
     $orders = $db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename=orders_export_' . date('Y-m-d') . '.csv');
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="orders_export_' . date('Y-m-d') . '.csv"');
     header('Pragma: no-cache');
     header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
     
     $output = fopen('php://output', 'w');
     
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
     
-    fputcsv($output, ['Order ID', 'Customer Name', 'Email', 'Phone', 'Template', 'Price (₦)', 'Affiliate Code', 'Domain', 'Status', 'Is Paid', 'Order Date']);
+    fputcsv($output, ['Order ID', 'Customer Name', 'Email', 'Phone', 'Template', 'Price (NGN)', 'Affiliate Code', 'Domain', 'Status', 'Is Paid', 'Order Date'], ',', '"');
     
     foreach ($orders as $order) {
-        $payableAmount = $order['template_price'];
+        $payableAmount = $order['template_price'] ?? 0;
         if ($order['affiliate_code']) {
             $discountRate = CUSTOMER_DISCOUNT_RATE;
             $payableAmount = $order['template_price'] * (1 - $discountRate);
         }
         
         fputcsv($output, [
-            $order['id'] ?? '',
+            (string)($order['id'] ?? ''),
             $order['customer_name'] ?? '',
             $order['customer_email'] ?? '',
             $order['customer_phone'] ?? '',
             $order['template_name'] ?? '',
-            '₦' . number_format($payableAmount, 2),
+            number_format($payableAmount, 2, '.', ''),
             $order['affiliate_code'] ?? 'Direct',
             $order['domain_name'] ?? 'Not assigned',
             $order['status'] ?? '',
             $order['is_paid'] ? 'Yes' : 'No',
-            date('Y-m-d H:i:s', strtotime($order['created_at']))
-        ]);
+            $order['created_at'] ? date('Y-m-d H:i:s', strtotime($order['created_at'])) : ''
+        ], ',', '"');
     }
     
     fclose($output);

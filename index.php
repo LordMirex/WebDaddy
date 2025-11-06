@@ -11,7 +11,7 @@ handleAffiliateTracking();
 trackPageVisit($_SERVER['REQUEST_URI'], 'Home - Templates');
 
 // Pagination setup
-$perPage = 9; // 3x3 grid
+$perPage = 10; // Show 10 templates per page
 
 // Get all active templates for category filtering
 $allTemplates = getTemplates(true);
