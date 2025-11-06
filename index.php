@@ -201,87 +201,58 @@ $affiliateCode = getAffiliateCode();
         </div>
     </header>
 
-    <!-- Dynamic Animated WhatsApp Call-to-Action -->
-    <style>
-        @keyframes slideInOut {
-            0%, 100% {
-                transform: translateX(120%);
-                opacity: 0;
-            }
-            10%, 90% {
-                transform: translateX(0);
-                opacity: 1;
-            }
+    <!-- Smart WhatsApp Button with Message Carousel -->
+    <div x-data="{ 
+        messages: [
+            'Need a custom website?',
+            'Let\'s bring your idea to life',
+            '24/7 support on WhatsApp',
+            'Templates from ₦5,000'
+        ],
+        currentIndex: 0,
+        showMessage: false,
+        init() {
+            setInterval(() => {
+                this.showMessage = true;
+                setTimeout(() => {
+                    this.showMessage = false;
+                    setTimeout(() => {
+                        this.currentIndex = (this.currentIndex + 1) % this.messages.length;
+                    }, 300);
+                }, 5000);
+            }, 6000);
+        },
+        getContextualMessage() {
+            const page = window.location.pathname;
+            if (page.includes('template')) return 'Hi! I\'m viewing a template and need help.';
+            if (page.includes('order')) return 'Hi! I\'m on the order page and need assistance.';
+            return 'Hi! I\'m on <?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? 'your website'); ?> and need help.';
         }
-        
-        @keyframes blurPulse {
-            0%, 100% {
-                filter: blur(0px);
-                text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
-            }
-            50% {
-                filter: blur(0.5px);
-                text-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.6);
-            }
-        }
-        
-        @keyframes glow {
-            0%, 100% {
-                box-shadow: 0 0 15px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 25px rgba(34, 197, 94, 0.6), 0 0 50px rgba(34, 197, 94, 0.4);
-            }
-        }
-        
-        @keyframes iconBounce {
-            0%, 100% {
-                transform: translateY(0) scale(1);
-            }
-            50% {
-                transform: translateY(-5px) scale(1.1);
-            }
-        }
-        
-        .whatsapp-slide {
-            animation: slideInOut 8s ease-in-out infinite;
-        }
-        
-        .whatsapp-blur {
-            animation: blurPulse 3s ease-in-out infinite;
-        }
-        
-        .whatsapp-glow {
-            animation: glow 2s ease-in-out infinite;
-        }
-        
-        .whatsapp-icon-bounce {
-            animation: iconBounce 2s ease-in-out infinite;
-        }
-    </style>
-    
-    <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>?text=Hi%2C%20I%20need%20help%20with%20my%20website%20project" 
-       target="_blank"
-       class="fixed bottom-4 sm:bottom-6 right-0 z-50 group"
-       aria-label="Chat on WhatsApp">
-        <div class="whatsapp-slide bg-gradient-to-r from-green-500 to-green-600 whatsapp-glow rounded-l-full py-3 sm:py-4 pl-4 sm:pl-6 pr-3 sm:pr-4 shadow-2xl hover:shadow-green-500/50 transition-all duration-300 hover:scale-105">
-            <div class="flex items-center gap-2 sm:gap-3">
-                <div class="whatsapp-icon-bounce">
-                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                    </svg>
-                </div>
-                <div class="whatsapp-blur">
-                    <div class="text-white font-bold text-sm sm:text-base md:text-lg whitespace-nowrap leading-tight">
-                        Chat with Us Now!
-                    </div>
-                    <div class="text-green-50 text-xs sm:text-sm font-medium">
-                        Quick Response 24/7
-                    </div>
-                </div>
+    }" 
+    class="fixed bottom-4 left-0 z-50">
+        <!-- WhatsApp Icon Button (40px) -->
+        <a :href="'https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>?text=' + encodeURIComponent(getContextualMessage())" 
+           target="_blank"
+           class="flex items-center gap-2 bg-green-600 hover:bg-green-700 rounded-r-full shadow-lg hover:shadow-xl transition-all duration-300 pl-3 pr-3 py-2"
+           aria-label="Chat on WhatsApp">
+            <!-- Icon -->
+            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            
+            <!-- Sliding Message -->
+            <div x-show="showMessage" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 -translate-x-4"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 -translate-x-4"
+                 class="text-white font-semibold text-sm whitespace-nowrap pr-2">
+                <span x-text="messages[currentIndex]"></span>
             </div>
-        </div>
-    </a>
+        </a>
+    </div>
 
     <!-- Templates Section -->
     <section class="py-12 bg-white" id="templates">

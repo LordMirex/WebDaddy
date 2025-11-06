@@ -8,49 +8,59 @@ http_response_code(404);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Not Found - <?php echo SITE_NAME; ?></title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <div class="error-page" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 text-center">
-                    <div class="card shadow-lg border-0">
-                        <div class="card-body p-5">
-                            <div class="mb-4">
-                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 5rem; color: #dc3545;"></i>
-                            </div>
-                            <h1 class="display-1 fw-bold" style="color: var(--royal-blue);">404</h1>
-                            <h2 class="mb-3">Page Not Found</h2>
-                            <p class="text-muted mb-4">
-                                The page you're looking for doesn't exist or has been moved.
-                            </p>
-                            
-                            <div class="d-grid gap-2 d-md-block">
-                                <a href="/" class="btn btn-primary btn-lg me-2">
-                                    <i class="bi bi-house-fill"></i> Go to Homepage
-                                </a>
-                                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
-                                    <i class="bi bi-arrow-left"></i> Go Back
-                                </a>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <p class="text-muted small mb-2">Need help? Browse our templates:</p>
-                                <a href="/#templates" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-grid"></i> View Templates
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<body class="bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+            <div class="mb-6">
+                <svg class="w-24 h-24 mx-auto text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            
+            <h1 class="text-8xl font-extrabold text-blue-900 mb-2">404</h1>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">Page Not Found</h2>
+            <p class="text-gray-600 mb-6">
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                <a href="/" class="inline-flex items-center justify-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                    Go to Homepage
+                </a>
+                <a href="javascript:history.back()" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Go Back
+                </a>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-4">
+                <p class="text-gray-500 text-sm mb-3">Need help? Browse our templates:</p>
+                <a href="/#templates" class="inline-flex items-center px-4 py-2 bg-blue-50 hover:bg-blue-100 text-primary-600 font-medium rounded-lg transition-colors text-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                    </svg>
+                    View Templates
+                </a>
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
