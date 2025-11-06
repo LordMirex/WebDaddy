@@ -81,9 +81,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new Exception('Failed to create affiliate record.');
                     }
                     
+                    $affiliateId = $db->lastInsertId();
+                    
+                    $welcomeTitle = "📧 Important: Check Your Spam Folder!";
+                    $welcomeMessage = "<p>Welcome to <strong>WebDaddy Empire</strong>! We're excited to have you as an affiliate partner.</p>
+                        <p><strong style='color: #dc2626;'>⚠️ IMPORTANT ACTION REQUIRED:</strong></p>
+                        <ul>
+                            <li>Check your <strong>spam/junk folder</strong> for emails from us</li>
+                            <li>Mark our emails as <strong>\"Not Spam\"</strong> or <strong>\"Safe\"</strong></li>
+                            <li>Add <strong>admin@webdaddy.online</strong> to your contacts</li>
+                        </ul>
+                        <p><strong>Why is this important?</strong></p>
+                        <p>We will send you important notifications via email about:</p>
+                        <ul>
+                            <li>✅ Successful purchases made with your affiliate code</li>
+                            <li>💰 Payment confirmations and receipts</li>
+                            <li>🎯 Withdrawal request approvals</li>
+                            <li>📊 Monthly earning reports</li>
+                        </ul>
+                        <p>This announcement will disappear in 7 days. If you don't see our emails in your inbox, please check spam!</p>";
+                    
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+                    
+                    $stmt = $db->prepare("
+                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
+                        VALUES (?, ?, 'warning', 1, ?, ?, ?)
+                    ");
+                    $stmt->execute([$welcomeTitle, $welcomeMessage, getAdminId(), $affiliateId, $expiresAt]);
+                    
                     $db->commit();
-                    $successMessage = 'Affiliate account created successfully!';
-                    logActivity('affiliate_created', "Affiliate created: $email", getAdminId());
+                    $successMessage = 'Affiliate account created successfully with welcome announcement!';
+                    logActivity('affiliate_created', "Affiliate created: $email (with welcome announcement)", getAdminId());
                 } catch (Exception $e) {
                     if ($db->inTransaction()) {
                         $db->rollBack();
@@ -194,30 +222,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } elseif ($action === 'create_announcement') {
-            $title = sanitizeInput($_POST['announcement_title']);
-            $message = sanitizeInput($_POST['announcement_message']);
-            $type = sanitizeInput($_POST['announcement_type'] ?? 'info');
-            $affiliateId = !empty($_POST['announcement_affiliate_id']) ? intval($_POST['announcement_affiliate_id']) : null;
+            $title = sanitizeInput($_POST['title'] ?? '');
+            $message = trim($_POST['message'] ?? '');
+            $type = sanitizeInput($_POST['type'] ?? 'info');
+            $affiliateId = !empty($_POST['affiliate_id']) ? intval($_POST['affiliate_id']) : null;
+            $durationType = sanitizeInput($_POST['duration_type'] ?? 'permanent');
+            $durationHours = intval($_POST['duration_hours'] ?? 0);
+            $durationMinutes = intval($_POST['duration_minutes'] ?? 0);
             
             if (empty($title) || empty($message)) {
                 $errorMessage = 'Title and message are required.';
             } else {
+                $expiresAt = null;
+                if ($durationType === 'timed' && ($durationHours > 0 || $durationMinutes > 0)) {
+                    $totalMinutes = ($durationHours * 60) + $durationMinutes;
+                    $expiresAt = date('Y-m-d H:i:s', strtotime("+{$totalMinutes} minutes"));
+                }
+                
                 try {
                     $stmt = $db->prepare("
-                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id)
-                        VALUES (?, ?, ?, true, ?, ?)
+                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
+                        VALUES (?, ?, ?, 1, ?, ?, ?)
                     ");
-                    $stmt->execute([$title, $message, $type, getAdminId(), $affiliateId]);
+                    $stmt->execute([$title, $message, $type, getAdminId(), $affiliateId, $expiresAt]);
                     
-                    if ($affiliateId) {
-                        $stmt = $db->prepare("SELECT u.name FROM affiliates a JOIN users u ON a.user_id = u.id WHERE a.id = ?");
-                        $stmt->execute([$affiliateId]);
-                        $affiliateName = $stmt->fetchColumn();
-                        $successMessage = 'Announcement posted successfully! It will appear on ' . htmlspecialchars($affiliateName) . '\'s dashboard.';
-                    } else {
-                        $successMessage = 'Announcement posted successfully! It will appear on all affiliate dashboards.';
-                    }
-                    logActivity('announcement_created', "Posted announcement: $title", getAdminId());
+                    $target = $affiliateId ? "specific affiliate" : "all affiliates";
+                    $expiryInfo = $expiresAt ? " (expires: $expiresAt)" : " (permanent)";
+                    $successMessage = "Announcement created successfully for {$target}{$expiryInfo}!";
+                    logActivity('announcement_created', "Created: $title", getAdminId());
                 } catch (PDOException $e) {
                     $errorMessage = 'Database error: ' . $e->getMessage();
                 }
@@ -978,8 +1010,8 @@ require_once __DIR__ . '/includes/header.php';
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <form method="POST">
+             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <form method="POST" id="announcementForm">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
                         <i class="bi bi-megaphone text-primary-600"></i> Post Announcement
@@ -988,49 +1020,89 @@ require_once __DIR__ . '/includes/header.php';
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
-                <div class="p-6 space-y-4" x-data="{ selectedAffiliate: '' }">
+                <div class="p-6 space-y-4" x-data="{ 
+                    selectedAffiliate: '',
+                    durationType: 'permanent',
+                    durationHours: 0,
+                    durationMinutes: 30
+                }">
                     <input type="hidden" name="action" value="create_announcement">
                     
-                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
-                        <i class="bi bi-info-circle mr-2"></i> 
-                        <span x-show="!selectedAffiliate">This will appear on all affiliate dashboards.</span>
-                        <span x-show="selectedAffiliate" style="display: none;">This will appear only on the selected affiliate's dashboard.</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Title <span class="text-red-600">*</span></label>
+                            <input type="text" name="title" required maxlength="200"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                placeholder="Important Update">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+                            <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                <option value="info">Info (Blue)</option>
+                                <option value="success">Success (Green)</option>
+                                <option value="warning">Warning (Yellow)</option>
+                                <option value="danger">Danger (Red)</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Target Audience</label>
-                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_affiliate_id" x-model="selectedAffiliate">
-                            <option value="">All Affiliates</option>
+                        <select name="affiliate_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" x-model="selectedAffiliate">
+                            <option value="">All Affiliates (Global)</option>
                             <?php foreach ($affiliates as $aff): ?>
-                            <option value="<?php echo $aff['id']; ?>">
-                                <?php echo htmlspecialchars($aff['name']); ?> (<?php echo htmlspecialchars($aff['code']); ?>)
-                            </option>
+                                <option value="<?php echo $aff['id']; ?>">
+                                    <?php echo htmlspecialchars($aff['name']) . ' (' . htmlspecialchars($aff['code']) . ')'; ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Title <span class="text-red-600">*</span></label>
-                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_title" required placeholder="Announcement title">
-                    </div>
-                    <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Message <span class="text-red-600">*</span></label>
-                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_message" rows="4" required placeholder="Type announcement message..."></textarea>
+                        <div id="announcement-editor" style="height: 180px; background: white;"></div>
+                        <textarea name="message" id="announcement-content" class="hidden" required></textarea>
+                        <small class="text-gray-500 text-xs mt-1 block">Use the toolbar to format your message</small>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
-                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="announcement_type">
-                            <option value="info">Info (Blue)</option>
-                            <option value="success">Success (Green)</option>
-                            <option value="warning">Warning (Yellow)</option>
-                            <option value="danger">Important (Red)</option>
-                        </select>
+                    
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Duration</label>
+                        
+                        <div class="flex items-center gap-4 mb-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="duration_type" value="permanent" x-model="durationType" class="text-primary-600">
+                                <span class="text-sm">Permanent (No Expiry)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="duration_type" value="timed" x-model="durationType" class="text-primary-600">
+                                <span class="text-sm">Timed (Auto-Remove)</span>
+                            </label>
+                        </div>
+                        
+                        <div x-show="durationType === 'timed'" class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs text-gray-600 mb-1">Hours</label>
+                                <input type="number" name="duration_hours" min="0" max="720" x-model="durationHours"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-600 mb-1">Minutes</label>
+                                <input type="number" name="duration_minutes" min="0" max="59" x-model="durationMinutes"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                        
+                        <div x-show="durationType === 'timed'" class="mt-3 text-sm text-gray-600">
+                            <i class="bi bi-info-circle"></i>
+                            <span>Announcement will automatically disappear after <strong x-text="durationHours"></strong> hours and <strong x-text="durationMinutes"></strong> minutes</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
                     <button type="button" @click="showAnnouncementModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
                     <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">
-                        <i class="bi bi-megaphone mr-2"></i> Post Announcement
+                        <i class="bi bi-send-fill mr-2"></i> Post Announcement
                     </button>
                 </div>
             </form>
@@ -1385,6 +1457,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (singleQuill.getText().trim().length === 0) {
                     e.preventDefault();
                     alert('Please enter a message before sending.');
+                    return false;
+                }
+            });
+        }
+    }
+});
+
+// Initialize Quill editor for announcement modal if it exists
+document.addEventListener('DOMContentLoaded', function() {
+    const announcementEditorElement = document.getElementById('announcement-editor');
+    if (announcementEditorElement) {
+        const announcementQuill = new Quill('#announcement-editor', {
+            theme: 'snow',
+            placeholder: 'Write your announcement message here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set editor font styling
+        const editorContainer = document.querySelector('#announcement-editor .ql-editor');
+        if (editorContainer) {
+            editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            editorContainer.style.fontSize = '15px';
+            editorContainer.style.lineHeight = '1.6';
+            editorContainer.style.color = '#374151';
+            editorContainer.style.minHeight = '160px';
+        }
+
+        // Sync Quill content to hidden textarea before form submission
+        const announcementForm = document.getElementById('announcementForm');
+        if (announcementForm) {
+            announcementForm.addEventListener('submit', function(e) {
+                const messageField = document.getElementById('announcement-content');
+                if (messageField) {
+                    messageField.value = announcementQuill.root.innerHTML;
+                }
+                
+                // Validate that content exists
+                if (announcementQuill.getText().trim().length === 0) {
+                    e.preventDefault();
+                    alert('Please enter a message before posting the announcement.');
                     return false;
                 }
             });
