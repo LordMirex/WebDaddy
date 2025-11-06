@@ -707,7 +707,6 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
     </div>
-</div>
 
     <!-- Create Affiliate Modal -->
     <div x-show="showCreateModal" 
@@ -965,6 +964,7 @@ require_once __DIR__ . '/includes/header.php';
             </form>
         </div>
     </div>
+</div>
 </div>
 
 <?php if ($viewAffiliate): ?>

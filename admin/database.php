@@ -174,30 +174,6 @@ if (is_dir($backupDir)) {
     }
 }
 
-function formatBytes($bytes) {
-    if ($bytes >= 1073741824) {
-        return number_format($bytes / 1073741824, 2) . ' GB';
-    } elseif ($bytes >= 1048576) {
-        return number_format($bytes / 1048576, 2) . ' MB';
-    } elseif ($bytes >= 1024) {
-        return number_format($bytes / 1024, 2) . ' KB';
-    } else {
-        return $bytes . ' bytes';
-    }
-}
-
-function isDestructiveQuery($query) {
-    $destructiveKeywords = ['DELETE', 'DROP', 'TRUNCATE', 'UPDATE', 'ALTER', 'INSERT'];
-    $query = strtoupper(trim($query));
-    
-    foreach ($destructiveKeywords as $keyword) {
-        if (strpos($query, $keyword) === 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 require_once __DIR__ . '/includes/header.php';
 ?>
 
