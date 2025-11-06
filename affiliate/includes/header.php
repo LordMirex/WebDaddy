@@ -57,14 +57,6 @@
                         <i class="bi bi-box-arrow-up-right text-sm group-hover:scale-110 transition-transform"></i>
                         <span class="font-medium text-sm">View Site</span>
                     </a>
-                    
-                    <!-- Support Link -->
-                    <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER ?? ''); ?>?text=Hi%2C%20I%20need%20support%20with%20my%20affiliate%20account" 
-                       target="_blank" 
-                       class="hidden md:flex items-center space-x-2 px-3 sm:px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition-all group">
-                        <i class="bi bi-whatsapp text-sm group-hover:scale-110 transition-transform"></i>
-                        <span class="font-medium text-sm">Support</span>
-                    </a>
 
                     <!-- User Dropdown -->
                     <div class="relative" x-data="{ open: false }">
@@ -100,7 +92,7 @@
         <!-- Sidebar - Desktop: Always visible, Mobile: Slide-in drawer -->
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none mt-[57px] lg:mt-0 -translate-x-full">
+            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] lg:top-0 -translate-x-full">
             
             <!-- Close button for mobile -->
             <div class="lg:hidden flex justify-end p-4">

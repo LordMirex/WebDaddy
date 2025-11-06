@@ -2,23 +2,27 @@
 
 ## Overview
 This automated backup system creates:
-- **Weekly backups**: Every Tuesday and Friday (keeps last 4)
-- **Monthly backups**: 1st of every month with email attachment (keeps last 12)
+- **Weekly backups**: Every Tuesday and Friday at 2 AM WAT (keeps last 4)
+- **Monthly backups**: 1st of every month at 3 AM WAT with email attachment (keeps last 12)
+
+**Timezone**: All times are in Africa/Lagos timezone (WAT - GMT+1)
 
 ## Cron Job Configuration
 
 Add these lines to your crontab (`crontab -e`):
 
-### Weekly Backups (Tuesday & Friday at 2 AM)
+### Weekly Backups (Tuesday & Friday at 2 AM WAT)
 ```bash
 0 2 * * 2 /usr/bin/php /path/to/your/project/cron/backup.php weekly >> /path/to/your/project/cron/backup.log 2>&1
 0 2 * * 5 /usr/bin/php /path/to/your/project/cron/backup.php weekly >> /path/to/your/project/cron/backup.log 2>&1
 ```
 
-### Monthly Backup (1st of month at 3 AM with email)
+### Monthly Backup (1st of month at 3 AM WAT with email)
 ```bash
 0 3 1 * * /usr/bin/php /path/to/your/project/cron/backup.php monthly >> /path/to/your/project/cron/backup.log 2>&1
 ```
+
+**Note**: These times are configured for Africa/Lagos timezone (WAT - GMT+1). Ensure your server is set to this timezone in `includes/config.php`.
 
 ## Installation Steps
 
@@ -45,11 +49,11 @@ Add these lines to your crontab (`crontab -e`):
    
 5. **Add the cron jobs** (replace `/path/to/your/project` with your actual path):
    ```
-   # Weekly backups - Tuesday & Friday at 2 AM
+   # Weekly backups - Tuesday & Friday at 2 AM WAT (Africa/Lagos timezone)
    0 2 * * 2 /usr/bin/php /home/username/webdaddy/cron/backup.php weekly >> /home/username/webdaddy/cron/backup.log 2>&1
    0 2 * * 5 /usr/bin/php /home/username/webdaddy/cron/backup.php weekly >> /home/username/webdaddy/cron/backup.log 2>&1
    
-   # Monthly backup - 1st of month at 3 AM with email
+   # Monthly backup - 1st of month at 3 AM WAT with email notification
    0 3 1 * * /usr/bin/php /home/username/webdaddy/cron/backup.php monthly >> /home/username/webdaddy/cron/backup.log 2>&1
    ```
 

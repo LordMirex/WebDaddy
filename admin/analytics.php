@@ -292,7 +292,7 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-bar-chart-line text-primary-600"></i> Visits Over Time
         </h5>
     </div>
-    <div class="p-6" style="position: relative; height: 400px;">
+    <div class="p-3 sm:p-6" style="position: relative; height: 350px; min-height: 300px; max-height: 500px;">
         <canvas id="visitsChart"></canvas>
     </div>
 </div>

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -29,6 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $stmt = $db->prepare("INSERT INTO support_tickets (affiliate_id, subject, message, priority) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$affiliateId, $subject, $message, $priority]);
+                $ticketId = $db->lastInsertId();
+                
+                $affiliateName = getAffiliateName();
+                @sendNewSupportTicketNotificationToAdmin($ticketId, $affiliateName, $subject, $message, $priority);
+                
                 $successMessage = "Support ticket created successfully! We'll respond soon.";
             } catch (PDOException $e) {
                 $errorMessage = 'Failed to create ticket: ' . $e->getMessage();
