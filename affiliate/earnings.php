@@ -397,7 +397,7 @@ require_once __DIR__ . '/includes/header.php';
         <div>
             <p class="text-blue-900">
                 <strong class="font-bold">Commission Rate:</strong> You earn <?php echo (AFFILIATE_COMMISSION_RATE * 100); ?>% commission on every sale.
-                Commissions are calculated on the original template price, even when customers use your discount code.
+                Commissions are calculated on the discounted price (what the customer actually paid), not the original price.
             </p>
         </div>
     </div>

@@ -12,66 +12,68 @@
 
 **Last Updated:** November 6, 2025
 
-### Overall Progress: 0% Complete (0/50 tasks complete)
+### Overall Progress: 20% Complete (10/50 tasks complete)
 
-### Phase 1: CRITICAL - Fix Affiliate Commission Math - ⚪ NOT STARTED (0/7 complete)
-- [ ] **Task #001** - FIX COMMISSION CALCULATION IN markOrderPaid() - ⚪ PENDING
-  - File: `includes/functions.php` (Line 251-257)
-  - CURRENT BUG: `$commissionBase = $order['template_price'];` uses ORIGINAL price
-  - FIX: Calculate commission from DISCOUNTED price (after 20% off)
-  - Formula: If affiliate link → final_price = original * 0.8 → commission = final_price * 0.30
+### Phase 1: CRITICAL - Fix Affiliate Commission Math - ✅ COMPLETED (7/7 complete)
+- [x] **Task #001** - FIX COMMISSION CALCULATION IN markOrderPaid() - ✅ COMPLETED
+  - File: `includes/functions.php` (Line 263)
+  - FIXED: Commission now calculated from `$finalAmount` (discounted price)
+  - Formula: final_price = original * 0.8 → commission = final_price * 0.30
   - Example: ₦10,000 → ₦8,000 (after discount) → ₦2,400 commission (not ₦3,000)
   
-- [ ] **Task #002** - Add discount tracking to pending_orders table - ⚪ PENDING
-  - Alter pending_orders: Add `original_price`, `discount_amount`, `final_amount` columns
-  - Store all three values when order created with affiliate link
-  - Update createPendingOrder() to accept and store these values
+- [x] **Task #002** - Add discount tracking to pending_orders table - ✅ COMPLETED
+  - Columns added: `original_price`, `discount_amount`, `final_amount`
+  - All three values stored when order created with affiliate link
+  - createPendingOrder() updated to accept and store these values
   
-- [ ] **Task #003** - Update order.php to calculate and store discount data - ⚪ PENDING
-  - File: `order.php` (around line 120-151)
-  - When creating order, calculate: original_price, discount_amount, final_amount
-  - Pass to createPendingOrder() function
-  - Store in pending_orders table
+- [x] **Task #003** - Update order.php to calculate and store discount data - ✅ COMPLETED
+  - File: `order.php` updated
+  - When creating order, calculates: original_price, discount_amount, final_amount
+  - Passes to createPendingOrder() function
+  - Stores in pending_orders table
   
-- [ ] **Task #004** - Update sales table to track discount breakdown - ⚪ PENDING
-  - Add columns: `original_price`, `discount_amount`, `final_amount`
-  - Update markOrderPaid() to store these values in sales record
-  - Admin reports will use these for transparency
+- [x] **Task #004** - Update sales table to track discount breakdown - ✅ COMPLETED
+  - Columns added: `original_price`, `discount_amount`, `final_amount`
+  - markOrderPaid() stores these values in sales record (lines 274-280)
+  - Admin reports use these for transparency
   
-- [ ] **Task #005** - Update checkout page to show discount breakdown - ⚪ PENDING
-  - File: `order.php` (frontend section around line 400-500)
-  - When affiliate code applied, show:
+- [x] **Task #005** - Update checkout page to show discount breakdown - ✅ COMPLETED
+  - File: `order.php` (lines 518-534)
+  - When affiliate code applied, shows:
     - "You saved ₦2,000 (20%) thanks to [Affiliate Name]!"
     - "Final price: ₦8,000"
     - "[Affiliate Name] earns ₦2,400 from this sale"
   
-- [ ] **Task #006** - Update affiliate dashboard to show correct commission source - ⚪ PENDING
-  - Files: `affiliate/earnings.php`, `affiliate/index.php`
-  - Display: "Commission: ₦2,400 (30% of ₦8,000 discounted price)"
-  - Add tooltip: "Your commission comes from the price customer paid, not original price"
+- [x] **Task #006** - Update affiliate dashboard to show correct commission source - ✅ COMPLETED
+  - Files: `affiliate/earnings.php` (lines 93-99, 403), `affiliate/index.php`
+  - Display: Banner explains commission from discounted price
+  - Tooltip: "Your commission comes from the price customer paid, not original price"
+  - BUG FIXED: Line 403 now shows correct information
   
-- [ ] **Task #007** - Update admin sales report with full breakdown - ⚪ PENDING
-  - File: `admin/reports.php`
-  - Add columns: Original Price | Discount | Final Sale | Commission | Platform Revenue
+- [x] **Task #007** - Update admin sales report with full breakdown - ✅ COMPLETED
+  - File: `admin/reports.php` (lines 349-353)
+  - Columns added: Original Price | Discount | Final Sale | Commission | Platform Revenue
   - Example row: ₦10,000 | ₦2,000 | ₦8,000 | ₦2,400 | ₦5,600
-  - Calculate platform revenue: final_amount - commission_amount
+  - Platform revenue calculated: final_amount - commission_amount
 
-### Phase 2: Database Cleanup & Schema Updates - ⚪ NOT STARTED (0/4 complete)
-- [ ] **Task #008** - Verify pending ordertable exists (CONFIRMED: doesn't exist) - ⚪ PENDING
+### Phase 2: Database Cleanup & Schema Updates - 🟡 IN PROGRESS (3/4 complete)
+- [x] **Task #008** - Verify pending_orders table exists - ✅ COMPLETED
+  - VERIFIED: pending_orders table EXISTS in database
+  - Has all required columns: original_price, discount_amount, final_amount
   
-- [ ] **Task #009** - Export database backup before changes - ⚪ PENDING
-  - Run: `cp database/webdaddy.db database/full_backup_2025_11_06.db`
-  - Export schema: `sqlite3 database/webdaddy.db .schema > database/schema_updates.sql`
+- [x] **Task #009** - Export database backup before changes - ✅ COMPLETED
+  - ✓ Backup created: `database/full_backup_2025_11_06.db` (304KB)
+  - ✓ Schema exported: `database/schema_updates.sql` (9.7KB)
   
-- [ ] **Task #010** - Verify page_visits has data (CONFIRMED: 27 rows) - ⚪ PENDING
-  - Data exists: 27 visit records
+- [x] **Task #010** - Verify page_visits has data - ✅ COMPLETED
+  - Data exists: 35 visit records (updated from 27)
   - Ready for analytics dashboard implementation
   - Do NOT delete
   
-- [ ] **Task #011** - Start tracking in page_interactions table (currently empty) - ⚪ PENDING
-  - Table exists but empty
-  - Add tracking code for: searches, template clicks, button clicks
-  - File to update: Create `includes/analytics.php` wrapper
+- [ ] **Task #011** - Start tracking in page_interactions table - ⚪ PENDING
+  - Table has 2 rows (minimal data)
+  - NEED: Add tracking code for: searches, template clicks, button clicks
+  - NEED: Create/update `includes/analytics.php` wrapper for easy tracking
 
 ### Phase 3: Analytics Dashboard Implementation - ⚪ NOT STARTED (0/6 complete)
 - [ ] **Task #012** - Create admin analytics dashboard page - ⚪ PENDING
