@@ -14,19 +14,29 @@ $db = getDb();
 
 $period = $_GET['period'] ?? '30days';
 $dateFilter = "";
+$dateFilter_pi = "";
+$dateFilter_session = "";
 
 switch ($period) {
     case 'today':
-        $dateFilter = "AND DATE(pv.created_at) = DATE('now')";
+        $dateFilter = "AND DATE(created_at) = DATE('now')";
+        $dateFilter_pi = "AND DATE(pi.created_at) = DATE('now')";
+        $dateFilter_session = "AND DATE(first_visit) = DATE('now')";
         break;
     case '7days':
-        $dateFilter = "AND DATE(pv.created_at) >= DATE('now', '-7 days')";
+        $dateFilter = "AND DATE(created_at) >= DATE('now', '-7 days')";
+        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-7 days')";
+        $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-7 days')";
         break;
     case '30days':
-        $dateFilter = "AND DATE(pv.created_at) >= DATE('now', '-30 days')";
+        $dateFilter = "AND DATE(created_at) >= DATE('now', '-30 days')";
+        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-30 days')";
+        $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-30 days')";
         break;
     case '90days':
-        $dateFilter = "AND DATE(pv.created_at) >= DATE('now', '-90 days')";
+        $dateFilter = "AND DATE(created_at) >= DATE('now', '-90 days')";
+        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-90 days')";
+        $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-90 days')";
         break;
 }
 
@@ -72,7 +82,7 @@ if (isset($_GET['export_csv'])) {
                           NULLIF(COUNT(CASE WHEN pi.action_type = 'view' THEN 1 END), 0) * 100, 2) as ratio
                   FROM page_interactions pi
                   JOIN templates t ON pi.template_id = t.id
-                  WHERE 1=1 $dateFilter
+                  WHERE 1=1 $dateFilter_pi
                   GROUP BY t.id, t.name
                   ORDER BY views DESC
                   LIMIT 100";
@@ -101,7 +111,7 @@ $bounceData = $db->query("
         COUNT(*) as total_sessions,
         SUM(is_bounce) as bounce_sessions
     FROM session_summary
-    WHERE DATE(first_visit) >= DATE('now', '-30 days')
+    WHERE 1=1 $dateFilter_session
 ")->fetch(PDO::FETCH_ASSOC);
 
 $bounceRate = $bounceData['total_sessions'] > 0 
@@ -113,8 +123,7 @@ $avgTimeData = $db->query("
         CAST((julianday(last_visit) - julianday(first_visit)) * 24 * 60 * 60 AS INTEGER)
     ) as avg_time
     FROM session_summary
-    WHERE DATE(first_visit) >= DATE('now', '-30 days')
-    AND is_bounce = 0
+    WHERE is_bounce = 0 $dateFilter_session
 ")->fetchColumn();
 
 $avgTimeOnSite = $avgTimeData ? gmdate('i:s', round($avgTimeData)) : '00:00';
@@ -125,7 +134,7 @@ $visitsOverTime = $db->query("
         COUNT(*) as visits,
         COUNT(DISTINCT session_id) as unique_visitors
     FROM page_visits
-    WHERE DATE(created_at) >= DATE('now', '-30 days')
+    WHERE 1=1 $dateFilter
     GROUP BY visit_date
     ORDER BY visit_date ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
@@ -138,7 +147,7 @@ $topTemplateViews = $db->query("
         COUNT(pi.id) as view_count
     FROM page_interactions pi
     JOIN templates t ON pi.template_id = t.id
-    WHERE pi.action_type = 'view' $dateFilter
+    WHERE pi.action_type = 'view' $dateFilter_pi
     GROUP BY t.id, t.name, t.price
     ORDER BY view_count DESC
     LIMIT 10
@@ -152,7 +161,7 @@ $topTemplateClicks = $db->query("
         COUNT(pi.id) as click_count
     FROM page_interactions pi
     JOIN templates t ON pi.template_id = t.id
-    WHERE pi.action_type = 'click' $dateFilter
+    WHERE pi.action_type = 'click' $dateFilter_pi
     GROUP BY t.id, t.name, t.price
     ORDER BY click_count DESC
     LIMIT 10
@@ -183,6 +192,38 @@ $recentVisits = $db->query("
     ORDER BY created_at DESC
     LIMIT 50
 ")->fetchAll(PDO::FETCH_ASSOC);
+
+$searchAnalytics = $db->query("
+    SELECT 
+        action_target as search_term,
+        COUNT(*) as search_count,
+        AVG(time_spent) as avg_results
+    FROM page_interactions
+    WHERE action_type = 'search' $dateFilter
+    GROUP BY action_target
+    ORDER BY search_count DESC
+    LIMIT 15
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$trafficSources = $db->query("
+    SELECT 
+        CASE 
+            WHEN referrer IS NULL OR referrer = '' THEN 'Direct'
+            WHEN referrer LIKE '%google%' THEN 'Google'
+            WHEN referrer LIKE '%bing%' OR referrer LIKE '%yahoo%' THEN 'Search Engines'
+            WHEN referrer LIKE '%facebook%' OR referrer LIKE '%twitter%' OR referrer LIKE '%instagram%' OR referrer LIKE '%linkedin%' THEN 'Social Media'
+            WHEN referrer LIKE '%?aff=%' OR referrer LIKE '%&aff=%' THEN 'Affiliate Links'
+            ELSE 'Other Referrals'
+        END as source_type,
+        COUNT(*) as visit_count,
+        COUNT(DISTINCT session_id) as unique_visitors
+    FROM page_visits
+    WHERE 1=1 $dateFilter
+    GROUP BY source_type
+    ORDER BY visit_count DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$totalSourceVisits = array_sum(array_column($trafficSources, 'visit_count'));
 
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -350,6 +391,98 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-search text-primary-600"></i> Search Analytics
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if (empty($searchAnalytics)): ?>
+                <div class="text-center py-8">
+                    <i class="bi bi-search text-gray-300 text-5xl mb-3"></i>
+                    <p class="text-gray-500">No searches recorded yet</p>
+                    <p class="text-gray-400 text-sm mt-1">Search tracking starts when visitors use the search feature</p>
+                </div>
+            <?php else: ?>
+                <div class="space-y-2">
+                    <?php foreach ($searchAnalytics as $search): ?>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-3 flex-1">
+                                <i class="bi bi-search text-gray-400"></i>
+                                <div>
+                                    <h6 class="font-semibold text-gray-900">"<?php echo htmlspecialchars($search['search_term']); ?>"</h6>
+                                    <small class="text-gray-500">
+                                        Avg <?php echo round($search['avg_results']); ?> results
+                                        <?php if (round($search['avg_results']) == 0): ?>
+                                            <span class="text-orange-600 font-medium">⚠️ No results found</span>
+                                        <?php endif; ?>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-primary-600"><?php echo number_format($search['search_count']); ?></div>
+                                <small class="text-gray-500">searches</small>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-globe text-primary-600"></i> Traffic Sources
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if (empty($trafficSources)): ?>
+                <div class="text-center py-8">
+                    <i class="bi bi-globe text-gray-300 text-5xl mb-3"></i>
+                    <p class="text-gray-500">No traffic data yet</p>
+                </div>
+            <?php else: ?>
+                <div class="space-y-3">
+                    <?php foreach ($trafficSources as $source): ?>
+                        <?php 
+                        $percentage = $totalSourceVisits > 0 ? round(($source['visit_count'] / $totalSourceVisits) * 100, 1) : 0;
+                        $iconClass = match($source['source_type']) {
+                            'Direct' => 'bi-link-45deg text-gray-600',
+                            'Google' => 'bi-google text-blue-600',
+                            'Search Engines' => 'bi-search text-purple-600',
+                            'Social Media' => 'bi-share text-pink-600',
+                            'Affiliate Links' => 'bi-people text-green-600',
+                            default => 'bi-globe text-gray-600'
+                        };
+                        ?>
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-3">
+                                    <i class="bi <?php echo $iconClass; ?> text-2xl"></i>
+                                    <div>
+                                        <h6 class="font-semibold text-gray-900"><?php echo htmlspecialchars($source['source_type']); ?></h6>
+                                        <small class="text-gray-500"><?php echo number_format($source['unique_visitors']); ?> unique visitors</small>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xl font-bold text-gray-900"><?php echo number_format($source['visit_count']); ?></div>
+                                    <small class="text-gray-500"><?php echo $percentage; ?>%</small>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-primary-600 h-2 rounded-full transition-all" style="width: <?php echo $percentage; ?>%"></div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
