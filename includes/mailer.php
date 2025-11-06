@@ -549,3 +549,97 @@ function createAffiliateEmailTemplate($subject, $content, $affiliateName = 'Valu
 </html>
 HTML;
 }
+
+/**
+ * Send notification when admin replies to support ticket
+ */
+function sendSupportTicketReplyEmail($affiliateName, $affiliateEmail, $ticketId, $ticketSubject, $adminReply) {
+    $subject = "Support Ticket Reply - #{$ticketId}";
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'http://localhost:8080';
+    $escReply = htmlspecialchars($adminReply, ENT_QUOTES, 'UTF-8');
+    $escSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<h2 style="color:#3b82f6; margin:0 0 15px 0; font-size:20px;">💬 New Reply to Your Support Ticket</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    Our support team has replied to your ticket.
+</p>
+<div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0; border:1px solid #e5e7eb;">
+    <p style="margin:5px 0; color:#374151;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Subject:</strong> {$escSubject}</p>
+</div>
+<div style="background:#f0f9ff; padding:15px; border-radius:6px; margin:15px 0; border-left:4px solid #3b82f6;">
+    <p style="margin:0 0 8px 0; color:#1e40af; font-weight:600; font-size:13px;">ADMIN REPLY:</p>
+    <p style="margin:0; color:#374151; line-height:1.6; white-space:pre-wrap;">{$escReply}</p>
+</div>
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    You can view this conversation and reply by logging into your affiliate portal.
+</p>
+HTML;
+    
+    $emailBody = createAffiliateEmailTemplate($subject, $content, $affiliateName);
+    return sendEmail($affiliateEmail, $subject, $emailBody);
+}
+
+/**
+ * Send notification when support ticket is closed
+ */
+function sendSupportTicketClosedEmail($affiliateName, $affiliateEmail, $ticketId, $ticketSubject) {
+    $subject = "Support Ticket Closed - #{$ticketId}";
+    $escSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<h2 style="color:#10b981; margin:0 0 15px 0; font-size:20px;">✅ Support Ticket Closed</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    Your support ticket has been resolved and marked as closed.
+</p>
+<div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0; border:1px solid #e5e7eb;">
+    <p style="margin:5px 0; color:#374151;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Subject:</strong> {$escSubject}</p>
+    <p style="margin:5px 0; color:#10b981;"><strong>Status:</strong> Closed</p>
+</div>
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    If you need further assistance, feel free to open a new support ticket anytime. We're here to help!
+</p>
+HTML;
+    
+    $emailBody = createAffiliateEmailTemplate($subject, $content, $affiliateName);
+    return sendEmail($affiliateEmail, $subject, $emailBody);
+}
+
+/**
+ * Send notification to admin when new support ticket is created
+ */
+function sendNewSupportTicketNotificationToAdmin($ticketId, $affiliateName, $ticketSubject, $ticketMessage, $priority) {
+    $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
+    $subject = "New Support Ticket - #{$ticketId}";
+    $escSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    $escMessage = htmlspecialchars($ticketMessage, ENT_QUOTES, 'UTF-8');
+    $escAffiliate = htmlspecialchars($affiliateName, ENT_QUOTES, 'UTF-8');
+    
+    $priorityColor = $priority === 'high' ? '#ef4444' : ($priority === 'medium' ? '#f59e0b' : '#6b7280');
+    $priorityLabel = ucfirst($priority) . ' Priority';
+    
+    $content = <<<HTML
+<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">🎫 New Support Ticket Received</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    An affiliate has submitted a new support ticket.
+</p>
+<div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0; border:1px solid #e5e7eb;">
+    <p style="margin:5px 0; color:#374151;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Affiliate:</strong> {$escAffiliate}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Subject:</strong> {$escSubject}</p>
+    <p style="margin:5px 0;"><strong>Priority:</strong> <span style="color:{$priorityColor}; font-weight:600;">{$priorityLabel}</span></p>
+</div>
+<div style="background:#f9fafb; padding:15px; border-radius:6px; margin:15px 0;">
+    <p style="margin:0 0 8px 0; color:#6b7280; font-weight:600; font-size:13px;">MESSAGE:</p>
+    <p style="margin:0; color:#374151; line-height:1.6; white-space:pre-wrap;">{$escMessage}</p>
+</div>
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    Please check the admin panel to respond to this ticket.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Admin');
+    return sendEmail($adminEmail, $subject, $emailBody);
+}

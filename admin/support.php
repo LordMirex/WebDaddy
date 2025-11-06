@@ -23,13 +23,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($ticketId && !empty($message)) {
             try {
+                $stmt = $db->prepare("SELECT st.subject, u.name as affiliate_name, u.email as affiliate_email
+                                      FROM support_tickets st
+                                      JOIN affiliates a ON st.affiliate_id = a.id
+                                      JOIN users u ON a.user_id = u.id
+                                      WHERE st.id = ?");
+                $stmt->execute([$ticketId]);
+                $ticketInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+                
                 $stmt = $db->prepare("INSERT INTO ticket_replies (ticket_id, user_id, is_admin, message) VALUES (?, ?, 1, ?)");
                 $stmt->execute([$ticketId, getAdminId(), $message]);
                 
                 $stmt = $db->prepare("UPDATE support_tickets SET status = 'in_progress', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
                 $stmt->execute([$ticketId]);
                 
-                $successMessage = "Reply sent successfully!";
+                if ($ticketInfo) {
+                    @sendSupportTicketReplyEmail(
+                        $ticketInfo['affiliate_name'],
+                        $ticketInfo['affiliate_email'],
+                        $ticketId,
+                        $ticketInfo['subject'],
+                        $message
+                    );
+                }
+                
+                $successMessage = "Reply sent successfully! Email notification sent to affiliate.";
                 logActivity('ticket_replied', "Replied to ticket #$ticketId", getAdminId());
             } catch (PDOException $e) {
                 $errorMessage = 'Failed to send reply: ' . $e->getMessage();
@@ -39,9 +57,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ticketId = intval($_POST['ticket_id'] ?? 0);
         if ($ticketId) {
             try {
+                $stmt = $db->prepare("SELECT st.subject, u.name as affiliate_name, u.email as affiliate_email
+                                      FROM support_tickets st
+                                      JOIN affiliates a ON st.affiliate_id = a.id
+                                      JOIN users u ON a.user_id = u.id
+                                      WHERE st.id = ?");
+                $stmt->execute([$ticketId]);
+                $ticketInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+                
                 $stmt = $db->prepare("UPDATE support_tickets SET status = 'closed', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
                 $stmt->execute([$ticketId]);
-                $successMessage = "Ticket closed successfully!";
+                
+                if ($ticketInfo) {
+                    @sendSupportTicketClosedEmail(
+                        $ticketInfo['affiliate_name'],
+                        $ticketInfo['affiliate_email'],
+                        $ticketId,
+                        $ticketInfo['subject']
+                    );
+                }
+                
+                $successMessage = "Ticket closed successfully! Email notification sent to affiliate.";
                 logActivity('ticket_closed', "Closed ticket #$ticketId", getAdminId());
             } catch (PDOException $e) {
                 $errorMessage = 'Failed to close ticket: ' . $e->getMessage();
