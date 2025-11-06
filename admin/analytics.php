@@ -292,8 +292,8 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-bar-chart-line text-primary-600"></i> Visits Over Time
         </h5>
     </div>
-    <div class="p-6">
-        <canvas id="visitsChart" height="80"></canvas>
+    <div class="p-6" style="position: relative; height: 400px;">
+        <canvas id="visitsChart"></canvas>
     </div>
 </div>
 
@@ -549,11 +549,25 @@ new Chart(ctx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 display: true,
-                position: 'top'
+                position: 'top',
+                labels: {
+                    usePointStyle: true,
+                    padding: 15,
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                padding: 12
             }
         },
         scales: {
@@ -561,6 +575,15 @@ new Chart(ctx, {
                 beginAtZero: true,
                 ticks: {
                     precision: 0
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                    drawBorder: false
+                }
+            },
+            x: {
+                grid: {
+                    display: false
                 }
             }
         }
