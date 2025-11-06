@@ -3,9 +3,12 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/analytics.php';
 
 startSecureSession();
 handleAffiliateTracking();
+
+trackPageVisit($_SERVER['REQUEST_URI'], 'Home - Templates');
 
 // Pagination setup
 $perPage = 9; // 3x3 grid

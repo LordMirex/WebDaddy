@@ -84,14 +84,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     elseif ($action === 'vacuum') {
         try {
+            $startTime = microtime(true);
             $sizeBefore = filesize($dbPath);
+            
+            $db->exec('PRAGMA wal_checkpoint(TRUNCATE)');
+            
             $db->exec('VACUUM');
+            
+            $db->exec('ANALYZE');
+            
+            $db->exec('PRAGMA optimize');
+            
+            $db->exec('REINDEX');
+            
             clearstatcache();
             $sizeAfter = filesize($dbPath);
             $saved = $sizeBefore - $sizeAfter;
+            $executionTime = round((microtime(true) - $startTime) * 1000, 2);
             
-            $successMessage = "Database optimized successfully. Space saved: " . formatBytes($saved);
-            logActivity('database_vacuum', 'Optimized database with VACUUM', getAdminId());
+            $successMessage = "✅ Full database optimization complete! Space saved: " . formatBytes($saved) . " | Execution time: {$executionTime}ms | Applied: VACUUM, ANALYZE, OPTIMIZE, REINDEX";
+            logActivity('database_vacuum', 'Full optimization: VACUUM + ANALYZE + OPTIMIZE + REINDEX', getAdminId());
         } catch (PDOException $e) {
             $errorMessage = "Optimization failed: " . $e->getMessage();
         }
@@ -569,9 +581,42 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div x-show="showSchema" x-collapse class="mt-3 pt-3 border-t border-gray-300">
-                        <div class="bg-white rounded p-3 text-xs">
-                            <p class="font-semibold text-gray-700 mb-2">Loading schema...</p>
-                        </div>
+                        <template x-if="schema && schema.length">
+                            <div class="bg-white rounded p-3 text-xs space-y-2">
+                                <p class="font-semibold text-gray-700 mb-2"><i class="bi bi-list-columns"></i> Columns:</p>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-xs">
+                                        <thead>
+                                            <tr class="bg-gray-100 border-b">
+                                                <th class="px-2 py-1 text-left font-semibold">Name</th>
+                                                <th class="px-2 py-1 text-left font-semibold">Type</th>
+                                                <th class="px-2 py-1 text-left font-semibold">Null</th>
+                                                <th class="px-2 py-1 text-left font-semibold">Default</th>
+                                                <th class="px-2 py-1 text-left font-semibold">Key</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template x-for="col in schema" :key="col.cid">
+                                                <tr class="border-b hover:bg-gray-50">
+                                                    <td class="px-2 py-1 font-mono" x-text="col.name"></td>
+                                                    <td class="px-2 py-1 text-blue-600 font-mono" x-text="col.type"></td>
+                                                    <td class="px-2 py-1" x-text="col.notnull ? 'NO' : 'YES'"></td>
+                                                    <td class="px-2 py-1 text-gray-500 italic" x-text="col.dflt_value || 'NULL'"></td>
+                                                    <td class="px-2 py-1">
+                                                        <span x-show="col.pk" class="bg-yellow-100 text-yellow-800 px-1 py-0.5 rounded text-[10px] font-semibold">PK</span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="!schema">
+                            <div class="bg-white rounded p-3 text-xs">
+                                <p class="text-gray-600">Loading schema...</p>
+                            </div>
+                        </template>
                     </div>
                 </div>
             <?php endforeach; ?>

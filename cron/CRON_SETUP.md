@@ -1,0 +1,103 @@
+# Automated Backup Cron Job Setup
+
+## Overview
+This automated backup system creates:
+- **Weekly backups**: Every Tuesday and Friday (keeps last 4)
+- **Monthly backups**: 1st of every month with email attachment (keeps last 12)
+
+## Cron Job Configuration
+
+Add these lines to your crontab (`crontab -e`):
+
+### Weekly Backups (Tuesday & Friday at 2 AM)
+```bash
+0 2 * * 2 /usr/bin/php /path/to/your/project/cron/backup.php weekly >> /path/to/your/project/cron/backup.log 2>&1
+0 2 * * 5 /usr/bin/php /path/to/your/project/cron/backup.php weekly >> /path/to/your/project/cron/backup.log 2>&1
+```
+
+### Monthly Backup (1st of month at 3 AM with email)
+```bash
+0 3 1 * * /usr/bin/php /path/to/your/project/cron/backup.php monthly >> /path/to/your/project/cron/backup.log 2>&1
+```
+
+## Installation Steps
+
+1. **Make backup script executable:**
+   ```bash
+   chmod +x /path/to/your/project/cron/backup.php
+   ```
+
+2. **Find your PHP path:**
+   ```bash
+   which php
+   ```
+   
+3. **Get your project path:**
+   ```bash
+   pwd
+   ```
+   (Run this from your project directory)
+
+4. **Edit crontab:**
+   ```bash
+   crontab -e
+   ```
+   
+5. **Add the cron jobs** (replace `/path/to/your/project` with your actual path):
+   ```
+   # Weekly backups - Tuesday & Friday at 2 AM
+   0 2 * * 2 /usr/bin/php /home/username/webdaddy/cron/backup.php weekly >> /home/username/webdaddy/cron/backup.log 2>&1
+   0 2 * * 5 /usr/bin/php /home/username/webdaddy/cron/backup.php weekly >> /home/username/webdaddy/cron/backup.log 2>&1
+   
+   # Monthly backup - 1st of month at 3 AM with email
+   0 3 1 * * /usr/bin/php /home/username/webdaddy/cron/backup.php monthly >> /home/username/webdaddy/cron/backup.log 2>&1
+   ```
+
+## Testing
+
+### Test weekly backup:
+```bash
+php /path/to/your/project/cron/backup.php weekly
+```
+
+### Test monthly backup:
+```bash
+php /path/to/your/project/cron/backup.php monthly
+```
+
+## Backup Locations
+
+- **Weekly backups**: `database/backups/weekly_backup_YYYY-MM-DD_HH-MM-SS.db`
+- **Monthly backups**: `database/backups/monthly_backup_YYYY-MM-DD_HH-MM-SS.db`
+
+## Retention Policy
+
+- **Weekly**: Keeps last 4 backups (automatically deletes older ones)
+- **Monthly**: Keeps last 12 backups (automatically deletes older ones)
+
+## Email Notifications
+
+Monthly backups are automatically emailed to the admin email address configured in `includes/config.php` (SMTP_FROM_EMAIL).
+
+## Troubleshooting
+
+1. **Check cron execution:**
+   ```bash
+   tail -f /path/to/your/project/cron/backup.log
+   ```
+
+2. **Verify file permissions:**
+   ```bash
+   ls -la /path/to/your/project/database/backups/
+   ```
+
+3. **Test email sending** (for monthly backups):
+   - Ensure SMTP credentials in `includes/config.php` are correct
+   - Check spam folder if emails don't arrive
+
+## Security Note
+
+The backup files contain your entire database. Ensure the `database/backups/` directory is:
+- Not publicly accessible via web browser
+- Has proper file permissions (0755 for directory, 0644 for backup files)
+- Backed up to an external location regularly

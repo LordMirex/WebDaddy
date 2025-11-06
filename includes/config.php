@@ -1,6 +1,12 @@
 <?php
 
 // ============================================
+// TIMEZONE CONFIGURATION
+// ============================================
+// Set timezone to Nigeria (Africa/Lagos = GMT+1 / WAT)
+date_default_timezone_set('Africa/Lagos');
+
+// ============================================
 // SIMPLE CONFIGURATION - ALL HARDCODED
 // Just edit the values below directly!
 // ============================================

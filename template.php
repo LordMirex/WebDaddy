@@ -3,6 +3,7 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/analytics.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -19,6 +20,9 @@ if (!$template) {
     header('Location: /');
     exit;
 }
+
+trackPageVisit($_SERVER['REQUEST_URI'], 'Template: ' . $template['name']);
+trackTemplateView($templateId);
 
 $availableDomains = getAvailableDomains($templateId);
 $affiliateCode = getAffiliateCode();

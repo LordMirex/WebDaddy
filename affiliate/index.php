@@ -50,8 +50,9 @@ try {
 try {
     $stmt = $db->prepare("
         SELECT * FROM announcements 
-        WHERE is_active = true 
+        WHERE is_active = 1
         AND (affiliate_id IS NULL OR affiliate_id = ?)
+        AND (expires_at IS NULL OR datetime(expires_at) > datetime('now'))
         ORDER BY created_at DESC 
         LIMIT 5
     ");

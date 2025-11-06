@@ -26,6 +26,10 @@ function sendEmail($email, $subject, $message) {
         $mail->Password = defined('SMTP_PASS') ? SMTP_PASS : '';
         $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 587;
         $mail->SMTPSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'tls';
+        
+        // Fix encoding issues - force UTF-8
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
 
         // Email Settings
         $mail->isHTML(true);
@@ -65,6 +69,8 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     $esc_siteUrl = htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8');
     $esc_siteName = htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8');
     
+    $logoUrl = $esc_siteUrl . '/assets/images/webdaddy-logo.jpg';
+    
     return <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -73,41 +79,42 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$esc_subject}</title>
 </head>
-<body style="margin:0; padding:0; background:#f9fafb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-    <div style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-        <!-- Header -->
-        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding:30px 20px; text-align:center;">
-            <h1 style="color:#ffffff; margin:0; font-size:28px; font-weight:700; letter-spacing:0.5px;">{$esc_siteName}</h1>
-            <p style="color:rgba(255,255,255,0.9); margin:8px 0 0 0; font-size:14px;">Professional Website Templates</p>
+<body style="margin:0; padding:0; background:#f4f4f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+    <div style="max-width:600px; margin:15px auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+        <!-- Header with Logo -->
+        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding:20px; text-align:center;">
+            <img src="{$logoUrl}" alt="{$esc_siteName}" style="max-width:180px; height:auto; margin-bottom:10px;" onerror="this.style.display='none'">
+            <h1 style="color:#ffffff; margin:5px 0 0 0; font-size:24px; font-weight:700;">{$esc_siteName}</h1>
+            <p style="color:rgba(255,255,255,0.9); margin:5px 0 0 0; font-size:13px;">Professional Website Templates</p>
         </div>
         
         <!-- Main Content -->
-        <div style="padding:30px 25px;">
-            <p style="margin:0 0 20px 0; font-size:16px; color:#374151;">Hello <strong>{$esc_name}</strong>,</p>
+        <div style="padding:20px;">
+            <p style="margin:0 0 15px 0; font-size:15px; color:#374151;">Hello <strong>{$esc_name}</strong>,</p>
             
-            <div style="background:#f9fafb; padding:25px; border-left:4px solid #3b82f6; border-radius:8px; margin-bottom:25px;">
+            <div style="background:#f9fafb; padding:15px; border-left:3px solid #3b82f6; border-radius:4px; margin-bottom:15px;">
                 {$content}
             </div>
             
-            <div style="text-align:center; margin:30px 0;">
-                <a href="{$esc_siteUrl}" style="display:inline-block; background:#1e3a8a; color:#ffffff; padding:14px 32px; text-decoration:none; border-radius:8px; font-weight:600; font-size:16px;">
+            <div style="text-align:center; margin:20px 0;">
+                <a href="{$esc_siteUrl}" style="display:inline-block; background:#1e3a8a; color:#ffffff; padding:12px 28px; text-decoration:none; border-radius:6px; font-weight:600; font-size:15px;">
                     Visit Our Website
                 </a>
             </div>
             
-            <div style="margin-top:30px; padding-top:20px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:14px;">
-                <p style="margin:0;">Need help? Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color:#3b82f6; text-decoration:none;">{$whatsapp}</a></p>
-                <p style="margin:10px 0 0 0;">Best regards,<br><strong>The {$esc_siteName} Team</strong></p>
+            <div style="margin-top:20px; padding-top:15px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:13px;">
+                <p style="margin:0 0 8px 0;">Need help? Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color:#3b82f6; text-decoration:none;">{$whatsapp}</a></p>
+                <p style="margin:0;">Best regards,<br><strong>The {$esc_siteName} Team</strong></p>
             </div>
         </div>
         
         <!-- Footer -->
-        <div style="background:#1f2937; color:#9ca3af; padding:20px; text-align:center; font-size:13px;">
-            <p style="margin:0 0 10px 0;">&copy; 2025 {$esc_siteName}. All rights reserved.</p>
+        <div style="background:#1f2937; color:#9ca3af; padding:15px; text-align:center; font-size:12px;">
+            <p style="margin:0 0 8px 0;">&copy; 2025 {$esc_siteName}. All rights reserved.</p>
             <p style="margin:0;">
-                <a href="{$esc_siteUrl}" style="color:#60a5fa; text-decoration:none; margin:0 10px;">Home</a> |
-                <a href="{$esc_siteUrl}/admin/login.php" style="color:#60a5fa; text-decoration:none; margin:0 10px;">Admin</a> |
-                <a href="{$esc_siteUrl}/affiliate/login.php" style="color:#60a5fa; text-decoration:none; margin:0 10px;">Affiliate</a>
+                <a href="{$esc_siteUrl}" style="color:#60a5fa; text-decoration:none; margin:0 8px;">Home</a> |
+                <a href="{$esc_siteUrl}/admin/login.php" style="color:#60a5fa; text-decoration:none; margin:0 8px;">Admin</a> |
+                <a href="{$esc_siteUrl}/affiliate/login.php" style="color:#60a5fa; text-decoration:none; margin:0 8px;">Affiliate</a>
             </p>
         </div>
     </div>
@@ -237,6 +244,9 @@ function sendAffiliateWelcomeEmail($affiliateName, $affiliateEmail, $affiliateCo
     <p style="margin:0; word-break:break-all; color:#374151; font-size:14px;">
         <code style="background:#fff; padding:8px; display:block; border-radius:4px; border:1px solid #e5e7eb;">{$siteUrl}/?aff={$affiliateCode}</code>
     </p>
+</div>
+<div style="background:#fef3c7; border-left:3px solid #f59e0b; padding:12px; border-radius:4px; margin:15px 0;">
+    <p style="margin:0; color:#92400e; font-size:13px;"><strong>⚠️ Important:</strong> This email may land in your spam/junk folder. Please check your spam folder and mark this as "Not Spam" to ensure you receive future updates about your earnings and withdrawals.</p>
 </div>
 <p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
     Share your referral link with potential customers. When they purchase through your link, you'll earn {$commissionRate} commission and they'll get a {$discountRate} discount!
