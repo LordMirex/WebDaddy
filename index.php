@@ -267,60 +267,69 @@ $affiliateCode = getAffiliateCode();
             <!-- Search and Filter Section -->
             <div class="mb-8" x-data="{ 
                 searchQuery: '<?php echo htmlspecialchars($searchTerm); ?>',
+                isSearching: false,
                 searchTimeout: null,
-                trackSearch(query) {
+                affiliateCode: '<?php echo htmlspecialchars($affiliateCode); ?>',
+                performSearch(query) {
                     if (this.searchTimeout) clearTimeout(this.searchTimeout);
+                    
+                    if (!query || query.trim().length === 0) {
+                        window.location.href = '/';
+                        return;
+                    }
+                    
                     this.searchTimeout = setTimeout(() => {
-                        if (query.trim().length >= 2) {
-                            fetch('/api/search.php?q=' + encodeURIComponent(query.trim()))
-                                .catch(e => console.error('Search tracking failed:', e));
-                        }
-                    }, 800);
+                        this.isSearching = true;
+                        window.TemplateSearch.performSearch(query, this.affiliateCode)
+                            .finally(() => { this.isSearching = false; });
+                    }, 300);
                 }
             }">
                 <div class="max-w-3xl mx-auto">
-                    <form method="GET" action="/" class="flex flex-col sm:flex-row gap-4">
+                    <div class="flex flex-col sm:flex-row gap-4">
                         <!-- Search Input -->
                         <div class="flex-1 relative">
                             <input type="text" 
-                                   name="search"
                                    x-model="searchQuery"
-                                   @input="trackSearch(searchQuery)"
-                                   value="<?php echo htmlspecialchars($searchTerm); ?>"
+                                   @input="performSearch(searchQuery)"
+                                   @keyup.enter="performSearch(searchQuery)"
                                    placeholder="Search all templates..." 
                                    class="w-full px-4 py-3 pl-11 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
                             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
+                            <div x-show="isSearching" class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
                         </div>
-                        <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                        <button @click="performSearch(searchQuery)" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
                             Search
                         </button>
-                    </form>
+                    </div>
                     
                     <!-- Search Results Message -->
-                    <?php if (!empty($searchTerm)): ?>
-                    <div class="mt-4 text-center">
-                        <?php if ($totalTemplates > 0): ?>
-                        <p class="text-sm text-gray-700">
-                            <span class="font-semibold text-primary-600"><?php echo $totalTemplates; ?> result(s)</span> for "<?php echo htmlspecialchars($searchTerm); ?>"
-                            <a href="/" class="ml-2 text-primary-600 hover:text-primary-700 font-medium">Clear search</a>
-                        </p>
+                    <div class="mt-4 text-center" data-search-results>
+                        <?php if (!empty($searchTerm)): ?>
+                            <?php if ($totalTemplates > 0): ?>
+                            <p class="text-sm text-gray-700">
+                                <span class="font-semibold text-primary-600"><?php echo $totalTemplates; ?> result(s)</span> for "<?php echo htmlspecialchars($searchTerm); ?>"
+                                <a href="/" class="ml-2 text-primary-600 hover:text-primary-700 font-medium">Clear search</a>
+                            </p>
+                            <?php else: ?>
+                            <p class="text-sm text-yellow-800">
+                                <span class="font-semibold">0 results</span> for "<?php echo htmlspecialchars($searchTerm); ?>"
+                                <a href="/" class="ml-2 text-primary-600 hover:text-primary-700 font-medium">Clear search</a>
+                            </p>
+                            <?php endif; ?>
                         <?php else: ?>
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <p class="text-yellow-800 font-semibold mb-1">No templates found for "<?php echo htmlspecialchars($searchTerm); ?>"</p>
-                            <p class="text-yellow-700 text-sm">Try searching for: "Business", "E-commerce", "Portfolio", or "Resume"</p>
-                            <a href="/" class="mt-2 inline-block text-primary-600 hover:text-primary-700 font-medium">View all templates</a>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <?php else: ?>
-                    <div class="mt-4 text-center">
                         <p class="text-sm text-gray-600">
                             Showing <span class="font-semibold text-primary-600"><?php echo count($templates); ?></span> of <span class="font-semibold"><?php echo $totalTemplates; ?></span> templates
                         </p>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
 

@@ -245,6 +245,172 @@ class TemplateFilter {
     }
 }
 
+// Instant search functionality
+window.TemplateSearch = {
+    performSearch(query, affiliateCode = '') {
+        const grid = document.querySelector('[data-templates-grid]');
+        const resultsMsg = document.querySelector('[data-search-results]');
+        
+        if (!query || query.trim().length === 0) {
+            window.location.href = '/';
+            return Promise.resolve();
+        }
+        
+        return fetch('/api/search.php?q=' + encodeURIComponent(query.trim()))
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.updateTemplateGrid(data.results, affiliateCode);
+                    this.updateResultsMessage(data.results.length, query);
+                }
+                return data;
+            })
+            .catch(e => {
+                console.error('Search failed:', e);
+                throw e;
+            });
+    },
+    
+    updateResultsMessage(count, query) {
+        const resultsMsg = document.querySelector('[data-search-results]');
+        if (!resultsMsg) return;
+        
+        // Create elements safely to prevent XSS
+        const p = document.createElement('p');
+        p.className = `text-sm text-${count > 0 ? 'gray-700' : 'yellow-800'}`;
+        
+        const countSpan = document.createElement('span');
+        countSpan.className = `font-semibold ${count > 0 ? 'text-primary-600' : ''}`;
+        countSpan.textContent = `${count} result(s)`;
+        
+        const forText = document.createTextNode(' for "');
+        const queryText = document.createTextNode(query);
+        const closeQuote = document.createTextNode('"');
+        
+        const clearLink = document.createElement('a');
+        clearLink.href = '/';
+        clearLink.className = 'ml-2 text-primary-600 hover:text-primary-700 font-medium';
+        clearLink.textContent = 'Clear search';
+        
+        p.appendChild(countSpan);
+        p.appendChild(forText);
+        p.appendChild(queryText);
+        p.appendChild(closeQuote);
+        p.appendChild(clearLink);
+        
+        resultsMsg.innerHTML = '';
+        resultsMsg.appendChild(p);
+    },
+    
+    updateTemplateGrid(templates, affiliateCode = '') {
+        const grid = document.querySelector('[data-templates-grid]');
+        if (!grid) return;
+        
+        if (templates.length === 0) {
+            grid.innerHTML = this.getEmptyStateHTML();
+            return;
+        }
+        
+        grid.innerHTML = templates.map(template => this.getTemplateHTML(template, affiliateCode)).join('');
+    },
+    
+    getEmptyStateHTML() {
+        return `
+            <div class="col-span-full bg-yellow-50 border border-yellow-200 rounded-2xl p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-yellow-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <h4 class="text-xl font-bold text-gray-900 mb-2">No templates found</h4>
+                <p class="text-gray-600 mb-4">Try searching for: "Business", "E-commerce", "Portfolio", or "Resume"</p>
+                <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">View all templates</a>
+            </div>
+        `;
+    },
+    
+    getTemplateHTML(template, affiliateCode) {
+        // Escape HTML to prevent XSS
+        const escapeHtml = (str) => {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        };
+        
+        const affParam = affiliateCode ? `&aff=${escapeHtml(affiliateCode)}` : '';
+        const safeName = escapeHtml(template.name || '');
+        const safeCategory = escapeHtml(template.category || '');
+        const safeDescription = escapeHtml(template.description || 'Professional website template');
+        const safeThumbnail = escapeHtml(template.thumbnail_url || '/assets/images/placeholder.jpg');
+        const safeId = escapeHtml(template.id || '');
+        
+        // Use data attributes instead of inline onclick to prevent XSS
+        const demoButtons = template.demo_url ? `
+            <button class="demo-btn absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10"
+                    data-demo-url="${escapeHtml(template.demo_url)}"
+                    data-demo-name="${safeName}">
+                Preview
+            </button>
+            <button class="demo-btn absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    data-demo-url="${escapeHtml(template.demo_url)}"
+                    data-demo-name="${safeName}">
+                <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Click to Preview
+                </span>
+            </button>
+        ` : '';
+        
+        return `
+            <div class="group">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="relative overflow-hidden h-48 bg-gray-100">
+                        <img src="${safeThumbnail}"
+                             alt="${safeName}"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             onerror="this.src='/assets/images/placeholder.jpg'">
+                        ${demoButtons}
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-base font-bold text-gray-900 flex-1 pr-2">${safeName}</h3>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 shrink-0">
+                                ${safeCategory}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3 line-clamp-2">${safeDescription}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-extrabold text-primary-600">₦${parseFloat(template.price).toLocaleString()}</span>
+                            <a href="/template.php?id=${safeId}${affParam}" 
+                               class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
+                                Order Now
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    
+    // Add event delegation for demo buttons created dynamically
+    initializeDemoButtons() {
+        document.addEventListener('click', (e) => {
+            const demoBtn = e.target.closest('.demo-btn');
+            if (demoBtn) {
+                const demoUrl = demoBtn.dataset.demoUrl;
+                const demoName = demoBtn.dataset.demoName;
+                if (demoUrl && typeof window.openDemo === 'function') {
+                    window.openDemo(demoUrl, demoName);
+                }
+            }
+        });
+    }
+};
+
 class LazyImageLoader {
     constructor() {
         this.initializeLazyLoading();
@@ -280,6 +446,11 @@ document.addEventListener('DOMContentLoaded', () => {
     new FormHandler();
     new TemplateFilter();
     new LazyImageLoader();
+    
+    // Initialize demo button event delegation
+    if (window.TemplateSearch) {
+        window.TemplateSearch.initializeDemoButtons();
+    }
 });
 
 window.showAlert = function(message, type = 'info') {
