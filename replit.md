@@ -5,7 +5,40 @@ A complete affiliate marketing platform for selling website templates with domai
 
 ## Recent Updates (November 2025)
 
-### Latest Changes (November 7, 2025)
+### Latest Changes (November 7, 2025) - Session 2
+1. **Announcement Double-Submission Fix**:
+   - Added Alpine.js-based form submission protection to prevent duplicate announcements
+   - Button disables automatically after first click
+   - Prevents accidental double-posting
+   
+2. **Device Tracking Analytics** (NEW):
+   - Added comprehensive device detection (Desktop/Mobile/Tablet)
+   - Device type shown in Recent Visits table with color-coded badges
+   - User agent parsing detects device type automatically
+   - Device stats tracked in page_visits table
+   
+3. **IP Address Filtering**:
+   - New filter input on Analytics Dashboard
+   - Filter visits by specific IP address
+   - Quick clear button to remove filter
+   - Maintains period selection when filtering
+   
+4. **Affiliate Action Tracking** (NEW):
+   - Created `affiliate_actions` table to track:
+     * Login events
+     * Dashboard views
+     * Signup button clicks
+   - Automatic tracking on affiliate login
+   - Dashboard view tracking implemented
+   - Includes IP address and user agent for security monitoring
+   
+5. **Cron Jobs Optimization**:
+   - **REMOVED**: 2 AM and 4 AM backup jobs (user no longer wants them)
+   - **KEPT**: Weekly backups (Tuesday & Friday at 2 AM WAT)
+   - **KEPT**: Monthly backups with email (1st of month at 3 AM WAT)
+   - **KEPT**: Scheduled affiliate emails (Tuesday & Friday at 10 AM WAT, Monthly on 1st at 9 AM WAT)
+
+### Previous Changes (November 7, 2025) - Session 1
 1. **Unified Email Modal**: 
    - Combined "Email All Affiliates" and "Email Single Affiliate" into one modal
    - Audience dropdown selector (All Active Affiliates or Single Affiliate)
@@ -13,7 +46,7 @@ A complete affiliate marketing platform for selling website templates with domai
 2. **Announcement System**:
    - System-generated welcome announcements now hidden from management board
    - Only admin-created announcements appear in the management interface
-3. **Scheduled Affiliate Emails** (NEW):
+3. **Scheduled Affiliate Emails**:
    - Created `cron/database.php` for automated email campaigns
    - **Twice-weekly performance updates**: Every Tuesday & Friday at 10 AM WAT
    - **Monthly summary reports**: 1st of each month at 9 AM WAT
@@ -44,6 +77,9 @@ A complete affiliate marketing platform for selling website templates with domai
    - Top 10 templates tracking (views + clicks)
    - Bounce rate and time on site metrics
    - CSV export for all analytics data
+   - Device tracking (Desktop/Mobile/Tablet)
+   - IP address filtering for Recent Visits
+   - Color-coded device badges in analytics table
 
 ## Important: SQLite vs phpMyAdmin
 
@@ -105,6 +141,8 @@ All timestamps use **Africa/Lagos (GMT+1 / WAT)**
 # Monthly affiliate summary (1st of month at 9 AM WAT)
 0 9 1 * * /usr/bin/php /path/to/cron/database.php monthly
 ```
+
+**NOTE**: Previous 2 AM and 4 AM backup jobs have been removed per user request.
 
 ## Production Deployment
 
@@ -234,4 +272,4 @@ Navigate to: `/admin/analytics.php`
 
 ---
 
-Last Updated: November 6, 2025
+Last Updated: November 7, 2025

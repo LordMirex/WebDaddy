@@ -13,6 +13,18 @@ requireAdmin();
 $db = getDb();
 $dbPath = __DIR__ . '/../database/webdaddy.db';
 
+if (isset($_GET['action']) && $_GET['action'] === 'get_schema' && isset($_GET['table'])) {
+    header('Content-Type: application/json');
+    $tableName = $_GET['table'];
+    try {
+        $schema = $db->query("PRAGMA table_info(\"$tableName\")")->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($schema);
+    } catch (PDOException $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
+
 $successMessage = '';
 $errorMessage = '';
 $queryResult = null;
@@ -649,19 +661,5 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 </div>
-
-<?php if (isset($_GET['action']) && $_GET['action'] === 'get_schema' && isset($_GET['table'])): ?>
-<?php
-header('Content-Type: application/json');
-$tableName = $_GET['table'];
-try {
-    $schema = $db->query("PRAGMA table_info(\"$tableName\")")->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($schema);
-} catch (PDOException $e) {
-    echo json_encode(['error' => $e->getMessage()]);
-}
-exit;
-?>
-<?php endif; ?>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

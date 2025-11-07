@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/analytics.php';
 
 function requireAffiliate()
 {
@@ -44,6 +45,7 @@ function loginAffiliate($emailOrCode, $password)
             $_SESSION['affiliate_role'] = $user['role'];
             
             logActivity('affiliate_login', 'Affiliate logged in: ' . $user['email'], $user['id']);
+            trackAffiliateAction($user['affiliate_id'], 'login');
             
             return true;
         }

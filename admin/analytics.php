@@ -179,6 +179,12 @@ $topPages = $db->query("
     LIMIT 10
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+$ipFilter = trim($_GET['ip'] ?? '');
+$ipFilterQuery = '';
+if (!empty($ipFilter)) {
+    $ipFilterQuery = " AND ip_address LIKE '%" . $db->quote($ipFilter) . "%'";
+}
+
 $recentVisits = $db->query("
     SELECT 
         page_url,
@@ -186,9 +192,10 @@ $recentVisits = $db->query("
         visit_date,
         visit_time,
         referrer,
-        ip_address
+        ip_address,
+        device_type
     FROM page_visits
-    WHERE 1=1 $dateFilter
+    WHERE 1=1 $dateFilter $ipFilterQuery
     ORDER BY created_at DESC
     LIMIT 50
 ")->fetchAll(PDO::FETCH_ASSOC);
@@ -491,9 +498,23 @@ require_once __DIR__ . '/includes/header.php';
         <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
             <i class="bi bi-clock-history text-primary-600"></i> Recent Visits
         </h5>
-        <a href="?period=<?php echo $period; ?>&export_csv=visits" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors">
-            <i class="bi bi-download"></i> Export CSV
-        </a>
+        <div class="flex items-center gap-3">
+            <form method="GET" class="flex items-center gap-2">
+                <input type="hidden" name="period" value="<?php echo htmlspecialchars($period); ?>">
+                <input type="text" name="ip" value="<?php echo htmlspecialchars($ipFilter); ?>" placeholder="Filter by IP..." class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-primary-500">
+                <button type="submit" class="px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded text-sm">
+                    <i class="bi bi-filter"></i> Filter
+                </button>
+                <?php if ($ipFilter): ?>
+                <a href="?period=<?php echo $period; ?>" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm">
+                    <i class="bi bi-x"></i> Clear
+                </a>
+                <?php endif; ?>
+            </form>
+            <a href="?period=<?php echo $period; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>&export_csv=visits" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+        </div>
     </div>
     <div class="p-6 overflow-x-auto">
         <table class="w-full text-sm">
@@ -501,6 +522,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tr class="border-b border-gray-200">
                     <th class="text-left py-2 px-3 font-semibold text-gray-700">Date & Time</th>
                     <th class="text-left py-2 px-3 font-semibold text-gray-700">Page</th>
+                    <th class="text-left py-2 px-3 font-semibold text-gray-700">Device</th>
                     <th class="text-left py-2 px-3 font-semibold text-gray-700">Referrer</th>
                     <th class="text-left py-2 px-3 font-semibold text-gray-700">IP Address</th>
                 </tr>
@@ -512,6 +534,19 @@ require_once __DIR__ . '/includes/header.php';
                         <td class="py-2 px-3">
                             <div class="font-mono text-blue-600 text-xs"><?php echo htmlspecialchars($visit['page_url']); ?></div>
                             <div class="text-gray-600 text-xs"><?php echo htmlspecialchars($visit['page_title'] ?: 'Untitled'); ?></div>
+                        </td>
+                        <td class="py-2 px-3">
+                            <?php 
+                            $device = $visit['device_type'] ?? 'Desktop';
+                            $deviceIcons = ['Mobile' => 'phone', 'Tablet' => 'tablet', 'Desktop' => 'laptop'];
+                            $deviceColors = ['Mobile' => 'text-green-600', 'Tablet' => 'text-purple-600', 'Desktop' => 'text-blue-600'];
+                            $icon = $deviceIcons[$device] ?? 'laptop';
+                            $color = $deviceColors[$device] ?? 'text-gray-600';
+                            ?>
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 rounded text-xs font-medium <?php echo $color; ?>">
+                                <i class="bi bi-<?php echo $icon; ?>"></i>
+                                <?php echo htmlspecialchars($device); ?>
+                            </span>
                         </td>
                         <td class="py-2 px-3 text-gray-600 text-xs max-w-xs truncate"><?php echo htmlspecialchars($visit['referrer'] ?: 'Direct'); ?></td>
                         <td class="py-2 px-3 font-mono text-gray-700 text-xs"><?php echo htmlspecialchars($visit['ip_address']); ?></td>

@@ -1040,7 +1040,7 @@ require_once __DIR__ . '/includes/header.php';
                 durationHours: 0,
                 durationMinutes: 30
              }">
-            <form method="POST" id="announcementForm">
+            <form method="POST" id="announcementForm" @submit="if($event.submitter && $event.submitter.dataset.submitting === 'true') { $event.preventDefault(); return false; } if($event.submitter) { $event.submitter.dataset.submitting = 'true'; $event.submitter.disabled = true; }">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
                         <i class="bi bi-megaphone text-primary-600"></i> Post Announcement

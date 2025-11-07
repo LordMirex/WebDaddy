@@ -1,5 +1,19 @@
 <?php
 
+function getDeviceType($userAgent) {
+    $userAgent = strtolower($userAgent);
+    
+    if (preg_match('/(tablet|ipad|playbook)|(android(?!.*mobile))/i', $userAgent)) {
+        return 'Tablet';
+    }
+    
+    if (preg_match('/(mobile|iphone|ipod|blackberry|android.*mobile|windows phone)/i', $userAgent)) {
+        return 'Mobile';
+    }
+    
+    return 'Desktop';
+}
+
 function trackPageVisit($pageUrl, $pageTitle = '') {
     if (session_status() === PHP_SESSION_NONE) {
         return false;
@@ -13,9 +27,12 @@ function trackPageVisit($pageUrl, $pageTitle = '') {
     $db = getDb();
     
     try {
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $deviceType = getDeviceType($userAgent);
+        
         $stmt = $db->prepare("
-            INSERT INTO page_visits (session_id, page_url, page_title, referrer, user_agent, ip_address, visit_date, visit_time)
-            VALUES (?, ?, ?, ?, ?, ?, DATE('now'), TIME('now'))
+            INSERT INTO page_visits (session_id, page_url, page_title, referrer, user_agent, ip_address, device_type, visit_date, visit_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, DATE('now'), TIME('now'))
         ");
         
         $stmt->execute([
@@ -23,8 +40,9 @@ function trackPageVisit($pageUrl, $pageTitle = '') {
             $pageUrl,
             $pageTitle,
             $_SERVER['HTTP_REFERER'] ?? '',
-            $_SERVER['HTTP_USER_AGENT'] ?? '',
-            $_SERVER['REMOTE_ADDR'] ?? ''
+            $userAgent,
+            $_SERVER['REMOTE_ADDR'] ?? '',
+            $deviceType
         ]);
         
         $stmt = $db->prepare("
@@ -123,6 +141,26 @@ function trackSearch($searchTerm, $resultsCount = 0) {
         return true;
     } catch (PDOException $e) {
         error_log('Search tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function trackAffiliateAction($affiliateId, $actionType) {
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO affiliate_actions (affiliate_id, action_type, ip_address, user_agent)
+            VALUES (?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $affiliateId,
+            $actionType,
+            $_SERVER['REMOTE_ADDR'] ?? '',
+            $_SERVER['HTTP_USER_AGENT'] ?? ''
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        error_log('Affiliate action tracking error: ' . $e->getMessage());
         return false;
     }
 }

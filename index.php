@@ -265,13 +265,27 @@ $affiliateCode = getAffiliateCode();
             </div>
 
             <!-- Search and Filter Section -->
-            <div class="mb-8">
+            <div class="mb-8" x-data="{ 
+                searchQuery: '<?php echo htmlspecialchars($searchTerm); ?>',
+                searchTimeout: null,
+                trackSearch(query) {
+                    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        if (query.trim().length >= 2) {
+                            fetch('/api/search.php?q=' + encodeURIComponent(query.trim()))
+                                .catch(e => console.error('Search tracking failed:', e));
+                        }
+                    }, 800);
+                }
+            }">
                 <div class="max-w-3xl mx-auto">
                     <form method="GET" action="/" class="flex flex-col sm:flex-row gap-4">
                         <!-- Search Input -->
                         <div class="flex-1 relative">
                             <input type="text" 
                                    name="search"
+                                   x-model="searchQuery"
+                                   @input="trackSearch(searchQuery)"
                                    value="<?php echo htmlspecialchars($searchTerm); ?>"
                                    placeholder="Search all templates..." 
                                    class="w-full px-4 py-3 pl-11 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
