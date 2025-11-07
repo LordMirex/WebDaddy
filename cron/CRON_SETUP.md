@@ -1,9 +1,15 @@
-# Automated Backup Cron Job Setup
+# Automated Cron Jobs Setup
 
 ## Overview
-This automated backup system creates:
+This system includes two automated cron jobs:
+
+### 1. Database Backups
 - **Weekly backups**: Every Tuesday and Friday at 2 AM WAT (keeps last 4)
 - **Monthly backups**: 1st of every month at 3 AM WAT with email attachment (keeps last 12)
+
+### 2. Scheduled Affiliate Emails  
+- **Twice-weekly updates**: Every Tuesday and Friday at 10 AM WAT (performance summaries)
+- **Monthly reports**: 1st of every month at 9 AM WAT (comprehensive monthly summaries)
 
 **Timezone**: All times are in Africa/Lagos timezone (WAT - GMT+1)
 
@@ -11,15 +17,26 @@ This automated backup system creates:
 
 Add these lines to your crontab (`crontab -e`):
 
-### Weekly Backups (Tuesday & Friday at 2 AM WAT)
+### Database Backups - Tuesday & Friday at 2 AM WAT
 ```bash
 0 2 * * 2 /usr/bin/php /path/to/your/project/cron/backup.php weekly >> /path/to/your/project/cron/backup.log 2>&1
 0 2 * * 5 /usr/bin/php /path/to/your/project/cron/backup.php weekly >> /path/to/your/project/cron/backup.log 2>&1
 ```
 
-### Monthly Backup (1st of month at 3 AM WAT with email)
+### Database Monthly Backup - 1st of month at 3 AM WAT
 ```bash
 0 3 1 * * /usr/bin/php /path/to/your/project/cron/backup.php monthly >> /path/to/your/project/cron/backup.log 2>&1
+```
+
+### Scheduled Affiliate Emails - Tuesday & Friday at 10 AM WAT
+```bash
+0 10 * * 2 /usr/bin/php /path/to/your/project/cron/database.php weekly >> /path/to/your/project/cron/email.log 2>&1
+0 10 * * 5 /usr/bin/php /path/to/your/project/cron/database.php weekly >> /path/to/your/project/cron/email.log 2>&1
+```
+
+### Monthly Affiliate Emails - 1st of month at 9 AM WAT
+```bash
+0 9 1 * * /usr/bin/php /path/to/your/project/cron/database.php monthly >> /path/to/your/project/cron/email.log 2>&1
 ```
 
 **Note**: These times are configured for Africa/Lagos timezone (WAT - GMT+1). Ensure your server is set to this timezone in `includes/config.php`.
