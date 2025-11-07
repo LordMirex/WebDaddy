@@ -5,6 +5,21 @@ A complete affiliate marketing platform for selling website templates with domai
 
 ## Recent Updates (November 2025)
 
+### Latest Changes (November 7, 2025)
+1. **Unified Email Modal**: 
+   - Combined "Email All Affiliates" and "Email Single Affiliate" into one modal
+   - Audience dropdown selector (All Active Affiliates or Single Affiliate)
+   - Cleaner UI with dynamic form fields
+2. **Announcement System**:
+   - System-generated welcome announcements now hidden from management board
+   - Only admin-created announcements appear in the management interface
+3. **Scheduled Affiliate Emails** (NEW):
+   - Created `cron/database.php` for automated email campaigns
+   - **Twice-weekly performance updates**: Every Tuesday & Friday at 10 AM WAT
+   - **Monthly summary reports**: 1st of each month at 9 AM WAT
+   - Includes metrics: clicks, sales, earnings (weekly and all-time)
+4. **Cron Documentation**: Updated `cron/CRON_SETUP.md` with scheduled email job instructions
+
 ### Production Readiness Improvements
 1. **Homepage Pagination**: Fixed to show 10 templates per page instead of 9
 2. **Email System**: 
@@ -78,11 +93,17 @@ All timestamps use **Africa/Lagos (GMT+1 / WAT)**
 
 ### Cron Jobs to Add
 ```bash
-# Weekly backups
+# Weekly backups (Tuesday & Friday at 2 AM WAT)
 0 2 * * 2,5 /usr/bin/php /path/to/cron/backup.php weekly
 
-# Monthly backups with email
+# Monthly backups with email (1st of month at 3 AM WAT)
 0 3 1 * * /usr/bin/php /path/to/cron/backup.php monthly
+
+# Scheduled affiliate emails - Twice weekly (Tuesday & Friday at 10 AM WAT)
+0 10 * * 2,5 /usr/bin/php /path/to/cron/database.php weekly
+
+# Monthly affiliate summary (1st of month at 9 AM WAT)
+0 9 1 * * /usr/bin/php /path/to/cron/database.php monthly
 ```
 
 ## Production Deployment
