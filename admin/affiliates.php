@@ -1033,7 +1033,13 @@ require_once __DIR__ . '/includes/header.php';
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 transform scale-100"
              x-transition:leave-end="opacity-0 transform scale-95"
-             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+             class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+             x-data="{ 
+                selectedAffiliate: '',
+                durationType: 'permanent',
+                durationHours: 0,
+                durationMinutes: 30
+             }">
             <form method="POST" id="announcementForm">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -1043,12 +1049,7 @@ require_once __DIR__ . '/includes/header.php';
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
-                <div class="p-6 space-y-4" x-data="{ 
-                    selectedAffiliate: '',
-                    durationType: 'permanent',
-                    durationHours: 0,
-                    durationMinutes: 30
-                }">
+                <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="create_announcement">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
