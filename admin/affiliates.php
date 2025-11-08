@@ -1425,22 +1425,23 @@ function initAnnouncementEditor() {
     }
 }
 
-// Sync Quill content before form submission
+// Sync Quill content before form submission - USE CAPTURE PHASE to run FIRST
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Setting up announcement form submission handler...');
     
-    // Listen for form submissions
-    document.body.addEventListener('submit', function(e) {
-        const form = e.target;
-        
-        // Check if this is the announcement form
-        if (form && form.id === 'announcementForm') {
-            console.log('Announcement form submitted');
+    // Get the announcement form specifically
+    const announcementForm = document.getElementById('announcementForm');
+    
+    if (announcementForm) {
+        // Add listener directly to the form with high priority (capture phase)
+        announcementForm.addEventListener('submit', function(e) {
+            console.log('Announcement form submit event captured!');
             const messageField = document.getElementById('announcement-content');
             
             if (!messageField) {
                 console.error('Message field not found');
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 alert('Form error: Message field not found. Please refresh and try again.');
                 return false;
             }
@@ -1450,16 +1451,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 const htmlContent = announcementQuill.root.innerHTML;
                 const textContent = announcementQuill.getText().trim();
                 
+                console.log('Quill content:', textContent);
                 console.log('Quill content length:', textContent.length);
                 messageField.value = htmlContent;
+                console.log('Message field value set to:', messageField.value.substring(0, 100) + '...');
                 
                 // Validate content
                 if (textContent.length === 0) {
+                    console.error('Validation failed: empty message');
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     alert('Please enter a message before posting.');
                     
                     // Re-enable submit button
-                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const submitBtn = this.querySelector('button[type="submit"]');
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="bi bi-send-fill mr-2"></i> Post Announcement';
@@ -1467,22 +1472,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 
-                console.log('Form validation passed, submitting...');
+                console.log('Form validation passed, allowing submission...');
+                // Don't prevent default - let form submit normally
             } else {
                 console.error('Announcement Quill editor not initialized');
                 e.preventDefault();
+                e.stopImmediatePropagation();
                 alert('Editor not ready. Please close the modal, reopen it, and try again.');
                 
                 // Re-enable submit button
-                const submitBtn = form.querySelector('button[type="submit"]');
+                const submitBtn = this.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="bi bi-send-fill mr-2"></i> Post Announcement';
                 }
                 return false;
             }
-        }
-    });
+        }, true); // TRUE = capture phase, runs BEFORE bubble phase handlers
+        
+        console.log('Announcement form handler attached successfully');
+    } else {
+        console.warn('Announcement form not found on page load, will try again when modal opens');
+    }
     
     console.log('Announcement form handler set up complete');
 });
