@@ -7,25 +7,30 @@ A complete affiliate marketing platform for selling website templates with domai
 
 ### Latest Changes (November 8, 2025) - Session 4
 1. **Fixed Instant Search Functionality**:
+   - Fixed critical database bug (changed `is_active` to `active` column in query)
    - Removed page reload issues that were causing 404 errors
    - Search now works instantly as users type (300ms debounce)
    - No more page navigation - results appear immediately on the same page
    - Added `.prevent` to button click to stop form submission
    - Search button now triggers immediate search without delay
+   - All searches tested and working: business, portfolio, restaurant, etc.
    
 2. **New Search Analytics Dashboard** (`/admin/search_analytics.php`):
    - View all user searches in real-time
    - See top search terms with frequency counts
    - Track zero-result searches (to identify missing templates)
    - Average results per search metric
-   - Export search data to CSV
+   - Export search data to CSV (UTF-8 BOM for Excel)
    - Recent searches log (last 100)
    - Filter by period: Today, 7 days, 30 days, 90 days, All time
+   - Added navigation link in admin header
    
-3. **Search Tracking Improvements**:
-   - Already tracking what users search for in `page_interactions` table
-   - Search terms stored with result counts
-   - Admin can now see what customers want but can't find
+3. **Search Tracking Implementation Details**:
+   - Tracking searches in `page_interactions` table with `action_type = 'search'`
+   - **Important**: For search actions only, `time_spent` column stores result count (not duration)
+   - This is clearly documented throughout the code to prevent confusion
+   - No other tracking functions use the `time_spent` column
+   - Admin can now see what customers want but can't find (zero-result searches)
 
 ### Previous Changes (November 7, 2025) - Session 3
 1. **Instant AJAX Search** (NEW):
