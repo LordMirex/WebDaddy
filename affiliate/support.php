@@ -50,8 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$ticketId, $affiliateId]);
                 
                 if ($stmt->fetch()) {
+                    $stmt = $db->prepare("SELECT user_id FROM affiliates WHERE id = ?");
+                    $stmt->execute([$affiliateId]);
+                    $userIdRow = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if (!$userIdRow || !$userIdRow['user_id']) {
+                        throw new PDOException('Affiliate user_id not found');
+                    }
+                    
+                    $userId = $userIdRow['user_id'];
+                    
                     $stmt = $db->prepare("INSERT INTO ticket_replies (ticket_id, user_id, is_admin, message) VALUES (?, ?, 0, ?)");
-                    $stmt->execute([$ticketId, $affiliateId, $message]);
+                    $stmt->execute([$ticketId, $userId, $message]);
                     
                     $stmt = $db->prepare("UPDATE support_tickets SET status = 'open', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
                     $stmt->execute([$ticketId]);
