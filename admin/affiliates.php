@@ -1368,83 +1368,82 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Initialize Quill editor for announcement modal when modal opens
+// Initialize Quill editor for announcement modal
 let announcementQuill = null;
+let announcementFormListenerAdded = false;
 
 function initAnnouncementEditor() {
     const announcementEditorElement = document.getElementById('announcement-editor');
-    if (announcementEditorElement && !announcementQuill) {
-        announcementQuill = new Quill('#announcement-editor', {
-            theme: 'snow',
-            placeholder: 'Write your announcement message here...',
-            modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, false] }],
-                    ['bold', 'italic', 'underline'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'color': [] }, { 'background': [] }],
-                    ['link'],
-                    ['clean']
-                ]
-            }
-        });
-
-        // Set editor font styling
-        const editorContainer = document.querySelector('#announcement-editor .ql-editor');
-        if (editorContainer) {
-            editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
-            editorContainer.style.fontSize = '15px';
-            editorContainer.style.lineHeight = '1.6';
-            editorContainer.style.color = '#374151';
-            editorContainer.style.minHeight = '160px';
-        }
-
-        // Sync Quill content to hidden textarea before form submission
-        const announcementForm = document.getElementById('announcementForm');
-        if (announcementForm) {
-            announcementForm.addEventListener('submit', function(e) {
-                const messageField = document.getElementById('announcement-content');
-                const submitButton = announcementForm.querySelector('button[type="submit"]');
-                
-                // Validate that content exists
-                if (announcementQuill && announcementQuill.getText().trim().length === 0) {
-                    e.preventDefault();
-                    alert('Please enter a message before posting the announcement.');
-                    return false;
-                }
-                
-                // Sync Quill content to hidden textarea
-                if (messageField && announcementQuill) {
-                    messageField.value = announcementQuill.root.innerHTML;
-                }
-                
-                // Prevent double submission
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Processing...';
-                }
-            });
-        }
+    if (!announcementEditorElement) {
+        console.error('Announcement editor element not found');
+        return;
     }
+    
+    // Always reinitialize Quill for a fresh state
+    if (announcementQuill) {
+        announcementQuill = null;
+    }
+    
+    announcementQuill = new Quill('#announcement-editor', {
+        theme: 'snow',
+        placeholder: 'Write your announcement message here...',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Set editor font styling
+    const editorContainer = document.querySelector('#announcement-editor .ql-editor');
+    if (editorContainer) {
+        editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+        editorContainer.style.fontSize = '15px';
+        editorContainer.style.lineHeight = '1.6';
+        editorContainer.style.color = '#374151';
+        editorContainer.style.minHeight = '160px';
+    }
+    
+    console.log('Announcement editor initialized successfully');
 }
 
-// Watch for announcement modal to open
+// Add form submission handler ONCE on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Use MutationObserver to detect when modal becomes visible
-    const modalObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'style') {
-                const modal = document.querySelector('[x-show="showAnnouncementModal"]');
-                if (modal && modal.style.display !== 'none') {
-                    setTimeout(initAnnouncementEditor, 100);
-                }
+    const announcementForm = document.getElementById('announcementForm');
+    if (announcementForm && !announcementFormListenerAdded) {
+        announcementForm.addEventListener('submit', function(e) {
+            console.log('Form submit event triggered');
+            const messageField = document.getElementById('announcement-content');
+            const submitButton = announcementForm.querySelector('button[type="submit"]');
+            
+            // Validate that content exists
+            if (!announcementQuill || announcementQuill.getText().trim().length === 0) {
+                e.preventDefault();
+                alert('Please enter a message before posting the announcement.');
+                return false;
             }
+            
+            // Sync Quill content to hidden textarea
+            if (messageField && announcementQuill) {
+                messageField.value = announcementQuill.root.innerHTML;
+                console.log('Synced Quill content to textarea');
+            }
+            
+            // Prevent double submission
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Processing...';
+            }
+            
+            console.log('Form will now submit');
         });
-    });
-    
-    const modal = document.querySelector('[x-show="showAnnouncementModal"]');
-    if (modal) {
-        modalObserver.observe(modal, { attributes: true });
+        announcementFormListenerAdded = true;
+        console.log('Form submission listener attached');
     }
 });
 
