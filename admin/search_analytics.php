@@ -44,6 +44,7 @@ if (isset($_GET['export_csv'])) {
     
     fputcsv($output, ['Search Term', 'Search Count', 'Total Results Found', 'Avg Results', 'Zero Results Count', 'Last Searched'], ',', '"');
     
+    // NOTE: For search actions, time_spent column stores result count, not duration
     $query = "SELECT 
                 action_target as search_term,
                 COUNT(*) as search_count,
@@ -74,6 +75,7 @@ if (isset($_GET['export_csv'])) {
     exit;
 }
 
+// NOTE: For search action_type, time_spent stores result count (not duration)
 $totalSearches = $db->query("SELECT COUNT(*) FROM page_interactions WHERE action_type = 'search' $dateFilter")->fetchColumn();
 
 $uniqueSearchTerms = $db->query("SELECT COUNT(DISTINCT action_target) FROM page_interactions WHERE action_type = 'search' $dateFilter")->fetchColumn();
@@ -82,6 +84,7 @@ $zeroResultSearches = $db->query("SELECT COUNT(*) FROM page_interactions WHERE a
 
 $avgResultsPerSearch = $db->query("SELECT AVG(time_spent) FROM page_interactions WHERE action_type = 'search' $dateFilter")->fetchColumn();
 
+// NOTE: For search action_type, time_spent stores result count (not duration)
 $topSearches = $db->query("
     SELECT 
         action_target as search_term,

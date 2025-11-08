@@ -128,6 +128,8 @@ function trackSearch($searchTerm, $resultsCount = 0) {
     
     $db = getDb();
     try {
+        // NOTE: For 'search' action types, we use the time_spent column to store result count
+        // This is a known pattern - time_spent only means "time" for non-search interactions
         $stmt = $db->prepare("
             INSERT INTO page_interactions (session_id, page_url, action_type, action_target, time_spent)
             VALUES (?, ?, 'search', ?, ?)
