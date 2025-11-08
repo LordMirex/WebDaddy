@@ -1,309 +1,7 @@
 # WebDaddy Empire - Affiliate Platform
 
-## Project Overview
-A complete affiliate marketing platform for selling website templates with domains included. Built with PHP 8.x and SQLite for easy deployment on cPanel environments.
-
-## Recent Updates (November 2025)
-
-### Latest Changes (November 8, 2025) - Session 6
-1. **Fixed Clear Search Button to Preserve Scroll Position**:
-   - **Problem**: "Clear search" button caused page reload and scroll position jump
-   - **Root Cause**: `updateResultsMessage()` in `forms.js` created a navigation link (`<a href="/">`) instead of a button
-   - **Solution**: 
-     - Changed clear link to a button element
-     - Added event delegation to trigger Alpine.js `clearSearch()` function using public API
-     - Now clears search without page reload or navigation
-     - Preserves user's scroll position perfectly
-   - User can now search, scroll down, and clear search without losing their place
-
-2. **Auto-Reset Search When Input is Cleared**:
-   - **Problem**: When users backspace to clear the search input, filtered results would stay on screen
-   - **Solution**: Modified `performSearch()` to automatically call `clearSearch()` when query is empty
-   - **User Experience**: Now when you backspace to clear the search input, all templates automatically show again
-   - Seamless interaction - no need to click the clear button if you're already typing
-
-3. **Cleaned Up All Email Templates**:
-   - **Removed logos** from all email headers (both customer and affiliate emails)
-   - **Removed "Visit Our Website" button** from general email template (didn't make sense for most emails)
-   - **Fixed Affiliate Dashboard CTAs**: Button now correctly links to `/affiliate/` (actual dashboard) instead of `/affiliate/login.php`
-   - **Simplified footer links**: Removed confusing navigation links, kept only copyright
-   - **Cleaner, more professional emails** with better spacing and layout
-   - **All email CTAs now point to the correct URLs** for their intended actions
-
-4. **Simplified Cron Job System for cPanel**:
-   - **Problem**: Confusing `cron/` folder with complex scripts that user didn't understand or request
-   - **User Need**: Simple copy-paste cron commands for cPanel setup
-   - **Solution**: 
-     - ❌ **Deleted** the entire `cron/` folder (backup.php, database.php, instructions)
-     - ✅ **Created** simple `cron.php` CLI script in project root with 6 commands:
-       - `backup-daily` - Daily backups at 2 AM (keeps 7 days)
-       - `backup-weekly` - Weekly backups on Tuesdays (keeps 4 weeks)
-       - `backup-monthly` - Monthly backups on 1st + email to admin (keeps 12 months)
-       - `cleanup` - Weekly cleanup of old logs and orders
-       - `emails-weekly` - Send performance emails to affiliates (Tue/Fri)
-       - `emails-monthly` - Send monthly summaries to affiliates (1st)
-     - ✅ **Updated** Admin → Database Management page with:
-       - **Click-to-copy** cron commands with proper paths
-       - Clear explanations of what each cron job does
-       - Simple instructions: "Click to copy, paste in cPanel → Cron Jobs"
-       - Color-coded sections (blue=backups, orange=cleanup, purple=emails)
-   - **User Experience**: Now you can simply click any command to copy it, then paste directly into cPanel. No confusion, no complex folder structure.
-
-### Previous Changes (November 8, 2025) - Session 5
-1. **Added 40 Total Templates**:
-   - Created 34 new templates across diverse categories (Fashion, Law Firm, Photography, Medical, Salon, Wedding, etc.)
-   - Now have 40 active templates total for comprehensive search testing
-   - Search functionality tested and working perfectly with all 40 templates
-   - Categories include: E-commerce, Professional Services, Creative, Healthcare, Events, Automotive, Food & Beverage, Technology, Entertainment, Retail, Home Services, Education, Construction, Travel, Nonprofit
-
-2. **Fixed Spam Announcement Issue**:
-   - **Problem**: New affiliates weren't seeing the "7 days move from spam" announcement on their dashboard
-   - **Root Cause**: Welcome announcements were only created when admin manually created affiliates, NOT during self-registration
-   - **Solution**: Added announcement creation logic to `affiliate/register.php`
-   - Created welcome announcements for all 10 existing affiliates who didn't have one
-   - All announcements expire automatically in 7 days as intended
-   - Announcement content includes important instructions about checking spam folder for emails
-
-3. **Search Analytics Styling**:
-   - Verified search analytics dashboard uses proper Bootstrap styling
-   - Matches admin panel design with cards, metrics, tables, and period filters
-   - Fully responsive and production-ready
-
-### Previous Changes (November 8, 2025) - Session 4
-1. **Fixed Instant Search Functionality**:
-   - Fixed critical database bug (changed `is_active` to `active` column in query)
-   - Removed page reload issues that were causing 404 errors
-   - Search now works instantly as users type (300ms debounce)
-   - No more page navigation - results appear immediately on the same page
-   - Added `.prevent` to button click to stop form submission
-   - Search button now triggers immediate search without delay
-   - All searches tested and working: business, portfolio, restaurant, etc.
-   
-2. **New Search Analytics Dashboard** (`/admin/search_analytics.php`):
-   - View all user searches in real-time
-   - See top search terms with frequency counts
-   - Track zero-result searches (to identify missing templates)
-   - Average results per search metric
-   - Export search data to CSV (UTF-8 BOM for Excel)
-   - Recent searches log (last 100)
-   - Filter by period: Today, 7 days, 30 days, 90 days, All time
-   - Added navigation link in admin header
-   
-3. **Search Tracking Implementation Details**:
-   - Tracking searches in `page_interactions` table with `action_type = 'search'`
-   - **Important**: For search actions only, `time_spent` column stores result count (not duration)
-   - This is clearly documented throughout the code to prevent confusion
-   - No other tracking functions use the `time_spent` column
-   - Admin can now see what customers want but can't find (zero-result searches)
-
-### Previous Changes (November 7, 2025) - Session 3
-1. **Instant AJAX Search** (NEW):
-   - Search now works without page reload
-   - 300ms debounce for smooth user experience
-   - Real-time results display with loading indicator
-   - XSS-safe implementation using DOM manipulation
-   - Event delegation for dynamic demo buttons
-   - Preserves affiliate codes during search
-
-2. **Security Hardening**:
-   - Fixed DOM XSS vulnerability in search results display
-   - Eliminated inline onclick handlers (XSS risk)
-   - Added HTML escaping for all template fields
-   - Used data attributes + addEventListener for safe event handling
-   - Production-ready and security-reviewed
-
-3. **Documentation Cleanup**:
-   - Deleted incomplete files: refactor.md (2,841 lines), TASK.MD (454 lines)
-   - Consolidated PRODUCTION_CHECKLIST.md into PRODUCTION_READY.md
-   - Single comprehensive production guide maintained
-
-### Previous Changes (November 7, 2025) - Session 2
-1. **Announcement Double-Submission Fix**:
-   - Added Alpine.js-based form submission protection to prevent duplicate announcements
-   - Button disables automatically after first click
-   - Prevents accidental double-posting
-   
-2. **Device Tracking Analytics** (NEW):
-   - Added comprehensive device detection (Desktop/Mobile/Tablet)
-   - Device type shown in Recent Visits table with color-coded badges
-   - User agent parsing detects device type automatically
-   - Device stats tracked in page_visits table
-   
-3. **IP Address Filtering**:
-   - New filter input on Analytics Dashboard
-   - Filter visits by specific IP address
-   - Quick clear button to remove filter
-   - Maintains period selection when filtering
-   
-4. **Affiliate Action Tracking** (NEW):
-   - Created `affiliate_actions` table to track:
-     * Login events
-     * Dashboard views
-     * Signup button clicks
-   - Automatic tracking on affiliate login
-   - Dashboard view tracking implemented
-   - Includes IP address and user agent for security monitoring
-   
-5. **Cron Jobs Optimization**:
-   - **REMOVED**: 2 AM and 4 AM backup jobs (user no longer wants them)
-   - **KEPT**: Weekly backups (Tuesday & Friday at 2 AM WAT)
-   - **KEPT**: Monthly backups with email (1st of month at 3 AM WAT)
-   - **KEPT**: Scheduled affiliate emails (Tuesday & Friday at 10 AM WAT, Monthly on 1st at 9 AM WAT)
-
-### Previous Changes (November 7, 2025) - Session 1
-1. **Unified Email Modal**: 
-   - Combined "Email All Affiliates" and "Email Single Affiliate" into one modal
-   - Audience dropdown selector (All Active Affiliates or Single Affiliate)
-   - Cleaner UI with dynamic form fields
-2. **Announcement System**:
-   - System-generated welcome announcements now hidden from management board
-   - Only admin-created announcements appear in the management interface
-3. **Scheduled Affiliate Emails**:
-   - Created `cron/database.php` for automated email campaigns
-   - **Twice-weekly performance updates**: Every Tuesday & Friday at 10 AM WAT
-   - **Monthly summary reports**: 1st of each month at 9 AM WAT
-   - Includes metrics: clicks, sales, earnings (weekly and all-time)
-4. **Cron Documentation**: Updated `cron/CRON_SETUP.md` with scheduled email job instructions
-
-### Production Readiness Improvements
-1. **Homepage Pagination**: Fixed to show 10 templates per page instead of 9
-2. **Email System**: 
-   - Optimized template spacing (reduced padding/margins)
-   - Fixed character encoding for₦ (Naira symbol) and emojis
-   - Added spam folder warnings to affiliate emails
-   - Logo properly configured (JPG format)
-3. **CSV Exports**: 
-   - Fixed UTF-8 encoding with BOM for Excel compatibility
-   - Proper column alignment and quoting
-   - Null value handling
-4. **Affiliate Communication**:
-   - WhatsApp floating button on all affiliate pages
-   - Support ticket system fully functional
-   - Direct admin contact via WhatsApp
-5. **Database Optimization**:
-   - VACUUM, ANALYZE, OPTIMIZE commands available
-   - Manual and automated optimization
-   - Session write optimization
-6. **Analytics**: 
-   - Comprehensive dashboard with charts
-   - Top 10 templates tracking (views + clicks)
-   - Bounce rate and time on site metrics
-   - CSV export for all analytics data
-   - Device tracking (Desktop/Mobile/Tablet)
-   - IP address filtering for Recent Visits
-   - Color-coded device badges in analytics table
-
-## Important: SQLite vs phpMyAdmin
-
-**This project uses SQLite, NOT MySQL/MariaDB!**
-
-- phpMyAdmin does NOT work with SQLite databases
-- Use `admin/database.php` for database management
-- To view structure: `PRAGMA table_info(table_name);`
-- SQLite stores everything in a single file: `database/webdaddy.db`
-
-## Project Structure
-
-```
-/
-├── admin/              # Admin panel
-├── affiliate/          # Affiliate dashboard  
-├── public/             # Public-facing pages (templates, homepage)
-├── includes/           # Shared PHP code
-├── database/           # SQLite database + backups
-├── cron/               # Backup and maintenance scripts
-├── assets/             # CSS, JS, images
-└── mailer/             # PHPMailer library
-```
-
-## Key Technologies
-
-- **PHP** 8.x+
-- **SQLite** (portable, file-based database)
-- **Tailwind CSS** (via CDN)
-- **Alpine.js** (lightweight interactivity)
-- **PHPMailer** (email delivery)
-- **Chart.js** (analytics charts)
-
-## Timezone Configuration
-
-All timestamps use **Africa/Lagos (GMT+1 / WAT)**
-- Set in `includes/config.php`
-- Applies to all date/time functions across the application
-
-## Backup System
-
-### Configuration
-- **Twice Weekly**: Tuesday & Friday at 2 AM WAT
-- **Monthly**: 1st of each month at 3 AM WAT (with email)
-- **Retention**: Last 4 weekly + 12 monthly backups
-- See `cron/CRON_INSTRUCTIONS.md` for setup details
-
-### Cron Jobs to Add
-```bash
-# Weekly backups (Tuesday & Friday at 2 AM WAT)
-0 2 * * 2,5 /usr/bin/php /path/to/cron/backup.php weekly
-
-# Monthly backups with email (1st of month at 3 AM WAT)
-0 3 1 * * /usr/bin/php /path/to/cron/backup.php monthly
-
-# Scheduled affiliate emails - Twice weekly (Tuesday & Friday at 10 AM WAT)
-0 10 * * 2,5 /usr/bin/php /path/to/cron/database.php weekly
-
-# Monthly affiliate summary (1st of month at 9 AM WAT)
-0 9 1 * * /usr/bin/php /path/to/cron/database.php monthly
-```
-
-**NOTE**: Previous 2 AM and 4 AM backup jobs have been removed per user request.
-
-## Production Deployment
-
-**Before going live, review:**
-1. `PRODUCTION_CHECKLIST.md` - Complete checklist
-2. `cron/CRON_INSTRUCTIONS.md` - Backup configuration
-3. Set file permissions:
-   ```bash
-   chmod 640 database/webdaddy.db
-   chmod 750 database/backups
-   chmod 644 includes/*.php
-   ```
-4. Verify `DISPLAY_ERRORS = false` in `includes/config.php`
-5. Test email delivery (check spam folder)
-6. Set up cron jobs for backups
-
-## Database Management
-
-Access: `/admin/database.php`
-
-Features:
-- Execute SQL queries
-- VACUUM optimization
-- Manual backups
-- Database cleanup
-- View table statistics
-
-Common queries:
-```sql
--- View all tables
-SELECT name FROM sqlite_master WHERE type='table';
-
--- View table structure
-PRAGMA table_info(templates);
-
--- Database optimization
-VACUUM;
-ANALYZE;
-PRAGMA optimize;
-```
-
-## Email Configuration
-
-SMTP settings in `includes/config.php`:
-- **Host**: mail.webdaddy.online
-- **Port**: 465 (SSL)
-- **From**: admin@webdaddy.online
-
-**Important**: Emails include spam folder warnings for affiliates.
+## Overview
+WebDaddy Empire is an affiliate marketing platform designed for selling website templates, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
 ## User Preferences
 
@@ -326,62 +24,48 @@ SMTP settings in `includes/config.php`:
 - Rate limiting on login attempts
 - Error messages don't expose sensitive info
 
-## Common Tasks
+## System Architecture
 
-### Run Database Optimization
-```bash
-php admin/database.php --vacuum
-```
+### UI/UX Decisions
+- **Design Language**: Bootstrap styling for admin and public interfaces.
+- **Email Templates**: Cleaned up and simplified, removed logos and unnecessary CTAs for professionalism.
+- **Search Experience**: Instant AJAX search with 300ms debounce, loading indicator, and XSS-safe implementation. Preserves scroll position and auto-resets when input is cleared.
+- **Cron Job System**: Simplified for cPanel with click-to-copy commands and clear explanations.
+- **Analytics Dashboard**: Bootstrap-styled, responsive, with cards, metrics, tables, and period filters for various data.
 
-### Create Manual Backup
-```bash
-php cron/backup.php weekly
-```
+### Technical Implementations
+- **Backend**: PHP 8.x+
+- **Database**: SQLite (file-based, portable, `database/webdaddy.db`). Managed via `admin/database.php`.
+- **Frontend Interactivity**: Alpine.js for lightweight client-side logic.
+- **Styling**: Tailwind CSS (via CDN).
+- **Email Handling**: PHPMailer for reliable email delivery.
+- **Charting**: Chart.js for analytics visualizations.
+- **Timezone**: All timestamps are set to Africa/Lagos (GMT+1 / WAT) via `includes/config.php`.
+- **Security Features**: XSS protection, CSRF protection, session hijacking prevention, input sanitization, prepared statements for database queries, rate limiting on login attempts.
+- **Analytics Tracking**: Tracks page visits, device types (Desktop/Mobile/Tablet), user searches (with result counts), affiliate actions (login, dashboard views, signup clicks).
+- **Automated Tasks**: Simplified cron job system for daily/weekly/monthly backups, cleanup, and scheduled affiliate emails (performance updates, monthly summaries).
+- **Optimizations**: Database VACUUM, ANALYZE, OPTIMIZE commands; session write optimization; UTF-8 encoding across the platform, including CSV exports with BOM for Excel compatibility.
 
-### View Analytics
-Navigate to: `/admin/analytics.php`
+### Feature Specifications
+- **Template Management**: Support for displaying and searching multiple website templates.
+- **Affiliate System**: Affiliate registration, dashboard, tracking of clicks/sales, scheduled performance emails, announcement system.
+- **Admin Panel**: Comprehensive dashboard for managing templates, affiliates, analytics, database, and email communications.
+- **Search Functionality**: Instant, dynamic search for templates with analytics tracking.
+- **Email System**: Unified modal for emailing all or single affiliates, scheduled emails, and spam folder warnings.
+- **Backup System**: Automated daily/weekly/monthly backups with configurable retention and email notifications.
+- **Analytics**: Detailed dashboards for site visits, template views/clicks, top search terms, zero-result searches, device tracking, and IP filtering.
+- **Support**: Integrated WhatsApp floating button, support ticket system, direct admin contact options.
 
-## Troubleshooting
+### System Design Choices
+- **SQLite over MySQL**: Chosen for ease of deployment on shared hosting environments.
+- **Tailwind CDN**: Prioritized for faster development cycles and no build step.
+- **Session Optimization**: Implemented write-close pattern to prevent session locks.
+- **UTF-8 Everywhere**: Ensures proper character encoding for international symbols and compatibility.
+- **Simplified Cron Jobs**: Designed for user-friendliness in cPanel, reducing complexity.
 
-### "Database structure won't load in phpMyAdmin"
-- **Expected behavior!** SQLite doesn't work with phpMyAdmin
-- Use `/admin/database.php` instead
+## External Dependencies
 
-### "Emails landing in spam"
-- Ensure SPF/DKIM/DMARC records configured
-- Affiliates are warned to check spam folder
-- Warm up IP address gradually
-
-### "CSV exports have broken columns"
-- Fixed! Now includes UTF-8 BOM and proper quoting
-- Should open correctly in Excel
-
-### "Site time is wrong"
-- Already fixed! Set to Africa/Lagos timezone
-- Verify in `includes/config.php`
-
-## Support
-
-- **WhatsApp**: +2349132672126
-- **Admin Email**: admin@webdaddy.online
-- **Affiliate Support**: Via ticket system or WhatsApp button
-
-## Recent Architecture Decisions
-
-1. **SQLite over MySQL**: Easier deployment on shared hosting
-2. **Tailwind CDN over compiled**: Faster development, no build step
-3. **Session optimization**: Write-close pattern to prevent locks
-4. **UTF-8 everywhere**: Proper character encoding for international symbols
-5. **Twice-weekly backups**: Balance between safety and storage
-
-## Next Steps
-
-1. Test all features in staging environment
-2. Set up production cron jobs
-3. Configure email warmup schedule
-4. Monitor analytics for first week
-5. Gather user feedback on affiliate dashboard
-
----
-
-Last Updated: November 7, 2025
+- **PHPMailer**: Used for all email delivery (SMTP settings configured in `includes/config.php`).
+- **Tailwind CSS**: Integrated via CDN for styling.
+- **Alpine.js**: Utilized for lightweight JavaScript interactivity.
+- **Chart.js**: Employed for rendering charts in the analytics dashboard.
