@@ -481,7 +481,9 @@ require_once __DIR__ . '/includes/header.php';
             <button @click="showEmailModal = true" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-envelope mr-1"></i> Email Affiliates
             </button>
-            <button @click="showAnnouncementModal = true; $nextTick(() => { initAnnouncementEditor(); })" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
+            <button 
+                @click="console.log('Button clicked!'); showAnnouncementModal = true; $nextTick(() => { console.log('Initializing editor...'); initAnnouncementEditor(); })" 
+                class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-megaphone mr-1"></i> Post Announcement
             </button>
             <button @click="showCreateModal = true" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
