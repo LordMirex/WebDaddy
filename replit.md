@@ -30,6 +30,25 @@ A complete affiliate marketing platform for selling website templates with domai
    - **Cleaner, more professional emails** with better spacing and layout
    - **All email CTAs now point to the correct URLs** for their intended actions
 
+4. **Simplified Cron Job System for cPanel**:
+   - **Problem**: Confusing `cron/` folder with complex scripts that user didn't understand or request
+   - **User Need**: Simple copy-paste cron commands for cPanel setup
+   - **Solution**: 
+     - ❌ **Deleted** the entire `cron/` folder (backup.php, database.php, instructions)
+     - ✅ **Created** simple `cron.php` CLI script in project root with 6 commands:
+       - `backup-daily` - Daily backups at 2 AM (keeps 7 days)
+       - `backup-weekly` - Weekly backups on Tuesdays (keeps 4 weeks)
+       - `backup-monthly` - Monthly backups on 1st + email to admin (keeps 12 months)
+       - `cleanup` - Weekly cleanup of old logs and orders
+       - `emails-weekly` - Send performance emails to affiliates (Tue/Fri)
+       - `emails-monthly` - Send monthly summaries to affiliates (1st)
+     - ✅ **Updated** Admin → Database Management page with:
+       - **Click-to-copy** cron commands with proper paths
+       - Clear explanations of what each cron job does
+       - Simple instructions: "Click to copy, paste in cPanel → Cron Jobs"
+       - Color-coded sections (blue=backups, orange=cleanup, purple=emails)
+   - **User Experience**: Now you can simply click any command to copy it, then paste directly into cPanel. No confusion, no complex folder structure.
+
 ### Previous Changes (November 8, 2025) - Session 5
 1. **Added 40 Total Templates**:
    - Created 34 new templates across diverse categories (Fashion, Law Firm, Photography, Medical, Salon, Wedding, etc.)

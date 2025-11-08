@@ -185,8 +185,8 @@ HTML;
             $stmt = $db->exec("DELETE FROM activity_logs WHERE created_at < date('now', '-90 days')");
             echo "✅ Deleted old activity logs (>90 days): $stmt rows\n";
             
-            $stmt = $db->exec("DELETE FROM orders WHERE status IN ('cancelled', 'pending') AND created_at < date('now', '-30 days')");
-            echo "✅ Deleted old orders (>30 days): $stmt rows\n";
+            $stmt = $db->exec("DELETE FROM pending_orders WHERE status IN ('cancelled', 'pending') AND created_at < date('now', '-30 days')");
+            echo "✅ Deleted old pending orders (>30 days): $stmt rows\n";
             
             logActivity('cron_cleanup', 'Automated cleanup completed', 1);
         } catch (PDOException $e) {
