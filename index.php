@@ -257,7 +257,7 @@ $affiliateCode = getAffiliateCode();
                         return;
                     }
                     
-                    const delay = immediate ? 0 : 300;
+                    const delay = immediate ? 0 : 1000;
                     this.searchTimeout = setTimeout(() => {
                         this.isSearching = true;
                         window.TemplateSearch.performSearch(query, this.affiliateCode)
@@ -273,7 +273,7 @@ $affiliateCode = getAffiliateCode();
                                    x-model="searchQuery"
                                    @input="performSearch(searchQuery, false)"
                                    @keyup.enter.prevent="performSearch(searchQuery, true)"
-                                   placeholder="Search all templates... (results appear instantly)" 
+                                   placeholder="Search templates... (start typing)" 
                                    class="w-full px-4 py-3 pl-11 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
                             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -285,11 +285,6 @@ $affiliateCode = getAffiliateCode();
                                 </svg>
                             </div>
                         </div>
-                        <button @click.prevent="performSearch(searchQuery, true)" 
-                                type="button"
-                                class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
-                            Search
-                        </button>
                     </div>
                     
                     <!-- Search Results Message -->

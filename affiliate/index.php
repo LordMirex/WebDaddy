@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/analytics.php';
+require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -102,7 +103,7 @@ require_once __DIR__ . '/includes/header.php';
                 <h5 class="font-bold text-gray-900 mb-2 text-lg">
                     <?php echo htmlspecialchars($announcement['title']); ?>
                 </h5>
-                <p class="text-gray-700 mb-3"><?php echo nl2br(htmlspecialchars($announcement['message'])); ?></p>
+                <div class="text-gray-700 mb-3"><?php echo sanitizeEmailHtml($announcement['message']); ?></div>
                 <p class="text-sm text-gray-500 flex items-center">
                     <i class="bi bi-clock mr-2"></i>
                     <?php echo date('M d, Y \a\t g:i A', strtotime($announcement['created_at'])); ?>

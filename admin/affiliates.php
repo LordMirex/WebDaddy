@@ -1368,11 +1368,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Initialize Quill editor for announcement modal if it exists
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize Quill editor for announcement modal when modal opens
+let announcementQuill = null;
+
+function initAnnouncementEditor() {
     const announcementEditorElement = document.getElementById('announcement-editor');
-    if (announcementEditorElement) {
-        const announcementQuill = new Quill('#announcement-editor', {
+    if (announcementEditorElement && !announcementQuill) {
+        announcementQuill = new Quill('#announcement-editor', {
             theme: 'snow',
             placeholder: 'Write your announcement message here...',
             modules: {
@@ -1402,18 +1404,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (announcementForm) {
             announcementForm.addEventListener('submit', function(e) {
                 const messageField = document.getElementById('announcement-content');
-                if (messageField) {
+                if (messageField && announcementQuill) {
                     messageField.value = announcementQuill.root.innerHTML;
                 }
                 
                 // Validate that content exists
-                if (announcementQuill.getText().trim().length === 0) {
+                if (announcementQuill && announcementQuill.getText().trim().length === 0) {
                     e.preventDefault();
                     alert('Please enter a message before posting the announcement.');
                     return false;
                 }
             });
         }
+    }
+}
+
+// Watch for announcement modal to open
+document.addEventListener('DOMContentLoaded', function() {
+    // Use MutationObserver to detect when modal becomes visible
+    const modalObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'style') {
+                const modal = document.querySelector('[x-show="showAnnouncementModal"]');
+                if (modal && modal.style.display !== 'none') {
+                    setTimeout(initAnnouncementEditor, 100);
+                }
+            }
+        });
+    });
+    
+    const modal = document.querySelector('[x-show="showAnnouncementModal"]');
+    if (modal) {
+        modalObserver.observe(modal, { attributes: true });
     }
 });
 

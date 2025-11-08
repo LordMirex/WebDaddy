@@ -128,136 +128,122 @@ $recentSearches = $db->query("
 include __DIR__ . '/includes/header.php';
 ?>
 
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
         <div>
-            <h1 class="h3 mb-0 text-gray-800">Search Analytics</h1>
-            <p class="text-muted mb-0">See what users are searching for on your website</p>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-search text-primary-600"></i> Search Analytics
+            </h1>
+            <p class="text-gray-600 mt-1">See what users are searching for on your website</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="?export_csv=1&period=<?php echo htmlspecialchars($period); ?>" class="btn btn-success">
-                <i class="fas fa-file-csv"></i> Export CSV
+        <div>
+            <a href="?export_csv=1&period=<?php echo htmlspecialchars($period); ?>" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow">
+                <i class="bi bi-file-earmark-arrow-down mr-2"></i> Export CSV
             </a>
         </div>
     </div>
 
-    <div class="mb-4">
-        <div class="btn-group" role="group">
-            <a href="?period=today" class="btn btn-<?php echo $period === 'today' ? 'primary' : 'outline-primary'; ?>">Today</a>
-            <a href="?period=7days" class="btn btn-<?php echo $period === '7days' ? 'primary' : 'outline-primary'; ?>">7 Days</a>
-            <a href="?period=30days" class="btn btn-<?php echo $period === '30days' ? 'primary' : 'outline-primary'; ?>">30 Days</a>
-            <a href="?period=90days" class="btn btn-<?php echo $period === '90days' ? 'primary' : 'outline-primary'; ?>">90 Days</a>
-            <a href="?period=all" class="btn btn-<?php echo $period === 'all' ? 'primary' : 'outline-primary'; ?>">All Time</a>
+    <div class="mb-6">
+        <div class="inline-flex rounded-lg shadow-sm overflow-hidden" role="group">
+            <a href="?period=today" class="px-4 py-2 text-sm font-medium <?php echo $period === 'today' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> border border-gray-300">Today</a>
+            <a href="?period=7days" class="px-4 py-2 text-sm font-medium <?php echo $period === '7days' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> border-t border-b border-gray-300">7 Days</a>
+            <a href="?period=30days" class="px-4 py-2 text-sm font-medium <?php echo $period === '30days' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> border-t border-b border-gray-300">30 Days</a>
+            <a href="?period=90days" class="px-4 py-2 text-sm font-medium <?php echo $period === '90days' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> border-t border-b border-gray-300">90 Days</a>
+            <a href="?period=all" class="px-4 py-2 text-sm font-medium <?php echo $period === 'all' ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> border border-gray-300">All Time</a>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Searches</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($totalSearches); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-search fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-primary-600">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-primary-600 uppercase tracking-wide mb-2">Total Searches</div>
+                    <div class="text-3xl font-bold text-gray-900"><?php echo number_format($totalSearches); ?></div>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-search text-4xl text-gray-300"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Unique Search Terms</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($uniqueSearchTerms); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-list fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-600">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-blue-600 uppercase tracking-wide mb-2">Unique Search Terms</div>
+                    <div class="text-3xl font-bold text-gray-900"><?php echo number_format($uniqueSearchTerms); ?></div>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-list-ul text-4xl text-gray-300"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Zero Result Searches</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($zeroResultSearches); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-600">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-yellow-600 uppercase tracking-wide mb-2">Zero Result Searches</div>
+                    <div class="text-3xl font-bold text-gray-900"><?php echo number_format($zeroResultSearches); ?></div>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-exclamation-triangle text-4xl text-gray-300"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Avg Results/Search</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($avgResultsPerSearch, 1); ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-600">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-green-600 uppercase tracking-wide mb-2">Avg Results/Search</div>
+                    <div class="text-3xl font-bold text-gray-900"><?php echo number_format($avgResultsPerSearch, 1); ?></div>
+                </div>
+                <div class="flex-shrink-0">
+                    <i class="bi bi-graph-up text-4xl text-gray-300"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8 mb-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Top Search Terms</h6>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-900">Top Search Terms</h3>
                 </div>
-                <div class="card-body">
+                <div class="p-6">
                     <?php if (empty($topSearches)): ?>
-                        <p class="text-center text-muted py-4">No search data available for this period.</p>
+                        <p class="text-center text-gray-500 py-8">No search data available for this period.</p>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
                                 <thead>
-                                    <tr>
-                                        <th>Search Term</th>
-                                        <th class="text-center">Times Searched</th>
-                                        <th class="text-center">Avg Results</th>
-                                        <th class="text-center">Zero Results</th>
-                                        <th>Last Searched</th>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Search Term</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Times Searched</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Avg Results</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Zero Results</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Last Searched</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody class="bg-white divide-y divide-gray-200">
                                     <?php foreach ($topSearches as $search): ?>
-                                    <tr>
-                                        <td>
-                                            <strong><?php echo htmlspecialchars($search['search_term']); ?></strong>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-4 py-3">
+                                            <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($search['search_term']); ?></span>
                                         </td>
-                                        <td class="text-center">
-                                            <span class="badge badge-primary badge-pill"><?php echo number_format($search['search_count']); ?></span>
+                                        <td class="px-4 py-3 text-center">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-100 text-primary-800"><?php echo number_format($search['search_count']); ?></span>
                                         </td>
-                                        <td class="text-center">
+                                        <td class="px-4 py-3 text-center text-gray-700">
                                             <?php echo number_format($search['avg_results'], 1); ?>
                                         </td>
-                                        <td class="text-center">
+                                        <td class="px-4 py-3 text-center">
                                             <?php if ($search['zero_results'] > 0): ?>
-                                                <span class="badge badge-warning"><?php echo $search['zero_results']; ?></span>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><?php echo $search['zero_results']; ?></span>
                                             <?php else: ?>
-                                                <span class="text-muted">-</span>
+                                                <span class="text-gray-400">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-muted small">
+                                        <td class="px-4 py-3 text-sm text-gray-600">
                                             <?php echo date('M j, Y g:ia', strtotime($search['last_searched'])); ?>
                                         </td>
                                     </tr>
@@ -270,31 +256,30 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <div class="col-lg-4 mb-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 bg-warning">
-                    <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-exclamation-circle"></i> Searches with No Results
-                    </h6>
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="px-6 py-4 bg-yellow-500">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="bi bi-exclamation-circle"></i> Searches with No Results
+                    </h3>
                 </div>
-                <div class="card-body">
-                    <p class="small text-muted mb-3">These searches returned 0 results. Consider adding templates for these topics!</p>
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 mb-4">These searches returned 0 results. Consider adding templates for these topics!</p>
                     <?php if (empty($zeroResultSearchTerms)): ?>
-                        <p class="text-center text-success py-3">
-                            <i class="fas fa-check-circle fa-2x mb-2"></i><br>
-                            All searches are returning results!
-                        </p>
+                        <div class="text-center text-green-600 py-6">
+                            <i class="bi bi-check-circle text-5xl mb-3"></i>
+                            <p class="font-medium">All searches are returning results!</p>
+                        </div>
                     <?php else: ?>
-                        <div class="list-group list-group-flush">
+                        <div class="space-y-3">
                             <?php foreach ($zeroResultSearchTerms as $search): ?>
-                            <div class="list-group-item px-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($search['search_term']); ?></strong>
-                                        <br>
-                                        <small class="text-muted"><?php echo date('M j, g:ia', strtotime($search['last_searched'])); ?></small>
+                            <div class="border-b border-gray-200 pb-3 last:border-0">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($search['search_term']); ?></p>
+                                        <p class="text-xs text-gray-500 mt-1"><?php echo date('M j, g:ia', strtotime($search['last_searched'])); ?></p>
                                     </div>
-                                    <span class="badge badge-warning badge-pill"><?php echo $search['search_count']; ?>x</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 ml-2"><?php echo $search['search_count']; ?>x</span>
                                 </div>
                             </div>
                             <?php endforeach; ?>
@@ -305,45 +290,41 @@ include __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Searches (Last 100)</h6>
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-bold text-gray-900">Recent Searches (Last 100)</h3>
+        </div>
+        <div class="p-6">
+            <?php if (empty($recentSearches)): ?>
+                <p class="text-center text-gray-500 py-8">No recent searches.</p>
+            <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Search Term</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Results Found</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php foreach ($recentSearches as $search): ?>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-2.5 text-sm text-gray-900"><?php echo htmlspecialchars($search['search_term']); ?></td>
+                                <td class="px-4 py-2.5 text-center">
+                                    <?php if ($search['results_count'] == 0): ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">0</span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800"><?php echo $search['results_count']; ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="px-4 py-2.5 text-sm text-gray-600"><?php echo date('M j, Y g:i:s a', strtotime($search['created_at'])); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <?php if (empty($recentSearches)): ?>
-                        <p class="text-center text-muted py-4">No recent searches.</p>
-                    <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Search Term</th>
-                                        <th class="text-center">Results Found</th>
-                                        <th>Date & Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($recentSearches as $search): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($search['search_term']); ?></td>
-                                        <td class="text-center">
-                                            <?php if ($search['results_count'] == 0): ?>
-                                                <span class="badge badge-warning">0</span>
-                                            <?php else: ?>
-                                                <span class="badge badge-success"><?php echo $search['results_count']; ?></span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-muted small"><?php echo date('M j, Y g:i:s a', strtotime($search['created_at'])); ?></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
