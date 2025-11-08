@@ -22,6 +22,14 @@ A complete affiliate marketing platform for selling website templates with domai
    - **User Experience**: Now when you backspace to clear the search input, all templates automatically show again
    - Seamless interaction - no need to click the clear button if you're already typing
 
+3. **Cleaned Up All Email Templates**:
+   - **Removed logos** from all email headers (both customer and affiliate emails)
+   - **Removed "Visit Our Website" button** from general email template (didn't make sense for most emails)
+   - **Fixed Affiliate Dashboard CTAs**: Button now correctly links to `/affiliate/` (actual dashboard) instead of `/affiliate/login.php`
+   - **Simplified footer links**: Removed confusing navigation links, kept only copyright
+   - **Cleaner, more professional emails** with better spacing and layout
+   - **All email CTAs now point to the correct URLs** for their intended actions
+
 ### Previous Changes (November 8, 2025) - Session 5
 1. **Added 40 Total Templates**:
    - Created 34 new templates across diverse categories (Fashion, Law Firm, Photography, Medical, Salon, Wedding, etc.)
