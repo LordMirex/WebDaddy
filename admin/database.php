@@ -412,19 +412,24 @@ require_once __DIR__ . '/includes/header.php';
                 </button>
             </form>
             
-            <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-3 rounded-lg text-sm">
-                <div class="font-semibold mb-1 flex items-center gap-2">
-                    <i class="bi bi-info-circle"></i> Auto-Backup with Cron Job
+            <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-lg text-sm">
+                <div class="font-semibold mb-3 flex items-center gap-2">
+                    <i class="bi bi-info-circle"></i> Automated Backups with Cron Jobs (cPanel)
                 </div>
-                <div class="text-xs space-y-1">
-                    <p>Add this to your crontab for daily backups at 2 AM:</p>
-                    <code class="block bg-blue-100 p-2 rounded mt-1 font-mono text-blue-900">
-                        0 2 * * * php /path/to/project/admin/database.php backup_cli
-                    </code>
-                    <p class="mt-2">For hourly backups:</p>
-                    <code class="block bg-blue-100 p-2 rounded mt-1 font-mono text-blue-900">
-                        0 * * * * php /path/to/project/admin/database.php backup_cli
-                    </code>
+                <div class="text-xs space-y-3">
+                    <div>
+                        <p class="font-semibold mb-1">📅 Daily Backup (2 AM) - Keeps 7 days:</p>
+                        <div class="bg-white p-2 rounded border border-blue-200 font-mono text-blue-900 overflow-x-auto" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 2 * * * cd <?php echo dirname(__DIR__); ?> && php cron.php backup-daily</div>
+                    </div>
+                    <div>
+                        <p class="font-semibold mb-1">📅 Weekly Backup (Tuesdays 3 AM) - Keeps 4 weeks:</p>
+                        <div class="bg-white p-2 rounded border border-blue-200 font-mono text-blue-900 overflow-x-auto" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 3 * * 2 cd <?php echo dirname(__DIR__); ?> && php cron.php backup-weekly</div>
+                    </div>
+                    <div>
+                        <p class="font-semibold mb-1">📅 Monthly Backup (1st at 4 AM) - Keeps 12 months + Email:</p>
+                        <div class="bg-white p-2 rounded border border-blue-200 font-mono text-blue-900 overflow-x-auto" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 4 1 * * cd <?php echo dirname(__DIR__); ?> && php cron.php backup-monthly</div>
+                    </div>
+                    <p class="mt-3 text-blue-700"><strong>How to use:</strong> Click any command to copy, then paste it in cPanel → Cron Jobs → Add New Cron Job</p>
                 </div>
             </div>
         </div>
@@ -457,6 +462,44 @@ require_once __DIR__ . '/includes/header.php';
             
             <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-3 rounded-lg text-sm">
                 <i class="bi bi-exclamation-triangle"></i> Cleanup actions are permanent and cannot be undone.
+            </div>
+            
+            <div class="bg-orange-50 border-l-4 border-orange-500 text-orange-800 p-4 rounded-lg text-sm mt-4">
+                <div class="font-semibold mb-3 flex items-center gap-2">
+                    <i class="bi bi-info-circle"></i> Automated Cleanup with Cron (cPanel)
+                </div>
+                <div class="text-xs">
+                    <p class="font-semibold mb-1">🧹 Weekly Cleanup (Sundays 3 AM) - Removes logs >90 days & old orders:</p>
+                    <div class="bg-white p-2 rounded border border-orange-200 font-mono text-orange-900 overflow-x-auto" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 3 * * 0 cd <?php echo dirname(__DIR__); ?> && php cron.php cleanup</div>
+                    <p class="mt-2 text-orange-700"><strong>Click to copy</strong>, then paste in cPanel → Cron Jobs</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-envelope text-purple-600"></i> Affiliate Email Automation
+            </h5>
+        </div>
+        <div class="p-6 space-y-3">
+            <div class="bg-purple-50 border-l-4 border-purple-500 text-purple-800 p-4 rounded-lg text-sm">
+                <div class="font-semibold mb-3 flex items-center gap-2">
+                    <i class="bi bi-info-circle"></i> Automated Affiliate Emails (cPanel)
+                </div>
+                <div class="text-xs space-y-3">
+                    <div>
+                        <p class="font-semibold mb-1">📧 Weekly Performance Emails (Tuesdays & Fridays 9 AM):</p>
+                        <div class="bg-white p-2 rounded border border-purple-200 font-mono text-purple-900 overflow-x-auto" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 9 * * 2,5 cd <?php echo dirname(__DIR__); ?> && php cron.php emails-weekly</div>
+                    </div>
+                    <div>
+                        <p class="font-semibold mb-1">📧 Monthly Summary Emails (1st at 9 AM):</p>
+                        <div class="bg-white p-2 rounded border border-purple-200 font-mono text-purple-900 overflow-x-auto" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 9 1 * * cd <?php echo dirname(__DIR__); ?> && php cron.php emails-monthly</div>
+                    </div>
+                    <p class="mt-3 text-purple-700"><strong>What they do:</strong> Sends automatic performance reports to affiliates with their stats and earnings</p>
+                    <p class="text-purple-700"><strong>How to use:</strong> Click any command to copy, then paste in cPanel → Cron Jobs</p>
+                </div>
             </div>
         </div>
     </div>
