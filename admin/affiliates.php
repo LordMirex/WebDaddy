@@ -481,7 +481,7 @@ require_once __DIR__ . '/includes/header.php';
             <button @click="showEmailModal = true" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-envelope mr-1"></i> Email Affiliates
             </button>
-            <button @click="showAnnouncementModal = true" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
+            <button @click="showAnnouncementModal = true; setTimeout(() => initAnnouncementEditor(), 50)" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-megaphone mr-1"></i> Post Announcement
             </button>
             <button @click="showCreateModal = true" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
@@ -789,7 +789,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="text-center py-12">
                 <i class="bi bi-inbox text-6xl text-gray-300 mb-4"></i>
                 <p class="text-gray-500 text-lg">No announcements posted yet</p>
-                <button @click="showAnnouncementModal = true" class="mt-4 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                <button @click="showAnnouncementModal = true; setTimeout(() => initAnnouncementEditor(), 50)" class="mt-4 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
                     <i class="bi bi-plus-circle mr-2"></i> Post Your First Announcement
                 </button>
             </div>
