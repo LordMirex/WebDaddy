@@ -1368,18 +1368,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Announcement modal handling
+// Simple announcement modal handling - just initialize Quill
 let announcementQuill = null;
 
 function initAnnouncementEditor() {
-    const announcementEditorElement = document.getElementById('announcement-editor');
-    const announcementForm = document.getElementById('announcementForm');
+    const editorElement = document.getElementById('announcement-editor');
+    if (!editorElement) return;
     
-    if (!announcementEditorElement || !announcementForm) {
-        return;
-    }
-    
-    // Initialize Quill editor
+    // Initialize Quill
     announcementQuill = new Quill('#announcement-editor', {
         theme: 'snow',
         placeholder: 'Write your announcement message here...',
@@ -1395,48 +1391,41 @@ function initAnnouncementEditor() {
         }
     });
 
-    // Set editor font styling
-    const editorContainer = document.querySelector('#announcement-editor .ql-editor');
-    if (editorContainer) {
-        editorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
-        editorContainer.style.fontSize = '15px';
-        editorContainer.style.lineHeight = '1.6';
-        editorContainer.style.color = '#374151';
-        editorContainer.style.minHeight = '160px';
+    // Style the editor
+    const container = document.querySelector('#announcement-editor .ql-editor');
+    if (container) {
+        container.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+        container.style.fontSize = '15px';
+        container.style.lineHeight = '1.6';
+        container.style.color = '#374151';
+        container.style.minHeight = '160px';
     }
-    
-    // Remove existing listeners and attach new one
-    const newForm = announcementForm.cloneNode(true);
-    announcementForm.parentNode.replaceChild(newForm, announcementForm);
-    
-    // Add submit handler to the NEW form
-    newForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const messageField = newForm.querySelector('#announcement-content');
-        const submitButton = newForm.querySelector('#announcementSubmitBtn');
-        
-        // Validate content
-        if (!announcementQuill || announcementQuill.getText().trim().length === 0) {
-            alert('Please enter a message before posting the announcement.');
-            return false;
-        }
-        
-        // Sync Quill content to hidden field
-        if (messageField) {
-            messageField.value = announcementQuill.root.innerHTML;
-        }
-        
-        // Show loading state
-        if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Processing...';
-        }
-        
-        // Submit the form
-        newForm.submit();
-    });
 }
+
+// Sync Quill content before ANY form submission
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for ALL form submissions on the page
+    document.body.addEventListener('submit', function(e) {
+        const form = e.target;
+        
+        // Check if this is the announcement form
+        if (form && form.id === 'announcementForm') {
+            const messageField = document.getElementById('announcement-content');
+            
+            // Sync Quill content to hidden textarea
+            if (announcementQuill && messageField) {
+                messageField.value = announcementQuill.root.innerHTML;
+                
+                // Validate content
+                if (announcementQuill.getText().trim().length === 0) {
+                    e.preventDefault();
+                    alert('Please enter a message before posting.');
+                    return false;
+                }
+            }
+        }
+    });
+});
 
 function copyAffiliateLink(event) {
     const linkInput = document.getElementById('affiliateRefLink');
