@@ -481,7 +481,7 @@ require_once __DIR__ . '/includes/header.php';
             <button @click="showEmailModal = true" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-envelope mr-1"></i> Email Affiliates
             </button>
-            <button @click="showAnnouncementModal = true; setTimeout(() => initAnnouncementEditor(), 50)" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
+            <button @click="showAnnouncementModal = true; $nextTick(() => { initAnnouncementEditor(); })" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-megaphone mr-1"></i> Post Announcement
             </button>
             <button @click="showCreateModal = true" class="w-full sm:w-auto px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
@@ -789,7 +789,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="text-center py-12">
                 <i class="bi bi-inbox text-6xl text-gray-300 mb-4"></i>
                 <p class="text-gray-500 text-lg">No announcements posted yet</p>
-                <button @click="showAnnouncementModal = true; setTimeout(() => initAnnouncementEditor(), 50)" class="mt-4 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                <button @click="showAnnouncementModal = true; $nextTick(() => { initAnnouncementEditor(); })" class="mt-4 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
                     <i class="bi bi-plus-circle mr-2"></i> Post Your First Announcement
                 </button>
             </div>
@@ -1125,7 +1125,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
                     <button type="button" @click="showAnnouncementModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">
+                    <button type="submit" id="announcementSubmitBtn" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">
                         <i class="bi bi-send-fill mr-2"></i> Post Announcement
                     </button>
                 </div>
@@ -1368,22 +1368,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Initialize Quill editor for announcement modal
+// Announcement modal handling
 let announcementQuill = null;
-let announcementFormListenerAdded = false;
 
 function initAnnouncementEditor() {
     const announcementEditorElement = document.getElementById('announcement-editor');
-    if (!announcementEditorElement) {
-        console.error('Announcement editor element not found');
+    const announcementForm = document.getElementById('announcementForm');
+    
+    if (!announcementEditorElement || !announcementForm) {
         return;
     }
     
-    // Always reinitialize Quill for a fresh state
-    if (announcementQuill) {
-        announcementQuill = null;
-    }
-    
+    // Initialize Quill editor
     announcementQuill = new Quill('#announcement-editor', {
         theme: 'snow',
         placeholder: 'Write your announcement message here...',
@@ -1409,43 +1405,38 @@ function initAnnouncementEditor() {
         editorContainer.style.minHeight = '160px';
     }
     
-    console.log('Announcement editor initialized successfully');
+    // Remove existing listeners and attach new one
+    const newForm = announcementForm.cloneNode(true);
+    announcementForm.parentNode.replaceChild(newForm, announcementForm);
+    
+    // Add submit handler to the NEW form
+    newForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const messageField = newForm.querySelector('#announcement-content');
+        const submitButton = newForm.querySelector('#announcementSubmitBtn');
+        
+        // Validate content
+        if (!announcementQuill || announcementQuill.getText().trim().length === 0) {
+            alert('Please enter a message before posting the announcement.');
+            return false;
+        }
+        
+        // Sync Quill content to hidden field
+        if (messageField) {
+            messageField.value = announcementQuill.root.innerHTML;
+        }
+        
+        // Show loading state
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Processing...';
+        }
+        
+        // Submit the form
+        newForm.submit();
+    });
 }
-
-// Add form submission handler ONCE on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const announcementForm = document.getElementById('announcementForm');
-    if (announcementForm && !announcementFormListenerAdded) {
-        announcementForm.addEventListener('submit', function(e) {
-            console.log('Form submit event triggered');
-            const messageField = document.getElementById('announcement-content');
-            const submitButton = announcementForm.querySelector('button[type="submit"]');
-            
-            // Validate that content exists
-            if (!announcementQuill || announcementQuill.getText().trim().length === 0) {
-                e.preventDefault();
-                alert('Please enter a message before posting the announcement.');
-                return false;
-            }
-            
-            // Sync Quill content to hidden textarea
-            if (messageField && announcementQuill) {
-                messageField.value = announcementQuill.root.innerHTML;
-                console.log('Synced Quill content to textarea');
-            }
-            
-            // Prevent double submission
-            if (submitButton) {
-                submitButton.disabled = true;
-                submitButton.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Processing...';
-            }
-            
-            console.log('Form will now submit');
-        });
-        announcementFormListenerAdded = true;
-        console.log('Form submission listener attached');
-    }
-});
 
 function copyAffiliateLink(event) {
     const linkInput = document.getElementById('affiliateRefLink');
