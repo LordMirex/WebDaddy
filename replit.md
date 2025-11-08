@@ -11,10 +11,16 @@ A complete affiliate marketing platform for selling website templates with domai
    - **Root Cause**: `updateResultsMessage()` in `forms.js` created a navigation link (`<a href="/">`) instead of a button
    - **Solution**: 
      - Changed clear link to a button element
-     - Added event delegation to trigger Alpine.js `clearSearch()` function
+     - Added event delegation to trigger Alpine.js `clearSearch()` function using public API
      - Now clears search without page reload or navigation
      - Preserves user's scroll position perfectly
    - User can now search, scroll down, and clear search without losing their place
+
+2. **Auto-Reset Search When Input is Cleared**:
+   - **Problem**: When users backspace to clear the search input, filtered results would stay on screen
+   - **Solution**: Modified `performSearch()` to automatically call `clearSearch()` when query is empty
+   - **User Experience**: Now when you backspace to clear the search input, all templates automatically show again
+   - Seamless interaction - no need to click the clear button if you're already typing
 
 ### Previous Changes (November 8, 2025) - Session 5
 1. **Added 40 Total Templates**:

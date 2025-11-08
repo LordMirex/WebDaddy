@@ -273,6 +273,7 @@ $affiliateCode = getAffiliateCode();
                     if (this.searchTimeout) clearTimeout(this.searchTimeout);
                     
                     if (!query || query.trim().length === 0) {
+                        this.clearSearch();
                         return;
                     }
                     
