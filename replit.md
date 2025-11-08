@@ -5,7 +5,27 @@ A complete affiliate marketing platform for selling website templates with domai
 
 ## Recent Updates (November 2025)
 
-### Latest Changes (November 8, 2025) - Session 4
+### Latest Changes (November 8, 2025) - Session 5
+1. **Added 40 Total Templates**:
+   - Created 34 new templates across diverse categories (Fashion, Law Firm, Photography, Medical, Salon, Wedding, etc.)
+   - Now have 40 active templates total for comprehensive search testing
+   - Search functionality tested and working perfectly with all 40 templates
+   - Categories include: E-commerce, Professional Services, Creative, Healthcare, Events, Automotive, Food & Beverage, Technology, Entertainment, Retail, Home Services, Education, Construction, Travel, Nonprofit
+
+2. **Fixed Spam Announcement Issue**:
+   - **Problem**: New affiliates weren't seeing the "7 days move from spam" announcement on their dashboard
+   - **Root Cause**: Welcome announcements were only created when admin manually created affiliates, NOT during self-registration
+   - **Solution**: Added announcement creation logic to `affiliate/register.php`
+   - Created welcome announcements for all 10 existing affiliates who didn't have one
+   - All announcements expire automatically in 7 days as intended
+   - Announcement content includes important instructions about checking spam folder for emails
+
+3. **Search Analytics Styling**:
+   - Verified search analytics dashboard uses proper Bootstrap styling
+   - Matches admin panel design with cards, metrics, tables, and period filters
+   - Fully responsive and production-ready
+
+### Previous Changes (November 8, 2025) - Session 4
 1. **Fixed Instant Search Functionality**:
    - Fixed critical database bug (changed `is_active` to `active` column in query)
    - Removed page reload issues that were causing 404 errors
