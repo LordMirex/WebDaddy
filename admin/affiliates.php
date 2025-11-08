@@ -1368,63 +1368,121 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Simple announcement modal handling - just initialize Quill
+// Announcement modal handling with improved error handling
 let announcementQuill = null;
+let announcementEditorInitialized = false;
 
 function initAnnouncementEditor() {
-    const editorElement = document.getElementById('announcement-editor');
-    if (!editorElement) return;
-    
-    // Initialize Quill
-    announcementQuill = new Quill('#announcement-editor', {
-        theme: 'snow',
-        placeholder: 'Write your announcement message here...',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link'],
-                ['clean']
-            ]
+    try {
+        console.log('Initializing announcement editor...');
+        const editorElement = document.getElementById('announcement-editor');
+        
+        if (!editorElement) {
+            console.error('Announcement editor element not found');
+            return;
         }
-    });
+        
+        // Prevent re-initialization
+        if (announcementEditorInitialized && announcementQuill) {
+            console.log('Announcement editor already initialized, clearing content...');
+            announcementQuill.setText('');
+            return;
+        }
+        
+        // Initialize Quill
+        announcementQuill = new Quill('#announcement-editor', {
+            theme: 'snow',
+            placeholder: 'Write your announcement message here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
 
-    // Style the editor
-    const container = document.querySelector('#announcement-editor .ql-editor');
-    if (container) {
-        container.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
-        container.style.fontSize = '15px';
-        container.style.lineHeight = '1.6';
-        container.style.color = '#374151';
-        container.style.minHeight = '160px';
+        // Style the editor
+        const container = document.querySelector('#announcement-editor .ql-editor');
+        if (container) {
+            container.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            container.style.fontSize = '15px';
+            container.style.lineHeight = '1.6';
+            container.style.color = '#374151';
+            container.style.minHeight = '160px';
+        }
+        
+        announcementEditorInitialized = true;
+        console.log('Announcement editor initialized successfully');
+    } catch (error) {
+        console.error('Error initializing announcement editor:', error);
+        alert('Error initializing editor. Please refresh the page and try again.');
     }
 }
 
-// Sync Quill content before ANY form submission
+// Sync Quill content before form submission
 document.addEventListener('DOMContentLoaded', function() {
-    // Listen for ALL form submissions on the page
+    console.log('Setting up announcement form submission handler...');
+    
+    // Listen for form submissions
     document.body.addEventListener('submit', function(e) {
         const form = e.target;
         
         // Check if this is the announcement form
         if (form && form.id === 'announcementForm') {
+            console.log('Announcement form submitted');
             const messageField = document.getElementById('announcement-content');
             
+            if (!messageField) {
+                console.error('Message field not found');
+                e.preventDefault();
+                alert('Form error: Message field not found. Please refresh and try again.');
+                return false;
+            }
+            
             // Sync Quill content to hidden textarea
-            if (announcementQuill && messageField) {
-                messageField.value = announcementQuill.root.innerHTML;
+            if (announcementQuill) {
+                const htmlContent = announcementQuill.root.innerHTML;
+                const textContent = announcementQuill.getText().trim();
+                
+                console.log('Quill content length:', textContent.length);
+                messageField.value = htmlContent;
                 
                 // Validate content
-                if (announcementQuill.getText().trim().length === 0) {
+                if (textContent.length === 0) {
                     e.preventDefault();
                     alert('Please enter a message before posting.');
+                    
+                    // Re-enable submit button
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-send-fill mr-2"></i> Post Announcement';
+                    }
                     return false;
                 }
+                
+                console.log('Form validation passed, submitting...');
+            } else {
+                console.error('Announcement Quill editor not initialized');
+                e.preventDefault();
+                alert('Editor not ready. Please close the modal, reopen it, and try again.');
+                
+                // Re-enable submit button
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="bi bi-send-fill mr-2"></i> Post Announcement';
+                }
+                return false;
             }
         }
     });
+    
+    console.log('Announcement form handler set up complete');
 });
 
 function copyAffiliateLink(event) {
