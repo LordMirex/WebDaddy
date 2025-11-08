@@ -286,16 +286,17 @@ window.TemplateSearch = {
         const queryText = document.createTextNode(query);
         const closeQuote = document.createTextNode('"');
         
-        const clearLink = document.createElement('a');
-        clearLink.href = '/';
-        clearLink.className = 'ml-2 text-primary-600 hover:text-primary-700 font-medium';
-        clearLink.textContent = 'Clear search';
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'ml-2 text-primary-600 hover:text-primary-700 font-medium focus:outline-none';
+        clearButton.textContent = 'Clear search';
+        clearButton.setAttribute('data-clear-search', 'true');
         
         p.appendChild(countSpan);
         p.appendChild(forText);
         p.appendChild(queryText);
         p.appendChild(closeQuote);
-        p.appendChild(clearLink);
+        p.appendChild(clearButton);
         
         resultsMsg.innerHTML = '';
         resultsMsg.appendChild(p);
@@ -404,6 +405,29 @@ window.TemplateSearch = {
                 const demoName = demoBtn.dataset.demoName;
                 if (demoUrl && typeof window.openDemo === 'function') {
                     window.openDemo(demoUrl, demoName);
+                }
+            }
+            
+            // Handle clear search button clicks
+            const clearBtn = e.target.closest('[data-clear-search]');
+            if (clearBtn) {
+                e.preventDefault();
+                // Get the search input element
+                const searchInput = document.querySelector('input[x-model="searchQuery"]');
+                if (searchInput) {
+                    // Clear the input value
+                    searchInput.value = '';
+                    // Trigger Alpine.js update by dispatching an input event
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    
+                    // Get Alpine component and call clearSearch if available
+                    const alpineEl = searchInput.closest('[x-data]');
+                    if (alpineEl && window.Alpine) {
+                        const alpineData = window.Alpine.$data(alpineEl);
+                        if (alpineData && typeof alpineData.clearSearch === 'function') {
+                            alpineData.clearSearch();
+                        }
+                    }
                 }
             }
         });

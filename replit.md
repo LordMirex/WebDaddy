@@ -5,7 +5,18 @@ A complete affiliate marketing platform for selling website templates with domai
 
 ## Recent Updates (November 2025)
 
-### Latest Changes (November 8, 2025) - Session 5
+### Latest Changes (November 8, 2025) - Session 6
+1. **Fixed Clear Search Button to Preserve Scroll Position**:
+   - **Problem**: "Clear search" button caused page reload and scroll position jump
+   - **Root Cause**: `updateResultsMessage()` in `forms.js` created a navigation link (`<a href="/">`) instead of a button
+   - **Solution**: 
+     - Changed clear link to a button element
+     - Added event delegation to trigger Alpine.js `clearSearch()` function
+     - Now clears search without page reload or navigation
+     - Preserves user's scroll position perfectly
+   - User can now search, scroll down, and clear search without losing their place
+
+### Previous Changes (November 8, 2025) - Session 5
 1. **Added 40 Total Templates**:
    - Created 34 new templates across diverse categories (Fashion, Law Firm, Photography, Medical, Salon, Wedding, etc.)
    - Now have 40 active templates total for comprehensive search testing

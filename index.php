@@ -249,6 +249,7 @@ $affiliateCode = getAffiliateCode();
                 isSearching: false,
                 searchTimeout: null,
                 affiliateCode: '<?php echo htmlspecialchars($affiliateCode); ?>',
+                totalTemplates: <?php echo (int)$totalTemplates; ?>,
                 clearSearch() {
                     this.searchQuery = '';
                     if (this.searchTimeout) clearTimeout(this.searchTimeout);
@@ -261,7 +262,7 @@ $affiliateCode = getAffiliateCode();
                                 window.TemplateSearch.updateTemplateGrid(data.results, this.affiliateCode);
                                 const resultsMsg = document.querySelector('[data-search-results]');
                                 if (resultsMsg) {
-                                    resultsMsg.innerHTML = '<p class="text-sm text-gray-600">Showing <span class="font-semibold text-primary-600">' + data.count + '</span> of <span class="font-semibold"><?php echo $totalTemplates; ?></span> templates</p>';
+                                    resultsMsg.innerHTML = `<p class=&quot;text-sm text-gray-600&quot;>Showing <span class=&quot;font-semibold text-primary-600&quot;>${data.count}</span> of <span class=&quot;font-semibold&quot;>${this.totalTemplates}</span> templates</p>`;
                                 }
                             }
                         })
