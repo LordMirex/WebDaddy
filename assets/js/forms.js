@@ -251,12 +251,11 @@ window.TemplateSearch = {
         const grid = document.querySelector('[data-templates-grid]');
         const resultsMsg = document.querySelector('[data-search-results]');
         
-        if (!query || query.trim().length === 0) {
-            window.location.href = '/';
-            return Promise.resolve();
-        }
+        const url = (!query || query.trim().length === 0) 
+            ? '/api/search.php' 
+            : '/api/search.php?q=' + encodeURIComponent(query.trim());
         
-        return fetch('/api/search.php?q=' + encodeURIComponent(query.trim()))
+        return fetch(url)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

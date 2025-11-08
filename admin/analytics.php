@@ -182,7 +182,7 @@ $topPages = $db->query("
 $ipFilter = trim($_GET['ip'] ?? '');
 $ipFilterQuery = '';
 if (!empty($ipFilter)) {
-    $ipFilterQuery = " AND ip_address LIKE '%" . $db->quote($ipFilter) . "%'";
+    $ipFilterQuery = " AND ip_address LIKE " . $db->quote('%' . $ipFilter . '%');
 }
 
 $recentVisits = $db->query("
@@ -198,18 +198,6 @@ $recentVisits = $db->query("
     WHERE 1=1 $dateFilter $ipFilterQuery
     ORDER BY created_at DESC
     LIMIT 50
-")->fetchAll(PDO::FETCH_ASSOC);
-
-$searchAnalytics = $db->query("
-    SELECT 
-        action_target as search_term,
-        COUNT(*) as search_count,
-        AVG(time_spent) as avg_results
-    FROM page_interactions
-    WHERE action_type = 'search' $dateFilter
-    GROUP BY action_target
-    ORDER BY search_count DESC
-    LIMIT 15
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 $trafficSources = $db->query("
@@ -401,48 +389,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-    <div class="bg-white rounded-xl shadow-md border border-gray-100">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i class="bi bi-search text-primary-600"></i> Search Analytics
-            </h5>
-        </div>
-        <div class="p-6">
-            <?php if (empty($searchAnalytics)): ?>
-                <div class="text-center py-8">
-                    <i class="bi bi-search text-gray-300 text-5xl mb-3"></i>
-                    <p class="text-gray-500">No searches recorded yet</p>
-                    <p class="text-gray-400 text-sm mt-1">Search tracking starts when visitors use the search feature</p>
-                </div>
-            <?php else: ?>
-                <div class="space-y-2">
-                    <?php foreach ($searchAnalytics as $search): ?>
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div class="flex items-center gap-3 flex-1">
-                                <i class="bi bi-search text-gray-400"></i>
-                                <div>
-                                    <h6 class="font-semibold text-gray-900">"<?php echo htmlspecialchars($search['search_term']); ?>"</h6>
-                                    <small class="text-gray-500">
-                                        Avg <?php echo round($search['avg_results']); ?> results
-                                        <?php if (round($search['avg_results']) == 0): ?>
-                                            <span class="text-orange-600 font-medium">⚠️ No results found</span>
-                                        <?php endif; ?>
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold text-primary-600"><?php echo number_format($search['search_count']); ?></div>
-                                <small class="text-gray-500">searches</small>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
         <div class="px-6 py-4 border-b border-gray-200">
             <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <i class="bi bi-globe text-primary-600"></i> Traffic Sources

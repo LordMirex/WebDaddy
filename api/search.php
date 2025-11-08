@@ -12,27 +12,34 @@ handleAffiliateTracking();
 
 $searchTerm = trim($_GET['q'] ?? '');
 
-if (empty($searchTerm)) {
-    echo json_encode(['success' => false, 'error' => 'Search term is required']);
-    exit;
-}
-
 try {
     $db = getDb();
     
-    $stmt = $db->prepare("
-        SELECT id, name, category, description, price, thumbnail_url, demo_url 
-        FROM templates 
-        WHERE active = 1 
-        AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
-        ORDER BY name ASC
-    ");
-    
-    $searchPattern = '%' . $searchTerm . '%';
-    $stmt->execute([$searchPattern, $searchPattern, $searchPattern]);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    trackSearch($searchTerm, count($results));
+    if (empty($searchTerm)) {
+        $stmt = $db->prepare("
+            SELECT id, name, category, description, price, thumbnail_url, demo_url 
+            FROM templates 
+            WHERE active = 1 
+            ORDER BY name ASC
+            LIMIT 9
+        ");
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $stmt = $db->prepare("
+            SELECT id, name, category, description, price, thumbnail_url, demo_url 
+            FROM templates 
+            WHERE active = 1 
+            AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
+            ORDER BY name ASC
+        ");
+        
+        $searchPattern = '%' . $searchTerm . '%';
+        $stmt->execute([$searchPattern, $searchPattern, $searchPattern]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        trackSearch($searchTerm, count($results));
+    }
     
     echo json_encode([
         'success' => true,

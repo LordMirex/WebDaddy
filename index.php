@@ -249,11 +249,29 @@ $affiliateCode = getAffiliateCode();
                 isSearching: false,
                 searchTimeout: null,
                 affiliateCode: '<?php echo htmlspecialchars($affiliateCode); ?>',
+                clearSearch() {
+                    this.searchQuery = '';
+                    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+                    this.isSearching = true;
+                    
+                    fetch('/api/search.php')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.TemplateSearch.updateTemplateGrid(data.results, this.affiliateCode);
+                                const resultsMsg = document.querySelector('[data-search-results]');
+                                if (resultsMsg) {
+                                    resultsMsg.innerHTML = '<p class="text-sm text-gray-600">Showing <span class="font-semibold text-primary-600">' + data.count + '</span> of <span class="font-semibold"><?php echo $totalTemplates; ?></span> templates</p>';
+                                }
+                            }
+                        })
+                        .catch(e => console.error('Clear search failed:', e))
+                        .finally(() => { this.isSearching = false; });
+                },
                 performSearch(query, immediate = false) {
                     if (this.searchTimeout) clearTimeout(this.searchTimeout);
                     
                     if (!query || query.trim().length === 0) {
-                        window.location.href = '/';
                         return;
                     }
                     
@@ -274,11 +292,19 @@ $affiliateCode = getAffiliateCode();
                                    @input="performSearch(searchQuery, false)"
                                    @keyup.enter.prevent="performSearch(searchQuery, true)"
                                    placeholder="Search templates... (start typing)" 
-                                   class="w-full px-4 py-3 pl-11 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
+                                   class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
                             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
-                            <div x-show="isSearching" class="absolute right-3 top-1/2 -translate-y-1/2">
+                            <button x-show="searchQuery.length > 0" 
+                                    @click="clearSearch()"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    title="Clear search">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <div x-show="isSearching" class="absolute right-10 top-1/2 -translate-y-1/2">
                                 <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

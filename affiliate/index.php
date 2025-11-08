@@ -93,19 +93,19 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 <div class="mb-6 space-y-4">
     <?php foreach ($announcements as $announcement): ?>
-    <div x-data="{ open: true }" x-show="open" class="bg-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-50 border-l-4 border-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-500 p-6 rounded-lg shadow-sm relative">
-        <button @click="open = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
-            <i class="bi bi-x-lg"></i>
+    <div x-data="{ open: true }" x-show="open" class="bg-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-50 border-l-4 border-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-500 p-4 rounded-lg shadow-sm relative">
+        <button @click="open = false" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+            <i class="bi bi-x-lg text-sm"></i>
         </button>
         <div class="flex items-start space-x-3">
-            <i class="bi bi-megaphone text-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-600 text-2xl mt-1"></i>
-            <div class="flex-1 pr-8">
-                <h5 class="font-bold text-gray-900 mb-2 text-lg">
+            <i class="bi bi-megaphone text-<?php echo $announcement['type'] === 'success' ? 'green' : ($announcement['type'] === 'warning' ? 'yellow' : ($announcement['type'] === 'danger' ? 'red' : 'blue')); ?>-600 text-xl mt-1"></i>
+            <div class="flex-1 pr-6">
+                <h5 class="font-bold text-gray-900 mb-1 text-base">
                     <?php echo htmlspecialchars($announcement['title']); ?>
                 </h5>
-                <div class="text-gray-700 mb-3"><?php echo sanitizeEmailHtml($announcement['message']); ?></div>
-                <p class="text-sm text-gray-500 flex items-center">
-                    <i class="bi bi-clock mr-2"></i>
+                <div class="text-sm text-gray-700 mb-2 leading-relaxed"><?php echo sanitizeEmailHtml($announcement['message']); ?></div>
+                <p class="text-xs text-gray-500 flex items-center">
+                    <i class="bi bi-clock mr-1.5"></i>
                     <?php echo date('M d, Y \a\t g:i A', strtotime($announcement['created_at'])); ?>
                 </p>
             </div>
