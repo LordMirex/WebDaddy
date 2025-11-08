@@ -94,10 +94,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new PDOException('Failed to create affiliate record');
                     }
                     
+                    $affiliateId = $db->lastInsertId('affiliates_id_seq') ?: $db->lastInsertId();
+                    
+                    // Create welcome announcement about spam folder
+                    $welcomeTitle = "📧 Important: Check Your Spam Folder!";
+                    $welcomeMessage = "<p>Welcome to <strong>WebDaddy Empire</strong>! We're excited to have you as an affiliate partner.</p>
+                        <p><strong style='color: #dc2626;'>⚠️ IMPORTANT ACTION REQUIRED:</strong></p>
+                        <ul>
+                            <li>Check your <strong>spam/junk folder</strong> for emails from us</li>
+                            <li>Mark our emails as <strong>\"Not Spam\"</strong> or <strong>\"Safe\"</strong></li>
+                            <li>Add <strong>admin@webdaddy.online</strong> to your contacts</li>
+                        </ul>
+                        <p><strong>Why is this important?</strong></p>
+                        <p>We will send you important notifications via email about:</p>
+                        <ul>
+                            <li>✅ Successful purchases made with your affiliate code</li>
+                            <li>💰 Payment confirmations and receipts</li>
+                            <li>🎯 Withdrawal request approvals</li>
+                            <li>📊 Monthly earning reports</li>
+                        </ul>
+                        <p>This announcement will disappear in 7 days. If you don't see our emails in your inbox, please check spam!</p>";
+                    
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+                    
+                    // Insert welcome announcement (system-generated, so created_by is NULL for affiliate signup)
+                    $stmt = $db->prepare("
+                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
+                        VALUES (?, ?, 'warning', 1, NULL, ?, ?)
+                    ");
+                    $stmt->execute([$welcomeTitle, $welcomeMessage, $affiliateId, $expiresAt]);
+                    
                     $db->commit();
                     
                     // Log activity
-                    logActivity('affiliate_registration', "New affiliate registered: $email", $userId);
+                    logActivity('affiliate_registration', "New affiliate registered: $email (with welcome announcement)", $userId);
                     
                     // Send welcome email to new affiliate
                     sendAffiliateWelcomeEmail($name, $email, $affiliateCode);
