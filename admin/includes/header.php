@@ -110,6 +110,11 @@
                     <span class="font-semibold">Analytics</span>
                 </a>
 
+                <a href="/admin/search_analytics.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'search_analytics.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-search <?php echo basename($_SERVER['PHP_SELF']) == 'search_analytics.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Search Analytics</span>
+                </a>
+
                 <a href="/admin/reports.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-graph-up <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Reports</span>

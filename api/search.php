@@ -23,7 +23,7 @@ try {
     $stmt = $db->prepare("
         SELECT id, name, category, description, price, thumbnail_url, demo_url 
         FROM templates 
-        WHERE is_active = 1 
+        WHERE active = 1 
         AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
         ORDER BY name ASC
     ");
