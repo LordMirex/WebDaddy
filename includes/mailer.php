@@ -617,3 +617,124 @@ HTML;
     $emailBody = createEmailTemplate($subject, $content, 'Admin');
     return sendEmail($adminEmail, $subject, $emailBody);
 }
+
+/**
+ * Send announcement email to a single affiliate
+ * @param int $announcementId Announcement ID for tracking
+ * @param int $affiliateId Affiliate ID
+ * @param string $affiliateName Affiliate name
+ * @param string $affiliateEmail Affiliate email
+ * @param string $title Announcement title
+ * @param string $message Announcement message (HTML)
+ * @param string $type Announcement type (info, success, warning, danger)
+ * @param PDO $db Database connection for tracking
+ * @return bool Success status
+ */
+function sendAnnouncementEmail($announcementId, $affiliateId, $affiliateName, $affiliateEmail, $title, $message, $type = 'info', $db = null) {
+    $subject = "📢 Announcement: " . $title;
+    
+    // Map announcement types to colors and icons
+    $typeConfig = [
+        'success' => ['color' => '#10b981', 'icon' => '✅', 'label' => 'Success'],
+        'warning' => ['color' => '#f59e0b', 'icon' => '⚠️', 'label' => 'Warning'],
+        'danger' => ['color' => '#ef4444', 'icon' => '🚨', 'label' => 'Important'],
+        'info' => ['color' => '#3b82f6', 'icon' => '📢', 'label' => 'Information']
+    ];
+    
+    $config = $typeConfig[$type] ?? $typeConfig['info'];
+    
+    // Sanitize the message HTML
+    $sanitizedMessage = sanitizeEmailHtml($message);
+    
+    $content = <<<HTML
+<div style="background:{$config['color']}; color:#ffffff; padding:12px 20px; border-radius:8px; margin-bottom:20px; text-align:center;">
+    <p style="margin:0; font-size:18px; font-weight:700;">
+        {$config['icon']} {$config['label']}: {$title}
+    </p>
+</div>
+<div style="color:#374151; line-height:1.8; font-size:15px;">
+    {$sanitizedMessage}
+</div>
+HTML;
+    
+    $emailBody = createAffiliateEmailTemplate($subject, $content, $affiliateName);
+    $success = sendEmail($affiliateEmail, $subject, $emailBody);
+    
+    // Track email delivery in database if connection provided
+    if ($db && $announcementId) {
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO announcement_emails 
+                (announcement_id, affiliate_id, email_address, failed, error_message) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            
+            $failed = $success ? 0 : 1;
+            $errorMsg = $success ? null : 'Email sending failed';
+            
+            $stmt->execute([
+                $announcementId,
+                $affiliateId,
+                $affiliateEmail,
+                $failed,
+                $errorMsg
+            ]);
+        } catch (Exception $e) {
+            error_log("Failed to track announcement email: " . $e->getMessage());
+        }
+    }
+    
+    return $success;
+}
+
+/**
+ * Send announcement emails to multiple affiliates with batch processing
+ * @param int $announcementId Announcement ID
+ * @param string $title Announcement title
+ * @param string $message Announcement message (HTML)
+ * @param string $type Announcement type
+ * @param array $affiliates Array of affiliate data (id, name, email)
+ * @param PDO $db Database connection
+ * @return array Statistics ['total' => int, 'sent' => int, 'failed' => int]
+ */
+function sendAnnouncementEmails($announcementId, $title, $message, $type, $affiliates, $db) {
+    $stats = [
+        'total' => count($affiliates),
+        'sent' => 0,
+        'failed' => 0
+    ];
+    
+    if (empty($affiliates)) {
+        return $stats;
+    }
+    
+    // Batch processing: Send 50 emails at a time with 100ms delay
+    $batchSize = 50;
+    $delay = 100000; // 100ms in microseconds
+    
+    foreach ($affiliates as $index => $affiliate) {
+        $success = sendAnnouncementEmail(
+            $announcementId,
+            $affiliate['id'],
+            $affiliate['name'],
+            $affiliate['email'],
+            $title,
+            $message,
+            $type,
+            $db
+        );
+        
+        if ($success) {
+            $stats['sent']++;
+        } else {
+            $stats['failed']++;
+        }
+        
+        // Add delay after every batch to prevent overwhelming SMTP server
+        if (($index + 1) % $batchSize === 0 && ($index + 1) < count($affiliates)) {
+            usleep($delay);
+        }
+    }
+    
+    return $stats;
+}
