@@ -1251,9 +1251,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-</div>
-</div>
-
 <?php if ($viewAffiliate): ?>
 <div class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
@@ -1412,6 +1409,8 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 <?php endif; ?>
+
+</div>
 
 <!-- Quill Rich Text Editor -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
