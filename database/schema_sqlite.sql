@@ -190,6 +190,7 @@ CREATE TABLE announcements (
     is_active INTEGER DEFAULT 1,
     created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
     affiliate_id INTEGER DEFAULT NULL REFERENCES affiliates(id) ON DELETE CASCADE,
+    expires_at TEXT DEFAULT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -197,6 +198,24 @@ CREATE TABLE announcements (
 CREATE INDEX idx_announcements_is_active ON announcements(is_active);
 CREATE INDEX idx_announcements_created_at ON announcements(created_at);
 CREATE INDEX idx_announcements_affiliate_id ON announcements(affiliate_id);
+CREATE INDEX idx_announcements_expires_at ON announcements(expires_at);
+
+-- Announcement Email Delivery Tracking
+CREATE TABLE announcement_emails (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    announcement_id INTEGER NOT NULL,
+    affiliate_id INTEGER NOT NULL,
+    email_address TEXT NOT NULL,
+    sent_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    failed INTEGER DEFAULT 0,
+    error_message TEXT,
+    FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE,
+    FOREIGN KEY (affiliate_id) REFERENCES affiliates(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_announcement_emails_announcement_id ON announcement_emails(announcement_id);
+CREATE INDEX idx_announcement_emails_affiliate_id ON announcement_emails(affiliate_id);
+CREATE INDEX idx_announcement_emails_sent_at ON announcement_emails(sent_at);
 
 -- Insert Default Settings
 INSERT INTO settings (setting_key, setting_value) VALUES
