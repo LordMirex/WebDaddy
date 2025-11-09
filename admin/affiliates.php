@@ -323,6 +323,139 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->rollBack();
                 $errorMessage = $e->getMessage();
             }
+        } elseif ($action === 'create_announcement') {
+            $title = sanitizeInput($_POST['announcement_title'] ?? '');
+            $rawMessage = trim($_POST['announcement_message'] ?? '');
+            $type = sanitizeInput($_POST['announcement_type'] ?? 'info');
+            $target = sanitizeInput($_POST['announcement_target'] ?? 'all');
+            $targetAffiliateId = isset($_POST['target_affiliate_id']) ? intval($_POST['target_affiliate_id']) : null;
+            $duration = sanitizeInput($_POST['announcement_duration'] ?? 'permanent');
+            $expiryDays = isset($_POST['expiry_days']) ? intval($_POST['expiry_days']) : null;
+            
+            if (empty($title) || empty($rawMessage)) {
+                $errorMessage = 'Title and message are required.';
+            } elseif (!in_array($type, ['info', 'success', 'warning', 'danger'])) {
+                $errorMessage = 'Invalid announcement type.';
+            } elseif (!in_array($target, ['all', 'specific'])) {
+                $errorMessage = 'Invalid target selection.';
+            } elseif ($target === 'specific' && empty($targetAffiliateId)) {
+                $errorMessage = 'Please select a specific affiliate.';
+            } elseif ($duration === 'timed' && (!$expiryDays || $expiryDays < 1)) {
+                $errorMessage = 'Please specify a valid expiry duration (minimum 1 day) for timed announcements.';
+            } else {
+                $message = sanitizeEmailHtml($rawMessage);
+                $db->beginTransaction();
+                try {
+                    $expiresAt = null;
+                    if ($duration === 'timed' && $expiryDays > 0) {
+                        $expiresAt = date('Y-m-d H:i:s', strtotime("+{$expiryDays} days"));
+                    }
+                    
+                    $affiliateIdForDb = ($target === 'specific') ? $targetAffiliateId : null;
+                    
+                    $stmt = $db->prepare("
+                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
+                        VALUES (?, ?, ?, 1, ?, ?, ?)
+                    ");
+                    $stmt->execute([
+                        $title,
+                        $message,
+                        $type,
+                        getAdminId(),
+                        $affiliateIdForDb,
+                        $expiresAt
+                    ]);
+                    
+                    $dbType = getDbType();
+                    if ($dbType === 'pgsql') {
+                        $announcementId = $db->lastInsertId('announcements_id_seq');
+                    } else {
+                        $announcementId = $db->lastInsertId();
+                    }
+                    
+                    $db->commit();
+                    
+                    if ($target === 'specific' && $targetAffiliateId) {
+                        $stmt = $db->prepare("
+                            SELECT a.id, u.name, u.email
+                            FROM affiliates a
+                            JOIN users u ON a.user_id = u.id
+                            WHERE a.id = ? AND a.status = 'active' AND u.status = 'active'
+                        ");
+                        $stmt->execute([$targetAffiliateId]);
+                        $affiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    } else {
+                        $stmt = $db->query("
+                            SELECT a.id, u.name, u.email
+                            FROM affiliates a
+                            JOIN users u ON a.user_id = u.id
+                            WHERE a.status = 'active' AND u.status = 'active'
+                        ");
+                        $affiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    }
+                    
+                    $emailStats = sendAnnouncementEmails(
+                        $announcementId,
+                        $title,
+                        $message,
+                        $type,
+                        $affiliates,
+                        $db
+                    );
+                    
+                    $successMessage = "Announcement created and sent to {$emailStats['sent']} affiliate(s)! " .
+                                    ($emailStats['failed'] > 0 ? "Failed: {$emailStats['failed']}" : "");
+                    
+                    logActivity(
+                        'announcement_created',
+                        "Created announcement: {$title} (Sent: {$emailStats['sent']}, Failed: {$emailStats['failed']})",
+                        getAdminId()
+                    );
+                    
+                } catch (Exception $e) {
+                    if ($db->inTransaction()) {
+                        $db->rollBack();
+                    }
+                    error_log('Announcement creation error: ' . $e->getMessage());
+                    $errorMessage = 'Failed to create announcement: ' . $e->getMessage();
+                }
+            }
+        } elseif ($action === 'toggle_announcement') {
+            $announcementId = intval($_POST['announcement_id'] ?? 0);
+            $isActive = intval($_POST['is_active'] ?? 0);
+            
+            try {
+                $stmt = $db->prepare("UPDATE announcements SET is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+                $stmt->execute([$isActive, $announcementId]);
+                
+                $status = $isActive ? 'activated' : 'deactivated';
+                $successMessage = "Announcement {$status} successfully!";
+                logActivity('announcement_toggled', "Announcement #{$announcementId} {$status}", getAdminId());
+            } catch (Exception $e) {
+                error_log('Toggle announcement error: ' . $e->getMessage());
+                $errorMessage = 'Failed to update announcement status.';
+            }
+        } elseif ($action === 'delete_announcement') {
+            $announcementId = intval($_POST['announcement_id'] ?? 0);
+            
+            try {
+                $stmt = $db->prepare("SELECT title FROM announcements WHERE id = ?");
+                $stmt->execute([$announcementId]);
+                $announcement = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($announcement) {
+                    $stmt = $db->prepare("DELETE FROM announcements WHERE id = ?");
+                    $stmt->execute([$announcementId]);
+                    
+                    $successMessage = 'Announcement deleted successfully!';
+                    logActivity('announcement_deleted', "Deleted announcement: {$announcement['title']}", getAdminId());
+                } else {
+                    $errorMessage = 'Announcement not found.';
+                }
+            } catch (Exception $e) {
+                error_log('Delete announcement error: ' . $e->getMessage());
+                $errorMessage = 'Failed to delete announcement.';
+            }
         }
     }
 }
@@ -364,6 +497,19 @@ $withdrawalRequests = $db->query("
     ORDER BY wr.requested_at DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+$announcements = $db->query("
+    SELECT ann.*, 
+           u.name as creator_name,
+           aff.code as target_affiliate_code,
+           (SELECT COUNT(*) FROM announcement_emails WHERE announcement_id = ann.id AND failed = 0) as emails_sent,
+           (SELECT COUNT(*) FROM announcement_emails WHERE announcement_id = ann.id AND failed = 1) as emails_failed
+    FROM announcements ann
+    LEFT JOIN users u ON ann.created_by = u.id
+    LEFT JOIN affiliates aff ON ann.affiliate_id = aff.id
+    WHERE ann.affiliate_id IS NULL OR ann.created_by IS NOT NULL
+    ORDER BY ann.created_at DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
 $viewAffiliate = null;
 $affiliateSales = [];
 if (isset($_GET['view'])) {
@@ -397,6 +543,7 @@ require_once __DIR__ . '/includes/header.php';
     activeTab: 'affiliates', 
     showCreateModal: false, 
     showEmailModal: false,
+    showAnnouncementModal: false,
     processWithdrawalId: null
 }">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
@@ -404,6 +551,9 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-people text-primary-600"></i> Affiliates Management
         </h1>
         <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button @click="showAnnouncementModal = true" class="w-full sm:w-auto px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
+                <i class="bi bi-megaphone mr-1"></i> Post Announcement
+            </button>
             <button @click="showEmailModal = true" class="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm whitespace-nowrap">
                 <i class="bi bi-envelope mr-1"></i> Email Affiliates
             </button>
@@ -437,21 +587,26 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <?php endif; ?>
 
-    <div class="flex border-b border-gray-300 mb-6">
+    <div class="flex border-b border-gray-300 mb-6 overflow-x-auto">
         <button @click="activeTab = 'affiliates'" 
                 :class="activeTab === 'affiliates' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-600 hover:text-gray-800'"
-                class="px-6 py-3 font-semibold transition-colors">
+                class="px-6 py-3 font-semibold transition-colors whitespace-nowrap">
             <i class="bi bi-people mr-2"></i> Affiliates
         </button>
         <button @click="activeTab = 'withdrawals'" 
                 :class="activeTab === 'withdrawals' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-600 hover:text-gray-800'"
-                class="px-6 py-3 font-semibold transition-colors flex items-center gap-2">
+                class="px-6 py-3 font-semibold transition-colors flex items-center gap-2 whitespace-nowrap">
             <i class="bi bi-cash-coin"></i> Withdrawal Requests
             <?php 
             $pendingCount = count(array_filter($withdrawalRequests, fn($w) => $w['status'] === 'pending'));
             if ($pendingCount > 0): ?>
             <span class="px-2 py-1 bg-red-600 text-white rounded-full text-xs font-bold"><?php echo $pendingCount; ?></span>
             <?php endif; ?>
+        </button>
+        <button @click="activeTab = 'announcements'" 
+                :class="activeTab === 'announcements' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-600 hover:text-gray-800'"
+                class="px-6 py-3 font-semibold transition-colors whitespace-nowrap">
+            <i class="bi bi-megaphone mr-2"></i> Announcements
         </button>
     </div>
 
@@ -699,6 +854,119 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
+    <div x-show="activeTab === 'announcements'">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-300">
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">ID</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Title</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Type</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Target</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Emails Sent</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Created</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Active</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php if (empty($announcements)): ?>
+                            <tr>
+                                <td colspan="8" class="text-center py-12">
+                                    <i class="bi bi-megaphone text-6xl text-gray-300"></i>
+                                    <p class="text-gray-500 mt-4">No announcements yet</p>
+                                    <button @click="showAnnouncementModal = true" class="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors">
+                                        <i class="bi bi-megaphone mr-2"></i> Create First Announcement
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                            <?php foreach ($announcements as $ann): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $ann['id']; ?></td>
+                                <td class="py-3 px-2">
+                                    <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($ann['title']); ?></div>
+                                    <?php if ($ann['expires_at']): ?>
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        <i class="bi bi-clock"></i> Expires: <?php echo date('M d, Y', strtotime($ann['expires_at'])); ?>
+                                    </div>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <?php
+                                    $typeColors = [
+                                        'info' => 'bg-blue-100 text-blue-800',
+                                        'success' => 'bg-green-100 text-green-800',
+                                        'warning' => 'bg-yellow-100 text-yellow-800',
+                                        'danger' => 'bg-red-100 text-red-800'
+                                    ];
+                                    $typeIcons = [
+                                        'info' => 'info-circle',
+                                        'success' => 'check-circle',
+                                        'warning' => 'exclamation-triangle',
+                                        'danger' => 'exclamation-circle'
+                                    ];
+                                    $color = $typeColors[$ann['type']] ?? 'bg-gray-100 text-gray-800';
+                                    $icon = $typeIcons[$ann['type']] ?? 'circle';
+                                    ?>
+                                    <span class="inline-flex items-center px-2 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
+                                        <i class="bi bi-<?php echo $icon; ?> mr-1"></i> <?php echo ucfirst($ann['type']); ?>
+                                    </span>
+                                </td>
+                                <td class="py-3 px-2 text-gray-700 text-sm">
+                                    <?php if ($ann['affiliate_id']): ?>
+                                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">
+                                            <i class="bi bi-person"></i> <?php echo htmlspecialchars($ann['target_affiliate_code']); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
+                                            <i class="bi bi-people"></i> All Affiliates
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <div class="text-sm text-gray-700">
+                                        <span class="text-green-600 font-semibold"><?php echo $ann['emails_sent']; ?></span>
+                                        <?php if ($ann['emails_failed'] > 0): ?>
+                                        <span class="text-red-600 ml-1">/ <?php echo $ann['emails_failed']; ?> failed</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-2 text-gray-700 text-sm">
+                                    <?php echo date('M d, Y', strtotime($ann['created_at'])); ?>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="action" value="toggle_announcement">
+                                        <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
+                                        <input type="hidden" name="is_active" value="<?php echo $ann['is_active'] ? 0 : 1; ?>">
+                                        <button type="submit" class="inline-flex items-center px-3 py-1 <?php echo $ann['is_active'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'; ?> rounded-full text-xs font-semibold">
+                                            <i class="bi bi-<?php echo $ann['is_active'] ? 'check-circle' : 'x-circle'; ?> mr-1"></i>
+                                            <?php echo $ann['is_active'] ? 'Active' : 'Inactive'; ?>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+                                        <input type="hidden" name="action" value="delete_announcement">
+                                        <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
+                                        <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Create Affiliate Modal -->
     <div x-show="showCreateModal" 
          x-transition:enter="transition ease-out duration-300"
@@ -827,6 +1095,156 @@ require_once __DIR__ . '/includes/header.php';
                     <button type="button" @click="showEmailModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
                     <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
                         <i class="bi bi-send mr-2"></i> Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Announcement Modal -->
+    <div x-show="showAnnouncementModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showAnnouncementModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+             x-data="{ announcementTarget: 'all', announcementDuration: 'permanent' }">
+            <form method="POST">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-purple-700">
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="bi bi-megaphone"></i> Post Announcement
+                    </h3>
+                    <button type="button" @click="showAnnouncementModal = false" class="text-white hover:text-purple-100 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-5">
+                    <input type="hidden" name="action" value="create_announcement">
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-card-heading text-purple-600"></i> Announcement Title <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="announcement_title" required placeholder="Enter announcement title" maxlength="200">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-tag text-purple-600"></i> Type <span class="text-red-600">*</span>
+                        </label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <label class="relative flex items-center justify-center px-4 py-3 border-2 border-blue-300 bg-blue-50 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                                <input type="radio" name="announcement_type" value="info" class="sr-only peer" checked>
+                                <div class="text-center peer-checked:font-bold">
+                                    <i class="bi bi-info-circle text-blue-600 text-xl"></i>
+                                    <div class="text-sm text-blue-700">Info</div>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center justify-center px-4 py-3 border-2 border-green-300 bg-green-50 rounded-lg cursor-pointer hover:border-green-500 transition-colors">
+                                <input type="radio" name="announcement_type" value="success" class="sr-only peer">
+                                <div class="text-center peer-checked:font-bold">
+                                    <i class="bi bi-check-circle text-green-600 text-xl"></i>
+                                    <div class="text-sm text-green-700">Success</div>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center justify-center px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-lg cursor-pointer hover:border-yellow-500 transition-colors">
+                                <input type="radio" name="announcement_type" value="warning" class="sr-only peer">
+                                <div class="text-center peer-checked:font-bold">
+                                    <i class="bi bi-exclamation-triangle text-yellow-600 text-xl"></i>
+                                    <div class="text-sm text-yellow-700">Warning</div>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center justify-center px-4 py-3 border-2 border-red-300 bg-red-50 rounded-lg cursor-pointer hover:border-red-500 transition-colors">
+                                <input type="radio" name="announcement_type" value="danger" class="sr-only peer">
+                                <div class="text-center peer-checked:font-bold">
+                                    <i class="bi bi-exclamation-circle text-red-600 text-xl"></i>
+                                    <div class="text-sm text-red-700">Danger</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-people text-purple-600"></i> Target Audience <span class="text-red-600">*</span>
+                        </label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="announcement_target" x-model="announcementTarget">
+                            <option value="all">All Active Affiliates</option>
+                            <option value="specific">Specific Affiliate</option>
+                        </select>
+                    </div>
+                    
+                    <div x-show="announcementTarget === 'specific'" x-transition>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Select Affiliate</label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="target_affiliate_id">
+                            <option value="">Choose an affiliate...</option>
+                            <?php foreach ($affiliates as $aff): ?>
+                            <option value="<?php echo $aff['id']; ?>">
+                                <?php echo htmlspecialchars($aff['name']); ?> (<?php echo htmlspecialchars($aff['code']); ?>)
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div x-show="announcementTarget === 'all'" x-transition class="bg-purple-50 border-l-4 border-purple-500 text-purple-700 p-4 rounded-lg">
+                        <i class="bi bi-info-circle mr-2"></i> This announcement will be sent to all active affiliates via email and will appear on their dashboard.
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-clock text-purple-600"></i> Duration
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="relative flex items-center px-4 py-3 border-2 border-gray-300 bg-white rounded-lg cursor-pointer hover:border-purple-500 transition-colors">
+                                <input type="radio" name="announcement_duration" value="permanent" class="mr-3 text-purple-600" x-model="announcementDuration" checked>
+                                <div>
+                                    <div class="font-semibold text-gray-700">Permanent</div>
+                                    <div class="text-xs text-gray-500">No expiry date</div>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center px-4 py-3 border-2 border-gray-300 bg-white rounded-lg cursor-pointer hover:border-purple-500 transition-colors">
+                                <input type="radio" name="announcement_duration" value="timed" class="mr-3 text-purple-600" x-model="announcementDuration">
+                                <div>
+                                    <div class="font-semibold text-gray-700">Timed</div>
+                                    <div class="text-xs text-gray-500">Auto-expires</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div x-show="announcementDuration === 'timed'" x-transition>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Expires After (Days)</label>
+                        <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="expiry_days" min="1" max="365" placeholder="e.g., 7">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-chat-text text-purple-600"></i> Message <span class="text-red-600">*</span>
+                        </label>
+                        <div id="announcement-editor" style="min-height: 250px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
+                        <textarea name="announcement_message" id="announcement_message" style="display:none;" required></textarea>
+                        <small class="text-gray-500 text-xs mt-2 block">
+                            <i class="bi bi-lightbulb"></i> Use the rich text editor to format your announcement. Add bold text, lists, and links as needed.
+                        </small>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showAnnouncementModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        <i class="bi bi-x-circle mr-2"></i> Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-lg transition-colors shadow-lg">
+                        <i class="bi bi-megaphone mr-2"></i> Post & Send Emails
                     </button>
                 </div>
             </form>
@@ -1061,6 +1479,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (unifiedQuill.getText().trim().length === 0) {
                     e.preventDefault();
                     alert('Please enter a message before sending.');
+                    return false;
+                }
+            });
+        }
+    }
+});
+
+// Initialize Quill editor for announcement modal
+document.addEventListener('DOMContentLoaded', function() {
+    const announcementEditorElement = document.getElementById('announcement-editor');
+    if (announcementEditorElement) {
+        const announcementQuill = new Quill('#announcement-editor', {
+            theme: 'snow',
+            placeholder: 'Write your announcement message here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [2, 3, 4, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'align': [] }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set editor font styling
+        const announcementEditorContainer = document.querySelector('#announcement-editor .ql-editor');
+        if (announcementEditorContainer) {
+            announcementEditorContainer.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            announcementEditorContainer.style.fontSize = '15px';
+            announcementEditorContainer.style.lineHeight = '1.8';
+            announcementEditorContainer.style.color = '#374151';
+            announcementEditorContainer.style.minHeight = '250px';
+        }
+
+        // Sync Quill content to hidden textarea before form submission
+        const announcementForm = announcementEditorElement.closest('form');
+        if (announcementForm) {
+            announcementForm.addEventListener('submit', function(e) {
+                const messageField = document.querySelector('#announcement_message');
+                messageField.value = announcementQuill.root.innerHTML;
+                
+                // Validate that content exists
+                if (announcementQuill.getText().trim().length === 0) {
+                    e.preventDefault();
+                    alert('Please enter an announcement message before posting.');
                     return false;
                 }
             });
