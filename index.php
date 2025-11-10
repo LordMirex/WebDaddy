@@ -329,95 +329,29 @@ if ($currentView === 'templates') {
             </div>
 
             <!-- Unified Search Interface -->
-            <div class="mb-8" x-data="{ 
-                searchQuery: '',
-                searchType: 'all',
-                isSearching: false,
-                searchTimeout: null,
-                showResults: false,
-                liveResults: [],
-                affiliateCode: '<?php echo htmlspecialchars($affiliateCode); ?>',
-                currentView: '<?php echo $currentView; ?>',
-                get placeholderText() {
-                    if (this.searchType === 'template') return 'Search website templates...';
-                    if (this.searchType === 'tool') return 'Search working tools...';
-                    return 'Search templates and tools...';
-                },
-                clearSearch() {
-                    this.searchQuery = '';
-                    this.showResults = false;
-                    this.liveResults = [];
-                    if (this.searchTimeout) clearTimeout(this.searchTimeout);
-                },
-                performLiveSearch(query) {
-                    if (this.searchTimeout) clearTimeout(this.searchTimeout);
-                    
-                    if (!query || query.trim().length === 0) {
-                        this.showResults = false;
-                        this.liveResults = [];
-                        return;
-                    }
-                    
-                    this.searchTimeout = setTimeout(() => {
-                        this.isSearching = true;
-                        const params = new URLSearchParams({
-                            q: query,
-                            type: this.searchType
-                        });
-                        
-                        fetch(`/api/search.php?${params.toString()}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success && data.results) {
-                                    this.liveResults = data.results.slice(0, 5);
-                                    this.showResults = this.liveResults.length > 0;
-                                } else {
-                                    this.liveResults = [];
-                                    this.showResults = false;
-                                }
-                            })
-                            .catch(e => {
-                                console.error('Live search failed:', e);
-                                this.liveResults = [];
-                                this.showResults = false;
-                            })
-                            .finally(() => { this.isSearching = false; });
-                    }, 300);
-                },
-                navigateToProduct(result) {
-                    if (result.type === 'template') {
-                        window.location.href = `/order.php?template=${result.id}${this.affiliateCode ? '&aff=' + this.affiliateCode : ''}`;
-                    } else if (result.type === 'tool') {
-                        window.openToolModal ? window.openToolModal(result.id) : null;
-                    }
-                    this.clearSearch();
-                }
-            }">
+            <div class="mb-8">
                 <div class="max-w-4xl mx-auto">
-                    <!-- Search Input with Live Results -->
                     <div class="relative">
-                            <input type="text" 
-                                   x-model="searchQuery"
-                                   @input="performLiveSearch(searchQuery)"
-                                   placeholder="Search templates and tools..." 
-                                   class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        <input type="text" 
+                               id="search-input"
+                               placeholder="Search <?php echo $currentView === 'templates' ? 'templates' : 'tools'; ?>..." 
+                               class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <button id="clear-search" style="display: none;" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                                title="Clear search">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
-                            <button x-show="searchQuery.length > 0" 
-                                    @click="clearSearch()"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
-                                    title="Clear search">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                            <div x-show="isSearching" class="absolute right-10 top-1/2 -translate-y-1/2">
-                                <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </div>
+                        </button>
+                        <div id="search-loading" style="display: none;" class="absolute right-10 top-1/2 -translate-y-1/2">
+                            <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>

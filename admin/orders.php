@@ -344,8 +344,8 @@ require_once __DIR__ . '/includes/header.php';
                             </th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Order ID</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
-                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
-                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Domain</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Products</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Total</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Status</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Date</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
@@ -376,15 +376,49 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </td>
                         <td class="py-3 px-2">
-                            <div class="text-gray-900"><?php echo htmlspecialchars($order['template_name']); ?></div>
-                            <div class="text-xs text-gray-500 mt-1"><?php echo formatCurrency($order['template_price']); ?></div>
+                            <?php
+                            // Show cart items if available, otherwise show template
+                            if (!empty($order['cart_snapshot'])) {
+                                $cartData = json_decode($order['cart_snapshot'], true);
+                                $items = $cartData['items'] ?? [];
+                                $itemCount = count($items);
+                                
+                                if ($itemCount > 0) {
+                                    echo '<div class="text-sm text-gray-900">';
+                                    foreach (array_slice($items, 0, 2) as $item) {
+                                        $productType = $item['product_type'] ?? 'tool';
+                                        $typeLabel = ($productType === 'template') ? '🎨' : '🔧';
+                                        echo $typeLabel . ' ' . htmlspecialchars($item['name']) . '<br/>';
+                                    }
+                                    if ($itemCount > 2) {
+                                        echo '<span class="text-xs text-gray-500">+' . ($itemCount - 2) . ' more</span>';
+                                    }
+                                    echo '</div>';
+                                    echo '<div class="text-xs text-gray-500 mt-1 uppercase font-semibold">' . htmlspecialchars($order['order_type'] ?? 'mixed') . ' Order</div>';
+                                } else {
+                                    echo '<span class="text-gray-400">Cart empty</span>';
+                                }
+                            } else if ($order['template_name']) {
+                                echo '<div class="text-gray-900">🎨 ' . htmlspecialchars($order['template_name']) . '</div>';
+                                echo '<div class="text-xs text-gray-500 mt-1">' . formatCurrency($order['template_price']) . '</div>';
+                            } else {
+                                echo '<span class="text-gray-400">No items</span>';
+                            }
+                            ?>
                         </td>
                         <td class="py-3 px-2">
-                            <?php if ($order['domain_name']): ?>
-                            <span class="flex items-center gap-1 text-gray-700"><i class="bi bi-globe text-primary-600"></i> <?php echo htmlspecialchars($order['domain_name']); ?></span>
-                            <?php else: ?>
-                            <span class="text-gray-400">Not assigned</span>
-                            <?php endif; ?>
+                            <?php
+                            // Show final amount (from cart or template order)
+                            $totalAmount = $order['final_amount'] ?? $order['template_price'] ?? 0;
+                            
+                            // Apply discount if affiliate code present
+                            if (!empty($order['affiliate_code'])) {
+                                echo '<div class="text-gray-900 font-bold">' . formatCurrency($totalAmount) . '</div>';
+                                echo '<div class="text-xs text-green-600">Affiliate: ' . htmlspecialchars($order['affiliate_code']) . '</div>';
+                            } else {
+                                echo '<div class="text-gray-900 font-bold">' . formatCurrency($totalAmount) . '</div>';
+                            }
+                            ?>
                         </td>
                         <td class="py-3 px-2">
                             <?php
@@ -495,8 +529,28 @@ document.getElementById('bulkCancelBtn').addEventListener('click', function() {
                 <div>
                     <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Order Information</h6>
                     <div class="space-y-2">
-                        <p class="text-gray-700"><span class="font-semibold">Template:</span> <?php echo htmlspecialchars($viewOrder['template_name']); ?></p>
-                        <p class="text-gray-700"><span class="font-semibold">Price:</span> <?php echo formatCurrency($viewOrder['template_price']); ?></p>
+                        <?php if (!empty($viewOrder['cart_snapshot'])): 
+                            $cartData = json_decode($viewOrder['cart_snapshot'], true);
+                            $orderItems = $cartData['items'] ?? [];
+                            $orderTotals = $cartData['totals'] ?? [];
+                        ?>
+                            <p class="text-gray-700">
+                                <span class="font-semibold">Order Type:</span> 
+                                <span class="uppercase text-primary-600 font-bold"><?php echo htmlspecialchars($viewOrder['order_type'] ?? 'Mixed'); ?></span>
+                            </p>
+                            <p class="text-gray-700">
+                                <span class="font-semibold">Items:</span> 
+                                <span class="font-bold"><?php echo count($orderItems); ?></span>
+                            </p>
+                            <p class="text-gray-700">
+                                <span class="font-semibold">Total Amount:</span> 
+                                <span class="text-lg font-bold text-green-600"><?php echo formatCurrency($viewOrder['final_amount'] ?? 0); ?></span>
+                            </p>
+                        <?php else: ?>
+                            <p class="text-gray-700"><span class="font-semibold">Template:</span> <?php echo htmlspecialchars($viewOrder['template_name'] ?? 'N/A'); ?></p>
+                            <p class="text-gray-700"><span class="font-semibold">Price:</span> <?php echo formatCurrency($viewOrder['template_price'] ?? 0); ?></p>
+                        <?php endif; ?>
+                        
                         <p class="text-gray-700 flex items-center gap-2">
                             <span class="font-semibold">Status:</span>
                             <?php
@@ -514,6 +568,69 @@ document.getElementById('bulkCancelBtn').addEventListener('click', function() {
                     </div>
                 </div>
             </div>
+            
+            <?php if (!empty($viewOrder['cart_snapshot'])): 
+                $cartData = json_decode($viewOrder['cart_snapshot'], true);
+                $orderItems = $cartData['items'] ?? [];
+                $orderTotals = $cartData['totals'] ?? [];
+                
+                if (!empty($orderItems)):
+            ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Order Items</h6>
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Product</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Type</th>
+                                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase">Qty</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Unit Price</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php foreach ($orderItems as $item): 
+                                $productType = $item['product_type'] ?? 'tool';
+                                $typeLabel = ($productType === 'template') ? '🎨 Template' : '🔧 Tool';
+                                $itemSubtotal = $item['price_at_add'] * $item['quantity'];
+                            ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3">
+                                    <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($item['name']); ?></div>
+                                    <?php if (!empty($item['category'])): ?>
+                                    <div class="text-xs text-gray-500"><?php echo htmlspecialchars($item['category']); ?></div>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-700"><?php echo $typeLabel; ?></td>
+                                <td class="px-4 py-3 text-center text-sm text-gray-900 font-medium"><?php echo $item['quantity']; ?></td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-700"><?php echo formatCurrency($item['price_at_add']); ?></td>
+                                <td class="px-4 py-3 text-right text-sm font-bold text-gray-900"><?php echo formatCurrency($itemSubtotal); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot class="bg-gray-50 border-t-2 border-gray-300">
+                            <tr>
+                                <td colspan="4" class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Subtotal:</td>
+                                <td class="px-4 py-3 text-right text-sm font-bold text-gray-900"><?php echo formatCurrency($orderTotals['subtotal'] ?? $viewOrder['original_price'] ?? 0); ?></td>
+                            </tr>
+                            <?php if (!empty($viewOrder['affiliate_code']) && ($viewOrder['discount_amount'] ?? 0) > 0): ?>
+                            <tr>
+                                <td colspan="4" class="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                                    Affiliate Discount (20%):
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm font-bold text-green-600">-<?php echo formatCurrency($viewOrder['discount_amount']); ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <tr class="border-t-2 border-gray-300">
+                                <td colspan="4" class="px-4 py-3 text-right text-base font-bold text-gray-900">TOTAL:</td>
+                                <td class="px-4 py-3 text-right text-lg font-extrabold text-primary-600"><?php echo formatCurrency($viewOrder['final_amount'] ?? 0); ?></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <?php endif; endif; ?>
             
             <?php if (!empty($viewOrder['message_text'])): ?>
             <div class="mb-6">

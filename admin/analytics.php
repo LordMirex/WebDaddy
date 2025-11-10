@@ -16,27 +16,32 @@ $period = $_GET['period'] ?? '30days';
 $dateFilter = "";
 $dateFilter_pi = "";
 $dateFilter_session = "";
+$dateFilterSales = "";
 
 switch ($period) {
     case 'today':
         $dateFilter = "AND DATE(created_at) = DATE('now')";
         $dateFilter_pi = "AND DATE(pi.created_at) = DATE('now')";
         $dateFilter_session = "AND DATE(first_visit) = DATE('now')";
+        $dateFilterSales = "AND DATE(s.created_at) = DATE('now')";
         break;
     case '7days':
         $dateFilter = "AND DATE(created_at) >= DATE('now', '-7 days')";
         $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-7 days')";
         $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-7 days')";
+        $dateFilterSales = "AND DATE(s.created_at) >= DATE('now', '-7 days')";
         break;
     case '30days':
         $dateFilter = "AND DATE(created_at) >= DATE('now', '-30 days')";
         $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-30 days')";
         $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-30 days')";
+        $dateFilterSales = "AND DATE(s.created_at) >= DATE('now', '-30 days')";
         break;
     case '90days':
         $dateFilter = "AND DATE(created_at) >= DATE('now', '-90 days')";
         $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-90 days')";
         $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-90 days')";
+        $dateFilterSales = "AND DATE(s.created_at) >= DATE('now', '-90 days')";
         break;
 }
 
@@ -127,6 +132,49 @@ $avgTimeData = $db->query("
 ")->fetchColumn();
 
 $avgTimeOnSite = $avgTimeData ? gmdate('i:s', round($avgTimeData)) : '00:00';
+
+$revenueData = $db->query("
+    SELECT 
+        SUM(s.amount_paid) as total_revenue,
+        COUNT(*) as total_sales
+    FROM sales s
+    WHERE 1=1 $dateFilterSales
+")->fetch(PDO::FETCH_ASSOC);
+
+$totalRevenue = $revenueData['total_revenue'] ?? 0;
+$totalSales = $revenueData['total_sales'] ?? 0;
+
+$orderTypeBreakdown = $db->query("
+    SELECT 
+        COALESCE(po.order_type, 'templates') as order_type,
+        COUNT(DISTINCT po.id) as order_count,
+        SUM(s.amount_paid) as revenue
+    FROM sales s
+    JOIN pending_orders po ON s.pending_order_id = po.id
+    WHERE 1=1 $dateFilterSales
+    GROUP BY order_type
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$templateRevenue = 0;
+$toolRevenue = 0;
+$mixedRevenue = 0;
+$templateOrders = 0;
+$toolOrders = 0;
+$mixedOrders = 0;
+
+foreach ($orderTypeBreakdown as $row) {
+    $type = $row['order_type'] ?? 'templates';
+    if ($type === 'templates') {
+        $templateRevenue = $row['revenue'] ?? 0;
+        $templateOrders = $row['order_count'] ?? 0;
+    } elseif ($type === 'tools') {
+        $toolRevenue = $row['revenue'] ?? 0;
+        $toolOrders = $row['order_count'] ?? 0;
+    } else {
+        $mixedRevenue = $row['revenue'] ?? 0;
+        $mixedOrders = $row['order_count'] ?? 0;
+    }
+}
 
 $visitsOverTime = $db->query("
     SELECT 
@@ -240,6 +288,44 @@ require_once __DIR__ . '/includes/header.php';
             <option value="30days" <?php echo $period === '30days' ? 'selected' : ''; ?>>Last 30 Days</option>
             <option value="90days" <?php echo $period === '90days' ? 'selected' : ''; ?>>Last 90 Days</option>
         </select>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase">Total Revenue</h6>
+            <i class="bi bi-currency-dollar text-2xl text-green-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-green-600"><?php echo formatCurrency($totalRevenue); ?></div>
+        <small class="text-sm text-gray-500"><?php echo number_format($totalSales); ?> sales</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase">Template Sales</h6>
+            <i class="bi bi-palette text-2xl text-blue-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-blue-600"><?php echo formatCurrency($templateRevenue); ?></div>
+        <small class="text-sm text-gray-500"><?php echo number_format($templateOrders); ?> orders</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase">Tool Sales</h6>
+            <i class="bi bi-tools text-2xl text-purple-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-purple-600"><?php echo formatCurrency($toolRevenue); ?></div>
+        <small class="text-sm text-gray-500"><?php echo number_format($toolOrders); ?> orders</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase">Mixed Orders</h6>
+            <i class="bi bi-cart text-2xl text-orange-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-orange-600"><?php echo formatCurrency($mixedRevenue); ?></div>
+        <small class="text-sm text-gray-500"><?php echo number_format($mixedOrders); ?> orders</small>
     </div>
 </div>
 
