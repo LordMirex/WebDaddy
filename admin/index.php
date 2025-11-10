@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/tools.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -14,6 +15,8 @@ $db = getDb();
 
 $totalTemplates = $db->query("SELECT COUNT(*) FROM templates")->fetchColumn();
 $activeTemplates = $db->query("SELECT COUNT(*) FROM templates WHERE active = true")->fetchColumn();
+$totalTools = $db->query("SELECT COUNT(*) FROM tools")->fetchColumn();
+$activeTools = $db->query("SELECT COUNT(*) FROM tools WHERE active = true")->fetchColumn();
 $totalOrders = $db->query("SELECT COUNT(*) FROM pending_orders")->fetchColumn();
 $pendingOrders = $db->query("SELECT COUNT(*) FROM pending_orders WHERE status = 'pending'")->fetchColumn();
 $totalSales = $db->query("SELECT COUNT(*) FROM sales")->fetchColumn();
@@ -34,7 +37,7 @@ require_once __DIR__ . '/includes/header.php';
     <p class="text-gray-600 mt-2">Welcome back, <?php echo htmlspecialchars(getAdminName()); ?>!</p>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6 mb-8">
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Templates</h6>
@@ -42,6 +45,15 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($activeTemplates); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($totalTemplates); ?> total</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Tools</h6>
+            <i class="bi bi-tools text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($activeTools); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($totalTools); ?> total</small>
     </div>
     
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">

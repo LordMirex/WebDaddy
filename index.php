@@ -229,15 +229,14 @@ if ($currentView === 'templates') {
         currentIndex: 0,
         showMessage: false,
         init() {
+            this.showMessage = true;
             setInterval(() => {
-                this.showMessage = true;
+                this.showMessage = false;
                 setTimeout(() => {
-                    this.showMessage = false;
-                    setTimeout(() => {
-                        this.currentIndex = (this.currentIndex + 1) % this.messages.length;
-                    }, 300);
-                }, 5000);
-            }, 6000);
+                    this.currentIndex = (this.currentIndex + 1) % this.messages.length;
+                    this.showMessage = true;
+                }, 300);
+            }, 4000);
         },
         getContextualMessage() {
             const page = window.location.pathname;
@@ -279,9 +278,19 @@ if ($currentView === 'templates') {
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
                     <?php echo $currentView === 'tools' ? 'Digital Working Tools' : 'Choose Your Template'; ?>
                 </h2>
-                <p class="text-xl text-gray-600">
+                <p class="text-xl text-gray-600 mb-2">
                     <?php echo $currentView === 'tools' ? 'Get powerful digital tools to grow your business' : 'Pick a professionally designed website and get started instantly'; ?>
                 </p>
+                <div class="flex justify-center gap-6 text-sm text-gray-500">
+                    <?php if ($currentView === 'templates'): ?>
+                        <span class="font-semibold"><span class="text-primary-600"><?php echo $totalTemplates; ?></span> Templates Available</span>
+                    <?php else: ?>
+                        <span class="font-semibold"><span class="text-primary-600"><?php echo $totalTools; ?></span> Tools Available</span>
+                        <?php if (!empty($toolCategories)): ?>
+                        <span class="font-semibold"><span class="text-primary-600"><?php echo count($toolCategories); ?></span> Categories</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <!-- View Toggle Tabs -->
@@ -441,7 +450,7 @@ if ($currentView === 'templates') {
                             <div class="flex items-center justify-between pt-3 border-t border-gray-200">
                                 <div class="flex flex-col">
                                     <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
-                                    <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($template['price']); ?></span>
+                                    <span class="text-base font-bold text-primary-600"><?php echo formatCurrency($template['price']); ?></span>
                                 </div>
                                 <div class="flex gap-2">
                                     <a href="template.php?id=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
@@ -830,19 +839,19 @@ if ($currentView === 'templates') {
 
     <!-- Demo Modal -->
     <div id="demoModal" class="fixed inset-0 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
             <div onclick="closeDemo()" class="fixed inset-0 bg-black bg-opacity-75"></div>
-            <div class="relative bg-white rounded-lg shadow-xl w-full max-w-6xl" style="height: 90vh;">
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h5 class="text-xl font-bold text-gray-900" id="demoTitle">Template Preview</h5>
-                    <button onclick="closeDemo()" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-7xl" style="height: 90vh; max-height: 900px;">
+                <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                    <h5 class="text-lg font-bold text-gray-900" id="demoTitle">Template Preview</h5>
+                    <button onclick="closeDemo()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
-                <div class="p-0" style="height: calc(90vh - 73px);">
-                    <iframe id="demoFrame" src="" frameborder="0" class="w-full h-full"></iframe>
+                <div class="overflow-hidden rounded-b-xl" style="height: calc(100% - 57px);">
+                    <iframe id="demoFrame" src="" frameborder="0" class="w-full h-full rounded-b-xl"></iframe>
                 </div>
             </div>
         </div>

@@ -437,29 +437,27 @@ require_once __DIR__ . '/includes/header.php';
                     </button>
                 </div>
                 
-                <div class="p-6 space-y-6">
+                <div class="p-6 space-y-4">
                     <!-- Basic Info -->
-                    <div class="grid md:grid-cols-2 gap-4">
+                    <div class="grid md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Tool Name <span class="text-red-600">*</span>
-                            </label>
-                            <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., Premium API Key">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Name <span class="text-red-600">*</span></label>
+                            <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., Premium API Key">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Category
-                            </label>
-                            <input type="text" name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., API Keys">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                            <input type="text" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., API Keys">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Price (₦) <span class="text-red-600">*</span></label>
+                            <input type="number" name="price" step="0.01" min="0" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0.00">
                         </div>
                     </div>
                     
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Tool Type <span class="text-red-600">*</span>
-                            </label>
-                            <select name="tool_type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
+                            <select name="tool_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                                 <option value="software">Software/License</option>
                                 <option value="api_key">API Key</option>
                                 <option value="subscription">Subscription</option>
@@ -468,71 +466,64 @@ require_once __DIR__ . '/includes/header.php';
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Price (USD) <span class="text-red-600">*</span>
-                            </label>
-                            <input type="number" name="price" step="0.01" min="0" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="0.00">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
+                            <input type="text" name="short_description" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Brief description">
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Short Description</label>
-                        <input type="text" name="short_description" maxlength="200" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Brief description (max 200 characters)">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Full Description</label>
+                        <textarea name="description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Detailed description"></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Full Description</label>
-                        <textarea name="description" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Detailed description"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Features (JSON)</label>
-                        <textarea name="features" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder='["Feature 1", "Feature 2", "Feature 3"]'></textarea>
-                        <small class="text-gray-500 text-xs">Enter as JSON array</small>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Features (JSON)</label>
+                        <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder='["Feature 1", "Feature 2"]'></textarea>
+                        <small class="text-gray-500 text-xs">JSON array format</small>
                     </div>
                     
                     <!-- URLs -->
                     <div class="grid md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail URL</label>
-                            <input type="url" name="thumbnail_url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="https://...">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Thumbnail URL</label>
+                            <input type="url" name="thumbnail_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
-                            <input type="url" name="demo_url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="https://...">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Demo URL</label>
+                            <input type="url" name="demo_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Download URL</label>
-                            <input type="url" name="download_url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="https://...">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Download URL</label>
+                            <input type="url" name="download_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Delivery Instructions</label>
-                        <textarea name="delivery_instructions" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Instructions for delivering this tool to customers"></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Delivery Instructions</label>
+                        <textarea name="delivery_instructions" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Instructions for delivering this tool to customers"></textarea>
                     </div>
                     
                     <!-- Stock Management -->
-                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4" x-data="{ unlimited: true }">
-                        <h4 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-3" x-data="{ unlimited: true }">
+                        <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2 text-sm">
                             <i class="bi bi-box-seam text-purple-600"></i> Inventory Management
                         </h4>
                         
-                        <div class="mb-4">
+                        <div class="mb-2">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" name="stock_unlimited" value="1" checked x-model="unlimited" class="w-4 h-4 text-purple-600 rounded">
-                                <span class="font-semibold text-gray-700">Unlimited Stock</span>
+                                <span class="font-semibold text-gray-700 text-sm">Unlimited Stock</span>
                             </label>
                         </div>
                         
-                        <div x-show="!unlimited" x-transition class="grid md:grid-cols-2 gap-4">
+                        <div x-show="!unlimited" x-transition class="grid md:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Initial Stock Quantity</label>
-                                <input type="number" name="stock_quantity" min="0" value="0" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Initial Stock Quantity</label>
+                                <input type="number" name="stock_quantity" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Low Stock Threshold</label>
-                                <input type="number" name="low_stock_threshold" min="0" value="5" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Low Stock Threshold</label>
+                                <input type="number" name="low_stock_threshold" min="0" value="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             </div>
                         </div>
                     </div>
@@ -541,7 +532,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="active" value="1" checked class="w-4 h-4 text-purple-600 rounded">
-                            <span class="font-semibold text-gray-700">Active (visible to customers)</span>
+                            <span class="font-semibold text-gray-700 text-sm">Active (visible to customers)</span>
                         </label>
                     </div>
                 </div>
@@ -575,23 +566,27 @@ require_once __DIR__ . '/includes/header.php';
                     </a>
                 </div>
                 
-                <div class="p-6 space-y-6">
+                <div class="p-6 space-y-4">
                     <!-- Same form fields as create, but with values -->
-                    <div class="grid md:grid-cols-2 gap-4">
+                    <div class="grid md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tool Name <span class="text-red-600">*</span></label>
-                            <input type="text" name="name" required value="<?php echo htmlspecialchars($editTool['name']); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Name <span class="text-red-600">*</span></label>
+                            <input type="text" name="name" required value="<?php echo htmlspecialchars($editTool['name']); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                            <input type="text" name="category" value="<?php echo htmlspecialchars($editTool['category'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                            <input type="text" name="category" value="<?php echo htmlspecialchars($editTool['category'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Price (₦) <span class="text-red-600">*</span></label>
+                            <input type="number" name="price" step="0.01" min="0" required value="<?php echo $editTool['price']; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                         </div>
                     </div>
                     
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tool Type <span class="text-red-600">*</span></label>
-                            <select name="tool_type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
+                            <select name="tool_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                                 <option value="software" <?php echo $editTool['tool_type'] === 'software' ? 'selected' : ''; ?>>Software/License</option>
                                 <option value="api_key" <?php echo $editTool['tool_type'] === 'api_key' ? 'selected' : ''; ?>>API Key</option>
                                 <option value="subscription" <?php echo $editTool['tool_type'] === 'subscription' ? 'selected' : ''; ?>>Subscription</option>
@@ -600,66 +595,61 @@ require_once __DIR__ . '/includes/header.php';
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Price (USD) <span class="text-red-600">*</span></label>
-                            <input type="number" name="price" step="0.01" min="0" required value="<?php echo $editTool['price']; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
+                            <input type="text" name="short_description" maxlength="200" value="<?php echo htmlspecialchars($editTool['short_description'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Short Description</label>
-                        <input type="text" name="short_description" maxlength="200" value="<?php echo htmlspecialchars($editTool['short_description'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Full Description</label>
+                        <textarea name="description" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"><?php echo htmlspecialchars($editTool['description'] ?? ''); ?></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Full Description</label>
-                        <textarea name="description" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"><?php echo htmlspecialchars($editTool['description'] ?? ''); ?></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Features (JSON)</label>
-                        <textarea name="features" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"><?php echo htmlspecialchars($editTool['features'] ?? ''); ?></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Features (JSON)</label>
+                        <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"><?php echo htmlspecialchars($editTool['features'] ?? ''); ?></textarea>
                     </div>
                     
                     <div class="grid md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail URL</label>
-                            <input type="url" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Thumbnail URL</label>
+                            <input type="url" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
-                            <input type="url" name="demo_url" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Demo URL</label>
+                            <input type="url" name="demo_url" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Download URL</label>
-                            <input type="url" name="download_url" value="<?php echo htmlspecialchars($editTool['download_url'] ?? ''); ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Download URL</label>
+                            <input type="url" name="download_url" value="<?php echo htmlspecialchars($editTool['download_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
                         </div>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Delivery Instructions</label>
-                        <textarea name="delivery_instructions" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"><?php echo htmlspecialchars($editTool['delivery_instructions'] ?? ''); ?></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Delivery Instructions</label>
+                        <textarea name="delivery_instructions" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"><?php echo htmlspecialchars($editTool['delivery_instructions'] ?? ''); ?></textarea>
                     </div>
                     
-                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4" x-data="{ unlimited: <?php echo $editTool['stock_unlimited'] ? 'true' : 'false'; ?> }">
-                        <h4 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-3" x-data="{ unlimited: <?php echo $editTool['stock_unlimited'] ? 'true' : 'false'; ?> }">
+                        <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2 text-sm">
                             <i class="bi bi-box-seam text-purple-600"></i> Inventory Management
                         </h4>
                         
-                        <div class="mb-4">
+                        <div class="mb-2">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" name="stock_unlimited" value="1" <?php echo $editTool['stock_unlimited'] ? 'checked' : ''; ?> x-model="unlimited" class="w-4 h-4 text-purple-600 rounded">
-                                <span class="font-semibold text-gray-700">Unlimited Stock</span>
+                                <span class="font-semibold text-gray-700 text-sm">Unlimited Stock</span>
                             </label>
                         </div>
                         
-                        <div x-show="!unlimited" x-transition class="grid md:grid-cols-2 gap-4">
+                        <div x-show="!unlimited" x-transition class="grid md:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
-                                <input type="number" name="stock_quantity" min="0" value="<?php echo $editTool['stock_quantity']; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Stock Quantity</label>
+                                <input type="number" name="stock_quantity" min="0" value="<?php echo $editTool['stock_quantity']; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Low Stock Threshold</label>
-                                <input type="number" name="low_stock_threshold" min="0" value="<?php echo $editTool['low_stock_threshold']; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Low Stock Threshold</label>
+                                <input type="number" name="low_stock_threshold" min="0" value="<?php echo $editTool['low_stock_threshold']; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             </div>
                         </div>
                     </div>
@@ -667,7 +657,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="active" value="1" <?php echo $editTool['active'] ? 'checked' : ''; ?> class="w-4 h-4 text-purple-600 rounded">
-                            <span class="font-semibold text-gray-700">Active (visible to customers)</span>
+                            <span class="font-semibold text-gray-700 text-sm">Active (visible to customers)</span>
                         </label>
                     </div>
                 </div>
