@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Floating Cart Button
+    // Floating Cart Button (Fixed Position)
     function setupFloatingCart() {
         const existingCart = document.getElementById('floating-cart');
         if (existingCart) return;
@@ -253,15 +253,13 @@ document.addEventListener('DOMContentLoaded', function() {
         floatingCart.id = 'floating-cart';
         floatingCart.className = 'fixed bottom-6 right-6 z-40';
         floatingCart.innerHTML = `
-            <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-white rounded-full p-4 shadow-2xl transition-all hover:scale-110">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-                <span id="floating-cart-count" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
-            </button>
-            <div id="floating-cart-total" class="hidden mt-2 bg-white rounded-lg shadow-lg px-3 py-2 text-center">
-                <p class="text-xs text-gray-600">Total</p>
-                <p class="text-sm font-bold text-primary-600">₦0</p>
+            <div class="relative">
+                <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-white rounded-full p-4 shadow-2xl transition-all hover:scale-110 group">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <span id="floating-cart-count" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">0</span>
+                </button>
             </div>
         `;
         
@@ -336,14 +334,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Add to Cart
+    // Add to Cart (for Tools)
     window.addToCartFromModal = async function(toolId, toolName, price) {
+        return await addProductToCart('tool', toolId, toolName, 1);
+    };
+    
+    // Add Template to Cart
+    window.addTemplateToCart = async function(templateId, templateName, button) {
+        if (button) button.disabled = true;
+        const result = await addProductToCart('template', templateId, templateName, 1);
+        if (button) button.disabled = false;
+        return result;
+    };
+    
+    // Unified Add Product to Cart function
+    async function addProductToCart(productType, productId, productName, quantity = 1) {
         try {
             const params = new URLSearchParams();
             params.set('action', 'add');
-            params.set('tool_id', toolId);
-            params.set('quantity', 1);
-            params.set('price', price);
+            params.set('product_type', productType);
+            params.set('product_id', productId);
+            params.set('quantity', quantity);
             
             const response = await fetch('/api/cart.php', {
                 method: 'POST',
@@ -354,24 +365,32 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                closeToolModal();
-                showNotification(`${toolName} added to cart!`, 'success');
+                if (window.closeToolModal) closeToolModal();
+                showNotification(`${productName} added to cart!`, 'success');
                 updateCartBadge();
                 
-                // Show floating cart total briefly
-                const totalEl = document.getElementById('floating-cart-total');
-                if (totalEl) {
-                    totalEl.classList.remove('hidden');
-                    setTimeout(() => totalEl.classList.add('hidden'), 3000);
-                }
+                // Animate cart button
+                animateCartBadge();
+                
+                return true;
             } else {
-                showNotification(data.message || 'Failed to add to cart', 'error');
+                showNotification(data.message || data.error || 'Failed to add to cart', 'error');
+                return false;
             }
         } catch (error) {
             console.error('Add to cart error:', error);
             showNotification('Failed to add to cart', 'error');
+            return false;
         }
-    };
+    }
+    
+    function animateCartBadge() {
+        const floatingCart = document.getElementById('floating-cart');
+        if (floatingCart) {
+            floatingCart.classList.add('animate-bounce');
+            setTimeout(() => floatingCart.classList.remove('animate-bounce'), 500);
+        }
+    }
     
     async function updateCartBadge() {
         try {
@@ -436,6 +455,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         container.innerHTML = items.map(item => {
             const itemTotal = (item.price_at_add || item.price) * item.quantity;
+            const productType = item.product_type || 'tool';
+            const isTemplate = productType === 'template';
+            
             return `
             <div class="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
                 <img src="${escapeHtml(item.thumbnail_url || '/assets/images/placeholder.jpg')}" 
@@ -443,18 +465,23 @@ document.addEventListener('DOMContentLoaded', function() {
                      class="w-16 h-16 object-cover rounded"
                      onerror="this.src='/assets/images/placeholder.jpg'">
                 <div class="flex-1 min-w-0">
-                    <h4 class="font-semibold text-sm text-gray-900 truncate">${escapeHtml(item.name)}</h4>
-                    <p class="text-xs text-gray-600">${formatCurrency(item.price_at_add || item.price)} × ${item.quantity}</p>
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-semibold text-sm text-gray-900 truncate">${escapeHtml(item.name)}</h4>
+                        ${isTemplate ? '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">Template</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">Tool</span>'}
+                    </div>
+                    <p class="text-xs text-gray-600">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity}</p>
                     <p class="text-sm font-semibold text-primary-600">${formatCurrency(itemTotal)}</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="updateCartQuantity(${item.cart_id}, ${item.quantity - 1})" 
-                            class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">-</button>
-                    <span class="w-8 text-center font-semibold">${item.quantity}</span>
-                    <button onclick="updateCartQuantity(${item.cart_id}, ${item.quantity + 1})" 
-                            class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">+</button>
+                    ${!isTemplate ? `
+                        <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" 
+                                class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">-</button>
+                        <span class="w-8 text-center font-semibold">${item.quantity}</span>
+                        <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" 
+                                class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">+</button>
+                    ` : ''}
                 </div>
-                <button onclick="removeFromCart(${item.cart_id})" 
+                <button onclick="removeFromCart(${item.id})" 
                         class="text-red-500 hover:text-red-700 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
