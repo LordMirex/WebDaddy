@@ -394,22 +394,8 @@ if ($currentView === 'templates') {
                 }
             }">
                 <div class="max-w-4xl mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <!-- Search Type Selector -->
-                        <div class="relative">
-                            <select x-model="searchType" 
-                                    class="appearance-none px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all font-medium text-gray-700 cursor-pointer">
-                                <option value="all">All Products</option>
-                                <option value="template">Templates Only</option>
-                                <option value="tool">Tools Only</option>
-                            </select>
-                            <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </div>
-                        
-                        <!-- Search Input with Live Results -->
-                        <div class="flex-1 relative">
+                    <!-- Search Input with Live Results -->
+                    <div class="relative">
                             <input type="text" 
                                    x-model="searchQuery"
                                    @input="performLiveSearch(searchQuery)"
@@ -465,7 +451,6 @@ if ($currentView === 'templates') {
                                     Showing top <span x-text="liveResults.length"></span> results. Click to view details.
                                 </div>
                             </div>
-                        </div>
                     </div>
                 </div>
             </div>
