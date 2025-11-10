@@ -4,33 +4,57 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/analytics.php';
+require_once __DIR__ . '/includes/tools.php';
+require_once __DIR__ . '/includes/cart.php';
 
 startSecureSession();
 handleAffiliateTracking();
 
-trackPageVisit($_SERVER['REQUEST_URI'], 'Home - Templates');
+// Determine current view: 'templates' or 'tools'
+$currentView = $_GET['view'] ?? 'templates';
+$currentView = in_array($currentView, ['templates', 'tools']) ? $currentView : 'templates';
 
-// Pagination setup
-$perPage = 9; // Show exactly 9 templates per page
+// Track page visit
+trackPageVisit($_SERVER['REQUEST_URI'], 'Home - ' . ucfirst($currentView));
 
 // Get database connection
 $db = getDb();
 
-// Get all categories
-$allTemplates = getTemplates(true);
-$categories = array_unique(array_column($allTemplates, 'category'));
-
-// Get all active templates
-$totalTemplates = count($allTemplates);
-
-// Calculate pagination
-$totalPages = max(1, ceil($totalTemplates / $perPage));
-$page = max(1, min((int)($_GET['page'] ?? 1), $totalPages));
-$offset = ($page - 1) * $perPage;
-
-// Get templates for current page
-$templates = array_slice($allTemplates, $offset, $perPage);
+// Get affiliate code
 $affiliateCode = getAffiliateCode();
+
+// Get cart count for badge
+$cartCount = getCartCount();
+
+// Initialize variables
+$templates = [];
+$tools = [];
+$totalTemplates = 0;
+$totalTools = 0;
+$totalPages = 1;
+$page = max(1, (int)($_GET['page'] ?? 1));
+
+if ($currentView === 'templates') {
+    // TEMPLATES VIEW
+    $perPage = 9;
+    $allTemplates = getTemplates(true);
+    $categories = array_unique(array_column($allTemplates, 'category'));
+    $totalTemplates = count($allTemplates);
+    $totalPages = max(1, ceil($totalTemplates / $perPage));
+    $page = max(1, min($page, $totalPages));
+    $offset = ($page - 1) * $perPage;
+    $templates = array_slice($allTemplates, $offset, $perPage);
+} else {
+    // TOOLS VIEW
+    $perPage = 18;
+    $category = $_GET['category'] ?? null;
+    $totalTools = getToolsCount(true, $category, true);
+    $totalPages = max(1, ceil($totalTools / $perPage));
+    $page = max(1, min($page, $totalPages));
+    $offset = ($page - 1) * $perPage;
+    $tools = getTools(true, $category, $perPage, $offset, true);
+    $toolCategories = getToolCategories();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,8 +64,8 @@ $affiliateCode = getAffiliateCode();
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title><?php echo SITE_NAME; ?> - Professional Website Templates with Domains</title>
-    <meta name="description" content="Professional website templates with domains included. Launch your business online in 24 hours.">
+    <title><?php echo SITE_NAME; ?> - Website Templates & Digital Working Tools</title>
+    <meta name="description" content="Professional website templates and digital working tools for your business. API keys, software licenses, and more. Launch in 24 hours.">
     
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -85,8 +109,16 @@ $affiliateCode = getAffiliateCode();
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#templates" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Templates</a>
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Tools</a>
                     <a href="#faq" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">FAQ</a>
+                    <!-- Cart Badge -->
+                    <a href="#" id="cart-button" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
+                    </a>
                     <a href="/affiliate/register.php" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
                         Become an Affiliate
                     </a>
@@ -105,8 +137,13 @@ $affiliateCode = getAffiliateCode();
         </div>
         <div x-show="open" @click.away="open = false" class="md:hidden bg-white border-t border-gray-200" style="display: none;">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="#templates" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Templates</a>
+                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Templates</a>
+                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Tools</a>
                 <a href="#faq" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">FAQ</a>
+                <a href="#" id="cart-button-mobile" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium flex items-center">
+                    Cart
+                    <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
+                </a>
                 <a href="/affiliate/register.php" class="block px-3 py-2 rounded-md text-white bg-primary-600 hover:bg-primary-700 font-medium">Become an Affiliate</a>
             </div>
         </div>
@@ -116,10 +153,10 @@ $affiliateCode = getAffiliateCode();
     <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16 lg:py-20">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Turn Your Website Idea Into Reality</h1>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Turn Your Ideas Into Reality</h1>
                 <p class="text-lg sm:text-xl lg:text-2xl text-white/90 mb-4 max-w-3xl mx-auto">
-                    Choose from our <span class="font-bold text-white">ready-made templates</span> or get a 
-                    <span class="font-bold text-white">custom website built</span> just for you
+                    Choose from our <span class="font-bold text-white">ready-made templates</span> or get 
+                    <span class="font-bold text-white">powerful digital tools</span> to grow your business
                 </p>
                 <p class="text-base sm:text-lg text-white/75 mb-10">Domain included • Fast setup • Professional design</p>
                 
@@ -147,19 +184,17 @@ $affiliateCode = getAffiliateCode();
                 
                 <!-- CTA Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
-                    <a href="#templates" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border-2 border-white text-base font-semibold rounded-lg text-white bg-transparent hover:bg-white hover:text-primary-900 transition-all shadow-lg">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border-2 border-white text-base font-semibold rounded-lg text-white bg-transparent hover:bg-white hover:text-primary-900 transition-all shadow-lg">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
                         Browse Templates
                     </a>
-                    <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>?text=Hi%2C%20I%27d%20like%20to%20discuss%20a%20custom%20website%20for%20my%20business" 
-                       target="_blank"
-                       class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border border-transparent text-base font-semibold rounded-lg text-primary-900 bg-white hover:bg-gray-50 transition-all shadow-xl">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border border-transparent text-base font-semibold rounded-lg text-primary-900 bg-white hover:bg-gray-50 transition-all shadow-xl">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
-                        Get Custom Website
+                        Explore Tools
                     </a>
                 </div>
                 
@@ -235,12 +270,37 @@ $affiliateCode = getAffiliateCode();
         </a>
     </div>
 
-    <!-- Templates Section -->
-    <section class="py-12 bg-white" id="templates">
+    <!-- Products Section (Templates & Tools) -->
+    <section class="py-12 bg-white" id="products">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Choose Your Template</h2>
-                <p class="text-xl text-gray-600">Pick a professionally designed website and get started instantly</p>
+            <!-- Section Header with Tabs -->
+            <div class="max-w-3xl mx-auto text-center mb-8">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
+                    <?php echo $currentView === 'tools' ? 'Digital Working Tools' : 'Choose Your Template'; ?>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    <?php echo $currentView === 'tools' ? 'Get powerful digital tools to grow your business' : 'Pick a professionally designed website and get started instantly'; ?>
+                </p>
+            </div>
+
+            <!-- View Toggle Tabs -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm" role="group">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                       class="px-6 py-2.5 text-sm font-medium rounded-md transition-all <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                        </svg>
+                        Website Templates
+                    </a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                       class="px-6 py-2.5 text-sm font-medium rounded-md transition-all <?php echo $currentView === 'tools' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        Working Tools
+                    </a>
+                </div>
             </div>
 
             <!-- Search and Filter Section -->
@@ -324,6 +384,7 @@ $affiliateCode = getAffiliateCode();
                 </div>
             </div>
 
+            <?php if ($currentView === 'templates'): ?>
             <?php if (empty($templates)): ?>
             <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
                 <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,11 +463,12 @@ $affiliateCode = getAffiliateCode();
             <div class="mt-12 flex justify-center">
                 <nav class="flex items-center gap-2">
                     <?php
-                    $paginationParams = [];
+                    $paginationParams = ['view' => $currentView];
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
+                    if ($currentView === 'tools' && isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
                     ?>
                     <?php if ($page > 1): ?>
-                    <a href="?page=<?php echo $page - 1; ?><?php echo $paginationParams ? '&' . http_build_query($paginationParams) : ''; ?>" 
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -421,14 +483,14 @@ $affiliateCode = getAffiliateCode();
                     
                     for ($i = $start; $i <= $end; $i++):
                     ?>
-                    <a href="?page=<?php echo $i; ?><?php echo $paginationParams ? '&' . http_build_query($paginationParams) : ''; ?>" 
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
                        class="<?php echo $i === $page ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 rounded-lg transition-colors">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
-                    <a href="?page=<?php echo $page + 1; ?><?php echo $paginationParams ? '&' . http_build_query($paginationParams) : ''; ?>" 
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,6 +505,129 @@ $affiliateCode = getAffiliateCode();
                     Page <?php echo $page; ?> of <?php echo $totalPages; ?>
                 </p>
             </div>
+            <?php endif; ?>
+            <?php endif; ?>
+            
+            <?php else: ?>
+            <!-- TOOLS VIEW -->
+            <?php if (!empty($toolCategories)): ?>
+            <!-- Category Filter -->
+            <div class="mb-6 flex justify-center">
+                <div class="inline-flex items-center gap-2 bg-white border border-gray-300 rounded-lg p-1 shadow-sm">
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                       class="px-4 py-2 text-sm font-medium rounded-md transition-all <?php echo !isset($_GET['category']) ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        All Categories
+                    </a>
+                    <?php foreach ($toolCategories as $cat): ?>
+                    <a href="?view=tools&category=<?php echo urlencode($cat); ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                       class="px-4 py-2 text-sm font-medium rounded-md transition-all <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        <?php echo htmlspecialchars($cat); ?>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (empty($tools)): ?>
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <h4 class="text-xl font-bold text-gray-900 mb-2">No tools available</h4>
+                <p class="text-gray-600 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-primary-600 hover:text-primary-700">contact us on WhatsApp</a>.</p>
+            </div>
+            <?php else: ?>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <?php foreach ($tools as $tool): ?>
+                <div class="group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="relative overflow-hidden h-40 bg-gray-100">
+                        <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                             alt="<?php echo htmlspecialchars($tool['name']); ?>"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             onerror="this.src='/assets/images/placeholder.jpg'">
+                        <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
+                        <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
+                            Limited Stock
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-bold text-gray-900 flex-1 pr-2"><?php echo htmlspecialchars($tool['name']); ?></h3>
+                            <?php if (!empty($tool['category'])): ?>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">
+                                <?php echo htmlspecialchars($tool['category']); ?>
+                            </span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (!empty($tool['short_description'])): ?>
+                        <p class="text-gray-600 text-xs mb-3 line-clamp-2"><?php echo htmlspecialchars($tool['short_description']); ?></p>
+                        <?php endif; ?>
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
+                                <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
+                            </div>
+                            <button disabled title="Cart feature coming soon" 
+                                    class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-gray-400 cursor-not-allowed whitespace-nowrap">
+                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <!-- Pagination for tools -->
+            <?php if ($totalPages > 1): ?>
+            <div class="mt-12 flex justify-center">
+                <nav class="flex items-center gap-2">
+                    <?php
+                    $paginationParams = ['view' => 'tools'];
+                    if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
+                    if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
+                    ?>
+                    <?php if ($page > 1): ?>
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
+                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Previous
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php
+                    $start = max(1, $page - 2);
+                    $end = min($totalPages, $page + 2);
+                    for ($i = $start; $i <= $end; $i++):
+                    ?>
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
+                       class="<?php echo $i === $page ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 rounded-lg transition-colors">
+                        <?php echo $i; ?>
+                    </a>
+                    <?php endfor; ?>
+                    
+                    <?php if ($page < $totalPages): ?>
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
+                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        Next
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <?php endif; ?>
+                </nav>
+            </div>
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-600">
+                    Page <?php echo $page; ?> of <?php echo $totalPages; ?>
+                </p>
+            </div>
+            <?php endif; ?>
             <?php endif; ?>
             <?php endif; ?>
         </div>
