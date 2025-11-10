@@ -1,0 +1,230 @@
+<?php
+/**
+ * Cart API Endpoint
+ * 
+ * Provides REST API for shopping cart operations
+ * 
+ * Supported operations:
+ * - POST action=add: Add item to cart
+ * - POST action=update: Update item quantity
+ * - POST action=remove: Remove item from cart
+ * - POST action=clear: Clear entire cart
+ * - GET action=get: Get cart contents
+ * - GET action=count: Get cart item count
+ */
+
+header('Content-Type: application/json');
+
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/cart.php';
+require_once __DIR__ . '/../includes/analytics.php';
+
+// Allow CORS if needed
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Start session
+startSecureSession();
+
+// Track affiliate if present
+handleAffiliateTracking();
+
+// Get affiliate code from session for discount calculation
+$affiliateCode = $_SESSION['affiliate_code'] ?? null;
+
+try {
+    $action = $_GET['action'] ?? '';
+    
+    // GET requests
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        switch ($action) {
+            case 'get':
+                // Get cart contents
+                $cartItems = getCart();
+                $totals = getCartTotal(null, $affiliateCode);
+                
+                echo json_encode([
+                    'success' => true,
+                    'items' => $cartItems,
+                    'totals' => $totals,
+                    'affiliate_code' => $affiliateCode
+                ]);
+                break;
+                
+            case 'count':
+                // Get cart count
+                $count = getCartCount();
+                echo json_encode([
+                    'success' => true,
+                    'count' => $count
+                ]);
+                break;
+                
+            case 'validate':
+                // Validate cart
+                $validation = validateCart();
+                echo json_encode([
+                    'success' => true,
+                    'validation' => $validation
+                ]);
+                break;
+                
+            default:
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid action for GET request'
+                ]);
+        }
+        exit;
+    }
+    
+    // POST requests
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Get JSON body
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE && $action !== 'clear') {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Invalid JSON'
+            ]);
+            exit;
+        }
+        
+        switch ($action) {
+            case 'add':
+                // Add to cart
+                $toolId = $input['tool_id'] ?? null;
+                $quantity = $input['quantity'] ?? 1;
+                
+                if (!$toolId || $quantity < 1) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Invalid tool_id or quantity'
+                    ]);
+                    exit;
+                }
+                
+                $result = addToCart($toolId, $quantity);
+                
+                if ($result['success']) {
+                    // Get updated cart count
+                    $count = getCartCount();
+                    echo json_encode([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'action' => $result['action'],
+                        'cart_count' => $count
+                    ]);
+                } else {
+                    http_response_code(400);
+                    echo json_encode($result);
+                }
+                break;
+                
+            case 'update':
+                // Update quantity
+                $cartItemId = $input['cart_item_id'] ?? null;
+                $quantity = $input['quantity'] ?? null;
+                
+                if (!$cartItemId || $quantity === null) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Missing cart_item_id or quantity'
+                    ]);
+                    exit;
+                }
+                
+                $result = updateCartQuantity($cartItemId, $quantity);
+                
+                if ($result['success']) {
+                    // Get updated totals
+                    $totals = getCartTotal(null, $affiliateCode);
+                    echo json_encode([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'totals' => $totals
+                    ]);
+                } else {
+                    http_response_code(400);
+                    echo json_encode($result);
+                }
+                break;
+                
+            case 'remove':
+                // Remove item
+                $cartItemId = $input['cart_item_id'] ?? null;
+                
+                if (!$cartItemId) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Missing cart_item_id'
+                    ]);
+                    exit;
+                }
+                
+                $result = removeFromCart($cartItemId);
+                
+                if ($result['success']) {
+                    $count = getCartCount();
+                    $totals = getCartTotal(null, $affiliateCode);
+                    echo json_encode([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'cart_count' => $count,
+                        'totals' => $totals
+                    ]);
+                } else {
+                    http_response_code(400);
+                    echo json_encode($result);
+                }
+                break;
+                
+            case 'clear':
+                // Clear cart
+                $success = clearCart();
+                echo json_encode([
+                    'success' => $success,
+                    'message' => $success ? 'Cart cleared' : 'Failed to clear cart',
+                    'cart_count' => 0
+                ]);
+                break;
+                
+            default:
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Invalid action for POST request'
+                ]);
+        }
+        exit;
+    }
+    
+    // Method not allowed
+    http_response_code(405);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Method not allowed'
+    ]);
+    
+} catch (Exception $e) {
+    http_response_code(500);
+    error_log("Cart API error: " . $e->getMessage());
+    echo json_encode([
+        'success' => false,
+        'error' => 'Server error'
+    ]);
+}

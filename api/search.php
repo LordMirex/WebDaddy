@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/analytics.php';
+require_once __DIR__ . '/../includes/tools.php';
 
 header('Content-Type: application/json');
 
@@ -11,32 +12,85 @@ startSecureSession();
 handleAffiliateTracking();
 
 $searchTerm = trim($_GET['q'] ?? '');
+$searchType = trim($_GET['type'] ?? 'all');
+
+if (!in_array($searchType, ['template', 'tool', 'all'])) {
+    $searchType = 'all';
+}
 
 try {
     $db = getDb();
+    $results = [];
     
     if (empty($searchTerm)) {
-        $stmt = $db->prepare("
-            SELECT id, name, category, description, price, thumbnail_url, demo_url 
-            FROM templates 
-            WHERE active = 1 
-            ORDER BY name ASC
-            LIMIT 9
-        ");
-        $stmt->execute();
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        $stmt = $db->prepare("
-            SELECT id, name, category, description, price, thumbnail_url, demo_url 
-            FROM templates 
-            WHERE active = 1 
-            AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
-            ORDER BY name ASC
-        ");
+        // Return recent items when no search term
+        if ($searchType === 'template' || $searchType === 'all') {
+            $stmt = $db->prepare("
+                SELECT id, name, category, description, price, thumbnail_url, demo_url 
+                FROM templates 
+                WHERE active = 1 
+                ORDER BY created_at DESC
+                LIMIT 9
+            ");
+            $stmt->execute();
+            $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($templates as $template) {
+                $template['type'] = 'template';
+                $template['product_type'] = 'Website Template';
+                $results[] = $template;
+            }
+        }
         
-        $searchPattern = '%' . $searchTerm . '%';
-        $stmt->execute([$searchPattern, $searchPattern, $searchPattern]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($searchType === 'tool' || $searchType === 'all') {
+            $stmt = $db->prepare("
+                SELECT id, name, category, description, short_description, price, thumbnail_url, demo_url 
+                FROM tools 
+                WHERE active = 1 
+                AND (stock_unlimited = 1 OR stock_quantity > 0)
+                ORDER BY created_at DESC
+                LIMIT 9
+            ");
+            $stmt->execute();
+            $tools = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($tools as $tool) {
+                $tool['type'] = 'tool';
+                $tool['product_type'] = 'Working Tool';
+                $results[] = $tool;
+            }
+        }
+    } else {
+        // Search templates
+        if ($searchType === 'template' || $searchType === 'all') {
+            $stmt = $db->prepare("
+                SELECT id, name, category, description, price, thumbnail_url, demo_url 
+                FROM templates 
+                WHERE active = 1 
+                AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
+                ORDER BY name ASC
+            ");
+            
+            $searchPattern = '%' . $searchTerm . '%';
+            $stmt->execute([$searchPattern, $searchPattern, $searchPattern]);
+            $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($templates as $template) {
+                $template['type'] = 'template';
+                $template['product_type'] = 'Website Template';
+                $results[] = $template;
+            }
+        }
+        
+        // Search tools
+        if ($searchType === 'tool' || $searchType === 'all') {
+            $toolResults = searchTools($searchTerm);
+            foreach ($toolResults as $tool) {
+                $tool['type'] = 'tool';
+                $tool['product_type'] = 'Working Tool';
+                $results[] = $tool;
+            }
+        }
         
         trackSearch($searchTerm, count($results));
     }
@@ -44,6 +98,8 @@ try {
     echo json_encode([
         'success' => true,
         'count' => count($results),
+        'search_term' => $searchTerm,
+        'search_type' => $searchType,
         'results' => $results
     ]);
 } catch (Exception $e) {
