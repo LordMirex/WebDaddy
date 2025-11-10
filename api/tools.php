@@ -26,7 +26,27 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    // Get query parameters
+    $action = $_GET['action'] ?? 'list';
+    
+    // Handle get single tool action
+    if ($action === 'get_tool') {
+        $toolId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($toolId > 0) {
+            $tool = getToolById($toolId);
+            if ($tool) {
+                echo json_encode(['success' => true, 'tool' => $tool]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Tool not found']);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid tool ID']);
+        }
+        exit;
+    }
+    
+    // Get query parameters for list action
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $limit = isset($_GET['limit']) ? min(50, max(1, (int)$_GET['limit'])) : 18;
     $category = isset($_GET['category']) ? trim($_GET['category']) : null;

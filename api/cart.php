@@ -54,6 +54,8 @@ try {
                 echo json_encode([
                     'success' => true,
                     'items' => $cartItems,
+                    'count' => $totals['item_count'],
+                    'total' => $totals['total'],
                     'totals' => $totals,
                     'affiliate_code' => $affiliateCode
                 ]);
@@ -89,16 +91,12 @@ try {
     
     // POST requests
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Get JSON body
+        // Get input from either JSON body or URL-encoded POST data
         $input = json_decode(file_get_contents('php://input'), true);
         
-        if (json_last_error() !== JSON_ERROR_NONE && $action !== 'clear') {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'error' => 'Invalid JSON'
-            ]);
-            exit;
+        // If JSON decode failed, try URL-encoded POST data
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $input = $_POST;
         }
         
         switch ($action) {
@@ -135,7 +133,7 @@ try {
                 
             case 'update':
                 // Update quantity
-                $cartItemId = $input['cart_item_id'] ?? null;
+                $cartItemId = $input['cart_item_id'] ?? $input['cart_id'] ?? null;
                 $quantity = $input['quantity'] ?? null;
                 
                 if (!$cartItemId || $quantity === null) {
@@ -165,7 +163,7 @@ try {
                 
             case 'remove':
                 // Remove item
-                $cartItemId = $input['cart_item_id'] ?? null;
+                $cartItemId = $input['cart_item_id'] ?? $input['cart_id'] ?? null;
                 
                 if (!$cartItemId) {
                     http_response_code(400);

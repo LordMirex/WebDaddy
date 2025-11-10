@@ -96,6 +96,7 @@ if ($currentView === 'templates') {
         }
     </script>
     <script src="/assets/js/forms.js" defer></script>
+    <script src="/assets/js/cart-and-tools.js" defer></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
