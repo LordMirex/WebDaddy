@@ -1,7 +1,20 @@
 # WebDaddy Empire - Affiliate Platform
 
 ## Overview
-WebDaddy Empire is an affiliate marketing platform designed for selling website templates, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
+WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
+
+## Recent Changes (November 2025)
+
+### Admin Panel UX Improvements
+- **Tools Statistics Card**: Added dedicated statistics card on admin dashboard (`admin/index.php`) displaying active and total digital tools count alongside existing template metrics.
+- **Compact Tool Forms**: Redesigned create/edit tool forms (`admin/tools.php`) with tighter spacing, 3-column layout for primary fields, reduced padding (py-2 instead of py-3), and smaller textareas (2 rows instead of 3-4) for better screen real estate usage.
+- **Currency Display Consistency**: Updated all admin tool form labels from "Price (USD)" to "Price (₦)" to properly reflect Naira currency throughout the platform.
+
+### User-Facing Website Enhancements
+- **Template Preview Modal**: Improved preview modal (`index.php`) with wider viewport (max-w-7xl instead of max-w-6xl), added max-height constraint (900px), and better spacing to prevent content compression when viewing template demos.
+- **Product Price Display**: Reduced price typography from `text-lg` to `text-base` on product cards for improved visual hierarchy and less overwhelming presentation.
+- **WhatsApp Message Slider**: Optimized rotating message carousel to display immediately on page load (no 6-second delay) and rotate every 4 seconds instead of 6 seconds for better engagement.
+- **Product Count Display**: Added visible statistics showing total templates/tools and category counts at the top of the products section for better transparency and user confidence.
 
 ## User Preferences
 
@@ -31,11 +44,15 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 - **Dual Order Flow**: Templates use instant WhatsApp ordering (one-click), Tools use cart-based checkout (multi-item bundling).
 - **AJAX Navigation**: Tab switching between Templates/Tools with no page reload, preserves scroll position, smooth animations.
 - **Tool Preview Modal**: Popup system showing full tool details instead of dedicated pages for faster browsing.
+- **Template Preview Modal**: Wide-screen modal (max-w-7xl, 90vh height with 900px max-height) to prevent iframe compression and provide optimal viewing experience.
 - **Floating Cart**: Bottom-right FAB button showing live count and total, with slide-in drawer for quick management.
+- **WhatsApp Integration**: Smart floating button with rotating contextual messages (4-second intervals), displays immediately on page load for better user engagement.
+- **Product Display**: Compact price typography (text-base) for better visual hierarchy, with clear category badges and product counts visible in section headers.
 - **Email Templates**: Cleaned up and simplified, removed logos and unnecessary CTAs for professionalism.
 - **Search Experience**: Instant AJAX search with 300ms debounce, loading indicator, and XSS-safe implementation. Preserves scroll position and auto-resets when input is cleared.
 - **Cron Job System**: Simplified for cPanel with click-to-copy commands and clear explanations.
 - **Analytics Dashboard**: Bootstrap-styled, responsive, with cards, metrics, tables, and period filters for various data.
+- **Admin Forms**: Compact design with 3-column layouts for primary fields, reduced padding/spacing, and consistent Naira (₦) currency labels throughout.
 
 ### Technical Implementations
 - **Backend**: PHP 8.x+
