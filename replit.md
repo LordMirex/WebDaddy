@@ -5,6 +5,37 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 
 ## Recent Changes (November 10, 2025)
 
+### Critical Fixes & UI Simplification ✅
+**Date:** November 10, 2025 (Latest)
+**Status:** All critical issues resolved and tested.
+
+#### Issues Fixed:
+1. **Database Schema Fix (cart_items table)**:
+   - Modified `tool_id` column to be nullable to support templates in cart
+   - Previously caused "NOT NULL constraint failed" error when adding templates
+   - Successfully migrated existing data without loss
+   - Recreated indexes for optimal performance
+
+2. **Cart API JSON Handling**:
+   - Fixed action parameter reading from JSON request body
+   - POST requests now correctly parse `action` from JSON payload
+   - Maintains backward compatibility with URL-encoded POST data
+   - Templates and tools now add to cart successfully via API
+
+3. **Search UI Simplification**:
+   - Removed search type selector dropdown (All Products / Templates Only / Tools Only)
+   - Removed live search results dropdown overlay
+   - Simplified to single clean search input with loading indicator
+   - Maintains search functionality with cleaner, less cluttered interface
+
+#### Testing Results:
+- ✅ Templates successfully add to cart without SQL errors
+- ✅ Tools continue to work as expected
+- ✅ Cart API handles JSON POST requests correctly
+- ✅ Search interface is cleaner and more user-friendly
+- ✅ No regressions in existing functionality
+- ✅ Zero errors in server logs
+
 ### Unified Cart System Implementation ✅
 **Status:** Both templates and tools now use the same cart system for a consistent user experience.
 
