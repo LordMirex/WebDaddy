@@ -41,8 +41,8 @@ handleAffiliateTracking();
 $affiliateCode = $_SESSION['affiliate_code'] ?? null;
 
 try {
-    // Get action from either GET or POST
-    $action = $_GET['action'] ?? $_POST['action'] ?? '';
+    // Get action from GET parameter for GET requests
+    $action = $_GET['action'] ?? '';
     
     // GET requests
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -99,6 +99,9 @@ try {
         if (json_last_error() !== JSON_ERROR_NONE) {
             $input = $_POST;
         }
+        
+        // Get action from JSON body, POST parameter, or GET parameter
+        $action = $input['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
         
         switch ($action) {
             case 'add':

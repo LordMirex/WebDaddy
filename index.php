@@ -399,8 +399,7 @@ if ($currentView === 'templates') {
                             <input type="text" 
                                    x-model="searchQuery"
                                    @input="performLiveSearch(searchQuery)"
-                                   @click.away="showResults = false"
-                                   :placeholder="placeholderText" 
+                                   placeholder="Search templates and tools..." 
                                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
                             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -418,38 +417,6 @@ if ($currentView === 'templates') {
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                            </div>
-                            
-                            <!-- Live Search Results Dropdown -->
-                            <div x-show="showResults && liveResults.length > 0" 
-                                 x-transition
-                                 class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-96 overflow-y-auto">
-                                <template x-for="result in liveResults" :key="result.id + result.type">
-                                    <div @click="navigateToProduct(result)" 
-                                         class="flex items-center gap-4 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors">
-                                        <img :src="result.thumbnail_url || '/assets/images/placeholder.jpg'" 
-                                             :alt="result.name"
-                                             class="w-16 h-16 object-cover rounded-lg"
-                                             onerror="this.src='/assets/images/placeholder.jpg'">
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <h4 class="font-semibold text-gray-900 truncate" x-text="result.name"></h4>
-                                                <span x-text="result.type === 'template' ? 'Template' : 'Tool'" 
-                                                      :class="result.type === 'template' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
-                                                      class="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap"></span>
-                                            </div>
-                                            <p class="text-sm text-gray-600 truncate" x-text="result.category"></p>
-                                            <p class="text-base font-bold text-primary-600 mt-1" 
-                                               x-text="'₦' + parseInt(result.price).toLocaleString()"></p>
-                                        </div>
-                                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </div>
-                                </template>
-                                <div class="p-3 bg-gray-50 text-center text-xs text-gray-600">
-                                    Showing top <span x-text="liveResults.length"></span> results. Click to view details.
-                                </div>
                             </div>
                     </div>
                 </div>
