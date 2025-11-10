@@ -294,12 +294,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div id="cart-footer" class="hidden border-t border-gray-200 p-4 bg-gray-50">
-                        <div class="mb-4">
+                        <div class="mb-4" id="cart-totals-container">
                             <div class="flex justify-between text-sm text-gray-600 mb-1">
                                 <span>Subtotal</span>
                                 <span id="cart-subtotal">₦0</span>
                             </div>
-                            <div class="flex justify-between text-lg font-bold text-gray-900">
+                            <div id="cart-discount-row" class="hidden flex justify-between text-sm text-green-600 mb-1">
+                                <span>Discount (20%)</span>
+                                <span id="cart-discount-amount">-₦0</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold text-gray-900 pt-2 border-t border-gray-200">
                                 <span>Total</span>
                                 <span id="cart-total">₦0</span>
                             </div>
@@ -412,14 +416,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                displayCartItems(data.items || [], data.total || 0);
+                // Pass the full totals object with discount info
+                displayCartItems(data.items || [], data.totals || data.total || 0);
             }
         } catch (error) {
             console.error('Failed to load cart:', error);
         }
     }
     
-    function displayCartItems(items, total) {
+    function displayCartItems(items, totals) {
         const container = document.getElementById('cart-items');
         const footer = document.getElementById('cart-footer');
         
@@ -429,39 +434,77 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        container.innerHTML = items.map(item => `
+        container.innerHTML = items.map(item => {
+            const itemTotal = (item.price_at_add || item.price) * item.quantity;
+            return `
             <div class="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
                 <img src="${escapeHtml(item.thumbnail_url || '/assets/images/placeholder.jpg')}" 
                      alt="${escapeHtml(item.name)}"
                      class="w-16 h-16 object-cover rounded"
                      onerror="this.src='/assets/images/placeholder.jpg'">
-                <div class="flex-1">
-                    <h4 class="font-semibold text-sm text-gray-900">${escapeHtml(item.name)}</h4>
-                    <p class="text-xs text-gray-600">${formatCurrency(item.price)} × ${item.quantity}</p>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-sm text-gray-900 truncate">${escapeHtml(item.name)}</h4>
+                    <p class="text-xs text-gray-600">${formatCurrency(item.price_at_add || item.price)} × ${item.quantity}</p>
+                    <p class="text-sm font-semibold text-primary-600">${formatCurrency(itemTotal)}</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="updateCartQuantity(${item.cart_id}, ${item.quantity - 1})" 
-                            class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300">-</button>
+                            class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">-</button>
                     <span class="w-8 text-center font-semibold">${item.quantity}</span>
                     <button onclick="updateCartQuantity(${item.cart_id}, ${item.quantity + 1})" 
-                            class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300">+</button>
+                            class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">+</button>
                 </div>
                 <button onclick="removeFromCart(${item.cart_id})" 
-                        class="text-red-500 hover:text-red-700">
+                        class="text-red-500 hover:text-red-700 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
-        `).join('');
+        `;
+        }).join('');
         
-        document.getElementById('cart-subtotal').textContent = formatCurrency(total);
-        document.getElementById('cart-total').textContent = formatCurrency(total);
+        // Display totals properly with discount if applicable
+        const subtotalEl = document.getElementById('cart-subtotal');
+        const totalEl = document.getElementById('cart-total');
+        const discountRow = document.getElementById('cart-discount-row');
+        const discountAmount = document.getElementById('cart-discount-amount');
+        
+        if (totals && typeof totals === 'object') {
+            subtotalEl.textContent = formatCurrency(totals.subtotal || 0);
+            
+            // Show/hide discount row if applicable
+            if (totals.has_discount && totals.discount > 0) {
+                if (discountRow && discountAmount) {
+                    discountAmount.textContent = '-' + formatCurrency(totals.discount);
+                    discountRow.classList.remove('hidden');
+                }
+            } else {
+                if (discountRow) {
+                    discountRow.classList.add('hidden');
+                }
+            }
+            
+            totalEl.textContent = formatCurrency(totals.total || 0);
+        } else {
+            // Fallback to simple total
+            const total = typeof totals === 'number' ? totals : 0;
+            subtotalEl.textContent = formatCurrency(total);
+            totalEl.textContent = formatCurrency(total);
+            if (discountRow) {
+                discountRow.classList.add('hidden');
+            }
+        }
+        
         footer.classList.remove('hidden');
     }
     
     window.updateCartQuantity = async function(cartId, newQuantity) {
-        if (newQuantity < 1) return;
+        if (newQuantity < 1) {
+            // If quantity goes to 0, remove the item
+            removeFromCart(cartId);
+            return;
+        }
         
         try {
             const params = new URLSearchParams();
@@ -478,11 +521,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                loadCartItems();
-                updateCartBadge();
+                // Reload cart with fresh data from server
+                await loadCartItems();
+                await updateCartBadge();
+            } else {
+                showNotification(data.message || 'Failed to update quantity', 'error');
             }
         } catch (error) {
             console.error('Failed to update quantity:', error);
+            showNotification('Failed to update quantity', 'error');
         }
     };
     
@@ -501,12 +548,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                loadCartItems();
-                updateCartBadge();
+                // Reload cart with fresh data from server
+                await loadCartItems();
+                await updateCartBadge();
                 showNotification('Item removed from cart', 'success');
+            } else {
+                showNotification(data.message || 'Failed to remove item', 'error');
             }
         } catch (error) {
             console.error('Failed to remove item:', error);
+            showNotification('Failed to remove item', 'error');
         }
     };
     
