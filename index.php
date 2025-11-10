@@ -64,8 +64,23 @@ if ($currentView === 'templates') {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title><?php echo SITE_NAME; ?> - Website Templates & Digital Working Tools</title>
-    <meta name="description" content="Professional website templates and digital working tools for your business. API keys, software licenses, and more. Launch in 24 hours.">
+    <title><?php echo SITE_NAME; ?> - Professional Website Templates & Digital Working Tools</title>
+    <meta name="description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta name="keywords" content="website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<?php echo SITE_NAME; ?> - Templates & Digital Tools">
+    <meta property="og:description" content="Professional website templates and digital working tools for your business. Get API keys, software licenses, and more. Launch in 24 hours.">
+    <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
+    <meta property="og:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/assets/images/webdaddy-logo.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo SITE_NAME; ?> - Templates & Digital Tools">
+    <meta name="twitter:description" content="Professional website templates and digital working tools. Launch your business online in 24 hours.">
+    <meta name="twitter:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/assets/images/webdaddy-logo.png">
     
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -313,65 +328,100 @@ if ($currentView === 'templates') {
                 </div>
             </div>
 
-            <!-- Search and Filter Section (Templates Only) -->
-            <?php if ($currentView === 'templates'): ?>
+            <!-- Unified Search Interface -->
             <div class="mb-8" x-data="{ 
                 searchQuery: '',
+                searchType: 'all',
                 isSearching: false,
                 searchTimeout: null,
+                showResults: false,
+                liveResults: [],
                 affiliateCode: '<?php echo htmlspecialchars($affiliateCode); ?>',
-                totalTemplates: <?php echo (int)$totalTemplates; ?>,
+                currentView: '<?php echo $currentView; ?>',
+                get placeholderText() {
+                    if (this.searchType === 'template') return 'Search website templates...';
+                    if (this.searchType === 'tool') return 'Search working tools...';
+                    return 'Search templates and tools...';
+                },
                 clearSearch() {
                     this.searchQuery = '';
+                    this.showResults = false;
+                    this.liveResults = [];
                     if (this.searchTimeout) clearTimeout(this.searchTimeout);
-                    this.isSearching = true;
-                    
-                    fetch('/api/search.php')
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                window.TemplateSearch.updateTemplateGrid(data.results, this.affiliateCode);
-                                const resultsMsg = document.querySelector('[data-search-results]');
-                                if (resultsMsg) {
-                                    resultsMsg.innerHTML = `<p class=&quot;text-sm text-gray-600&quot;>Showing <span class=&quot;font-semibold text-primary-600&quot;>${data.count}</span> of <span class=&quot;font-semibold&quot;>${this.totalTemplates}</span> templates</p>`;
-                                }
-                            }
-                        })
-                        .catch(e => console.error('Clear search failed:', e))
-                        .finally(() => { this.isSearching = false; });
                 },
-                performSearch(query, immediate = false) {
+                performLiveSearch(query) {
                     if (this.searchTimeout) clearTimeout(this.searchTimeout);
                     
                     if (!query || query.trim().length === 0) {
-                        this.clearSearch();
+                        this.showResults = false;
+                        this.liveResults = [];
                         return;
                     }
                     
-                    const delay = immediate ? 0 : 1000;
                     this.searchTimeout = setTimeout(() => {
                         this.isSearching = true;
-                        window.TemplateSearch.performSearch(query, this.affiliateCode)
+                        const params = new URLSearchParams({
+                            q: query,
+                            type: this.searchType
+                        });
+                        
+                        fetch(`/api/search.php?${params.toString()}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success && data.results) {
+                                    this.liveResults = data.results.slice(0, 5);
+                                    this.showResults = this.liveResults.length > 0;
+                                } else {
+                                    this.liveResults = [];
+                                    this.showResults = false;
+                                }
+                            })
+                            .catch(e => {
+                                console.error('Live search failed:', e);
+                                this.liveResults = [];
+                                this.showResults = false;
+                            })
                             .finally(() => { this.isSearching = false; });
-                    }, delay);
+                    }, 300);
+                },
+                navigateToProduct(result) {
+                    if (result.type === 'template') {
+                        window.location.href = `/order.php?template=${result.id}${this.affiliateCode ? '&aff=' + this.affiliateCode : ''}`;
+                    } else if (result.type === 'tool') {
+                        window.openToolModal ? window.openToolModal(result.id) : null;
+                    }
+                    this.clearSearch();
                 }
             }">
-                <div class="max-w-3xl mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <!-- Search Input -->
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <!-- Search Type Selector -->
+                        <div class="relative">
+                            <select x-model="searchType" 
+                                    class="appearance-none px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all font-medium text-gray-700 cursor-pointer">
+                                <option value="all">All Products</option>
+                                <option value="template">Templates Only</option>
+                                <option value="tool">Tools Only</option>
+                            </select>
+                            <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Search Input with Live Results -->
                         <div class="flex-1 relative">
                             <input type="text" 
                                    x-model="searchQuery"
-                                   @input="performSearch(searchQuery, false)"
-                                   @keyup.enter.prevent="performSearch(searchQuery, true)"
-                                   placeholder="Search templates... (start typing)" 
+                                   @input="performLiveSearch(searchQuery)"
+                                   @click.away="showResults = false"
+                                   :placeholder="placeholderText" 
                                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
                             <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <button x-show="searchQuery.length > 0" 
                                     @click="clearSearch()"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
                                     title="Clear search">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -383,18 +433,42 @@ if ($currentView === 'templates') {
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                             </div>
+                            
+                            <!-- Live Search Results Dropdown -->
+                            <div x-show="showResults && liveResults.length > 0" 
+                                 x-transition
+                                 class="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-96 overflow-y-auto">
+                                <template x-for="result in liveResults" :key="result.id + result.type">
+                                    <div @click="navigateToProduct(result)" 
+                                         class="flex items-center gap-4 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors">
+                                        <img :src="result.thumbnail_url || '/assets/images/placeholder.jpg'" 
+                                             :alt="result.name"
+                                             class="w-16 h-16 object-cover rounded-lg"
+                                             onerror="this.src='/assets/images/placeholder.jpg'">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <h4 class="font-semibold text-gray-900 truncate" x-text="result.name"></h4>
+                                                <span x-text="result.type === 'template' ? 'Template' : 'Tool'" 
+                                                      :class="result.type === 'template' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'"
+                                                      class="text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap"></span>
+                                            </div>
+                                            <p class="text-sm text-gray-600 truncate" x-text="result.category"></p>
+                                            <p class="text-base font-bold text-primary-600 mt-1" 
+                                               x-text="'₦' + parseInt(result.price).toLocaleString()"></p>
+                                        </div>
+                                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </div>
+                                </template>
+                                <div class="p-3 bg-gray-50 text-center text-xs text-gray-600">
+                                    Showing top <span x-text="liveResults.length"></span> results. Click to view details.
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Search Results Message -->
-                    <div class="mt-4 text-center" data-search-results>
-                        <p class="text-sm text-gray-600">
-                            Showing <span class="font-semibold text-primary-600"><?php echo count($templates); ?></span> of <span class="font-semibold"><?php echo $totalTemplates; ?></span> templates
-                        </p>
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
 
             <!-- Dynamic Content Area -->
             <div id="products-content-area">
@@ -756,6 +830,66 @@ if ($currentView === 'templates') {
                         We offer 24/7 support via WhatsApp at <?php echo WHATSAPP_NUMBER; ?>. Our team is always ready to help you with any questions or issues.
                     </div>
                 </div>
+                
+                <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                    <button @click="selected = selected === 5 ? null : 5" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                        <span>What types of digital working tools do you offer?</span>
+                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === 5" x-collapse class="px-6 pb-4 text-gray-600">
+                        We offer a wide range of digital tools including API keys (ChatGPT, Google Maps, etc.), software licenses, automation tools, plugins, and business software to help grow your business.
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                    <button @click="selected = selected === 6 ? null : 6" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                        <span>How do I receive my purchased tools?</span>
+                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 6 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === 6" x-collapse class="px-6 pb-4 text-gray-600">
+                        Digital tools are delivered instantly via email after purchase confirmation. You'll receive download links, license keys, or API credentials with detailed instructions on how to use them.
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                    <button @click="selected = selected === 7 ? null : 7" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                        <span>Can I get a refund for digital tools?</span>
+                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 7 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === 7" x-collapse class="px-6 pb-4 text-gray-600">
+                        Due to the digital nature of our tools, all sales are final once access credentials are delivered. However, if you experience technical issues, contact our support team within 7 days for assistance.
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                    <button @click="selected = selected === 8 ? null : 8" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                        <span>Are API keys lifetime or subscription-based?</span>
+                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 8 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === 8" x-collapse class="px-6 pb-4 text-gray-600">
+                        This depends on the specific API provider. Some tools are lifetime access while others require monthly subscriptions. Each product listing clearly indicates the license type and duration.
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md border border-gray-200">
+                    <button @click="selected = selected === 9 ? null : 9" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                        <span>How does the shopping cart work?</span>
+                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 9 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="selected === 9" x-collapse class="px-6 pb-4 text-gray-600">
+                        You can add multiple digital tools to your cart and purchase them together in one transaction. Your cart is saved for 24 hours. Click the cart icon at the top to view and manage your items.
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -771,7 +905,7 @@ if ($currentView === 'templates') {
                         <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-10 mr-3" onerror="this.style.display='none'">
                         <span class="text-2xl font-bold"><?php echo SITE_NAME; ?></span>
                     </div>
-                    <p class="text-gray-300 text-base mb-6 leading-relaxed">Professional website templates with domains included. Launch your business online in 24 hours or less.</p>
+                    <p class="text-gray-300 text-base mb-6 leading-relaxed">Professional website templates and digital working tools to power your business. Get custom domains, API keys, software licenses, and more. Launch in 24 hours or less.</p>
                     
                     <!-- Trust Badges -->
                     <div class="flex flex-wrap gap-4 mb-6">
