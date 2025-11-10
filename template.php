@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/analytics.php';
+require_once __DIR__ . '/includes/cart.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -26,6 +27,7 @@ trackTemplateView($templateId);
 
 $availableDomains = getAvailableDomains($templateId);
 $affiliateCode = getAffiliateCode();
+$cartCount = getCartCount();
 $features = $template['features'] ? explode(',', $template['features']) : [];
 ?>
 <!DOCTYPE html>
@@ -66,6 +68,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
             }
         }
     </script>
+    <script src="/assets/js/forms.js" defer></script>
+    <script src="/assets/js/cart-and-tools.js" defer></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -78,12 +82,18 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                         <span class="text-xl font-bold text-primary-900"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
-                <div class="hidden md:flex items-center">
+                <div class="hidden md:flex items-center space-x-8">
                     <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                         Back to Templates
+                    </a>
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
@@ -105,6 +115,10 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
                     Back to Templates
+                </a>
+                <a href="#" id="cart-button-mobile" onclick="toggleCartDrawer(); return false;" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium flex items-center">
+                    Cart
+                    <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
                 </a>
             </div>
         </div>
@@ -198,13 +212,13 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             </div>
 
                             <div class="space-y-3 mb-6">
-                                <a href="/order.php?template=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
-                                   class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg">
+                                <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>', this)" 
+                                   class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                     </svg>
-                                    Order Now
-                                </a>
+                                    Add to Cart
+                                </button>
                                 <?php if ($template['demo_url']): ?>
                                 <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
                                    target="_blank" 

@@ -260,6 +260,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </svg>
                     <span id="floating-cart-count" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">0</span>
                 </button>
+                
+                <!-- Animated Total Amount Badge -->
+                <div id="floating-cart-total-badge" class="hidden absolute -top-14 right-0 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-xl transition-all duration-300 opacity-0 whitespace-nowrap">
+                    <div class="text-xs text-gray-400 mb-1">Total</div>
+                    <div id="floating-cart-total-amount" class="text-lg font-bold">₦0</div>
+                </div>
             </div>
         `;
         
@@ -386,9 +392,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function animateCartBadge() {
         const floatingCart = document.getElementById('floating-cart');
+        const totalBadge = document.getElementById('floating-cart-total-badge');
+        
         if (floatingCart) {
             floatingCart.classList.add('animate-bounce');
             setTimeout(() => floatingCart.classList.remove('animate-bounce'), 500);
+        }
+        
+        // Animate the total badge
+        if (totalBadge && !totalBadge.classList.contains('hidden')) {
+            totalBadge.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                totalBadge.style.transform = 'scale(1)';
+            }, 300);
         }
     }
     
@@ -406,10 +422,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateBadgeElement('cart-count-mobile', count);
                 updateBadgeElement('floating-cart-count', count);
                 
-                // Update floating cart total
-                const totalEl = document.getElementById('floating-cart-total');
-                if (totalEl && count > 0) {
-                    totalEl.querySelector('p:last-child').textContent = formatCurrency(total);
+                // Update floating cart total amount
+                const totalAmountEl = document.getElementById('floating-cart-total-amount');
+                const totalBadgeEl = document.getElementById('floating-cart-total-badge');
+                
+                if (totalAmountEl) {
+                    totalAmountEl.textContent = formatCurrency(total);
+                }
+                
+                // Show/hide total badge based on cart count
+                if (totalBadgeEl) {
+                    if (count > 0) {
+                        totalBadgeEl.classList.remove('hidden');
+                        setTimeout(() => {
+                            totalBadgeEl.classList.remove('opacity-0');
+                            totalBadgeEl.classList.add('opacity-100');
+                        }, 10);
+                    } else {
+                        totalBadgeEl.classList.remove('opacity-100');
+                        totalBadgeEl.classList.add('opacity-0');
+                        setTimeout(() => {
+                            totalBadgeEl.classList.add('hidden');
+                        }, 300);
+                    }
                 }
             }
         } catch (error) {

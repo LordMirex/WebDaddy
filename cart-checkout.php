@@ -64,15 +64,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
         
-        // Generate WhatsApp message with detailed service descriptions
-        $message = "🛒 *NEW TOOLS ORDER*\n";
+        // Generate WhatsApp message with detailed product descriptions
+        $hasTemplates = false;
+        $hasTools = false;
+        foreach ($cartItems as $item) {
+            $productType = $item['product_type'] ?? 'tool';
+            if ($productType === 'template') $hasTemplates = true;
+            if ($productType === 'tool') $hasTools = true;
+        }
+        
+        $orderTypeText = '';
+        if ($hasTemplates && $hasTools) {
+            $orderTypeText = 'TEMPLATES & TOOLS ORDER';
+        } elseif ($hasTemplates) {
+            $orderTypeText = 'TEMPLATES ORDER';
+        } else {
+            $orderTypeText = 'TOOLS ORDER';
+        }
+        
+        $message = "🛒 *NEW {$orderTypeText}*\n";
         $message .= "━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "*SERVICES REQUESTED:*\n\n";
+        $message .= "*ITEMS ORDERED:*\n\n";
         
         $itemNumber = 1;
         foreach ($cartItems as $item) {
+            $productType = $item['product_type'] ?? 'tool';
             $itemTotal = $item['price_at_add'] * $item['quantity'];
-            $message .= "*{$itemNumber}. {$item['name']}*\n";
+            $typeLabel = ($productType === 'template') ? '🎨 Template' : '🔧 Tool';
+            
+            $message .= "*{$itemNumber}. {$item['name']}* ({$typeLabel})\n";
             
             // Add category if available
             if (!empty($item['category'])) {
@@ -85,7 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $message .= "   Unit Price: " . formatCurrency($item['price_at_add']) . "\n";
-            $message .= "   Quantity: {$item['quantity']}\n";
+            if ($productType === 'tool' && $item['quantity'] > 1) {
+                $message .= "   Quantity: {$item['quantity']}\n";
+            }
             $message .= "   *Subtotal: " . formatCurrency($itemTotal) . "*\n\n";
             $itemNumber++;
         }
@@ -121,15 +143,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'timestamp' => date('Y-m-d H:i:s')
         ]);
         
+        // Determine order type
+        $orderType = 'mixed';
+        if ($hasTemplates && !$hasTools) {
+            $orderType = 'templates';
+        } elseif (!$hasTemplates && $hasTools) {
+            $orderType = 'tools';
+        }
+        
         // Create pending order (for admin tracking)
         $db = getDb();
         $stmt = $db->prepare("INSERT INTO pending_orders (
             template_id, order_type, cart_snapshot, customer_name, customer_email, 
             customer_phone, affiliate_code, session_id, message_text, ip_address,
             original_price, discount_amount, final_amount, created_at
-        ) VALUES (NULL, 'tools', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)");
+        ) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)");
         
         $stmt->execute([
+            $orderType,
             $cartSnapshot,
             $customerName,
             $customerEmail,
