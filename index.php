@@ -542,7 +542,8 @@ if ($currentView === 'templates') {
             <?php else: ?>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <?php foreach ($tools as $tool): ?>
-                <div class="group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer" 
+                     data-tool-id="<?php echo $tool['id']; ?>">
                     <div class="relative overflow-hidden h-40 bg-gray-100">
                         <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
@@ -571,8 +572,8 @@ if ($currentView === 'templates') {
                                 <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
                                 <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
                             </div>
-                            <button disabled title="Cart feature coming soon" 
-                                    class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-gray-400 cursor-not-allowed whitespace-nowrap">
+                            <button onclick="event.stopPropagation(); addToCartFromModal(<?php echo $tool['id']; ?>, '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>', <?php echo $tool['price']; ?>)" 
+                                    class="add-to-cart-btn inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap">
                                 <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
