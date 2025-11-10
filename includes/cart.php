@@ -23,10 +23,11 @@ function getCartSessionId() {
 }
 
 /**
- * Get all cart items for current session
+ * Get all cart items for current session with product details
+ * Supports both templates and tools based on product_type
  * 
  * @param string $sessionId Optional session ID (uses current if not provided)
- * @return array Array of cart items with tool details
+ * @return array Array of cart items with product details
  */
 function getCart($sessionId = null) {
     $db = getDb();
@@ -35,16 +36,51 @@ function getCart($sessionId = null) {
         $sessionId = getCartSessionId();
     }
     
-    $sql = "SELECT c.*, t.name, t.slug, t.thumbnail_url, t.stock_unlimited, t.stock_quantity, t.active
-            FROM cart_items c
-            JOIN tools t ON c.tool_id = t.id
-            WHERE c.session_id = ?
-            ORDER BY c.created_at DESC";
-    
-    $stmt = $db->prepare($sql);
+    $stmt = $db->prepare("SELECT * FROM cart_items WHERE session_id = ? ORDER BY created_at DESC");
     $stmt->execute([$sessionId]);
+    $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $result = [];
+    foreach ($cartItems as $item) {
+        $productType = $item['product_type'] ?? 'tool';
+        $productId = $item['product_id'];
+        
+        if ($productType === 'tool') {
+            $stmt = $db->prepare("SELECT name, slug, thumbnail_url, stock_unlimited, stock_quantity, active, price FROM tools WHERE id = ?");
+            $stmt->execute([$productId]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($product) {
+                $result[] = array_merge($item, [
+                    'name' => $product['name'],
+                    'slug' => $product['slug'],
+                    'thumbnail_url' => $product['thumbnail_url'],
+                    'stock_unlimited' => $product['stock_unlimited'],
+                    'stock_quantity' => $product['stock_quantity'],
+                    'active' => $product['active'],
+                    'current_price' => $product['price']
+                ]);
+            }
+        } elseif ($productType === 'template') {
+            $stmt = $db->prepare("SELECT name, slug, thumbnail_url, active, price FROM templates WHERE id = ?");
+            $stmt->execute([$productId]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($product) {
+                $result[] = array_merge($item, [
+                    'name' => $product['name'],
+                    'slug' => $product['slug'],
+                    'thumbnail_url' => $product['thumbnail_url'],
+                    'stock_unlimited' => 1,
+                    'stock_quantity' => 999999,
+                    'active' => $product['active'],
+                    'current_price' => $product['price']
+                ]);
+            }
+        }
+    }
+    
+    return $result;
 }
 
 /**
@@ -70,43 +106,68 @@ function getCartCount($sessionId = null) {
 }
 
 /**
- * Add item to cart (or update quantity if already exists)
+ * Add product to cart (unified function for both templates and tools)
  * 
- * @param int $toolId Tool ID
+ * @param string $productType Product type ('tool' or 'template')
+ * @param int $productId Product ID
  * @param int $quantity Quantity to add
  * @param string $sessionId Optional session ID
  * @return array Result with success status and message
  */
-function addToCart($toolId, $quantity = 1, $sessionId = null) {
+function addProductToCart($productType, $productId, $quantity = 1, $sessionId = null) {
     $db = getDb();
     
     if ($sessionId === null) {
         $sessionId = getCartSessionId();
     }
     
-    // Validate tool exists and is active
-    $tool = getToolById($toolId);
-    if (!$tool || $tool['active'] != 1) {
-        return ['success' => false, 'message' => 'Tool not found or inactive'];
+    // Validate product type
+    if (!in_array($productType, ['tool', 'template'])) {
+        return ['success' => false, 'message' => 'Invalid product type'];
     }
     
-    // Check stock availability
-    if (!checkToolStock($toolId, $quantity)) {
-        return ['success' => false, 'message' => 'Insufficient stock'];
+    // Get product details
+    if ($productType === 'tool') {
+        $stmt = $db->prepare("SELECT * FROM tools WHERE id = ? AND active = 1");
+        $stmt->execute([$productId]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$product) {
+            return ['success' => false, 'message' => 'Tool not found or inactive'];
+        }
+        
+        // Check stock
+        if (!checkToolStock($productId, $quantity)) {
+            return ['success' => false, 'message' => 'Insufficient stock'];
+        }
+    } else {
+        $stmt = $db->prepare("SELECT * FROM templates WHERE id = ? AND active = 1");
+        $stmt->execute([$productId]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$product) {
+            return ['success' => false, 'message' => 'Template not found or inactive'];
+        }
+        
+        // Templates are digital products with unlimited stock, quantity always 1
+        $quantity = 1;
     }
     
     try {
         // Check if item already in cart
-        $stmt = $db->prepare("SELECT id, quantity FROM cart_items WHERE session_id = ? AND tool_id = ?");
-        $stmt->execute([$sessionId, $toolId]);
+        $stmt = $db->prepare("SELECT id, quantity FROM cart_items WHERE session_id = ? AND product_type = ? AND product_id = ?");
+        $stmt->execute([$sessionId, $productType, $productId]);
         $existing = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($existing) {
-            // Update existing item
+            if ($productType === 'template') {
+                return ['success' => false, 'message' => 'Template already in cart'];
+            }
+            
+            // Update existing tool
             $newQuantity = $existing['quantity'] + $quantity;
             
-            // Check stock for new total quantity
-            if (!checkToolStock($toolId, $newQuantity)) {
+            if (!checkToolStock($productId, $newQuantity)) {
                 return ['success' => false, 'message' => 'Insufficient stock for requested quantity'];
             }
             
@@ -117,18 +178,31 @@ function addToCart($toolId, $quantity = 1, $sessionId = null) {
         } else {
             // Add new item
             $stmt = $db->prepare("
-                INSERT INTO cart_items (session_id, tool_id, quantity, price_at_add)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO cart_items (session_id, product_type, product_id, tool_id, quantity, price_at_add)
+                VALUES (?, ?, ?, ?, ?, ?)
             ");
-            $stmt->execute([$sessionId, $toolId, $quantity, $tool['price']]);
+            $toolId = $productType === 'tool' ? $productId : null;
+            $stmt->execute([$sessionId, $productType, $productId, $toolId, $quantity, $product['price']]);
             
             return ['success' => true, 'message' => 'Added to cart', 'action' => 'added'];
         }
         
     } catch (PDOException $e) {
         error_log("Error adding to cart: " . $e->getMessage());
-        return ['success' => false, 'message' => 'Database error'];
+        return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
     }
+}
+
+/**
+ * Add tool to cart (backward compatibility wrapper)
+ * 
+ * @param int $toolId Tool ID
+ * @param int $quantity Quantity to add
+ * @param string $sessionId Optional session ID
+ * @return array Result with success status and message
+ */
+function addToCart($toolId, $quantity = 1, $sessionId = null) {
+    return addProductToCart('tool', $toolId, $quantity, $sessionId);
 }
 
 /**
@@ -160,8 +234,13 @@ function updateCartQuantity($cartItemId, $quantity, $sessionId = null) {
             return ['success' => false, 'message' => 'Cart item not found'];
         }
         
-        // Check stock
-        if (!checkToolStock($cartItem['tool_id'], $quantity)) {
+        // Templates cannot have quantity changed
+        if ($cartItem['product_type'] === 'template') {
+            return ['success' => false, 'message' => 'Cannot change quantity for templates'];
+        }
+        
+        // Check stock for tools
+        if ($cartItem['product_type'] === 'tool' && !checkToolStock($cartItem['product_id'], $quantity)) {
             return ['success' => false, 'message' => 'Insufficient stock'];
         }
         
@@ -283,23 +362,27 @@ function validateCart($sessionId = null) {
     $valid = true;
     
     foreach ($cartItems as $item) {
-        // Check if tool still active
+        $productType = $item['product_type'] ?? 'tool';
+        
+        // Check if product still active
         if ($item['active'] != 1) {
             $issues[] = [
                 'cart_item_id' => $item['id'],
-                'tool_name' => $item['name'],
-                'issue' => 'Tool is no longer available'
+                'product_name' => $item['name'],
+                'product_type' => $productType,
+                'issue' => ucfirst($productType) . ' is no longer available'
             ];
             $valid = false;
             continue;
         }
         
-        // Check stock
-        if (!checkToolStock($item['tool_id'], $item['quantity'])) {
-            $tool = getToolById($item['tool_id']);
+        // Check stock for tools only
+        if ($productType === 'tool' && !checkToolStock($item['product_id'], $item['quantity'])) {
+            $tool = getToolById($item['product_id']);
             $issues[] = [
                 'cart_item_id' => $item['id'],
-                'tool_name' => $item['name'],
+                'product_name' => $item['name'],
+                'product_type' => 'tool',
                 'issue' => 'Insufficient stock',
                 'requested' => $item['quantity'],
                 'available' => $tool['stock_quantity']

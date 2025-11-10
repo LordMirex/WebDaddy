@@ -102,20 +102,27 @@ try {
         
         switch ($action) {
             case 'add':
-                // Add to cart
-                $toolId = $input['tool_id'] ?? null;
+                // Add to cart (supports both tools and templates)
+                $productType = $input['product_type'] ?? 'tool';
+                $productId = $input['product_id'] ?? $input['tool_id'] ?? null;
                 $quantity = $input['quantity'] ?? 1;
                 
-                if (!$toolId || $quantity < 1) {
+                if (!$productId || $quantity < 1) {
                     http_response_code(400);
                     echo json_encode([
                         'success' => false,
-                        'error' => 'Invalid tool_id or quantity'
+                        'error' => 'Invalid product_id or quantity'
                     ]);
                     exit;
                 }
                 
-                $result = addToCart($toolId, $quantity);
+                // Use unified cart function
+                if (isset($input['product_type'])) {
+                    $result = addProductToCart($productType, $productId, $quantity);
+                } else {
+                    // Backward compatibility for tool_id parameter
+                    $result = addToCart($productId, $quantity);
+                }
                 
                 if ($result['success']) {
                     // Get updated cart count
