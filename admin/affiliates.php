@@ -1233,7 +1233,7 @@ require_once __DIR__ . '/includes/header.php';
                             <i class="bi bi-chat-text text-purple-600"></i> Message <span class="text-red-600">*</span>
                         </label>
                         <div id="announcement-editor" style="min-height: 250px; background: white; border: 1px solid #ced4da; border-radius: 0.375rem;"></div>
-                        <textarea name="announcement_message" id="announcement_message" style="display:none;" required></textarea>
+                        <textarea name="announcement_message" id="announcement_message" style="display:none;"></textarea>
                         <small class="text-gray-500 text-xs mt-2 block">
                             <i class="bi bi-lightbulb"></i> Use the rich text editor to format your announcement. Add bold text, lists, and links as needed.
                         </small>
