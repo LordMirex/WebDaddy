@@ -254,6 +254,28 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         $discountAmount = $order['discount_amount'] ?? 0;
         $finalAmount = $order['final_amount'] ?? $amountPaid;
         
+        // Handle stock deduction for tool orders
+        $orderType = $order['order_type'] ?? 'template';
+        if ($orderType === 'tools' && !empty($order['cart_snapshot'])) {
+            require_once __DIR__ . '/tools.php';
+            
+            $cartData = json_decode($order['cart_snapshot'], true);
+            if ($cartData && isset($cartData['items'])) {
+                foreach ($cartData['items'] as $item) {
+                    $toolId = $item['tool_id'] ?? $item['id'];
+                    $quantity = $item['quantity'] ?? 1;
+                    $toolName = $item['name'] ?? "Tool ID $toolId";
+                    
+                    if ($toolId && $quantity > 0) {
+                        $success = decrementToolStock($toolId, $quantity);
+                        if (!$success) {
+                            throw new Exception("Failed to decrement stock for '$toolName' (ID: $toolId, Quantity: $quantity). Insufficient stock available.");
+                        }
+                    }
+                }
+            }
+        }
+        
         if (!empty($order['affiliate_code'])) {
             $affiliate = getAffiliateByCode($order['affiliate_code']);
             if ($affiliate) {
@@ -283,13 +305,35 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         
         // Send payment confirmation email to customer
         if (!empty($order['customer_email'])) {
-            $template = getTemplateById($order['template_id']);
+            if ($orderType === 'tools' && !empty($order['cart_snapshot'])) {
+                $cartData = json_decode($order['cart_snapshot'], true);
+                $totalQuantity = 0;
+                $toolNames = [];
+                if (isset($cartData['items'])) {
+                    foreach ($cartData['items'] as $item) {
+                        $totalQuantity += $item['quantity'] ?? 1;
+                        if (!empty($item['name'])) {
+                            $toolNames[] = $item['name'];
+                        }
+                    }
+                }
+                $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
+                $domainOrContext = !empty($toolNames) ? implode(', ', array_slice($toolNames, 0, 3)) : 'Digital Tools Order';
+                if (count($toolNames) > 3) {
+                    $domainOrContext .= ', +' . (count($toolNames) - 3) . ' more';
+                }
+            } else {
+                $template = getTemplateById($order['template_id']);
+                $productName = $template['name'] ?? 'Template';
+                $domainOrContext = $order['domain_name'] ?? 'Your Domain';
+            }
+            
             sendPaymentConfirmationEmail(
                 $order['customer_name'],
                 $order['customer_email'],
-                $template['name'] ?? 'Template',
-                $order['domain_name'] ?? 'Your Domain',
-                null // Credentials can be added later
+                $productName,
+                $domainOrContext,
+                null
             );
         }
         
@@ -297,13 +341,26 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         if ($affiliateId && $affiliate) {
             $affiliateUser = getUserById($affiliate['user_id']);
             if ($affiliateUser && !empty($affiliateUser['email'])) {
-                $template = getTemplateById($order['template_id']);
+                if ($orderType === 'tools' && !empty($order['cart_snapshot'])) {
+                    $cartData = json_decode($order['cart_snapshot'], true);
+                    $totalQuantity = 0;
+                    if (isset($cartData['items'])) {
+                        foreach ($cartData['items'] as $item) {
+                            $totalQuantity += $item['quantity'] ?? 1;
+                        }
+                    }
+                    $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
+                } else {
+                    $template = getTemplateById($order['template_id']);
+                    $productName = $template['name'] ?? 'Template';
+                }
+                
                 sendCommissionEarnedEmail(
                     $affiliateUser['name'],
                     $affiliateUser['email'],
                     $orderId,
                     $commissionAmount,
-                    $template['name'] ?? 'Template'
+                    $productName
                 );
             }
         }
