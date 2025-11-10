@@ -15,9 +15,10 @@ require_once __DIR__ . '/db.php';
  * @param string $category Optional category filter
  * @param int $limit Optional result limit
  * @param int $offset Optional result offset for pagination
+ * @param bool $inStockOnly If true, only return tools with stock (default true for customer view)
  * @return array Array of tool records
  */
-function getTools($activeOnly = true, $category = null, $limit = null, $offset = null) {
+function getTools($activeOnly = true, $category = null, $limit = null, $offset = null, $inStockOnly = true) {
     $db = getDb();
     
     $sql = "SELECT * FROM tools WHERE 1=1";
@@ -32,8 +33,10 @@ function getTools($activeOnly = true, $category = null, $limit = null, $offset =
         $params[] = $category;
     }
     
-    // Additional filter: only show tools with stock available
-    $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
+    // Additional filter: only show tools with stock available (for customer-facing views)
+    if ($inStockOnly) {
+        $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
+    }
     
     $sql .= " ORDER BY created_at DESC";
     
@@ -58,9 +61,10 @@ function getTools($activeOnly = true, $category = null, $limit = null, $offset =
  * 
  * @param bool $activeOnly Count only active tools
  * @param string $category Optional category filter
+ * @param bool $inStockOnly If true, only count tools with stock (default true for customer view)
  * @return int Total number of tools
  */
-function getToolsCount($activeOnly = true, $category = null) {
+function getToolsCount($activeOnly = true, $category = null, $inStockOnly = true) {
     $db = getDb();
     
     $sql = "SELECT COUNT(*) as count FROM tools WHERE 1=1";
@@ -75,8 +79,10 @@ function getToolsCount($activeOnly = true, $category = null) {
         $params[] = $category;
     }
     
-    // Count only tools with stock available
-    $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
+    // Count only tools with stock available (for customer-facing views)
+    if ($inStockOnly) {
+        $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
+    }
     
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
