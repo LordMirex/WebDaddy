@@ -41,7 +41,8 @@ handleAffiliateTracking();
 $affiliateCode = $_SESSION['affiliate_code'] ?? null;
 
 try {
-    $action = $_GET['action'] ?? '';
+    // Get action from either GET or POST
+    $action = $_GET['action'] ?? $_POST['action'] ?? '';
     
     // GET requests
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {

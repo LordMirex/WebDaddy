@@ -304,7 +304,8 @@ if ($currentView === 'templates') {
                 </div>
             </div>
 
-            <!-- Search and Filter Section -->
+            <!-- Search and Filter Section (Templates Only) -->
+            <?php if ($currentView === 'templates'): ?>
             <div class="mb-8" x-data="{ 
                 searchQuery: '',
                 isSearching: false,
@@ -384,6 +385,7 @@ if ($currentView === 'templates') {
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
             <!-- Dynamic Content Area -->
             <div id="products-content-area">
