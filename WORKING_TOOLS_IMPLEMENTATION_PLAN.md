@@ -46,11 +46,6 @@
   - [ ] Verify backup file is created and not empty
   - [ ] Test restore on a copy to ensure backup works
 
-- [ ] **Create development copy**
-  - [ ] Copy entire project to `/webdaddy-empire-dev/` folder
-  - [ ] Test that dev copy runs without errors
-  - [ ] Configure separate database for dev environment
-
 - [ ] **Document current state**
   - [ ] Count existing templates: `SELECT COUNT(*) FROM templates;`
   - [ ] Count existing orders: `SELECT COUNT(*) FROM orders;`
@@ -59,9 +54,6 @@
   - [ ] Screenshot current admin panel
   - [ ] List all current URLs in use
 
-- [ ] **Version control**
-  - [ ] Create git branch: `git checkout -b feature/working-tools`
-  - [ ] Commit current state: `git commit -am "Pre-tools implementation baseline"`
 
 - [ ] **Environment preparation**
   - [ ] Ensure PHP 7.4+ is installed
