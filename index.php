@@ -385,6 +385,8 @@ if ($currentView === 'templates') {
                 </div>
             </div>
 
+            <!-- Dynamic Content Area -->
+            <div id="products-content-area">
             <?php if ($currentView === 'templates'): ?>
             <?php if (empty($templates)): ?>
             <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
