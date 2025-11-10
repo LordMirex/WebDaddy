@@ -27,7 +27,11 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 ## System Architecture
 
 ### UI/UX Decisions
-- **Design Language**: Bootstrap styling for admin and public interfaces.
+- **Design Language**: Tailwind CSS for public-facing pages, Bootstrap for admin interfaces.
+- **Dual Order Flow**: Templates use instant WhatsApp ordering (one-click), Tools use cart-based checkout (multi-item bundling).
+- **AJAX Navigation**: Tab switching between Templates/Tools with no page reload, preserves scroll position, smooth animations.
+- **Tool Preview Modal**: Popup system showing full tool details instead of dedicated pages for faster browsing.
+- **Floating Cart**: Bottom-right FAB button showing live count and total, with slide-in drawer for quick management.
 - **Email Templates**: Cleaned up and simplified, removed logos and unnecessary CTAs for professionalism.
 - **Search Experience**: Instant AJAX search with 300ms debounce, loading indicator, and XSS-safe implementation. Preserves scroll position and auto-resets when input is cleared.
 - **Cron Job System**: Simplified for cPanel with click-to-copy commands and clear explanations.
@@ -47,9 +51,13 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 - **Optimizations**: Database VACUUM, ANALYZE, OPTIMIZE commands; session write optimization; UTF-8 encoding across the platform, including CSV exports with BOM for Excel compatibility.
 
 ### Feature Specifications
-- **Template Management**: Support for displaying and searching multiple website templates.
-- **Affiliate System**: Affiliate registration, dashboard, tracking of clicks/sales, scheduled performance emails, announcement system.
-- **Admin Panel**: Comprehensive dashboard for managing templates, affiliates, analytics, database, and email communications.
+- **Dual Marketplace**: Templates (direct WhatsApp ordering) and Tools (cart-based multi-item ordering).
+- **Template Management**: Support for displaying and searching multiple website templates with instant ordering via WhatsApp.
+- **Tools Management**: Digital tools marketplace with popup previews, cart system, and batch checkout via WhatsApp.
+- **Shopping Cart**: Session-based cart with floating button (count + total), slide-in drawer, quantity management, and multi-item checkout.
+- **AJAX Navigation**: Seamless tab switching between Templates and Tools without page reload or scroll jump.
+- **Affiliate System**: Affiliate registration, dashboard, tracking of clicks/sales, scheduled performance emails, announcement system. Works with both templates and tools.
+- **Admin Panel**: Comprehensive dashboard for managing templates, tools, affiliates, analytics, database, and email communications.
 - **Search Functionality**: Instant, dynamic search for templates with analytics tracking.
 - **Email System**: Unified modal for emailing all or single affiliates, scheduled emails, and spam folder warnings.
 - **Backup System**: Automated daily/weekly/monthly backups with configurable retention and email notifications.
