@@ -465,13 +465,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span id="floating-cart-count" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">0</span>
+                    <span id="floating-cart-count" class="hidden absolute -top-1 -right-1 bg-gray-900 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">0</span>
                 </button>
                 
-                <!-- Animated Total Amount Badge - positioned to the left to avoid overlap with count badge -->
-                <div id="floating-cart-total-badge" class="hidden absolute -top-2 -left-2 -translate-x-full bg-gray-900 text-white px-3 py-2 rounded-lg shadow-xl transition-all duration-300 opacity-0 whitespace-nowrap mr-3">
-                    <div class="text-xs text-gray-300">Total</div>
-                    <div id="floating-cart-total-amount" class="text-base font-bold">₦0</div>
+                <!-- Animated Total Amount Badge - positioned to the right side -->
+                <div id="floating-cart-total-badge" class="hidden absolute -top-2 -right-2 translate-x-full bg-gray-900 text-white px-2 py-1 rounded-md shadow-lg transition-all duration-300 opacity-0 whitespace-nowrap ml-2">
+                    <div id="floating-cart-total-amount" class="text-xs font-semibold">₦0</div>
                 </div>
             </div>
         `;
