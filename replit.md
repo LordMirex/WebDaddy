@@ -30,7 +30,7 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 - **AJAX Navigation**: Tab switching between Templates/Tools with no page reload, preserves scroll position, smooth animations. Category state persists during filtering, resets only when switching between views.
 - **Category Filtering**: Full-width dropdown selectors for both templates and tools (scalable to 50+ categories). Clone-and-replace event binding pattern ensures clean AJAX updates without duplicate handlers.
 - **Preview Modals**: Popup systems for both tool details (top-right positioning) and template demos (wider, taller modals).
-- **Floating Cart**: Bottom-right FAB button showing live count and total, with slide-in drawer for quick management. Cart badge uses black background (not red), smaller sizing (h-4 w-4, 10px font), positioned inside icon to avoid WhatsApp button interference.
+- **Floating Cart**: Top-right FAB button (optimized positioning to avoid interference with WhatsApp at bottom-left) showing item count only. Cart badge uses red background for visibility, positioned at top-right of icon. Simplified design for faster performance - removed total amount display and complex animations. Slide-in drawer for quick cart management.
 - **WhatsApp Integration**: Smart floating button with rotating contextual messages, displays immediately on page load at bottom-left.
 - **Product Display**: Compact price typography, clear category badges, and product counts visible in section headers.
 - **Email Templates**: Cleaned up and simplified for professionalism.
@@ -64,7 +64,7 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 - **Email System**: Unified modal for emailing affiliates, scheduled emails, and spam folder warnings.
 - **Backup System**: Automated daily/weekly/monthly backups with configurable retention and email notifications.
 - **Analytics**: Detailed dashboards for site visits, template views/clicks, search terms, device tracking, and IP filtering.
-- **Support**: Integrated WhatsApp floating button, support ticket system, direct admin contact options.
+- **Support**: Integrated WhatsApp floating button on all pages (index and template details) with contextual messages, support ticket system, direct admin contact options.
 
 ### System Design Choices
 - **SQLite over MySQL**: Chosen for ease of deployment on shared hosting environments.
