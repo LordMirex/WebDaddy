@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS activity_logs;
 DROP TABLE IF EXISTS announcements;
 DROP TABLE IF EXISTS withdrawal_requests;
 DROP TABLE IF EXISTS sales;
+DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS pending_orders;
 DROP TABLE IF EXISTS domains;
 DROP TABLE IF EXISTS affiliates;
@@ -105,10 +106,13 @@ CREATE INDEX idx_domains_template_id ON domains(template_id);
 CREATE INDEX idx_domains_status ON domains(status);
 CREATE INDEX idx_domains_domain_name ON domains(domain_name);
 
--- Pending Orders Table
+-- Pending Orders Table (Order Header)
+-- Updated to support both templates and tools, plus multi-item orders
 CREATE TABLE pending_orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    template_id INTEGER NOT NULL REFERENCES templates(id) ON DELETE RESTRICT,
+    template_id INTEGER REFERENCES templates(id) ON DELETE RESTRICT,
+    tool_id INTEGER REFERENCES tools(id) ON DELETE RESTRICT,
+    order_type TEXT DEFAULT 'template' CHECK(order_type IN ('template', 'tools', 'mixed')),
     chosen_domain_id INTEGER REFERENCES domains(id) ON DELETE SET NULL,
     customer_name TEXT NOT NULL,
     customer_email TEXT NOT NULL,
@@ -120,15 +124,41 @@ CREATE TABLE pending_orders (
     message_text TEXT,
     status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'paid', 'cancelled')),
     ip_address TEXT,
+    original_price REAL,
+    discount_amount REAL DEFAULT 0.00,
+    final_amount REAL,
+    quantity INTEGER DEFAULT 1,
+    cart_snapshot TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_pending_orders_template_id ON pending_orders(template_id);
+CREATE INDEX idx_pending_orders_tool_id ON pending_orders(tool_id);
+CREATE INDEX idx_pending_orders_order_type ON pending_orders(order_type);
 CREATE INDEX idx_pending_orders_status ON pending_orders(status);
 CREATE INDEX idx_pending_orders_affiliate_code ON pending_orders(affiliate_code);
 CREATE INDEX idx_pending_orders_customer_email ON pending_orders(customer_email);
 CREATE INDEX idx_pending_orders_created_at ON pending_orders(created_at);
+
+-- Order Items Table (Normalized Line Items for Multi-Product Orders)
+-- Supports granular tracking of each product in an order
+CREATE TABLE order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pending_order_id INTEGER NOT NULL REFERENCES pending_orders(id) ON DELETE CASCADE,
+    product_type TEXT NOT NULL CHECK(product_type IN ('template', 'tool')),
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    unit_price REAL NOT NULL,
+    discount_amount REAL DEFAULT 0.00,
+    final_amount REAL NOT NULL,
+    metadata_json TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_order_items_pending_order_id ON order_items(pending_order_id);
+CREATE INDEX idx_order_items_product_type_id ON order_items(product_type, product_id);
+CREATE INDEX idx_order_items_created_at ON order_items(created_at);
 
 -- Sales Table
 CREATE TABLE sales (
