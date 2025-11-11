@@ -199,6 +199,7 @@ HTML;
     $fulfillmentHtml = '';
     
     if ($context['has_templates'] && $domainName) {
+        $escapedDomain = htmlspecialchars($domainName);
         $credentialsHtml = '';
         if ($credentials) {
             $username = htmlspecialchars($credentials['username'] ?? '');
@@ -212,7 +213,7 @@ HTML;
         $fulfillmentHtml .= <<<HTML
 <div style="background:#dbeafe; border-left:3px solid #3b82f6; padding:15px; border-radius:4px; margin:15px 0;">
     <h3 style="color:#1e40af; margin:0 0 10px 0; font-size:16px;">🎨 Template Access</h3>
-    <p style="margin:5px 0; color:#374151;"><strong>Domain:</strong> {$domainName}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Domain:</strong> {$escapedDomain}</p>
     {$credentialsHtml}
     <p style="margin:10px 0 0 0; color:#374151; font-size:13px;">Your template is now live and ready to use!</p>
 </div>
