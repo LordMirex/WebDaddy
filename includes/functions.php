@@ -554,9 +554,11 @@ function getOrderById($orderId)
     
     try {
         $stmt = $db->prepare("
-            SELECT po.*, t.name as template_name, t.price as template_price, d.domain_name 
+            SELECT po.*, t.name as template_name, t.price as template_price, 
+                   tool.name as tool_name, tool.price as tool_price, d.domain_name 
             FROM pending_orders po
             LEFT JOIN templates t ON po.template_id = t.id
+            LEFT JOIN tools tool ON po.tool_id = tool.id
             LEFT JOIN domains d ON po.chosen_domain_id = d.id
             WHERE po.id = ?
         ");
@@ -567,6 +569,30 @@ function getOrderById($orderId)
     } catch (PDOException $e) {
         error_log('Error fetching order: ' . $e->getMessage());
         return null;
+    }
+}
+
+function getOrderItems($orderId)
+{
+    $db = getDb();
+    
+    try {
+        $stmt = $db->prepare("
+            SELECT oi.*, 
+                   t.name as template_name, t.slug as template_slug,
+                   tool.name as tool_name, tool.slug as tool_slug
+            FROM order_items oi
+            LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+            LEFT JOIN tools tool ON oi.product_type = 'tool' AND oi.product_id = tool.id
+            WHERE oi.pending_order_id = ?
+            ORDER BY oi.id ASC
+        ");
+        
+        $stmt->execute([$orderId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching order items: ' . $e->getMessage());
+        return [];
     }
 }
 
