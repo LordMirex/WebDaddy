@@ -1,3 +1,5 @@
+let toolPopupBound = false;
+
 document.addEventListener('DOMContentLoaded', function() {
     const affiliateCode = new URLSearchParams(window.location.search).get('aff') || '';
     let currentView = new URLSearchParams(window.location.search).get('view') || 'templates';
@@ -204,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             contentArea.innerHTML = html;
-            setupToolPopup();
         }
     }
     
@@ -296,8 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
                 
-                // Re-attach event listeners
-                setupToolPopup();
+                // Re-attach event listeners for AJAX-replaced elements only
                 setupPaginationHandlers();
                 setupCategoryFilters();
                 setupCategoryDropdown();
@@ -364,17 +364,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Tool Popup Modal
     function setupToolPopup() {
-        document.querySelectorAll('.tool-card, [data-tool-id]').forEach(card => {
-            card.style.cursor = 'pointer';
-            card.addEventListener('click', function(e) {
-                // Don't open modal if clicking Add to Cart button
-                if (e.target.closest('.add-to-cart-btn')) return;
-                
-                const toolId = this.dataset.toolId || this.querySelector('[data-tool-id]')?.dataset.toolId;
-                if (toolId) {
-                    openToolModal(toolId);
-                }
-            });
+        if (toolPopupBound) return;
+        toolPopupBound = true;
+
+        document.addEventListener('click', (event) => {
+            const addToCartClicked = event.target.closest('.add-to-cart-btn');
+            if (addToCartClicked) return;
+
+            const card = event.target.closest('.tool-card, [data-tool-id]');
+            if (!card) return;
+
+            const toolId = card.dataset.toolId || card.querySelector('[data-tool-id]')?.dataset.toolId;
+            if (toolId) {
+                openToolModal(toolId);
+            }
         });
     }
     
