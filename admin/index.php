@@ -24,6 +24,35 @@ $totalRevenue = $db->query("SELECT COALESCE(SUM(amount_paid), 0) FROM sales")->f
 $totalAffiliates = $db->query("SELECT COUNT(*) FROM affiliates WHERE status = 'active'")->fetchColumn();
 $pendingWithdrawals = $db->query("SELECT COUNT(*) FROM withdrawal_requests WHERE status = 'pending'")->fetchColumn();
 
+$ordersByType = $db->query("
+    SELECT order_type, COUNT(*) as count 
+    FROM pending_orders 
+    GROUP BY order_type
+")->fetchAll(PDO::FETCH_KEY_PAIR);
+
+$templateOrders = $ordersByType['template'] ?? 0;
+$toolOrders = $ordersByType['tool'] ?? 0;
+$mixedOrders = $ordersByType['mixed'] ?? 0;
+
+$lowStockTools = $db->query("
+    SELECT name, stock_quantity 
+    FROM tools 
+    WHERE active = true 
+    AND stock_type = 'limited' 
+    AND stock_quantity <= 5 
+    AND stock_quantity > 0
+    ORDER BY stock_quantity ASC
+    LIMIT 5
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$outOfStockTools = $db->query("
+    SELECT COUNT(*) 
+    FROM tools 
+    WHERE active = true 
+    AND stock_type = 'limited' 
+    AND stock_quantity = 0
+")->fetchColumn();
+
 $recentOrders = getOrders('pending');
 $recentOrders = array_slice($recentOrders, 0, 5);
 
@@ -81,6 +110,92 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($totalAffiliates); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($pendingWithdrawals); ?> pending withdrawals</small>
+    </div>
+</div>
+
+<!-- Order Type Breakdown & Inventory Alerts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Order Type Breakdown -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-pie-chart text-primary-600"></i> Orders by Type
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if ($totalOrders > 0): ?>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-palette text-2xl text-green-600"></i>
+                        <span class="font-semibold text-gray-700">Template Orders</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-green-600"><?php echo $templateOrders; ?></div>
+                        <div class="text-xs text-gray-500"><?php echo $totalOrders > 0 ? round(($templateOrders / $totalOrders) * 100, 1) : 0; ?>%</div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-tools text-2xl text-blue-600"></i>
+                        <span class="font-semibold text-gray-700">Tool Orders</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-blue-600"><?php echo $toolOrders; ?></div>
+                        <div class="text-xs text-gray-500"><?php echo $totalOrders > 0 ? round(($toolOrders / $totalOrders) * 100, 1) : 0; ?>%</div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-collection text-2xl text-purple-600"></i>
+                        <span class="font-semibold text-gray-700">Mixed Orders</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-purple-600"><?php echo $mixedOrders; ?></div>
+                        <div class="text-xs text-gray-500"><?php echo $totalOrders > 0 ? round(($mixedOrders / $totalOrders) * 100, 1) : 0; ?>%</div>
+                    </div>
+                </div>
+            </div>
+            <?php else: ?>
+            <p class="text-gray-500 text-center py-4">No orders yet</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Inventory Alerts -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-exclamation-triangle text-yellow-500"></i> Inventory Alerts
+            </h5>
+        </div>
+        <div class="p-6">
+            <?php if ($outOfStockTools > 0): ?>
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-lg mb-4 flex items-center gap-3">
+                <i class="bi bi-x-circle text-xl"></i>
+                <span><strong><?php echo $outOfStockTools; ?></strong> tool(s) out of stock</span>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($lowStockTools)): ?>
+            <h6 class="text-sm font-semibold text-gray-700 mb-3">Low Stock Tools:</h6>
+            <div class="space-y-2">
+                <?php foreach ($lowStockTools as $tool): ?>
+                <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                    <span class="text-sm text-gray-700"><?php echo htmlspecialchars($tool['name']); ?></span>
+                    <span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded text-xs font-bold">
+                        <?php echo $tool['stock_quantity']; ?> left
+                    </span>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php elseif ($outOfStockTools == 0): ?>
+            <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded-lg flex items-center gap-3">
+                <i class="bi bi-check-circle text-xl"></i>
+                <span>All tools have adequate stock</span>
+            </div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
