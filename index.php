@@ -486,13 +486,13 @@ if ($currentView === 'templates') {
             <!-- Category Filter -->
             <div class="mb-6 max-w-4xl mx-auto">
                 <div class="relative">
-                    <select onchange="window.location.href=this.value" 
+                    <select id="tools-category-filter" 
                             class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
-                        <option value="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
+                        <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
                             All Categories
                         </option>
                         <?php foreach ($toolCategories as $cat): ?>
-                        <option value="?view=tools&category=<?php echo urlencode($cat); ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
+                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($cat); ?>
                         </option>
                         <?php endforeach; ?>

@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setupCartDrawer();
         updateCartBadge();
         setupSearch();
+        setupCategoryDropdown();
     }
     
     // Setup search functionality
@@ -299,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 setupToolPopup();
                 setupPaginationHandlers();
                 setupCategoryFilters();
+                setupCategoryDropdown();
             }
         } catch (error) {
             console.error('Failed to load view:', error);
@@ -347,6 +349,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     switchView('tools', 1, category);
                 }
             });
+        });
+    }
+    
+    function setupCategoryDropdown() {
+        const dropdown = document.getElementById('tools-category-filter');
+        if (!dropdown) return;
+        
+        dropdown.addEventListener('change', function(e) {
+            const category = e.target.value;
+            switchView('tools', 1, category);
         });
     }
     
@@ -409,7 +421,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         <div class="mb-4">
                             <h4 class="text-lg font-semibold text-gray-900 mb-2">Description</h4>
-                            <p class="text-gray-700">${escapeHtml(tool.description || tool.short_description || 'No description available')}</p>
+                            <div class="text-gray-700 text-base leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                ${escapeHtml(tool.description || tool.short_description || 'No description available').replace(/\n/g, '<br>')}
+                            </div>
                         </div>
                         
                         ${tool.features ? `
