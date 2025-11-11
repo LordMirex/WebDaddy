@@ -434,7 +434,7 @@ if ($currentView === 'templates') {
             
             <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
-            <div class="mt-12 flex justify-center">
+            <div class="mt-12 flex flex-col items-center gap-4">
                 <nav class="flex items-center gap-2">
                     <?php
                     $paginationParams = ['view' => $currentView];
@@ -443,7 +443,7 @@ if ($currentView === 'templates') {
                     ?>
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -458,14 +458,14 @@ if ($currentView === 'templates') {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 rounded-lg transition-colors">
+                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-white text-gray-700 border-gray-300 hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -473,10 +473,8 @@ if ($currentView === 'templates') {
                     </a>
                     <?php endif; ?>
                 </nav>
-            </div>
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
-                    Page <?php echo $page; ?> of <?php echo $totalPages; ?>
+                <p class="text-sm font-medium text-gray-600">
+                    Page <span class="text-primary-600 font-bold"><?php echo $page; ?></span> of <?php echo $totalPages; ?> <span class="text-gray-400 mx-1">•</span> <?php echo $totalTemplates; ?> templates
                 </p>
             </div>
             <?php endif; ?>
@@ -565,7 +563,7 @@ if ($currentView === 'templates') {
             
             <!-- Pagination for tools -->
             <?php if ($totalPages > 1): ?>
-            <div class="mt-12 flex justify-center">
+            <div class="mt-12 flex flex-col items-center gap-4">
                 <nav class="flex items-center gap-2">
                     <?php
                     $paginationParams = ['view' => 'tools'];
@@ -574,7 +572,7 @@ if ($currentView === 'templates') {
                     ?>
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -588,14 +586,14 @@ if ($currentView === 'templates') {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 rounded-lg transition-colors">
+                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-white text-gray-700 border-gray-300 hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -603,10 +601,8 @@ if ($currentView === 'templates') {
                     </a>
                     <?php endif; ?>
                 </nav>
-            </div>
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-600">
-                    Page <?php echo $page; ?> of <?php echo $totalPages; ?>
+                <p class="text-sm font-medium text-gray-600">
+                    Page <span class="text-primary-600 font-bold"><?php echo $page; ?></span> of <?php echo $totalPages; ?> <span class="text-gray-400 mx-1">•</span> <?php echo $totalTools; ?> tools
                 </p>
             </div>
             <?php endif; ?>
