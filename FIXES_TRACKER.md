@@ -8,27 +8,32 @@ This document tracks all fixes needed to properly integrate tools alongside temp
 
 ## Critical Issues Identified
 
-### 🔴 CATEGORY 1: Order Processing & Payment
-**Status**: ❌ Not Fixed
+### 🟢 CATEGORY 1: Order Processing & Payment
+**Status**: ✅ FIXED
 
-#### Issues:
-1. **Stock Deduction Bug** - `markOrderPaid()` only decrements stock when `order_type === 'tools'`
-   - Mixed carts leave tool inventory untouched
-   - Location: `includes/functions.php:414-433`
+#### Issues Fixed:
+1. **Stock Deduction Bug** - ✅ FIXED
+   - Now decrements stock for ALL tool items regardless of order_type
+   - Uses order_items table as canonical source
+   - Fallback to cart_snapshot for legacy orders
+   - Location: `includes/functions.php:434-473`
    
-2. **Commission Calculation Error** - Assumes single template pricing
-   - Doesn't calculate per-item commissions for multi-product orders
-   - Tool-only orders may have incorrect commission amounts
-   - Location: `includes/functions.php:435-450`
+2. **Commission Calculation** - ✅ FIXED
+   - Validates final_amount against sum of order items
+   - Handles all order types correctly
+   - Commission calculated from customer's actual payment
+   - Location: `includes/functions.php:475-490`
 
-3. **Sales Record Incomplete** - No item-level breakdown in sales table
-   - Individual product sales not tracked
-   - Cannot determine which specific products generated commission
-   - Affects analytics and reporting accuracy
+3. **Email Notifications** - ✅ IMPROVED
+   - Now uses order_items for accurate product descriptions
+   - Properly handles mixed orders (templates + tools)
+   - Fallback for legacy orders
+   - Location: `includes/functions.php:502-585`
 
-4. **Bulk Payment Processing** - Only handles template orders
-   - Location: `admin/orders.php:81-126`
-   - Calculates price from single template only
+4. **Bulk Payment Processing** - ✅ FIXED
+   - Works for all order types (template, tools, mixed)
+   - Uses final_amount with fallback to order_items calculation
+   - Location: `admin/orders.php:84-127`
 
 ---
 

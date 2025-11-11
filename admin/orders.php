@@ -86,28 +86,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($orderIds as $orderId) {
                 $orderId = intval($orderId);
                 if ($orderId > 0) {
-                    // Get order details for amount calculation
+                    // Get order details with template/tool prices as fallback for legacy orders
                     $stmt = $db->prepare("
-                        SELECT po.*, t.price as template_price
+                        SELECT po.*,
+                               t.price as template_price,
+                               tool.price as tool_price
                         FROM pending_orders po
-                        JOIN templates t ON po.template_id = t.id
+                        LEFT JOIN templates t ON po.template_id = t.id
+                        LEFT JOIN tools tool ON po.tool_id = tool.id
                         WHERE po.id = ? AND po.status = 'pending'
                     ");
                     $stmt->execute([$orderId]);
                     $order = $stmt->fetch(PDO::FETCH_ASSOC);
                     
                     if ($order) {
-                        // Calculate payable amount (with affiliate discount if applicable)
-                        $payableAmount = $order['template_price'];
-                        if ($order['affiliate_code']) {
-                            $discountRate = CUSTOMER_DISCOUNT_RATE;
-                            $payableAmount = $order['template_price'] * (1 - $discountRate);
+                        // Priority order for calculating payable amount:
+                        // 1. Use final_amount if set (most accurate)
+                        // 2. Use original_price if set
+                        // 3. Calculate from order_items
+                        // 4. Fall back to template_price or tool_price for legacy orders
+                        $payableAmount = $order['final_amount'] ?? $order['original_price'] ?? 0;
+                        
+                        if ($payableAmount == 0) {
+                            // Try to get from order_items
+                            $itemsStmt = $db->prepare("SELECT SUM(final_amount) as total FROM order_items WHERE pending_order_id = ?");
+                            $itemsStmt->execute([$orderId]);
+                            $itemsTotal = $itemsStmt->fetchColumn();
+                            
+                            if ($itemsTotal > 0) {
+                                $payableAmount = $itemsTotal;
+                            } else {
+                                // Last resort: use template or tool price for legacy orders
+                                $basePrice = $order['template_price'] ?? $order['tool_price'] ?? 0;
+                                if ($basePrice > 0) {
+                                    // Apply affiliate discount if applicable
+                                    if (!empty($order['affiliate_code'])) {
+                                        $discountRate = CUSTOMER_DISCOUNT_RATE;
+                                        $payableAmount = $basePrice * (1 - $discountRate);
+                                    } else {
+                                        $payableAmount = $basePrice;
+                                    }
+                                }
+                            }
                         }
                         
-                        if (markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed')) {
+                        if ($payableAmount > 0 && markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed')) {
                             $successCount++;
                         } else {
                             $failCount++;
+                            error_log("Bulk payment failed for order #{$orderId}: payableAmount = {$payableAmount}");
                         }
                     } else {
                         $failCount++;

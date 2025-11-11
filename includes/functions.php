@@ -406,37 +406,74 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         $affiliateId = null;
         
         // Extract price breakdown from order
-        $originalPrice = $order['original_price'] ?? $order['template_price'];
+        $originalPrice = $order['original_price'] ?? $order['template_price'] ?? 0;
         $discountAmount = $order['discount_amount'] ?? 0;
         $finalAmount = $order['final_amount'] ?? $amountPaid;
         
-        // Handle stock deduction for tool orders
+        // Get order items from canonical source (order_items table)
+        $orderItems = getOrderItems($orderId);
         $orderType = $order['order_type'] ?? 'template';
-        if ($orderType === 'tools' && !empty($order['cart_snapshot'])) {
-            require_once __DIR__ . '/tools.php';
+        
+        // Validate final_amount matches sum of order items (if items exist)
+        if (!empty($orderItems)) {
+            $calculatedTotal = 0;
+            foreach ($orderItems as $item) {
+                $calculatedTotal += $item['final_amount'];
+            }
             
-            $cartData = json_decode($order['cart_snapshot'], true);
-            if ($cartData && isset($cartData['items'])) {
-                foreach ($cartData['items'] as $item) {
-                    $toolId = $item['tool_id'] ?? $item['id'];
-                    $quantity = $item['quantity'] ?? 1;
-                    $toolName = $item['name'] ?? "Tool ID $toolId";
+            // Allow small floating point differences (0.01)
+            if (abs($calculatedTotal - $finalAmount) > 0.01) {
+                error_log("WARNING: Order #{$orderId} final_amount mismatch. Header: {$finalAmount}, Items sum: {$calculatedTotal}. Using items sum.");
+                $finalAmount = $calculatedTotal;
+            }
+        }
+        
+        // Handle stock deduction for ALL tool items (works for 'tools', 'mixed', and legacy orders)
+        require_once __DIR__ . '/tools.php';
+        
+        if (!empty($orderItems)) {
+            // Use order_items table as source of truth
+            foreach ($orderItems as $item) {
+                if ($item['product_type'] === 'tool') {
+                    $toolId = $item['product_id'];
+                    $quantity = $item['quantity'];
+                    $toolName = $item['tool_name'] ?? "Tool ID {$toolId}";
                     
-                    if ($toolId && $quantity > 0) {
-                        $success = decrementToolStock($toolId, $quantity);
-                        if (!$success) {
-                            throw new Exception("Failed to decrement stock for '$toolName' (ID: $toolId, Quantity: $quantity). Insufficient stock available.");
+                    $success = decrementToolStock($toolId, $quantity);
+                    if (!$success) {
+                        throw new Exception("Failed to decrement stock for '{$toolName}' (ID: {$toolId}, Quantity: {$quantity}). Insufficient stock available.");
+                    }
+                }
+            }
+        } else {
+            // Fallback to cart_snapshot for legacy orders without order_items
+            if (($orderType === 'tools' || $orderType === 'mixed') && !empty($order['cart_snapshot'])) {
+                $cartData = json_decode($order['cart_snapshot'], true);
+                if ($cartData && isset($cartData['items'])) {
+                    foreach ($cartData['items'] as $item) {
+                        $productType = $item['product_type'] ?? 'tool';
+                        if ($productType === 'tool') {
+                            $toolId = $item['tool_id'] ?? $item['product_id'] ?? null;
+                            $quantity = $item['quantity'] ?? 1;
+                            $toolName = $item['name'] ?? "Tool ID {$toolId}";
+                            
+                            if ($toolId && $quantity > 0) {
+                                $success = decrementToolStock($toolId, $quantity);
+                                if (!$success) {
+                                    throw new Exception("Failed to decrement stock for '{$toolName}' (ID: {$toolId}, Quantity: {$quantity}). Insufficient stock available.");
+                                }
+                            }
                         }
                     }
                 }
             }
         }
         
+        // Calculate commission from final amount (customer's actual payment after discount)
         if (!empty($order['affiliate_code'])) {
             $affiliate = getAffiliateByCode($order['affiliate_code']);
             if ($affiliate) {
-                // CRITICAL FIX: Commission calculated from DISCOUNTED price (what customer actually paid)
-                // NOT from original price. This is transparent and fair to affiliates.
+                // Commission calculated from DISCOUNTED price (what customer actually paid)
                 // Example: Product ₦10,000 → 20% discount → Customer pays ₦8,000 → Affiliate gets 30% of ₦8,000 = ₦2,400
                 $commissionBase = $finalAmount;
                 
@@ -461,27 +498,46 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         
         // Send payment confirmation email to customer
         if (!empty($order['customer_email'])) {
-            if ($orderType === 'tools' && !empty($order['cart_snapshot'])) {
-                $cartData = json_decode($order['cart_snapshot'], true);
+            // Build product description from order items for accuracy
+            if (!empty($orderItems)) {
+                $productNames = [];
                 $totalQuantity = 0;
-                $toolNames = [];
-                if (isset($cartData['items'])) {
-                    foreach ($cartData['items'] as $item) {
-                        $totalQuantity += $item['quantity'] ?? 1;
-                        if (!empty($item['name'])) {
-                            $toolNames[] = $item['name'];
-                        }
+                $hasTemplates = false;
+                $hasTools = false;
+                
+                foreach ($orderItems as $item) {
+                    $totalQuantity += $item['quantity'];
+                    if ($item['product_type'] === 'template') {
+                        $hasTemplates = true;
+                        $productNames[] = $item['template_name'] ?? 'Template';
+                    } else {
+                        $hasTools = true;
+                        $productNames[] = $item['tool_name'] ?? 'Tool';
                     }
                 }
-                $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
-                $domainOrContext = !empty($toolNames) ? implode(', ', array_slice($toolNames, 0, 3)) : 'Digital Tools Order';
-                if (count($toolNames) > 3) {
-                    $domainOrContext .= ', +' . (count($toolNames) - 3) . ' more';
+                
+                if ($hasTemplates && $hasTools) {
+                    $productName = $totalQuantity . ' Product' . ($totalQuantity > 1 ? 's' : '') . ' (Templates & Tools)';
+                } elseif ($hasTools) {
+                    $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
+                } else {
+                    $productName = $totalQuantity . ' Template' . ($totalQuantity > 1 ? 's' : '');
+                }
+                
+                $domainOrContext = !empty($productNames) ? implode(', ', array_slice($productNames, 0, 3)) : 'Your Order';
+                if (count($productNames) > 3) {
+                    $domainOrContext .= ', +' . (count($productNames) - 3) . ' more';
                 }
             } else {
-                $template = getTemplateById($order['template_id']);
-                $productName = $template['name'] ?? 'Template';
-                $domainOrContext = $order['domain_name'] ?? 'Your Domain';
+                // Fallback for legacy orders
+                if ($orderType === 'template') {
+                    $template = getTemplateById($order['template_id']);
+                    $productName = $template['name'] ?? 'Template';
+                    $domainOrContext = $order['domain_name'] ?? 'Your Domain';
+                } else {
+                    $productName = 'Digital Products';
+                    $domainOrContext = 'Your Order';
+                }
             }
             
             sendPaymentConfirmationEmail(
@@ -497,18 +553,32 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         if ($affiliateId && $affiliate) {
             $affiliateUser = getUserById($affiliate['user_id']);
             if ($affiliateUser && !empty($affiliateUser['email'])) {
-                if ($orderType === 'tools' && !empty($order['cart_snapshot'])) {
-                    $cartData = json_decode($order['cart_snapshot'], true);
+                // Build product description from order items
+                if (!empty($orderItems)) {
                     $totalQuantity = 0;
-                    if (isset($cartData['items'])) {
-                        foreach ($cartData['items'] as $item) {
-                            $totalQuantity += $item['quantity'] ?? 1;
+                    $hasTemplates = false;
+                    $hasTools = false;
+                    
+                    foreach ($orderItems as $item) {
+                        $totalQuantity += $item['quantity'];
+                        if ($item['product_type'] === 'template') {
+                            $hasTemplates = true;
+                        } else {
+                            $hasTools = true;
                         }
                     }
-                    $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
+                    
+                    if ($hasTemplates && $hasTools) {
+                        $productName = $totalQuantity . ' Product' . ($totalQuantity > 1 ? 's' : '') . ' (Mixed Order)';
+                    } elseif ($hasTools) {
+                        $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
+                    } else {
+                        $productName = $totalQuantity . ' Template' . ($totalQuantity > 1 ? 's' : '');
+                    }
                 } else {
+                    // Fallback for legacy orders
                     $template = getTemplateById($order['template_id']);
-                    $productName = $template['name'] ?? 'Template';
+                    $productName = $template['name'] ?? 'Product';
                 }
                 
                 sendCommissionEarnedEmail(
