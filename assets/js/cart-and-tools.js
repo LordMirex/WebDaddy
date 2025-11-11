@@ -230,6 +230,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const productsSection = document.querySelector('#products');
         if (!productsSection) return;
         
+        // Clear search when switching views
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('clear-search');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.placeholder = `Search ${view === 'templates' ? 'templates' : 'tools'}...`;
+            if (clearBtn) clearBtn.style.display = 'none';
+        }
+        
+        // Reset category when switching from tools to templates
+        if (view === 'templates' && category) {
+            category = '';
+            currentCategory = '';
+        }
+        
         // Show loading state
         const contentArea = productsSection.querySelector('.max-w-7xl > div:last-child');
         if (contentArea) {
