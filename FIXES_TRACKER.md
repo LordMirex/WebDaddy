@@ -71,26 +71,34 @@ This document tracks all fixes needed to properly integrate tools alongside temp
 
 ---
 
-### 🔴 CATEGORY 3: Affiliate System Issues
-**Status**: ❌ Not Fixed
+### 🟢 CATEGORY 3: Affiliate System Issues
+**Status**: ✅ FIXED
 
-#### Issues:
-1. **Affiliate Dashboard** - Only shows template sales
-   - Location: `affiliate/index.php`
-   - Tools commissions not visible to affiliates
+#### Issues Fixed:
+1. **Affiliate Dashboard** - ✅ FIXED
+   - Now shows both template and tool sales
+   - Uses `order_items` table for accurate product display
+   - Product type badges distinguish templates from tools
+   - Location: `affiliate/index.php:39-92`
 
-2. **Earnings Page** - Template-only SQL query
-   - Location: `affiliate/earnings.php:27-45`
-   - Query joins only to templates table
-   - Tool sales commission never appears
+2. **Earnings Page** - ✅ FIXED
+   - Removed template-only SQL JOIN
+   - Now aggregates via `order_items` table
+   - Tool sales commissions fully visible
+   - Product type breakdown displayed
+   - Location: `affiliate/earnings.php:29-83`
 
-3. **Commission Display** - Missing breakdown
-   - No per-product commission details
-   - Cannot see which items earned what commission
+3. **Commission Display** - ✅ FIXED
+   - Per-product commission breakdown implemented
+   - Shows which items (templates/tools) contributed to each sale
+   - Product quantities displayed
+   - Transparent 30% commission on discounted prices
 
-4. **Referral Tracking** - Cart checkout doesn't persist affiliate code properly
-   - Mixed carts may lose affiliate attribution
-   - WhatsApp-only flow for templates may not capture code
+4. **Referral Tracking** - ✅ VERIFIED WORKING
+   - Affiliate code properly persisted (session + 30-day cookie)
+   - Works correctly for templates, tools, and mixed carts
+   - Properly saved in pending_orders table
+   - No issues found with cart checkout flow
 
 ---
 
@@ -283,19 +291,35 @@ This document tracks all fixes needed to properly integrate tools alongside temp
 
 ---
 
-### Phase 3: Affiliate System Fixes (MEDIUM PRIORITY)
-- [ ] **Task 3.1**: Fix Affiliate Dashboard
-  - Update queries to include tool sales
-  - Show breakdown by product type
+### Phase 3: Affiliate System Fixes (MEDIUM PRIORITY) ✅ COMPLETED
+- [x] **Task 3.1**: Fix Affiliate Dashboard
+  - ✅ Updated queries to use `order_items` table
+  - ✅ Shows both template and tool sales
+  - ✅ Product type badges (Template/Tool) with icons
+  - ✅ Displays product quantities for multi-item orders
+  - ✅ Works for desktop and mobile views
+  - Location: `affiliate/index.php:39-92`
 
-- [ ] **Task 3.2**: Fix Earnings Page
-  - Refactor SQL to aggregate via `order_items`
-  - Add product type/category columns
-  - Show itemized commissions
+- [x] **Task 3.2**: Fix Earnings Page
+  - ✅ Refactored SQL to aggregate via `order_items` table
+  - ✅ Removed template-only JOIN, now includes all order types
+  - ✅ Added product type badges and product list display
+  - ✅ Shows itemized product details for each sale
+  - ✅ Mobile and desktop responsive design
+  - Location: `affiliate/earnings.php:29-83, 303-428`
 
-- [ ] **Task 3.3**: Improve Commission Transparency
-  - Display per-product commission breakdown
-  - Show which items contributed to each sale
+- [x] **Task 3.3**: Improve Commission Transparency
+  - ✅ Displays per-product breakdown with type badges
+  - ✅ Shows which items (templates/tools) contributed to each sale
+  - ✅ Product quantities displayed for multi-item purchases
+  - ✅ Commission calculation remains transparent (30% of discounted price)
+
+- [x] **Task 3.4**: Referral Tracking Verification
+  - ✅ Verified affiliate code persistence (session + 30-day cookie)
+  - ✅ Confirmed proper tracking for templates, tools, and mixed carts
+  - ✅ Affiliate code properly saved in pending_orders table
+  - ✅ Works correctly with cart checkout flow
+  - Location: `includes/session.php:32-45`, `cart-checkout.php:180`, `includes/functions.php:307`
 
 ---
 
@@ -350,16 +374,16 @@ This document tracks all fixes needed to properly integrate tools alongside temp
 
 ## Testing Checklist
 Once fixes are implemented, test:
-- [ ] Template-only order (WhatsApp flow)
-- [ ] Tool-only order (cart flow)
-- [ ] Mixed cart order (templates + tools)
-- [ ] Affiliate commission calculation (all order types)
-- [ ] Stock deduction (tool orders)
-- [ ] Admin order viewing (all types)
-- [ ] Reports/analytics (include all product types)
-- [ ] Affiliate dashboard/earnings (show all sales)
-- [ ] Email notifications (all order types)
-- [ ] Export functionality (complete data)
+- [x] Template-only order (WhatsApp flow) - ✅ Phase 1
+- [x] Tool-only order (cart flow) - ✅ Phase 1
+- [x] Mixed cart order (templates + tools) - ✅ Phase 1
+- [x] Affiliate commission calculation (all order types) - ✅ Phase 1
+- [x] Stock deduction (tool orders) - ✅ Phase 1
+- [x] Admin order viewing (all types) - ✅ Phase 2
+- [x] Reports/analytics (include all product types) - ✅ Phase 2
+- [x] Affiliate dashboard/earnings (show all sales) - ✅ Phase 3
+- [x] Email notifications (all order types) - ✅ Phase 1
+- [x] Export functionality (complete data) - ✅ Phase 2
 
 ---
 
@@ -371,4 +395,4 @@ Once fixes are implemented, test:
 
 ---
 
-**Last Updated**: 2025-01-11 (Phase 2 Completed)
+**Last Updated**: 2025-11-11 (Phase 3 Completed - Affiliate System Fixes)
