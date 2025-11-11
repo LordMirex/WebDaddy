@@ -34,17 +34,55 @@ $stats = [
 ];
 
 try {
+    // Get recent sales with product details from order_items
     $stmt = $db->prepare("
-        SELECT s.*, po.customer_name, po.customer_email, t.name as template_name, t.price as template_price
+        SELECT s.*, 
+               po.customer_name, 
+               po.customer_email,
+               po.order_type,
+               po.id as order_id
         FROM sales s
         INNER JOIN pending_orders po ON s.pending_order_id = po.id
-        INNER JOIN templates t ON po.template_id = t.id
         WHERE s.affiliate_id = ?
         ORDER BY s.payment_confirmed_at DESC
         LIMIT 10
     ");
     $stmt->execute([$affiliateId]);
-    $recentSales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $recentSalesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Enhance with product details from order_items
+    $recentSales = [];
+    foreach ($recentSalesRaw as $sale) {
+        // Get order items for this sale
+        $itemStmt = $db->prepare("
+            SELECT oi.*, 
+                   CASE 
+                       WHEN oi.product_type = 'template' THEN t.name
+                       WHEN oi.product_type = 'tool' THEN tl.name
+                   END as product_name,
+                   oi.product_type
+            FROM order_items oi
+            LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+            LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+            WHERE oi.pending_order_id = ?
+        ");
+        $itemStmt->execute([$sale['order_id']]);
+        $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Build product list
+        $productList = [];
+        foreach ($items as $item) {
+            $productList[] = [
+                'name' => $item['product_name'] ?? 'Unknown Product',
+                'type' => $item['product_type'],
+                'quantity' => $item['quantity']
+            ];
+        }
+        
+        $sale['products'] = $productList;
+        $sale['product_count'] = count($productList);
+        $recentSales[] = $sale;
+    }
 } catch (PDOException $e) {
     error_log('Error fetching recent sales: ' . $e->getMessage());
     $recentSales = [];
@@ -257,7 +295,7 @@ require_once __DIR__ . '/includes/header.php';
                         <tr class="border-b border-gray-200">
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Template</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Products</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Commission</th>
                         </tr>
@@ -272,7 +310,27 @@ require_once __DIR__ . '/includes/header.php';
                                 <div class="font-medium text-gray-900"><?php echo htmlspecialchars($sale['customer_name']); ?></div>
                                 <div class="text-sm text-gray-500"><?php echo htmlspecialchars($sale['customer_email']); ?></div>
                             </td>
-                            <td class="px-4 py-4 text-sm text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></td>
+                            <td class="px-4 py-4">
+                                <div class="space-y-1">
+                                    <?php foreach ($sale['products'] as $product): ?>
+                                    <div class="flex items-center space-x-2">
+                                        <?php if ($product['type'] === 'template'): ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                                                <i class="bi bi-grid mr-1"></i>Template
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800">
+                                                <i class="bi bi-tools mr-1"></i>Tool
+                                            </span>
+                                        <?php endif; ?>
+                                        <span class="text-sm text-gray-900"><?php echo htmlspecialchars($product['name']); ?></span>
+                                        <?php if ($product['quantity'] > 1): ?>
+                                            <span class="text-xs text-gray-500">(×<?php echo $product['quantity']; ?>)</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </td>
                             <td class="px-4 py-4 text-sm font-semibold text-gray-900"><?php echo formatCurrency($sale['amount_paid']); ?></td>
                             <td class="px-4 py-4">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
@@ -300,9 +358,27 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="text-gray-600">Date:</span>
                             <span class="text-gray-900 font-medium"><?php echo date('M d, Y', strtotime($sale['payment_confirmed_at'])); ?></span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Template:</span>
-                            <span class="text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></span>
+                        <div>
+                            <span class="text-gray-600 block mb-1">Products:</span>
+                            <div class="space-y-1">
+                                <?php foreach ($sale['products'] as $product): ?>
+                                <div class="flex items-center space-x-2">
+                                    <?php if ($product['type'] === 'template'): ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                                            <i class="bi bi-grid mr-1"></i>Template
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800">
+                                            <i class="bi bi-tools mr-1"></i>Tool
+                                        </span>
+                                    <?php endif; ?>
+                                    <span class="text-gray-900"><?php echo htmlspecialchars($product['name']); ?></span>
+                                    <?php if ($product['quantity'] > 1): ?>
+                                        <span class="text-xs text-gray-500">(×<?php echo $product['quantity']; ?>)</span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Amount:</span>

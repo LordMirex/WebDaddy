@@ -23,26 +23,61 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 20;
 $offset = ($page - 1) * $perPage;
 
-// Get all sales with commission
+// Get all sales with commission (updated to include both templates and tools)
 $query = "
     SELECT 
         s.*,
         po.customer_name,
-        t.name as template_name,
-        t.price as template_price,
-        COALESCE(s.original_price, t.price) as sale_original_price,
-        COALESCE(s.discount_amount, 0) as sale_discount,
-        COALESCE(s.final_amount, s.amount_paid) as sale_final_amount
+        po.order_type,
+        po.id as order_id,
+        COALESCE(s.original_price, po.original_price) as sale_original_price,
+        COALESCE(s.discount_amount, po.discount_amount, 0) as sale_discount,
+        COALESCE(s.final_amount, s.amount_paid, po.final_amount) as sale_final_amount
     FROM sales s
     JOIN pending_orders po ON s.pending_order_id = po.id
-    JOIN templates t ON po.template_id = t.id
     WHERE s.affiliate_id = ?
     ORDER BY s.created_at DESC
     LIMIT ? OFFSET ?
 ";
 $stmt = $db->prepare($query);
 $stmt->execute([$affiliateId, $perPage, $offset]);
-$sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$salesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Enhance with product details from order_items
+$sales = [];
+foreach ($salesRaw as $sale) {
+    // Get order items for this sale
+    $itemStmt = $db->prepare("
+        SELECT oi.*, 
+               CASE 
+                   WHEN oi.product_type = 'template' THEN t.name
+                   WHEN oi.product_type = 'tool' THEN tl.name
+               END as product_name,
+               oi.product_type
+        FROM order_items oi
+        LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+        LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+        WHERE oi.pending_order_id = ?
+    ");
+    $itemStmt->execute([$sale['order_id']]);
+    $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Build product list
+    $productList = [];
+    foreach ($items as $item) {
+        $productList[] = [
+            'name' => $item['product_name'] ?? 'Unknown Product',
+            'type' => $item['product_type'],
+            'quantity' => $item['quantity'],
+            'unit_price' => $item['unit_price'],
+            'final_amount' => $item['final_amount']
+        ];
+    }
+    
+    $sale['products'] = $productList;
+    $sale['product_count'] = count($productList);
+    $sales[] = $sale;
+}
 
 // Get total count
 $stmt = $db->prepare("SELECT COUNT(*) FROM sales WHERE affiliate_id = ?");
@@ -267,7 +302,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sale ID</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Customer</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Template</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Products</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Sale Amount</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Your Commission (30%)</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
@@ -285,7 +320,27 @@ require_once __DIR__ . '/includes/header.php';
                             </span>
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-900"><?php echo htmlspecialchars($sale['customer_name']); ?></td>
-                        <td class="px-4 py-4 text-sm text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></td>
+                        <td class="px-4 py-4">
+                            <div class="space-y-1">
+                                <?php foreach ($sale['products'] as $product): ?>
+                                <div class="flex items-center space-x-2">
+                                    <?php if ($product['type'] === 'template'): ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                                            <i class="bi bi-grid mr-1"></i>Template
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800">
+                                            <i class="bi bi-tools mr-1"></i>Tool
+                                        </span>
+                                    <?php endif; ?>
+                                    <span class="text-sm text-gray-900"><?php echo htmlspecialchars($product['name']); ?></span>
+                                    <?php if ($product['quantity'] > 1): ?>
+                                        <span class="text-xs text-gray-500">(×<?php echo $product['quantity']; ?>)</span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </td>
                         <td class="px-4 py-4 text-sm text-gray-900">
                             <?php echo formatCurrency($sale['sale_final_amount']); ?>
                             <?php if ($sale['sale_discount'] > 0): ?>
@@ -329,9 +384,27 @@ require_once __DIR__ . '/includes/header.php';
                         <span class="text-gray-600">Customer:</span>
                         <span class="text-gray-900"><?php echo htmlspecialchars($sale['customer_name']); ?></span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Template:</span>
-                        <span class="text-gray-900"><?php echo htmlspecialchars($sale['template_name']); ?></span>
+                    <div>
+                        <span class="text-gray-600 block mb-1">Products:</span>
+                        <div class="space-y-1">
+                            <?php foreach ($sale['products'] as $product): ?>
+                            <div class="flex items-center space-x-2">
+                                <?php if ($product['type'] === 'template'): ?>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                                        <i class="bi bi-grid mr-1"></i>Template
+                                    </span>
+                                <?php else: ?>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-purple-100 text-purple-800">
+                                        <i class="bi bi-tools mr-1"></i>Tool
+                                    </span>
+                                <?php endif; ?>
+                                <span class="text-gray-900"><?php echo htmlspecialchars($product['name']); ?></span>
+                                <?php if ($product['quantity'] > 1): ?>
+                                    <span class="text-xs text-gray-500">(×<?php echo $product['quantity']; ?>)</span>
+                                <?php endif; ?>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">Sale Amount:</span>
