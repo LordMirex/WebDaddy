@@ -85,7 +85,7 @@ function getStatusBadge($status)
     return $badges[$status] ?? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 max-w-[120px]"><span class="truncate">' . htmlspecialchars(ucfirst($status)) . '</span></span>';
 }
 
-function getTemplates($activeOnly = true)
+function getTemplates($activeOnly = true, $category = null, $limit = null, $offset = 0)
 {
     $db = getDb();
     
@@ -93,7 +93,13 @@ function getTemplates($activeOnly = true)
     if ($activeOnly) {
         $sql .= " AND active = true";
     }
+    if ($category) {
+        $sql .= " AND category = " . $db->quote($category);
+    }
     $sql .= " ORDER BY created_at DESC";
+    if ($limit) {
+        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+    }
     
     try {
         $result = $db->query($sql);
@@ -102,6 +108,42 @@ function getTemplates($activeOnly = true)
         error_log('Error fetching templates: ' . $e->getMessage());
         return [];
     }
+}
+
+function getTemplatesCount($activeOnly = true, $category = null)
+{
+    $db = getDb();
+    
+    $sql = "SELECT COUNT(*) FROM templates WHERE 1=1";
+    if ($activeOnly) {
+        $sql .= " AND active = true";
+    }
+    if ($category) {
+        $sql .= " AND category = " . $db->quote($category);
+    }
+    
+    try {
+        return (int)$db->query($sql)->fetchColumn();
+    } catch (PDOException $e) {
+        error_log('Error counting templates: ' . $e->getMessage());
+        return 0;
+    }
+}
+
+function getTemplateCategories()
+{
+    $db = getDb();
+    
+    $stmt = $db->query("
+        SELECT DISTINCT category 
+        FROM templates 
+        WHERE category IS NOT NULL 
+          AND category != '' 
+          AND active = 1
+        ORDER BY category
+    ");
+    
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 function getTemplateById($id)
