@@ -468,10 +468,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span id="floating-cart-count" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">0</span>
                 </button>
                 
-                <!-- Animated Total Amount Badge -->
-                <div id="floating-cart-total-badge" class="hidden absolute -top-14 right-0 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-xl transition-all duration-300 opacity-0 whitespace-nowrap">
-                    <div class="text-xs text-gray-400 mb-1">Total</div>
-                    <div id="floating-cart-total-amount" class="text-lg font-bold">₦0</div>
+                <!-- Animated Total Amount Badge - positioned to the left to avoid overlap with count badge -->
+                <div id="floating-cart-total-badge" class="hidden absolute -top-2 -left-2 -translate-x-full bg-gray-900 text-white px-3 py-2 rounded-lg shadow-xl transition-all duration-300 opacity-0 whitespace-nowrap mr-3">
+                    <div class="text-xs text-gray-300">Total</div>
+                    <div id="floating-cart-total-amount" class="text-base font-bold">₦0</div>
                 </div>
             </div>
         `;
