@@ -27,13 +27,14 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 ### UI/UX Decisions
 - **Design Language**: Tailwind CSS for public-facing pages, Bootstrap for admin interfaces.
 - **Dual Order Flow**: Templates use instant WhatsApp ordering (one-click), Tools use cart-based checkout (multi-item bundling).
-- **AJAX Navigation**: Tab switching between Templates/Tools with no page reload, preserves scroll position, smooth animations.
-- **Preview Modals**: Popup systems for both tool details and template demos (wider, taller modals).
-- **Floating Cart**: Bottom-right FAB button showing live count and total, with slide-in drawer for quick management.
-- **WhatsApp Integration**: Smart floating button with rotating contextual messages, displays immediately on page load.
+- **AJAX Navigation**: Tab switching between Templates/Tools with no page reload, preserves scroll position, smooth animations. Category state persists during filtering, resets only when switching between views.
+- **Category Filtering**: Full-width dropdown selectors for both templates and tools (scalable to 50+ categories). Clone-and-replace event binding pattern ensures clean AJAX updates without duplicate handlers.
+- **Preview Modals**: Popup systems for both tool details (top-right positioning) and template demos (wider, taller modals).
+- **Floating Cart**: Bottom-right FAB button showing live count and total, with slide-in drawer for quick management. Cart badge uses black background (not red), smaller sizing (h-4 w-4, 10px font), positioned inside icon to avoid WhatsApp button interference.
+- **WhatsApp Integration**: Smart floating button with rotating contextual messages, displays immediately on page load at bottom-left.
 - **Product Display**: Compact price typography, clear category badges, and product counts visible in section headers.
 - **Email Templates**: Cleaned up and simplified for professionalism.
-- **Search Experience**: Instant AJAX search with 300ms debounce, loading indicator, and XSS-safe implementation.
+- **Search Experience**: Instant AJAX search with 500ms debounce, loading indicator, and XSS-safe implementation.
 - **Cron Job System**: Simplified for cPanel with click-to-copy commands and clear explanations.
 - **Analytics Dashboard**: Bootstrap-styled, responsive, with cards, metrics, tables, and period filters.
 - **Admin Forms**: Compact design with 3-column layouts, reduced padding/spacing, and consistent Naira (₦) currency labels.
