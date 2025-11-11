@@ -38,7 +38,7 @@ $lowStockTools = $db->query("
     SELECT name, stock_quantity 
     FROM tools 
     WHERE active = true 
-    AND stock_type = 'limited' 
+    AND stock_unlimited = 0 
     AND stock_quantity <= 5 
     AND stock_quantity > 0
     ORDER BY stock_quantity ASC
@@ -49,7 +49,7 @@ $outOfStockTools = $db->query("
     SELECT COUNT(*) 
     FROM tools 
     WHERE active = true 
-    AND stock_type = 'limited' 
+    AND stock_unlimited = 0 
     AND stock_quantity = 0
 ")->fetchColumn();
 

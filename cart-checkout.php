@@ -27,8 +27,54 @@ $validation = validateCart();
 $errors = [];
 $success = '';
 
+// Track submitted affiliate code for error display
+$submittedAffiliateCode = '';
+
+// Handle affiliate code application (separate from order submission)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $errors[] = 'Security validation failed. Please refresh the page and try again.';
+    } else {
+        $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
+        
+        if (!empty($submittedAffiliateCode)) {
+            $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
+            
+            if ($lookupAffiliate && $lookupAffiliate['status'] === 'active') {
+                $affiliateCode = $submittedAffiliateCode;
+                
+                $_SESSION['affiliate_code'] = $affiliateCode;
+                setcookie(
+                    'affiliate_code',
+                    $affiliateCode,
+                    time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
+                    '/',
+                    '',
+                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                    true
+                );
+                
+                // Increment affiliate clicks
+                if (function_exists('incrementAffiliateClick')) {
+                    incrementAffiliateClick($affiliateCode);
+                }
+                
+                // Recalculate totals with discount
+                $totals = getCartTotal(null, $affiliateCode);
+                
+                $success = '20% discount applied successfully!';
+                $submittedAffiliateCode = '';
+            } else {
+                $errors[] = 'Invalid or inactive affiliate code.';
+            }
+        } else {
+            $errors[] = 'Please enter an affiliate code.';
+        }
+    }
+}
+
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
     }
@@ -316,6 +362,19 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div class="max-w-3xl mx-auto">
             
+                <?php if (!empty($success)): ?>
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="font-semibold text-green-900"><?php echo htmlspecialchars($success); ?></p>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
                 <?php if (!empty($errors)): ?>
                 <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
                     <div class="flex">
@@ -363,6 +422,34 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             <span class="text-xs sm:text-sm font-semibold text-green-800">20% OFF! Code: <?php echo htmlspecialchars($totals['affiliate_code']); ?></span>
                         </div>
                         <span class="text-xs sm:text-sm font-bold text-green-700">-<?php echo formatCurrency($totals['discount']); ?></span>
+                    </div>
+                </div>
+                <?php else: ?>
+                <!-- Affiliate Code Input -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="flex items-center flex-1">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/>
+                            </svg>
+                            <span class="text-xs sm:text-sm font-semibold text-blue-800">Have an affiliate code? Get 20% OFF!</span>
+                        </div>
+                        <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
+                            <?php echo csrfTokenField(); ?>
+                            <input type="text" 
+                                   name="affiliate_code" 
+                                   id="affiliate_code" 
+                                   value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
+                                   placeholder="ENTER CODE"
+                                   class="flex-1 sm:flex-initial sm:w-40 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
+                                   style="min-width: 0;">
+                            <button type="submit" 
+                                    name="apply_affiliate"
+                                    value="1"
+                                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
+                                Apply
+                            </button>
+                        </form>
                     </div>
                 </div>
                 <?php endif; ?>
