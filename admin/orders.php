@@ -200,21 +200,43 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     
     fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
     
-    fputcsv($output, ['Order ID', 'Customer Name', 'Email', 'Phone', 'Template', 'Price (NGN)', 'Affiliate Code', 'Domain', 'Status', 'Is Paid', 'Order Date'], ',', '"');
+    fputcsv($output, ['Order ID', 'Order Type', 'Customer Name', 'Email', 'Phone', 'Products', 'Item Count', 'Price (NGN)', 'Affiliate Code', 'Domain', 'Status', 'Is Paid', 'Order Date'], ',', '"');
     
     foreach ($orders as $order) {
-        $payableAmount = $order['template_price'] ?? 0;
-        if ($order['affiliate_code']) {
-            $discountRate = CUSTOMER_DISCOUNT_RATE;
-            $payableAmount = $order['template_price'] * (1 - $discountRate);
+        // Get order items for accurate product list
+        $orderItems = getOrderItems($order['id']);
+        $orderType = $order['order_type'] ?? 'template';
+        $productsList = '';
+        $itemCount = 0;
+        
+        if (!empty($orderItems)) {
+            $productNames = [];
+            foreach ($orderItems as $item) {
+                $productName = $item['product_type'] === 'template' ? $item['template_name'] : $item['tool_name'];
+                $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
+                $productNames[] = $productName . $qty;
+            }
+            $productsList = implode('; ', $productNames);
+            $itemCount = count($orderItems);
+        } elseif ($order['template_name']) {
+            $productsList = $order['template_name'];
+            $itemCount = 1;
+        } elseif ($order['tool_name']) {
+            $productsList = $order['tool_name'];
+            $itemCount = 1;
         }
+        
+        // Use final_amount for accurate pricing
+        $payableAmount = $order['final_amount'] ?? $order['original_price'] ?? $order['template_price'] ?? $order['tool_price'] ?? 0;
         
         fputcsv($output, [
             (string)($order['id'] ?? ''),
+            ucfirst($orderType),
             $order['customer_name'] ?? '',
             $order['customer_email'] ?? '',
             $order['customer_phone'] ?? '',
-            $order['template_name'] ?? '',
+            $productsList,
+            $itemCount,
             number_format($payableAmount, 2, '.', ''),
             $order['affiliate_code'] ?? 'Direct',
             $order['domain_name'] ?? 'Not assigned',
@@ -414,30 +436,49 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                         <td class="py-3 px-2">
                             <?php
-                            // Show cart items if available, otherwise show template
-                            if (!empty($order['cart_snapshot'])) {
-                                $cartData = json_decode($order['cart_snapshot'], true);
-                                $items = $cartData['items'] ?? [];
-                                $itemCount = count($items);
+                            // Use order_items as canonical source, fallback to legacy data
+                            $orderItems = getOrderItems($order['id']);
+                            $orderType = $order['order_type'] ?? 'template';
+                            
+                            if (!empty($orderItems)) {
+                                $itemCount = count($orderItems);
+                                $hasTemplates = false;
+                                $hasTools = false;
                                 
-                                if ($itemCount > 0) {
-                                    echo '<div class="text-sm text-gray-900">';
-                                    foreach (array_slice($items, 0, 2) as $item) {
-                                        $productType = $item['product_type'] ?? 'tool';
-                                        $typeLabel = ($productType === 'template') ? '🎨' : '🔧';
-                                        echo $typeLabel . ' ' . htmlspecialchars($item['name']) . '<br/>';
-                                    }
-                                    if ($itemCount > 2) {
-                                        echo '<span class="text-xs text-gray-500">+' . ($itemCount - 2) . ' more</span>';
-                                    }
-                                    echo '</div>';
-                                    echo '<div class="text-xs text-gray-500 mt-1 uppercase font-semibold">' . htmlspecialchars($order['order_type'] ?? 'mixed') . ' Order</div>';
-                                } else {
-                                    echo '<span class="text-gray-400">Cart empty</span>';
+                                foreach ($orderItems as $item) {
+                                    if ($item['product_type'] === 'template') $hasTemplates = true;
+                                    if ($item['product_type'] === 'tool') $hasTools = true;
                                 }
-                            } else if ($order['template_name']) {
-                                echo '<div class="text-gray-900">🎨 ' . htmlspecialchars($order['template_name']) . '</div>';
-                                echo '<div class="text-xs text-gray-500 mt-1">' . formatCurrency($order['template_price']) . '</div>';
+                                
+                                // Order type badge
+                                if ($hasTemplates && $hasTools) {
+                                    echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800"><i class="bi bi-box-seam mr-1"></i>Mixed</span></div>';
+                                } elseif ($hasTools) {
+                                    echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tools</span></div>';
+                                } else {
+                                    echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div>';
+                                }
+                                
+                                echo '<div class="text-sm text-gray-900">';
+                                foreach (array_slice($orderItems, 0, 2) as $item) {
+                                    $productType = $item['product_type'];
+                                    $productName = $productType === 'template' ? $item['template_name'] : $item['tool_name'];
+                                    $typeIcon = ($productType === 'template') ? '🎨' : '🔧';
+                                    $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
+                                    echo $typeIcon . ' ' . htmlspecialchars($productName) . $qty . '<br/>';
+                                }
+                                if ($itemCount > 2) {
+                                    echo '<span class="text-xs text-gray-500">+' . ($itemCount - 2) . ' more item' . ($itemCount - 2 > 1 ? 's' : '') . '</span>';
+                                }
+                                echo '</div>';
+                            } elseif ($order['template_name']) {
+                                // Legacy template-only order
+                                echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div>';
+                                echo '<div class="text-gray-900 text-sm">🎨 ' . htmlspecialchars($order['template_name']) . '</div>';
+                            } elseif ($order['tool_name']) {
+                                // Legacy tool-only order
+                                echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tool</span></div>';
+                                echo '<div class="text-gray-900 text-sm">🔧 ' . htmlspecialchars($order['tool_name']) . '</div>';
                             } else {
                                 echo '<span class="text-gray-400">No items</span>';
                             }

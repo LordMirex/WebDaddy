@@ -59,23 +59,31 @@ $netRevenue = $totalRevenue - $totalCommission;
 // Average Order Value
 $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
 
-// Top Selling Templates
+// Top Selling Products (Templates + Tools)
 $query = "
     SELECT 
-        t.name,
-        COUNT(s.id) as sales_count,
-        SUM(s.amount_paid) as revenue
+        CASE 
+            WHEN oi.product_type = 'template' THEN t.name
+            WHEN oi.product_type = 'tool' THEN tool.name
+            ELSE 'Unknown'
+        END as product_name,
+        oi.product_type,
+        COUNT(DISTINCT s.id) as sales_count,
+        SUM(oi.final_amount) as revenue,
+        SUM(oi.quantity) as total_quantity
     FROM sales s
     JOIN pending_orders po ON s.pending_order_id = po.id
-    JOIN templates t ON po.template_id = t.id
+    JOIN order_items oi ON oi.pending_order_id = po.id
+    LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+    LEFT JOIN tools tool ON oi.product_type = 'tool' AND oi.product_id = tool.id
     WHERE 1=1 $dateFilter
-    GROUP BY t.id, t.name
-    ORDER BY sales_count DESC
-    LIMIT 5
+    GROUP BY oi.product_id, oi.product_type, product_name
+    ORDER BY revenue DESC
+    LIMIT 10
 ";
 $stmt = $db->prepare($query);
 $stmt->execute($params);
-$topTemplates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Top Affiliates
 $query = "
@@ -96,22 +104,27 @@ $stmt = $db->prepare($query);
 $stmt->execute($params);
 $topAffiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Recent Sales with full breakdown
+// Recent Sales with full breakdown (all order types)
 $query = "
     SELECT 
         s.*,
         po.customer_name,
         po.customer_email,
+        po.order_type,
         t.name as template_name,
         t.price as template_price,
+        tool.name as tool_name,
+        tool.price as tool_price,
         a.code as affiliate_code,
-        COALESCE(s.original_price, t.price) as sale_original,
+        COALESCE(s.original_price, 0) as sale_original,
         COALESCE(s.discount_amount, 0) as sale_discount,
         COALESCE(s.final_amount, s.amount_paid) as sale_final,
-        COALESCE(s.final_amount, s.amount_paid) - COALESCE(s.commission_amount, 0) as platform_revenue
+        COALESCE(s.final_amount, s.amount_paid) - COALESCE(s.commission_amount, 0) as platform_revenue,
+        (SELECT COUNT(*) FROM order_items WHERE pending_order_id = po.id) as item_count
     FROM sales s
     JOIN pending_orders po ON s.pending_order_id = po.id
-    JOIN templates t ON po.template_id = t.id
+    LEFT JOIN templates t ON po.template_id = t.id
+    LEFT JOIN tools tool ON po.tool_id = tool.id
     LEFT JOIN affiliates a ON s.affiliate_id = a.id
     WHERE 1=1 $dateFilter
     ORDER BY s.created_at DESC
@@ -248,31 +261,49 @@ require_once __DIR__ . '/includes/header.php';
     <div class="bg-white rounded-xl shadow-md border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i class="bi bi-trophy text-yellow-500"></i> Top Selling Templates
+                <i class="bi bi-trophy text-yellow-500"></i> Top Selling Products
             </h5>
         </div>
         <div class="p-6">
-            <?php if (empty($topTemplates)): ?>
+            <?php if (empty($topProducts)): ?>
             <p class="text-gray-500">No sales data available</p>
             <?php else: ?>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-gray-200">
-                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Product</th>
+                            <th class="text-center py-3 px-2 font-semibold text-gray-700 text-sm">Type</th>
                             <th class="text-center py-3 px-2 font-semibold text-gray-700 text-sm">Sales</th>
                             <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Revenue</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <?php foreach ($topTemplates as $template): ?>
+                        <?php foreach ($topProducts as $product): ?>
                         <tr class="hover:bg-gray-50">
-                            <td class="py-3 px-2 text-gray-900"><?php echo htmlspecialchars($template['name']); ?></td>
+                            <td class="py-3 px-2 text-gray-900"><?php echo htmlspecialchars($product['product_name']); ?></td>
                             <td class="text-center py-3 px-2">
-                                <span class="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-semibold"><?php echo $template['sales_count']; ?></span>
+                                <?php 
+                                $typeColors = [
+                                    'template' => 'bg-green-100 text-green-800',
+                                    'tool' => 'bg-blue-100 text-blue-800'
+                                ];
+                                $typeIcons = [
+                                    'template' => 'palette',
+                                    'tool' => 'tools'
+                                ];
+                                $color = $typeColors[$product['product_type']] ?? 'bg-gray-100 text-gray-800';
+                                $icon = $typeIcons[$product['product_type']] ?? 'box';
+                                ?>
+                                <span class="inline-flex items-center px-2 py-0.5 <?php echo $color; ?> rounded-full text-xs font-semibold">
+                                    <i class="bi bi-<?php echo $icon; ?> mr-1"></i><?php echo ucfirst($product['product_type']); ?>
+                                </span>
+                            </td>
+                            <td class="text-center py-3 px-2">
+                                <span class="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-semibold"><?php echo $product['sales_count']; ?></span>
                             </td>
                             <td class="text-right py-3 px-2 font-bold text-gray-900">
-                                <?php echo formatCurrency($template['revenue']); ?>
+                                <?php echo formatCurrency($product['revenue']); ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
