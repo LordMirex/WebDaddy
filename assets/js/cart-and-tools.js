@@ -490,20 +490,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const floatingCart = document.createElement('div');
         floatingCart.id = 'floating-cart';
-        floatingCart.className = 'fixed bottom-6 right-6 z-40';
+        floatingCart.className = 'fixed top-20 right-4 z-40';
         floatingCart.innerHTML = `
             <div class="relative">
-                <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-white rounded-full p-4 shadow-2xl transition-all hover:scale-110 group">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-white rounded-full p-3 shadow-xl transition-all hover:scale-105">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span id="floating-cart-count" class="hidden absolute top-0 right-0 bg-gray-900 text-white font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white" style="font-size: 10px;">0</span>
+                    <span id="floating-cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white text-xs">0</span>
                 </button>
-                
-                <!-- Animated Total Amount Badge - positioned to the right side -->
-                <div id="floating-cart-total-badge" class="hidden absolute -top-2 -right-2 translate-x-full bg-gray-900 text-white px-2 py-1 rounded-md shadow-lg transition-all duration-300 opacity-0 whitespace-nowrap ml-2">
-                    <div id="floating-cart-total-amount" class="text-xs font-semibold">₦0</div>
-                </div>
             </div>
         `;
         
@@ -630,19 +625,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function animateCartBadge() {
         const floatingCart = document.getElementById('floating-cart');
-        const totalBadge = document.getElementById('floating-cart-total-badge');
-        
         if (floatingCart) {
             floatingCart.classList.add('animate-bounce');
             setTimeout(() => floatingCart.classList.remove('animate-bounce'), 500);
-        }
-        
-        // Animate the total badge
-        if (totalBadge && !totalBadge.classList.contains('hidden')) {
-            totalBadge.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                totalBadge.style.transform = 'scale(1)';
-            }, 300);
         }
     }
     
@@ -653,37 +638,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 const count = data.count || 0;
-                const total = data.total || 0;
                 
                 // Update all cart badges
                 updateBadgeElement('cart-count', count);
                 updateBadgeElement('cart-count-mobile', count);
                 updateBadgeElement('floating-cart-count', count);
-                
-                // Update floating cart total amount
-                const totalAmountEl = document.getElementById('floating-cart-total-amount');
-                const totalBadgeEl = document.getElementById('floating-cart-total-badge');
-                
-                if (totalAmountEl) {
-                    totalAmountEl.textContent = formatCurrency(total);
-                }
-                
-                // Show/hide total badge based on cart count
-                if (totalBadgeEl) {
-                    if (count > 0) {
-                        totalBadgeEl.classList.remove('hidden');
-                        setTimeout(() => {
-                            totalBadgeEl.classList.remove('opacity-0');
-                            totalBadgeEl.classList.add('opacity-100');
-                        }, 10);
-                    } else {
-                        totalBadgeEl.classList.remove('opacity-100');
-                        totalBadgeEl.classList.add('opacity-0');
-                        setTimeout(() => {
-                            totalBadgeEl.classList.add('hidden');
-                        }, 300);
-                    }
-                }
             }
         } catch (error) {
             console.error('Failed to update cart badge:', error);
