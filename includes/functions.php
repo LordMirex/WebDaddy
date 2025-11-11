@@ -199,8 +199,8 @@ function createPendingOrder($data)
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
              business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status,
-             original_price, discount_amount, final_amount)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
+             original_price, discount_amount, final_amount, order_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)
         ");
         
         if (!$stmt) {
@@ -221,7 +221,8 @@ function createPendingOrder($data)
             $data['ip_address'],
             $data['original_price'] ?? null,
             $data['discount_amount'] ?? 0,
-            $data['final_amount'] ?? null
+            $data['final_amount'] ?? null,
+            $data['order_type'] ?? 'template'
         ];
         
         $result = $stmt->execute($params);
@@ -231,10 +232,123 @@ function createPendingOrder($data)
             $lastId = $db->lastInsertId();
         }
         
+        if ($lastId && isset($data['order_items']) && is_array($data['order_items'])) {
+            foreach ($data['order_items'] as $item) {
+                $itemStmt = $db->prepare("
+                    INSERT INTO order_items 
+                    (pending_order_id, product_type, product_id, quantity, unit_price, discount_amount, final_amount, metadata_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $itemStmt->execute([
+                    $lastId,
+                    $item['product_type'],
+                    $item['product_id'],
+                    $item['quantity'] ?? 1,
+                    $item['unit_price'],
+                    $item['discount_amount'] ?? 0,
+                    $item['final_amount'],
+                    isset($item['metadata']) ? json_encode($item['metadata']) : null
+                ]);
+            }
+        }
+        
         return $lastId !== false ? $lastId : false;
     } catch (PDOException $e) {
         error_log('Error creating pending order: ' . $e->getMessage());
         // Store error in global for display in development
+        global $lastDbError;
+        $lastDbError = $e->getMessage();
+        return false;
+    }
+}
+
+function createOrderWithItems($orderData, $items = [])
+{
+    $db = getDb();
+    $db->beginTransaction();
+    
+    try {
+        $hasTemplates = false;
+        $hasTools = false;
+        foreach ($items as $item) {
+            if ($item['product_type'] === 'template') $hasTemplates = true;
+            if ($item['product_type'] === 'tool') $hasTools = true;
+        }
+        
+        $orderType = 'template';
+        if ($hasTemplates && $hasTools) {
+            $orderType = 'mixed';
+        } elseif (!$hasTemplates && $hasTools) {
+            $orderType = 'tools';
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO pending_orders 
+            (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
+             customer_phone, business_name, custom_fields, affiliate_code, session_id, 
+             message_text, ip_address, status, original_price, discount_amount, final_amount, 
+             quantity, cart_snapshot)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
+        ");
+        
+        $templateId = $orderData['template_id'] ?? null;
+        $toolId = $orderData['tool_id'] ?? null;
+        
+        $params = [
+            $templateId,
+            $toolId,
+            $orderType,
+            $orderData['chosen_domain_id'] ?? null,
+            $orderData['customer_name'],
+            $orderData['customer_email'],
+            $orderData['customer_phone'],
+            $orderData['business_name'] ?? null,
+            $orderData['custom_fields'] ?? null,
+            $orderData['affiliate_code'] ?? null,
+            $orderData['session_id'] ?? session_id(),
+            $orderData['message_text'] ?? null,
+            $orderData['ip_address'] ?? ($_SERVER['REMOTE_ADDR'] ?? ''),
+            $orderData['original_price'] ?? null,
+            $orderData['discount_amount'] ?? 0,
+            $orderData['final_amount'],
+            $orderData['quantity'] ?? 1,
+            $orderData['cart_snapshot'] ?? null
+        ];
+        
+        $stmt->execute($params);
+        $orderId = $db->lastInsertId();
+        
+        if (!$orderId) {
+            throw new PDOException('Failed to get order ID');
+        }
+        
+        if (!empty($items)) {
+            $itemStmt = $db->prepare("
+                INSERT INTO order_items 
+                (pending_order_id, product_type, product_id, quantity, unit_price, discount_amount, final_amount, metadata_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            foreach ($items as $item) {
+                $itemStmt->execute([
+                    $orderId,
+                    $item['product_type'],
+                    $item['product_id'],
+                    $item['quantity'] ?? 1,
+                    $item['unit_price'],
+                    $item['discount_amount'] ?? 0,
+                    $item['final_amount'],
+                    isset($item['metadata']) ? json_encode($item['metadata']) : null
+                ]);
+            }
+        }
+        
+        $db->commit();
+        return $orderId;
+        
+    } catch (PDOException $e) {
+        $db->rollBack();
+        error_log('Error creating order with items: ' . $e->getMessage());
         global $lastDbError;
         $lastDbError = $e->getMessage();
         return false;

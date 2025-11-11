@@ -152,7 +152,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isApplyAffiliate) {
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
             'original_price' => $originalPrice,
             'discount_amount' => $discountAmount,
-            'final_amount' => $payableAmount
+            'final_amount' => $payableAmount,
+            'order_type' => 'template',
+            'order_items' => [[
+                'product_type' => 'template',
+                'product_id' => $templateId,
+                'quantity' => 1,
+                'unit_price' => $originalPrice,
+                'discount_amount' => $discountAmount,
+                'final_amount' => $payableAmount,
+                'metadata' => [
+                    'name' => $template['name'],
+                    'slug' => $template['slug'] ?? null,
+                    'thumbnail_url' => $template['thumbnail_url'] ?? null
+                ]
+            ]]
         ];
         
         $orderId = createPendingOrder($orderData);

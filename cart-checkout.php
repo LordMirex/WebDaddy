@@ -143,53 +143,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'timestamp' => date('Y-m-d H:i:s')
         ]);
         
-        // Determine order type
-        $orderType = 'mixed';
-        if ($hasTemplates && !$hasTools) {
-            $orderType = 'templates';
-        } elseif (!$hasTemplates && $hasTools) {
-            $orderType = 'tools';
+        // Build order items array for database
+        $orderItems = [];
+        foreach ($cartItems as $item) {
+            $productType = $item['product_type'] ?? 'tool';
+            $itemSubtotal = $item['price_at_add'] * $item['quantity'];
+            
+            // Calculate per-item discount (proportional to item subtotal)
+            $itemDiscountAmount = 0;
+            if ($totals['has_discount'] && $totals['subtotal'] > 0) {
+                $itemDiscountAmount = ($itemSubtotal / $totals['subtotal']) * $totals['discount'];
+            }
+            
+            $itemFinalAmount = $itemSubtotal - $itemDiscountAmount;
+            
+            $orderItems[] = [
+                'product_type' => $productType,
+                'product_id' => $productType === 'template' ? ($item['template_id'] ?? $item['id']) : ($item['tool_id'] ?? $item['id']),
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['price_at_add'],
+                'discount_amount' => $itemDiscountAmount,
+                'final_amount' => $itemFinalAmount,
+                'metadata' => [
+                    'name' => $item['name'],
+                    'category' => $item['category'] ?? null,
+                    'thumbnail_url' => $item['thumbnail_url'] ?? null
+                ]
+            ];
         }
         
-        // Create pending order (for admin tracking)
-        $db = getDb();
-        $stmt = $db->prepare("INSERT INTO pending_orders (
-            template_id, order_type, cart_snapshot, customer_name, customer_email, 
-            customer_phone, affiliate_code, session_id, message_text, ip_address,
-            original_price, discount_amount, final_amount, created_at
-        ) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)");
+        // Create order with items using new function
+        $orderData = [
+            'customer_name' => $customerName,
+            'customer_email' => $customerEmail,
+            'customer_phone' => $customerPhone,
+            'affiliate_code' => $totals['affiliate_code'],
+            'session_id' => session_id(),
+            'message_text' => $message,
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
+            'original_price' => $totals['subtotal'],
+            'discount_amount' => $totals['discount'],
+            'final_amount' => $totals['total'],
+            'cart_snapshot' => $cartSnapshot
+        ];
         
-        $stmt->execute([
-            $orderType,
-            $cartSnapshot,
-            $customerName,
-            $customerEmail,
-            $customerPhone,
-            $totals['affiliate_code'],
-            session_id(),
-            $message,
-            $_SERVER['REMOTE_ADDR'] ?? '',
-            $totals['subtotal'],
-            $totals['discount'],
-            $totals['total']
-        ]);
+        $orderId = createOrderWithItems($orderData, $orderItems);
         
-        $orderId = $db->lastInsertId();
-        
-        // Log activity
-        logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
-        
-        // Generate WhatsApp link
-        $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
-        $encodedMessage = rawurlencode($message);
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
-        
-        // Clear cart
-        clearCart();
-        
-        // Redirect to WhatsApp
-        header('Location: ' . $whatsappUrl);
-        exit;
+        if (!$orderId) {
+            error_log('CRITICAL: Failed to create order for customer: ' . $customerName . ' with ' . count($cartItems) . ' items');
+            global $lastDbError;
+            if (isset($lastDbError) && !empty($lastDbError)) {
+                error_log('Order creation error details: ' . $lastDbError);
+            }
+            $errors[] = 'Failed to create order. Please try again or contact support.';
+        } else {
+            // Log activity
+            logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
+            
+            // Generate WhatsApp link
+            $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
+            $encodedMessage = rawurlencode($message);
+            $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
+            
+            // Clear cart only on successful order creation
+            clearCart();
+            
+            // Redirect to WhatsApp
+            header('Location: ' . $whatsappUrl);
+            exit;
+        }
     }
 }
 
