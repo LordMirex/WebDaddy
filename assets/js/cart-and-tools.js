@@ -173,14 +173,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const contentArea = document.getElementById('products-content-area');
             const html = `
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    ${tools.map(tool => `
-                        <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer" 
+                    ${tools.map(tool => {
+                        const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
+                        const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
+                        
+                        return `
+                        <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                              data-tool-id="${tool.id}">
                             <div class="relative overflow-hidden h-40 bg-gray-100">
                                 <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}"
                                      alt="${escapeHtml(tool.name)}"
                                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
+                                ${isLowStock ? `
+                                <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
+                                    Limited Stock
+                                </div>
+                                ` : isOutOfStock ? `
+                                <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
+                                    Out of Stock
+                                </div>
+                                ` : ''}
                             </div>
                             <div class="p-4">
                                 <div class="flex justify-between items-start mb-2">
@@ -193,17 +206,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
                                         <span class="text-lg font-extrabold text-primary-600">${formatCurrency(tool.price)}</span>
                                     </div>
-                                    <button onclick="event.stopPropagation(); addToCartFromModal(${tool.id}, '${escapeHtml(tool.name)}', ${tool.price})" 
-                                            class="add-to-cart-btn inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    <button data-tool-id="${tool.id}" 
+                                            class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border-2 border-primary-600 text-xs font-semibold rounded-lg text-primary-600 bg-white hover:bg-primary-50 transition-all shadow-sm hover:shadow-md whitespace-nowrap">
+                                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
-                                        Add to Cart
+                                        Preview
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
             `;
             contentArea.innerHTML = html;
@@ -383,14 +398,13 @@ document.addEventListener('DOMContentLoaded', function() {
         toolPopupBound = true;
 
         document.addEventListener('click', (event) => {
-            const addToCartClicked = event.target.closest('.add-to-cart-btn');
-            if (addToCartClicked) return;
+            const previewBtn = event.target.closest('.tool-preview-btn');
+            if (!previewBtn) return;
 
-            const card = event.target.closest('.tool-card, [data-tool-id]');
-            if (!card) return;
-
-            const toolId = card.dataset.toolId || card.querySelector('[data-tool-id]')?.dataset.toolId;
+            const toolId = previewBtn.dataset.toolId;
             if (toolId) {
+                event.preventDefault();
+                event.stopPropagation();
                 openToolModal(toolId);
             }
         });
@@ -413,58 +427,121 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.createElement('div');
         modal.id = 'tool-modal';
         modal.className = 'fixed inset-0 z-50 overflow-y-auto';
+        
+        const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
+        const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
+        const stockBadge = isOutOfStock 
+            ? '<span class="inline-block px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full">Out of Stock</span>'
+            : isLowStock 
+            ? `<span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">Limited Stock (${tool.stock_quantity} left)</span>`
+            : tool.stock_unlimited == 0 
+            ? `<span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">${tool.stock_quantity} in stock</span>`
+            : '';
+        
         modal.innerHTML = `
-            <div class="flex justify-end pt-4 pr-4">
+            <div class="flex min-h-screen items-center justify-center p-4">
                 <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" onclick="closeToolModal()"></div>
                 
-                <div class="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <div class="bg-white px-6 pt-5 pb-4">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-2xl font-bold text-gray-900">${escapeHtml(tool.name)}</h3>
-                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600">
+                <div class="relative inline-block bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-3xl">
+                    <div class="bg-white">
+                        <!-- Header with close button -->
+                        <div class="flex justify-between items-start px-6 pt-6 pb-4 border-b border-gray-200">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-2">${escapeHtml(tool.name)}</h3>
+                                <div class="flex gap-2 items-center flex-wrap">
+                                    ${tool.category ? `<span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">${escapeHtml(tool.category)}</span>` : ''}
+                                    ${stockBadge}
+                                </div>
+                            </div>
+                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600 ml-4">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
                         
-                        <div class="mb-4">
-                            <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}" 
-                                 alt="${escapeHtml(tool.name)}"
-                                 class="w-full h-64 object-cover rounded-lg"
-                                 onerror="this.src='/assets/images/placeholder.jpg'">
-                        </div>
-                        
-                        ${tool.category ? `<span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full mb-3">${escapeHtml(tool.category)}</span>` : ''}
-                        
-                        <div class="mb-4">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Description</h4>
-                            <div class="text-gray-700 text-base leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                ${escapeHtml(tool.description || tool.short_description || 'No description available').replace(/\n/g, '<br>')}
+                        <!-- Content -->
+                        <div class="px-6 py-4 max-h-[60vh] overflow-y-auto">
+                            <div class="mb-6">
+                                <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}" 
+                                     alt="${escapeHtml(tool.name)}"
+                                     class="w-full h-72 object-cover rounded-xl shadow-md"
+                                     onerror="this.src='/assets/images/placeholder.jpg'">
                             </div>
-                        </div>
-                        
-                        ${tool.features ? `
-                        <div class="mb-4">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Features</h4>
-                            <ul class="list-disc list-inside space-y-1 text-gray-700">
-                                ${tool.features.split(',').map(f => `<li>${escapeHtml(f.trim())}</li>`).join('')}
-                            </ul>
-                        </div>
-                        ` : ''}
-                        
-                        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                            <div>
-                                <p class="text-sm text-gray-600">Price</p>
-                                <p class="text-3xl font-bold text-primary-600">${formatCurrency(tool.price)}</p>
+                            
+                            ${tool.description || tool.short_description ? `
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    About This Tool
+                                </h4>
+                                <div class="text-gray-700 text-base leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    ${escapeHtml(tool.description || tool.short_description).replace(/\n/g, '<br>')}
+                                </div>
                             </div>
-                            <button onclick="addToCartFromModal(${tool.id}, '${escapeHtml(tool.name)}', ${tool.price})" 
-                                    class="add-to-cart-btn inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                </svg>
-                                Add to Cart
-                            </button>
+                            ` : ''}
+                            
+                            ${tool.features ? `
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Key Features
+                                </h4>
+                                <ul class="space-y-2">
+                                    ${tool.features.split(',').map(f => `
+                                        <li class="flex items-start">
+                                            <svg class="w-5 h-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            <span class="text-gray-700">${escapeHtml(f.trim())}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                            ` : ''}
+                            
+                            ${tool.delivery_time ? `
+                            <div class="mb-6">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Delivery
+                                </h4>
+                                <p class="text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                    <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapeHtml(tool.delivery_time)}
+                                </p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- Footer with price and CTA -->
+                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-1">Price</p>
+                                    <p class="text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
+                                </div>
+                                ${isOutOfStock 
+                                    ? `<button disabled class="inline-flex items-center px-8 py-3.5 border-2 border-gray-300 text-base font-semibold rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Out of Stock
+                                    </button>`
+                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapeHtml(tool.name)}', ${tool.price}); closeToolModal();" 
+                                        class="inline-flex items-center px-8 py-3.5 border border-transparent text-base font-semibold rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                        Add to Cart
+                                    </button>`
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
