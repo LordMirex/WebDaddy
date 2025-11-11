@@ -496,57 +496,16 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         
         $db->commit();
         
-        // Send payment confirmation email to customer
+        // Send enhanced payment confirmation email to customer
         if (!empty($order['customer_email'])) {
-            // Build product description from order items for accuracy
-            if (!empty($orderItems)) {
-                $productNames = [];
-                $totalQuantity = 0;
-                $hasTemplates = false;
-                $hasTools = false;
-                
-                foreach ($orderItems as $item) {
-                    $totalQuantity += $item['quantity'];
-                    if ($item['product_type'] === 'template') {
-                        $hasTemplates = true;
-                        $productNames[] = $item['template_name'] ?? 'Template';
-                    } else {
-                        $hasTools = true;
-                        $productNames[] = $item['tool_name'] ?? 'Tool';
-                    }
-                }
-                
-                if ($hasTemplates && $hasTools) {
-                    $productName = $totalQuantity . ' Product' . ($totalQuantity > 1 ? 's' : '') . ' (Templates & Tools)';
-                } elseif ($hasTools) {
-                    $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
-                } else {
-                    $productName = $totalQuantity . ' Template' . ($totalQuantity > 1 ? 's' : '');
-                }
-                
-                $domainOrContext = !empty($productNames) ? implode(', ', array_slice($productNames, 0, 3)) : 'Your Order';
-                if (count($productNames) > 3) {
-                    $domainOrContext .= ', +' . (count($productNames) - 3) . ' more';
-                }
-            } else {
-                // Fallback for legacy orders
-                if ($orderType === 'template') {
-                    $template = getTemplateById($order['template_id']);
-                    $productName = $template['name'] ?? 'Template';
-                    $domainOrContext = $order['domain_name'] ?? 'Your Domain';
-                } else {
-                    $productName = 'Digital Products';
-                    $domainOrContext = 'Your Order';
-                }
-            }
+            // Get domain name for template orders
+            $domainName = !empty($order['domain_name']) ? $order['domain_name'] : null;
             
-            sendPaymentConfirmationEmail(
-                $order['customer_name'],
-                $order['customer_email'],
-                $productName,
-                $domainOrContext,
-                null
-            );
+            // TODO: Add credentials if available (would need to be stored in order or generated)
+            $credentials = null;
+            
+            // Send enhanced email with full order details
+            sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
         }
         
         // Send commission earned email to affiliate

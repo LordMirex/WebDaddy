@@ -105,6 +105,180 @@ HTML;
 }
 
 /**
+ * Build normalized email context from order and items data
+ * @param array $order Order header data from pending_orders table
+ * @param array $orderItems Array of items from order_items table
+ * @return array Normalized context for email templating
+ */
+function buildOrderEmailContext($order, $orderItems) {
+    $context = [
+        'order_id' => $order['id'] ?? null,
+        'customer_name' => $order['customer_name'] ?? 'Customer',
+        'order_type' => $order['order_type'] ?? 'tools',
+        'total_amount' => $order['final_amount'] ?? 0,
+        'original_amount' => $order['original_price'] ?? 0,
+        'discount_amount' => $order['discount_amount'] ?? 0,
+        'has_discount' => !empty($order['discount_amount']) && $order['discount_amount'] > 0,
+        'affiliate_code' => $order['affiliate_code'] ?? null,
+        'items' => [],
+        'has_templates' => false,
+        'has_tools' => false,
+        'template_domain' => null,
+        'template_credentials' => null
+    ];
+    
+    foreach ($orderItems as $item) {
+        $productType = $item['product_type'] ?? 'tool';
+        $metadata = !empty($item['metadata_json']) ? json_decode($item['metadata_json'], true) : [];
+        
+        $itemData = [
+            'type' => $productType,
+            'name' => $metadata['name'] ?? 'Product',
+            'quantity' => $item['quantity'] ?? 1,
+            'unit_price' => $item['unit_price'] ?? 0,
+            'final_amount' => $item['final_amount'] ?? 0,
+            'badge_color' => $productType === 'template' ? '#3b82f6' : '#8b5cf6',
+            'badge_text' => $productType === 'template' ? 'Template' : 'Tool'
+        ];
+        
+        if ($productType === 'template') {
+            $context['has_templates'] = true;
+        } else {
+            $context['has_tools'] = true;
+        }
+        
+        $context['items'][] = $itemData;
+    }
+    
+    return $context;
+}
+
+/**
+ * Send enhanced payment confirmation email for all order types
+ * Handles templates, tools, and mixed orders with appropriate fulfillment instructions
+ * @param array $order Order header data
+ * @param array $orderItems Array of order items
+ * @param string|null $domainName Domain name for template orders
+ * @param array|null $credentials Login credentials for template orders
+ * @return bool Success status
+ */
+function sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName = null, $credentials = null) {
+    if (empty($order['customer_email'])) {
+        return false;
+    }
+    
+    $context = buildOrderEmailContext($order, $orderItems);
+    $customerName = $context['customer_name'];
+    $orderId = $context['order_id'];
+    
+    $subject = "Payment Confirmed - Order #{$orderId}";
+    
+    $productListHtml = '';
+    foreach ($context['items'] as $item) {
+        $formattedUnitPrice = formatCurrency($item['unit_price']);
+        $formattedTotal = formatCurrency($item['final_amount']);
+        $badgeColor = htmlspecialchars($item['badge_color']);
+        $badgeText = htmlspecialchars($item['badge_text']);
+        $itemName = htmlspecialchars($item['name']);
+        $quantity = (int)$item['quantity'];
+        
+        $productListHtml .= <<<HTML
+<tr style="border-bottom:1px solid #e5e7eb;">
+    <td style="padding:12px 8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span style="background:{$badgeColor}; color:#fff; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; white-space:nowrap;">{$badgeText}</span>
+            <span style="color:#374151; font-size:14px;">{$itemName}</span>
+        </div>
+    </td>
+    <td style="padding:12px 8px; text-align:center; color:#6b7280; font-size:14px;">{$quantity}</td>
+    <td style="padding:12px 8px; text-align:right; color:#374151; font-size:14px; font-weight:600;">{$formattedTotal}</td>
+</tr>
+HTML;
+    }
+    
+    $fulfillmentHtml = '';
+    
+    if ($context['has_templates'] && $domainName) {
+        $credentialsHtml = '';
+        if ($credentials) {
+            $username = htmlspecialchars($credentials['username'] ?? '');
+            $password = htmlspecialchars($credentials['password'] ?? '');
+            $credentialsHtml = <<<HTML
+<p style="margin:5px 0; color:#374151;"><strong>Username:</strong> {$username}</p>
+<p style="margin:5px 0; color:#374151;"><strong>Password:</strong> {$password}</p>
+HTML;
+        }
+        
+        $fulfillmentHtml .= <<<HTML
+<div style="background:#dbeafe; border-left:3px solid #3b82f6; padding:15px; border-radius:4px; margin:15px 0;">
+    <h3 style="color:#1e40af; margin:0 0 10px 0; font-size:16px;">🎨 Template Access</h3>
+    <p style="margin:5px 0; color:#374151;"><strong>Domain:</strong> {$domainName}</p>
+    {$credentialsHtml}
+    <p style="margin:10px 0 0 0; color:#374151; font-size:13px;">Your template is now live and ready to use!</p>
+</div>
+HTML;
+    }
+    
+    if ($context['has_tools']) {
+        $fulfillmentHtml .= <<<HTML
+<div style="background:#f3e8ff; border-left:3px solid #8b5cf6; padding:15px; border-radius:4px; margin:15px 0;">
+    <h3 style="color:#6b21a8; margin:0 0 10px 0; font-size:16px;">🔧 Tool Access</h3>
+    <p style="margin:0; color:#374151; font-size:13px;">Your digital tools are ready! You will receive access details via WhatsApp or email shortly.</p>
+</div>
+HTML;
+    }
+    
+    $totalsHtml = '';
+    if ($context['has_discount']) {
+        $formattedOriginal = formatCurrency($context['original_amount']);
+        $formattedDiscount = formatCurrency($context['discount_amount']);
+        $totalsHtml = <<<HTML
+<p style="margin:5px 0; color:#6b7280;">Subtotal: {$formattedOriginal}</p>
+<p style="margin:5px 0; color:#10b981;">Affiliate Discount (20%): -{$formattedDiscount}</p>
+HTML;
+    }
+    
+    $formattedTotal = formatCurrency($context['total_amount']);
+    
+    $content = <<<HTML
+<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">🎉 Payment Confirmed!</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    Great news! Your payment has been confirmed and your order is now being processed.
+</p>
+
+<div style="background:#ffffff; padding:0; border-radius:6px; margin:15px 0; overflow:hidden; border:1px solid #e5e7eb;">
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f9fafb; border-bottom:2px solid #e5e7eb;">
+                <th style="padding:10px 8px; text-align:left; color:#6b7280; font-size:12px; font-weight:600; text-transform:uppercase;">Product</th>
+                <th style="padding:10px 8px; text-align:center; color:#6b7280; font-size:12px; font-weight:600; text-transform:uppercase;">Qty</th>
+                <th style="padding:10px 8px; text-align:right; color:#6b7280; font-size:12px; font-weight:600; text-transform:uppercase;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {$productListHtml}
+        </tbody>
+    </table>
+</div>
+
+<div style="background:#f9fafb; padding:15px; border-radius:6px; margin:15px 0;">
+    <p style="margin:5px 0; color:#374151;"><strong>Order ID:</strong> #{$orderId}</p>
+    {$totalsHtml}
+    <p style="margin:5px 0; color:#374151; font-weight:700;">Total Paid: {$formattedTotal}</p>
+</div>
+
+{$fulfillmentHtml}
+
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    Thank you for your purchase! If you have any questions, please don't hesitate to contact us.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $customerName);
+    return sendEmail($order['customer_email'], $subject, $emailBody);
+}
+
+/**
  * Send order confirmation email to customer
  */
 function sendOrderConfirmationEmail($orderId, $customerName, $customerEmail, $templateName, $price) {
@@ -131,39 +305,30 @@ HTML;
 
 /**
  * Send payment confirmation and domain details to customer
+ * @deprecated Use sendEnhancedPaymentConfirmationEmail() instead
+ * This function is kept for backward compatibility
  */
 function sendPaymentConfirmationEmail($customerName, $customerEmail, $templateName, $domainName, $credentials = null) {
-    $subject = "Payment Confirmed - Your Website is Ready!";
+    $order = [
+        'id' => 0,
+        'customer_name' => $customerName,
+        'customer_email' => $customerEmail,
+        'order_type' => 'template',
+        'final_amount' => 0,
+        'original_price' => 0,
+        'discount_amount' => 0,
+        'affiliate_code' => null
+    ];
     
-    $credentialsHtml = '';
-    if ($credentials) {
-        $credentialsHtml = <<<HTML
-<div style="background:#fff; padding:15px; border-radius:6px; margin:15px 0; border:2px dashed #3b82f6;">
-    <h3 style="color:#1e3a8a; margin:0 0 10px 0; font-size:16px;">🔐 Your Login Credentials</h3>
-    <p style="margin:5px 0; color:#374151;"><strong>Domain:</strong> {$domainName}</p>
-    <p style="margin:5px 0; color:#374151;"><strong>Username:</strong> {$credentials['username']}</p>
-    <p style="margin:5px 0; color:#374151;"><strong>Password:</strong> {$credentials['password']}</p>
-</div>
-HTML;
-    }
+    $orderItems = [[
+        'product_type' => 'template',
+        'quantity' => 1,
+        'unit_price' => 0,
+        'final_amount' => 0,
+        'metadata_json' => json_encode(['name' => $templateName])
+    ]];
     
-    $content = <<<HTML
-<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">🎉 Payment Confirmed!</h2>
-<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
-    Great news! Your payment has been confirmed and your website is now ready.
-</p>
-<div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0;">
-    <p style="margin:5px 0; color:#374151;"><strong>Template:</strong> {$templateName}</p>
-    <p style="margin:5px 0; color:#374151;"><strong>Domain:</strong> {$domainName}</p>
-</div>
-{$credentialsHtml}
-<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
-    Your website is now live and ready to use! If you have any questions or need assistance, please don't hesitate to contact us.
-</p>
-HTML;
-    
-    $emailBody = createEmailTemplate($subject, $content, $customerName);
-    return sendEmail($customerEmail, $subject, $emailBody);
+    return sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
 }
 
 /**
