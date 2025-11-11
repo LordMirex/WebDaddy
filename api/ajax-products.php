@@ -20,6 +20,15 @@ if ($action === 'load_view') {
     if ($view === 'templates') {
         $perPage = 9;
         $allTemplates = getTemplates(true);
+        $templateCategories = array_unique(array_column($allTemplates, 'category'));
+        sort($templateCategories);
+        
+        if ($category) {
+            $allTemplates = array_filter($allTemplates, function($t) use ($category) {
+                return $t['category'] === $category;
+            });
+        }
+        
         $totalTemplates = count($allTemplates);
         $totalPages = max(1, ceil($totalTemplates / $perPage));
         $page = max(1, min($page, $totalPages));
@@ -27,7 +36,7 @@ if ($action === 'load_view') {
         $templates = array_slice($allTemplates, $offset, $perPage);
         
         // Render templates grid
-        renderTemplatesGrid($templates, $totalTemplates, $totalPages, $page, $affiliateCode);
+        renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $category, $affiliateCode);
     } else {
         $perPage = 18;
         $totalTools = getToolsCount(true, $category, true);
@@ -52,7 +61,32 @@ if ($action === 'load_view') {
     exit;
 }
 
-function renderTemplatesGrid($templates, $totalTemplates, $totalPages, $page, $affiliateCode) {
+function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $currentCategory, $affiliateCode) {
+    // Category filter for templates
+    if (!empty($templateCategories)): ?>
+    <div class="mb-6 max-w-4xl mx-auto">
+        <div class="relative">
+            <select id="templates-category-filter" 
+                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
+                <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
+                    All Categories
+                </option>
+                <?php foreach ($templateCategories as $cat): ?>
+                <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo ($currentCategory === $cat) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($cat); ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+    </div>
+    <?php endif;
+    
     if (empty($templates)): ?>
         <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
             <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,25 +140,32 @@ function renderTemplatesGrid($templates, $totalTemplates, $totalPages, $page, $a
             <?php endforeach; ?>
         </div>
         
-        <?php renderPagination($totalPages, $page, 'templates', null, $affiliateCode); ?>
+        <?php renderPagination($totalPages, $page, 'templates', $currentCategory, $affiliateCode); ?>
     <?php endif;
 }
 
 function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $currentCategory, $affiliateCode) {
-    // Category filter
+    // Category filter for tools
     if (!empty($toolCategories)): ?>
-    <div class="mb-6 flex justify-center">
-        <div class="inline-flex items-center gap-2 bg-white border border-gray-300 rounded-lg p-1 shadow-sm flex-wrap">
-            <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               class="px-4 py-2 text-sm font-medium rounded-md transition-all <?php echo empty($currentCategory) ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'; ?>">
-                All Categories
-            </a>
-            <?php foreach ($toolCategories as $cat): ?>
-            <a href="?view=tools&category=<?php echo urlencode($cat); ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               class="px-4 py-2 text-sm font-medium rounded-md transition-all <?php echo ($currentCategory === $cat) ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'; ?>">
-                <?php echo htmlspecialchars($cat); ?>
-            </a>
-            <?php endforeach; ?>
+    <div class="mb-6 max-w-4xl mx-auto">
+        <div class="relative">
+            <select id="tools-category-filter" 
+                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
+                <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
+                    All Categories
+                </option>
+                <?php foreach ($toolCategories as $cat): ?>
+                <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo ($currentCategory === $cat) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($cat); ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
         </div>
     </div>
     <?php endif;

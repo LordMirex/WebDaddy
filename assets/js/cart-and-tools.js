@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCartBadge();
         setupSearch();
         setupCategoryDropdown();
+        setupPaginationHandlers();
     }
     
     // Setup search functionality
@@ -41,19 +42,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (searchTimeout) clearTimeout(searchTimeout);
             
             if (query.length === 0) {
-                window.location.reload();
+                switchView(currentView, 1, currentCategory);
                 return;
             }
             
             searchTimeout = setTimeout(() => {
                 performSearch(query);
-            }, 300);
+            }, 500);
         });
         
         clearBtn.addEventListener('click', function() {
             searchInput.value = '';
             clearBtn.style.display = 'none';
-            window.location.reload();
+            switchView(currentView, 1, currentCategory);
         });
         
         async function performSearch(query) {
@@ -225,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function switchView(view, page = 1, category = '') {
+        const previousView = currentView;
         currentView = view;
         currentPage = page;
         currentCategory = category;
@@ -241,8 +243,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (clearBtn) clearBtn.style.display = 'none';
         }
         
-        // Reset category when switching from tools to templates
-        if (view === 'templates' && category) {
+        // Reset category when actually switching between views (not when filtering within same view)
+        if (previousView !== view) {
             category = '';
             currentCategory = '';
         }
@@ -353,13 +355,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function setupCategoryDropdown() {
-        const dropdown = document.getElementById('tools-category-filter');
-        if (!dropdown) return;
+        const toolsDropdown = document.getElementById('tools-category-filter');
+        const templatesDropdown = document.getElementById('templates-category-filter');
         
-        dropdown.addEventListener('change', function(e) {
-            const category = e.target.value;
-            switchView('tools', 1, category);
-        });
+        if (toolsDropdown) {
+            const newToolsDropdown = toolsDropdown.cloneNode(true);
+            toolsDropdown.parentNode.replaceChild(newToolsDropdown, toolsDropdown);
+            newToolsDropdown.addEventListener('change', function(e) {
+                const category = e.target.value;
+                switchView('tools', 1, category);
+            });
+        }
+        
+        if (templatesDropdown) {
+            const newTemplatesDropdown = templatesDropdown.cloneNode(true);
+            templatesDropdown.parentNode.replaceChild(newTemplatesDropdown, templatesDropdown);
+            newTemplatesDropdown.addEventListener('change', function(e) {
+                const category = e.target.value;
+                switchView('templates', 1, category);
+            });
+        }
     }
     
     // Tool Popup Modal
@@ -399,10 +414,10 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.id = 'tool-modal';
         modal.className = 'fixed inset-0 z-50 overflow-y-auto';
         modal.innerHTML = `
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="flex justify-end pt-4 pr-4">
                 <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" onclick="closeToolModal()"></div>
                 
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                     <div class="bg-white px-6 pt-5 pb-4">
                         <div class="flex justify-between items-start mb-4">
                             <h3 class="text-2xl font-bold text-gray-900">${escapeHtml(tool.name)}</h3>
@@ -482,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span id="floating-cart-count" class="hidden absolute -top-1 -right-1 bg-gray-900 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">0</span>
+                    <span id="floating-cart-count" class="hidden absolute top-0 right-0 bg-gray-900 text-white font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white" style="font-size: 10px;">0</span>
                 </button>
                 
                 <!-- Animated Total Amount Badge - positioned to the right side -->

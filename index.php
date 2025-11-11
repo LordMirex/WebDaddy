@@ -37,8 +37,17 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 if ($currentView === 'templates') {
     // TEMPLATES VIEW
     $perPage = 9;
+    $category = $_GET['category'] ?? null;
     $allTemplates = getTemplates(true);
-    $categories = array_unique(array_column($allTemplates, 'category'));
+    $templateCategories = array_unique(array_column($allTemplates, 'category'));
+    sort($templateCategories);
+    
+    if ($category) {
+        $allTemplates = array_filter($allTemplates, function($t) use ($category) {
+            return $t['category'] === $category;
+        });
+    }
+    
     $totalTemplates = count($allTemplates);
     $totalPages = max(1, ceil($totalTemplates / $perPage));
     $page = max(1, min($page, $totalPages));
@@ -133,7 +142,7 @@ if ($currentView === 'templates') {
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
+                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute top-0 right-0 bg-gray-900 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 10px;"><?php echo $cartCount; ?></span>
                     </a>
                     <a href="/affiliate/register.php" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
                         Become an Affiliate
@@ -158,7 +167,7 @@ if ($currentView === 'templates') {
                 <a href="#faq" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">FAQ</a>
                 <a href="#" id="cart-button-mobile" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium flex items-center">
                     Cart
-                    <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
+                    <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-gray-900 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 10px;"><?php echo $cartCount; ?></span>
                 </a>
                 <a href="/affiliate/register.php" class="block px-3 py-2 rounded-md text-white bg-primary-600 hover:bg-primary-700 font-medium">Become an Affiliate</a>
             </div>
@@ -299,6 +308,9 @@ if ($currentView === 'templates') {
                 <div class="flex justify-center gap-6 text-sm text-gray-500">
                     <?php if ($currentView === 'templates'): ?>
                         <span class="font-semibold"><span class="text-primary-600"><?php echo $totalTemplates; ?></span> Templates Available</span>
+                        <?php if (!empty($templateCategories)): ?>
+                        <span class="font-semibold"><span class="text-primary-600"><?php echo count($templateCategories); ?></span> Categories</span>
+                        <?php endif; ?>
                     <?php else: ?>
                         <span class="font-semibold"><span class="text-primary-600"><?php echo $totalTools; ?></span> Tools Available</span>
                         <?php if (!empty($toolCategories)): ?>
@@ -359,6 +371,31 @@ if ($currentView === 'templates') {
             <!-- Dynamic Content Area -->
             <div id="products-content-area">
             <?php if ($currentView === 'templates'): ?>
+            <?php if (!empty($templateCategories)): ?>
+            <!-- Category Filter for Templates -->
+            <div class="mb-6 max-w-4xl mx-auto">
+                <div class="relative">
+                    <select id="templates-category-filter" 
+                            class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
+                        <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
+                            All Categories
+                        </option>
+                        <?php foreach ($templateCategories as $cat): ?>
+                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($cat); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </div>
+            <?php endif; ?>
+            
             <?php if (empty($templates)): ?>
             <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
                 <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
