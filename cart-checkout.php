@@ -12,12 +12,15 @@ handleAffiliateTracking();
 // Get affiliate code
 $affiliateCode = getAffiliateCode();
 
+// Check if this is an order confirmation page
+$confirmedOrderId = isset($_GET['confirmed']) ? (int)$_GET['confirmed'] : null;
+
 // Get cart items
 $cartItems = getCart();
 $totals = getCartTotal(null, $affiliateCode);
 
-// If cart is empty, redirect to homepage
-if (empty($cartItems)) {
+// If cart is empty and not showing confirmation, redirect to homepage
+if (empty($cartItems) && !$confirmedOrderId) {
     header('Location: /?' . ($affiliateCode ? 'aff=' . urlencode($affiliateCode) : '') . '#products');
     exit;
 }
@@ -246,22 +249,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
-            // Generate WhatsApp link
-            $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
-            $encodedMessage = rawurlencode($message);
-            $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
-            
             // Clear cart only on successful order creation
             clearCart();
             
-            // Redirect to WhatsApp
-            header('Location: ' . $whatsappUrl);
+            // Redirect to confirmation page with order ID
+            header('Location: /cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''));
             exit;
         }
     }
 }
 
-$pageTitle = 'Checkout - ' . SITE_NAME;
+// Handle order confirmation page
+$confirmationData = null;
+if ($confirmedOrderId) {
+    $order = getOrderById($confirmedOrderId);
+    
+    // SECURITY: Only allow viewing if this session created the order
+    if ($order && $order['session_id'] === session_id()) {
+        $orderItems = getOrderItems($confirmedOrderId);
+        
+        // Determine order type
+        $hasTemplates = false;
+        $hasTools = false;
+        foreach ($orderItems as $item) {
+            if ($item['product_type'] === 'template') $hasTemplates = true;
+            if ($item['product_type'] === 'tool') $hasTools = true;
+        }
+        
+        $orderTypeText = '';
+        if ($hasTemplates && $hasTools) {
+            $orderTypeText = 'TEMPLATES & TOOLS ORDER';
+        } elseif ($hasTemplates) {
+            $orderTypeText = 'TEMPLATES ORDER';
+        } else {
+            $orderTypeText = 'TOOLS ORDER';
+        }
+        
+        // Build WhatsApp message
+        $message = "🛒 *NEW {$orderTypeText}*\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━\n\n";
+        $message .= "*ORDER ID: #{$order['id']}*\n\n";
+        $message .= "*ITEMS ORDERED:*\n\n";
+        
+        $itemNumber = 1;
+        foreach ($orderItems as $item) {
+            $productType = $item['product_type'];
+            $typeLabel = ($productType === 'template') ? '🎨 Template' : '🔧 Tool';
+            $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
+            
+            $message .= "*{$itemNumber}. {$productName}* ({$typeLabel})\n";
+            $message .= "   Unit Price: " . formatCurrency($item['unit_price']) . "\n";
+            if ($item['quantity'] > 1) {
+                $message .= "   Quantity: {$item['quantity']}\n";
+            }
+            $message .= "   *Subtotal: " . formatCurrency($item['final_amount']) . "*\n\n";
+            $itemNumber++;
+        }
+        
+        $message .= "━━━━━━━━━━━━━━━━━━━\n";
+        $message .= "*PRICE BREAKDOWN:*\n";
+        $message .= "Subtotal: " . formatCurrency($order['original_price']) . "\n";
+        
+        if (!empty($order['discount_amount']) && $order['discount_amount'] > 0) {
+            $message .= "Affiliate Discount (20%): -" . formatCurrency($order['discount_amount']) . "\n";
+            $message .= "Affiliate Code: *" . $order['affiliate_code'] . "*\n";
+        }
+        
+        $message .= "*TOTAL TO PAY: " . formatCurrency($order['final_amount']) . "*\n\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━\n";
+        $message .= "*CUSTOMER DETAILS:*\n";
+        $message .= "Name: " . $order['customer_name'] . "\n";
+        $message .= "WhatsApp: " . $order['customer_phone'] . "\n";
+        if (!empty($order['customer_email'])) {
+            $message .= "Email: " . $order['customer_email'] . "\n";
+        }
+        $message .= "\n✅ Please confirm this order and provide payment details.";
+        
+        // Generate WhatsApp link
+        $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
+        $encodedMessage = rawurlencode($message);
+        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
+        
+        $confirmationData = [
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'hasTemplates' => $hasTemplates,
+            'hasTools' => $hasTools,
+            'orderTypeText' => $orderTypeText,
+            'whatsappUrl' => $whatsappUrl
+        ];
+    } else {
+        // Invalid order or unauthorized access - redirect to home
+        if ($confirmedOrderId) {
+            header('Location: /?view=tools#products');
+            exit;
+        }
+    }
+}
+
+$pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SITE_NAME : 'Checkout - ' . SITE_NAME;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -362,6 +448,124 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div class="max-w-3xl mx-auto">
             
+            <?php if ($confirmedOrderId && $confirmationData): ?>
+                <!-- Order Confirmation Page -->
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h2>
+                    <p class="text-gray-600">Your order has been successfully created</p>
+                    <p class="text-sm text-gray-500 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
+                </div>
+                
+                <!-- Order Summary Card -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl"><?php echo $confirmationData['hasTemplates'] && $confirmationData['hasTools'] ? '🎨🔧' : ($confirmationData['hasTemplates'] ? '🎨' : '🔧'); ?></span>
+                                <h3 class="font-bold text-gray-900"><?php echo $confirmationData['orderTypeText']; ?></h3>
+                            </div>
+                            <span class="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded-full">Pending Payment</span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h4 class="font-bold text-gray-900 mb-4">Order Items</h4>
+                        <div class="space-y-3 mb-6">
+                            <?php foreach ($confirmationData['orderItems'] as $item): 
+                                $productType = $item['product_type'];
+                                $badgeColor = $productType === 'template' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                                $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
+                                $badgeText = $productType === 'template' ? 'Template' : 'Tool';
+                                $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
+                            ?>
+                            <div class="flex items-start gap-3 pb-3 border-b border-gray-200 last:border-0">
+                                <div class="flex-1">
+                                    <div class="flex items-start justify-between gap-2 mb-1">
+                                        <h5 class="font-semibold text-gray-900"><?php echo htmlspecialchars($productName); ?></h5>
+                                        <span class="<?php echo $badgeColor; ?> px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap">
+                                            <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600">
+                                        <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?></p>
+                                        <p class="font-semibold text-primary-600 mt-1"><?php echo formatCurrency($item['final_amount']); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Subtotal</span>
+                                <span><?php echo formatCurrency($confirmationData['order']['original_price']); ?></span>
+                            </div>
+                            
+                            <?php if (!empty($confirmationData['order']['discount_amount']) && $confirmationData['order']['discount_amount'] > 0): ?>
+                            <div class="flex justify-between text-green-600">
+                                <span>Affiliate Discount (20%)</span>
+                                <span>-<?php echo formatCurrency($confirmationData['order']['discount_amount']); ?></span>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <div class="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-200">
+                                <span>Total</span>
+                                <span><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customer Details Card -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 p-6">
+                    <h4 class="font-bold text-gray-900 mb-4">Customer Details</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Name:</span>
+                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($confirmationData['order']['customer_name']); ?></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">WhatsApp:</span>
+                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($confirmationData['order']['customer_phone']); ?></span>
+                        </div>
+                        <?php if (!empty($confirmationData['order']['customer_email'])): ?>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Email:</span>
+                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <!-- Next Steps -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h4 class="font-bold text-blue-900 mb-2">📱 Next Steps</h4>
+                    <p class="text-sm text-blue-800 mb-3">
+                        Click the button below to send your order details via WhatsApp. Our team will confirm and provide payment instructions.
+                    </p>
+                </div>
+                
+                <!-- WhatsApp Button -->
+                <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrl']); ?>" 
+                   class="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl text-center mb-4">
+                    <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    Send Order via WhatsApp
+                </a>
+                
+                <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                   class="block text-center text-primary-600 hover:text-primary-700 font-medium py-2">
+                    ← Continue Shopping
+                </a>
+                
+            <?php else: ?>
+                <!-- Regular Checkout Form -->
                 <?php if (!empty($success)): ?>
                 <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
                     <div class="flex">
@@ -399,13 +603,35 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                         <svg class="w-5 h-5 text-yellow-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                         </svg>
-                        <div>
-                            <h5 class="font-bold text-yellow-900 mb-2">Cart Issues:</h5>
-                            <?php foreach ($validation['issues'] as $issue): ?>
-                            <p class="text-yellow-800">• <?php echo htmlspecialchars($issue['tool_name'] . ': ' . $issue['issue']); ?></p>
-                            <?php endforeach; ?>
+                        <div class="flex-1">
+                            <h5 class="font-bold text-yellow-900 mb-2">Cart Issues Found:</h5>
+                            <div class="space-y-2">
+                                <?php foreach ($validation['issues'] as $issue): 
+                                    $productType = $issue['product_type'] ?? 'tool';
+                                    $icon = $productType === 'template' ? '🎨' : '🔧';
+                                    $typeLabel = $productType === 'template' ? 'Template' : 'Tool';
+                                ?>
+                                <div class="bg-white rounded-lg p-3 border border-yellow-300">
+                                    <div class="flex items-start gap-2">
+                                        <span class="text-lg"><?php echo $icon; ?></span>
+                                        <div class="flex-1">
+                                            <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($issue['tool_name']); ?></p>
+                                            <p class="text-sm text-yellow-800 mt-1">
+                                                <span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-900 text-xs font-medium rounded mr-1"><?php echo $typeLabel; ?></span>
+                                                <?php echo htmlspecialchars($issue['issue']); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
                             <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                               class="text-primary-600 hover:text-primary-700 font-semibold mt-2 inline-block">← Return to shopping</a>
+                               class="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-semibold mt-4">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                </svg>
+                                Return to shopping
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -516,19 +742,40 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                         </div>
                         
                         <div class="space-y-4 mb-6">
-                            <?php foreach ($cartItems as $item): ?>
+                            <?php foreach ($cartItems as $item): 
+                                $productType = $item['product_type'] ?? 'tool';
+                                $itemSubtotal = $item['price_at_add'] * $item['quantity'];
+                                $itemDiscount = 0;
+                                if ($totals['has_discount'] && $totals['subtotal'] > 0) {
+                                    $itemDiscount = ($itemSubtotal / $totals['subtotal']) * $totals['discount'];
+                                }
+                                $itemFinal = $itemSubtotal - $itemDiscount;
+                                $badgeColor = $productType === 'template' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                                $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
+                                $badgeText = $productType === 'template' ? 'Template' : 'Tool';
+                            ?>
                             <div class="flex items-start gap-3 pb-4 border-b border-gray-200">
                                 <img src="<?php echo htmlspecialchars($item['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
                                      alt="<?php echo htmlspecialchars($item['name']); ?>"
                                      class="w-16 h-16 object-cover rounded"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 <div class="flex-1">
-                                    <h3 class="font-semibold text-gray-900"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                    <div class="flex items-start justify-between gap-2 mb-1">
+                                        <h3 class="font-semibold text-gray-900"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                        <span class="<?php echo $badgeColor; ?> px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap">
+                                            <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
+                                        </span>
+                                    </div>
                                     <?php if (!empty($item['category'])): ?>
-                                    <p class="text-xs text-gray-500"><?php echo htmlspecialchars($item['category']); ?></p>
+                                    <p class="text-xs text-gray-500 mb-1"><?php echo htmlspecialchars($item['category']); ?></p>
                                     <?php endif; ?>
-                                    <p class="text-sm text-gray-600"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?></p>
-                                    <p class="text-sm font-semibold text-primary-600"><?php echo formatCurrency($item['price_at_add'] * $item['quantity']); ?></p>
+                                    <div class="text-sm space-y-0.5">
+                                        <p class="text-gray-600"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <?php echo formatCurrency($itemSubtotal); ?></p>
+                                        <?php if ($itemDiscount > 0): ?>
+                                        <p class="text-green-600 text-xs">Discount: -<?php echo formatCurrency($itemDiscount); ?></p>
+                                        <?php endif; ?>
+                                        <p class="font-semibold text-primary-600"><?php echo $itemDiscount > 0 ? 'Final: ' : ''; ?><?php echo formatCurrency($itemFinal); ?></p>
+                                    </div>
                                 </div>
                             </div>
                             <?php endforeach; ?>
@@ -582,6 +829,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 </a>
                 
                 </form>
+            <?php endif; ?>
         </div>
     </div>
 </body>

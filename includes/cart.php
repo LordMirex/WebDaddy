@@ -368,6 +368,7 @@ function validateCart($sessionId = null) {
         if ($item['active'] != 1) {
             $issues[] = [
                 'cart_item_id' => $item['id'],
+                'tool_name' => $item['name'],
                 'product_name' => $item['name'],
                 'product_type' => $productType,
                 'issue' => ucfirst($productType) . ' is no longer available'
@@ -379,13 +380,15 @@ function validateCart($sessionId = null) {
         // Check stock for tools only
         if ($productType === 'tool' && !checkToolStock($item['product_id'], $item['quantity'])) {
             $tool = getToolById($item['product_id']);
+            $available = $tool['stock_quantity'] ?? 0;
             $issues[] = [
                 'cart_item_id' => $item['id'],
+                'tool_name' => $item['name'],
                 'product_name' => $item['name'],
                 'product_type' => 'tool',
-                'issue' => 'Insufficient stock',
+                'issue' => 'Insufficient stock (Requested: ' . $item['quantity'] . ', Available: ' . $available . ')',
                 'requested' => $item['quantity'],
-                'available' => $tool['stock_quantity']
+                'available' => $available
             ];
             $valid = false;
         }
