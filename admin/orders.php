@@ -253,6 +253,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 $searchTerm = $_GET['search'] ?? '';
 $filterStatus = $_GET['status'] ?? '';
 $filterTemplate = $_GET['template'] ?? '';
+$filterOrderType = $_GET['order_type'] ?? '';
 
 $sql = "SELECT po.*, t.name as template_name, t.price as template_price, 
         tool.name as tool_name, tool.price as tool_price, d.domain_name,
@@ -266,8 +267,14 @@ $sql = "SELECT po.*, t.name as template_name, t.price as template_price,
 $params = [];
 
 if (!empty($searchTerm)) {
-    $sql .= " AND (po.customer_name LIKE ? OR po.customer_email LIKE ? OR po.customer_phone LIKE ? OR po.business_name LIKE ?)";
+    $sql .= " AND (po.customer_name LIKE ? OR po.customer_email LIKE ? OR po.customer_phone LIKE ? OR po.business_name LIKE ? 
+              OR t.name LIKE ? OR tool.name LIKE ?
+              OR EXISTS (SELECT 1 FROM order_items oi WHERE oi.pending_order_id = po.id AND (oi.template_name LIKE ? OR oi.tool_name LIKE ?)))";
     $searchPattern = '%' . $searchTerm . '%';
+    $params[] = $searchPattern;
+    $params[] = $searchPattern;
+    $params[] = $searchPattern;
+    $params[] = $searchPattern;
     $params[] = $searchPattern;
     $params[] = $searchPattern;
     $params[] = $searchPattern;
@@ -282,6 +289,27 @@ if (!empty($filterStatus)) {
 if (!empty($filterTemplate)) {
     $sql .= " AND po.template_id = ?";
     $params[] = intval($filterTemplate);
+}
+
+if (!empty($filterOrderType)) {
+    if ($filterOrderType === 'templates_only') {
+        $sql .= " AND (
+                    (EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template')
+                     AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool'))
+                    OR (po.template_id IS NOT NULL AND po.tool_id IS NULL 
+                        AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id))
+                  )";
+    } elseif ($filterOrderType === 'tools_only') {
+        $sql .= " AND (
+                    (EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool')
+                     AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template'))
+                    OR (po.tool_id IS NOT NULL AND po.template_id IS NULL 
+                        AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id))
+                  )";
+    } elseif ($filterOrderType === 'mixed') {
+        $sql .= " AND EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template')
+                  AND EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool')";
+    }
 }
 
 $sql .= " ORDER BY po.created_at DESC";
@@ -340,10 +368,19 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
     <div class="p-6">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-6 gap-4">
             <div class="md:col-span-2">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
-                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone...">
+                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone, products...">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Order Type</label>
+                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="order_type">
+                    <option value="">All Types</option>
+                    <option value="templates_only" <?php echo $filterOrderType === 'templates_only' ? 'selected' : ''; ?>>Templates Only</option>
+                    <option value="tools_only" <?php echo $filterOrderType === 'tools_only' ? 'selected' : ''; ?>>Tools Only</option>
+                    <option value="mixed" <?php echo $filterOrderType === 'mixed' ? 'selected' : ''; ?>>Mixed Orders</option>
+                </select>
             </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Template</label>
