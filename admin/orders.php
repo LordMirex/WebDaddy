@@ -431,7 +431,9 @@ require_once __DIR__ . '/includes/header.php';
     <div class="p-6">
         <form id="bulkActionsForm" method="POST" action="">
             <input type="hidden" name="action" id="bulkAction" value="">
-            <div class="overflow-x-auto">
+            
+            <!-- Desktop Table View -->
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="border-b-2 border-gray-300">
@@ -570,13 +572,160 @@ require_once __DIR__ . '/includes/header.php';
                 </tbody>
             </table>
         </div>
+        
+        <!-- Mobile Card View -->
+        <div class="md:hidden">
+            <?php if (empty($orders)): ?>
+                <div class="text-center py-12">
+                    <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                    <p class="text-gray-500 mt-4">No orders found</p>
+                </div>
+            <?php else: ?>
+                <!-- Mobile Bulk Actions -->
+                <div class="mb-4 p-3 bg-gray-100 rounded-lg">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                        <input type="checkbox" id="selectAllMobile" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <span>Select All Orders</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <button type="button" class="flex-1 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-xs disabled:opacity-50 disabled:cursor-not-allowed" id="bulkMarkPaidBtnMobile" disabled>
+                            <i class="bi bi-check-circle"></i> Mark Paid
+                        </button>
+                        <button type="button" class="flex-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-xs disabled:opacity-50 disabled:cursor-not-allowed" id="bulkCancelBtnMobile" disabled>
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                <?php foreach ($orders as $order): ?>
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <?php if ($order['status'] === 'pending'): ?>
+                            <input type="checkbox" name="order_ids[]" value="<?php echo $order['id']; ?>" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 order-checkbox">
+                            <?php endif; ?>
+                            <span class="font-bold text-gray-900">#<?php echo $order['id']; ?></span>
+                        </div>
+                        <?php
+                        $statusColors = [
+                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'paid' => 'bg-green-100 text-green-800',
+                            'cancelled' => 'bg-red-100 text-red-800'
+                        ];
+                        $statusIcons = [
+                            'pending' => 'hourglass-split',
+                            'paid' => 'check-circle',
+                            'cancelled' => 'x-circle'
+                        ];
+                        $color = $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800';
+                        $icon = $statusIcons[$order['status']] ?? 'circle';
+                        ?>
+                        <span class="inline-flex items-center px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
+                            <i class="bi bi-<?php echo $icon; ?> mr-1"></i><?php echo ucfirst($order['status']); ?>
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-3">
+                        <div>
+                            <div class="text-sm font-semibold text-gray-700">Customer</div>
+                            <div class="text-gray-900"><?php echo htmlspecialchars($order['customer_name']); ?></div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <div><i class="bi bi-envelope"></i> <?php echo htmlspecialchars($order['customer_email']); ?></div>
+                                <div><i class="bi bi-phone"></i> <?php echo htmlspecialchars($order['customer_phone']); ?></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm font-semibold text-gray-700">Products</div>
+                            <?php
+                            $orderItems = getOrderItems($order['id']);
+                            $orderType = $order['order_type'] ?? 'template';
+                            
+                            if (!empty($orderItems)) {
+                                $itemCount = count($orderItems);
+                                $hasTemplates = false;
+                                $hasTools = false;
+                                
+                                foreach ($orderItems as $item) {
+                                    if ($item['product_type'] === 'template') $hasTemplates = true;
+                                    if ($item['product_type'] === 'tool') $hasTools = true;
+                                }
+                                
+                                if ($hasTemplates && $hasTools) {
+                                    echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800"><i class="bi bi-box-seam mr-1"></i>Mixed</span></div>';
+                                } elseif ($hasTools) {
+                                    echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tools</span></div>';
+                                } else {
+                                    echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div>';
+                                }
+                                
+                                echo '<div class="text-sm text-gray-900">';
+                                foreach (array_slice($orderItems, 0, 3) as $item) {
+                                    $productType = $item['product_type'];
+                                    $productName = $productType === 'template' ? $item['template_name'] : $item['tool_name'];
+                                    $typeIcon = ($productType === 'template') ? '🎨' : '🔧';
+                                    $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
+                                    echo $typeIcon . ' ' . htmlspecialchars($productName) . $qty . '<br/>';
+                                }
+                                if ($itemCount > 3) {
+                                    echo '<span class="text-xs text-gray-500">+' . ($itemCount - 3) . ' more</span>';
+                                }
+                                echo '</div>';
+                            } elseif ($order['template_name']) {
+                                echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div>';
+                                echo '<div class="text-gray-900 text-sm">🎨 ' . htmlspecialchars($order['template_name']) . '</div>';
+                            } elseif ($order['tool_name']) {
+                                echo '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tool</span></div>';
+                                echo '<div class="text-gray-900 text-sm">🔧 ' . htmlspecialchars($order['tool_name']) . '</div>';
+                            } else {
+                                echo '<span class="text-gray-400">No items</span>';
+                            }
+                            ?>
+                        </div>
+                        
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                            <div>
+                                <div class="text-sm font-semibold text-gray-700">Total</div>
+                                <?php
+                                $totalAmount = $order['final_amount'] ?? $order['template_price'] ?? 0;
+                                ?>
+                                <div class="text-lg font-bold text-gray-900"><?php echo formatCurrency($totalAmount); ?></div>
+                                <?php if (!empty($order['affiliate_code'])): ?>
+                                <div class="text-xs text-green-600">Affiliate: <?php echo htmlspecialchars($order['affiliate_code']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-gray-700">Date</div>
+                                <div class="text-sm text-gray-900"><?php echo date('M d, Y', strtotime($order['created_at'])); ?></div>
+                                <div class="text-xs text-gray-500"><?php echo date('h:i A', strtotime($order['created_at'])); ?></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="?view=<?php echo $order['id']; ?>" class="block w-full px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm text-center font-medium">
+                        <i class="bi bi-eye mr-1"></i> View Details
+                    </a>
+                </div>
+                <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
         </form>
     </div>
 </div>
 
 <script>
-// Select All functionality
+// Select All functionality (Desktop)
 document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    toggleBulkButtons();
+});
+
+// Select All functionality (Mobile)
+document.getElementById('selectAllMobile')?.addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('.order-checkbox');
     checkboxes.forEach(cb => cb.checked = this.checked);
     toggleBulkButtons();
@@ -591,17 +740,23 @@ function toggleBulkButtons() {
     const checked = document.querySelectorAll('.order-checkbox:checked');
     const markPaidBtn = document.getElementById('bulkMarkPaidBtn');
     const cancelBtn = document.getElementById('bulkCancelBtn');
+    const markPaidBtnMobile = document.getElementById('bulkMarkPaidBtnMobile');
+    const cancelBtnMobile = document.getElementById('bulkCancelBtnMobile');
     
     if (checked.length > 0) {
         markPaidBtn.disabled = false;
         cancelBtn.disabled = false;
+        if (markPaidBtnMobile) markPaidBtnMobile.disabled = false;
+        if (cancelBtnMobile) cancelBtnMobile.disabled = false;
     } else {
         markPaidBtn.disabled = true;
         cancelBtn.disabled = true;
+        if (markPaidBtnMobile) markPaidBtnMobile.disabled = true;
+        if (cancelBtnMobile) cancelBtnMobile.disabled = true;
     }
 }
 
-// Bulk Mark Paid
+// Bulk Mark Paid (Desktop)
 document.getElementById('bulkMarkPaidBtn').addEventListener('click', function() {
     const checked = document.querySelectorAll('.order-checkbox:checked');
     if (checked.length > 0 && confirm(`Mark ${checked.length} order(s) as paid?`)) {
@@ -610,8 +765,26 @@ document.getElementById('bulkMarkPaidBtn').addEventListener('click', function() 
     }
 });
 
-// Bulk Cancel
+// Bulk Cancel (Desktop)
 document.getElementById('bulkCancelBtn').addEventListener('click', function() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    if (checked.length > 0 && confirm(`Cancel ${checked.length} order(s)? This cannot be undone.`)) {
+        document.getElementById('bulkAction').value = 'bulk_cancel';
+        document.getElementById('bulkActionsForm').submit();
+    }
+});
+
+// Bulk Mark Paid (Mobile)
+document.getElementById('bulkMarkPaidBtnMobile')?.addEventListener('click', function() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    if (checked.length > 0 && confirm(`Mark ${checked.length} order(s) as paid?`)) {
+        document.getElementById('bulkAction').value = 'bulk_mark_paid';
+        document.getElementById('bulkActionsForm').submit();
+    }
+});
+
+// Bulk Cancel (Mobile)
+document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', function() {
     const checked = document.querySelectorAll('.order-checkbox:checked');
     if (checked.length > 0 && confirm(`Cancel ${checked.length} order(s)? This cannot be undone.`)) {
         document.getElementById('bulkAction').value = 'bulk_cancel';

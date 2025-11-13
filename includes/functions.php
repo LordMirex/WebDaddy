@@ -854,3 +854,70 @@ function calculateAffiliateCommission($orderId)
     
     return $template['price'] * AFFILIATE_COMMISSION_RATE;
 }
+
+function renderOrderStatusBadge($status)
+{
+    $statusColors = [
+        'pending' => 'bg-yellow-100 text-yellow-800',
+        'paid' => 'bg-green-100 text-green-800',
+        'cancelled' => 'bg-red-100 text-red-800'
+    ];
+    $statusIcons = [
+        'pending' => 'hourglass-split',
+        'paid' => 'check-circle',
+        'cancelled' => 'x-circle'
+    ];
+    $color = $statusColors[$status] ?? 'bg-gray-100 text-gray-800';
+    $icon = $statusIcons[$status] ?? 'circle';
+    
+    return sprintf(
+        '<span class="inline-flex items-center px-3 py-1 %s rounded-full text-xs font-semibold"><i class="bi bi-%s mr-1"></i>%s</span>',
+        $color,
+        $icon,
+        ucfirst($status)
+    );
+}
+
+function renderOrderTypeProductList($orderItems, $fallbackTemplateName = null, $fallbackToolName = null, $maxDisplay = 2)
+{
+    if (!empty($orderItems)) {
+        $itemCount = count($orderItems);
+        $hasTemplates = false;
+        $hasTools = false;
+        
+        foreach ($orderItems as $item) {
+            if ($item['product_type'] === 'template') $hasTemplates = true;
+            if ($item['product_type'] === 'tool') $hasTools = true;
+        }
+        
+        $typeBadge = '';
+        if ($hasTemplates && $hasTools) {
+            $typeBadge = '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800"><i class="bi bi-box-seam mr-1"></i>Mixed</span></div>';
+        } elseif ($hasTools) {
+            $typeBadge = '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tools</span></div>';
+        } else {
+            $typeBadge = '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div>';
+        }
+        
+        $productHtml = '<div class="text-sm text-gray-900">';
+        foreach (array_slice($orderItems, 0, $maxDisplay) as $item) {
+            $productType = $item['product_type'];
+            $productName = $productType === 'template' ? $item['template_name'] : $item['tool_name'];
+            $typeIcon = ($productType === 'template') ? '🎨' : '🔧';
+            $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
+            $productHtml .= $typeIcon . ' ' . htmlspecialchars($productName) . $qty . '<br/>';
+        }
+        if ($itemCount > $maxDisplay) {
+            $productHtml .= '<span class="text-xs text-gray-500">+' . ($itemCount - $maxDisplay) . ' more item' . ($itemCount - $maxDisplay > 1 ? 's' : '') . '</span>';
+        }
+        $productHtml .= '</div>';
+        
+        return $typeBadge . $productHtml;
+    } elseif ($fallbackTemplateName) {
+        return '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div><div class="text-gray-900 text-sm">🎨 ' . htmlspecialchars($fallbackTemplateName) . '</div>';
+    } elseif ($fallbackToolName) {
+        return '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tool</span></div><div class="text-gray-900 text-sm">🔧 ' . htmlspecialchars($fallbackToolName) . '</div>';
+    } else {
+        return '<span class="text-gray-400">No items</span>';
+    }
+}
