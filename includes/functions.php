@@ -550,28 +550,15 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         if ($affiliateId && $affiliate) {
             $affiliateUser = getUserById($affiliate['user_id']);
             if ($affiliateUser && !empty($affiliateUser['email'])) {
-                // Build product description from order items
+                // Build detailed product names list from order items
                 if (!empty($orderItems)) {
-                    $totalQuantity = 0;
-                    $hasTemplates = false;
-                    $hasTools = false;
-                    
+                    $productNames = [];
                     foreach ($orderItems as $item) {
-                        $totalQuantity += $item['quantity'];
-                        if ($item['product_type'] === 'template') {
-                            $hasTemplates = true;
-                        } else {
-                            $hasTools = true;
-                        }
+                        $name = $item['template_name'] ?? $item['tool_name'] ?? 'Unknown Product';
+                        $qty = $item['quantity'];
+                        $productNames[] = $qty > 1 ? "{$name} (×{$qty})" : $name;
                     }
-                    
-                    if ($hasTemplates && $hasTools) {
-                        $productName = $totalQuantity . ' Product' . ($totalQuantity > 1 ? 's' : '') . ' (Mixed Order)';
-                    } elseif ($hasTools) {
-                        $productName = $totalQuantity . ' Digital Tool' . ($totalQuantity > 1 ? 's' : '');
-                    } else {
-                        $productName = $totalQuantity . ' Template' . ($totalQuantity > 1 ? 's' : '');
-                    }
+                    $productName = implode(', ', $productNames);
                 } else {
                     // Fallback for legacy orders
                     $template = getTemplateById($order['template_id']);
