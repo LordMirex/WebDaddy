@@ -114,7 +114,7 @@ function buildOrderEmailContext($order, $orderItems) {
     $context = [
         'order_id' => $order['id'] ?? null,
         'customer_name' => $order['customer_name'] ?? 'Customer',
-        'order_type' => $order['order_type'] ?? 'tools',
+        'order_type' => $order['order_type'] ?? 'tool',
         'total_amount' => $order['final_amount'] ?? 0,
         'original_amount' => $order['original_price'] ?? 0,
         'discount_amount' => $order['discount_amount'] ?? 0,
@@ -334,8 +334,15 @@ function sendPaymentConfirmationEmail($customerName, $customerEmail, $templateNa
 
 /**
  * Send new order notification to admin
+ * @param int $orderId Order ID
+ * @param string $customerName Customer name
+ * @param string $customerPhone Customer phone
+ * @param string $productNames Product names (comma-separated if multiple)
+ * @param string $price Formatted price
+ * @param string|null $affiliateCode Affiliate code if applicable
+ * @param string $orderType Order type (template/tools/mixed)
  */
-function sendNewOrderNotificationToAdmin($orderId, $customerName, $customerPhone, $templateName, $price, $affiliateCode = null) {
+function sendNewOrderNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $affiliateCode = null, $orderType = 'template') {
     $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
     $subject = "New Order Received - Order #{$orderId}";
     
@@ -344,16 +351,24 @@ function sendNewOrderNotificationToAdmin($orderId, $customerName, $customerPhone
         $affiliateInfo = "<p style='margin:5px 0; color:#374151;'><strong>Affiliate Code:</strong> {$affiliateCode}</p>";
     }
     
+    $orderTypeLabels = [
+        'template' => '🎨 Template Order',
+        'tool' => '🔧 Tool Order',
+        'tools' => '🔧 Tool Order',
+        'mixed' => '📦 Mixed Order'
+    ];
+    $orderTypeLabel = $orderTypeLabels[$orderType] ?? '📦 Order';
+    
     $content = <<<HTML
 <h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">📦 New Order Received</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
-    A new order has been placed on your website.
+    A new {$orderTypeLabel} has been placed on your website.
 </p>
 <div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0;">
     <p style="margin:5px 0; color:#374151;"><strong>Order ID:</strong> #{$orderId}</p>
     <p style="margin:5px 0; color:#374151;"><strong>Customer:</strong> {$customerName}</p>
     <p style="margin:5px 0; color:#374151;"><strong>Phone:</strong> {$customerPhone}</p>
-    <p style="margin:5px 0; color:#374151;"><strong>Template:</strong> {$templateName}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Products:</strong> {$productNames}</p>
     <p style="margin:5px 0; color:#374151;"><strong>Price:</strong> {$price}</p>
     {$affiliateInfo}
 </div>
@@ -406,8 +421,13 @@ HTML;
 
 /**
  * Send commission earned notification to affiliate
+ * @param string $affiliateName Affiliate name
+ * @param string $affiliateEmail Affiliate email
+ * @param int $orderId Order ID
+ * @param float $commissionAmount Commission amount
+ * @param string $productName Product name or description (works for templates, tools, or mixed orders)
  */
-function sendCommissionEarnedEmail($affiliateName, $affiliateEmail, $orderId, $commissionAmount, $templateName) {
+function sendCommissionEarnedEmail($affiliateName, $affiliateEmail, $orderId, $commissionAmount, $productName) {
     $formattedAmount = number_format($commissionAmount, 2);
     $subject = "Commission Earned - ₦{$formattedAmount}";
     
@@ -418,7 +438,7 @@ function sendCommissionEarnedEmail($affiliateName, $affiliateEmail, $orderId, $c
 </p>
 <div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0;">
     <p style="margin:5px 0; color:#374151;"><strong>Order ID:</strong> #{$orderId}</p>
-    <p style="margin:5px 0; color:#374151;"><strong>Template:</strong> {$templateName}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Product(s):</strong> {$productName}</p>
     <p style="margin:5px 0; color:#10b981; font-size:20px;"><strong>Commission:</strong> ₦{$formattedAmount}</p>
 </div>
 <p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">

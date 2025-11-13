@@ -31,7 +31,7 @@ $ordersByType = $db->query("
 ")->fetchAll(PDO::FETCH_KEY_PAIR);
 
 $templateOrders = $ordersByType['template'] ?? 0;
-$toolOrders = $ordersByType['tool'] ?? 0;
+$toolOrders = ($ordersByType['tool'] ?? 0) + ($ordersByType['tools'] ?? 0);
 $mixedOrders = $ordersByType['mixed'] ?? 0;
 
 $lowStockTools = $db->query("
@@ -222,8 +222,8 @@ require_once __DIR__ . '/includes/header.php';
                     <tr class="border-b border-gray-200">
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Order ID</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Customer</th>
-                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Template</th>
-                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Domain</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Products</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Type</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Date</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Actions</th>
                     </tr>
@@ -238,8 +238,34 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($order['customer_name']); ?></div>
                             <div class="text-sm text-gray-500"><?php echo htmlspecialchars($order['customer_email']); ?></div>
                         </td>
-                        <td class="py-3 px-4 text-gray-900"><?php echo htmlspecialchars($order['template_name']); ?></td>
-                        <td class="py-3 px-4 text-gray-700"><?php echo htmlspecialchars($order['domain_name'] ?? 'Not selected'); ?></td>
+                        <td class="py-3 px-4">
+                            <div class="text-gray-900"><?php echo htmlspecialchars($order['product_names_display']); ?></div>
+                            <?php if ($order['product_count'] > 1): ?>
+                            <div class="text-sm text-gray-500"><?php echo $order['product_count']; ?> items</div>
+                            <?php endif; ?>
+                        </td>
+                        <td class="py-3 px-4">
+                            <?php
+                            $orderType = $order['order_type'] ?? 'template';
+                            $typeColors = [
+                                'template' => 'bg-blue-100 text-blue-800',
+                                'tool' => 'bg-purple-100 text-purple-800',
+                                'tools' => 'bg-purple-100 text-purple-800',
+                                'mixed' => 'bg-green-100 text-green-800'
+                            ];
+                            $typeIcons = [
+                                'template' => 'grid',
+                                'tool' => 'tools',
+                                'tools' => 'tools',
+                                'mixed' => 'stack'
+                            ];
+                            $color = $typeColors[$orderType] ?? 'bg-gray-100 text-gray-800';
+                            $icon = $typeIcons[$orderType] ?? 'box';
+                            ?>
+                            <span class="inline-flex items-center px-2 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
+                                <i class="bi bi-<?php echo $icon; ?> mr-1"></i><?php echo ucfirst($orderType); ?>
+                            </span>
+                        </td>
                         <td class="py-3 px-4 text-gray-700"><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
                         <td class="py-3 px-4">
                             <a href="/admin/orders.php?view=<?php echo $order['id']; ?>" class="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors text-sm">

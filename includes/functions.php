@@ -279,7 +279,7 @@ function createOrderWithItems($orderData, $items = [])
         if ($hasTemplates && $hasTools) {
             $orderType = 'mixed';
         } elseif (!$hasTemplates && $hasTools) {
-            $orderType = 'tools';
+            $orderType = 'tool';
         }
         
         $stmt = $db->prepare("
@@ -380,7 +380,44 @@ function getOrders($status = null)
             ");
         }
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $ordersRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $orders = [];
+        foreach ($ordersRaw as $order) {
+            $itemStmt = $db->prepare("
+                SELECT oi.*, 
+                       CASE 
+                           WHEN oi.product_type = 'template' THEN t.name
+                           WHEN oi.product_type = 'tool' THEN tl.name
+                       END as product_name
+                FROM order_items oi
+                LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+                LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+                WHERE oi.pending_order_id = ?
+            ");
+            $itemStmt->execute([$order['id']]);
+            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $productList = [];
+            $productNames = [];
+            foreach ($items as $item) {
+                $productName = $item['product_name'] ?? 'Unknown Product';
+                $productList[] = [
+                    'name' => $productName,
+                    'type' => $item['product_type'],
+                    'quantity' => $item['quantity']
+                ];
+                $productNames[] = $productName . ($item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '');
+            }
+            
+            $order['products'] = $productList;
+            $order['product_count'] = count($productList);
+            $order['product_names_display'] = !empty($productNames) ? implode(', ', $productNames) : ($order['template_name'] ?? 'No products');
+            
+            $orders[] = $order;
+        }
+        
+        return $orders;
     } catch (PDOException $e) {
         error_log('Error fetching orders: ' . $e->getMessage());
         return [];
@@ -447,7 +484,8 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             }
         } else {
             // Fallback to cart_snapshot for legacy orders without order_items
-            if (($orderType === 'tools' || $orderType === 'mixed') && !empty($order['cart_snapshot'])) {
+            // Support both 'tool' and 'tools' for backward compatibility
+            if (($orderType === 'tool' || $orderType === 'tools' || $orderType === 'mixed') && !empty($order['cart_snapshot'])) {
                 $cartData = json_decode($order['cart_snapshot'], true);
                 if ($cartData && isset($cartData['items'])) {
                     foreach ($cartData['items'] as $item) {

@@ -249,6 +249,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
+            // Build product names list and determine order type for admin notification
+            $productNamesList = [];
+            $hasTemplates = false;
+            $hasTools = false;
+            foreach ($cartItems as $item) {
+                $productType = $item['product_type'] ?? 'tool';
+                $productNamesList[] = $item['name'] . ($item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '');
+                
+                if ($productType === 'template') $hasTemplates = true;
+                if ($productType === 'tool') $hasTools = true;
+            }
+            
+            $orderType = 'template';
+            if ($hasTemplates && $hasTools) {
+                $orderType = 'mixed';
+            } elseif (!$hasTemplates && $hasTools) {
+                $orderType = 'tool';
+            }
+            
+            $productNamesString = implode(', ', $productNamesList);
+            
+            // Send new order notification to admin
+            sendNewOrderNotificationToAdmin(
+                $orderId,
+                $customerName,
+                $customerPhone,
+                $productNamesString,
+                formatCurrency($totals['total']),
+                $totals['affiliate_code'],
+                $orderType
+            );
+            
             // Clear cart only on successful order creation
             clearCart();
             

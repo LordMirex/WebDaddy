@@ -648,7 +648,7 @@ document.getElementById('bulkCancelBtn').addEventListener('click', function() {
                             <span class="font-semibold">Order Type:</span> 
                             <?php
                             $orderType = $viewOrder['order_type'] ?? 'template';
-                            $typeColors = ['template' => 'bg-blue-100 text-blue-800', 'tools' => 'bg-purple-100 text-purple-800', 'mixed' => 'bg-green-100 text-green-800'];
+                            $typeColors = ['template' => 'bg-blue-100 text-blue-800', 'tool' => 'bg-purple-100 text-purple-800', 'tools' => 'bg-purple-100 text-purple-800', 'mixed' => 'bg-green-100 text-green-800'];
                             $typeColor = $typeColors[$orderType] ?? 'bg-gray-100 text-gray-800';
                             ?>
                             <span class="px-3 py-1 <?php echo $typeColor; ?> rounded-full text-xs font-semibold uppercase">
