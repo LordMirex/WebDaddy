@@ -965,4 +965,10 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
+    
+    // Global function for opening demo previews
+    window.openDemo = function(demoUrl, templateName) {
+        if (!demoUrl) return;
+        window.open(demoUrl, '_blank', 'noopener,noreferrer');
+    };
 });
