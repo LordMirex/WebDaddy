@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 const url = new URL(this.href);
                 const page = parseInt(url.searchParams.get('page')) || 1;
-                const category = url.searchParams.get('category') || '';
+                const category = url.searchParams.get('category') || currentCategory || '';
                 switchView(currentView, page, category);
             });
         });

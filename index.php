@@ -259,8 +259,8 @@ if ($currentView === 'templates') {
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 300);
-            }, 4000);
+                }, 500);
+            }, 5000);
         },
         getContextualMessage() {
             const page = window.location.pathname;
@@ -282,12 +282,12 @@ if ($currentView === 'templates') {
             
             <!-- Sliding Message -->
             <div x-show="showMessage" 
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 -translate-x-4"
+                 x-transition:enter="transition ease-out duration-400"
+                 x-transition:enter-start="opacity-0 -translate-x-6"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave="transition ease-in duration-400"
                  x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 -translate-x-4"
+                 x-transition:leave-end="opacity-0 -translate-x-6"
                  class="text-white font-semibold text-sm whitespace-nowrap pr-2">
                 <span x-text="messages[currentIndex]"></span>
             </div>
@@ -454,7 +454,7 @@ if ($currentView === 'templates') {
                                        class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
                                         Details
                                     </a>
-                                    <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>', this)" 
+                                    <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, <?php echo json_encode($template['name']); ?>, this)" 
                                        class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -476,7 +476,7 @@ if ($currentView === 'templates') {
                     <?php
                     $paginationParams = ['view' => $currentView];
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
-                    if ($currentView === 'tools' && isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
+                    if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
                     ?>
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 

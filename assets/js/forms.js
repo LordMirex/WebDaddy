@@ -382,13 +382,13 @@ window.TemplateSearch = {
                         <p class="text-sm text-gray-600 mb-3 line-clamp-2">${safeDescription}</p>
                         <div class="flex items-center justify-between">
                             <span class="text-xl font-extrabold text-primary-600">₦${parseFloat(template.price).toLocaleString()}</span>
-                            <a href="/template.php?id=${safeId}${affParam}" 
-                               class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg">
-                                Order Now
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            <button onclick="addTemplateToCart(${safeId}, ${JSON.stringify(template.name)}, this)" 
+                               class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
-                            </a>
+                                Add to Cart
+                            </button>
                         </div>
                     </div>
                 </div>
