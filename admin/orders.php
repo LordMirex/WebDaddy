@@ -861,7 +861,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             <?php if (!empty($viewOrderItems)): ?>
             <div class="mb-6">
                 <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Order Items</h6>
-                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
