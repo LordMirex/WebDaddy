@@ -151,8 +151,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                                class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
                                                 Details
                                             </a>
-                                            <button onclick="addTemplateToCart(${template.id}, '${escapeHtml(template.name)}', this)" 
-                                               class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap">
+                                            <button onclick="addTemplateToCart(${template.id}, '${escapeJsString(template.name)}', this)" 
+                                               class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                                                 <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                                 </svg>
@@ -314,8 +314,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
                 
-                // Re-attach event listeners for AJAX-replaced elements only
-                setupPaginationHandlers();
+                // Re-attach event listeners for AJAX-replaced elements
+                // Note: setupPaginationHandlers() uses document.body delegation, so no need to rebind
                 setupCategoryFilters();
                 setupCategoryDropdown();
             }
@@ -344,14 +344,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function setupPaginationHandlers() {
-        document.querySelectorAll('a[href*="page="]').forEach(link => {
-            link.addEventListener('click', function(e) {
+        // Use event delegation on document body (stable ancestor that never gets replaced)
+        if (document.body._paginationHandlerAttached) return;
+        document.body._paginationHandlerAttached = true;
+        
+        document.body.addEventListener('click', function(e) {
+            // Only handle clicks within the products section
+            if (!e.target.closest('#products')) return;
+            
+            // Handle both anchor links and button elements with data-page
+            const paginationLink = e.target.closest('a[href*="page="]');
+            const paginationButton = e.target.closest('[data-page]');
+            
+            if (paginationLink) {
                 e.preventDefault();
-                const url = new URL(this.href);
+                const url = new URL(paginationLink.href);
                 const page = parseInt(url.searchParams.get('page')) || 1;
                 const category = url.searchParams.get('category') || currentCategory || '';
                 switchView(currentView, page, category);
-            });
+            } else if (paginationButton) {
+                e.preventDefault();
+                const page = parseInt(paginationButton.dataset.page) || 1;
+                const category = currentCategory || '';
+                switchView(currentView, page, category);
+            }
         });
     }
     
@@ -428,6 +444,14 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.id = 'tool-modal';
         modal.className = 'fixed inset-0 z-50 overflow-y-auto';
         
+        // Pre-escape values before template literal to prevent injection
+        const escapedName = escapeHtml(tool.name);
+        const escapedNameForJs = escapeJsString(tool.name);
+        const escapedCategory = tool.category ? escapeHtml(tool.category) : '';
+        const escapedDescription = tool.description || tool.short_description ? escapeHtml(tool.description || tool.short_description).replace(/\n/g, '<br>') : '';
+        const escapedDeliveryTime = tool.delivery_time ? escapeHtml(tool.delivery_time) : '';
+        const escapedThumbnail = escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg');
+        
         const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
         const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
         const stockBadge = isOutOfStock 
@@ -442,51 +466,51 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="flex min-h-screen items-center justify-center p-4">
                 <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" onclick="closeToolModal()"></div>
                 
-                <div class="relative inline-block bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-3xl">
+                <div class="relative inline-block bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-3xl mx-4">
                     <div class="bg-white">
                         <!-- Header with close button -->
-                        <div class="flex justify-between items-start px-6 pt-6 pb-4 border-b border-gray-200">
+                        <div class="flex justify-between items-start px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-200">
                             <div class="flex-1">
-                                <h3 class="text-2xl font-bold text-gray-900 mb-2">${escapeHtml(tool.name)}</h3>
+                                <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">${escapedName}</h3>
                                 <div class="flex gap-2 items-center flex-wrap">
-                                    ${tool.category ? `<span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">${escapeHtml(tool.category)}</span>` : ''}
+                                    ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
                                     ${stockBadge}
                                 </div>
                             </div>
-                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600 ml-4">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600 ml-2 sm:ml-4 flex-shrink-0">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
                         
                         <!-- Content -->
-                        <div class="px-6 py-4 max-h-[60vh] overflow-y-auto">
-                            <div class="mb-6">
-                                <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}" 
-                                     alt="${escapeHtml(tool.name)}"
-                                     class="w-full h-72 object-cover rounded-xl shadow-md"
+                        <div class="px-4 sm:px-6 py-3 sm:py-4 max-h-[60vh] overflow-y-auto">
+                            <div class="mb-4 sm:mb-6">
+                                <img src="${escapedThumbnail}" 
+                                     alt="${escapedName}"
+                                     class="w-full h-48 sm:h-64 md:h-72 object-cover rounded-lg sm:rounded-xl shadow-md"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                             </div>
                             
-                            ${tool.description || tool.short_description ? `
-                            <div class="mb-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${escapedDescription ? `
+                            <div class="mb-4 sm:mb-6">
+                                <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     About This Tool
                                 </h4>
-                                <div class="text-gray-700 text-base leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                    ${escapeHtml(tool.description || tool.short_description).replace(/\n/g, '<br>')}
+                                <div class="text-gray-700 text-sm sm:text-base leading-relaxed bg-gray-50 p-3 sm:p-4 rounded-lg border border-gray-200">
+                                    ${escapedDescription}
                                 </div>
                             </div>
                             ` : ''}
                             
                             ${tool.features ? `
-                            <div class="mb-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="mb-4 sm:mb-6">
+                                <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     Key Features
@@ -494,47 +518,47 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <ul class="space-y-2">
                                     ${tool.features.split(',').map(f => `
                                         <li class="flex items-start">
-                                            <svg class="w-5 h-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                             </svg>
-                                            <span class="text-gray-700">${escapeHtml(f.trim())}</span>
+                                            <span class="text-gray-700 text-sm sm:text-base">${escapeHtml(f.trim())}</span>
                                         </li>
                                     `).join('')}
                                 </ul>
                             </div>
                             ` : ''}
                             
-                            ${tool.delivery_time ? `
-                            <div class="mb-6">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${escapedDeliveryTime ? `
+                            <div class="mb-4 sm:mb-6">
+                                <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     Delivery
                                 </h4>
-                                <p class="text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                    <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapeHtml(tool.delivery_time)}
+                                <p class="text-sm sm:text-base text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                    <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapedDeliveryTime}
                                 </p>
                             </div>
                             ` : ''}
                         </div>
                         
                         <!-- Footer with price and CTA -->
-                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                            <div class="flex items-center justify-between">
+                        <div class="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-200">
+                            <div class="flex items-center justify-between gap-3">
                                 <div>
-                                    <p class="text-sm text-gray-600 mb-1">Price</p>
-                                    <p class="text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
+                                    <p class="text-xs sm:text-sm text-gray-600 mb-1">Price</p>
+                                    <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
                                 </div>
                                 ${isOutOfStock 
-                                    ? `<button disabled class="inline-flex items-center px-8 py-3.5 border-2 border-gray-300 text-base font-semibold rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                         Out of Stock
                                     </button>`
-                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapeHtml(tool.name)}', ${tool.price}); closeToolModal();" 
-                                        class="inline-flex items-center px-8 py-3.5 border border-transparent text-base font-semibold rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
+                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                         </svg>
@@ -907,6 +931,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+    
+    function escapeJsString(text) {
+        if (!text) return '';
+        return text.replace(/\\/g, '\\\\')
+                   .replace(/'/g, "\\'")
+                   .replace(/"/g, '\\"')
+                   .replace(/`/g, '\\`')
+                   .replace(/\$/g, '\\$')
+                   .replace(/\n/g, '\\n')
+                   .replace(/\r/g, '\\r');
     }
     
     function formatCurrency(amount) {

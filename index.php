@@ -259,8 +259,8 @@ if ($currentView === 'templates') {
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 500);
-            }, 5000);
+                }, 1000);
+            }, 8000);
         },
         getContextualMessage() {
             const page = window.location.pathname;
@@ -282,10 +282,10 @@ if ($currentView === 'templates') {
             
             <!-- Sliding Message -->
             <div x-show="showMessage" 
-                 x-transition:enter="transition ease-out duration-400"
+                 x-transition:enter="transition ease-out duration-700"
                  x-transition:enter-start="opacity-0 -translate-x-6"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-400"
+                 x-transition:leave="transition ease-in duration-700"
                  x-transition:leave-start="opacity-100 translate-x-0"
                  x-transition:leave-end="opacity-0 -translate-x-6"
                  class="text-white font-semibold text-sm whitespace-nowrap pr-2">
