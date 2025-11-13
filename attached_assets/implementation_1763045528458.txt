@@ -1,0 +1,1509 @@
+🧠 Master Prompt for AI Website Fixer
+
+Context:
+You are a senior web developer tasked with identifying and fixing front-end and back-end issues in my website project. You will receive a list of issues, and for each one, you must analyze the cause, propose the correct fix, and update the code accordingly while maintaining consistent design, performance, and best practices.
+
+⚙️ Issues to Fix
+1. WhatsApp Flutter Animation
+The WhatsApp floating widget at the bottom-left corner is malfunctioning.
+The text animation that slides in and out does not complete its “slide into” motion before changing.
+
+It should fully slide into the WhatsApp icon, disappear completely, then reappear smoothly with the next message after a short delay.
+
+Fix the animation timing, transitions, and ensure it behaves consistently on all screen sizes.
+
+2. Add to Cart / Order Button Conflict
+On the homepage, there’s inconsistency between the “Add to Cart” and “Order” buttons., Sometimes the “Order” button appears where “Add to Cart” should be, even after clearing cache.
+The “Order” functionality and page have already been removed; it should no longer appear anywhere.
+
+Ensure only “Add to Cart” is displayed, and remove all traces of the old “Order” logic or links from the site and backend.
+
+3. Pagination Issues
+
+Pagination on public pages (like index.php, cart.php, etc.) is not working properly or inconsistently.
+
+Ensure pagination works correctly and cleanly:
+
+Proper next/previous navigation.
+
+No duplicate or broken links.
+
+Smooth user experience and accurate item counts per page.
+
+
+The pagination must function consistently across all public-facing pages.
+
+
+4. General Quality & UX Improvements
+
+Review all public pages (index.php, cart.php, and others) for broken links, inconsistent UI, and unnecessary redirects.
+
+Optimize for a high-quality user experience:
+
+Clean URLs (no broken or malformed query strings).
+
+Consistent button styles, hover effects, and spacing.
+
+Responsive layout on all devices.
+Make sure the site feels cohesive and professional after all fixes.
+
+
+
+
+
+
+
+Complete Implementation Documentation: Template & Working Tools Marketplace Expansion
+Project Code Name: Dual Marketplace Integration
+Version: 1.0
+Effective Date: November 10, 2025
+Classification: Internal Development Documentation
+Table of Contents
+Introduction & Business Context
+Terminology & Naming Conventions
+Current System Architecture
+Database Architecture Changes
+Backend Infrastructure Modifications
+Frontend User Interface Changes
+Affiliate System Integration
+Search & Discovery Architecture
+Cart & Order Management System
+Admin Panel Expansion
+URL Structure & Routing
+Pagination Logic
+Session & State Management
+Email & Notification System
+Analytics & Tracking
+Content & Messaging Updates
+Backward Compatibility Strategy
+Migration Procedure
+Testing Strategy
+Deployment Checklist
+Troubleshooting Guide
+1. Introduction & Business Context
+1.1 Purpose of This Document
+This document provides complete technical and operational guidance for expanding WebDaddy Empire from a single-product marketplace (website templates) to a dual-product marketplace that includes both Website Templates and Working Tools. The term "Working Tools" refers to digital software products, API keys, licenses, and other digital assets that customers can purchase to operate their businesses.
+This expansion must be implemented without breaking any existing functionality, maintaining full backward compatibility with current template sales, the affiliate system, order processing, and all customer-facing features.
+1.2 Business Objectives
+Primary Goals:
+Expand product catalog from templates only to templates + working tools
+Maintain existing template sales infrastructure without disruption
+Extend affiliate commission system to cover working tools purchases
+Create differentiated user experience for browsing templates vs tools
+Implement shopping cart functionality for working tools (quantity selection)
+Preserve all existing URLs, bookmarks, and affiliate tracking links
+Success Criteria:
+Zero downtime during deployment
+All existing affiliate links continue to work with correct attribution
+Template purchases function identically to current system
+New working tools category seamlessly integrated into existing UI
+Search functionality works across both product types
+Order processing handles both templates and tools correctly
+1.3 Scope Boundaries
+In Scope:
+Database schema expansion for working tools
+Dual-view interface (templates/tools) on homepage
+Cart system for working tools with quantity management
+Admin panel for managing working tools inventory
+Unified search across templates and working tools
+Affiliate commission tracking for working tools
+Modified pagination logic (9 templates vs 18 tools per page)
+Order processing for both product types
+Out of Scope (Future Phases):
+Subscription-based tools or recurring billing
+User accounts with saved carts
+Product reviews and ratings system
+Advanced inventory forecasting
+Multi-currency support
+Bulk purchase discounts
+Gift cards or promotional codes (beyond affiliate)
+2. Terminology & Naming Conventions
+2.1 Official Product Type Names
+Throughout the entire codebase, documentation, and user-facing content, these are the ONLY acceptable terms:
+Term
+Usage
+Examples
+Website Templates
+Singular product type name
+"Browse our Website Templates"
+Working Tools
+Singular product type name
+"Explore our Working Tools"
+Templates
+Short form (UI buttons, tabs)
+Tab label: "Templates"
+Working Tools
+Always use full term, never "Tools" alone
+Tab label: "Working Tools"
+PROHIBITED TERMS:
+❌ "Digital Tools"
+❌ "Software"
+❌ "Products" (too generic)
+❌ "Tools" (without "Working" prefix)
+❌ "Apps"
+2.2 Database Field Naming
+Concept
+Database Column Name
+Allowed Values
+Product Type
+product_type or order_type
+'template', 'tool'
+Template Record
+Stored in templates table
+N/A
+Working Tool Record
+Stored in tools table
+N/A
+2.3 Code Variable Naming Standards
+// CORRECT naming
+$productType = 'template'; // or 'tool'
+$isTemplate = true;
+$isTool = false;
+$toolData = getToolById($id);
+$templateData = getTemplateById($id);
+
+// INCORRECT naming (DO NOT USE)
+$type = 'digital'; // Too vague
+$product = 'software'; // Wrong terminology
+$item = getItem($id); // Not descriptive enough
+2.4 URL Parameter Naming
+All URLs use these exact parameter names:
+/?view=templates          // Show templates (default)
+/?view=tools             // Show working tools
+/?view=templates&page=2  // Templates page 2
+/?view=tools&page=3      // Working tools page 3
+/?view=tools&page=2&aff=ABC123  // With affiliate code
+The parameter is view (not type, not category, not section).
+3. Current System Architecture
+3.1 Existing File Structure
+Before modifications, the system has this structure:
+/webdaddy-empire/
+├── index.php                    # Homepage (templates listing)
+├── template.php                 # Single template detail page
+├── order.php                    # Checkout page
+├── search.php                   # Search results page (unused, API-based)
+│
+├── includes/
+│   ├── config.php              # Site configuration constants
+│   ├── db.php                  # Database connection & queries
+│   ├── session.php             # Session management
+│   ├── functions.php           # Helper functions
+│   ├── analytics.php           # Tracking functions
+│   └── mailer.php              # Email sending functions
+│
+├── api/
+│   └── search.php              # AJAX search endpoint
+│
+├── admin/
+│   ├── templates.php           # Admin: manage templates
+│   ├── orders.php              # Admin: view orders
+│   ├── affiliates.php          # Admin: manage affiliates
+│   ├── dashboard.php           # Admin: main dashboard
+│   └── includes/
+│       ├── header.php          # Admin navigation
+│       ├── footer.php          # Admin footer
+│       └── auth.php            # Admin authentication
+│
+├── affiliate/
+│   ├── register.php            # Affiliate signup
+│   ├── login.php               # Affiliate login
+│   └── dashboard.php           # Affiliate earnings dashboard
+│
+└── assets/
+    ├── js/
+    │   └── forms.js            # Form validation
+    └── images/
+        ├── favicon.png
+        └── webdaddy-logo.png
+3.2 Current Data Flow: Template Purchase
+Step-by-Step Process:
+User arrives at homepage (index.php)
+System checks for ?aff=CODE parameter in URL
+If present, affiliate code stored in session + cookie via handleAffiliateTracking()
+Templates loaded from templates table where active = 1
+Displayed in 3-column grid (desktop), 2-column (tablet), 1-column (mobile)
+9 templates per page with pagination
+User views template details (template.php?id=5)
+Template data loaded via getTemplateById($id)
+Affiliate code (if present) passed to order page URL
+User clicks "Order Now" button
+User completes order form (order.php?template=5&aff=CODE)
+Form displays: name, phone, email (optional)
+Affiliate discount (20%) applied if affiliate code present in session
+Price calculation: $discountedPrice = $originalPrice * 0.8
+User submits form
+Order processing (POST to order.php)
+Order record created in orders table
+Affiliate code stored with order if present
+WhatsApp redirect link generated
+User redirected to WhatsApp with pre-filled message
+Admin receives email notification
+Customer receives confirmation email (if email provided)
+Affiliate commission tracking
+When order status changed to 'completed' (admin panel)
+Commission calculated: $commission = $orderTotal * 0.30 (30%)
+Commission record created in affiliate_commissions table
+Affiliate can view earnings in dashboard
+
+
+3.3 Current Database Schema
+Key Tables:
+-- Templates table
+CREATE TABLE templates (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE,
+    price REAL NOT NULL,
+    category TEXT,
+    description TEXT,
+    features TEXT,
+    demo_url TEXT,
+    thumbnail_url TEXT,
+    video_links TEXT,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME,
+    updated_at DATETIME
+);
+
+-- Orders table
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY,
+    template_id INTEGER NOT NULL,
+    chosen_domain_id INTEGER,
+    customer_name TEXT NOT NULL,
+    customer_email TEXT,
+    customer_phone TEXT NOT NULL,
+    business_name TEXT,
+    custom_fields TEXT,
+    affiliate_code TEXT,
+    status TEXT DEFAULT 'pending',
+    payment_status TEXT DEFAULT 'pending',
+    original_price REAL,
+    discount_amount REAL,
+    final_amount REAL NOT NULL,
+    session_id TEXT,
+    ip_address TEXT,
+    message_text TEXT,
+    created_at DATETIME,
+    completed_at DATETIME,
+    FOREIGN KEY (template_id) REFERENCES templates(id)
+);
+
+-- Affiliates table
+CREATE TABLE affiliates (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT,
+    affiliate_code TEXT UNIQUE NOT NULL,
+    commission_rate REAL DEFAULT 0.30,
+    total_earnings REAL DEFAULT 0,
+    total_sales INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'active',
+    created_at DATETIME
+);
+
+-- Affiliate commissions table
+CREATE TABLE affiliate_commissions (
+    id INTEGER PRIMARY KEY,
+    affiliate_id INTEGER NOT NULL,
+    order_id INTEGER NOT NULL,
+    commission_amount REAL NOT NULL,
+    status TEXT DEFAULT 'pending',
+    paid_at DATETIME,
+    created_at DATETIME,
+    FOREIGN KEY (affiliate_id) REFERENCES affiliates(id),
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+3.4 Current Affiliate System Workflow
+How affiliate tracking works today:
+Affiliate generates link: https://webdaddyempire.com/?aff=JOHN123
+Customer clicks link:
+handleAffiliateTracking() function in includes/analytics.php runs
+Checks if JOHN123 exists in affiliates table
+If valid, stores in $_SESSION['affiliate_code']
+Also stores in cookie for 30 days: setcookie('affiliate_code', 'JOHN123', time() + 30*86400)
+Customer browses site: Affiliate code persists across page views
+Customer places order:
+order.php retrieves affiliate code from session
+Stores in orders.affiliate_code column
+Applies 20% discount automatically
+Admin completes order:
+Changes order status to 'completed'
+Triggers commission calculation
+30% of order total credited to affiliate
+Critical Requirements for New System:
+This exact workflow MUST continue working for templates
+Must extend to working tools purchases
+Affiliate links with ?aff=CODE must work on all pages
+Commission rates stay the same: 20% customer discount, 30% affiliate earnings
+4. Database Architecture Changes
+4.1 New Table: tools
+This table stores all working tools inventory. It mirrors the templates table structure but includes tool-specific fields.
+Complete Table Definition:
+CREATE TABLE tools (
+    -- Primary identification
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,                    -- Display name: "ChatGPT API Key - 100K Tokens"
+    slug TEXT UNIQUE NOT NULL,             -- URL-friendly: "chatgpt-api-key-100k"
+    
+    -- Categorization
+    category TEXT,                         -- E.g., "API Keys", "Marketing", "Analytics"
+    tool_type TEXT DEFAULT 'software',     -- 'api_key', 'software', 'license', 'digital_asset'
+    
+    -- Descriptions
+    short_description TEXT,                -- ~120 chars for card display
+    description TEXT,                      -- Full description for detail page
+    features TEXT,                         -- Comma-separated: "100k tokens,GPT-4,Support"
+    
+    -- Pricing
+    price REAL NOT NULL DEFAULT 0,         -- In Naira (₦)
+    
+    -- Media
+    thumbnail_url TEXT,                    -- Product image
+    demo_url TEXT,                         -- Optional demo/preview link
+    
+    -- Delivery
+    download_url TEXT,                     -- Where customer gets the tool after purchase
+    delivery_instructions TEXT,            -- Special notes for delivery (API key generation, etc.)
+    
+    -- Inventory management
+    stock_unlimited INTEGER DEFAULT 1,     -- 1 = unlimited, 0 = track quantity
+    stock_quantity INTEGER DEFAULT 0,      -- Current stock (only if stock_unlimited = 0)
+    low_stock_threshold INTEGER DEFAULT 5, -- Alert when stock falls below this
+    
+    -- Status
+    active INTEGER DEFAULT 1,              -- 1 = visible to customers, 0 = hidden
+    
+    -- Metadata
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Performance indexes
+CREATE INDEX idx_tools_active ON tools(active);
+CREATE INDEX idx_tools_category ON tools(category);
+CREATE INDEX idx_tools_slug ON tools(slug);
+CREATE INDEX idx_tools_stock ON tools(stock_unlimited, stock_quantity);
+Field-by-Field Explanation:
+Field
+Purpose
+Example Value
+Required?
+name
+Customer-facing product name
+"ChatGPT API Key - 100K Tokens"
+Yes
+slug
+URL identifier
+"chatgpt-api-key-100k"
+Yes
+category
+Grouping for filters
+"API Keys"
+No
+tool_type
+Technical classification
+"api_key"
+No
+short_description
+Card display text (max 120 chars)
+"Access GPT-4 with 100k tokens monthly"
+No
+description
+Full product details
+"This pre-configured API key gives you..."
+No
+features
+Comma-separated benefits
+"100k tokens,GPT-4 access,Priority support"
+No
+price
+Cost in Naira
+15000.00
+Yes
+thumbnail_url
+Product image path
+"/assets/images/tools/chatgpt.jpg"
+No
+demo_url
+Preview/demo link
+"https://demo.chatgpt.com"
+No
+download_url
+Delivery location
+"/downloads/keys/{ORDER_ID}"
+No
+stock_unlimited
+Unlimited inventory?
+1 (yes) or 0 (no)
+Yes
+stock_quantity
+Current stock count
+50 (only if stock_unlimited=0)
+Conditional
+active
+Visible to customers?
+1 (yes) or 0 (no)
+Yes
+Stock Management Logic:
+IF stock_unlimited = 1 THEN
+    Tool can be sold infinitely (e.g., API keys generated on-demand)
+ELSE IF stock_unlimited = 0 THEN
+    Check stock_quantity before allowing purchase
+    Decrement stock_quantity by purchase quantity after order
+    IF stock_quantity < low_stock_threshold THEN
+        Send admin alert email
+    END IF
+    IF stock_quantity = 0 THEN
+        Hide tool from listing OR show "Out of Stock" badge
+    END IF
+END IF
+4.2 New Table: cart_items
+Stores temporary shopping cart contents for working tools. Each session can have multiple items.
+Complete Table Definition:
+CREATE TABLE cart_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    -- Session identification
+    session_id TEXT NOT NULL,              -- PHP session_id() value
+    
+    -- Product reference
+    tool_id INTEGER NOT NULL,              -- Links to tools.id
+    
+    -- Purchase details
+    quantity INTEGER NOT NULL DEFAULT 1,   -- How many units customer wants
+    price_at_add REAL NOT NULL,           -- Price when added (captures discounts)
+    
+    -- Metadata
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (tool_id) REFERENCES tools(id) ON DELETE CASCADE
+);
+
+-- Performance indexes
+CREATE INDEX idx_cart_session ON cart_items(session_id);
+CREATE INDEX idx_cart_tool ON cart_items(tool_id);
+
+-- Compound index for fast session lookups
+CREATE INDEX idx_cart_session_tool ON cart_items(session_id, tool_id);
+Important Cart Behaviors:
+Cart Persistence:
+Cart items tied to session_id only (not user accounts, as we have none)
+Session expires after 24 hours of inactivity (PHP default)
+Cart contents lost after session expiry (industry standard for guest checkout)
+Price Locking:
+When tool added to cart, current price stored in price_at_add
+If admin changes tool price later, cart shows original price
+Prevents checkout errors from price changes mid-purchase
+Duplicate Handling:
+If customer adds same tool twice, update quantity instead of creating new row
+Query: UPDATE cart_items SET quantity = quantity + ? WHERE session_id = ? AND tool_id = ?
+Cart Cleanup:
+Stale carts (>7 days old) automatically purged via daily cron job
+Cleanup query: DELETE FROM cart_items WHERE created_at < datetime('now', '-7 days')
+4.3 Modifications to orders Table
+Extend existing orders table to support working tools purchases WITHOUT breaking template orders.
+New Columns to Add:
+-- Add these columns to existing orders table
+ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'template';
+ALTER TABLE orders ADD COLUMN tool_id INTEGER;
+ALTER TABLE orders ADD COLUMN quantity INTEGER DEFAULT 1;
+ALTER TABLE orders ADD COLUMN cart_snapshot TEXT;  -- JSON of cart contents for multi-item orders
+
+-- Add foreign key constraint (if not using SQLite < 3.6.19)
+-- ALTER TABLE orders ADD FOREIGN KEY (tool_id) REFERENCES tools(id);
+Updated Order Type Logic:
+Scenario
+order_type
+template_id
+tool_id
+quantity
+Template purchase
+'template'
+5
+NULL
+1
+Single tool purchase
+'tool'
+NULL
+12
+3
+Multi-tool purchase (future)
+'tool_bundle'
+NULL
+NULL
+N/A
+Backward Compatibility Guarantee:
+All existing orders have order_type = 'template' by default due to DEFAULT 'template' constraint. This means:
+Existing queries like SELECT * FROM orders WHERE template_id IS NOT NULL continue working
+Affiliate commission calculations unchanged for template orders
+Admin panel order listing shows templates correctly
+Query Examples:
+-- Get all template orders (old + new)
+SELECT * FROM orders WHERE order_type = 'template';
+
+-- Get all tool orders (new only)
+SELECT * FROM orders WHERE order_type = 'tool';
+
+-- Get order with product details (templates)
+SELECT o.*, t.name as product_name 
+FROM orders o 
+JOIN templates t ON o.template_id = t.id 
+WHERE o.order_type = 'template';
+
+-- Get order with product details (tools)
+SELECT o.*, t.name as product_name 
+FROM orders o 
+JOIN tools t ON o.tool_id = t.id 
+WHERE o.order_type = 'tool';
+,Backend Infrastructure Modifications
+5.1 New File: includes/tools.php
+This file contains all helper functions for working tools. It mirrors the structure of template functions but handles tool-specific logic.
+Purpose: Centralized tool data access layer.
+Complete Function List:
+<?php
+/**
+ * Working Tools Helper Functions
+ * 
+ * Provides data access and business logic for working tools product type.
+ * Mirrors structure of template functions for consistency.
+ */
+
+require_once __DIR__ . '/db.php';
+
+/**
+ * Get all active working tools with optional filtering
+ * 
+ * @param bool $activeOnly If true, only return active tools
+ * @param string $category Optional category filter
+ * @param int $limit Optional result limit
+ * @param int $offset Optional result offset for pagination
+ * @return array Array of tool records
+ */
+function getTools($activeOnly = true, $category = null, $limit = null, $offset = null) {
+    $db = getDb();
+    
+    $sql = "SELECT * FROM tools WHERE 1=1";
+    $params = [];
+    
+    if ($activeOnly) {
+        $sql .= " AND active = 1";
+    }
+    
+    if ($category !== null) {
+        $sql .= " AND category = ?";
+        $params[] = $category;
+    }
+    
+    // Additional filter: only show tools with stock available
+    $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
+    
+    $sql .= " ORDER BY created_at DESC";
+    
+    if ($limit !== null) {
+        $sql .= " LIMIT ?";
+        $params[] = (int)$limit;
+        
+        if ($offset !== null) {
+            $sql .= " OFFSET ?";
+            $params[] = (int)$offset;
+        }
+    }
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get single tool by ID
+ * 
+ * @param int $id Tool ID
+ * @return array|null Tool record or null if not found
+ */
+function getToolById($id) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("SELECT * FROM tools WHERE id = ?");
+    $stmt->execute([(int)$id]);
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+/**
+ * Get tool by slug (URL-friendly identifier)
+ * 
+ * @param string $slug Tool slug
+ * @return array|null Tool record or null if not found
+ */
+function getToolBySlug($slug) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("SELECT * FROM tools WHERE slug = ? AND active = 1");
+    $stmt->execute([$slug]);
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+/**
+ * Get all unique tool categories
+ * 
+ * @return array Array of category names
+ */
+function getToolCategories() {
+    $db = getDb();
+    
+    $stmt = $db->query("
+        SELECT DISTINCT category 
+        FROM tools 
+        WHERE category IS NOT NULL 
+          AND category != '' 
+          AND active = 1
+        ORDER BY category
+    ");
+    
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+/**
+ * Search tools by query string
+ * 
+ * Searches in: name, category, short_description, description
+ * 
+ * @param string $query Search query
+ * @param int $limit Optional result limit
+ * @return array Array of matching tool records
+ */
+function searchTools($query, $limit = 50) {
+    $db = getDb();
+    
+    $searchPattern = '%' . $query . '%';
+    
+    $stmt = $db->prepare("
+        SELECT * FROM tools 
+        WHERE active = 1 
+          AND (stock_unlimited = 1 OR stock_quantity > 0)
+          AND (
+              name LIKE ? 
+              OR category LIKE ? 
+              OR short_description LIKE ? 
+              OR description LIKE ?
+          )
+        ORDER BY 
+            CASE 
+                WHEN name LIKE ? THEN 1
+                WHEN category LIKE ? THEN 2
+                ELSE 3
+            END,
+            name ASC
+        LIMIT ?
+    ");
+    
+    $stmt->execute([
+        $searchPattern, 
+        $searchPattern, 
+        $searchPattern, 
+        $searchPattern,
+        $searchPattern,
+        $searchPattern,
+        (int)$limit
+    ]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Create new tool record
+ * 
+ * @param array $data Tool data (name, slug, price, etc.)
+ * @return int|false Tool ID on success, false on failure
+ */
+function createTool($data) {
+    $db = getDb();
+    
+    $required = ['name', 'slug', 'price'];
+    foreach ($required as $field) {
+        if (!isset($data[$field]) || trim($data[$field]) === '') {
+            error_log("createTool() failed: missing required field '$field'");
+            return false;
+        }
+    }
+    
+    // Generate slug if not provided
+    if (empty($data['slug'])) {
+        $data['slug'] = generateSlug($data['name']);
+    }
+    
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO tools (
+                name, slug, category, tool_type, short_description, description,
+                features, price, thumbnail_url, demo_url, download_url,
+                delivery_instructions, stock_unlimited, stock_quantity,
+                low_stock_threshold, active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $result = $stmt->execute([
+            $data['name'],
+            $data['slug'],
+            $data['category'] ?? null,
+            $data['tool_type'] ?? 'software',
+            $data['short_description'] ?? null,
+            $data['description'] ?? null,
+            $,
+
+
+
+
+# Product Requirements Document: Template & Tools Marketplace
+
+## Executive Summary
+Expanding the WebDaddy Empire platform from a template-only marketplace to a dual marketplace featuring both **Website Templates** and **Digital Tools/Software**. This transformation requires UI/UX updates, new database schema, admin management capabilities, and comprehensive API endpoints.
+
+---
+
+## 1. Project Overview
+
+### 1.1 Current State
+- Single-product marketplace (website templates only)
+- Grid layout: 3 columns desktop, 2 columns tablet, 1 column mobile
+- 9 templates per page with pagination
+- SQLite database with single `templates` table
+- Search functionality via `/api/search.php`
+- Admin panel at `/admin/templates.php`
+
+### 1.2 Target State
+- **Dual marketplace**: Templates + Digital Tools
+- Tab/slider interface to switch between product types
+- Tools display: 2 items per row on mobile (4 per row desktop)
+- 9 templates OR 18 tools per page
+- Separate admin management for tools
+- Unified search across both product types
+- Cart functionality for tools (quantity selection)
+
+---
+
+## 2. Database Schema Changes
+
+### 2.1 New Table: `tools`
+```sql
+CREATE TABLE tools (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    category TEXT,
+    description TEXT,
+    short_description TEXT,
+    price REAL NOT NULL DEFAULT 0,
+    thumbnail_url TEXT,
+    demo_url TEXT,
+    download_url TEXT,
+    features TEXT,
+    tool_type TEXT, -- 'api_key', 'software', 'license', 'digital_asset'
+    stock_unlimited INTEGER DEFAULT 1,
+    stock_quantity INTEGER DEFAULT 0,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_tools_active ON tools(active);
+CREATE INDEX idx_tools_category ON tools(category);
+CREATE INDEX idx_tools_slug ON tools(slug);
+```
+
+### 2.2 New Table: `cart_items`
+```sql
+CREATE TABLE cart_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    tool_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    price_at_add REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tool_id) REFERENCES tools(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_cart_session ON cart_items(session_id);
+CREATE INDEX idx_cart_tool ON cart_items(tool_id);
+```
+
+### 2.3 Update `orders` Table
+Add support for tool orders:
+```sql
+ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'template'; -- 'template' or 'tool'
+ALTER TABLE orders ADD COLUMN tool_id INTEGER;
+ALTER TABLE orders ADD COLUMN quantity INTEGER DEFAULT 1;
+```
+
+---
+
+## 3. Feature Requirements
+
+### 3.1 Homepage Dual View
+
+#### 3.1.1 Tab/Slider Interface
+**Desktop:**
+- Horizontal tab navigation at top of templates section
+- Two tabs: "Website Templates" | "Digital Tools"
+- Active tab highlighted with primary color
+- Smooth transition between views (300ms fade)
+
+**Mobile:**
+- Swipeable carousel/slider
+- Indicator dots showing active view
+- Swipe left/right to switch between Templates and Tools
+
+**HTML Structure Example:**
+```html
+<div class="product-type-selector" x-data="{ activeTab: 'templates' }">
+    <!-- Desktop Tabs -->
+    <div class="hidden md:flex border-b border-gray-200 mb-8">
+        <button @click="activeTab = 'templates'" 
+                :class="activeTab === 'templates' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500'"
+                class="px-6 py-4 border-b-2 font-semibold">
+            Website Templates
+        </button>
+        <button @click="activeTab = 'tools'" 
+                :class="activeTab === 'tools' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500'"
+                class="px-6 py-4 border-b-2 font-semibold">
+            Digital Tools
+        </button>
+    </div>
+    
+    <!-- Mobile Slider Indicator -->
+    <div class="md:hidden flex justify-center gap-2 mb-6">
+        <span @click="activeTab = 'templates'" 
+              :class="activeTab === 'templates' ? 'bg-primary-600' : 'bg-gray-300'"
+              class="w-3 h-3 rounded-full cursor-pointer"></span>
+        <span @click="activeTab = 'tools'" 
+              :class="activeTab === 'tools' ? 'bg-primary-600' : 'bg-gray-300'"
+              class="w-3 h-3 rounded-full cursor-pointer"></span>
+    </div>
+    
+    <!-- Templates Grid -->
+    <div x-show="activeTab === 'templates'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Template cards -->
+    </div>
+    
+    <!-- Tools Grid -->
+    <div x-show="activeTab === 'tools'" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Tool cards -->
+    </div>
+</div>
+```
+
+#### 3.1.2 Tools Grid Layout
+- **Mobile**: 2 columns (2 tools per row)
+- **Desktop**: 4 columns (4 tools per row)
+- **Items per page**: 18 tools (vs 9 templates)
+- Smaller card design compared to templates
+- Compact information display
+
+#### 3.1.3 Tool Card Design
+```html
+<div class="tool-card bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="relative h-32 bg-gray-100">
+        <img src="thumbnail" class="w-full h-full object-cover">
+        <span class="absolute top-2 right-2 px-2 py-1 bg-blue-600 text-white text-xs rounded">
+            API Key
+        </span>
+    </div>
+    <div class="p-3">
+        <h4 class="font-bold text-sm mb-1 line-clamp-1">Tool Name</h4>
+        <p class="text-xs text-gray-600 mb-2 line-clamp-2">Short description</p>
+        <div class="flex items-center justify-between">
+            <span class="font-bold text-primary-600">₦5,000</span>
+            <button class="px-3 py-1 bg-primary-600 text-white text-xs rounded">
+                Add to Cart
+            </button>
+        </div>
+    </div>
+</div>
+```
+
+### 3.2 Search Functionality
+
+#### 3.2.1 Unified Search
+- Search box searches BOTH templates and tools
+- Results displayed in active tab context
+- If on Templates tab → only show template results
+- If on Tools tab → only show tool results
+
+#### 3.2.2 Updated Search API (`/api/search.php`)
+**New Parameters:**
+- `type` (string): 'template' | 'tool' | 'all'
+- `q` (string): search query
+
+**Response Format:**
+```json
+{
+    "success": true,
+    "type": "template",
+    "count": 5,
+    "results": [
+        {
+            "id": 1,
+            "name": "E-commerce Store",
+            "category": "Business",
+            "price": 15000,
+            "thumbnail_url": "/assets/...",
+            "type": "template"
+        }
+    ]
+}
+```
+
+### 3.3 Pagination
+
+#### 3.3.1 Dynamic Per-Page Count
+- **Templates**: 9 per page
+- **Tools**: 18 per page
+- Pagination controls adapt based on active product type
+
+#### 3.3.2 URL Structure
+- `/` or `/?view=templates&page=1` → Templates view
+- `/?view=tools&page=1` → Tools view
+- Preserve affiliate codes: `/?view=tools&page=2&aff=ABC123`
+
+---
+
+## 4. Admin Panel
+
+### 4.1 New File: `/admin/tools.php`
+
+Mirror structure of `templates.php` with tools-specific fields:
+
+**Form Fields:**
+1. Tool Name* (text)
+2. Slug* (text, auto-generate from name)
+3. Category (text/dropdown)
+4. Short Description (textarea, 120 chars)
+5. Full Description (textarea)
+6. Price* (number)
+7. Thumbnail URL (url)
+8. Demo URL (url, optional)
+9. Download URL (url, for delivering the tool)
+10. Features (textarea, comma-separated)
+11. Tool Type (dropdown: API Key, Software, License, Digital Asset)
+12. Stock Management:
+    - Unlimited stock (checkbox)
+    - Stock quantity (number, disabled if unlimited)
+13. Active status (checkbox)
+
+**Additional Features:**
+- Bulk actions (activate/deactivate multiple)
+- Search and filter by category, tool type, stock status
+- View order history per tool
+- Stock alerts (notify when stock < 5)
+
+### 4.2 Admin Navigation Update
+Add Tools menu item:
+```html
+<nav>
+    <a href="/admin/dashboard.php">Dashboard</a>
+    <a href="/admin/templates.php">Templates</a>
+    <a href="/admin/tools.php">Digital Tools</a> <!-- NEW -->
+    <a href="/admin/orders.php">Orders</a>
+    <a href="/admin/affiliates.php">Affiliates</a>
+</nav>
+```
+
+---
+
+## 5. Cart & Checkout
+
+### 5.1 Cart Functionality (NEW)
+
+**Cart Badge** (appears in navbar when items added):
+```html
+<button onclick="openCart()" class="relative">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+    </svg>
+    <span x-show="cartCount > 0" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        3
+    </span>
+</button>
+```
+
+**Cart Sidebar/Modal:**
+- Slide-in from right on desktop
+- Full-screen modal on mobile
+- List all cart items with:
+  - Thumbnail
+  - Name
+  - Unit price
+  - Quantity controls (+/-)
+  - Subtotal
+  - Remove button
+- Cart total at bottom
+- "Proceed to Checkout" button
+
+### 5.2 Checkout Flow for Tools
+
+**Modified `/order.php`:**
+- Detect if order contains tools vs template
+- For tools: Display cart summary with all items
+- For templates: Keep existing single-template flow
+- Support mixed orders (templates + tools) in future
+
+**Order Confirmation:**
+- Send email with download links for tools
+- For API keys: Generate and display keys immediately
+- Store order details in `orders` table with line items
+
+---
+
+## 6. API Endpoints
+
+### 6.1 New: `/api/tools.php`
+**GET** - Fetch tools (with pagination, search, filters)
+```
+GET /api/tools.php?page=1&limit=18&category=api&search=chatgpt
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "page": 1,
+    "totalPages": 3,
+    "totalTools": 45,
+    "tools": [...]
+}
+```
+
+### 6.2 New: `/api/cart.php`
+**POST** `/api/cart.php?action=add`
+```json
+{
+    "tool_id": 5,
+    "quantity": 2
+}
+```
+
+**POST** `/api/cart.php?action=update`
+```json
+{
+    "cart_item_id": 12,
+    "quantity": 3
+}
+```
+
+**POST** `/api/cart.php?action=remove`
+```json
+{
+    "cart_item_id": 12
+}
+```
+
+**GET** `/api/cart.php?action=get`
+Returns current cart contents
+
+### 6.3 Update: `/api/search.php`
+Add `type` parameter to filter by product type:
+```php
+$type = $_GET['type'] ?? 'all'; // 'template', 'tool', or 'all'
+
+if ($type === 'template' || $type === 'all') {
+    // Search templates
+}
+if ($type === 'tool' || $type === 'all') {
+    // Search tools
+}
+```
+
+---
+
+## 7. Content & Copy Updates
+
+### 7.1 Homepage Hero Section
+**Current:**
+> "Turn Your Website Idea Into Reality"
+
+**Updated:**
+> "Turn Your Ideas Into Reality"
+> "Choose from our ready-made templates or get powerful digital tools to grow your business"
+
+### 7.2 Meta Tags & SEO
+**Title:**
+```html
+<title>WebDaddy Empire - Website Templates & Digital Tools</title>
+```
+
+**Description:**
+```html
+<meta name="description" content="Professional website templates and digital tools for your business. API keys, software licenses, and more. Launch in 24 hours.">
+```
+
+### 7.3 Navigation & Labels
+- "Browse Templates" → "Explore Products"
+- Section heading: "Choose Your Template" → "Choose What You Need"
+- Footer: Update company description to include tools
+
+### 7.4 FAQ Section
+Add new questions:
+- "What types of digital tools do you offer?"
+- "How do I receive my purchased tools?"
+- "Can I get a refund for digital tools?"
+- "Are API keys lifetime or subscription-based?"
+
+---
+
+## 8. Technical Implementation Plan
+
+### Phase 1: Database & Backend (Week 1)
+1. Create `tools` table migration
+2. Create `cart_items` table migration
+3. Update `orders` table schema
+4. Create `includes/tools.php` with helper functions:
+   - `getAllTools($active = true)`
+   - `getToolById($id)`
+   - `getToolsByCategory($category)`
+   - `searchTools($query)`
+5. Implement `/api/tools.php`
+6. Implement `/api/cart.php`
+
+### Phase 2: Admin Panel (Week 1-2)
+1. Create `/admin/tools.php` (copy from templates.php as base)
+2. Add tools navigation menu item
+3. Implement CRUD operations for tools
+4. Add stock management interface
+5. Create tools analytics dashboard widget
+
+### Phase 3: Frontend - Index Page (Week 2)
+1. Update `index.php`:
+   - Add Alpine.js data for tab/slider state
+   - Implement dual grid layouts (3-col vs 4-col)
+   - Add tools grid HTML
+   - Update pagination logic (9 vs 18 items)
+2. Create tool card component
+3. Implement tab switching (desktop)
+4. Implement swipe carousel (mobile)
+5. Update search to work with product type context
+
+### Phase 4: Cart & Checkout (Week 2-3)
+1. Create cart badge component
+2. Create cart sidebar/modal UI
+3. Implement add-to-cart functionality
+4. Implement quantity controls
+5. Update `/order.php` for tool purchases
+6. Create order confirmation with download links
+7. Email templates for tool purchases
+
+### Phase 5: Content & Polish (Week 3)
+1. Update all marketing copy
+2. Update meta tags and SEO
+3. Add new FAQ items
+4. Update footer content
+5. Create tool placeholder images
+6. Documentation for developers
+
+---
+
+## 9. File Structure
+
+### New Files to Create:
+```
+/
+├── api/
+│   ├── tools.php          [NEW]
+│   ├── cart.php           [NEW]
+│   └── search.php         [UPDATE]
+├── admin/
+│   └── tools.php          [NEW]
+├── includes/
+│   ├── tools.php          [NEW]
+│   └── cart.php           [NEW]
+├── assets/
+│   └── js/
+│       ├── cart.js        [NEW]
+│       └── product-tabs.js [NEW]
+└── index.php              [UPDATE]
+```
+
+### Files to Update:
+```
+- index.php (main homepage)
+- order.php (support tools)
+- includes/functions.php (add tool helpers)
+- admin/includes/header.php (add tools nav)
+- All pages with meta tags
+```
+
+---
+
+## 10. Testing Checklist
+
+### Functionality Tests:
+- [ ] Switch between Templates and Tools tabs
+- [ ] Search works for both product types
+- [ ] Pagination shows correct counts (9 vs 18)
+- [ ] Add tool to cart
+- [ ] Update cart quantity
+- [ ] Remove item from cart
+- [ ] Checkout with tools
+- [ ] Receive order confirmation email
+- [ ] Download links work
+- [ ] Admin: Create new tool
+- [ ] Admin: Edit existing tool
+- [ ] Admin: Delete tool
+- [ ] Admin: Stock management
+- [ ] Affiliate links work with tools
+
+### Responsive Tests:
+- [ ] Mobile: 2-column tool grid
+- [ ] Mobile: Swipe between tabs
+- [ ] Desktop: 4-column tool grid
+- [ ] Desktop: Tab navigation
+- [ ] Cart sidebar on all screen sizes
+
+### Cross-Browser Tests:
+- [ ] Chrome/Edge (desktop & mobile)
+- [ ] Safari (desktop & mobile)
+- [ ] Firefox
+
+---
+
+## 11. Developer Documentation
+
+### 11.1 Getting Started
+```bash
+# 1. Run database migrations
+php scripts/migrate_add_tools.php
+
+# 2. Seed sample tools (optional)
+php scripts/seed_tools.php
+
+# 3. Clear cache
+rm -rf cache/*
+```
+
+### 11.2 Adding a New Tool (Admin)
+1. Navigate to `/admin/tools.php`
+2. Click "Add New Tool"
+3. Fill in required fields (name, slug, price)
+4. Select tool type
+5. Configure stock (unlimited or specific quantity)
+6. Add features (comma-separated)
+7. Upload thumbnail
+8. Click "Create Tool"
+
+### 11.3 Adding a Tool Programmatically
+```php
+require_once 'includes/tools.php';
+
+$toolData = [
+    'name' => 'ChatGPT API Key',
+    'slug' => 'chatgpt-api-key',
+    'category' => 'API',
+    'description' => 'Access GPT-4 with our pre-configured API key',
+    'short_description' => 'GPT-4 API access',
+    'price' => 5000,
+    'tool_type' => 'api_key',
+    'stock_unlimited' => 0,
+    'stock_quantity' => 100,
+    'thumbnail_url' => '/assets/images/chatgpt.jpg',
+    'features' => '100k tokens/month,GPT-4 access,Priority support'
+];
+
+$toolId = createTool($toolData);
+```
+
+### 11.4 Cart Operations
+```javascript
+// Add to cart
+await fetch('/api/cart.php?action=add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tool_id: 5, quantity: 2 })
+});
+
+// Get cart
+const response = await fetch('/api/cart.php?action=get');
+const cart = await response.json();
+console.log(cart.items); // Array of cart items
+```
+
+### 11.5 Search API Usage
+```javascript
+// Search only tools
+const results = await fetch('/api/search.php?q=api&type=tool')
+    .then(r => r.json());
+
+// Search both templates and tools
+const allResults = await fetch('/api/search.php?q=ecommerce&type=all')
+    .then(r => r.json());
+```
+
+---
+
+## 12. Migration Guide for Existing Developers
+
+### Key Changes Summary:
+1. **Database**: New `tools` and `cart_items` tables added
+2. **Routing**: URL now accepts `?view=tools` parameter
+3. **Pagination**: Dynamic per-page count based on product type
+4. **Search**: Enhanced to support product type filtering
+5. **Orders**: Support for both template and tool orders
+6. **Admin**: New `/admin/tools.php` panel
+
+### Breaking Changes:
+- ⚠️ `getTemplates()` function remains unchanged
+- ⚠️ Search API response now includes `type` field
+- ⚠️ Order table schema updated (backward compatible)
+
+### Upgrade Path:
+1. Backup database: `sqlite3 database.db .dump > backup.sql`
+2. Run migrations (automatic via `includes/db.php` on first load)
+3. Update any custom code using search API
+4. Clear browser cache and test
+
+---
+
+## 13. Success Metrics
+
+### KPIs to Track:
+- Template purchases vs Tool purchases (ratio)
+- Average cart value for tools
+- Tools page bounce rate
+- Search queries split (templates vs tools)
+- Conversion rate: Cart adds → Completed orders
+- Most popular tool categories
+- Stock depletion rate
+
+### Analytics Events:
+```javascript
+// Track product type views
+trackEvent('product_view', { type: 'tool', tool_id: 5 });
+
+// Track cart actions
+trackEvent('cart_add', { tool_id: 5, quantity: 2 });
+
+// Track tab switches
+trackEvent('tab_switch', { from: 'templates', to: 'tools' });
+```
+
+---
+
+## 14. Future Enhancements
+
+### Phase 2 Features (Post-Launch):
+- [ ] Tool reviews and ratings
+- [ ] Tool bundles (buy 3 API keys, get 1 free)
+- [ ] Subscription-based tools
+- [ ] Tool comparison feature
+- [ ] Advanced filtering (price range, ratings, stock)
+- [ ] Wishlist functionality
+- [ ] Email notifications for restocked tools
+- [ ] Gift cards for tools
+
+---
+
+## 15. Support & Maintenance
+
+### Common Issues:
+**Q: Tools not showing on homepage**
+- Check `active` field in database
+- Verify `stock_quantity > 0` or `stock_unlimited = 1`
+- Clear cache
+
+**Q: Cart count not updating**
+- Check session_id in `cart_items` table
+- Verify JavaScript console for errors
+- Clear cookies and retry
+
+**Q: Search not finding tools**
+- Rebuild search index: `php scripts/rebuild_search_index.php`
+- Check tool names don't have special characters
+
+### Logs to Monitor:
+- `/logs/cart_errors.log` - Cart operation failures
+- `/logs/tool_purchases.log` - Successful tool orders
+- `/logs/stock_alerts.log` - Low stock notifications
+
+---
+Appendix A: SQL Migration Script
+-- Migration: Add Tools Support
+-- Run this via: php scripts/migrate_add_tools.php
+
+BEGIN TRANSACTION;
+
+-- Create tools table
+CREATE TABLE IF NOT EXISTS tools (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    category TEXT,
+    description TEXT,
+    short_description TEXT,
+    price REAL NOT NULL DEFAULT 0,
+    thumbnail_url TEXT,
+    demo_url TEXT,
+    download_url TEXT,
+    features TEXT,
+    tool_type TEXT DEFAULT 'software',
+    stock_unlimited INTEGER DEFAULT 1,
+    stock_quantity INTEGER DEFAULT 0,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tools_active ON tools(active);
+CREATE INDEX IF NOT EXISTS idx_tools_category ON tools(category);
+CREATE INDEX IF NOT EXISTS idx_tools_slug ON tools(slug);
+
+-- Create cart_items table
+CREATE TABLE IF NOT EXISTS cart_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL,
+    tool_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    price_at_add REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tool_id) REFERENCES tools(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_cart_session ON cart_items(session_id);
+CREATE INDEX IF NOT EXISTS idx_cart_tool ON cart_items(tool_id);
+
+-- Update orders table (check if columns exist first)
+ALTER TABLE orders ADD COLUMN order_type TEXT DEFAULT 'template';
+ALTER TABLE orders ADD COLUMN tool_id INTEGER;
+ALTER TABLE orders ADD COLUMN quantity INTEGER DEFAULT 1;
+
+COMMIT;
+Appendix B: Sample Tool Data
+[
+    {
+        "name": "ChatGPT API Key - 100K Tokens",
+        "slug": "chatgpt-api-key-100k",
+        "category": "API Keys",
+        "short_description": "Access GPT-4 with 100,000 tokens",
+        "description": "Pre-configured ChatGPT API key with 100,000 tokens per month. Includes GPT-4 access, priority rate limits, and 24/7 support.",
+        "price": 15000,
+        "tool_type": "api_key",
+        "stock_unlimited": 1,
+        "features": "100k tokens/month,GPT-4 access,Priority support,Auto-renewal,Usage dashboard"
+    },
+    {
+        "name": "SEO Keyword Research Tool",
+        "slug": "seo-keyword-tool",
+        "category": "Marketing",
+        "short_description": "Find profitable keywords instantly",
+        "description": "Advanced keyword research tool with search volume, competition analysis, and trend data for 150+ countries.",
+        "price": 8000,
+        "tool_type": "software",
+        "stock_unlimited": 1,
+        "features": "Unlimited searches,150+ countries,Competition analysis,Trend graphs,Export to CSV"
+    }
+]
+Document Version: 1.0
+Last Updated: November 10, 2025
+Author: WebDaddy Empire Development Team
+Status: Ready for Implementation
