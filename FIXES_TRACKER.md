@@ -423,12 +423,107 @@ Once fixes are implemented, test:
 
 ---
 
+---
+
+## 🟡 CATEGORY 9: Post-Deployment Fixes (November 13, 2025)
+**Status**: ✅ FIXED
+
+### Critical Issues Found and Resolved:
+
+#### 1. **Admin Dashboard Recent Orders Display** - ✅ FIXED
+**Problem**: Admin dashboard was showing incorrect or missing product names in recent orders table. The table column header said "Template" but was only fetching template_name, causing tool orders and mixed orders to show blank or wrong data.
+
+**Root Cause**: 
+- `getOrders()` function only performed LEFT JOIN on templates table
+- No order_items lookup or product name aggregation
+- Tool orders had no template_name, so column showed empty/null
+
+**Fix Applied**:
+- Updated `getOrders()` to fetch order_items for each order
+- Built comprehensive product list with names, types, and quantities
+- Added `product_names_display` field with formatted product names
+- Updated dashboard table to show "Products" column instead of "Template"
+- Added order type badges (Template/Tool/Mixed) with proper styling
+- Location: `includes/functions.php:361-428`, `admin/index.php:221-280`
+
+---
+
+#### 2. **Email Notification System Broken** - ✅ FIXED
+**Problem**: 
+- Admin email notifications NOT being sent for cart/tool orders
+- Email functions using hardcoded "templateName" parameter
+- Notifications failed for tool-only and mixed orders
+
+**Root Cause**:
+- `cart-checkout.php` never called `sendNewOrderNotificationToAdmin()`
+- `sendNewOrderNotificationToAdmin()` signature had fixed `$templateName` parameter
+- `sendCommissionEarnedEmail()` also hardcoded `$templateName`
+- Functions couldn't handle tool or mixed order scenarios
+
+**Fixes Applied**:
+1. **Updated Email Function Signatures**:
+   - `sendNewOrderNotificationToAdmin()` now accepts `$productNames` and `$orderType`
+   - `sendCommissionEarnedEmail()` now uses generic `$productName` parameter
+   - Added order type emoji labels (🎨 Template, 🔧 Tool, 📦 Mixed)
+   - Location: `includes/mailer.php:338-384, 424-453`
+
+2. **Added Admin Notifications to Cart Checkout**:
+   - Built product names list from cart items
+   - Determined order type (template/tool/mixed)
+   - Call `sendNewOrderNotificationToAdmin()` after successful order creation
+   - Location: `cart-checkout.php:251-285`
+
+---
+
+#### 3. **Order Type Enum Inconsistency** - ✅ FIXED
+**Problem**: Code used both 'tool' (singular) and 'tools' (plural) inconsistently, breaking analytics and badge rendering.
+
+**Root Cause**:
+- Database stores 'tool' (singular)
+- New code wrote 'tools' (plural)
+- Badge maps only defined one variant
+- Analytics queries couldn't count orders with wrong enum value
+
+**Critical Impact**:
+- Dashboard analytics excluded legacy 'tools' orders from counts
+- Badges fell back to gray default for mismatched enum values
+- Stock deduction checks failed for wrong variant
+- Breaking change for production data
+
+**Comprehensive Fix**:
+1. **Normalized New Order Creation**: 
+   - All new orders now use 'tool' (singular)
+   - `cart-checkout.php`, `createOrderWithItems()` write 'tool'
+   
+2. **Added Backward Compatibility**:
+   - Badge maps include entries for BOTH 'tool' and 'tools'
+   - Email labels support both variants
+   - Stock deduction checks: `($orderType === 'tool' || $orderType === 'tools' || $orderType === 'mixed')`
+   - Dashboard analytics: `$toolOrders = ($ordersByType['tool'] ?? 0) + ($ordersByType['tools'] ?? 0);`
+   - Locations: `admin/index.php:253-264`, `admin/orders.php:654`, `includes/mailer.php:357-362`, `includes/functions.php:491`
+
+3. **Future Recommendation**:
+   - Schedule data migration to normalize historic 'tools' → 'tool' in database
+   - Once migration complete, remove dual handling code
+
+---
+
+### Summary of Files Modified (November 13, 2025):
+1. **includes/functions.php**: Enhanced `getOrders()` to fetch order_items and build product lists
+2. **admin/index.php**: Updated dashboard table with Products column and order type badges, fixed analytics aggregation
+3. **admin/orders.php**: Added backward compatibility to badge map
+4. **includes/mailer.php**: Updated email functions to support all order types with generic parameters
+5. **cart-checkout.php**: Added admin email notification for cart orders
+
+---
+
 ## Notes
 - **Architecture Decision**: Use `pending_orders` as header + `order_items` as line items
 - **Commission Rule**: Calculate from discounted price (customer's final payment)
 - **Stock Management**: Only applies to tools, not templates (unlimited)
-- **Order Types**: 'template', 'tools', 'mixed'
+- **Order Types**: 'template', 'tool', 'mixed' (both 'tool' and 'tools' supported for backward compatibility)
+- **Data Migration Needed**: Convert legacy 'tools' → 'tool' in database when operationally convenient
 
 ---
 
-**Last Updated**: 2025-11-12 (Phases 4 and 6 Completed - Frontend UX & Reporting Enhancements)
+**Last Updated**: 2025-11-13 (Category 9 - Post-Deployment Fixes: Dashboard Display & Email Notifications)
