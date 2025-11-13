@@ -525,8 +525,8 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                         <td class="py-3 px-2">
                             <?php
-                            // Show final amount (from cart or template order)
-                            $totalAmount = $order['final_amount'] ?? $order['template_price'] ?? 0;
+                            // Show final amount with full fallback chain for all order types
+                            $totalAmount = $order['final_amount'] ?? $order['original_price'] ?? $order['template_price'] ?? $order['tool_price'] ?? 0;
                             
                             // Apply discount if affiliate code present
                             if (!empty($order['affiliate_code'])) {
@@ -688,7 +688,7 @@ require_once __DIR__ . '/includes/header.php';
                             <div>
                                 <div class="text-sm font-semibold text-gray-700">Total</div>
                                 <?php
-                                $totalAmount = $order['final_amount'] ?? $order['template_price'] ?? 0;
+                                $totalAmount = $order['final_amount'] ?? $order['original_price'] ?? $order['template_price'] ?? $order['tool_price'] ?? 0;
                                 ?>
                                 <div class="text-lg font-bold text-gray-900"><?php echo formatCurrency($totalAmount); ?></div>
                                 <?php if (!empty($order['affiliate_code'])): ?>
