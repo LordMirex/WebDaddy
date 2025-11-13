@@ -208,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             
             $orderItems[] = [
                 'product_type' => $productType,
-                'product_id' => $productType === 'template' ? ($item['template_id'] ?? $item['id']) : ($item['tool_id'] ?? $item['id']),
+                'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['price_at_add'],
                 'discount_amount' => $itemDiscountAmount,

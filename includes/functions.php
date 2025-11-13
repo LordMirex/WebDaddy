@@ -323,6 +323,14 @@ function createOrderWithItems($orderData, $items = [])
         }
         
         if (!empty($items)) {
+            // Validate all items before inserting
+            foreach ($items as $item) {
+                if (empty($item['product_id']) || !is_numeric($item['product_id']) || $item['product_id'] <= 0) {
+                    error_log('CRITICAL: Invalid product_id in order item: ' . json_encode($item));
+                    throw new PDOException('Invalid product_id: cannot create order with null or invalid product references');
+                }
+            }
+            
             $itemStmt = $db->prepare("
                 INSERT INTO order_items 
                 (pending_order_id, product_type, product_id, quantity, unit_price, discount_amount, final_amount, metadata_json)
@@ -656,7 +664,41 @@ function getOrderItems($orderId)
         ");
         
         $stmt->execute([$orderId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Apply metadata fallback for items with missing product names
+        foreach ($items as &$item) {
+            $productName = $item['product_type'] === 'template' ? $item['template_name'] : $item['tool_name'];
+            
+            // Fallback to metadata if product name is NULL (deleted/invalid product)
+            if (empty($productName)) {
+                $metadata = [];
+                if (!empty($item['metadata_json'])) {
+                    $decoded = @json_decode($item['metadata_json'], true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $metadata = $decoded;
+                    } else {
+                        error_log('Invalid metadata JSON for order item #' . $item['id'] . ': ' . $item['metadata_json']);
+                    }
+                }
+                
+                // Extra safety: ensure $metadata is always an array before access
+                if (!is_array($metadata)) {
+                    $metadata = [];
+                }
+                
+                $fallbackName = $metadata['name'] ?? 'Unknown Product';
+                
+                // Update the appropriate name field so all consumers get the fallback
+                if ($item['product_type'] === 'template') {
+                    $item['template_name'] = $fallbackName;
+                } else {
+                    $item['tool_name'] = $fallbackName;
+                }
+            }
+        }
+        
+        return $items;
     } catch (PDOException $e) {
         error_log('Error fetching order items: ' . $e->getMessage());
         return [];

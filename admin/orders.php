@@ -555,7 +555,10 @@ require_once __DIR__ . '/includes/header.php';
                                 <span class="hidden sm:inline sm:ml-1"><?php echo ucfirst($order['status']); ?></span>
                             </span>
                         </td>
-                        <td class="py-3 px-2 text-gray-700 text-sm"><?php echo date('M d, Y H:i', strtotime($order['created_at'])); ?></td>
+                        <td class="py-3 px-2 text-gray-700 text-sm">
+                            <div class="font-medium"><?php echo date('D, M d, Y', strtotime($order['created_at'])); ?></div>
+                            <div class="text-xs text-gray-500"><?php echo date('h:i A', strtotime($order['created_at'])); ?></div>
+                        </td>
                         <td class="py-3 px-2">
                             <a href="?view=<?php echo $order['id']; ?>" class="px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm inline-flex items-center gap-1">
                                 <i class="bi bi-eye"></i> View
