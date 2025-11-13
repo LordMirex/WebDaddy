@@ -554,7 +554,20 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
                 if (!empty($orderItems)) {
                     $productNames = [];
                     foreach ($orderItems as $item) {
-                        $name = $item['template_name'] ?? $item['tool_name'] ?? 'Unknown Product';
+                        // Try template_name/tool_name first, then fallback to metadata, then generic
+                        $name = null;
+                        if (!empty($item['template_name'])) {
+                            $name = $item['template_name'];
+                        } elseif (!empty($item['tool_name'])) {
+                            $name = $item['tool_name'];
+                        } elseif (!empty($item['metadata_json'])) {
+                            $metadata = json_decode($item['metadata_json'], true);
+                            if (is_array($metadata)) {
+                                $name = $metadata['name'] ?? null;
+                            }
+                        }
+                        $name = $name ?? 'Product';
+                        
                         $qty = $item['quantity'];
                         $productNames[] = $qty > 1 ? "{$name} (×{$qty})" : $name;
                     }
