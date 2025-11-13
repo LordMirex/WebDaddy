@@ -259,8 +259,8 @@ if ($currentView === 'templates') {
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 1000);
-            }, 8000);
+                }, 1500);
+            }, 15000);
         },
         getContextualMessage() {
             const page = window.location.pathname;

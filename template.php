@@ -137,8 +137,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 500);
-            }, 5000);
+                }, 1500);
+            }, 15000);
         },
         getContextualMessage() {
             return 'Hi! I\'m viewing <?php echo htmlspecialchars($template['name']); ?> template and need help.';
