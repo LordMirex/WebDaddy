@@ -702,6 +702,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: params.toString()
             });
             
+            if (!response.ok) {
+                const text = await response.text();
+                let errorMessage = 'Failed to add to cart';
+                try {
+                    const errorData = JSON.parse(text);
+                    errorMessage = errorData.message || errorData.error || errorMessage;
+                } catch (e) {
+                    console.error('Server returned non-JSON error:', text);
+                }
+                showNotification(errorMessage, 'error');
+                return false;
+            }
+            
             const data = await response.json();
             
             if (data.success) {
