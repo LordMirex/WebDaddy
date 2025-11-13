@@ -65,8 +65,21 @@ foreach ($salesRaw as $sale) {
     // Build product list
     $productList = [];
     foreach ($items as $item) {
+        $productName = $item['product_name'];
+        
+        if (empty($productName) && !empty($item['metadata_json'])) {
+            $metadata = @json_decode($item['metadata_json'], true);
+            if (is_array($metadata) && isset($metadata['name'])) {
+                $productName = $metadata['name'];
+            }
+        }
+        
+        if (empty($productName)) {
+            $productName = 'Unknown Product';
+        }
+        
         $productList[] = [
-            'name' => $item['product_name'] ?? 'Unknown Product',
+            'name' => $productName,
             'type' => $item['product_type'],
             'quantity' => $item['quantity'],
             'unit_price' => $item['unit_price'],

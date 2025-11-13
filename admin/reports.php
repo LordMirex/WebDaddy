@@ -62,12 +62,13 @@ $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
 // Top Selling Products (Templates + Tools)
 $query = "
     SELECT 
+        oi.product_id,
+        oi.product_type,
+        oi.metadata_json,
         CASE 
             WHEN oi.product_type = 'template' THEN t.name
             WHEN oi.product_type = 'tool' THEN tool.name
-            ELSE 'Unknown'
         END as product_name,
-        oi.product_type,
         COUNT(DISTINCT s.id) as sales_count,
         SUM(oi.final_amount) as revenue,
         SUM(oi.quantity) as total_quantity
@@ -77,13 +78,32 @@ $query = "
     LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
     LEFT JOIN tools tool ON oi.product_type = 'tool' AND oi.product_id = tool.id
     WHERE 1=1 $dateFilter
-    GROUP BY oi.product_id, oi.product_type, product_name
+    GROUP BY oi.product_id, oi.product_type
     ORDER BY revenue DESC
     LIMIT 10
 ";
 $stmt = $db->prepare($query);
 $stmt->execute($params);
-$topProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$topProductsRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$topProducts = [];
+foreach ($topProductsRaw as $product) {
+    $productName = $product['product_name'];
+    
+    if (empty($productName) && !empty($product['metadata_json'])) {
+        $metadata = @json_decode($product['metadata_json'], true);
+        if (is_array($metadata) && isset($metadata['name'])) {
+            $productName = $metadata['name'];
+        }
+    }
+    
+    if (empty($productName)) {
+        $productName = 'Unknown Product';
+    }
+    
+    $product['product_name'] = $productName;
+    $topProducts[] = $product;
+}
 
 // Top Affiliates
 $query = "
