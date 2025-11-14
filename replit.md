@@ -3,6 +3,16 @@
 ## Overview
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
+## Recent Changes (November 14, 2025)
+### Critical Bug Fixes & Security Enhancements
+1. **Order Cancellation System** - Implemented centralized `cancelOrder()` function with status guards to prevent cancellation of paid/completed orders, protecting financial data integrity
+2. **Multi-Item Domain Assignment** - Created `setOrderItemDomain()` function to properly assign domains per item in multi-template orders
+3. **Analytics Session Tracking** - Added `ensureAnalyticsSession()` to fix session initialization issues causing bounce rate and template click tracking failures
+4. **WhatsApp Payment Security** - Removed editable amounts from WhatsApp messages to prevent user tampering with payment amounts
+5. **Amount Calculation Lockdown** - Enforced server-side-only amount calculation using `computeFinalAmount()` with legacy order fallbacks
+6. **Order Confirmation Simplification** - Removed manual amount input from admin interface, displaying auto-calculated amounts only
+7. **Legacy Order Support** - Enhanced `computeFinalAmount()` with fallback to `amount_paid` for historical orders without item records
+
 ## User Preferences
 ### Coding Style
 - Consistent indentation (4 spaces)
