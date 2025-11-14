@@ -719,7 +719,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 if (window.closeToolModal) closeToolModal();
-                showNotification(`${productName} added to cart!`, 'success');
+                const notificationMessage = productName ? `${productName} added to cart!` : (data.message || 'Added to cart!');
+                showNotification(notificationMessage, 'success');
                 updateCartBadge();
                 
                 // Animate cart button
