@@ -138,7 +138,7 @@ if ($currentView === 'templates') {
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Tools</a>
                     <a href="#faq" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">FAQ</a>
                     <!-- Cart Badge -->
-                    <a href="#" id="cart-button" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -165,7 +165,7 @@ if ($currentView === 'templates') {
                 <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Templates</a>
                 <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Tools</a>
                 <a href="#faq" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">FAQ</a>
-                <a href="#" id="cart-button-mobile" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium flex items-center">
+                <a href="#" id="cart-button-mobile" onclick="toggleCartDrawer(); return false;" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium flex items-center">
                     Cart
                     <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-gray-900 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 10px;"><?php echo $cartCount; ?></span>
                 </a>
@@ -259,8 +259,8 @@ if ($currentView === 'templates') {
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 1500);
-            }, 15000);
+                }, 3500);
+            }, 22000);
         },
         getContextualMessage() {
             const page = window.location.pathname;
@@ -282,12 +282,12 @@ if ($currentView === 'templates') {
             
             <!-- Sliding Message -->
             <div x-show="showMessage" 
-                 x-transition:enter="transition ease-out duration-700"
-                 x-transition:enter-start="opacity-0 -translate-x-6"
+                 x-transition:enter="transition ease-out duration-1200"
+                 x-transition:enter-start="opacity-0 -translate-x-8"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-700"
+                 x-transition:leave="transition ease-in duration-1200"
                  x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 -translate-x-6"
+                 x-transition:leave-end="opacity-0 -translate-x-8"
                  class="text-white font-semibold text-sm whitespace-nowrap pr-2">
                 <span x-text="messages[currentIndex]"></span>
             </div>

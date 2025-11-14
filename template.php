@@ -137,8 +137,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 1500);
-            }, 15000);
+                }, 3500);
+            }, 22000);
         },
         getContextualMessage() {
             return 'Hi! I\'m viewing <?php echo htmlspecialchars($template['name']); ?> template and need help.';
@@ -157,12 +157,12 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
             
             <!-- Sliding Message -->
             <div x-show="showMessage" 
-                 x-transition:enter="transition ease-out duration-400"
-                 x-transition:enter-start="opacity-0 -translate-x-6"
+                 x-transition:enter="transition ease-out duration-1200"
+                 x-transition:enter-start="opacity-0 -translate-x-8"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-400"
+                 x-transition:leave="transition ease-in duration-1200"
                  x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 -translate-x-6"
+                 x-transition:leave-end="opacity-0 -translate-x-8"
                  class="text-white font-semibold text-sm whitespace-nowrap pr-2">
                 <span x-text="messages[currentIndex]"></span>
             </div>
