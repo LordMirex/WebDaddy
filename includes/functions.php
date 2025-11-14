@@ -616,6 +616,42 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
     }
 }
 
+function computeFinalAmount($order, $orderItems = null)
+{
+    if ($orderItems === null && !empty($order['id'])) {
+        $orderItems = getOrderItems($order['id']);
+    }
+    
+    if (!empty($order['final_amount']) && $order['final_amount'] > 0) {
+        return (float)$order['final_amount'];
+    }
+    
+    if (!empty($order['original_price']) && $order['original_price'] > 0) {
+        return (float)$order['original_price'];
+    }
+    
+    $totalAmount = 0;
+    
+    if (!empty($orderItems)) {
+        foreach ($orderItems as $item) {
+            $totalAmount += (float)($item['final_amount'] ?? 0);
+        }
+    }
+    
+    if ($totalAmount > 0) {
+        return $totalAmount;
+    }
+    
+    $basePrice = (float)($order['template_price'] ?? $order['tool_price'] ?? 0);
+    
+    if ($basePrice > 0 && !empty($order['affiliate_code'])) {
+        $discountAmount = $basePrice * CUSTOMER_DISCOUNT_RATE;
+        return max(0, $basePrice - $discountAmount);
+    }
+    
+    return max(0, $basePrice);
+}
+
 function assignDomainToCustomer($domainId, $orderId)
 {
     $db = getDb();
@@ -806,18 +842,42 @@ function logActivity($action, $details = '', $userId = null)
     }
 }
 
-function generateWhatsAppLink($orderData, $template)
+function generateWhatsAppLink($orderData, $template = null)
 {
     $number = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));
     
-    $message = "Hello! I would like to order a website:\n\n";
-    $message .= "Template: " . $template['name'] . "\n";
-    $message .= "Name: " . $orderData['customer_name'] . "\n";
-    $message .= "WhatsApp: " . $orderData['customer_phone'] . "\n";
-    $message .= "Price: " . formatCurrency($template['price']) . "\n";
+    $message = "Hello! I have a new order:\n\n";
     
     if (!empty($orderData['order_id'])) {
-        $message .= "\nOrder ID: " . $orderData['order_id'];
+        $message .= "Order ID: #" . $orderData['order_id'] . "\n\n";
+        
+        $order = getOrderById($orderData['order_id']);
+        if ($order) {
+            $orderItems = getOrderItems($orderData['order_id']);
+            
+            if (!empty($orderItems)) {
+                $message .= "Items:\n";
+                foreach ($orderItems as $item) {
+                    $productName = $item['product_type'] === 'template' ? $item['template_name'] : $item['tool_name'];
+                    $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
+                    $message .= "• " . $productName . $qty . "\n";
+                }
+            } elseif ($template) {
+                $message .= "Items:\n";
+                $message .= "• " . $template['name'] . "\n";
+            }
+            
+            $finalAmount = computeFinalAmount($order, $orderItems);
+            $message .= "\nTotal Amount: " . formatCurrency($finalAmount);
+        } elseif ($template) {
+            $message .= "Items:\n";
+            $message .= "• " . $template['name'] . "\n";
+            $message .= "\nTotal Amount: " . formatCurrency($template['price']);
+        }
+    } elseif ($template) {
+        $message .= "Items:\n";
+        $message .= "• " . $template['name'] . "\n";
+        $message .= "\nTotal Amount: " . formatCurrency($template['price']);
     }
     
     $encodedMessage = rawurlencode($message);

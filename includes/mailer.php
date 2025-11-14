@@ -304,6 +304,46 @@ HTML;
     return sendEmail($customerEmail, $subject, $emailBody);
 }
 
+function sendOrderRejectionEmail($orderId, $customerName, $customerEmail, $reason = '') {
+    $subject = "Order Cancelled - Order #{$orderId}";
+    
+    $reasonHtml = '';
+    if (!empty($reason)) {
+        $reasonHtml = <<<HTML
+<div style="background:#fef3c7; border-left:3px solid #f59e0b; padding:15px; border-radius:4px; margin:15px 0;">
+    <h3 style="color:#92400e; margin:0 0 8px 0; font-size:16px;">Cancellation Reason</h3>
+    <p style="color:#78350f; margin:0; line-height:1.6;">{$reason}</p>
+</div>
+HTML;
+    }
+    
+    $content = <<<HTML
+<h2 style="color:#dc2626; margin:0 0 15px 0; font-size:22px;">Order Cancelled</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    We regret to inform you that your order <strong>#{$orderId}</strong> has been cancelled.
+</p>
+{$reasonHtml}
+<p style="color:#374151; line-height:1.6; margin:15px 0;">
+    If you believe this is an error or would like to place a new order, please contact our support team. We're here to help!
+</p>
+<div style="background:#dbeafe; border-left:3px solid #3b82f6; padding:15px; border-radius:4px; margin:15px 0;">
+    <h3 style="color:#1e40af; margin:0 0 8px 0; font-size:16px;">Need Assistance?</h3>
+    <p style="color:#1e3a8a; margin:0;">Our support team is available 24/7 on WhatsApp to assist you with any questions or help you place a new order.</p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $customerName);
+    $result = sendEmail($customerEmail, $subject, $emailBody);
+    
+    if ($result) {
+        error_log("Order rejection email sent successfully for order #{$orderId}");
+    } else {
+        error_log("Failed to send order rejection email for order #{$orderId}");
+    }
+    
+    return $result;
+}
+
 /**
  * Send payment confirmation and domain details to customer
  * @deprecated Use sendEnhancedPaymentConfirmationEmail() instead

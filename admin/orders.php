@@ -44,39 +44,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'assign_domain') {
             $orderId = intval($_POST['order_id']);
             $domainId = intval($_POST['domain_id']);
+            $orderItemId = isset($_POST['order_item_id']) && !empty($_POST['order_item_id']) ? intval($_POST['order_item_id']) : null;
             
             if ($orderId <= 0 || $domainId <= 0) {
                 $errorMessage = 'Invalid order or domain ID.';
             } else {
-                if (assignDomainToCustomer($domainId, $orderId)) {
-                    try {
+                try {
+                    $db->beginTransaction();
+                    
+                    if ($orderItemId) {
+                        $checkStmt = $db->prepare("SELECT status FROM domains WHERE id = ? AND status = 'available'");
+                        $checkStmt->execute([$domainId]);
+                        
+                        if ($checkStmt->rowCount() == 0) {
+                            throw new Exception('Domain is not available');
+                        }
+                        
+                        $itemStmt = $db->prepare("SELECT metadata_json FROM order_items WHERE id = ?");
+                        $itemStmt->execute([$orderItemId]);
+                        $itemRow = $itemStmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        $metadata = [];
+                        if (!empty($itemRow['metadata_json'])) {
+                            $metadata = json_decode($itemRow['metadata_json'], true) ?: [];
+                        }
+                        
+                        $metadata['domain_id'] = $domainId;
+                        
+                        $updateStmt = $db->prepare("UPDATE order_items SET metadata_json = ? WHERE id = ?");
+                        $updateStmt->execute([json_encode($metadata), $orderItemId]);
+                        
+                        $domainStmt = $db->prepare("UPDATE domains SET status = 'reserved', assigned_order_id = ? WHERE id = ?");
+                        $domainStmt->execute([$orderId, $domainId]);
+                    } else {
+                        if (!assignDomainToCustomer($domainId, $orderId)) {
+                            throw new Exception('Failed to assign domain globally');
+                        }
+                        
                         $stmt = $db->prepare("UPDATE pending_orders SET chosen_domain_id = ? WHERE id = ?");
                         $stmt->execute([$domainId, $orderId]);
-                    } catch (PDOException $e) {
-                        error_log('Error updating order domain: ' . $e->getMessage());
                     }
                     
+                    $db->commit();
                     $successMessage = 'Domain assigned successfully!';
-                    logActivity('domain_assigned', "Domain #$domainId assigned to order #$orderId", getAdminId());
-                } else {
-                    $errorMessage = 'Failed to assign domain. It may already be in use.';
+                    logActivity('domain_assigned', "Domain #$domainId assigned to order #$orderId" . ($orderItemId ? " (item #$orderItemId)" : ""), getAdminId());
+                } catch (Exception $e) {
+                    $db->rollBack();
+                    $errorMessage = 'Failed to assign domain: ' . $e->getMessage();
+                    error_log('Domain assignment error: ' . $e->getMessage());
                 }
             }
         } elseif ($action === 'cancel_order') {
             $orderId = intval($_POST['order_id']);
             
             try {
+                $db->beginTransaction();
+                
+                $order = getOrderById($orderId);
+                
                 $stmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled' WHERE id = ? AND status = 'pending'");
                 $stmt->execute([$orderId]);
                 
                 if ($stmt->rowCount() > 0) {
-                    $successMessage = 'Order cancelled successfully!';
+                    $itemsStmt = $db->prepare("UPDATE order_items SET status = 'cancelled' WHERE pending_order_id = ?");
+                    $itemsStmt->execute([$orderId]);
+                    $itemsAffected = $itemsStmt->rowCount();
+                    
+                    $domainStmt = $db->prepare("UPDATE domains SET status = 'available', assigned_order_id = NULL WHERE assigned_order_id = ? AND status IN ('reserved', 'in_use')");
+                    $domainStmt->execute([$orderId]);
+                    $domainsReleased = $domainStmt->rowCount();
+                    
+                    $db->commit();
+                    
+                    error_log("Order #$orderId cancelled: $itemsAffected items updated, $domainsReleased domains released");
+                    
+                    if ($order && !empty($order['customer_email'])) {
+                        sendOrderRejectionEmail(
+                            $orderId,
+                            $order['customer_name'],
+                            $order['customer_email'],
+                            'Order cancelled by administrator'
+                        );
+                    }
+                    
+                    $successMessage = 'Order cancelled successfully! Customer has been notified by email.';
                     logActivity('order_cancelled', "Order #$orderId cancelled", getAdminId());
                 } else {
+                    $db->rollBack();
                     $errorMessage = 'Cannot cancel this order.';
                 }
-            } catch (PDOException $e) {
+            } catch (Exception $e) {
+                $db->rollBack();
                 $errorMessage = 'Database error: ' . $e->getMessage();
+                error_log('Order cancellation error: ' . $e->getMessage());
             }
         } elseif ($action === 'bulk_mark_paid') {
             $orderIds = $_POST['order_ids'] ?? [];
@@ -941,42 +1001,103 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             
             <div class="mb-6">
                 <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Domain Assignment</h6>
-                <?php if ($viewOrder['domain_name']): ?>
-                <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg">
-                    <i class="bi bi-globe"></i> Assigned Domain: <strong><?php echo htmlspecialchars($viewOrder['domain_name']); ?></strong>
-                </div>
-                <?php else: ?>
-                <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg">
-                    <i class="bi bi-exclamation-triangle"></i> No domain assigned yet
+                
+                <?php
+                $templateItems = [];
+                if (!empty($viewOrderItems)) {
+                    foreach ($viewOrderItems as $item) {
+                        if ($item['product_type'] === 'template') {
+                            $templateItems[] = $item;
+                        }
+                    }
+                } elseif (!empty($viewOrder['template_id'])) {
+                    $templateItems[] = [
+                        'id' => null,
+                        'product_id' => $viewOrder['template_id'],
+                        'template_name' => $viewOrder['template_name'],
+                        'metadata_json' => null
+                    ];
+                }
+                
+                if (!empty($templateItems)):
+                    foreach ($templateItems as $idx => $item):
+                        $metadata = [];
+                        if (!empty($item['metadata_json'])) {
+                            $metadata = json_decode($item['metadata_json'], true) ?: [];
+                        }
+                        $assignedDomainId = $metadata['domain_id'] ?? null;
+                        $assignedDomainName = null;
+                        
+                        if ($assignedDomainId) {
+                            $db = getDb();
+                            $domainStmt = $db->prepare("SELECT domain_name FROM domains WHERE id = ?");
+                            $domainStmt->execute([$assignedDomainId]);
+                            $domainRow = $domainStmt->fetch(PDO::FETCH_ASSOC);
+                            $assignedDomainName = $domainRow['domain_name'] ?? null;
+                        } elseif ($idx === 0 && !empty($viewOrder['domain_name'])) {
+                            $assignedDomainName = $viewOrder['domain_name'];
+                        }
+                        
+                        $templateId = $item['product_id'];
+                        $availableDomainsForTemplate = getAvailableDomains($templateId);
+                ?>
+                
+                <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between mb-3">
+                        <h6 class="font-semibold text-gray-900">
+                            <i class="bi bi-palette text-primary-600 mr-1"></i>
+                            <?php echo htmlspecialchars($item['template_name']); ?>
+                        </h6>
+                    </div>
+                    
+                    <?php if ($assignedDomainName): ?>
+                    <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded">
+                        <i class="bi bi-check-circle mr-1"></i> Domain: <strong><?php echo htmlspecialchars($assignedDomainName); ?></strong>
+                    </div>
+                    <?php else: ?>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded mb-3">
+                        <i class="bi bi-exclamation-triangle mr-1"></i> No domain assigned
+                    </div>
+                    
+                    <?php if ($viewOrder['status'] !== 'cancelled' && !empty($availableDomainsForTemplate)): ?>
+                    <form method="POST">
+                        <input type="hidden" name="action" value="assign_domain">
+                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                        <input type="hidden" name="order_item_id" value="<?php echo $item['id'] ?? ''; ?>">
+                        <input type="hidden" name="template_id" value="<?php echo $templateId; ?>">
+                        <div class="grid md:grid-cols-3 gap-2">
+                            <div class="md:col-span-2">
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" name="domain_id" required>
+                                    <option value="">Select a domain...</option>
+                                    <?php foreach ($availableDomainsForTemplate as $domain): ?>
+                                    <option value="<?php echo $domain['id']; ?>">
+                                        <?php echo htmlspecialchars($domain['domain_name']); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
+                                    <i class="bi bi-link"></i> Assign
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <?php elseif ($viewOrder['status'] !== 'cancelled'): ?>
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded text-sm">
+                        <i class="bi bi-exclamation-circle"></i> No available domains. <a href="/admin/domains.php" class="underline font-semibold">Add domains</a>
+                    </div>
+                    <?php endif; ?>
+                    <?php endif; ?>
                 </div>
                 
-                <?php if ($viewOrder['status'] !== 'cancelled' && !empty($availableDomains)): ?>
-                <form method="POST" class="mt-3">
-                    <input type="hidden" name="action" value="assign_domain">
-                    <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                    <div class="grid md:grid-cols-3 gap-2">
-                        <div class="md:col-span-2">
-                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_id" required>
-                                <option value="">Select a domain to assign...</option>
-                                <?php foreach ($availableDomains as $domain): ?>
-                                <option value="<?php echo $domain['id']; ?>">
-                                    <?php echo htmlspecialchars($domain['domain_name']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div>
-                            <button type="submit" class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors">
-                                <i class="bi bi-link"></i> Assign Domain
-                            </button>
-                        </div>
-                    </div>
-                </form>
-                <?php elseif ($viewOrder['status'] !== 'cancelled' && empty($availableDomains)): ?>
-                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mt-3">
-                    <i class="bi bi-exclamation-circle"></i> No available domains for this template. <a href="/admin/domains.php" class="underline font-semibold">Add domains</a>
+                <?php 
+                    endforeach;
+                else:
+                ?>
+                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+                    <i class="bi bi-info-circle"></i> This order contains no templates requiring domain assignment.
                 </div>
-                <?php endif; ?>
                 <?php endif; ?>
             </div>
             
@@ -986,32 +1107,30 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 <form method="POST">
                     <input type="hidden" name="action" value="mark_paid">
                     <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                    <?php 
+                    $finalPayableAmount = computeFinalAmount($viewOrder, $viewOrderItems);
+                    ?>
+                    <input type="hidden" name="amount_paid" value="<?php echo $finalPayableAmount; ?>">
                     
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Amount Paid <span class="text-red-600">*</span></label>
-                            <input type="number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="amount_paid" value="<?php echo $viewOrder['template_price']; ?>" step="0.01" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
-                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_method">
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Card">Card</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Notes</label>
-                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="2" placeholder="Optional notes about the payment..."></textarea>
-                        </div>
-                        <div class="md:col-span-2">
-                            <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
-                                <i class="bi bi-cash-coin mr-2"></i> Mark as Paid
-                            </button>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+                        <div class="flex items-start">
+                            <i class="bi bi-info-circle text-blue-700 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-blue-700 font-semibold mb-1">Amount to be paid</p>
+                                <p class="text-2xl font-extrabold text-blue-900"><?php echo formatCurrency($finalPayableAmount); ?></p>
+                                <p class="text-xs text-blue-600 mt-1">This amount is automatically calculated based on order total<?php echo !empty($viewOrder['affiliate_code']) ? ' with 20% affiliate discount applied' : ''; ?>.</p>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Notes (Optional)</label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="Add any notes about the payment (e.g., transaction ID, payment method used, etc.)..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+                        <i class="bi bi-cash-coin mr-2"></i> Confirm Payment Received
+                    </button>
                 </form>
             </div>
             <?php endif; ?>

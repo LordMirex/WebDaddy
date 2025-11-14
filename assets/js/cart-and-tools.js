@@ -1,5 +1,29 @@
 let toolPopupBound = false;
 
+function trackTemplateClick(templateId) {
+    if (!templateId) return;
+    fetch('/api/analytics.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'track_template_click',
+            template_id: templateId
+        })
+    }).catch(err => console.error('Analytics tracking failed:', err));
+}
+
+function trackToolClick(toolId) {
+    if (!toolId) return;
+    fetch('/api/analytics.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'track_tool_click',
+            tool_id: toolId
+        })
+    }).catch(err => console.error('Analytics tracking failed:', err));
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const affiliateCode = new URLSearchParams(window.location.search).get('aff') || '';
     let currentView = new URLSearchParams(window.location.search).get('view') || 'templates';
@@ -18,6 +42,28 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSearch();
         setupCategoryDropdown();
         setupPaginationHandlers();
+        setupAnalyticsTracking();
+    }
+    
+    function setupAnalyticsTracking() {
+        document.body.addEventListener('click', function(e) {
+            const templateLink = e.target.closest('a[href*="template.php?id="]');
+            if (templateLink) {
+                const url = new URL(templateLink.href, window.location.origin);
+                const templateId = parseInt(url.searchParams.get('id'));
+                if (templateId) {
+                    trackTemplateClick(templateId);
+                }
+            }
+            
+            const toolPreviewBtn = e.target.closest('.tool-preview-btn');
+            if (toolPreviewBtn) {
+                const toolId = parseInt(toolPreviewBtn.dataset.toolId);
+                if (toolId) {
+                    trackToolClick(toolId);
+                }
+            }
+        });
     }
     
     // Setup search functionality
