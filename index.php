@@ -248,7 +248,7 @@ if ($currentView === 'templates') {
             'Need a custom website?',
             'Let\'s bring your idea to life',
             '24/7 support on WhatsApp',
-            'Templates from ₦5,000'
+            'Templates from ₦150,000'
         ],
         currentIndex: 0,
         showMessage: false,
@@ -259,8 +259,8 @@ if ($currentView === 'templates') {
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 3500);
-            }, 22000);
+                }, 8000);
+            }, 40000);
         },
         getContextualMessage() {
             const page = window.location.pathname;
@@ -282,10 +282,10 @@ if ($currentView === 'templates') {
             
             <!-- Sliding Message -->
             <div x-show="showMessage" 
-                 x-transition:enter="transition ease-out duration-1200"
+                 x-transition:enter="transition ease-out duration-[2500ms]"
                  x-transition:enter-start="opacity-0 -translate-x-8"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-1200"
+                 x-transition:leave="transition ease-in duration-[2500ms]"
                  x-transition:leave-start="opacity-100 translate-x-0"
                  x-transition:leave-end="opacity-0 -translate-x-8"
                  class="text-white font-semibold text-sm whitespace-nowrap pr-2">
