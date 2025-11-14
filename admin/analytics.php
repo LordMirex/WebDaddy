@@ -152,7 +152,7 @@ $orderTypeBreakdown = $db->query("
     FROM sales s
     JOIN pending_orders po ON s.pending_order_id = po.id
     WHERE 1=1 $dateFilterSales
-    GROUP BY order_type
+    GROUP BY po.order_type
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 $templateRevenue = 0;
@@ -232,7 +232,6 @@ $ipFilterQuery = '';
 if (!empty($ipFilter)) {
     $ipFilterQuery = " AND ip_address LIKE " . $db->quote('%' . $ipFilter . '%');
 }
-
 $recentVisits = $db->query("
     SELECT 
         page_url,
@@ -547,8 +546,10 @@ require_once __DIR__ . '/includes/header.php';
             <a href="?period=<?php echo $period; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>&export_csv=visits" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors">
                 <i class="bi bi-download"></i> Export CSV
             </a>
-        </div>
-    </div>
+        </div
+
+
+</div>
     <div class="p-6 overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
