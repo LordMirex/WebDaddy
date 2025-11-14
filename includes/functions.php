@@ -649,7 +649,16 @@ function computeFinalAmount($order, $orderItems = null)
         return max(0, $basePrice - $discountAmount);
     }
     
-    return max(0, $basePrice);
+    if ($basePrice > 0) {
+        return $basePrice;
+    }
+    
+    if (!empty($order['amount_paid']) && $order['amount_paid'] > 0) {
+        return (float)$order['amount_paid'];
+    }
+    
+    error_log("WARNING: computeFinalAmount() returning 0 for order #{$order['id']}. Order may have incomplete data.");
+    return 0;
 }
 
 function assignDomainToCustomer($domainId, $orderId)
@@ -867,17 +876,16 @@ function generateWhatsAppLink($orderData, $template = null)
                 $message .= "• " . $template['name'] . "\n";
             }
             
-            $finalAmount = computeFinalAmount($order, $orderItems);
-            $message .= "\nTotal Amount: " . formatCurrency($finalAmount);
+            $message .= "\nPlease proceed to payment to continue.";
         } elseif ($template) {
             $message .= "Items:\n";
             $message .= "• " . $template['name'] . "\n";
-            $message .= "\nTotal Amount: " . formatCurrency($template['price']);
+            $message .= "\nPlease proceed to payment to continue.";
         }
     } elseif ($template) {
         $message .= "Items:\n";
         $message .= "• " . $template['name'] . "\n";
-        $message .= "\nTotal Amount: " . formatCurrency($template['price']);
+        $message .= "\nPlease proceed to payment to continue.";
     }
     
     $encodedMessage = rawurlencode($message);
@@ -979,5 +987,193 @@ function renderOrderTypeProductList($orderItems, $fallbackTemplateName = null, $
         return '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tool</span></div><div class="text-gray-900 text-sm">🔧 ' . htmlspecialchars($fallbackToolName) . '</div>';
     } else {
         return '<span class="text-gray-400">No items</span>';
+    }
+}
+
+function setOrderItemDomain($orderItemId, $domainId, $orderId)
+{
+    $db = getDb();
+    
+    try {
+        $db->beginTransaction();
+        
+        $itemStmt = $db->prepare("SELECT id, metadata_json, product_type FROM order_items WHERE id = ? AND pending_order_id = ?");
+        $itemStmt->execute([$orderItemId, $orderId]);
+        $item = $itemStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$item) {
+            throw new Exception('Order item not found');
+        }
+        
+        if ($item['product_type'] !== 'template') {
+            throw new Exception('Domains can only be assigned to template items');
+        }
+        
+        $checkDomainStmt = $db->prepare("SELECT id, domain_name, status FROM domains WHERE id = ?");
+        $checkDomainStmt->execute([$domainId]);
+        $domain = $checkDomainStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$domain) {
+            throw new Exception('Domain not found');
+        }
+        
+        if ($domain['status'] !== 'available') {
+            throw new Exception('Domain is not available');
+        }
+        
+        $metadata = [];
+        if (!empty($item['metadata_json'])) {
+            $metadata = json_decode($item['metadata_json'], true) ?: [];
+        }
+        
+        if (isset($metadata['domain_id']) && $metadata['domain_id'] > 0) {
+            $previousDomainId = $metadata['domain_id'];
+            $releasePreviousStmt = $db->prepare("
+                UPDATE domains 
+                SET status = 'available', assigned_order_id = NULL 
+                WHERE id = ? AND assigned_order_id = ?
+            ");
+            $releasePreviousStmt->execute([$previousDomainId, $orderId]);
+        }
+        
+        $metadata['domain_id'] = $domainId;
+        $metadata['domain_name'] = $domain['domain_name'];
+        
+        $updateItemStmt = $db->prepare("UPDATE order_items SET metadata_json = ? WHERE id = ?");
+        $updateItemStmt->execute([json_encode($metadata), $orderItemId]);
+        
+        $updateDomainStmt = $db->prepare("
+            UPDATE domains 
+            SET status = 'reserved', assigned_order_id = ? 
+            WHERE id = ?
+        ");
+        $updateDomainStmt->execute([$orderId, $domainId]);
+        
+        $db->commit();
+        
+        return ['success' => true, 'message' => 'Domain assigned to item successfully'];
+        
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log('Domain assignment error for item #' . $orderItemId . ': ' . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+function cancelOrder($orderId, $reason = '', $adminId = null)
+{
+    $db = getDb();
+    
+    try {
+        $db->beginTransaction();
+        
+        $order = getOrderById($orderId);
+        if (!$order) {
+            throw new Exception('Order not found');
+        }
+        
+        if ($order['status'] === 'cancelled') {
+            throw new Exception('Order is already cancelled');
+        }
+        
+        if (in_array($order['status'], ['paid', 'completed', 'fulfilled'])) {
+            throw new Exception('Cannot cancel a paid or completed order. Please contact support for refunds.');
+        }
+        
+        $stmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled', cancellation_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+        $stmt->execute([$reason, $orderId]);
+        
+        if ($stmt->rowCount() === 0) {
+            throw new Exception('Failed to update order status');
+        }
+        
+        $itemsStmt = $db->prepare("UPDATE order_items SET status = 'cancelled' WHERE pending_order_id = ?");
+        $itemsStmt->execute([$orderId]);
+        $itemsAffected = $itemsStmt->rowCount();
+        
+        $domainStmt = $db->prepare("
+            UPDATE domains 
+            SET status = 'available', assigned_order_id = NULL 
+            WHERE assigned_order_id = ? AND status IN ('reserved', 'in_use')
+        ");
+        $domainStmt->execute([$orderId]);
+        $domainsReleased = $domainStmt->rowCount();
+        
+        $releasedDomainItemsStmt = $db->prepare("
+            SELECT oi.id, oi.metadata_json
+            FROM order_items oi
+            WHERE oi.pending_order_id = ? AND oi.product_type = 'template'
+        ");
+        $releasedDomainItemsStmt->execute([$orderId]);
+        $orderItems = $releasedDomainItemsStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($orderItems as $item) {
+            if (!empty($item['metadata_json'])) {
+                $metadata = json_decode($item['metadata_json'], true);
+                if (isset($metadata['domain_id']) && $metadata['domain_id'] > 0) {
+                    $releaseDomainStmt = $db->prepare("
+                        UPDATE domains 
+                        SET status = 'available', assigned_order_id = NULL 
+                        WHERE id = ? AND status IN ('reserved', 'in_use')
+                    ");
+                    $releaseDomainStmt->execute([$metadata['domain_id']]);
+                }
+            }
+        }
+        
+        if ($order['status'] === 'paid') {
+            $restoreCommissionStmt = $db->prepare("
+                SELECT affiliate_id, commission_amount
+                FROM sales
+                WHERE pending_order_id = ?
+            ");
+            $restoreCommissionStmt->execute([$orderId]);
+            $salesRecord = $restoreCommissionStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($salesRecord && $salesRecord['affiliate_id']) {
+                $affiliateStmt = $db->prepare("
+                    UPDATE affiliates 
+                    SET pending_commission = pending_commission - ?, total_commission = total_commission - ?
+                    WHERE id = ?
+                ");
+                $affiliateStmt->execute([
+                    $salesRecord['commission_amount'],
+                    $salesRecord['commission_amount'],
+                    $salesRecord['affiliate_id']
+                ]);
+            }
+            
+            require_once __DIR__ . '/tools.php';
+            $orderItems = getOrderItems($orderId);
+            foreach ($orderItems as $item) {
+                if ($item['product_type'] === 'tool') {
+                    incrementToolStock($item['product_id'], $item['quantity']);
+                }
+            }
+        }
+        
+        $db->commit();
+        
+        if (!empty($order['customer_email'])) {
+            sendOrderRejectionEmail(
+                $orderId,
+                $order['customer_name'],
+                $order['customer_email'],
+                $reason ?: 'Order cancelled by administrator'
+            );
+        }
+        
+        if ($adminId) {
+            logActivity('order_cancelled', "Order #$orderId cancelled. Reason: " . ($reason ?: 'None provided'), $adminId);
+        }
+        
+        error_log("Order #$orderId successfully cancelled: $itemsAffected items updated, $domainsReleased domains released");
+        
+        return ['success' => true, 'message' => 'Order cancelled successfully'];
+        
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log('Order cancellation error for order #' . $orderId . ': ' . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
     }
 }

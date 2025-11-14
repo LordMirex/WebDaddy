@@ -20,25 +20,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($action === 'mark_paid') {
             $orderId = intval($_POST['order_id']);
-            $amountPaid = floatval($_POST['amount_paid']);
-            $paymentMethod = sanitizeInput($_POST['payment_method'] ?? 'WhatsApp');
             $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
             
-            if ($orderId <= 0 || $amountPaid <= 0) {
-                $errorMessage = 'Invalid order ID or amount.';
+            if ($orderId <= 0) {
+                $errorMessage = 'Invalid order ID.';
             } else {
-                if (markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes)) {
-                    try {
-                        $stmt = $db->prepare("UPDATE sales SET payment_method = ? WHERE pending_order_id = ?");
-                        $stmt->execute([$paymentMethod, $orderId]);
-                    } catch (PDOException $e) {
-                        error_log('Error updating payment method: ' . $e->getMessage());
-                    }
-                    
-                    $successMessage = 'Order marked as paid successfully!';
-                    logActivity('order_marked_paid', "Order #$orderId marked as paid", getAdminId());
+                $order = getOrderById($orderId);
+                if (!$order) {
+                    $errorMessage = 'Order not found.';
                 } else {
-                    $errorMessage = 'Failed to mark order as paid. Please try again.';
+                    $orderItems = getOrderItems($orderId);
+                    $amountPaid = computeFinalAmount($order, $orderItems);
+                    
+                    if ($amountPaid <= 0) {
+                        $errorMessage = 'Invalid order amount. Cannot process payment.';
+                    } else {
+                        if (markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes)) {
+                            $successMessage = 'Order marked as paid successfully! Amount: ' . formatCurrency($amountPaid);
+                            logActivity('order_marked_paid', "Order #$orderId marked as paid with amount " . formatCurrency($amountPaid), getAdminId());
+                        } else {
+                            $errorMessage = 'Failed to mark order as paid. Please try again.';
+                        }
+                    }
                 }
             }
         } elseif ($action === 'assign_domain') {
@@ -49,94 +52,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($orderId <= 0 || $domainId <= 0) {
                 $errorMessage = 'Invalid order or domain ID.';
             } else {
-                try {
-                    $db->beginTransaction();
-                    
-                    if ($orderItemId) {
-                        $checkStmt = $db->prepare("SELECT status FROM domains WHERE id = ? AND status = 'available'");
-                        $checkStmt->execute([$domainId]);
-                        
-                        if ($checkStmt->rowCount() == 0) {
-                            throw new Exception('Domain is not available');
-                        }
-                        
-                        $itemStmt = $db->prepare("SELECT metadata_json FROM order_items WHERE id = ?");
-                        $itemStmt->execute([$orderItemId]);
-                        $itemRow = $itemStmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        $metadata = [];
-                        if (!empty($itemRow['metadata_json'])) {
-                            $metadata = json_decode($itemRow['metadata_json'], true) ?: [];
-                        }
-                        
-                        $metadata['domain_id'] = $domainId;
-                        
-                        $updateStmt = $db->prepare("UPDATE order_items SET metadata_json = ? WHERE id = ?");
-                        $updateStmt->execute([json_encode($metadata), $orderItemId]);
-                        
-                        $domainStmt = $db->prepare("UPDATE domains SET status = 'reserved', assigned_order_id = ? WHERE id = ?");
-                        $domainStmt->execute([$orderId, $domainId]);
+                if ($orderItemId) {
+                    $result = setOrderItemDomain($orderItemId, $domainId, $orderId);
+                    if ($result['success']) {
+                        $successMessage = $result['message'];
+                        logActivity('domain_assigned', "Domain #$domainId assigned to order #$orderId (item #$orderItemId)", getAdminId());
                     } else {
+                        $errorMessage = 'Failed to assign domain: ' . $result['message'];
+                    }
+                } else {
+                    try {
+                        $db->beginTransaction();
+                        
                         if (!assignDomainToCustomer($domainId, $orderId)) {
                             throw new Exception('Failed to assign domain globally');
                         }
                         
                         $stmt = $db->prepare("UPDATE pending_orders SET chosen_domain_id = ? WHERE id = ?");
                         $stmt->execute([$domainId, $orderId]);
+                        
+                        $db->commit();
+                        $successMessage = 'Domain assigned successfully!';
+                        logActivity('domain_assigned', "Domain #$domainId assigned to order #$orderId", getAdminId());
+                    } catch (Exception $e) {
+                        $db->rollBack();
+                        $errorMessage = 'Failed to assign domain: ' . $e->getMessage();
+                        error_log('Domain assignment error: ' . $e->getMessage());
                     }
-                    
-                    $db->commit();
-                    $successMessage = 'Domain assigned successfully!';
-                    logActivity('domain_assigned', "Domain #$domainId assigned to order #$orderId" . ($orderItemId ? " (item #$orderItemId)" : ""), getAdminId());
-                } catch (Exception $e) {
-                    $db->rollBack();
-                    $errorMessage = 'Failed to assign domain: ' . $e->getMessage();
-                    error_log('Domain assignment error: ' . $e->getMessage());
                 }
             }
         } elseif ($action === 'cancel_order') {
             $orderId = intval($_POST['order_id']);
+            $result = cancelOrder($orderId, 'Order cancelled by administrator', getAdminId());
             
-            try {
-                $db->beginTransaction();
-                
-                $order = getOrderById($orderId);
-                
-                $stmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled' WHERE id = ? AND status = 'pending'");
-                $stmt->execute([$orderId]);
-                
-                if ($stmt->rowCount() > 0) {
-                    $itemsStmt = $db->prepare("UPDATE order_items SET status = 'cancelled' WHERE pending_order_id = ?");
-                    $itemsStmt->execute([$orderId]);
-                    $itemsAffected = $itemsStmt->rowCount();
-                    
-                    $domainStmt = $db->prepare("UPDATE domains SET status = 'available', assigned_order_id = NULL WHERE assigned_order_id = ? AND status IN ('reserved', 'in_use')");
-                    $domainStmt->execute([$orderId]);
-                    $domainsReleased = $domainStmt->rowCount();
-                    
-                    $db->commit();
-                    
-                    error_log("Order #$orderId cancelled: $itemsAffected items updated, $domainsReleased domains released");
-                    
-                    if ($order && !empty($order['customer_email'])) {
-                        sendOrderRejectionEmail(
-                            $orderId,
-                            $order['customer_name'],
-                            $order['customer_email'],
-                            'Order cancelled by administrator'
-                        );
-                    }
-                    
-                    $successMessage = 'Order cancelled successfully! Customer has been notified by email.';
-                    logActivity('order_cancelled', "Order #$orderId cancelled", getAdminId());
-                } else {
-                    $db->rollBack();
-                    $errorMessage = 'Cannot cancel this order.';
-                }
-            } catch (Exception $e) {
-                $db->rollBack();
-                $errorMessage = 'Database error: ' . $e->getMessage();
-                error_log('Order cancellation error: ' . $e->getMessage());
+            if ($result['success']) {
+                $successMessage = $result['message'] . ' Customer has been notified by email.';
+            } else {
+                $errorMessage = 'Failed to cancel order: ' . $result['message'];
             }
         } elseif ($action === 'bulk_mark_paid') {
             $orderIds = $_POST['order_ids'] ?? [];
@@ -214,21 +166,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'bulk_cancel') {
             $orderIds = $_POST['order_ids'] ?? [];
             $successCount = 0;
+            $failCount = 0;
             
             foreach ($orderIds as $orderId) {
                 $orderId = intval($orderId);
                 if ($orderId > 0) {
-                    $stmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled' WHERE id = ? AND status = 'pending'");
-                    $stmt->execute([$orderId]);
-                    if ($stmt->rowCount() > 0) {
+                    $result = cancelOrder($orderId, 'Bulk cancelled by administrator', getAdminId());
+                    if ($result['success']) {
                         $successCount++;
+                    } else {
+                        $failCount++;
                     }
                 }
             }
             
             if ($successCount > 0) {
                 $successMessage = "Cancelled {$successCount} order(s) successfully!";
-                logActivity('bulk_orders_cancelled', "Bulk cancelled {$successCount} orders", getAdminId());
+                if ($failCount > 0) {
+                    $successMessage .= " {$failCount} failed.";
+                }
             } else {
                 $errorMessage = 'No orders were cancelled.';
             }

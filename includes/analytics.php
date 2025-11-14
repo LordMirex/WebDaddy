@@ -14,16 +14,24 @@ function getDeviceType($userAgent) {
     return 'Desktop';
 }
 
-function trackPageVisit($pageUrl, $pageTitle = '') {
+function ensureAnalyticsSession() {
     if (session_status() === PHP_SESSION_NONE) {
-        return false;
+        @session_start();
     }
     
     if (!isset($_SESSION['analytics_session_id'])) {
         $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
     }
     
-    $sessionId = $_SESSION['analytics_session_id'];
+    return $_SESSION['analytics_session_id'];
+}
+
+function trackPageVisit($pageUrl, $pageTitle = '') {
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
+    }
+    
     $db = getDb();
     
     try {
@@ -76,7 +84,8 @@ function trackPageVisit($pageUrl, $pageTitle = '') {
 }
 
 function trackTemplateView($templateId) {
-    if (!isset($_SESSION['analytics_session_id'])) {
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
         return false;
     }
     
@@ -87,7 +96,7 @@ function trackTemplateView($templateId) {
             VALUES (?, ?, 'view', 'template', ?)
         ");
         $stmt->execute([
-            $_SESSION['analytics_session_id'],
+            $sessionId,
             $_SERVER['REQUEST_URI'] ?? '',
             $templateId
         ]);
@@ -99,7 +108,8 @@ function trackTemplateView($templateId) {
 }
 
 function trackTemplateClick($templateId) {
-    if (!isset($_SESSION['analytics_session_id'])) {
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
         return false;
     }
     
@@ -110,7 +120,7 @@ function trackTemplateClick($templateId) {
             VALUES (?, ?, 'click', 'template', ?)
         ");
         $stmt->execute([
-            $_SESSION['analytics_session_id'],
+            $sessionId,
             $_SERVER['REQUEST_URI'] ?? '',
             $templateId
         ]);
@@ -122,8 +132,9 @@ function trackTemplateClick($templateId) {
 }
 
 function trackSearch($searchTerm, $resultsCount = 0) {
-    if (!isset($_SESSION['analytics_session_id'])) {
-        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
     }
     
     $db = getDb();
@@ -168,8 +179,9 @@ function trackAffiliateAction($affiliateId, $actionType) {
 }
 
 function trackButtonClick($buttonName, $buttonContext = '') {
-    if (!isset($_SESSION['analytics_session_id'])) {
-        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
     }
     
     $db = getDb();
@@ -192,8 +204,9 @@ function trackButtonClick($buttonName, $buttonContext = '') {
 }
 
 function trackFormSubmission($formName, $formData = []) {
-    if (!isset($_SESSION['analytics_session_id'])) {
-        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
     }
     
     $db = getDb();
@@ -215,8 +228,9 @@ function trackFormSubmission($formName, $formData = []) {
 }
 
 function trackAffiliateClick($affiliateCode) {
-    if (!isset($_SESSION['analytics_session_id'])) {
-        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
     }
     
     $db = getDb();
@@ -242,8 +256,9 @@ function trackAffiliateClick($affiliateCode) {
 }
 
 function trackOrderStart($templateId) {
-    if (!isset($_SESSION['analytics_session_id'])) {
-        $_SESSION['analytics_session_id'] = bin2hex(random_bytes(16));
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
     }
     
     $db = getDb();
