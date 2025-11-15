@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/finance_metrics.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -133,48 +134,20 @@ $avgTimeData = $db->query("
 
 $avgTimeOnSite = $avgTimeData ? gmdate('i:s', round($avgTimeData)) : '00:00';
 
-$revenueData = $db->query("
-    SELECT 
-        SUM(s.amount_paid) as total_revenue,
-        COUNT(*) as total_sales
-    FROM sales s
-    WHERE 1=1 $dateFilterSales
-")->fetch(PDO::FETCH_ASSOC);
+// Use standardized financial metrics
+$revenueMetrics = getRevenueMetrics($db, $dateFilterSales);
+$totalRevenue = $revenueMetrics['total_revenue'];
+$totalSales = $revenueMetrics['total_sales'];
 
-$totalRevenue = $revenueData['total_revenue'] ?? 0;
-$totalSales = $revenueData['total_sales'] ?? 0;
+// Get revenue breakdown by order type
+$orderTypeBreakdown = getRevenueByOrderType($db, $dateFilterSales);
 
-$orderTypeBreakdown = $db->query("
-    SELECT 
-        COALESCE(po.order_type, 'templates') as order_type,
-        COUNT(DISTINCT po.id) as order_count,
-        SUM(s.amount_paid) as revenue
-    FROM sales s
-    JOIN pending_orders po ON s.pending_order_id = po.id
-    WHERE 1=1 $dateFilterSales
-    GROUP BY po.order_type
-")->fetchAll(PDO::FETCH_ASSOC);
-
-$templateRevenue = 0;
-$toolRevenue = 0;
-$mixedRevenue = 0;
-$templateOrders = 0;
-$toolOrders = 0;
-$mixedOrders = 0;
-
-foreach ($orderTypeBreakdown as $row) {
-    $type = $row['order_type'] ?? 'templates';
-    if ($type === 'templates') {
-        $templateRevenue = $row['revenue'] ?? 0;
-        $templateOrders = $row['order_count'] ?? 0;
-    } elseif ($type === 'tools') {
-        $toolRevenue = $row['revenue'] ?? 0;
-        $toolOrders = $row['order_count'] ?? 0;
-    } else {
-        $mixedRevenue = $row['revenue'] ?? 0;
-        $mixedOrders = $row['order_count'] ?? 0;
-    }
-}
+$templateRevenue = $orderTypeBreakdown['template']['revenue'];
+$toolRevenue = $orderTypeBreakdown['tools']['revenue'];
+$mixedRevenue = $orderTypeBreakdown['mixed']['revenue'];
+$templateOrders = $orderTypeBreakdown['template']['orders'];
+$toolOrders = $orderTypeBreakdown['tools']['orders'];
+$mixedOrders = $orderTypeBreakdown['mixed']['orders'];
 
 $visitsOverTime = $db->query("
     SELECT 

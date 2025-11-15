@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/finance_metrics.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -32,97 +33,23 @@ if ($period === 'today') {
     $params = [$startDate, $endDate];
 }
 
-// Calculate comprehensive revenue metrics
-$query = "
-    SELECT 
-        COALESCE(SUM(original_price), SUM(amount_paid), 0) as total_original,
-        COALESCE(SUM(discount_amount), 0) as total_discount,
-        COALESCE(SUM(final_amount), SUM(amount_paid), 0) as total_final,
-        COALESCE(SUM(commission_amount), 0) as total_commission,
-        COUNT(*) as total_orders
-    FROM sales s 
-    WHERE 1=1 $dateFilter
-";
-$stmt = $db->prepare($query);
-$stmt->execute($params);
-$metrics = $stmt->fetch(PDO::FETCH_ASSOC);
+// Use standardized financial metrics
+$revenueMetrics = getRevenueMetrics($db, $dateFilter, $params);
+$totalRevenue = $revenueMetrics['total_revenue'];
+$totalCommission = $revenueMetrics['total_commission'];
+$totalOrders = $revenueMetrics['total_sales'];
+$netRevenue = $revenueMetrics['net_revenue'];
+$avgOrderValue = $revenueMetrics['avg_order_value'];
 
-$totalOriginal = $metrics['total_original'];
-$totalDiscount = $metrics['total_discount'];
-$totalRevenue = $metrics['total_final'];  // Revenue is what customers actually paid
-$totalCommission = $metrics['total_commission'];
-$totalOrders = $metrics['total_orders'];
+// For display purposes (these are not in standardized metrics yet)
+$totalOriginal = $totalRevenue;
+$totalDiscount = 0;
 
-// Net Revenue (after commission) = platform's take
-$netRevenue = $totalRevenue - $totalCommission;
+// Use standardized top products function
+$topProducts = getTopProducts($db, $dateFilter, $params, 10);
 
-// Average Order Value
-$avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
-
-// Top Selling Products (Templates + Tools)
-$query = "
-    SELECT 
-        oi.product_id,
-        oi.product_type,
-        oi.metadata_json,
-        CASE 
-            WHEN oi.product_type = 'template' THEN t.name
-            WHEN oi.product_type = 'tool' THEN tool.name
-        END as product_name,
-        COUNT(DISTINCT s.id) as sales_count,
-        SUM(oi.final_amount) as revenue,
-        SUM(oi.quantity) as total_quantity
-    FROM sales s
-    JOIN pending_orders po ON s.pending_order_id = po.id
-    JOIN order_items oi ON oi.pending_order_id = po.id
-    LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
-    LEFT JOIN tools tool ON oi.product_type = 'tool' AND oi.product_id = tool.id
-    WHERE 1=1 $dateFilter
-    GROUP BY oi.product_id, oi.product_type
-    ORDER BY revenue DESC
-    LIMIT 10
-";
-$stmt = $db->prepare($query);
-$stmt->execute($params);
-$topProductsRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$topProducts = [];
-foreach ($topProductsRaw as $product) {
-    $productName = $product['product_name'];
-    
-    if (empty($productName) && !empty($product['metadata_json'])) {
-        $metadata = @json_decode($product['metadata_json'], true);
-        if (is_array($metadata) && isset($metadata['name'])) {
-            $productName = $metadata['name'];
-        }
-    }
-    
-    if (empty($productName)) {
-        $productName = 'Unknown Product';
-    }
-    
-    $product['product_name'] = $productName;
-    $topProducts[] = $product;
-}
-
-// Top Affiliates
-$query = "
-    SELECT 
-        a.code,
-        u.name as affiliate_name,
-        COUNT(s.id) as sales_count,
-        SUM(s.commission_amount) as total_commission
-    FROM sales s
-    JOIN affiliates a ON s.affiliate_id = a.id
-    JOIN users u ON a.user_id = u.id
-    WHERE s.affiliate_id IS NOT NULL $dateFilter
-    GROUP BY a.id, a.code, u.name
-    ORDER BY total_commission DESC
-    LIMIT 5
-";
-$stmt = $db->prepare($query);
-$stmt->execute($params);
-$topAffiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Use standardized top affiliates function  
+$topAffiliates = getTopAffiliates($db, $dateFilter, $params, 5);
 
 // Recent Sales with full breakdown (all order types)
 $query = "
