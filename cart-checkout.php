@@ -317,27 +317,30 @@ if ($confirmedOrderId) {
             $orderTypeText = 'TOOLS ORDER';
         }
         
-        // Build WhatsApp message - Simple and clean
-        $message = "Hi! I'd like to place an order.\n\n";
-        $message .= "📦 *Order ID: #{$order['id']}*\n\n";
+        // Build WhatsApp message - Conversion-focused
+        $message = "Hello WebDaddy Empire! 👋\n\n";
+        $message .= "I'm ready to get started with:\n\n";
         
-        // List items simply
+        // List items with clear value
         foreach ($orderItems as $item) {
             $productType = $item['product_type'];
-            $icon = ($productType === 'template') ? '🎨' : '🔧';
+            $icon = ($productType === 'template') ? '✅' : '✅';
             $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
-            $qty = $item['quantity'] > 1 ? " (x{$item['quantity']})" : '';
+            $qty = $item['quantity'] > 1 ? " (×{$item['quantity']})" : '';
             
             $message .= "{$icon} {$productName}{$qty}\n";
         }
         
-        $message .= "\n💰 *Total: " . formatCurrency($order['final_amount']) . "*";
+        $message .= "\n";
+        $message .= "*Order Reference:* #{$order['id']}\n";
+        $message .= "*Amount to Pay:* " . formatCurrency($order['final_amount']);
         
         if (!empty($order['affiliate_code'])) {
-            $message .= " (with {$order['affiliate_code']} discount)";
+            $message .= " _(Discount Applied)_";
         }
         
-        $message .= "\n\nPlease send payment details. Thanks!";
+        $message .= "\n\n";
+        $message .= "Please share your payment account details so I can complete this order. Thank you! 🚀";
         
         // Generate WhatsApp link
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));

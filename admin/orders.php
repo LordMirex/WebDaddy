@@ -1019,15 +1019,6 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             </div>
             <?php endif; ?>
             
-            <?php if (!empty($viewOrder['message_text'])): ?>
-            <div class="mb-6">
-                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Customer Message</h6>
-                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
-                    <?php echo nl2br(htmlspecialchars($viewOrder['message_text'])); ?>
-                </div>
-            </div>
-            <?php endif; ?>
-            
             <?php if (!empty($viewOrder['custom_fields'])): ?>
             <div class="mb-6">
                 <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Custom Fields</h6>
