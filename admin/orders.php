@@ -345,7 +345,7 @@ $filterStatus = $_GET['status'] ?? '';
 $filterTemplate = $_GET['template'] ?? '';
 $filterOrderType = $_GET['order_type'] ?? '';
 
-$sql = "SELECT po.*, t.name as template_name, t.price as template_price, 
+$sql = "SELECT po.*, po.payment_notes, t.name as template_name, t.price as template_price, 
         tool.name as tool_name, tool.price as tool_price, d.domain_name,
         (SELECT COUNT(*) FROM sales WHERE pending_order_id = po.id) as is_paid,
         (SELECT COUNT(*) FROM order_items WHERE pending_order_id = po.id) as item_count
@@ -542,6 +542,7 @@ require_once __DIR__ . '/includes/header.php';
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Products</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Total</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Notes</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Status</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Date</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
@@ -550,7 +551,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-gray-200">
                     <?php if (empty($orders)): ?>
                     <tr>
-                        <td colspan="8" class="text-center py-12">
+                        <td colspan="9" class="text-center py-12">
                             <i class="bi bi-inbox text-6xl text-gray-300"></i>
                             <p class="text-gray-500 mt-4">No orders found</p>
                         </td>
@@ -634,6 +635,18 @@ require_once __DIR__ . '/includes/header.php';
                                 echo '<div class="text-gray-900 font-bold">' . formatCurrency($totalAmount) . '</div>';
                             }
                             ?>
+                        </td>
+                        <td class="py-3 px-2">
+                            <?php if (!empty($order['payment_notes'])): ?>
+                            <div class="text-xs text-gray-700 max-w-xs">
+                                <i class="bi bi-sticky text-primary-600"></i>
+                                <span class="truncate inline-block align-middle" style="max-width: 200px;" title="<?php echo htmlspecialchars($order['payment_notes']); ?>">
+                                    <?php echo htmlspecialchars(strlen($order['payment_notes']) > 50 ? substr($order['payment_notes'], 0, 50) . '...' : $order['payment_notes']); ?>
+                                </span>
+                            </div>
+                            <?php else: ?>
+                            <span class="text-xs text-gray-400">-</span>
+                            <?php endif; ?>
                         </td>
                         <td class="py-3 px-2">
                             <?php
@@ -955,6 +968,17 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                 </div>
             </div>
+            
+            <?php if (!empty($viewOrder['payment_notes'])): ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase flex items-center gap-2">
+                    <i class="bi bi-sticky text-primary-600"></i> Payment Notes
+                </h6>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                    <p class="text-sm text-gray-800 whitespace-pre-wrap"><?php echo htmlspecialchars($viewOrder['payment_notes']); ?></p>
+                </div>
+            </div>
+            <?php endif; ?>
             
             <?php if (!empty($viewOrderItems)): ?>
             <div class="mb-6">
