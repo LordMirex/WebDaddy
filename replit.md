@@ -4,6 +4,11 @@
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
 ## Recent Changes (November 15, 2025)
+### Order Confirmation Streamlining
+1. **Single-Step Order Confirmation** - Unified domain assignment and payment confirmation into one streamlined form, eliminating the need for multiple page reloads
+2. **Integrated Domain Selection** - Domain dropdowns now appear directly in the confirmation form (optional), allowing admins to select domains and confirm orders in a single action
+3. **Enhanced User Experience** - Removed separate "Assign Domain" buttons and page reloads, making order processing faster and more intuitive
+
 ### Admin Reports Page Fixes
 1. **Total Discount Calculation** - Fixed hardcoded ₦0.00 value by implementing proper SQL query to sum discount_amount from sales table, now accurately showing total discounts given to customers via affiliate codes
 2. **Top Selling Products Revenue** - Fixed ₦0.00 display issue by changing revenue calculation from complex proportional formula to direct summation of order_items.final_amount, ensuring accurate product revenue reporting
