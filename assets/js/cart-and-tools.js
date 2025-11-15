@@ -47,10 +47,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function setupAnalyticsTracking() {
         document.body.addEventListener('click', function(e) {
-            const templateLink = e.target.closest('a[href*="template.php?id="]');
-            if (templateLink) {
-                const url = new URL(templateLink.href, window.location.origin);
-                const templateId = parseInt(url.searchParams.get('id'));
+            // Track template link clicks (both old and new URL formats)
+            const templateLink = e.target.closest('a[href*="template.php"], a[href^="/"][href*="-"]');
+            if (templateLink && !templateLink.href.includes('/api/') && !templateLink.href.includes('/admin/') && !templateLink.href.includes('/affiliate/')) {
+                // Extract template ID from data attribute or parse from old URL format
+                const templateId = templateLink.dataset.templateId || 
+                                  (templateLink.href.includes('?id=') ? parseInt(new URL(templateLink.href).searchParams.get('id')) : null);
                 if (templateId) {
                     trackTemplateClick(templateId);
                 }
@@ -193,7 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <span class="text-base font-bold text-primary-600">${formatCurrency(template.price)}</span>
                                         </div>
                                         <div class="flex gap-2">
-                                            <a href="template.php?id=${template.id}${affiliateCode ? '&aff=' + affiliateCode : ''}" 
+                                            <a href="/${template.slug}${affiliateCode ? '?aff=' + affiliateCode : ''}" 
+                                               data-template-id="${template.id}"
                                                class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
                                                 Details
                                             </a>
