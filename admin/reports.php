@@ -41,9 +41,18 @@ $totalOrders = $revenueMetrics['total_sales'];
 $netRevenue = $revenueMetrics['net_revenue'];
 $avgOrderValue = $revenueMetrics['avg_order_value'];
 
+// Calculate total discount from affiliate codes
+$discountQuery = "
+    SELECT COALESCE(SUM(discount_amount), 0) as total_discount
+    FROM sales s
+    WHERE 1=1 $dateFilter
+";
+$discountStmt = $db->prepare($discountQuery);
+$discountStmt->execute($params);
+$totalDiscount = $discountStmt->fetch(PDO::FETCH_ASSOC)['total_discount'];
+
 // For display purposes (these are not in standardized metrics yet)
 $totalOriginal = $totalRevenue;
-$totalDiscount = 0;
 
 // Use standardized top products function
 $topProducts = getTopProducts($db, $dateFilter, $params, 10);

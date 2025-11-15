@@ -166,16 +166,11 @@ function getTopProducts($db, $dateFilter = '', $params = [], $limit = 10) {
                 WHEN oi.product_type = 'tool' THEN tool.name
             END as product_name,
             COUNT(DISTINCT s.id) as sales_count,
-            COALESCE(SUM(s.amount_paid * (oi.quantity / po_totals.total_qty)), 0) as revenue,
+            COALESCE(SUM(oi.final_amount), 0) as revenue,
             SUM(oi.quantity) as total_quantity
         FROM sales s
         JOIN pending_orders po ON s.pending_order_id = po.id
         JOIN order_items oi ON oi.pending_order_id = po.id
-        LEFT JOIN (
-            SELECT pending_order_id, SUM(quantity) as total_qty
-            FROM order_items
-            GROUP BY pending_order_id
-        ) po_totals ON po_totals.pending_order_id = po.id
         LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
         LEFT JOIN tools tool ON oi.product_type = 'tool' AND oi.product_id = tool.id
         WHERE 1=1 $dateFilter
