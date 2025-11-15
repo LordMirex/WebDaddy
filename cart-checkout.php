@@ -317,45 +317,27 @@ if ($confirmedOrderId) {
             $orderTypeText = 'TOOLS ORDER';
         }
         
-        // Build WhatsApp message
-        $message = "🛒 *NEW {$orderTypeText}*\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "*ORDER ID: #{$order['id']}*\n\n";
-        $message .= "*ITEMS ORDERED:*\n\n";
+        // Build WhatsApp message - Simple and clean
+        $message = "Hi! I'd like to place an order.\n\n";
+        $message .= "📦 *Order ID: #{$order['id']}*\n\n";
         
-        $itemNumber = 1;
+        // List items simply
         foreach ($orderItems as $item) {
             $productType = $item['product_type'];
-            $typeLabel = ($productType === 'template') ? '🎨 Template' : '🔧 Tool';
+            $icon = ($productType === 'template') ? '🎨' : '🔧';
             $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
+            $qty = $item['quantity'] > 1 ? " (x{$item['quantity']})" : '';
             
-            $message .= "*{$itemNumber}. {$productName}* ({$typeLabel})\n";
-            $message .= "   Unit Price: " . formatCurrency($item['unit_price']) . "\n";
-            if ($item['quantity'] > 1) {
-                $message .= "   Quantity: {$item['quantity']}\n";
-            }
-            $message .= "   *Subtotal: " . formatCurrency($item['final_amount']) . "*\n\n";
-            $itemNumber++;
+            $message .= "{$icon} {$productName}{$qty}\n";
         }
         
-        $message .= "━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "*PRICE BREAKDOWN:*\n";
-        $message .= "Subtotal: " . formatCurrency($order['original_price']) . "\n";
+        $message .= "\n💰 *Total: " . formatCurrency($order['final_amount']) . "*";
         
-        if (!empty($order['discount_amount']) && $order['discount_amount'] > 0) {
-            $message .= "Affiliate Discount (20%): -" . formatCurrency($order['discount_amount']) . "\n";
-            $message .= "Affiliate Code: *" . $order['affiliate_code'] . "*\n";
+        if (!empty($order['affiliate_code'])) {
+            $message .= " (with {$order['affiliate_code']} discount)";
         }
         
-        $message .= "*TOTAL TO PAY: " . formatCurrency($order['final_amount']) . "*\n\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "*CUSTOMER DETAILS:*\n";
-        $message .= "Name: " . $order['customer_name'] . "\n";
-        $message .= "WhatsApp: " . $order['customer_phone'] . "\n";
-        if (!empty($order['customer_email'])) {
-            $message .= "Email: " . $order['customer_email'] . "\n";
-        }
-        $message .= "\n✅ Please confirm this order and provide payment details.";
+        $message .= "\n\nPlease send payment details. Thanks!";
         
         // Generate WhatsApp link
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
