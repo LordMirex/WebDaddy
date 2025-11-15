@@ -980,7 +980,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             <?php endif; ?>
             
             <div class="mb-6">
-                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Domain Assignment</h6>
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Domain Assignment</h6>
                 
                 <?php
                 $templateItems = [];
@@ -1009,29 +1009,107 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         $assignedDomainName = null;
                         
                         if ($assignedDomainId) {
-                            $db = getDb();
-                            $domainStmt = $db->prepare("SELECT domain_name FROM domains WHERE id = ?");
+                            $domainStmt = $db->prepare("SELECT domain_name, status FROM domains WHERE id = ?");
                             $domainStmt->execute([$assignedDomainId]);
                             $domainRow = $domainStmt->fetch(PDO::FETCH_ASSOC);
-                            $assignedDomainName = $domainRow['domain_name'] ?? null;
+                            if ($domainRow) {
+                                $assignedDomainName = $domainRow['domain_name'];
+                            }
                         } elseif ($idx === 0 && !empty($viewOrder['domain_name'])) {
                             $assignedDomainName = $viewOrder['domain_name'];
                         }
                         
                         $templateId = $item['product_id'];
                         $availableDomainsForTemplate = getAvailableDomains($templateId);
+                        
+                        // If a domain is already assigned, make sure it's in the list even if it's "in_use"
+                        $domainInList = false;
+                        if ($assignedDomainId) {
+                            foreach ($availableDomainsForTemplate as $d) {
+                                if ($d['id'] == $assignedDomainId) {
+                                    $domainInList = true;
+                                    break;
+                                }
+                            }
+                            // If assigned domain is not in the available list, add it
+                            if (!$domainInList && $assignedDomainName) {
+                                $availableDomainsForTemplate[] = [
+                                    'id' => $assignedDomainId,
+                                    'domain_name' => $assignedDomainName,
+                                    'status' => 'in_use'
+                                ];
+                            }
+                        }
                 ?>
                 
-                <div class="mb-3">
-                    <div class="flex items-center gap-2">
-                        <i class="bi bi-palette text-primary-600"></i>
-                        <span class="font-medium text-gray-900"><?php echo htmlspecialchars($item['template_name']); ?></span>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-3">
+                    <form method="POST" class="space-y-3">
+                        <input type="hidden" name="action" value="assign_domain">
+                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                        <input type="hidden" name="order_item_id" value="<?php echo $item['id'] ?? ''; ?>">
+                        
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="bi bi-palette text-primary-600"></i>
+                            <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($item['template_name']); ?></span>
+                        </div>
+                        
                         <?php if ($assignedDomainName): ?>
-                        <span class="text-sm text-green-600">
-                            <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($assignedDomainName); ?>
-                        </span>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                            <div class="flex items-center gap-2 text-green-800">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span class="text-sm font-medium">Currently Assigned:</span>
+                                <span class="text-sm font-bold"><?php echo htmlspecialchars($assignedDomainName); ?></span>
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
+                            <div class="flex items-center gap-2 text-yellow-800">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span class="text-sm font-medium">No domain assigned yet</span>
+                            </div>
+                        </div>
                         <?php endif; ?>
-                    </div>
+                        
+                        <?php if (!empty($availableDomainsForTemplate)): ?>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-globe mr-1"></i> 
+                                <?php echo $assignedDomainName ? 'Change Domain' : 'Assign Domain'; ?>
+                            </label>
+                            <div class="flex gap-2">
+                                <select class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_id" required>
+                                    <option value="">-- Select a domain --</option>
+                                    <?php foreach ($availableDomainsForTemplate as $domain): ?>
+                                    <option value="<?php echo $domain['id']; ?>" <?php echo ($assignedDomainId == $domain['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($domain['domain_name']); ?>
+                                        <?php if (isset($domain['status']) && $domain['status'] === 'in_use' && $domain['id'] == $assignedDomainId): ?>
+                                        (Current)
+                                        <?php endif; ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
+                                    <i class="bi bi-check-circle mr-1"></i> 
+                                    <?php echo $assignedDomainName ? 'Update' : 'Assign'; ?>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <?php if ($assignedDomainName): ?>
+                                Select a different domain to change the assignment
+                                <?php else: ?>
+                                Select a domain from the available list to assign it to this template
+                                <?php endif; ?>
+                            </p>
+                        </div>
+                        <?php else: ?>
+                        <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded">
+                            <div class="flex items-center gap-2 text-orange-800">
+                                <i class="bi bi-info-circle"></i>
+                                <span class="text-sm">No available domains for this template. <a href="/admin/domains.php" class="underline font-semibold">Add a domain</a> to assign it.</span>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+                    </form>
                 </div>
                 
                 <?php 

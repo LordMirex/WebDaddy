@@ -1009,7 +1009,7 @@ function setOrderItemDomain($orderItemId, $domainId, $orderId)
             throw new Exception('Domains can only be assigned to template items');
         }
         
-        $checkDomainStmt = $db->prepare("SELECT id, domain_name, status FROM domains WHERE id = ?");
+        $checkDomainStmt = $db->prepare("SELECT id, domain_name, status, assigned_order_id FROM domains WHERE id = ?");
         $checkDomainStmt->execute([$domainId]);
         $domain = $checkDomainStmt->fetch(PDO::FETCH_ASSOC);
         
@@ -1017,7 +1017,9 @@ function setOrderItemDomain($orderItemId, $domainId, $orderId)
             throw new Exception('Domain not found');
         }
         
-        if ($domain['status'] !== 'available') {
+        // Domain must be available OR already assigned to this same order (for reassignment)
+        if ($domain['status'] !== 'available' && 
+            !($domain['status'] === 'in_use' && $domain['assigned_order_id'] == $orderId)) {
             throw new Exception('Domain is not available');
         }
         
@@ -1026,7 +1028,8 @@ function setOrderItemDomain($orderItemId, $domainId, $orderId)
             $metadata = json_decode($item['metadata_json'], true) ?: [];
         }
         
-        if (isset($metadata['domain_id']) && $metadata['domain_id'] > 0) {
+        // Release previous domain if it's different from the new one
+        if (isset($metadata['domain_id']) && $metadata['domain_id'] > 0 && $metadata['domain_id'] != $domainId) {
             $previousDomainId = $metadata['domain_id'];
             $releasePreviousStmt = $db->prepare("
                 UPDATE domains 
