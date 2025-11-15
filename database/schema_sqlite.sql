@@ -7,6 +7,7 @@ PRAGMA foreign_keys = ON;
 
 -- Drop existing tables (in reverse dependency order)
 DROP TABLE IF EXISTS activity_logs;
+DROP TABLE IF EXISTS announcement_emails;
 DROP TABLE IF EXISTS announcements;
 DROP TABLE IF EXISTS withdrawal_requests;
 DROP TABLE IF EXISTS sales;
@@ -14,6 +15,7 @@ DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS pending_orders;
 DROP TABLE IF EXISTS domains;
 DROP TABLE IF EXISTS affiliates;
+DROP TABLE IF EXISTS tools;
 DROP TABLE IF EXISTS templates;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS settings;
@@ -68,6 +70,34 @@ CREATE TABLE templates (
 CREATE INDEX idx_templates_slug ON templates(slug);
 CREATE INDEX idx_templates_active ON templates(active);
 CREATE INDEX idx_templates_category ON templates(category);
+
+-- Tools Table (Digital Products)
+CREATE TABLE tools (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    category TEXT,
+    tool_type TEXT DEFAULT 'software',
+    short_description TEXT,
+    description TEXT,
+    features TEXT,
+    price REAL NOT NULL DEFAULT 0,
+    thumbnail_url TEXT,
+    demo_url TEXT,
+    download_url TEXT,
+    delivery_instructions TEXT,
+    stock_unlimited INTEGER DEFAULT 1,
+    stock_quantity INTEGER DEFAULT 0,
+    low_stock_threshold INTEGER DEFAULT 5,
+    active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_tools_slug ON tools(slug);
+CREATE INDEX idx_tools_active ON tools(active);
+CREATE INDEX idx_tools_category ON tools(category);
+CREATE INDEX idx_tools_stock ON tools(stock_unlimited, stock_quantity);
 
 -- Affiliates Table
 CREATE TABLE affiliates (
