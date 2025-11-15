@@ -679,6 +679,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         </div>
                         <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
+                            <input type="hidden" name="customer_name" id="aff_customer_name" value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>">
+                            <input type="hidden" name="customer_email" id="aff_customer_email" value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>">
+                            <input type="hidden" name="customer_phone" id="aff_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
                             <input type="text" 
                                    name="affiliate_code" 
                                    id="affiliate_code" 
@@ -849,5 +852,31 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             <?php endif; ?>
         </div>
     </div>
+    
+    <script>
+        // Preserve customer form fields when applying affiliate code
+        document.addEventListener('DOMContentLoaded', function() {
+            const affiliateForm = document.getElementById('affiliateForm');
+            if (affiliateForm) {
+                affiliateForm.addEventListener('submit', function(e) {
+                    // Get current values from customer fields
+                    const customerName = document.getElementById('customer_name');
+                    const customerEmail = document.getElementById('customer_email');
+                    const customerPhone = document.getElementById('customer_phone');
+                    
+                    // Update hidden fields in affiliate form
+                    if (customerName) {
+                        document.getElementById('aff_customer_name').value = customerName.value;
+                    }
+                    if (customerEmail) {
+                        document.getElementById('aff_customer_email').value = customerEmail.value;
+                    }
+                    if (customerPhone) {
+                        document.getElementById('aff_customer_phone').value = customerPhone.value;
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
