@@ -8,6 +8,7 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/tools.php';
 
 header('Content-Type: application/xml; charset=utf-8');
 
@@ -15,9 +16,6 @@ $db = getDb();
 
 // Get all active templates
 $templates = getTemplates(true);
-
-// Get all active tools
-$tools = getTools(true);
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
