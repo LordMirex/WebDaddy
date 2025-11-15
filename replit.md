@@ -4,6 +4,16 @@
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
 ## Recent Changes (November 15, 2025)
+### WhatsApp Message Enhancement
+1. **Improved Visual Formatting** - Enhanced WhatsApp messages with visual separators (━━━━), emojis (🛒, 📋, 🎨, 🔧, ✅, 💳), and bold text formatting using WhatsApp's native syntax (*text*)
+2. **Clear Product Categorization** - Messages now clearly distinguish between Templates and Tools with dedicated sections, emoji indicators, and item counts for each category
+3. **Professional Structure** - Added header "NEW ORDER REQUEST", order ID display, and structured layout that makes messages more visually appealing and easier to read
+
+### Admin Modal UX Fix
+1. **Eliminated Duplicate Forms** - Fixed the order confirmation modal to only show "Update All Changes" form for already-confirmed orders (non-pending status)
+2. **Smart Conditional Rendering** - "Confirm Order" form now exclusively appears for pending orders, while "Update All Changes" is reserved for post-confirmation updates
+3. **Clean Interface** - Removed confusing duplicate domain selection and notes fields that previously appeared when viewing pending orders
+
 ### Order Confirmation Streamlining
 1. **Single-Step Order Confirmation** - Unified domain assignment and payment confirmation into one streamlined form, eliminating the need for multiple page reloads
 2. **Integrated Domain Selection** - Domain dropdowns now appear directly in the confirmation form (optional), allowing admins to select domains and confirm orders in a single action
