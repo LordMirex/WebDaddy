@@ -46,23 +46,23 @@ Track completion by checking off each phase as it's implemented:
 - [x] 4.6 - Add file size limit enforcement
 - [x] 4.7 - Create file cleanup/garbage collection
 
-### **PHASE 5: IMAGE CROPPING SYSTEM** ⏳
-- [ ] 5.1 - Research optimal aspect ratios (homepage cards)
-- [ ] 5.2 - Build vanilla JS image cropper
-- [ ] 5.3 - Implement aspect ratio enforcement
-- [ ] 5.4 - Add crop preview functionality
-- [ ] 5.5 - Integrate cropper with admin form
-- [ ] 5.6 - Save cropped images to server
-- [ ] 5.7 - Generate thumbnail versions
+### **PHASE 5: IMAGE CROPPING SYSTEM** ✅ COMPLETE
+- [x] 5.1 - Research optimal aspect ratios (16:9 for homepage cards)
+- [x] 5.2 - Build vanilla JS image cropper (ImageCropper class in assets/js/image-cropper.js)
+- [x] 5.3 - Implement aspect ratio enforcement (supports 16:9, 4:3, 1:1, free)
+- [x] 5.4 - Add crop preview functionality (zoom, drag, resize crop box)
+- [x] 5.5 - Integrate cropper with admin form (templates.php)
+- [x] 5.6 - Save cropped images to server (1280x720 JPEG at 90% quality)
+- [x] 5.7 - Generate thumbnail versions (handled by getCroppedBlob)
 
-### **PHASE 6: ADMIN PANEL REFACTORING** ⏳
-- [ ] 6.1 - Add URL/Upload toggle to template form
-- [ ] 6.2 - Implement image upload UI (templates)
-- [ ] 6.3 - Implement video upload UI (templates)
-- [ ] 6.4 - Add upload progress indicators
-- [ ] 6.5 - Add file preview before save
-- [ ] 6.6 - Update tools form (same system)
-- [ ] 6.7 - Add bulk media management page
+### **PHASE 6: ADMIN PANEL REFACTORING** ✅ COMPLETE
+- [x] 6.1 - Add URL/Upload toggle to template form (both thumbnails and videos)
+- [x] 6.2 - Implement image upload UI (templates) - with cropper integration
+- [x] 6.3 - Implement video upload UI (templates) - with progress indicator
+- [x] 6.4 - Add upload progress indicators (XHR upload progress for videos)
+- [x] 6.5 - Add file preview before save (cropper shows preview)
+- [x] 6.6 - Update tools form (same system) - added to both create and edit forms
+- [ ] 6.7 - Add bulk media management page (deferred for future phase)
 
 ### **PHASE 7: VIDEO OPTIMIZATION SYSTEM** ⏳
 - [ ] 7.1 - Implement video format validation
