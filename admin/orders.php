@@ -58,6 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (empty($domainAssignmentErrors)) {
                             if (markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes)) {
                                 $successMessage = 'Order confirmed successfully! Amount: ' . formatCurrency($amountPaid);
+                                if (!empty($paymentNotes)) {
+                                    $successMessage .= ' Payment notes have been saved.';
+                                }
                                 logActivity('order_marked_paid', "Order #$orderId marked as paid with amount " . formatCurrency($amountPaid), getAdminId());
                             } else {
                                 $errorMessage = 'Failed to confirm order. Please try again.';
@@ -638,11 +641,16 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                         <td class="py-3 px-2">
                             <?php if (!empty($order['payment_notes'])): ?>
-                            <div class="text-xs text-gray-700 max-w-xs">
+                            <div class="text-xs text-gray-700 max-w-xs group relative">
                                 <i class="bi bi-sticky text-primary-600"></i>
                                 <span class="truncate inline-block align-middle" style="max-width: 200px;" title="<?php echo htmlspecialchars($order['payment_notes']); ?>">
                                     <?php echo htmlspecialchars(strlen($order['payment_notes']) > 50 ? substr($order['payment_notes'], 0, 50) . '...' : $order['payment_notes']); ?>
                                 </span>
+                                <div class="hidden group-hover:block absolute z-10 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl -top-2 left-0 transform -translate-y-full">
+                                    <div class="font-semibold mb-1">Payment Notes:</div>
+                                    <?php echo nl2br(htmlspecialchars($order['payment_notes'])); ?>
+                                    <div class="absolute bottom-0 left-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
+                                </div>
                             </div>
                             <?php else: ?>
                             <span class="text-xs text-gray-400">-</span>
@@ -1184,9 +1192,20 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 <?php 
                 else:
                 ?>
-                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
+                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-4">
                     <i class="bi bi-info-circle"></i> This order contains no templates requiring domain assignment.
                 </div>
+                
+                <?php if (!empty($viewOrder['payment_notes'])): ?>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="bi bi-sticky mr-1"></i> Payment Notes
+                    </label>
+                    <div class="bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-800 whitespace-pre-wrap">
+                        <?php echo htmlspecialchars($viewOrder['payment_notes']); ?>
+                    </div>
+                </div>
+                <?php endif; ?>
                 <?php endif; ?>
             </div>
             <?php endif; ?>
@@ -1254,7 +1273,10 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             <i class="bi bi-sticky mr-1"></i> Payment Notes (Optional)
                         </label>
-                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="Add any notes about the payment, domain access, or special instructions..."><?php echo htmlspecialchars($viewOrder['payment_notes'] ?? ''); ?></textarea>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="e.g., Customer paid half upfront, remaining payment on delivery..."><?php echo htmlspecialchars($viewOrder['payment_notes'] ?? ''); ?></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="bi bi-info-circle"></i> These notes will be saved with the order for future reference.
+                        </p>
                     </div>
                     
                     <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
