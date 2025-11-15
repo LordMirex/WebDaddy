@@ -1044,7 +1044,7 @@ function setOrderItemDomain($orderItemId, $domainId, $orderId)
         
         $updateDomainStmt = $db->prepare("
             UPDATE domains 
-            SET status = 'reserved', assigned_order_id = ? 
+            SET status = 'in_use', assigned_order_id = ? 
             WHERE id = ?
         ");
         $updateDomainStmt->execute([$orderId, $domainId]);
