@@ -26,7 +26,11 @@ temp/
 *.bak
 *.backup
 
-# Upload directories (if any)
+# Upload directories - Keep security files
 uploads/*
-!uploads/.gitkeep
+!uploads/.htaccess
+!uploads/index.php
+!uploads/temp/
+uploads/temp/*
+!uploads/temp/.htaccess
 

@@ -49,6 +49,17 @@ define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using 
 define('SITE_URL', 'https://webdaddy.online');  // Your site URL
 define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 
+// Upload Settings
+define('UPLOAD_DIR', __DIR__ . '/../uploads');
+define('UPLOAD_URL', SITE_URL . '/uploads');
+define('MAX_IMAGE_SIZE', 5 * 1024 * 1024);  // 5MB for images
+define('MAX_VIDEO_SIZE', 50 * 1024 * 1024); // 50MB for videos
+define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']);
+define('ALLOWED_VIDEO_TYPES', ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']);
+define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+define('ALLOWED_VIDEO_EXTENSIONS', ['mp4', 'webm', 'mov', 'avi']);
+define('TEMP_FILE_LIFETIME', 86400); // 24 hours in seconds
+
 // Security Settings
 define('SESSION_LIFETIME', 3600);
 

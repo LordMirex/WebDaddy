@@ -1,0 +1,32 @@
+# Security Configuration for Uploads Directory
+# Prevent execution of PHP files and direct directory listing
+
+# Deny execution of PHP files
+<FilesMatch "\.(?i:php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
+
+# Allow only specific file types
+<FilesMatch "\.(?i:jpg|jpeg|png|gif|svg|webp|mp4|webm|mov|avi)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevent access to .htaccess and hidden files
+<FilesMatch "^\.">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Set security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# Disable script execution in uploads
+php_flag engine off

@@ -9,6 +9,7 @@
  *   php cron.php backup-weekly    - Create weekly database backup (keeps 4)
  *   php cron.php backup-monthly   - Create monthly backup + email to admin (keeps 12)
  *   php cron.php cleanup          - Clean old logs and cancelled orders
+ *   php cron.php cleanup-files    - Clean temp files and orphaned uploads
  *   php cron.php emails-weekly    - Send weekly performance emails to affiliates
  *   php cron.php emails-monthly   - Send monthly summary emails to affiliates
  */
@@ -28,7 +29,7 @@ $command = $argv[1] ?? '';
 
 if (empty($command)) {
     echo "Usage: php cron.php [command]\n";
-    echo "Commands: backup-daily, backup-weekly, backup-monthly, cleanup, emails-weekly, emails-monthly\n";
+    echo "Commands: backup-daily, backup-weekly, backup-monthly, cleanup, cleanup-files, emails-weekly, emails-monthly\n";
     exit(1);
 }
 
@@ -195,6 +196,32 @@ HTML;
         }
         break;
     
+    case 'cleanup-files':
+        echo "🧹 Starting file cleanup...\n";
+        
+        require_once __DIR__ . '/includes/cleanup.php';
+        
+        try {
+            $cleanup = new FileCleanup();
+            $result = $cleanup->runCleanup();
+            
+            echo "✅ Files deleted: {$result['deleted_count']}\n";
+            echo "✅ Space freed: {$result['freed_space_formatted']}\n";
+            
+            if (!empty($result['errors'])) {
+                echo "⚠️  Errors encountered:\n";
+                foreach ($result['errors'] as $error) {
+                    echo "   - $error\n";
+                }
+            }
+            
+            logActivity('cron_file_cleanup', "File cleanup: {$result['deleted_count']} files, {$result['freed_space_formatted']} freed", 1);
+        } catch (Exception $e) {
+            echo "❌ File cleanup failed: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+        break;
+    
     case 'emails-weekly':
         $dayOfWeek = date('N');
         if ($dayOfWeek != 2 && $dayOfWeek != 5) {
@@ -330,7 +357,7 @@ HTML;
     
     default:
         echo "Unknown command: $command\n";
-        echo "Valid commands: backup-daily, backup-weekly, backup-monthly, cleanup, emails-weekly, emails-monthly\n";
+        echo "Valid commands: backup-daily, backup-weekly, backup-monthly, cleanup, cleanup-files, emails-weekly, emails-monthly\n";
         exit(1);
 }
 
