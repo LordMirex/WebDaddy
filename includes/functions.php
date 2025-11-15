@@ -176,6 +176,23 @@ function getTemplateBySlug($slug)
     }
 }
 
+function getTemplateUrl($template, $affiliateCode = null)
+{
+    if (is_array($template)) {
+        $slug = $template['slug'] ?? '';
+    } else {
+        $slug = $template;
+    }
+    
+    $url = '/' . $slug;
+    
+    if ($affiliateCode) {
+        $url .= '?aff=' . urlencode($affiliateCode);
+    }
+    
+    return $url;
+}
+
 function getAvailableDomains($templateId)
 {
     $db = getDb();

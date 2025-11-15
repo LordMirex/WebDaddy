@@ -452,7 +452,7 @@ if ($currentView === 'templates') {
                                     <span class="text-base font-bold text-primary-600"><?php echo formatCurrency($template['price']); ?></span>
                                 </div>
                                 <div class="flex gap-2">
-                                    <a href="template.php?id=<?php echo $template['id']; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                                    <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
                                        class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
                                         Details
                                     </a>
