@@ -7,7 +7,7 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 ### Order Confirmation Streamlining
 1. **Single-Step Order Confirmation** - Unified domain assignment and payment confirmation into one streamlined form, eliminating the need for multiple page reloads
 2. **Integrated Domain Selection** - Domain dropdowns now appear directly in the confirmation form (optional), allowing admins to select domains and confirm orders in a single action
-3. **Enhanced User Experience** - Removed separate "Assign Domain" buttons and page reloads, making order processing faster and more intuitive
+3. **Enhanced User Experience** - Removed separate "Assign Domain" buttons, confusing delay messages, and page reloads. Order confirmation now shows one clean form with domain dropdowns, payment notes field, and a single "Confirm Order" button
 
 ### Admin Reports Page Fixes
 1. **Total Discount Calculation** - Fixed hardcoded ₦0.00 value by implementing proper SQL query to sum discount_amount from sales table, now accurately showing total discounts given to customers via affiliate codes
