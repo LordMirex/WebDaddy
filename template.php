@@ -207,14 +207,24 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             </svg>
                             Live Preview
                         </h5>
-                        <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
-                           target="_blank" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
-                            Open in New Tab
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                            </svg>
-                        </a>
+                        <div class="flex gap-2">
+                            <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                Preview Fullscreen
+                            </button>
+                            <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
+                               target="_blank" 
+                               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                                Open in New Tab
+                            </a>
+                        </div>
                     </div>
                     <div class="h-96 sm:h-[600px]">
                         <iframe src="<?php echo htmlspecialchars($template['demo_url']); ?>" 
@@ -265,15 +275,14 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     Add to Cart
                                 </button>
                                 <?php if ($template['demo_url']): ?>
-                                <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
-                                   target="_blank" 
-                                   class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-white hover:bg-primary-50 transition-all">
+                                <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-white hover:bg-primary-50 transition-all">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
-                                    View Live Demo
-                                </a>
+                                    Preview Demo
+                                </button>
                                 <?php endif; ?>
                             </div>
 
@@ -313,5 +322,54 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
             </div>
         </div>
     </footer>
+
+    <!-- Demo Modal -->
+    <div id="demoModal" class="fixed inset-0 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div onclick="closeDemoFullscreen()" class="fixed inset-0 bg-black bg-opacity-75"></div>
+            <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-7xl" style="height: 90vh; max-height: 900px;">
+                <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                    <h5 class="text-lg font-bold text-gray-900" id="demoTitle">Template Preview</h5>
+                    <button onclick="closeDemoFullscreen()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="overflow-hidden rounded-b-xl" style="height: calc(100% - 57px);">
+                    <iframe id="demoFrame" src="" frameborder="0" class="w-full h-full rounded-b-xl"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDemoFullscreen(url, title) {
+            const modal = document.getElementById('demoModal');
+            const iframe = document.getElementById('demoFrame');
+            const titleEl = document.getElementById('demoTitle');
+            
+            titleEl.textContent = title + ' - Preview';
+            iframe.src = url;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDemoFullscreen() {
+            const modal = document.getElementById('demoModal');
+            const iframe = document.getElementById('demoFrame');
+            
+            modal.classList.add('hidden');
+            iframe.src = '';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDemoFullscreen();
+            }
+        });
+    </script>
 </body>
 </html>

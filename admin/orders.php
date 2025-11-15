@@ -1227,8 +1227,10 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     ?>
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Notes (Optional)</label>
-                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="Add any notes about the payment (e.g., transaction ID, payment method used, etc.)..."></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-sticky mr-1"></i> Payment Notes (Optional)
+                        </label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="Add any notes about the payment, domain access, or special instructions..."><?php echo htmlspecialchars($viewOrder['payment_notes'] ?? ''); ?></textarea>
                     </div>
                     
                     <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
