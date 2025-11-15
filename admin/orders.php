@@ -68,6 +68,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } elseif ($action === 'update_order_domains') {
+            $orderId = intval($_POST['order_id']);
+            $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
+            
+            if ($orderId <= 0) {
+                $errorMessage = 'Invalid order ID.';
+            } else {
+                $updateErrors = [];
+                $updateCount = 0;
+                
+                // Update payment notes
+                if (!empty($paymentNotes)) {
+                    $stmt = $db->prepare("UPDATE pending_orders SET payment_notes = ? WHERE id = ?");
+                    if ($stmt->execute([$paymentNotes, $orderId])) {
+                        $updateCount++;
+                    }
+                }
+                
+                // Process all domain assignments
+                foreach ($_POST as $key => $value) {
+                    if (strpos($key, 'domain_id_') === 0 && !empty($value)) {
+                        $orderItemId = intval(str_replace('domain_id_', '', $key));
+                        $domainId = intval($value);
+                        
+                        if ($orderItemId > 0 && $domainId > 0) {
+                            $result = setOrderItemDomain($orderItemId, $domainId, $orderId);
+                            if ($result['success']) {
+                                $updateCount++;
+                            } else {
+                                $updateErrors[] = $result['message'];
+                            }
+                        }
+                    }
+                }
+                
+                if (empty($updateErrors)) {
+                    if ($updateCount > 0) {
+                        $successMessage = "Updated $updateCount item(s) successfully!";
+                        logActivity('order_updated', "Order #$orderId updated with domains and notes", getAdminId());
+                    } else {
+                        $errorMessage = 'No changes were made.';
+                    }
+                } else {
+                    $errorMessage = 'Some updates failed: ' . implode(', ', $updateErrors);
+                }
+                
+                // Redirect back to the view modal
+                header("Location: /admin/orders.php?view=$orderId" . ($successMessage ? "&success=" . urlencode($successMessage) : "") . ($errorMessage ? "&error=" . urlencode($errorMessage) : ""));
+                exit;
+            }
         } elseif ($action === 'assign_domain') {
             $orderId = intval($_POST['order_id']);
             $domainId = intval($_POST['domain_id']);
@@ -370,6 +420,14 @@ if (isset($_GET['view'])) {
         if ($viewOrder['template_id']) {
             $availableDomains = getAvailableDomains($viewOrder['template_id']);
         }
+    }
+    
+    // Handle success/error messages from redirect
+    if (isset($_GET['success'])) {
+        $successMessage = $_GET['success'];
+    }
+    if (isset($_GET['error'])) {
+        $errorMessage = $_GET['error'];
     }
 }
 
@@ -980,7 +1038,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             <?php endif; ?>
             
             <div class="mb-6">
-                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Domain Assignment</h6>
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Domain Assignment & Notes</h6>
                 
                 <?php
                 $templateItems = [];
@@ -1000,7 +1058,13 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 }
                 
                 if (!empty($templateItems)):
-                    foreach ($templateItems as $idx => $item):
+                ?>
+                
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="action" value="update_order_domains">
+                    <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                    
+                    <?php foreach ($templateItems as $idx => $item):
                         $metadata = [];
                         if (!empty($item['metadata_json'])) {
                             $metadata = json_decode($item['metadata_json'], true) ?: [];
@@ -1040,80 +1104,68 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                                 ];
                             }
                         }
-                ?>
-                
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-3">
-                    <form method="POST" class="space-y-3">
-                        <input type="hidden" name="action" value="assign_domain">
-                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                        <input type="hidden" name="order_item_id" value="<?php echo $item['id'] ?? ''; ?>">
-                        
-                        <div class="flex items-center gap-2 mb-2">
+                    ?>
+                    
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
                             <i class="bi bi-palette text-primary-600"></i>
                             <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($item['template_name']); ?></span>
+                            <?php if ($assignedDomainName): ?>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                <i class="bi bi-check-circle-fill"></i> <?php echo htmlspecialchars($assignedDomainName); ?>
+                            </span>
+                            <?php else: ?>
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                                <i class="bi bi-exclamation-circle"></i> Not assigned
+                            </span>
+                            <?php endif; ?>
                         </div>
-                        
-                        <?php if ($assignedDomainName): ?>
-                        <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded">
-                            <div class="flex items-center gap-2 text-green-800">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span class="text-sm font-medium">Currently Assigned:</span>
-                                <span class="text-sm font-bold"><?php echo htmlspecialchars($assignedDomainName); ?></span>
-                            </div>
-                        </div>
-                        <?php else: ?>
-                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 rounded">
-                            <div class="flex items-center gap-2 text-yellow-800">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <span class="text-sm font-medium">No domain assigned yet</span>
-                            </div>
-                        </div>
-                        <?php endif; ?>
                         
                         <?php if (!empty($availableDomainsForTemplate)): ?>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
                                 <i class="bi bi-globe mr-1"></i> 
-                                <?php echo $assignedDomainName ? 'Change Domain' : 'Assign Domain'; ?>
+                                <?php echo $assignedDomainName ? 'Change Domain (Optional)' : 'Assign Domain (Optional)'; ?>
                             </label>
-                            <div class="flex gap-2">
-                                <select class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_id" required>
-                                    <option value="">-- Select a domain --</option>
-                                    <?php foreach ($availableDomainsForTemplate as $domain): ?>
-                                    <option value="<?php echo $domain['id']; ?>" <?php echo ($assignedDomainId == $domain['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($domain['domain_name']); ?>
-                                        <?php if (isset($domain['status']) && $domain['status'] === 'in_use' && $domain['id'] == $assignedDomainId): ?>
-                                        (Current)
-                                        <?php endif; ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
-                                    <i class="bi bi-check-circle mr-1"></i> 
-                                    <?php echo $assignedDomainName ? 'Update' : 'Assign'; ?>
-                                </button>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">
-                                <?php if ($assignedDomainName): ?>
-                                Select a different domain to change the assignment
-                                <?php else: ?>
-                                Select a domain from the available list to assign it to this template
-                                <?php endif; ?>
-                            </p>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_id_<?php echo $item['id']; ?>">
+                                <option value="">-- Leave unchanged / No domain --</option>
+                                <?php foreach ($availableDomainsForTemplate as $domain): ?>
+                                <option value="<?php echo $domain['id']; ?>" <?php echo ($assignedDomainId == $domain['id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($domain['domain_name']); ?>
+                                    <?php if (isset($domain['status']) && $domain['status'] === 'in_use' && $domain['id'] == $assignedDomainId): ?>
+                                    (Current)
+                                    <?php endif; ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <?php else: ?>
-                        <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded">
+                        <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded text-sm">
                             <div class="flex items-center gap-2 text-orange-800">
                                 <i class="bi bi-info-circle"></i>
-                                <span class="text-sm">No available domains for this template. <a href="/admin/domains.php" class="underline font-semibold">Add a domain</a> to assign it.</span>
+                                <span>No available domains. <a href="/admin/domains.php" class="underline font-semibold">Add domains</a></span>
                             </div>
                         </div>
                         <?php endif; ?>
-                    </form>
-                </div>
+                    </div>
+                    
+                    <?php endforeach; ?>
+                    
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="bi bi-sticky mr-1"></i> Payment Notes (Optional)
+                        </label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="Add any notes about the payment, domain access, or special instructions..."><?php echo htmlspecialchars($viewOrder['payment_notes'] ?? ''); ?></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors shadow-lg">
+                            <i class="bi bi-check-circle mr-2"></i> Update All Changes
+                        </button>
+                    </div>
+                </form>
                 
                 <?php 
-                    endforeach;
                 else:
                 ?>
                 <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg">
