@@ -5,6 +5,21 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
 
 ## Recent Changes (November 15, 2025)
 
+### Phase 6: Admin Panel Upload/Crop Integration - COMPLETE ✅
+1. **Tools.php Upload UI** - Added URL/Upload toggle for thumbnail images in both create and edit forms, integrated with ImageCropper
+2. **Tools.php Video Upload** - Added URL/Upload toggle for demo videos with progress indicators (10MB limit, MP4/WebM/MOV/AVI formats)
+3. **Templates.php Video Upload** - Added URL/Upload toggle for demo videos with XHR upload progress tracking
+4. **Consistent UX** - Both templates and tools now have identical upload workflows: URL input or file upload with real-time validation
+5. **JavaScript Integration** - Form submission handlers automatically upload and crop images before saving, videos upload with progress display
+6. **REFACTOR.md Updated** - Phases 5 and 6 marked as complete with implementation details
+
+### Phase 5: Image Cropping System - COMPLETE ✅
+1. **ImageCropper Class** - Built vanilla JavaScript cropper (assets/js/image-cropper.js) with zoom, drag, and resize functionality
+2. **Aspect Ratio Support** - Enforces 16:9 (default), 4:3, 1:1, or free aspect ratios with visual crop box
+3. **Admin Integration** - Fully integrated in templates.php with URL/Upload toggle buttons
+4. **Crop Output** - Generates 1280x720 JPEG images at 90% quality via getCroppedBlob() method
+5. **User Experience** - Live preview, smooth drag interactions, canvas-based rendering for performance
+
 ### Phase 4: File Upload Infrastructure - COMPLETE ✅
 1. **Upload Directory Structure** - Created organized upload system with templates/, tools/, and temp/ directories
 2. **Security Implementation** - .htaccess files block PHP execution, proper permissions (755/644), directory listing disabled
