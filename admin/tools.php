@@ -482,12 +482,25 @@ require_once __DIR__ . '/includes/header.php';
                         <small class="text-gray-500 text-xs">JSON array format</small>
                     </div>
                     
-                    <!-- URLs -->
-                    <div class="grid md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Thumbnail URL</label>
-                            <input type="url" name="thumbnail_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
+                    <!-- Thumbnail Image -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="toggleToolThumbnailMode('url', 'create')" id="tool-thumbnail-url-btn-create" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
+                            <button type="button" onclick="toggleToolThumbnailMode('upload', 'create')" id="tool-thumbnail-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
+                        <div id="tool-thumbnail-url-mode-create">
+                            <input type="url" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div id="tool-thumbnail-upload-mode-create" style="display: none;">
+                            <input type="file" id="tool-thumbnail-file-input-create" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                            <div id="tool-thumbnail-cropper-container-create" style="margin-top: 15px; display: none;"></div>
+                            <input type="hidden" id="tool-thumbnail-cropped-data-create" name="thumbnail_cropped_data">
+                        </div>
+                    </div>
+                    
+                    <!-- URLs -->
+                    <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Demo URL</label>
                             <input type="url" name="demo_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
@@ -610,11 +623,24 @@ require_once __DIR__ . '/includes/header.php';
                         <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"><?php echo htmlspecialchars($editTool['features'] ?? ''); ?></textarea>
                     </div>
                     
-                    <div class="grid md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Thumbnail URL</label>
-                            <input type="url" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                    <!-- Thumbnail Image -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="toggleToolThumbnailMode('url', 'edit')" id="tool-thumbnail-url-btn-edit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
+                            <button type="button" onclick="toggleToolThumbnailMode('upload', 'edit')" id="tool-thumbnail-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
+                        <div id="tool-thumbnail-url-mode-edit">
+                            <input type="url" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div id="tool-thumbnail-upload-mode-edit" style="display: none;">
+                            <input type="file" id="tool-thumbnail-file-input-edit" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                            <div id="tool-thumbnail-cropper-container-edit" style="margin-top: 15px; display: none;"></div>
+                            <input type="hidden" id="tool-thumbnail-cropped-data-edit" name="thumbnail_cropped_data">
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Demo URL</label>
                             <input type="url" name="demo_url" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
@@ -721,5 +747,230 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
 </div>
+
+<script src="/assets/js/image-cropper.js"></script>
+<script>
+let toolThumbnailCropperCreate = null;
+let toolThumbnailCropperEdit = null;
+
+function toggleToolThumbnailMode(mode, formType) {
+    const urlMode = document.getElementById(`tool-thumbnail-url-mode-${formType}`);
+    const uploadMode = document.getElementById(`tool-thumbnail-upload-mode-${formType}`);
+    const urlBtn = document.getElementById(`tool-thumbnail-url-btn-${formType}`);
+    const uploadBtn = document.getElementById(`tool-thumbnail-upload-btn-${formType}`);
+    const urlInput = document.getElementById(`tool-thumbnail-url-input-${formType}`);
+    const croppedDataInput = document.getElementById(`tool-thumbnail-cropped-data-${formType}`);
+    
+    if (mode === 'url') {
+        urlMode.style.display = 'block';
+        uploadMode.style.display = 'none';
+        urlBtn.classList.add('bg-purple-600', 'text-white');
+        urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        uploadBtn.classList.remove('bg-purple-600', 'text-white');
+        uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+        croppedDataInput.value = '';
+        
+        const cropper = formType === 'create' ? toolThumbnailCropperCreate : toolThumbnailCropperEdit;
+        if (cropper) {
+            cropper.destroy();
+            if (formType === 'create') {
+                toolThumbnailCropperCreate = null;
+            } else {
+                toolThumbnailCropperEdit = null;
+            }
+        }
+    } else {
+        urlMode.style.display = 'none';
+        uploadMode.style.display = 'block';
+        uploadBtn.classList.add('bg-purple-600', 'text-white');
+        uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        urlBtn.classList.remove('bg-purple-600', 'text-white');
+        urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.value = '';
+    }
+}
+
+document.getElementById('tool-thumbnail-file-input-create')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const container = document.getElementById('tool-thumbnail-cropper-container-create');
+    container.style.display = 'block';
+    container.innerHTML = '';
+    
+    if (toolThumbnailCropperCreate) {
+        toolThumbnailCropperCreate.destroy();
+    }
+    
+    toolThumbnailCropperCreate = new ImageCropper({
+        aspectRatio: 16 / 9,
+        minCropSize: 100,
+        maxZoom: 3,
+        onCropChange: (cropData) => {
+            console.log('Crop changed:', cropData);
+        }
+    });
+    
+    container.appendChild(toolThumbnailCropperCreate.getElement());
+    
+    try {
+        await toolThumbnailCropperCreate.loadImage(file);
+    } catch (error) {
+        console.error('Error loading image:', error);
+        alert('Failed to load image. Please try again.');
+    }
+});
+
+document.getElementById('tool-thumbnail-file-input-edit')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const container = document.getElementById('tool-thumbnail-cropper-container-edit');
+    container.style.display = 'block';
+    container.innerHTML = '';
+    
+    if (toolThumbnailCropperEdit) {
+        toolThumbnailCropperEdit.destroy();
+    }
+    
+    toolThumbnailCropperEdit = new ImageCropper({
+        aspectRatio: 16 / 9,
+        minCropSize: 100,
+        maxZoom: 3,
+        onCropChange: (cropData) => {
+            console.log('Crop changed:', cropData);
+        }
+    });
+    
+    container.appendChild(toolThumbnailCropperEdit.getElement());
+    
+    try {
+        await toolThumbnailCropperEdit.loadImage(file);
+    } catch (error) {
+        console.error('Error loading image:', error);
+        alert('Failed to load image. Please try again.');
+    }
+});
+
+const createForm = document.querySelector('form[method="POST"] input[name="action"][value="create_tool"]')?.closest('form');
+if (createForm) {
+    createForm.addEventListener('submit', async function(e) {
+        const uploadMode = document.getElementById('tool-thumbnail-upload-mode-create');
+        
+        if (uploadMode && uploadMode.style.display !== 'none' && toolThumbnailCropperCreate) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Uploading...';
+            
+            try {
+                const croppedBlob = await toolThumbnailCropperCreate.getCroppedBlob({
+                    width: 1280,
+                    height: 720,
+                    type: 'image/jpeg',
+                    quality: 0.9
+                });
+                
+                if (!croppedBlob) {
+                    throw new Error('Failed to crop image');
+                }
+                
+                const formData = new FormData();
+                formData.append('file', croppedBlob, 'thumbnail.jpg');
+                formData.append('upload_type', 'image');
+                formData.append('category', 'tools');
+                
+                const response = await fetch('/api/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('tool-thumbnail-url-input-create').value = result.url;
+                    
+                    e.target.submit();
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Failed to upload image: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+            
+            return false;
+        }
+    });
+}
+
+const editForm = document.querySelector('form[method="POST"] input[name="action"][value="update_tool"]')?.closest('form');
+if (editForm) {
+    editForm.addEventListener('submit', async function(e) {
+        const uploadMode = document.getElementById('tool-thumbnail-upload-mode-edit');
+        
+        if (uploadMode && uploadMode.style.display !== 'none' && toolThumbnailCropperEdit) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Uploading...';
+            
+            try {
+                const croppedBlob = await toolThumbnailCropperEdit.getCroppedBlob({
+                    width: 1280,
+                    height: 720,
+                    type: 'image/jpeg',
+                    quality: 0.9
+                });
+                
+                if (!croppedBlob) {
+                    throw new Error('Failed to crop image');
+                }
+                
+                const formData = new FormData();
+                formData.append('file', croppedBlob, 'thumbnail.jpg');
+                formData.append('upload_type', 'image');
+                formData.append('category', 'tools');
+                
+                const response = await fetch('/api/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('tool-thumbnail-url-input-edit').value = result.url;
+                    
+                    e.target.submit();
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Failed to upload image: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+            
+            return false;
+        }
+    });
+}
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
