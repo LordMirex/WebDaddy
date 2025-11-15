@@ -855,37 +855,64 @@ function generateWhatsAppLink($orderData, $template = null)
 {
     $number = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));
     
-    $message = "Hello! I have a new order:\n\n";
+    $message = "🛒 *NEW ORDER REQUEST*\n";
+    $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
     
     if (!empty($orderData['order_id'])) {
-        $message .= "Order ID: #" . $orderData['order_id'] . "\n\n";
+        $message .= "📋 *Order ID:* #" . $orderData['order_id'] . "\n\n";
         
         $order = getOrderById($orderData['order_id']);
         if ($order) {
             $orderItems = getOrderItems($orderData['order_id']);
             
             if (!empty($orderItems)) {
-                $message .= "Items:\n";
+                $templateCount = 0;
+                $toolCount = 0;
+                $templates = [];
+                $tools = [];
+                
                 foreach ($orderItems as $item) {
-                    $productName = $item['product_type'] === 'template' ? $item['template_name'] : $item['tool_name'];
-                    $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
-                    $message .= "• " . $productName . $qty . "\n";
+                    if ($item['product_type'] === 'template') {
+                        $templateCount++;
+                        $qty = $item['quantity'] > 1 ? ' *(x' . $item['quantity'] . ')*' : '';
+                        $templates[] = "  ✅ " . $item['template_name'] . $qty;
+                    } else {
+                        $toolCount++;
+                        $qty = $item['quantity'] > 1 ? ' *(x' . $item['quantity'] . ')*' : '';
+                        $tools[] = "  ✅ " . $item['tool_name'] . $qty;
+                    }
+                }
+                
+                if ($templateCount > 0) {
+                    $message .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
+                    $message .= implode("\n", $templates) . "\n";
+                    if ($toolCount > 0) {
+                        $message .= "\n";
+                    }
+                }
+                
+                if ($toolCount > 0) {
+                    $message .= "🔧 *TOOLS* (" . $toolCount . "):\n";
+                    $message .= implode("\n", $tools) . "\n";
                 }
             } elseif ($template) {
-                $message .= "Items:\n";
-                $message .= "• " . $template['name'] . "\n";
+                $message .= "🎨 *TEMPLATES* (1):\n";
+                $message .= "  ✅ " . $template['name'] . "\n";
             }
             
-            $message .= "\nPlease proceed to payment to continue.";
+            $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "💳 *Please proceed to payment to continue.*\n";
         } elseif ($template) {
-            $message .= "Items:\n";
-            $message .= "• " . $template['name'] . "\n";
-            $message .= "\nPlease proceed to payment to continue.";
+            $message .= "🎨 *TEMPLATES* (1):\n";
+            $message .= "  ✅ " . $template['name'] . "\n\n";
+            $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+            $message .= "💳 *Please proceed to payment to continue.*\n";
         }
     } elseif ($template) {
-        $message .= "Items:\n";
-        $message .= "• " . $template['name'] . "\n";
-        $message .= "\nPlease proceed to payment to continue.";
+        $message .= "🎨 *TEMPLATES* (1):\n";
+        $message .= "  ✅ " . $template['name'] . "\n\n";
+        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
+        $message .= "💳 *Please proceed to payment to continue.*\n";
     }
     
     $encodedMessage = rawurlencode($message);

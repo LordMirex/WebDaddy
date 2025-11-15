@@ -1028,6 +1028,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             </div>
             <?php endif; ?>
             
+            <?php if ($viewOrder['status'] !== 'pending'): ?>
             <div class="mb-6">
                 <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Domain Assignment & Notes</h6>
                 
@@ -1164,6 +1165,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 </div>
                 <?php endif; ?>
             </div>
+            <?php endif; ?>
             
             <?php if ($viewOrder['status'] === 'pending'): ?>
             <div class="mb-6">
