@@ -1022,23 +1022,16 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         $availableDomainsForTemplate = getAvailableDomains($templateId);
                 ?>
                 
-                <div class="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <div class="flex items-center justify-between mb-3">
-                        <h6 class="font-semibold text-gray-900">
-                            <i class="bi bi-palette text-primary-600 mr-1"></i>
-                            <?php echo htmlspecialchars($item['template_name']); ?>
-                        </h6>
+                <div class="mb-3">
+                    <div class="flex items-center gap-2">
+                        <i class="bi bi-palette text-primary-600"></i>
+                        <span class="font-medium text-gray-900"><?php echo htmlspecialchars($item['template_name']); ?></span>
+                        <?php if ($assignedDomainName): ?>
+                        <span class="text-sm text-green-600">
+                            <i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($assignedDomainName); ?>
+                        </span>
+                        <?php endif; ?>
                     </div>
-                    
-                    <?php if ($assignedDomainName): ?>
-                    <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded">
-                        <i class="bi bi-check-circle mr-1"></i> Domain: <strong><?php echo htmlspecialchars($assignedDomainName); ?></strong>
-                    </div>
-                    <?php else: ?>
-                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-3 rounded">
-                        <i class="bi bi-info-circle mr-1"></i> Domain will be assigned when order is confirmed below
-                    </div>
-                    <?php endif; ?>
                 </div>
                 
                 <?php 
