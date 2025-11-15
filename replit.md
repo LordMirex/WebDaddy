@@ -4,6 +4,24 @@
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
 ## Recent Changes (November 15, 2025)
+
+### Phase 4: File Upload Infrastructure - COMPLETE ✅
+1. **Upload Directory Structure** - Created organized upload system with templates/, tools/, and temp/ directories
+2. **Security Implementation** - .htaccess files block PHP execution, proper permissions (755/644), directory listing disabled
+3. **Upload Handler** - Comprehensive UploadHandler class with multi-layer validation:
+   - Extension whitelist (JPG, PNG, GIF, WebP for images; MP4, WebM, MOV, AVI for videos)
+   - MIME type validation using finfo (ignores user-provided types)
+   - Extension-MIME strict mapping
+   - Full-file malicious content scanning (streaming approach for large files)
+   - PHP code detection
+   - SVG blocking (XSS prevention)
+4. **File Size Limits** - Images: 50MB, Videos: 10MB (configured per user request)
+5. **API Endpoints** - Admin-only upload and cleanup endpoints with authentication
+6. **Cleanup System** - Automated garbage collection for temp files (>24h) and orphaned files (>1h) with path normalization
+7. **Cron Integration** - Added cleanup-files command for scheduled maintenance
+8. **Configuration** - Upload constants in config.php, documented in uploads/README.md
+
+## Recent Changes (November 15, 2025 - Earlier)
 ### Cart Checkout Form Preservation Fix
 1. **Affiliate Code Application** - Fixed issue where applying an affiliate code on the cart checkout page would clear all previously entered customer information (name, email, phone)
 2. **Field Preservation** - Added hidden fields and JavaScript to capture and preserve customer form values during affiliate code submission
