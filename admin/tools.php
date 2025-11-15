@@ -28,8 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = trim($_POST['description'] ?? '');
         $features = trim($_POST['features'] ?? '');
         $thumbnailUrl = sanitizeInput($_POST['thumbnail_url'] ?? '');
-        $demoUrl = sanitizeInput($_POST['demo_url'] ?? '');
-        $downloadUrl = sanitizeInput($_POST['download_url'] ?? '');
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
@@ -52,8 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'features' => $features,
                     'price' => $price,
                     'thumbnail_url' => $thumbnailUrl,
-                    'demo_url' => $demoUrl,
-                    'download_url' => $downloadUrl,
                     'delivery_instructions' => $deliveryInstructions,
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
@@ -82,8 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = trim($_POST['description'] ?? '');
         $features = trim($_POST['features'] ?? '');
         $thumbnailUrl = sanitizeInput($_POST['thumbnail_url'] ?? '');
-        $demoUrl = sanitizeInput($_POST['demo_url'] ?? '');
-        $downloadUrl = sanitizeInput($_POST['download_url'] ?? '');
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
@@ -106,8 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'features' => $features,
                     'price' => $price,
                     'thumbnail_url' => $thumbnailUrl,
-                    'demo_url' => $demoUrl,
-                    'download_url' => $downloadUrl,
                     'delivery_instructions' => $deliveryInstructions,
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
@@ -499,37 +491,6 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <!-- Demo Video -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
-                        <div class="flex gap-2 mb-3">
-                            <button type="button" onclick="toggleToolDemoVideoMode('url', 'create')" id="tool-demo-video-url-btn-create" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
-                            <button type="button" onclick="toggleToolDemoVideoMode('upload', 'create')" id="tool-demo-video-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload Video</button>
-                        </div>
-                        <div id="tool-demo-video-url-mode-create">
-                            <input type="url" id="tool-demo-video-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="demo_url" placeholder="https://example.com/video.mp4">
-                        </div>
-                        <div id="tool-demo-video-upload-mode-create" style="display: none;">
-                            <input type="file" id="tool-demo-video-file-input-create" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
-                            <div id="tool-demo-video-upload-progress-create" style="margin-top: 10px; display: none;">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                        <div id="tool-demo-video-progress-bar-create" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
-                                    </div>
-                                    <span id="tool-demo-video-progress-text-create" class="text-sm text-gray-600">0%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- URLs -->
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Download URL</label>
-                            <input type="url" name="download_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
-                        </div>
-                    </div>
-                    
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Delivery Instructions</label>
                         <textarea name="delivery_instructions" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Instructions for delivering this tool to customers"></textarea>
@@ -656,36 +617,6 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="file" id="tool-thumbnail-file-input-edit" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
                             <div id="tool-thumbnail-cropper-container-edit" style="margin-top: 15px; display: none;"></div>
                             <input type="hidden" id="tool-thumbnail-cropped-data-edit" name="thumbnail_cropped_data">
-                        </div>
-                    </div>
-                    
-                    <!-- Demo Video -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
-                        <div class="flex gap-2 mb-3">
-                            <button type="button" onclick="toggleToolDemoVideoMode('url', 'edit')" id="tool-demo-video-url-btn-edit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
-                            <button type="button" onclick="toggleToolDemoVideoMode('upload', 'edit')" id="tool-demo-video-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload Video</button>
-                        </div>
-                        <div id="tool-demo-video-url-mode-edit">
-                            <input type="url" id="tool-demo-video-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" placeholder="https://example.com/video.mp4">
-                        </div>
-                        <div id="tool-demo-video-upload-mode-edit" style="display: none;">
-                            <input type="file" id="tool-demo-video-file-input-edit" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
-                            <div id="tool-demo-video-upload-progress-edit" style="margin-top: 10px; display: none;">
-                                <div class="flex items-center gap-2">
-                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                        <div id="tool-demo-video-progress-bar-edit" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
-                                    </div>
-                                    <span id="tool-demo-video-progress-text-edit" class="text-sm text-gray-600">0%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Download URL</label>
-                            <input type="url" name="download_url" value="<?php echo htmlspecialchars($editTool['download_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
                         </div>
                     </div>
                     

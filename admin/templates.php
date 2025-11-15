@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $features = sanitizeInput($_POST['features'] ?? '');
             $demoUrl = sanitizeInput($_POST['demo_url'] ?? '');
             $thumbnailUrl = sanitizeInput($_POST['thumbnail_url'] ?? '');
-            $videoLinks = sanitizeInput($_POST['video_links'] ?? '');
             $active = isset($_POST['active']) ? 1 : 0;
             
             if (empty($name) || empty($slug)) {
@@ -36,13 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     if ($action === 'add') {
                         $stmt = $db->prepare("
-                            INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, video_links, active)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, active)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $active]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -54,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $id = intval($_POST['id']);
                         $stmt = $db->prepare("
                             UPDATE templates 
-                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, demo_url = ?, thumbnail_url = ?, video_links = ?, active = ?
+                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, demo_url = ?, thumbnail_url = ?, active = ?
                             WHERE id = ?
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $videoLinks, $active, $id]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $active, $id]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -406,11 +405,6 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Video Links</label>
-                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="video_links" rows="2"><?php echo htmlspecialchars($editTemplate['video_links'] ?? ''); ?></textarea>
-                            <small class="text-gray-500 text-xs">One URL per line</small>
-                        </div>
-                        <div class="md:col-span-2">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" name="active" id="active" <?php echo (!$editTemplate || $editTemplate['active']) ? 'checked' : ''; ?>>
                                 <span class="text-sm font-medium text-gray-700">Active (visible to customers)</span>
@@ -471,9 +465,9 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
     const file = e.target.files[0];
     if (!file) return;
     
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
-        alert('Video file is too large. Maximum size is 10MB.');
+        alert('Video file is too large. Maximum size is 100MB.');
         e.target.value = '';
         return;
     }
@@ -586,9 +580,9 @@ document.getElementById('thumbnail-file-input').addEventListener('change', async
         return;
     }
     
-    const maxSize = 50 * 1024 * 1024;
+    const maxSize = 20 * 1024 * 1024;
     if (file.size > maxSize) {
-        alert('Image must be less than 50MB');
+        alert('Image must be less than 20MB');
         return;
     }
     

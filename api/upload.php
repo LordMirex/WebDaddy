@@ -10,6 +10,7 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/upload_handler.php';
 require_once __DIR__ . '/../includes/thumbnail_generator.php';
+require_once __DIR__ . '/../includes/video_processor.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
@@ -70,8 +71,10 @@ try {
         throw new Exception($result['error']);
     }
     
-    // Generate thumbnails for images
+    // Generate thumbnails for images and process videos
     $thumbnails = [];
+    $videoData = [];
+    
     if ($uploadType === 'image') {
         $uploadDir = dirname($result['path']);
         $thumbnailResult = ThumbnailGenerator::generateThumbnails(
@@ -83,6 +86,18 @@ try {
         if ($thumbnailResult['success']) {
             $thumbnails = $thumbnailResult['thumbnails'];
         }
+    } elseif ($uploadType === 'video') {
+        $videoProcessResult = VideoProcessor::processVideo($result['path'], $category);
+        
+        if (!$videoProcessResult['success']) {
+            throw new Exception('Video processing failed: ' . ($videoProcessResult['error'] ?? 'unknown error'));
+        }
+        
+        $videoData = [
+            'thumbnail_url' => $videoProcessResult['thumbnail_url'] ?? '',
+            'video_versions' => $videoProcessResult['video_versions'] ?? [],
+            'metadata' => $videoProcessResult['metadata'] ?? []
+        ];
     }
     
     // Log activity
@@ -104,7 +119,8 @@ try {
         'size' => $result['size'],
         'size_formatted' => UploadHandler::formatFileSize($result['size']),
         'type' => $result['type'],
-        'thumbnails' => $thumbnails
+        'thumbnails' => $thumbnails,
+        'video_data' => $videoData
     ]);
     
 } catch (Exception $e) {

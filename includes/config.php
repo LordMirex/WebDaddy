@@ -52,8 +52,8 @@ define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 // Upload Settings
 define('UPLOAD_DIR', __DIR__ . '/../uploads');
 define('UPLOAD_URL', SITE_URL . '/uploads');
-define('MAX_IMAGE_SIZE', 50 * 1024 * 1024); // 50MB for images
-define('MAX_VIDEO_SIZE', 10 * 1024 * 1024); // 10MB for videos
+define('MAX_IMAGE_SIZE', 20 * 1024 * 1024); // 20MB for images
+define('MAX_VIDEO_SIZE', 100 * 1024 * 1024); // 100MB for videos
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']);
 define('ALLOWED_VIDEO_TYPES', ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']);
 define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']);
