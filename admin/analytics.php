@@ -546,10 +546,8 @@ require_once __DIR__ . '/includes/header.php';
             <a href="?period=<?php echo $period; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>&export_csv=visits" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors">
                 <i class="bi bi-download"></i> Export CSV
             </a>
-        </div
-
-
-</div>
+        </div>
+    </div>
     <div class="p-6 overflow-x-auto">
         <table class="w-full text-sm">
             <thead>

@@ -54,8 +54,8 @@ function trackPageVisit($pageUrl, $pageTitle = '') {
         ]);
         
         $stmt = $db->prepare("
-            INSERT INTO session_summary (session_id, first_visit, last_visit, total_pages)
-            VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)
+            INSERT INTO session_summary (session_id, first_visit, last_visit, total_pages, is_bounce)
+            VALUES (?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1)
             ON CONFLICT(session_id) DO UPDATE SET
                 last_visit = CURRENT_TIMESTAMP,
                 total_pages = total_pages + 1,
