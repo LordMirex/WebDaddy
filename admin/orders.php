@@ -35,11 +35,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($amountPaid <= 0) {
                         $errorMessage = 'Invalid order amount. Cannot process payment.';
                     } else {
-                        if (markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes)) {
-                            $successMessage = 'Order marked as paid successfully! Amount: ' . formatCurrency($amountPaid);
-                            logActivity('order_marked_paid', "Order #$orderId marked as paid with amount " . formatCurrency($amountPaid), getAdminId());
+                        // Handle domain assignments before marking as paid
+                        $domainAssignmentErrors = [];
+                        foreach ($orderItems as $item) {
+                            if ($item['product_type'] === 'template') {
+                                $itemId = $item['id'];
+                                $domainFieldName = 'domain_id_' . $itemId;
+                                
+                                if (isset($_POST[$domainFieldName]) && !empty($_POST[$domainFieldName])) {
+                                    $domainId = intval($_POST[$domainFieldName]);
+                                    if ($domainId > 0) {
+                                        $result = setOrderItemDomain($itemId, $domainId, $orderId);
+                                        if (!$result['success']) {
+                                            $domainAssignmentErrors[] = $result['message'];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Proceed with payment confirmation
+                        if (empty($domainAssignmentErrors)) {
+                            if (markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes)) {
+                                $successMessage = 'Order confirmed successfully! Amount: ' . formatCurrency($amountPaid);
+                                logActivity('order_marked_paid', "Order #$orderId marked as paid with amount " . formatCurrency($amountPaid), getAdminId());
+                            } else {
+                                $errorMessage = 'Failed to confirm order. Please try again.';
+                            }
                         } else {
-                            $errorMessage = 'Failed to mark order as paid. Please try again.';
+                            $errorMessage = 'Domain assignment failed: ' . implode(', ', $domainAssignmentErrors);
                         }
                     }
                 }
@@ -1011,39 +1035,9 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         <i class="bi bi-check-circle mr-1"></i> Domain: <strong><?php echo htmlspecialchars($assignedDomainName); ?></strong>
                     </div>
                     <?php else: ?>
-                    <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded mb-3">
-                        <i class="bi bi-exclamation-triangle mr-1"></i> No domain assigned
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-3 rounded">
+                        <i class="bi bi-info-circle mr-1"></i> Domain will be assigned when order is confirmed below
                     </div>
-                    
-                    <?php if ($viewOrder['status'] !== 'cancelled' && !empty($availableDomainsForTemplate)): ?>
-                    <form method="POST">
-                        <input type="hidden" name="action" value="assign_domain">
-                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                        <input type="hidden" name="order_item_id" value="<?php echo $item['id'] ?? ''; ?>">
-                        <input type="hidden" name="template_id" value="<?php echo $templateId; ?>">
-                        <div class="grid md:grid-cols-3 gap-2">
-                            <div class="md:col-span-2">
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" name="domain_id" required>
-                                    <option value="">Select a domain...</option>
-                                    <?php foreach ($availableDomainsForTemplate as $domain): ?>
-                                    <option value="<?php echo $domain['id']; ?>">
-                                        <?php echo htmlspecialchars($domain['domain_name']); ?>
-                                    </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div>
-                                <button type="submit" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm">
-                                    <i class="bi bi-link"></i> Assign
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <?php elseif ($viewOrder['status'] !== 'cancelled'): ?>
-                    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded text-sm">
-                        <i class="bi bi-exclamation-circle"></i> No available domains. <a href="/admin/domains.php" class="underline font-semibold">Add domains</a>
-                    </div>
-                    <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 
@@ -1059,7 +1053,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             
             <?php if ($viewOrder['status'] === 'pending'): ?>
             <div class="mb-6">
-                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Payment Processing</h6>
+                <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase">Confirm Order</h6>
                 <form method="POST">
                     <input type="hidden" name="action" value="mark_paid">
                     <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
@@ -1079,13 +1073,50 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         </div>
                     </div>
                     
+                    <?php
+                    // Show domain selection for templates that don't have domains assigned yet
+                    if (!empty($templateItems)):
+                        foreach ($templateItems as $item):
+                            $metadata = [];
+                            if (!empty($item['metadata_json'])) {
+                                $metadata = json_decode($item['metadata_json'], true) ?: [];
+                            }
+                            $assignedDomainId = $metadata['domain_id'] ?? null;
+                            
+                            // Only show dropdown if domain not already assigned
+                            if (!$assignedDomainId):
+                                $templateId = $item['product_id'];
+                                $availableDomainsForTemplate = getAvailableDomains($templateId);
+                                
+                                if (!empty($availableDomainsForTemplate)):
+                    ?>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-globe mr-1"></i> Domain for "<?php echo htmlspecialchars($item['template_name']); ?>" (Optional)
+                        </label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_id_<?php echo $item['id']; ?>">
+                            <option value="">-- Select a domain or leave unassigned --</option>
+                            <?php foreach ($availableDomainsForTemplate as $domain): ?>
+                            <option value="<?php echo $domain['id']; ?>">
+                                <?php echo htmlspecialchars($domain['domain_name']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <?php
+                                endif;
+                            endif;
+                        endforeach;
+                    endif;
+                    ?>
+                    
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Notes (Optional)</label>
                         <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="Add any notes about the payment (e.g., transaction ID, payment method used, etc.)..."></textarea>
                     </div>
                     
                     <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
-                        <i class="bi bi-cash-coin mr-2"></i> Confirm Payment Received
+                        <i class="bi bi-check-circle mr-2"></i> Confirm Order
                     </button>
                 </form>
             </div>
