@@ -4,6 +4,10 @@
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
 ## Recent Changes (November 15, 2025)
+### Admin Reports Page Fixes
+1. **Total Discount Calculation** - Fixed hardcoded ₦0.00 value by implementing proper SQL query to sum discount_amount from sales table, now accurately showing total discounts given to customers via affiliate codes
+2. **Top Selling Products Revenue** - Fixed ₦0.00 display issue by changing revenue calculation from complex proportional formula to direct summation of order_items.final_amount, ensuring accurate product revenue reporting
+
 ### Analytics Dashboard Fixes
 1. **HTML Rendering Fix** - Fixed missing closing `>` tag in admin/analytics.php that prevented the page from loading correctly
 2. **Bounce Rate Tracking** - Implemented proper bounce tracking by setting `is_bounce=1` on new sessions and updating to `is_bounce=0` when users visit multiple pages
