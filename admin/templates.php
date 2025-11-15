@@ -369,8 +369,26 @@ require_once __DIR__ . '/includes/header.php';
                             <small class="text-gray-500 text-xs">Comma-separated list of features</small>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
-                            <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
+                            <div class="flex gap-2 mb-3">
+                                <button type="button" onclick="toggleDemoVideoMode('url')" id="demo-video-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">URL</button>
+                                <button type="button" onclick="toggleDemoVideoMode('upload')" id="demo-video-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload Video</button>
+                            </div>
+                            <div id="demo-video-url-mode">
+                                <input type="url" id="demo-video-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>" placeholder="https://example.com/video.mp4">
+                            </div>
+                            <div id="demo-video-upload-mode" style="display: none;">
+                                <input type="file" id="demo-video-file-input" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                                <div id="demo-video-upload-progress" style="margin-top: 10px; display: none;">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                            <div id="demo-video-progress-bar" class="bg-primary-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                                        </div>
+                                        <span id="demo-video-progress-text" class="text-sm text-gray-600">0%</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="demo-video-uploaded-url" name="demo_video_uploaded_url">
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
@@ -417,6 +435,115 @@ require_once __DIR__ . '/includes/header.php';
 <script src="/assets/js/image-cropper.js"></script>
 <script>
 let thumbnailCropper = null;
+
+function toggleDemoVideoMode(mode) {
+    const urlMode = document.getElementById('demo-video-url-mode');
+    const uploadMode = document.getElementById('demo-video-upload-mode');
+    const urlBtn = document.getElementById('demo-video-url-btn');
+    const uploadBtn = document.getElementById('demo-video-upload-btn');
+    const urlInput = document.getElementById('demo-video-url-input');
+    const uploadedUrlInput = document.getElementById('demo-video-uploaded-url');
+    const fileInput = document.getElementById('demo-video-file-input');
+    const progressDiv = document.getElementById('demo-video-upload-progress');
+    
+    if (mode === 'url') {
+        urlMode.style.display = 'block';
+        uploadMode.style.display = 'none';
+        urlBtn.classList.add('bg-primary-600', 'text-white');
+        urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        uploadBtn.classList.remove('bg-primary-600', 'text-white');
+        uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+        uploadedUrlInput.value = '';
+        fileInput.value = '';
+        progressDiv.style.display = 'none';
+    } else {
+        urlMode.style.display = 'none';
+        uploadMode.style.display = 'block';
+        uploadBtn.classList.add('bg-primary-600', 'text-white');
+        uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        urlBtn.classList.remove('bg-primary-600', 'text-white');
+        urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.value = '';
+    }
+}
+
+document.getElementById('demo-video-file-input')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('Video file is too large. Maximum size is 10MB.');
+        e.target.value = '';
+        return;
+    }
+    
+    const progressDiv = document.getElementById('demo-video-upload-progress');
+    const progressBar = document.getElementById('demo-video-progress-bar');
+    const progressText = document.getElementById('demo-video-progress-text');
+    const uploadedUrlInput = document.getElementById('demo-video-uploaded-url');
+    
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_type', 'video');
+    formData.append('category', 'templates');
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = percentComplete + '%';
+            }
+        });
+        
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                try {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.success) {
+                        uploadedUrlInput.value = result.url;
+                        document.getElementById('demo-video-url-input').value = result.url;
+                        progressText.textContent = 'Upload complete!';
+                        progressBar.classList.add('bg-green-600');
+                    } else {
+                        throw new Error(result.error || 'Upload failed');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Failed to upload video: ' + error.message);
+                    progressDiv.style.display = 'none';
+                    e.target.value = '';
+                }
+            } else {
+                alert('Upload failed. Please try again.');
+                progressDiv.style.display = 'none';
+                e.target.value = '';
+            }
+        });
+        
+        xhr.addEventListener('error', () => {
+            alert('Upload failed. Please check your connection and try again.');
+            progressDiv.style.display = 'none';
+            e.target.value = '';
+        });
+        
+        xhr.open('POST', '/api/upload.php');
+        xhr.send(formData);
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Failed to upload video: ' + error.message);
+        progressDiv.style.display = 'none';
+        e.target.value = '';
+    }
+});
 
 function toggleThumbnailMode(mode) {
     const urlMode = document.getElementById('thumbnail-url-mode');

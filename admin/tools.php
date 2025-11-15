@@ -499,12 +499,31 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
+                    <!-- Demo Video -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="toggleToolDemoVideoMode('url', 'create')" id="tool-demo-video-url-btn-create" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
+                            <button type="button" onclick="toggleToolDemoVideoMode('upload', 'create')" id="tool-demo-video-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload Video</button>
+                        </div>
+                        <div id="tool-demo-video-url-mode-create">
+                            <input type="url" id="tool-demo-video-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="demo_url" placeholder="https://example.com/video.mp4">
+                        </div>
+                        <div id="tool-demo-video-upload-mode-create" style="display: none;">
+                            <input type="file" id="tool-demo-video-file-input-create" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                            <div id="tool-demo-video-upload-progress-create" style="margin-top: 10px; display: none;">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                        <div id="tool-demo-video-progress-bar-create" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                                    </div>
+                                    <span id="tool-demo-video-progress-text-create" class="text-sm text-gray-600">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- URLs -->
                     <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Demo URL</label>
-                            <input type="url" name="demo_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
-                        </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Download URL</label>
                             <input type="url" name="download_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
@@ -640,11 +659,30 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Demo URL</label>
-                            <input type="url" name="demo_url" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                    <!-- Demo Video -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
+                        <div class="flex gap-2 mb-3">
+                            <button type="button" onclick="toggleToolDemoVideoMode('url', 'edit')" id="tool-demo-video-url-btn-edit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
+                            <button type="button" onclick="toggleToolDemoVideoMode('upload', 'edit')" id="tool-demo-video-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload Video</button>
                         </div>
+                        <div id="tool-demo-video-url-mode-edit">
+                            <input type="url" id="tool-demo-video-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" placeholder="https://example.com/video.mp4">
+                        </div>
+                        <div id="tool-demo-video-upload-mode-edit" style="display: none;">
+                            <input type="file" id="tool-demo-video-file-input-edit" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                            <div id="tool-demo-video-upload-progress-edit" style="margin-top: 10px; display: none;">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                        <div id="tool-demo-video-progress-bar-edit" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                                    </div>
+                                    <span id="tool-demo-video-progress-text-edit" class="text-sm text-gray-600">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Download URL</label>
                             <input type="url" name="download_url" value="<?php echo htmlspecialchars($editTool['download_url'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
@@ -752,6 +790,120 @@ require_once __DIR__ . '/includes/header.php';
 <script>
 let toolThumbnailCropperCreate = null;
 let toolThumbnailCropperEdit = null;
+
+function toggleToolDemoVideoMode(mode, formType) {
+    const urlMode = document.getElementById(`tool-demo-video-url-mode-${formType}`);
+    const uploadMode = document.getElementById(`tool-demo-video-upload-mode-${formType}`);
+    const urlBtn = document.getElementById(`tool-demo-video-url-btn-${formType}`);
+    const uploadBtn = document.getElementById(`tool-demo-video-upload-btn-${formType}`);
+    const urlInput = document.getElementById(`tool-demo-video-url-input-${formType}`);
+    const fileInput = document.getElementById(`tool-demo-video-file-input-${formType}`);
+    const progressDiv = document.getElementById(`tool-demo-video-upload-progress-${formType}`);
+    
+    if (mode === 'url') {
+        urlMode.style.display = 'block';
+        uploadMode.style.display = 'none';
+        urlBtn.classList.add('bg-purple-600', 'text-white');
+        urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        uploadBtn.classList.remove('bg-purple-600', 'text-white');
+        uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+        fileInput.value = '';
+        progressDiv.style.display = 'none';
+    } else {
+        urlMode.style.display = 'none';
+        uploadMode.style.display = 'block';
+        uploadBtn.classList.add('bg-purple-600', 'text-white');
+        uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        urlBtn.classList.remove('bg-purple-600', 'text-white');
+        urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.value = '';
+    }
+}
+
+document.getElementById('tool-demo-video-file-input-create')?.addEventListener('change', async function(e) {
+    handleToolVideoUpload(e, 'create');
+});
+
+document.getElementById('tool-demo-video-file-input-edit')?.addEventListener('change', async function(e) {
+    handleToolVideoUpload(e, 'edit');
+});
+
+function handleToolVideoUpload(e, formType) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('Video file is too large. Maximum size is 10MB.');
+        e.target.value = '';
+        return;
+    }
+    
+    const progressDiv = document.getElementById(`tool-demo-video-upload-progress-${formType}`);
+    const progressBar = document.getElementById(`tool-demo-video-progress-bar-${formType}`);
+    const progressText = document.getElementById(`tool-demo-video-progress-text-${formType}`);
+    const urlInput = document.getElementById(`tool-demo-video-url-input-${formType}`);
+    
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_type', 'video');
+    formData.append('category', 'tools');
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = percentComplete + '%';
+            }
+        });
+        
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                try {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.success) {
+                        urlInput.value = result.url;
+                        progressText.textContent = 'Upload complete!';
+                        progressBar.classList.add('bg-green-600');
+                    } else {
+                        throw new Error(result.error || 'Upload failed');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Failed to upload video: ' + error.message);
+                    progressDiv.style.display = 'none';
+                    e.target.value = '';
+                }
+            } else {
+                alert('Upload failed. Please try again.');
+                progressDiv.style.display = 'none';
+                e.target.value = '';
+            }
+        });
+        
+        xhr.addEventListener('error', () => {
+            alert('Upload failed. Please check your connection and try again.');
+            progressDiv.style.display = 'none';
+            e.target.value = '';
+        });
+        
+        xhr.open('POST', '/api/upload.php');
+        xhr.send(formData);
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Failed to upload video: ' + error.message);
+        progressDiv.style.display = 'none';
+        e.target.value = '';
+    }
+}
 
 function toggleToolThumbnailMode(mode, formType) {
     const urlMode = document.getElementById(`tool-thumbnail-url-mode-${formType}`);
