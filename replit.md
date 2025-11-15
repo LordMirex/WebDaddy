@@ -4,6 +4,11 @@
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
 ## Recent Changes (November 15, 2025)
+### Cart Checkout Form Preservation Fix
+1. **Affiliate Code Application** - Fixed issue where applying an affiliate code on the cart checkout page would clear all previously entered customer information (name, email, phone)
+2. **Field Preservation** - Added hidden fields and JavaScript to capture and preserve customer form values during affiliate code submission
+3. **Improved UX** - Users can now safely apply discount codes without losing their entered information, eliminating the frustration of re-typing details
+
 ### WhatsApp Message Enhancement
 1. **Improved Visual Formatting** - Enhanced WhatsApp messages with visual separators (━━━━), emojis (🛒, 📋, 🎨, 🔧, ✅, 💳), and bold text formatting using WhatsApp's native syntax (*text*)
 2. **Clear Product Categorization** - Messages now clearly distinguish between Templates and Tools with dedicated sections, emoji indicators, and item counts for each category
