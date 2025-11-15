@@ -373,8 +373,19 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail URL</label>
-                            <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+                            <div class="flex gap-2 mb-3">
+                                <button type="button" onclick="toggleThumbnailMode('url')" id="thumbnail-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">URL</button>
+                                <button type="button" onclick="toggleThumbnailMode('upload')" id="thumbnail-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
+                            </div>
+                            <div id="thumbnail-url-mode">
+                                <input type="url" id="thumbnail-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg">
+                            </div>
+                            <div id="thumbnail-upload-mode" style="display: none;">
+                                <input type="file" id="thumbnail-file-input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                                <div id="thumbnail-cropper-container" style="margin-top: 15px; display: none;"></div>
+                                <input type="hidden" id="thumbnail-cropped-data" name="thumbnail_cropped_data">
+                            </div>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Video Links</label>
@@ -402,5 +413,150 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
 </div>
+
+<script src="/assets/js/image-cropper.js"></script>
+<script>
+let thumbnailCropper = null;
+
+function toggleThumbnailMode(mode) {
+    const urlMode = document.getElementById('thumbnail-url-mode');
+    const uploadMode = document.getElementById('thumbnail-upload-mode');
+    const urlBtn = document.getElementById('thumbnail-url-btn');
+    const uploadBtn = document.getElementById('thumbnail-upload-btn');
+    const urlInput = document.getElementById('thumbnail-url-input');
+    const croppedDataInput = document.getElementById('thumbnail-cropped-data');
+    
+    if (mode === 'url') {
+        urlMode.style.display = 'block';
+        uploadMode.style.display = 'none';
+        urlBtn.classList.add('bg-primary-600', 'text-white');
+        urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        uploadBtn.classList.remove('bg-primary-600', 'text-white');
+        uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+        croppedDataInput.value = '';
+        
+        if (thumbnailCropper) {
+            thumbnailCropper.destroy();
+            thumbnailCropper = null;
+        }
+    } else {
+        urlMode.style.display = 'none';
+        uploadMode.style.display = 'block';
+        uploadBtn.classList.add('bg-primary-600', 'text-white');
+        uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        urlBtn.classList.remove('bg-primary-600', 'text-white');
+        urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.value = '';
+    }
+}
+
+document.getElementById('thumbnail-file-input').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.match('image.*')) {
+        alert('Please select an image file');
+        return;
+    }
+    
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('Image must be less than 50MB');
+        return;
+    }
+    
+    const container = document.getElementById('thumbnail-cropper-container');
+    container.style.display = 'block';
+    container.innerHTML = '';
+    
+    if (thumbnailCropper) {
+        thumbnailCropper.destroy();
+    }
+    
+    thumbnailCropper = new ImageCropper({
+        aspectRatio: 16 / 9,
+        minCropSize: 100,
+        maxZoom: 3,
+        onCropChange: (cropData) => {
+            console.log('Crop changed:', cropData);
+        }
+    });
+    
+    container.appendChild(thumbnailCropper.getElement());
+    
+    try {
+        await thumbnailCropper.loadImage(file);
+    } catch (error) {
+        console.error('Error loading image:', error);
+        alert('Failed to load image. Please try again.');
+    }
+});
+
+const originalFormSubmit = document.querySelector('form[method="POST"]').onsubmit;
+document.querySelector('form[method="POST"]').onsubmit = async function(e) {
+    const croppedDataInput = document.getElementById('thumbnail-cropped-data');
+    const uploadMode = document.getElementById('thumbnail-upload-mode');
+    
+    if (uploadMode.style.display !== 'none' && thumbnailCropper) {
+        e.preventDefault();
+        
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Uploading...';
+        
+        try {
+            const croppedBlob = await thumbnailCropper.getCroppedBlob({
+                width: 1280,
+                height: 720,
+                type: 'image/jpeg',
+                quality: 0.9
+            });
+            
+            if (!croppedBlob) {
+                throw new Error('Failed to crop image');
+            }
+            
+            const formData = new FormData();
+            formData.append('file', croppedBlob, 'thumbnail.jpg');
+            formData.append('upload_type', 'image');
+            formData.append('category', 'templates');
+            
+            const response = await fetch('/api/upload.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                document.getElementById('thumbnail-url-input').value = result.url;
+                croppedDataInput.value = result.url;
+                
+                e.target.submit();
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Failed to upload image: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+        
+        return false;
+    }
+    
+    if (originalFormSubmit) {
+        return originalFormSubmit.call(this, e);
+    }
+    
+    return true;
+};
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

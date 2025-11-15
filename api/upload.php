@@ -9,6 +9,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/upload_handler.php';
+require_once __DIR__ . '/../includes/thumbnail_generator.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
@@ -69,6 +70,21 @@ try {
         throw new Exception($result['error']);
     }
     
+    // Generate thumbnails for images
+    $thumbnails = [];
+    if ($uploadType === 'image') {
+        $uploadDir = dirname($result['path']);
+        $thumbnailResult = ThumbnailGenerator::generateThumbnails(
+            $result['path'],
+            $uploadDir,
+            $result['filename']
+        );
+        
+        if ($thumbnailResult['success']) {
+            $thumbnails = $thumbnailResult['thumbnails'];
+        }
+    }
+    
     // Log activity
     $fileName = $result['filename'];
     $fileSize = UploadHandler::formatFileSize($result['size']);
@@ -87,7 +103,8 @@ try {
         'filename' => $result['filename'],
         'size' => $result['size'],
         'size_formatted' => UploadHandler::formatFileSize($result['size']),
-        'type' => $result['type']
+        'type' => $result['type'],
+        'thumbnails' => $thumbnails
     ]);
     
 } catch (Exception $e) {
