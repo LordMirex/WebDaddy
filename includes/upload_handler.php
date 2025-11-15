@@ -118,13 +118,18 @@ class UploadHandler {
             return $response;
         }
         
+        // Get REAL MIME type for response (never trust user-provided)
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $realMimeType = finfo_file($finfo, $uploadPath);
+        finfo_close($finfo);
+        
         // Success!
         $response['success'] = true;
         $response['url'] = $uploadUrl;
         $response['path'] = $uploadPath;
         $response['filename'] = $uniqueFilename;
         $response['size'] = filesize($uploadPath);
-        $response['type'] = $file['type'];
+        $response['type'] = $realMimeType; // Use REAL MIME, not user-provided
         
         return $response;
     }
@@ -210,30 +215,21 @@ class UploadHandler {
             }
         }
         
-        // Check for PHP code and malicious content (security)
-        // Scan entire file for small files, or first/last chunks for large files
-        $fileContent = '';
-        $fullSize = $file['size'];
+        // Get REAL MIME type using finfo (never trust user-provided type)
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $realMimeType = finfo_file($finfo, $fileTmpPath);
+        finfo_close($finfo);
         
-        if ($fullSize <= 1048576) { // 1MB or less - scan entire file
-            $fileContent = file_get_contents($fileTmpPath);
-        } else {
-            // For large files, scan first 512KB and last 512KB
-            $handle = fopen($fileTmpPath, 'rb');
-            $fileContent = fread($handle, 524288); // First 512KB
-            fseek($handle, -524288, SEEK_END);
-            $fileContent .= fread($handle, 524288); // Last 512KB
-            fclose($handle);
-        }
-        
-        if (self::containsPhpCode($fileContent) || self::containsMaliciousContent($fileContent)) {
-            $result['error'] = 'File contains forbidden or malicious content';
+        // Additional validation: Ensure extension matches REAL MIME type
+        if (!self::extensionMatchesMime($extension, $realMimeType, $type)) {
+            $result['error'] = 'File extension does not match file content';
             return $result;
         }
         
-        // Additional validation: Ensure extension matches MIME type category
-        if (!self::extensionMatchesMime($extension, $file['type'], $type)) {
-            $result['error'] = 'File extension does not match file content';
+        // Check for PHP code and malicious content (security)
+        // Scan ENTIRE file in streaming fashion to catch payloads anywhere
+        if (!self::scanFileForMaliciousContent($fileTmpPath)) {
+            $result['error'] = 'File contains forbidden or malicious content';
             return $result;
         }
         
@@ -313,9 +309,51 @@ class UploadHandler {
     }
     
     /**
-     * Check if file contains malicious content (scripts, etc)
+     * Scan ENTIRE file for malicious content using streaming approach
+     * Reads file in chunks to avoid memory issues while ensuring complete coverage
      * 
-     * @param string $content File content
+     * @param string $filePath Path to file
+     * @return bool True if file is safe, False if malicious content detected
+     */
+    private static function scanFileForMaliciousContent($filePath) {
+        $chunkSize = 1048576; // 1MB chunks
+        $overlap = 1024; // 1KB overlap to catch patterns spanning chunk boundaries
+        
+        $handle = fopen($filePath, 'rb');
+        if (!$handle) {
+            return false; // Cannot open file - reject
+        }
+        
+        $previousChunk = '';
+        
+        while (!feof($handle)) {
+            $chunk = fread($handle, $chunkSize);
+            
+            // Combine with overlap from previous chunk to catch patterns at boundaries
+            $scanContent = $previousChunk . $chunk;
+            
+            // Check for malicious content in this chunk
+            if (self::containsPhpCode($scanContent) || self::containsMaliciousContent($scanContent)) {
+                fclose($handle);
+                return false; // Malicious content found
+            }
+            
+            // Save last part of chunk for overlap with next chunk
+            if (strlen($chunk) > $overlap) {
+                $previousChunk = substr($chunk, -$overlap);
+            } else {
+                $previousChunk = $chunk;
+            }
+        }
+        
+        fclose($handle);
+        return true; // No malicious content found
+    }
+    
+    /**
+     * Check if content contains malicious patterns (scripts, PHP functions, etc)
+     * 
+     * @param string $content Content to scan
      * @return bool True if malicious content detected
      */
     private static function containsMaliciousContent($content) {
