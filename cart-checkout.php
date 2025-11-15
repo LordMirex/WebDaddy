@@ -364,7 +364,7 @@ if ($confirmedOrderId) {
             $message .= "\n🎁 *Discount Applied:* 20% OFF";
         }
         
-        $message .= "\n\n*Please proceed to payment to continue.*";
+        $message .= "\n\nPlease share your payment account details so I can complete this order. Thank you! 🚀";
         
         // Generate WhatsApp link
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
