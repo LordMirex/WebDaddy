@@ -141,13 +141,17 @@ $totalSales = $revenueMetrics['total_sales'];
 
 // Get revenue breakdown by order type
 $orderTypeBreakdown = getRevenueByOrderType($db, $dateFilterSales);
-
-$templateRevenue = $orderTypeBreakdown['template']['revenue'];
-$toolRevenue = $orderTypeBreakdown['tools']['revenue'];
 $mixedRevenue = $orderTypeBreakdown['mixed']['revenue'];
-$templateOrders = $orderTypeBreakdown['template']['orders'];
-$toolOrders = $orderTypeBreakdown['tools']['orders'];
 $mixedOrders = $orderTypeBreakdown['mixed']['orders'];
+
+// Get actual tool and template sales (includes items in mixed orders)
+$toolMetrics = getToolSalesMetrics($db, $dateFilterSales);
+$toolRevenue = $toolMetrics['revenue'];
+$toolOrders = $toolMetrics['orders'];
+
+$templateMetrics = getTemplateSalesMetrics($db, $dateFilterSales);
+$templateRevenue = $templateMetrics['revenue'];
+$templateOrders = $templateMetrics['orders'];
 
 $visitsOverTime = $db->query("
     SELECT 

@@ -85,6 +85,68 @@ function getRevenueByOrderType($db, $dateFilter = '', $params = []) {
 }
 
 /**
+ * Get actual tool sales from order_items (includes tools in mixed orders)
+ * 
+ * @param PDO $db Database connection
+ * @param string $dateFilter SQL WHERE clause for date filtering (on sales table)
+ * @param array $params Parameters for prepared statement
+ * @return array Tool sales metrics
+ */
+function getToolSalesMetrics($db, $dateFilter = '', $params = []) {
+    $query = "
+        SELECT 
+            COUNT(DISTINCT s.id) as order_count,
+            SUM(oi.quantity) as total_quantity,
+            COALESCE(SUM(oi.final_amount), 0) as revenue
+        FROM sales s
+        JOIN pending_orders po ON s.pending_order_id = po.id
+        JOIN order_items oi ON oi.pending_order_id = po.id
+        WHERE oi.product_type = 'tool' $dateFilter
+    ";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return [
+        'orders' => (int)($result['order_count'] ?? 0),
+        'quantity' => (int)($result['total_quantity'] ?? 0),
+        'revenue' => (float)($result['revenue'] ?? 0)
+    ];
+}
+
+/**
+ * Get actual template sales from order_items (includes templates in mixed orders)
+ * 
+ * @param PDO $db Database connection
+ * @param string $dateFilter SQL WHERE clause for date filtering (on sales table)
+ * @param array $params Parameters for prepared statement
+ * @return array Template sales metrics
+ */
+function getTemplateSalesMetrics($db, $dateFilter = '', $params = []) {
+    $query = "
+        SELECT 
+            COUNT(DISTINCT s.id) as order_count,
+            SUM(oi.quantity) as total_quantity,
+            COALESCE(SUM(oi.final_amount), 0) as revenue
+        FROM sales s
+        JOIN pending_orders po ON s.pending_order_id = po.id
+        JOIN order_items oi ON oi.pending_order_id = po.id
+        WHERE oi.product_type = 'template' $dateFilter
+    ";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return [
+        'orders' => (int)($result['order_count'] ?? 0),
+        'quantity' => (int)($result['total_quantity'] ?? 0),
+        'revenue' => (float)($result['revenue'] ?? 0)
+    ];
+}
+
+/**
  * Get top selling products (templates and tools combined)
  * 
  * @param PDO $db Database connection
