@@ -458,15 +458,4 @@ class UploadHandler {
         }
         return false;
     }
-    
-    /**
-     * Get file size in human-readable format
-     * @deprecated Use Utilities::formatBytes() instead
-     * @param int $bytes File size in bytes
-     * @return string Formatted size
-     */
-    public static function formatFileSize($bytes) {
-        require_once __DIR__ . '/utilities.php';
-        return Utilities::formatBytes($bytes);
-    }
 }

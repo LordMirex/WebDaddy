@@ -11,6 +11,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/upload_handler.php';
 require_once __DIR__ . '/../includes/thumbnail_generator.php';
 require_once __DIR__ . '/../includes/video_processor.php';
+require_once __DIR__ . '/../includes/utilities.php';
 
 // Set JSON response header
 header('Content-Type: application/json');
@@ -102,7 +103,7 @@ try {
     
     // Log activity
     $fileName = $result['filename'];
-    $fileSize = UploadHandler::formatFileSize($result['size']);
+    $fileSize = Utilities::formatBytes($result['size']);
     logActivity(
         'file_uploaded',
         "Uploaded {$uploadType} for {$category}: {$fileName} ({$fileSize})",
@@ -117,7 +118,7 @@ try {
         'path' => $result['path'],
         'filename' => $result['filename'],
         'size' => $result['size'],
-        'size_formatted' => UploadHandler::formatFileSize($result['size']),
+        'size_formatted' => Utilities::formatBytes($result['size']),
         'type' => $result['type'],
         'thumbnails' => $thumbnails,
         'video_data' => $videoData

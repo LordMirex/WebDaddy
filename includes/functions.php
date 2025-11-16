@@ -576,7 +576,7 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             // Get domain name for template orders
             $domainName = !empty($order['domain_name']) ? $order['domain_name'] : null;
             
-            // TODO: Add credentials if available (would need to be stored in order or generated)
+            // Note: Credentials are null as they are generated separately via admin panel
             $credentials = null;
             
             // Send enhanced email with full order details

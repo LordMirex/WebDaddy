@@ -345,34 +345,6 @@ HTML;
 }
 
 /**
- * Send payment confirmation and domain details to customer
- * @deprecated Use sendEnhancedPaymentConfirmationEmail() instead
- * This function is kept for backward compatibility
- */
-function sendPaymentConfirmationEmail($customerName, $customerEmail, $templateName, $domainName, $credentials = null) {
-    $order = [
-        'id' => 0,
-        'customer_name' => $customerName,
-        'customer_email' => $customerEmail,
-        'order_type' => 'template',
-        'final_amount' => 0,
-        'original_price' => 0,
-        'discount_amount' => 0,
-        'affiliate_code' => null
-    ];
-    
-    $orderItems = [[
-        'product_type' => 'template',
-        'quantity' => 1,
-        'unit_price' => 0,
-        'final_amount' => 0,
-        'metadata_json' => json_encode(['name' => $templateName])
-    ]];
-    
-    return sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
-}
-
-/**
  * Send new order notification to admin
  * @param int $orderId Order ID
  * @param string $customerName Customer name

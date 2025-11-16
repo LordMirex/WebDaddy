@@ -18,6 +18,7 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/utilities.php';
 
 class FileCleanup {
     
@@ -50,7 +51,7 @@ class FileCleanup {
             'success' => true,
             'deleted_count' => $this->deletedCount,
             'freed_space' => $this->freedSpace,
-            'freed_space_formatted' => $this->formatBytes($this->freedSpace),
+            'freed_space_formatted' => Utilities::formatBytes($this->freedSpace),
             'errors' => $this->errors
         ];
     }
@@ -288,17 +289,6 @@ class FileCleanup {
                 }
             }
         }
-    }
-    
-    /**
-     * Format bytes to human-readable size
-     * @deprecated Use Utilities::formatBytes() instead
-     * @param int $bytes Size in bytes
-     * @return string Formatted size
-     */
-    private function formatBytes($bytes) {
-        require_once __DIR__ . '/utilities.php';
-        return Utilities::formatBytes($bytes);
     }
 }
 

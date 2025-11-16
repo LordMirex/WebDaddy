@@ -15,6 +15,7 @@
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/utilities.php';
 
 class MediaManager {
     
@@ -112,7 +113,7 @@ class MediaManager {
             
             if ($includeMetadata) {
                 $fileInfo['size'] = filesize($filePath);
-                $fileInfo['size_formatted'] = self::formatFileSize(filesize($filePath));
+                $fileInfo['size_formatted'] = Utilities::formatBytes(filesize($filePath));
                 $fileInfo['modified'] = filemtime($filePath);
                 $fileInfo['modified_formatted'] = date('Y-m-d H:i:s', filemtime($filePath));
                 
@@ -168,7 +169,7 @@ class MediaManager {
             'category' => $category,
             'extension' => $extension,
             'size' => filesize($fullPath),
-            'size_formatted' => self::formatFileSize(filesize($fullPath)),
+            'size_formatted' => Utilities::formatBytes(filesize($fullPath)),
             'modified' => filemtime($fullPath),
             'modified_formatted' => date('Y-m-d H:i:s', filemtime($fullPath)),
             'exists' => true
@@ -374,11 +375,11 @@ class MediaManager {
             }
         }
         
-        $stats['total_size_formatted'] = self::formatFileSize($stats['total_size']);
-        $stats['images']['size_formatted'] = self::formatFileSize($stats['images']['size']);
-        $stats['videos']['size_formatted'] = self::formatFileSize($stats['videos']['size']);
-        $stats['by_category']['templates']['size_formatted'] = self::formatFileSize($stats['by_category']['templates']['size']);
-        $stats['by_category']['tools']['size_formatted'] = self::formatFileSize($stats['by_category']['tools']['size']);
+        $stats['total_size_formatted'] = Utilities::formatBytes($stats['total_size']);
+        $stats['images']['size_formatted'] = Utilities::formatBytes($stats['images']['size']);
+        $stats['videos']['size_formatted'] = Utilities::formatBytes($stats['videos']['size']);
+        $stats['by_category']['templates']['size_formatted'] = Utilities::formatBytes($stats['by_category']['templates']['size']);
+        $stats['by_category']['tools']['size_formatted'] = Utilities::formatBytes($stats['by_category']['tools']['size']);
         
         return $stats;
     }
@@ -458,24 +459,5 @@ class MediaManager {
         }
         
         return strpos($realPath, $realUploadDir) === 0;
-    }
-    
-    /**
-     * Format file size in human-readable format
-     * 
-     * @param int $bytes File size in bytes
-     * @param int $precision Decimal precision
-     * @return string Formatted file size
-     */
-    private static function formatFileSize($bytes, $precision = 2) {
-        if ($bytes == 0) {
-            return '0 B';
-        }
-        
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pow = floor(log($bytes) / log(1024));
-        $pow = min($pow, count($units) - 1);
-        
-        return round($bytes / (1024 ** $pow), $precision) . ' ' . $units[$pow];
     }
 }
