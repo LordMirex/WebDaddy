@@ -93,13 +93,13 @@ function cleanupTestFiles() {
         $files = glob($dir . '*', GLOB_MARK);
         foreach ($files as $file) {
             if (is_file($file)) {
-                unlink($file);
+                @unlink($file);
             }
         }
     }
 }
 
-// Register shutdown function to cleanup
-register_shutdown_function(function() {
-    cleanupTestFiles();
-});
+// Register shutdown function to cleanup (only in CLI mode)
+if (PHP_SAPI === 'cli') {
+    register_shutdown_function('cleanupTestFiles');
+}

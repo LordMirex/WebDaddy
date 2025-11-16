@@ -209,6 +209,8 @@ class ApiEndpointTest extends TestCase
      */
     private function isServerRunning()
     {
+        $errno = 0;
+        $errstr = '';
         $fp = @fsockopen('0.0.0.0', 5000, $errno, $errstr, 1);
         if ($fp) {
             fclose($fp);
