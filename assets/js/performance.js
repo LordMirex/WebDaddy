@@ -245,15 +245,29 @@ function runOptimizations() {
 }
 
 // Initialize optimizers
-const scrollOptimizer = new ScrollOptimizer();
-const resizeOptimizer = new ResizeOptimizer();
+function initPerformanceOptimizers() {
+    if (!window.scrollOptimizer) {
+        window.scrollOptimizer = new ScrollOptimizer();
+        console.log('ScrollOptimizer initialized');
+    }
+    if (!window.resizeOptimizer) {
+        window.resizeOptimizer = new ResizeOptimizer();
+        console.log('ResizeOptimizer initialized');
+    }
+    
+    // Export helper functions
+    window.smoothScrollTo = smoothScrollTo;
+    window.debounce = debounce;
+    window.throttle = throttle;
+}
 
-// Export for global access
-window.scrollOptimizer = scrollOptimizer;
-window.resizeOptimizer = resizeOptimizer;
-window.smoothScrollTo = smoothScrollTo;
-window.debounce = debounce;
-window.throttle = throttle;
-
-// Auto-initialize
-initPerformanceOptimizations();
+// Auto-initialize on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initPerformanceOptimizers();
+        initPerformanceOptimizations();
+    });
+} else {
+    initPerformanceOptimizers();
+    initPerformanceOptimizations();
+}

@@ -278,24 +278,34 @@ class VideoModal {
 }
 
 // Initialize on DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+function initVideoModal() {
+    if (!window.videoModal) {
         window.videoModal = new VideoModal();
-    });
+        console.log('VideoModal initialized');
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVideoModal);
 } else {
-    window.videoModal = new VideoModal();
+    initVideoModal();
 }
 
 // Global function for opening video modal
-function openVideoModal(videoUrl, title) {
+window.openVideoModal = function(videoUrl, title) {
+    if (!window.videoModal) {
+        initVideoModal();
+    }
     if (window.videoModal) {
         window.videoModal.open(videoUrl, title);
+    } else {
+        console.error('VideoModal not initialized');
     }
-}
+};
 
 // Global function for closing video modal
-function closeVideoModal() {
+window.closeVideoModal = function() {
     if (window.videoModal) {
         window.videoModal.close();
     }
-}
+};

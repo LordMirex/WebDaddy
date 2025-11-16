@@ -29,9 +29,49 @@ function indexExists($db, $table, $indexName) {
     return $stmt->fetchColumn() > 0;
 }
 
+// Function to check if table exists
+function tableExists($db, $tableName) {
+    $stmt = $db->prepare("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?");
+    $stmt->execute([$tableName]);
+    return $stmt->fetchColumn() > 0;
+}
+
+// Function to check if column exists in table
+function columnExists($db, $tableName, $columnName) {
+    try {
+        $stmt = $db->query("PRAGMA table_info($tableName)");
+        $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($columns as $column) {
+            if ($column['name'] === $columnName) {
+                return true;
+            }
+        }
+        return false;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
 // Function to create index safely
-function createIndexSafe($db, $sql, $indexName, $description) {
+function createIndexSafe($db, $sql, $indexName, $description, $tableName = null, $columnName = null) {
     global $results;
+    
+    // Skip if table doesn't exist
+    if ($tableName && !tableExists($db, $tableName)) {
+        $message = "⏭️  Skipped index $indexName: Table '$tableName' does not exist";
+        echo $message . "\n";
+        $results[] = ['status' => 'skipped', 'message' => $message];
+        return;
+    }
+    
+    // Skip if column doesn't exist
+    if ($tableName && $columnName && !columnExists($db, $tableName, $columnName)) {
+        $message = "⏭️  Skipped index $indexName: Column '$columnName' does not exist in table '$tableName'";
+        echo $message . "\n";
+        $results[] = ['status' => 'skipped', 'message' => $message];
+        return;
+    }
+    
     try {
         if (!indexExists($db, '', $indexName)) {
             $db->exec($sql);
@@ -69,7 +109,9 @@ createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_templates_status ON templates(is_active)",
     "idx_templates_status",
-    "Fast filtering by active status"
+    "Fast filtering by active status",
+    "templates",
+    "is_active"
 );
 
 createIndexSafe(
@@ -91,7 +133,9 @@ createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_tools_status ON tools(is_active)",
     "idx_tools_status",
-    "Fast filtering by active status"
+    "Fast filtering by active status",
+    "tools",
+    "is_active"
 );
 
 // Orders table indexes
@@ -99,21 +143,24 @@ createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)",
     "idx_orders_status",
-    "Fast filtering by order status"
+    "Fast filtering by order status",
+    "orders"
 );
 
 createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC)",
     "idx_orders_created",
-    "Fast ordering by creation date"
+    "Fast ordering by creation date",
+    "orders"
 );
 
 createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_orders_affiliate ON orders(affiliate_code)",
     "idx_orders_affiliate",
-    "Fast lookup by affiliate code"
+    "Fast lookup by affiliate code",
+    "orders"
 );
 
 // Affiliates table indexes
@@ -128,7 +175,9 @@ createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_affiliates_email ON affiliates(email)",
     "idx_affiliates_email",
-    "Fast lookup by email"
+    "Fast lookup by email",
+    "affiliates",
+    "email"
 );
 
 createIndexSafe(
@@ -164,28 +213,32 @@ createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_template_views_template ON template_views(template_id)",
     "idx_template_views_template",
-    "Fast analytics by template"
+    "Fast analytics by template",
+    "template_views"
 );
 
 createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_template_views_created ON template_views(created_at DESC)",
     "idx_template_views_created",
-    "Fast ordering by view time"
+    "Fast ordering by view time",
+    "template_views"
 );
 
 createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_search_queries_query ON search_queries(query)",
     "idx_search_queries_query",
-    "Fast analytics by search term"
+    "Fast analytics by search term",
+    "search_queries"
 );
 
 createIndexSafe(
     $db,
     "CREATE INDEX IF NOT EXISTS idx_search_queries_created ON search_queries(created_at DESC)",
     "idx_search_queries_created",
-    "Fast ordering by search time"
+    "Fast ordering by search time",
+    "search_queries"
 );
 
 // Session summary indexes

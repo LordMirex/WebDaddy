@@ -115,15 +115,15 @@ class LazyLoader {
 }
 
 // Initialize on DOM ready
-let lazyLoader;
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        lazyLoader = new LazyLoader();
-    });
-} else {
-    lazyLoader = new LazyLoader();
+function initLazyLoader() {
+    if (!window.lazyLoader) {
+        window.lazyLoader = new LazyLoader();
+        console.log('LazyLoader initialized');
+    }
 }
 
-// Export for global access
-window.lazyLoader = lazyLoader;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLazyLoader);
+} else {
+    initLazyLoader();
+}
