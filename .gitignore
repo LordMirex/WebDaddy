@@ -34,3 +34,16 @@ uploads/*
 uploads/temp/*
 !uploads/temp/.htaccess
 
+# Testing artifacts
+node_modules/
+test-results/
+playwright-report/
+tests/Fixtures/uploads/
+database/test_webdaddy.db
+database/test_webdaddy.db-shm
+database/test_webdaddy.db-wal
+coverage/
+.phpunit.cache/
+composer.lock
+package-lock.json
+

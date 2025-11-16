@@ -1,1 +1,2 @@
 [16-Nov-2025 07:46:58 Africa/Lagos] PHP Fatal error:  Cannot redeclare formatBytes() (previously declared in /home/runner/workspace/admin/upload-diagnostic.php:16) in /home/runner/workspace/includes/functions.php on line 27
+[16-Nov-2025 10:20:46 Africa/Lagos] PHP Notice:  fwrite(): Write of 9 bytes failed with errno=32 Broken pipe in /home/runner/workspace/vendor/phpunit/phpunit/src/TextUI/Output/Printer/DefaultPrinter.php on line 115
