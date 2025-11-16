@@ -8,6 +8,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../admin/includes/auth.php';
 require_once __DIR__ . '/../includes/upload_handler.php';
 require_once __DIR__ . '/../includes/thumbnail_generator.php';
 require_once __DIR__ . '/../includes/video_processor.php';
@@ -20,11 +21,11 @@ header('Content-Type: application/json');
 startSecureSession();
 
 // Check if user is logged in as admin
-if (!isLoggedIn() || !isAdmin()) {
+if (!isAdmin()) {
     http_response_code(403);
     echo json_encode([
         'success' => false,
-        'error' => 'Unauthorized access'
+        'error' => 'Unauthorized access. Admin login required.'
     ]);
     exit;
 }

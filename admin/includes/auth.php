@@ -1,8 +1,13 @@
 <?php
 
+function isAdmin()
+{
+    return isset($_SESSION['admin_id']) && isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'admin';
+}
+
 function requireAdmin()
 {
-    if (!isset($_SESSION['admin_id']) || !isset($_SESSION['admin_role']) || $_SESSION['admin_role'] !== 'admin') {
+    if (!isAdmin()) {
         header('Location: /admin/login.php');
         exit;
     }
