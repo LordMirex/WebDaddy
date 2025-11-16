@@ -591,9 +591,10 @@ if ($currentView === 'templates') {
                 <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                      data-tool-id="<?php echo $tool['id']; ?>">
                     <div class="relative overflow-hidden h-40 bg-gray-100">
-                        <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                        <img data-src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                             src="/assets/images/placeholder.jpg"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
-                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             class="lazy w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                              onerror="this.src='/assets/images/placeholder.jpg'">
                         <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
                         <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">

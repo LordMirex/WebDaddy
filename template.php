@@ -259,10 +259,10 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
             <div class="lg:col-span-2">
                 <div class="mb-8">
-                    <img src="<?php echo htmlspecialchars($template['thumbnail_url']); ?>" 
+                    <img data-src="<?php echo htmlspecialchars($template['thumbnail_url']); ?>"
+                         src="/assets/images/placeholder.jpg"
                          alt="<?php echo htmlspecialchars($template['name']); ?>" 
-                         class="w-full rounded-xl shadow-2xl lazy-loaded"
-                         loading="lazy"
+                         class="lazy w-full rounded-xl shadow-2xl"
                          onerror="this.src='/assets/images/placeholder.jpg'">
                 </div>
 
