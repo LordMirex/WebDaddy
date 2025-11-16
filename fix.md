@@ -26,14 +26,14 @@ The current admin forms confuse different media types:
 - [ ] Verify all existing templates still display correctly
 
 ### 2️⃣ Templates Admin Form (admin/templates.php)
-- [ ] Add "Media Type" section with radio buttons (Demo URL / Banner / Video)
-- [ ] Show/hide inputs based on selected media type
-- [ ] Add helper text for each option
-- [ ] Update backend INSERT/UPDATE to save media_type and demo_video_url
-- [ ] Backend: Clear unused media fields based on selected media_type
-- [ ] Backend: Validate only one media type has data
-- [ ] Update edit mode to pre-select correct media type from database
-- [ ] Add client-side validation before form submit
+- [x] Add "Media Type" section with radio buttons (Demo URL / Banner / Video)
+- [x] Show/hide inputs based on selected media type
+- [x] Add helper text for each option
+- [x] Update backend INSERT/UPDATE to save media_type and demo_video_url
+- [x] Backend: Clear unused media fields based on selected media_type
+- [x] Backend: Validate only one media type has data
+- [x] Update edit mode to pre-select correct media type from database
+- [x] Add client-side validation before form submit
 
 ### 3️⃣ Tools Admin Form (admin/tools.php)
 - [ ] Frontend: Remove demo URL input section from form UI

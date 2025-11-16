@@ -26,13 +26,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = sanitizeInput($_POST['description'] ?? '');
             $features = sanitizeInput($_POST['features'] ?? '');
             
-            $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
-            $demoUrlInput = sanitizeInput($_POST['demo_url'] ?? '');
-            $demoUrl = !empty($uploadedVideoUrl) ? $uploadedVideoUrl : $demoUrlInput;
+            $mediaType = sanitizeInput($_POST['media_type'] ?? 'banner');
+            $demoUrl = null;
+            $demoVideoUrl = null;
+            $thumbnailUrl = null;
             
-            $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
-            $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
-            $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+            if ($mediaType === 'demo_url') {
+                $demoUrl = sanitizeInput($_POST['demo_url_input'] ?? '');
+            } elseif ($mediaType === 'video') {
+                $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
+                $demoVideoUrl = $uploadedVideoUrl;
+            } elseif ($mediaType === 'banner') {
+                $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
+                $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
+                $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+            }
             
             $active = isset($_POST['active']) ? 1 : 0;
             
@@ -42,13 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     if ($action === 'add') {
                         $stmt = $db->prepare("
-                            INSERT INTO templates (name, slug, price, category, description, features, demo_url, thumbnail_url, active)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO templates (name, slug, price, category, description, features, media_type, demo_url, demo_video_url, thumbnail_url, active)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $active]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -60,13 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $id = intval($_POST['id']);
                         $stmt = $db->prepare("
                             UPDATE templates 
-                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, demo_url = ?, thumbnail_url = ?, active = ?
+                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, media_type = ?, demo_url = ?, demo_video_url = ?, thumbnail_url = ?, active = ?
                             WHERE id = ?
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $demoUrl, $thumbnailUrl, $active, $id]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $id]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -374,42 +382,63 @@ require_once __DIR__ . '/includes/header.php';
                             <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="features" rows="3"><?php echo htmlspecialchars($editTemplate['features'] ?? ''); ?></textarea>
                             <small class="text-gray-500 text-xs">Comma-separated list of features</small>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
-                            <div class="flex gap-2 mb-3">
-                                <button type="button" onclick="toggleDemoVideoMode('url')" id="demo-video-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">URL</button>
-                                <button type="button" onclick="toggleDemoVideoMode('upload')" id="demo-video-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload Video</button>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Media Type <span class="text-red-600">*</span></label>
+                            <div class="flex gap-3 mb-4">
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="media-type-demo-url-label">
+                                    <input type="radio" name="media_type" value="demo_url" onchange="handleMediaTypeChange()" class="w-4 h-4 text-primary-600" <?php echo (!$editTemplate || $editTemplate['media_type'] === 'demo_url') ? 'checked' : ''; ?>>
+                                    <span class="font-medium">🌐 Demo Website URL</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="media-type-banner-label">
+                                    <input type="radio" name="media_type" value="banner" onchange="handleMediaTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['media_type'] === 'banner') ? 'checked' : ''; ?>>
+                                    <span class="font-medium">🖼️ Banner Image</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="media-type-video-label">
+                                    <input type="radio" name="media_type" value="video" onchange="handleMediaTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['media_type'] === 'video') ? 'checked' : ''; ?>>
+                                    <span class="font-medium">🎥 Demo Video</span>
+                                </label>
                             </div>
-                            <div id="demo-video-url-mode">
-                                <input type="url" id="demo-video-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="demo_url" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>" placeholder="https://example.com/video.mp4">
-                            </div>
-                            <div id="demo-video-upload-mode" style="display: none;">
-                                <input type="file" id="demo-video-file-input" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
-                                <div id="demo-video-upload-progress" style="margin-top: 10px; display: none;">
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                            <div id="demo-video-progress-bar" class="bg-primary-600 h-2 rounded-full transition-all" style="width: 0%"></div>
-                                        </div>
-                                        <span id="demo-video-progress-text" class="text-sm text-gray-600">0%</span>
-                                    </div>
-                                </div>
-                                <input type="hidden" id="demo-video-uploaded-url" name="demo_video_uploaded_url">
-                            </div>
+                            <small class="text-gray-500 text-xs block mb-3" id="media-type-helper">
+                                Choose how you want to showcase this template
+                            </small>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+                        
+                        <div id="media-demo-url-section" class="md:col-span-2" style="display: none;">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Website URL</label>
+                            <input type="url" name="demo_url_input" id="demo-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo">
+                            <small class="text-gray-500 text-xs mt-1 block">Enter the URL of a live website for interactive preview (shown in iframe)</small>
+                        </div>
+                        
+                        <div id="media-banner-section" class="md:col-span-2" style="display: none;">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Banner Image</label>
                             <div class="flex gap-2 mb-3">
-                                <button type="button" onclick="toggleThumbnailMode('url')" id="thumbnail-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">URL</button>
-                                <button type="button" onclick="toggleThumbnailMode('upload')" id="thumbnail-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
+                                <button type="button" onclick="toggleBannerMode('url')" id="banner-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">Paste URL</button>
+                                <button type="button" onclick="toggleBannerMode('upload')" id="banner-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                             </div>
-                            <div id="thumbnail-url-mode">
-                                <input type="url" id="thumbnail-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg">
+                            <div id="banner-url-mode">
+                                <input type="url" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/banner.jpg">
                             </div>
-                            <div id="thumbnail-upload-mode" style="display: none;">
-                                <input type="file" id="thumbnail-file-input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
-                                <div id="thumbnail-cropper-container" style="margin-top: 15px; display: none;"></div>
-                                <input type="hidden" id="thumbnail-cropped-data" name="thumbnail_cropped_data">
+                            <div id="banner-upload-mode" style="display: none;">
+                                <input type="file" id="banner-file-input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                                <div id="banner-cropper-container" style="margin-top: 15px; display: none;"></div>
+                                <input type="hidden" name="thumbnail_cropped_data" id="banner-cropped-data">
                             </div>
+                            <small class="text-gray-500 text-xs mt-1 block">Upload or paste banner image URL (recommended: 1280x720px)</small>
+                        </div>
+                        
+                        <div id="media-video-section" class="md:col-span-2" style="display: none;">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
+                            <input type="file" id="video-file-input" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                            <div id="video-upload-progress" style="margin-top: 10px; display: none;">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                        <div id="video-progress-bar" class="bg-primary-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                                    </div>
+                                    <span id="video-progress-text" class="text-sm text-gray-600">0%</span>
+                                </div>
+                            </div>
+                            <input type="hidden" name="demo_video_uploaded_url" id="video-uploaded-url">
+                            <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
                         </div>
                         <div class="md:col-span-2">
                             <label class="flex items-center gap-2 cursor-pointer">
@@ -435,18 +464,51 @@ require_once __DIR__ . '/includes/header.php';
 
 <script src="/assets/js/image-cropper.js"></script>
 <script>
-let thumbnailCropper = null;
+let bannerCropper = null;
 let videoUploadInProgress = false;
 
-function toggleDemoVideoMode(mode) {
-    const urlMode = document.getElementById('demo-video-url-mode');
-    const uploadMode = document.getElementById('demo-video-upload-mode');
-    const urlBtn = document.getElementById('demo-video-url-btn');
-    const uploadBtn = document.getElementById('demo-video-upload-btn');
-    const urlInput = document.getElementById('demo-video-url-input');
-    const uploadedUrlInput = document.getElementById('demo-video-uploaded-url');
-    const fileInput = document.getElementById('demo-video-file-input');
-    const progressDiv = document.getElementById('demo-video-upload-progress');
+function handleMediaTypeChange() {
+    const selectedType = document.querySelector('input[name="media_type"]:checked').value;
+    
+    const demoUrlSection = document.getElementById('media-demo-url-section');
+    const bannerSection = document.getElementById('media-banner-section');
+    const videoSection = document.getElementById('media-video-section');
+    const helperText = document.getElementById('media-type-helper');
+    
+    const demoUrlLabel = document.getElementById('media-type-demo-url-label');
+    const bannerLabel = document.getElementById('media-type-banner-label');
+    const videoLabel = document.getElementById('media-type-video-label');
+    
+    demoUrlSection.style.display = 'none';
+    bannerSection.style.display = 'none';
+    videoSection.style.display = 'none';
+    
+    demoUrlLabel.classList.remove('border-primary-600', 'bg-primary-50');
+    bannerLabel.classList.remove('border-primary-600', 'bg-primary-50');
+    videoLabel.classList.remove('border-primary-600', 'bg-primary-50');
+    
+    if (selectedType === 'demo_url') {
+        demoUrlSection.style.display = 'block';
+        demoUrlLabel.classList.add('border-primary-600', 'bg-primary-50');
+        helperText.textContent = 'Enter a website URL for interactive iframe preview';
+    } else if (selectedType === 'banner') {
+        bannerSection.style.display = 'block';
+        bannerLabel.classList.add('border-primary-600', 'bg-primary-50');
+        helperText.textContent = 'Upload or paste a banner image URL';
+    } else if (selectedType === 'video') {
+        videoSection.style.display = 'block';
+        videoLabel.classList.add('border-primary-600', 'bg-primary-50');
+        helperText.textContent = 'Upload a demo video file';
+    }
+}
+
+function toggleBannerMode(mode) {
+    const urlMode = document.getElementById('banner-url-mode');
+    const uploadMode = document.getElementById('banner-upload-mode');
+    const urlBtn = document.getElementById('banner-url-btn');
+    const uploadBtn = document.getElementById('banner-upload-btn');
+    const urlInput = document.getElementById('banner-url-input');
+    const croppedDataInput = document.getElementById('banner-cropped-data');
     
     if (mode === 'url') {
         urlMode.style.display = 'block';
@@ -455,9 +517,12 @@ function toggleDemoVideoMode(mode) {
         urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
         uploadBtn.classList.remove('bg-primary-600', 'text-white');
         uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
-        uploadedUrlInput.value = '';
-        fileInput.value = '';
-        progressDiv.style.display = 'none';
+        croppedDataInput.value = '';
+        
+        if (bannerCropper) {
+            bannerCropper.destroy();
+            bannerCropper = null;
+        }
     } else {
         urlMode.style.display = 'none';
         uploadMode.style.display = 'block';
@@ -469,7 +534,7 @@ function toggleDemoVideoMode(mode) {
     }
 }
 
-document.getElementById('demo-video-file-input')?.addEventListener('change', async function(e) {
+document.getElementById('video-file-input')?.addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -480,10 +545,10 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
         return;
     }
     
-    const progressDiv = document.getElementById('demo-video-upload-progress');
-    const progressBar = document.getElementById('demo-video-progress-bar');
-    const progressText = document.getElementById('demo-video-progress-text');
-    const uploadedUrlInput = document.getElementById('demo-video-uploaded-url');
+    const progressDiv = document.getElementById('video-upload-progress');
+    const progressBar = document.getElementById('video-progress-bar');
+    const progressText = document.getElementById('video-progress-text');
+    const uploadedUrlInput = document.getElementById('video-uploaded-url');
     
     progressDiv.style.display = 'block';
     progressBar.style.width = '0%';
@@ -513,7 +578,6 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
                     const result = JSON.parse(xhr.responseText);
                     if (result.success) {
                         uploadedUrlInput.value = result.url;
-                        document.getElementById('demo-video-url-input').value = result.url;
                         progressText.textContent = 'Upload complete!';
                         progressBar.classList.add('bg-green-600');
                     } else {
@@ -551,39 +615,7 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
     }
 });
 
-function toggleThumbnailMode(mode) {
-    const urlMode = document.getElementById('thumbnail-url-mode');
-    const uploadMode = document.getElementById('thumbnail-upload-mode');
-    const urlBtn = document.getElementById('thumbnail-url-btn');
-    const uploadBtn = document.getElementById('thumbnail-upload-btn');
-    const urlInput = document.getElementById('thumbnail-url-input');
-    const croppedDataInput = document.getElementById('thumbnail-cropped-data');
-    
-    if (mode === 'url') {
-        urlMode.style.display = 'block';
-        uploadMode.style.display = 'none';
-        urlBtn.classList.add('bg-primary-600', 'text-white');
-        urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
-        uploadBtn.classList.remove('bg-primary-600', 'text-white');
-        uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
-        croppedDataInput.value = '';
-        
-        if (thumbnailCropper) {
-            thumbnailCropper.destroy();
-            thumbnailCropper = null;
-        }
-    } else {
-        urlMode.style.display = 'none';
-        uploadMode.style.display = 'block';
-        uploadBtn.classList.add('bg-primary-600', 'text-white');
-        uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
-        urlBtn.classList.remove('bg-primary-600', 'text-white');
-        urlBtn.classList.add('bg-gray-200', 'text-gray-700');
-        urlInput.value = '';
-    }
-}
-
-document.getElementById('thumbnail-file-input').addEventListener('change', async function(e) {
+document.getElementById('banner-file-input')?.addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -598,15 +630,15 @@ document.getElementById('thumbnail-file-input').addEventListener('change', async
         return;
     }
     
-    const container = document.getElementById('thumbnail-cropper-container');
+    const container = document.getElementById('banner-cropper-container');
     container.style.display = 'block';
     container.innerHTML = '';
     
-    if (thumbnailCropper) {
-        thumbnailCropper.destroy();
+    if (bannerCropper) {
+        bannerCropper.destroy();
     }
     
-    thumbnailCropper = new ImageCropper({
+    bannerCropper = new ImageCropper({
         aspectRatio: 16 / 9,
         minCropSize: 100,
         maxZoom: 3,
@@ -615,22 +647,20 @@ document.getElementById('thumbnail-file-input').addEventListener('change', async
         }
     });
     
-    container.appendChild(thumbnailCropper.getElement());
+    container.appendChild(bannerCropper.getElement());
     
     try {
-        await thumbnailCropper.loadImage(file);
+        await bannerCropper.loadImage(file);
     } catch (error) {
         console.error('Error loading image:', error);
         alert('Failed to load image. Please try again.');
     }
 });
 
-const originalFormSubmit = document.querySelector('form[method="POST"]').onsubmit;
 document.querySelector('form[method="POST"]').onsubmit = async function(e) {
-    const croppedDataInput = document.getElementById('thumbnail-cropped-data');
-    const uploadMode = document.getElementById('thumbnail-upload-mode');
-    const videoUploadMode = document.getElementById('demo-video-upload-mode');
-    const demoVideoUrlInput = document.getElementById('demo-video-url-input');
+    const selectedMediaType = document.querySelector('input[name="media_type"]:checked').value;
+    const bannerUploadMode = document.getElementById('banner-upload-mode');
+    const croppedDataInput = document.getElementById('banner-cropped-data');
     
     if (videoUploadInProgress) {
         e.preventDefault();
@@ -638,16 +668,7 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
         return false;
     }
     
-    if (videoUploadMode && videoUploadMode.style.display !== 'none') {
-        const fileInput = document.getElementById('demo-video-file-input');
-        if (fileInput && fileInput.files.length > 0 && !demoVideoUrlInput.value) {
-            e.preventDefault();
-            alert('Please wait for the video to finish uploading, or switch to URL mode.');
-            return false;
-        }
-    }
-    
-    if (uploadMode.style.display !== 'none' && thumbnailCropper) {
+    if (selectedMediaType === 'banner' && bannerUploadMode && bannerUploadMode.style.display !== 'none' && bannerCropper) {
         e.preventDefault();
         
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -656,7 +677,7 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
         submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Uploading...';
         
         try {
-            const croppedBlob = await thumbnailCropper.getCroppedBlob({
+            const croppedBlob = await bannerCropper.getCroppedBlob({
                 width: 1280,
                 height: 720,
                 type: 'image/jpeg',
@@ -686,7 +707,7 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
             }
             
             if (result.success) {
-                document.getElementById('thumbnail-url-input').value = result.url;
+                document.getElementById('banner-url-input').value = result.url;
                 croppedDataInput.value = result.url;
                 
                 e.target.submit();
@@ -704,12 +725,12 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
         return false;
     }
     
-    if (originalFormSubmit) {
-        return originalFormSubmit.call(this, e);
-    }
-    
     return true;
 };
+
+document.addEventListener('DOMContentLoaded', function() {
+    handleMediaTypeChange();
+});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
