@@ -461,19 +461,12 @@ class UploadHandler {
     
     /**
      * Get file size in human-readable format
-     * 
+     * @deprecated Use Utilities::formatBytes() instead
      * @param int $bytes File size in bytes
      * @return string Formatted size
      */
     public static function formatFileSize($bytes) {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        } else {
-            return $bytes . ' bytes';
-        }
+        require_once __DIR__ . '/utilities.php';
+        return Utilities::formatBytes($bytes);
     }
 }
