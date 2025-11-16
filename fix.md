@@ -19,10 +19,10 @@ The current admin forms confuse different media types:
 ## 📋 Task Checklist
 
 ### 1️⃣ Database Schema Updates
-- [ ] Add `media_type` column to templates table
-- [ ] Add `demo_video_url` column to templates table (separate from demo_url)
-- [ ] Create migration script to classify existing templates
-- [ ] Test migration on development database
+- [x] Add `media_type` column to templates table
+- [x] Add `demo_video_url` column to templates table (separate from demo_url)
+- [x] Create migration script to classify existing templates
+- [x] Test migration on development database
 - [ ] Verify all existing templates still display correctly
 
 ### 2️⃣ Templates Admin Form (admin/templates.php)

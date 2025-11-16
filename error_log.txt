@@ -4,3 +4,7 @@
 [16-Nov-2025 21:40:28 Africa/Lagos] Upload API: Session ID: b1c6896b4da21a2e551234078237bde8, Admin status: yes
 [16-Nov-2025 22:21:04 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [16-Nov-2025 22:21:04 Africa/Lagos] Upload API: Session ID: 8ca2cacec9ae3a3b3c6a1789120fd2c4, Admin status: yes
+[16-Nov-2025 22:44:59 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function getDBConnection() in /home/runner/workspace/database/migrate_media_types.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/runner/workspace/database/migrate_media_types.php on line 7
