@@ -48,16 +48,16 @@ The current admin forms confuse different media types:
 ### 4️⃣ Image Cropper UX Improvements (assets/js/image-cropper.js)
 - [x] Add aspect ratio presets (16:9, 4:3, 1:1, Free) - Already implemented
 - [x] Add image preview before cropping - Handled by cropper display
-- [ ] Show cropping area dimensions (live feedback)
+- [x] Show cropping area dimensions (live feedback)
 - [x] Add loading spinner during crop processing - Implemented in form submit
 - [x] Show success/error messages - Implemented via alerts
-- [ ] Better instructions and file size limits displayed
+- [x] Better instructions and file size limits displayed
 
 ### 5️⃣ Frontend Display Updates
-- [ ] template.php: Check media_type and show iframe/video/banner accordingly
-- [ ] index.php: Update templates grid to use media_type
-- [ ] index.php: Keep tools as-is (banner only)
-- [ ] api/ajax-products.php: Include media_type in JSON response
+- [x] template.php: Check media_type and show iframe/video/banner accordingly
+- [x] index.php: Update templates grid to use media_type (uses server-side rendering, no changes needed)
+- [x] index.php: Keep tools as-is (banner only) - already correct
+- [ ] api/ajax-products.php: Include media_type in JSON response (if this API exists)
 
 ### 6️⃣ Testing & Validation
 - [ ] Create new template with demo_url → verify iframe works

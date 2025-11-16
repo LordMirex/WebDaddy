@@ -266,18 +266,25 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                          onerror="this.src='/assets/images/placeholder.jpg'">
                 </div>
 
-                <?php if ($template['demo_url']): 
-                    // Check if demo_url is an uploaded video file (from our uploads directory)
-                    $isUploadedFile = (strpos($template['demo_url'], '/uploads/') !== false || strpos($template['demo_url'], 'uploads/') === 0);
-                    $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $template['demo_url']);
-                    $isVideo = $isUploadedFile && $hasVideoExtension;
-                    // If not uploaded video, it's a URL - show in iframe
+                <?php 
+                // Determine media type - use media_type column or fallback to legacy detection
+                $mediaType = $template['media_type'] ?? 'banner'; // Default to banner if not set
+                $mediaUrl = null;
+                
+                if ($mediaType === 'demo_url' && !empty($template['demo_url'])) {
+                    $mediaUrl = $template['demo_url'];
+                } elseif ($mediaType === 'video' && !empty($template['demo_video_url'])) {
+                    $mediaUrl = $template['demo_video_url'];
+                }
+                
+                // Only show preview section if media type is demo_url or video
+                if (($mediaType === 'demo_url' || $mediaType === 'video') && $mediaUrl): 
                 ?>
                 <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-8 overflow-hidden">
                     <div class="bg-gray-50 border-b border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <h5 class="text-lg font-bold text-gray-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <?php if ($isVideo): ?>
+                                <?php if ($mediaType === 'video'): ?>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 <?php else: ?>
@@ -285,14 +292,14 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 <?php endif; ?>
                             </svg>
-                            <?php echo $isVideo ? 'Demo Video' : 'Live Preview'; ?>
+                            <?php echo $mediaType === 'video' ? 'Demo Video' : 'Live Preview'; ?>
                         </h5>
                         <div class="flex gap-2">
-                            <?php if ($isVideo): ?>
-                                <button onclick="openVideoModal('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            <?php if ($mediaType === 'video'): ?>
+                                <button onclick="openVideoModal('<?php echo htmlspecialchars($mediaUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors"
                                         data-video-trigger
-                                        data-video-url="<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>"
+                                        data-video-url="<?php echo htmlspecialchars($mediaUrl, ENT_QUOTES); ?>"
                                         data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
@@ -301,7 +308,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     Watch Demo
                                 </button>
                             <?php else: ?>
-                                <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($mediaUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -310,7 +317,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     Preview Fullscreen
                                 </button>
                             <?php endif; ?>
-                            <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
+                            <a href="<?php echo htmlspecialchars($mediaUrl); ?>" 
                                target="_blank" 
                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,9 +327,9 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             </a>
                         </div>
                     </div>
-                    <?php if (!$isVideo): ?>
+                    <?php if ($mediaType === 'demo_url'): ?>
                     <div class="h-96 sm:h-[600px]">
-                        <iframe src="<?php echo htmlspecialchars($template['demo_url']); ?>" 
+                        <iframe src="<?php echo htmlspecialchars($mediaUrl); ?>" 
                                 class="w-full h-full border-0"
                                 loading="lazy">
                         </iframe>

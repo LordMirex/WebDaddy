@@ -40,6 +40,16 @@ class ImageCropper {
                         </div>
                     </div>
                 </div>
+                <div class="image-cropper-info" style="margin-top: 10px; padding: 10px; background: #f3f4f6; border-radius: 6px; font-size: 12px; color: #4b5563;">
+                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <strong>Crop Area:</strong> <span class="crop-dimensions">0 × 0 px</span>
+                        </div>
+                        <div>
+                            <strong>File Limits:</strong> Max 5MB (JPG, PNG, GIF, WebP)
+                        </div>
+                    </div>
+                </div>
                 <div class="image-cropper-controls" style="margin-top: 15px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
                         <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #666;">Zoom</label>
@@ -69,6 +79,7 @@ class ImageCropper {
         this.zoomSlider = this.container.querySelector('.zoom-slider');
         this.aspectRatioSelect = this.container.querySelector('.aspect-ratio-select');
         this.resetBtn = this.container.querySelector('.reset-btn');
+        this.cropDimensionsEl = this.container.querySelector('.crop-dimensions');
     }
     
     attachEvents() {
@@ -195,6 +206,15 @@ class ImageCropper {
         this.cropBoxEl.style.top = this.cropBox.y + 'px';
         this.cropBoxEl.style.width = this.cropBox.width + 'px';
         this.cropBoxEl.style.height = this.cropBox.height + 'px';
+        
+        if (this.cropDimensionsEl) {
+            const cropData = this.getCropData();
+            if (cropData) {
+                const width = Math.round(cropData.width);
+                const height = Math.round(cropData.height);
+                this.cropDimensionsEl.textContent = `${width} × ${height} px`;
+            }
+        }
     }
     
     handleCanvasMouseDown(e) {
