@@ -7,6 +7,16 @@
 date_default_timezone_set('Africa/Lagos');
 
 // ============================================
+// PHP UPLOAD CONFIGURATION
+// ============================================
+// NOTE: Upload limits are now set in php.ini (loaded via `php -c php.ini`)
+// The ini_set() calls below are for runtime settings that CAN be changed,
+// but upload_max_filesize and post_max_size cannot be changed at runtime
+ini_set('max_execution_time', '300');
+ini_set('max_input_time', '300');
+ini_set('memory_limit', '256M');
+
+// ============================================
 // SIMPLE CONFIGURATION - ALL HARDCODED
 // Just edit the values below directly!
 // ============================================
