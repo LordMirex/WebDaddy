@@ -91,15 +91,29 @@ class UploadHandler {
         
         // Ensure directory exists
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+            if (!mkdir($uploadDir, 0775, true)) {
+                $response['error'] = 'Failed to create upload directory: ' . $uploadDir;
+                error_log('UploadHandler: Failed to create directory - ' . $uploadDir);
+                return $response;
+            }
+        }
+        
+        // Check if directory is writable
+        if (!is_writable($uploadDir)) {
+            $response['error'] = 'Upload directory is not writable. Please check permissions: ' . $uploadDir;
+            error_log('UploadHandler: Directory not writable - ' . $uploadDir . ' (permissions: ' . substr(sprintf('%o', fileperms($uploadDir)), -4) . ')');
+            return $response;
         }
         
         $uploadPath = $uploadDir . '/' . $uniqueFilename;
         $uploadUrl = UPLOAD_URL . '/' . $uploadSubDir . '/' . $uniqueFilename;
         
-        // Step 8: Move uploaded file (optimized for speed)
+        // Step 8: Move uploaded file
         if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            $response['error'] = 'Failed to save uploaded file';
+            $lastError = error_get_last();
+            $errorMsg = $lastError ? $lastError['message'] : 'unknown error';
+            $response['error'] = 'Failed to save uploaded file to: ' . $uploadPath . ' (Error: ' . $errorMsg . ')';
+            error_log('UploadHandler: move_uploaded_file failed - ' . $uploadPath . ' - ' . $errorMsg);
             return $response;
         }
         

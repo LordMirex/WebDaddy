@@ -69,3 +69,12 @@ Options -Indexes
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json image/svg+xml
 </IfModule>
+
+# PHP Upload Settings for large files (images up to 20MB, videos up to 100MB)
+<IfModule mod_php.c>
+  php_value upload_max_filesize 120M
+  php_value post_max_size 130M
+  php_value max_execution_time 300
+  php_value max_input_time 300
+  php_value memory_limit 256M
+</IfModule>

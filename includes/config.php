@@ -64,12 +64,14 @@ define('TEMP_FILE_LIFETIME', 86400); // 24 hours in seconds
 define('SESSION_LIFETIME', 3600);
 
 // Error Display (set to false in production)
-define('DISPLAY_ERRORS', false);
+define('DISPLAY_ERRORS', true); // Temporarily enabled for upload debugging
 
 // PHP Error Reporting
 if (DISPLAY_ERRORS) {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
+    ini_set('log_errors', 1);
+    ini_set('error_log', __DIR__ . '/../error_log.txt');
 } else {
     error_reporting(0);
     ini_set('display_errors', 0);
