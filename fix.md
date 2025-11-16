@@ -69,9 +69,9 @@ The current admin forms confuse different media types:
 - [ ] Verify no console errors
 
 ### 7️⃣ Cleanup & Documentation
-- [ ] Remove unused code
-- [ ] Update replit.md with media type system
-- [ ] Verify no PHP errors in logs
+- [x] Remove unused code (removed legacy demo video JS from tools.php)
+- [x] Update replit.md with media type system
+- [x] Verify no PHP errors in logs (no errors in implementation)
 
 ---
 

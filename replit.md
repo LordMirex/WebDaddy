@@ -62,8 +62,13 @@ WebDaddy Empire is an affiliate marketing platform for selling website templates
 - **Backup System**: Automated daily/weekly/monthly backups with email notifications.
 - **Analytics**: Detailed dashboards for site activity, product views, search terms, device tracking, IP filtering.
 - **Support**: Integrated WhatsApp floating button with contextual messages, support ticket system.
-- **File Upload System**: Robust system for images and videos with enhanced error handling, diagnostics, and security features (extension/MIME validation, malicious content scanning, PHP code detection). Max limits: 20MB for images, 100MB for videos.
-- **Image Cropping System**: Vanilla JavaScript cropper with aspect ratio support (16:9, 4:3, 1:1, free), live preview, and integration into admin forms for 1280x720 JPEG output.
+- **File Upload System**: Robust system for images and videos with enhanced error handling, diagnostics, and security features (extension/MIME validation, malicious content scanning, PHP code detection). Max limits: 5MB for images, 10MB for videos.
+- **Image Cropping System**: Vanilla JavaScript cropper with aspect ratio support (16:9, 4:3, 1:1, free), live preview, zoom controls, and integration into admin forms for 1280x720 JPEG output. Features live dimension display and file size limits.
+- **Media Type Management**: Clean separation of template media types:
+  - Templates support three media types via `media_type` ENUM column: 'demo_url' (iframe preview), 'banner' (image only), 'video' (demo video modal)
+  - Tools only support banner images (no demo URLs or videos)
+  - Media type selection via radio buttons with conditional field display in admin forms
+  - Frontend checks media_type before rendering iframe/video/banner content
 
 ### System Design Choices
 - **SQLite over MySQL**: For ease of deployment on shared hosting.
