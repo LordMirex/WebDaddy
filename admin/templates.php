@@ -429,6 +429,7 @@ require_once __DIR__ . '/includes/header.php';
 <script src="/assets/js/image-cropper.js"></script>
 <script>
 let thumbnailCropper = null;
+let videoUploadInProgress = false;
 
 function toggleDemoVideoMode(mode) {
     const urlMode = document.getElementById('demo-video-url-mode');
@@ -480,6 +481,7 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
     progressDiv.style.display = 'block';
     progressBar.style.width = '0%';
     progressText.textContent = '0%';
+    videoUploadInProgress = true;
     
     const formData = new FormData();
     formData.append('file', file);
@@ -498,6 +500,7 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
         });
         
         xhr.addEventListener('load', () => {
+            videoUploadInProgress = false;
             if (xhr.status === 200) {
                 try {
                     const result = JSON.parse(xhr.responseText);
@@ -523,6 +526,7 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
         });
         
         xhr.addEventListener('error', () => {
+            videoUploadInProgress = false;
             alert('Upload failed. Please check your connection and try again.');
             progressDiv.style.display = 'none';
             e.target.value = '';
@@ -532,6 +536,7 @@ document.getElementById('demo-video-file-input')?.addEventListener('change', asy
         xhr.send(formData);
         
     } catch (error) {
+        videoUploadInProgress = false;
         console.error('Upload error:', error);
         alert('Failed to upload video: ' + error.message);
         progressDiv.style.display = 'none';
@@ -617,6 +622,23 @@ const originalFormSubmit = document.querySelector('form[method="POST"]').onsubmi
 document.querySelector('form[method="POST"]').onsubmit = async function(e) {
     const croppedDataInput = document.getElementById('thumbnail-cropped-data');
     const uploadMode = document.getElementById('thumbnail-upload-mode');
+    const videoUploadMode = document.getElementById('demo-video-upload-mode');
+    const demoVideoUrlInput = document.getElementById('demo-video-url-input');
+    
+    if (videoUploadInProgress) {
+        e.preventDefault();
+        alert('Please wait for the video upload to complete before submitting.');
+        return false;
+    }
+    
+    if (videoUploadMode && videoUploadMode.style.display !== 'none') {
+        const fileInput = document.getElementById('demo-video-file-input');
+        if (fileInput && fileInput.files.length > 0 && !demoVideoUrlInput.value) {
+            e.preventDefault();
+            alert('Please wait for the video to finish uploading, or switch to URL mode.');
+            return false;
+        }
+    }
     
     if (uploadMode.style.display !== 'none' && thumbnailCropper) {
         e.preventDefault();
