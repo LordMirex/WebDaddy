@@ -10,3 +10,8 @@ Stack trace:
   thrown in /home/runner/workspace/database/migrate_media_types.php on line 7
 [16-Nov-2025 23:06:38 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [16-Nov-2025 23:06:38 Africa/Lagos] Upload API: Session ID: 8ca2cacec9ae3a3b3c6a1789120fd2c4, Admin status: yes
+[17-Nov-2025 00:36:13 Africa/Lagos] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/runner/workspace/template.php on line 262
+[17-Nov-2025 00:36:14 Africa/Lagos] PHP Deprecated:  htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in /home/runner/workspace/template.php on line 262
+[17-Nov-2025 00:42:07 Africa/Lagos] Template add/edit error: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: templates.slug
+[17-Nov-2025 00:42:32 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[17-Nov-2025 00:42:32 Africa/Lagos] Upload API: Session ID: 156ebd52b06e5cf5bb0c02e3223e87f2, Admin status: yes
