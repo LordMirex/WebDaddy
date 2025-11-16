@@ -3,6 +3,32 @@
 ## Overview
 WebDaddy Empire is an affiliate marketing platform designed for selling website templates and digital working tools, complete with domain integration. The platform aims to provide a robust, easy-to-deploy solution for cPanel environments, enabling users to manage templates, tools, affiliates, and sales efficiently. It focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations.
 
+## Recent Changes (November 16, 2025)
+
+### File Upload System Fix - COMPLETE ✅
+**Problem**: Photo and video uploads were failing with "failed to upload" errors
+**Root Cause**: PHP upload limits (upload_max_filesize=2M, post_max_size=8M) were far too low for application needs
+
+**Solution Implemented**:
+1. **Custom PHP Configuration** - Created php.ini with proper upload limits (150M/160M with safety margin) and updated server workflow to load it
+2. **Enhanced Upload Handler** - Added directory writability checks, improved error messages, and detailed logging to includes/upload_handler.php
+3. **Admin Diagnostic Tool** - Created admin/upload-diagnostic.php to show PHP settings, directory permissions, FFmpeg status, and actionable recommendations
+4. **Improved Error Reporting** - Enabled detailed error logging temporarily for debugging, with errors logged to error_log.txt
+5. **Configuration Files** - Added .htaccess PHP settings (fallback), .user.ini (for other environments), and cleaned up redundant ini_set calls
+6. **Documentation** - Created UPLOAD_FIX_SUMMARY.md with complete troubleshooting guide
+
+**Results**:
+- ✅ PHP upload_max_filesize: 2M → 150M
+- ✅ PHP post_max_size: 8M → 160M
+- ✅ All upload directories writable (775 permissions)
+- ✅ FFmpeg 7.1.1 available for video processing
+- ✅ Enhanced error messages for easier troubleshooting
+- ✅ Admin diagnostic page for real-time configuration monitoring
+
+**File Limits**:
+- Images: 20MB (JPG, PNG, GIF, WebP)
+- Videos: 100MB (MP4, WebM, MOV, AVI)
+
 ## Recent Changes (November 15, 2025)
 
 ### Phase 6: Admin Panel Upload/Crop Integration - COMPLETE ✅
@@ -30,7 +56,7 @@ WebDaddy Empire is an affiliate marketing platform designed for selling website 
    - Full-file malicious content scanning (streaming approach for large files)
    - PHP code detection
    - SVG blocking (XSS prevention)
-4. **File Size Limits** - Images: 50MB, Videos: 10MB (configured per user request)
+4. **File Size Limits** - Images: 20MB, Videos: 100MB (configured via PHP and application settings)
 5. **API Endpoints** - Admin-only upload and cleanup endpoints with authentication
 6. **Cleanup System** - Automated garbage collection for temp files (>24h) and orphaned files (>1h) with path normalization
 7. **Cron Integration** - Added cleanup-files command for scheduled maintenance

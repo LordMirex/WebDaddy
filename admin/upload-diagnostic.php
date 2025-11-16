@@ -93,9 +93,9 @@ $uploadDirChecks = [
                             <tr>
                                 <td><strong>upload_max_filesize</strong></td>
                                 <td><?php echo $uploadMaxFilesize; ?> (<?php echo formatBytes($uploadMaxBytes); ?>)</td>
-                                <td>120M</td>
+                                <td>150M</td>
                                 <td>
-                                    <?php if ($uploadMaxBytes >= 120 * 1024 * 1024): ?>
+                                    <?php if ($uploadMaxBytes >= 150 * 1024 * 1024): ?>
                                         <span class="badge bg-success">✓ OK</span>
                                     <?php else: ?>
                                         <span class="badge bg-danger">✗ TOO LOW</span>
@@ -105,9 +105,9 @@ $uploadDirChecks = [
                             <tr>
                                 <td><strong>post_max_size</strong></td>
                                 <td><?php echo $postMaxSize; ?> (<?php echo formatBytes($postMaxBytes); ?>)</td>
-                                <td>130M</td>
+                                <td>160M</td>
                                 <td>
-                                    <?php if ($postMaxBytes >= 130 * 1024 * 1024): ?>
+                                    <?php if ($postMaxBytes >= 160 * 1024 * 1024): ?>
                                         <span class="badge bg-success">✓ OK</span>
                                     <?php else: ?>
                                         <span class="badge bg-danger">✗ TOO LOW</span>
@@ -142,7 +142,7 @@ $uploadDirChecks = [
                             </tr>
                         </table>
                         
-                        <?php if ($uploadMaxBytes < 120 * 1024 * 1024 || $postMaxBytes < 130 * 1024 * 1024): ?>
+                        <?php if ($uploadMaxBytes < 150 * 1024 * 1024 || $postMaxBytes < 160 * 1024 * 1024): ?>
                         <div class="alert alert-danger mt-3">
                             <strong>Upload limits are too low!</strong><br>
                             The PHP configuration needs to be updated. Please check:
@@ -267,12 +267,12 @@ $uploadDirChecks = [
                         <?php
                         $issues = [];
                         
-                        if ($uploadMaxBytes < 120 * 1024 * 1024) {
-                            $issues[] = "PHP upload_max_filesize is too low (currently {$uploadMaxFilesize}, needs to be at least 120M)";
+                        if ($uploadMaxBytes < 150 * 1024 * 1024) {
+                            $issues[] = "PHP upload_max_filesize is too low (currently {$uploadMaxFilesize}, needs to be at least 150M)";
                         }
                         
-                        if ($postMaxBytes < 130 * 1024 * 1024) {
-                            $issues[] = "PHP post_max_size is too low (currently {$postMaxSize}, needs to be at least 130M)";
+                        if ($postMaxBytes < 160 * 1024 * 1024) {
+                            $issues[] = "PHP post_max_size is too low (currently {$postMaxSize}, needs to be at least 160M)";
                         }
                         
                         foreach ($uploadDirChecks as $label => $path) {
