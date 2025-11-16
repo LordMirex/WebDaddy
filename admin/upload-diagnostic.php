@@ -13,18 +13,7 @@ require_once __DIR__ . '/includes/auth.php';
 startSecureSession();
 requireAdmin();
 
-function formatBytes($bytes) {
-    if ($bytes >= 1073741824) {
-        return number_format($bytes / 1073741824, 2) . ' GB';
-    } elseif ($bytes >= 1048576) {
-        return number_format($bytes / 1048576, 2) . ' MB';
-    } elseif ($bytes >= 1024) {
-        return number_format($bytes / 1024, 2) . ' KB';
-    } else {
-        return $bytes . ' bytes';
-    }
-}
-
+// Helper function to convert PHP ini size format to bytes
 function convertToBytes($val) {
     $val = trim($val);
     $last = strtolower($val[strlen($val)-1]);

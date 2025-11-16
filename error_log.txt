@@ -1,0 +1,1 @@
+[16-Nov-2025 07:46:58 Africa/Lagos] PHP Fatal error:  Cannot redeclare formatBytes() (previously declared in /home/runner/workspace/admin/upload-diagnostic.php:16) in /home/runner/workspace/includes/functions.php on line 27
