@@ -40,6 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
+        } elseif (empty($thumbnailUrl)) {
+            $errorMessage = 'Product banner image is required.';
         } else {
             try {
                 $slug = generateToolSlug($name);
@@ -94,6 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
+        } elseif (empty($thumbnailUrl)) {
+            $errorMessage = 'Product banner image is required.';
         } else {
             try {
                 $slug = generateToolSlug($name, $toolId);
@@ -482,15 +486,16 @@ require_once __DIR__ . '/includes/header.php';
                         <small class="text-gray-500 text-xs">JSON array format</small>
                     </div>
                     
-                    <!-- Thumbnail Image -->
+                    <!-- Product Banner Image -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Product Banner Image <span class="text-red-600">*</span></label>
+                        <p class="text-xs text-gray-500 mb-3">Required. This image represents your tool on the marketplace.</p>
                         <div class="flex gap-2 mb-3">
                             <button type="button" onclick="toggleToolThumbnailMode('url', 'create')" id="tool-thumbnail-url-btn-create" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'create')" id="tool-thumbnail-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-create">
-                            <input type="url" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" placeholder="https://example.com/image.jpg">
+                            <input type="url" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required placeholder="https://example.com/image.jpg">
                         </div>
                         <div id="tool-thumbnail-upload-mode-create" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-create" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -611,15 +616,16 @@ require_once __DIR__ . '/includes/header.php';
                         <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"><?php echo htmlspecialchars($editTool['features'] ?? ''); ?></textarea>
                     </div>
                     
-                    <!-- Thumbnail Image -->
+                    <!-- Product Banner Image -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Thumbnail Image</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Product Banner Image <span class="text-red-600">*</span></label>
+                        <p class="text-xs text-gray-500 mb-3">Required. This image represents your tool on the marketplace.</p>
                         <div class="flex gap-2 mb-3">
                             <button type="button" onclick="toggleToolThumbnailMode('url', 'edit')" id="tool-thumbnail-url-btn-edit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'edit')" id="tool-thumbnail-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-edit">
-                            <input type="url" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg">
+                            <input type="url" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg">
                         </div>
                         <div id="tool-thumbnail-upload-mode-edit" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-edit" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -729,120 +735,6 @@ require_once __DIR__ . '/includes/header.php';
 <script>
 let toolThumbnailCropperCreate = null;
 let toolThumbnailCropperEdit = null;
-
-function toggleToolDemoVideoMode(mode, formType) {
-    const urlMode = document.getElementById(`tool-demo-video-url-mode-${formType}`);
-    const uploadMode = document.getElementById(`tool-demo-video-upload-mode-${formType}`);
-    const urlBtn = document.getElementById(`tool-demo-video-url-btn-${formType}`);
-    const uploadBtn = document.getElementById(`tool-demo-video-upload-btn-${formType}`);
-    const urlInput = document.getElementById(`tool-demo-video-url-input-${formType}`);
-    const fileInput = document.getElementById(`tool-demo-video-file-input-${formType}`);
-    const progressDiv = document.getElementById(`tool-demo-video-upload-progress-${formType}`);
-    
-    if (mode === 'url') {
-        urlMode.style.display = 'block';
-        uploadMode.style.display = 'none';
-        urlBtn.classList.add('bg-purple-600', 'text-white');
-        urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
-        uploadBtn.classList.remove('bg-purple-600', 'text-white');
-        uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
-        fileInput.value = '';
-        progressDiv.style.display = 'none';
-    } else {
-        urlMode.style.display = 'none';
-        uploadMode.style.display = 'block';
-        uploadBtn.classList.add('bg-purple-600', 'text-white');
-        uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
-        urlBtn.classList.remove('bg-purple-600', 'text-white');
-        urlBtn.classList.add('bg-gray-200', 'text-gray-700');
-        urlInput.value = '';
-    }
-}
-
-document.getElementById('tool-demo-video-file-input-create')?.addEventListener('change', async function(e) {
-    handleToolVideoUpload(e, 'create');
-});
-
-document.getElementById('tool-demo-video-file-input-edit')?.addEventListener('change', async function(e) {
-    handleToolVideoUpload(e, 'edit');
-});
-
-function handleToolVideoUpload(e, formType) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-        alert('Video file is too large. Maximum size is 10MB.');
-        e.target.value = '';
-        return;
-    }
-    
-    const progressDiv = document.getElementById(`tool-demo-video-upload-progress-${formType}`);
-    const progressBar = document.getElementById(`tool-demo-video-progress-bar-${formType}`);
-    const progressText = document.getElementById(`tool-demo-video-progress-text-${formType}`);
-    const urlInput = document.getElementById(`tool-demo-video-url-input-${formType}`);
-    
-    progressDiv.style.display = 'block';
-    progressBar.style.width = '0%';
-    progressText.textContent = '0%';
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_type', 'video');
-    formData.append('category', 'tools');
-    
-    try {
-        const xhr = new XMLHttpRequest();
-        
-        xhr.upload.addEventListener('progress', (event) => {
-            if (event.lengthComputable) {
-                const percentComplete = Math.round((event.loaded / event.total) * 100);
-                progressBar.style.width = percentComplete + '%';
-                progressText.textContent = percentComplete + '%';
-            }
-        });
-        
-        xhr.addEventListener('load', () => {
-            if (xhr.status === 200) {
-                try {
-                    const result = JSON.parse(xhr.responseText);
-                    if (result.success) {
-                        urlInput.value = result.url;
-                        progressText.textContent = 'Upload complete!';
-                        progressBar.classList.add('bg-green-600');
-                    } else {
-                        throw new Error(result.error || 'Upload failed');
-                    }
-                } catch (error) {
-                    console.error('Upload error:', error);
-                    alert('Failed to upload video: ' + error.message);
-                    progressDiv.style.display = 'none';
-                    e.target.value = '';
-                }
-            } else {
-                alert('Upload failed. Please try again.');
-                progressDiv.style.display = 'none';
-                e.target.value = '';
-            }
-        });
-        
-        xhr.addEventListener('error', () => {
-            alert('Upload failed. Please check your connection and try again.');
-            progressDiv.style.display = 'none';
-            e.target.value = '';
-        });
-        
-        xhr.open('POST', '/api/upload.php');
-        xhr.send(formData);
-        
-    } catch (error) {
-        console.error('Upload error:', error);
-        alert('Failed to upload video: ' + error.message);
-        progressDiv.style.display = 'none';
-        e.target.value = '';
-    }
-}
 
 function toggleToolThumbnailMode(mode, formType) {
     const urlMode = document.getElementById(`tool-thumbnail-url-mode-${formType}`);

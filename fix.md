@@ -36,22 +36,22 @@ The current admin forms confuse different media types:
 - [x] Add client-side validation before form submit
 
 ### 3️⃣ Tools Admin Form (admin/tools.php)
-- [ ] Frontend: Remove demo URL input section from form UI
-- [ ] Frontend: Remove video upload section from form UI
-- [ ] Frontend: Keep only thumbnail image section
-- [ ] Frontend: Make thumbnail required with validation
-- [ ] Frontend: Update form labels to clarify "Product Banner Image"
-- [ ] Backend: Update INSERT/UPDATE handlers to reject demo/video fields
-- [ ] Backend: Remove demo/video processing logic from save handlers
-- [ ] Migration: Clear any legacy demo/video data from existing tools
+- [x] Frontend: Remove demo URL input section from form UI (N/A - never existed)
+- [x] Frontend: Remove video upload section from form UI (N/A - never existed)
+- [x] Frontend: Keep only thumbnail image section
+- [x] Frontend: Make thumbnail required with validation (client + server-side)
+- [x] Frontend: Update form labels to clarify "Product Banner Image"
+- [x] Backend: Update INSERT/UPDATE handlers to reject demo/video fields (N/A - never processed)
+- [x] Backend: Remove demo/video processing logic from save handlers (removed legacy JS)
+- [x] Migration: Clear any legacy demo/video data from existing tools (N/A - columns don't exist)
 
 ### 4️⃣ Image Cropper UX Improvements (assets/js/image-cropper.js)
-- [ ] Add aspect ratio presets (16:9, 4:3, 1:1, Free)
-- [ ] Add image preview before cropping
-- [ ] Show cropping area dimensions
-- [ ] Add loading spinner during crop processing
-- [ ] Show success/error messages
-- [ ] Better instructions and file limits
+- [x] Add aspect ratio presets (16:9, 4:3, 1:1, Free) - Already implemented
+- [x] Add image preview before cropping - Handled by cropper display
+- [ ] Show cropping area dimensions (live feedback)
+- [x] Add loading spinner during crop processing - Implemented in form submit
+- [x] Show success/error messages - Implemented via alerts
+- [ ] Better instructions and file size limits displayed
 
 ### 5️⃣ Frontend Display Updates
 - [ ] template.php: Check media_type and show iframe/video/banner accordingly
