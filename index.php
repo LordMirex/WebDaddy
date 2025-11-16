@@ -424,14 +424,23 @@ if ($currentView === 'templates') {
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php if ($template['demo_url']): 
                                 $demoUrl = $template['demo_url'];
-                                $isVideo = preg_match('/\.(mp4|webm|mov|avi)$/i', $demoUrl);
+                                // Check if it's an uploaded video file (from our uploads directory)
+                                $isUploadedFile = (strpos($demoUrl, '/uploads/') !== false || strpos($demoUrl, 'uploads/') === 0);
+                                $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $demoUrl);
+                                $isVideo = $isUploadedFile && $hasVideoExtension;
+                                // If not uploaded video, it's a URL - show in iframe
                             ?>
-                            <a href="<?php echo htmlspecialchars($demoUrl); ?>" 
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                            <?php if ($isVideo): ?>
+                            <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                                 Preview
-                            </a>
+                            </button>
+                            <?php else: ?>
+                            <button onclick="event.stopPropagation(); openDemo('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                Preview
+                            </button>
+                            <?php endif; ?>
                             <?php if ($isVideo): ?>
                             <button onclick="openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     data-video-trigger

@@ -267,8 +267,11 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 </div>
 
                 <?php if ($template['demo_url']): 
-                    // Check if demo_url is a video file
-                    $isVideo = preg_match('/\.(mp4|webm|mov|avi)$/i', $template['demo_url']);
+                    // Check if demo_url is an uploaded video file (from our uploads directory)
+                    $isUploadedFile = (strpos($template['demo_url'], '/uploads/') !== false || strpos($template['demo_url'], 'uploads/') === 0);
+                    $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $template['demo_url']);
+                    $isVideo = $isUploadedFile && $hasVideoExtension;
+                    // If not uploaded video, it's a URL - show in iframe
                 ?>
                 <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-8 overflow-hidden">
                     <div class="bg-gray-50 border-b border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">

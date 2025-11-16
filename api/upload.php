@@ -20,8 +20,13 @@ header('Content-Type: application/json');
 // Start session
 startSecureSession();
 
+// Log upload attempt
+error_log('Upload API: Request received - Type: ' . ($_POST['upload_type'] ?? 'unknown') . ', Category: ' . ($_POST['category'] ?? 'unknown'));
+error_log('Upload API: Session ID: ' . session_id() . ', Admin status: ' . (isAdmin() ? 'yes' : 'no'));
+
 // Check if user is logged in as admin
 if (!isAdmin()) {
+    error_log('Upload API: Authentication failed - not logged in as admin');
     http_response_code(403);
     echo json_encode([
         'success' => false,
@@ -89,17 +94,25 @@ try {
             $thumbnails = $thumbnailResult['thumbnails'];
         }
     } elseif ($uploadType === 'video') {
+        // Try to process video, but don't fail if FFmpeg is unavailable
         $videoProcessResult = VideoProcessor::processVideo($result['path'], $category);
         
-        if (!$videoProcessResult['success']) {
-            throw new Exception('Video processing failed: ' . ($videoProcessResult['error'] ?? 'unknown error'));
+        if ($videoProcessResult['success']) {
+            $videoData = [
+                'thumbnail_url' => $videoProcessResult['thumbnail_url'] ?? '',
+                'video_versions' => $videoProcessResult['video_versions'] ?? [],
+                'metadata' => $videoProcessResult['metadata'] ?? []
+            ];
+        } else {
+            // Video processing failed (likely FFmpeg not available), but upload succeeded
+            error_log('Upload API: Video uploaded but processing failed: ' . ($videoProcessResult['error'] ?? 'unknown'));
+            $videoData = [
+                'thumbnail_url' => '',
+                'video_versions' => [],
+                'metadata' => [],
+                'processing_warning' => 'Video uploaded successfully but advanced processing unavailable'
+            ];
         }
-        
-        $videoData = [
-            'thumbnail_url' => $videoProcessResult['thumbnail_url'] ?? '',
-            'video_versions' => $videoProcessResult['video_versions'] ?? [],
-            'metadata' => $videoProcessResult['metadata'] ?? []
-        ];
     }
     
     // Log activity
@@ -126,9 +139,17 @@ try {
     ]);
     
 } catch (Exception $e) {
+    // Log detailed error for debugging
+    error_log('Upload API Error: ' . $e->getMessage());
+    error_log('Upload API Stack Trace: ' . $e->getTraceAsString());
+    
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => $e->getMessage(),
+        'debug_info' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]
     ]);
 }

@@ -677,11 +677,13 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
                 body: formData
             });
             
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
-            
             const result = await response.json();
+            
+            if (!response.ok || !result.success) {
+                const errorMsg = result.error || `Upload failed with status ${response.status}`;
+                const debugInfo = result.debug_info ? `\n\nDebug: ${result.debug_info.file}:${result.debug_info.line}` : '';
+                throw new Error(errorMsg + debugInfo);
+            }
             
             if (result.success) {
                 document.getElementById('thumbnail-url-input').value = result.url;
@@ -693,6 +695,7 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
             }
         } catch (error) {
             console.error('Upload error:', error);
+            console.error('Full error details:', error);
             alert('Failed to upload image: ' + error.message);
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
