@@ -135,6 +135,9 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <script src="/assets/js/share.js" defer></script>
+    <script src="/assets/js/lazy-load.js" defer></script>
+    <script src="/assets/js/performance.js" defer></script>
+    <script src="/assets/js/video-modal.js" defer></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -258,29 +261,52 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 <div class="mb-8">
                     <img src="<?php echo htmlspecialchars($template['thumbnail_url']); ?>" 
                          alt="<?php echo htmlspecialchars($template['name']); ?>" 
-                         class="w-full rounded-xl shadow-2xl"
+                         class="w-full rounded-xl shadow-2xl lazy-loaded"
+                         loading="lazy"
                          onerror="this.src='/assets/images/placeholder.jpg'">
                 </div>
 
-                <?php if ($template['demo_url']): ?>
+                <?php if ($template['demo_url']): 
+                    // Check if demo_url is a video file
+                    $isVideo = preg_match('/\.(mp4|webm|mov|avi)$/i', $template['demo_url']);
+                ?>
                 <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-8 overflow-hidden">
                     <div class="bg-gray-50 border-b border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <h5 class="text-lg font-bold text-gray-900 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <?php if ($isVideo): ?>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <?php else: ?>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                <?php endif; ?>
                             </svg>
-                            Live Preview
+                            <?php echo $isVideo ? 'Demo Video' : 'Live Preview'; ?>
                         </h5>
                         <div class="flex gap-2">
-                            <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                                Preview Fullscreen
-                            </button>
+                            <?php if ($isVideo): ?>
+                                <button onclick="openVideoModal('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+                                        data-video-trigger
+                                        data-video-url="<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>"
+                                        data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Watch Demo
+                                </button>
+                            <?php else: ?>
+                                <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    Preview Fullscreen
+                                </button>
+                            <?php endif; ?>
                             <a href="<?php echo htmlspecialchars($template['demo_url']); ?>" 
                                target="_blank" 
                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
@@ -291,11 +317,14 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             </a>
                         </div>
                     </div>
+                    <?php if (!$isVideo): ?>
                     <div class="h-96 sm:h-[600px]">
                         <iframe src="<?php echo htmlspecialchars($template['demo_url']); ?>" 
-                                class="w-full h-full border-0">
+                                class="w-full h-full border-0"
+                                loading="lazy">
                         </iframe>
                     </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
