@@ -25,8 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $category = sanitizeInput($_POST['category'] ?? '');
             $description = sanitizeInput($_POST['description'] ?? '');
             $features = sanitizeInput($_POST['features'] ?? '');
-            $demoUrl = sanitizeInput($_POST['demo_url'] ?? '');
-            $thumbnailUrl = sanitizeInput($_POST['thumbnail_url'] ?? '');
+            
+            $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
+            $demoUrlInput = sanitizeInput($_POST['demo_url'] ?? '');
+            $demoUrl = !empty($uploadedVideoUrl) ? $uploadedVideoUrl : $demoUrlInput;
+            
+            $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
+            $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
+            $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+            
             $active = isset($_POST['active']) ? 1 : 0;
             
             if (empty($name) || empty($slug)) {

@@ -27,7 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $shortDescription = sanitizeInput($_POST['short_description']);
         $description = trim($_POST['description'] ?? '');
         $features = trim($_POST['features'] ?? '');
-        $thumbnailUrl = sanitizeInput($_POST['thumbnail_url'] ?? '');
+        
+        $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
+        $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
+        $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+        
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
@@ -77,7 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $shortDescription = sanitizeInput($_POST['short_description']);
         $description = trim($_POST['description'] ?? '');
         $features = trim($_POST['features'] ?? '');
-        $thumbnailUrl = sanitizeInput($_POST['thumbnail_url'] ?? '');
+        
+        $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
+        $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
+        $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+        
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
