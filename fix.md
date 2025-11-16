@@ -57,7 +57,7 @@ The current admin forms confuse different media types:
 - [x] template.php: Check media_type and show iframe/video/banner accordingly
 - [x] index.php: Update templates grid to use media_type (uses server-side rendering, no changes needed)
 - [x] index.php: Keep tools as-is (banner only) - already correct
-- [ ] api/ajax-products.php: Include media_type in JSON response (if this API exists)
+- [x] api/ajax-products.php: Updated template rendering to use media_type
 
 ### 6️⃣ Testing & Validation
 - [ ] Create new template with demo_url → verify iframe works

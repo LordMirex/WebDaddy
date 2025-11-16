@@ -104,8 +104,17 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                          onerror="this.src='/assets/images/placeholder.jpg'">
-                    <?php if ($template['demo_url']): ?>
-                    <button onclick="openDemo('<?php echo htmlspecialchars($template['demo_url']); ?>', '<?php echo htmlspecialchars($template['name']); ?>')" 
+                    <?php 
+                    $templateMediaType = $template['media_type'] ?? 'banner';
+                    $templateMediaUrl = null;
+                    if ($templateMediaType === 'demo_url' && !empty($template['demo_url'])) {
+                        $templateMediaUrl = $template['demo_url'];
+                    } elseif ($templateMediaType === 'video' && !empty($template['demo_video_url'])) {
+                        $templateMediaUrl = $template['demo_video_url'];
+                    }
+                    if ($templateMediaUrl): 
+                    ?>
+                    <button onclick="openDemo('<?php echo htmlspecialchars($templateMediaUrl); ?>', '<?php echo htmlspecialchars($template['name']); ?>')" 
                             class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                         Preview
                     </button>
