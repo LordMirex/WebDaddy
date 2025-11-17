@@ -29,7 +29,7 @@ WebDaddy Empire is an affiliate marketing platform for selling website templates
 - **Dual Order Flow**: Instant WhatsApp ordering for templates; cart-based checkout for tools.
 - **AJAX Navigation**: Tab switching for Templates/Tools with scroll position preservation and smooth animations.
 - **Category Filtering**: Full-width dropdowns for scalable category selection with clean AJAX updates.
-- **Preview Modals**: Dedicated popup systems for tool details and template demos.
+- **Preview Modals**: Dedicated popup systems for tool details and template demos with 90% screen coverage (90vw × 80vh), optimized for vertical/portrait content like mobile videos and YouTube Shorts. Video modals use dynamic aspect ratios to display content naturally, and iframe modals show persistent loading indicators until content is ready.
 - **Floating Cart**: Top-right FAB with item count, red badge, and slide-in drawer for quick management.
 - **WhatsApp Integration**: Smart floating button at bottom-left with rotating contextual messages.
 - **Product Display**: Compact price typography, clear category badges, and product counts.
