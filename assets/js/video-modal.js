@@ -28,8 +28,8 @@ class VideoModal {
                          data-video-backdrop></div>
                     
                     <!-- Modal Content -->
-                    <div class="relative bg-black rounded-xl shadow-2xl w-full max-w-6xl transform transition-all duration-300"
-                         style="max-height: 90vh;"
+                    <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
+                         style="width: 90vw; max-width: 90vw; max-height: 90vh;"
                          data-video-container>
                         
                         <!-- Header -->
@@ -45,7 +45,7 @@ class VideoModal {
                         </div>
                         
                         <!-- Video Container -->
-                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="aspect-ratio: 16/9;">
+                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="height: 80vh; display: flex; align-items: center; justify-content: center;">
                             <!-- Loading Spinner -->
                             <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900">
                                 <div class="flex flex-col items-center gap-3">
@@ -56,11 +56,11 @@ class VideoModal {
                             
                             <!-- Video Element -->
                             <video id="modalVideo" 
-                                   class="w-full h-full object-contain"
-                                   preload="metadata"
+                                   class="object-contain"
+                                   style="max-width: 100%; max-height: 80vh; display: none;"
+                                   preload="auto"
                                    playsinline
-                                   controlsList="nodownload"
-                                   style="display: none;">
+                                   controlsList="nodownload">
                                 <source data-video-source type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -315,6 +315,8 @@ class DemoModal {
         this.modal = null;
         this.iframe = null;
         this.isOpen = false;
+        this.loadTimeout = null;
+        this.hasLoaded = false;
         this.init();
     }
 
@@ -331,8 +333,8 @@ class DemoModal {
                          style="opacity: 0.95;" 
                          data-demo-backdrop></div>
                     
-                    <div class="relative bg-black rounded-xl shadow-2xl w-full max-w-6xl transform transition-all duration-300"
-                         style="max-height: 90vh;"
+                    <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
+                         style="width: 90vw; max-width: 90vw; max-height: 90vh;"
                          data-demo-container>
                         
                         <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-gray-900/90 backdrop-blur-sm rounded-t-xl border-b border-gray-700">
@@ -346,17 +348,16 @@ class DemoModal {
                             </button>
                         </div>
                         
-                        <div class="relative bg-white rounded-b-xl overflow-hidden" style="height: 70vh;">
-                            <div data-demo-loader class="absolute inset-0 flex items-center justify-center bg-gray-900">
+                        <div class="relative bg-white rounded-b-xl overflow-hidden" style="height: 80vh;">
+                            <div data-demo-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-50">
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-white"></div>
-                                    <p class="text-gray-400 text-sm">Loading preview...</p>
+                                    <p data-loader-text class="text-gray-400 text-sm">Loading preview...</p>
                                 </div>
                             </div>
                             
                             <iframe id="modalIframe" 
                                    class="w-full h-full border-0"
-                                   style="display: none;"
                                    loading="eager">
                             </iframe>
                             
@@ -380,6 +381,7 @@ class DemoModal {
         this.modal = document.getElementById('demoModal');
         this.iframe = document.getElementById('modalIframe');
         this.loader = this.modal.querySelector('[data-demo-loader]');
+        this.loaderText = this.modal.querySelector('[data-loader-text]');
         this.errorContainer = this.modal.querySelector('[data-demo-error]');
         this.title = document.getElementById('demoModalTitle');
     }
@@ -395,7 +397,15 @@ class DemoModal {
             }
         });
         
-        this.iframe.addEventListener('load', () => this.onIframeLoaded());
+        this.iframe.addEventListener('load', () => {
+            this.hasLoaded = true;
+            if (this.loadTimeout) {
+                clearTimeout(this.loadTimeout);
+                this.loadTimeout = null;
+            }
+            this.onIframeLoaded();
+        });
+        
         this.iframe.addEventListener('error', () => this.onIframeError());
         
         this.modal.querySelector('[data-demo-container]').addEventListener('click', (e) => {
@@ -417,12 +427,22 @@ class DemoModal {
         document.body.style.overflow = 'hidden';
         
         this.loader.style.display = 'flex';
-        this.iframe.style.display = 'none';
+        this.loaderText.textContent = 'Loading preview...';
+        this.iframe.style.display = 'block';
         this.errorContainer.classList.add('hidden');
+        this.hasLoaded = false;
         
         this.iframe.src = url;
         
-        setTimeout(() => this.onIframeLoaded(), 3000);
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+        }
+        this.loadTimeout = setTimeout(() => {
+            if (this.isOpen && !this.hasLoaded && this.loader.style.display !== 'none') {
+                console.log('DemoModal: Still loading after 3s, updating message');
+                this.loaderText.textContent = 'Still loading... This may take a moment';
+            }
+        }, 3000);
         
         if (typeof trackEvent === 'function') {
             trackEvent('demo_modal_opened', { url: url, title: title });
@@ -433,6 +453,11 @@ class DemoModal {
         if (!this.isOpen) return;
         
         this.isOpen = false;
+        
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
+        }
         
         this.iframe.src = '';
         
@@ -452,6 +477,10 @@ class DemoModal {
 
     onIframeError() {
         console.error('DemoModal: Failed to load preview');
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
+        }
         this.loader.style.display = 'none';
         this.iframe.style.display = 'none';
         this.errorContainer.classList.remove('hidden');
