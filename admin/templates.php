@@ -432,7 +432,12 @@ require_once __DIR__ . '/includes/header.php';
                                     <div class="flex-1 bg-gray-200 rounded-full h-2">
                                         <div id="video-progress-bar" class="bg-primary-600 h-2 rounded-full transition-all" style="width: 0%"></div>
                                     </div>
-                                    <span id="video-progress-text" class="text-sm text-gray-600">0%</span>
+                                    <span id="video-progress-text" class="text-sm text-gray-600 flex items-center gap-1">
+                                        <span id="video-progress-percentage">0%</span>
+                                        <svg id="video-upload-check" class="w-4 h-4 text-green-600" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </span>
                                 </div>
                             </div>
                             <input type="hidden" name="demo_video_uploaded_url" id="video-uploaded-url" value="<?php echo htmlspecialchars($editTemplate['demo_video_url'] ?? ''); ?>">
@@ -565,7 +570,14 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
     progressDiv.style.display = 'block';
     progressBar.style.width = '0%';
     progressBar.classList.remove('bg-green-600');
-    progressText.textContent = '0%';
+    const progressPercentageElem = document.getElementById('video-progress-percentage');
+    const progressCheckElem = document.getElementById('video-upload-check');
+    if (progressPercentageElem) {
+        progressPercentageElem.textContent = '0%';
+    }
+    if (progressCheckElem) {
+        progressCheckElem.style.display = 'none';
+    }
     videoUploadInProgress = true;
     
     const formData = new FormData();
@@ -576,11 +588,16 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
     try {
         const xhr = new XMLHttpRequest();
         
+        const progressPercentage = document.getElementById('video-progress-percentage');
+        const progressCheck = document.getElementById('video-upload-check');
+        
         xhr.upload.addEventListener('progress', (e) => {
             if (e.lengthComputable) {
                 const percentComplete = Math.round((e.loaded / e.total) * 100);
                 progressBar.style.width = percentComplete + '%';
-                progressText.textContent = percentComplete + '%';
+                if (progressPercentage) {
+                    progressPercentage.textContent = percentComplete + '%';
+                }
             }
         });
         
@@ -591,8 +608,13 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                     const result = JSON.parse(xhr.responseText);
                     if (result.success) {
                         uploadedUrlInput.value = result.url;
-                        progressText.textContent = 'Upload complete!';
                         progressBar.classList.add('bg-green-600');
+                        if (progressPercentage) {
+                            progressPercentage.textContent = '100%';
+                        }
+                        if (progressCheck) {
+                            progressCheck.style.display = 'inline-block';
+                        }
                         console.log('Video uploaded successfully:', result.url);
                     } else {
                         throw new Error(result.error || 'Upload failed');
@@ -602,6 +624,12 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                     alert('Failed to upload video: ' + error.message);
                     progressDiv.style.display = 'none';
                     progressBar.style.width = '0%';
+                    if (progressPercentage) {
+                        progressPercentage.textContent = '0%';
+                    }
+                    if (progressCheck) {
+                        progressCheck.style.display = 'none';
+                    }
                     e.target.value = '';
                 }
             } else {

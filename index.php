@@ -417,23 +417,37 @@ if ($currentView === 'templates') {
                      data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
                     <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                         <div class="relative overflow-hidden h-48 bg-gray-100">
-                            <img data-src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                            <?php 
+                            $thumbnailUrl = $template['thumbnail_url'] ?? '/assets/images/placeholder.jpg';
+                            $isUploadedImage = (strpos($thumbnailUrl, '/uploads/') !== false || strpos($thumbnailUrl, 'uploads/') === 0);
+                            ?>
+                            <?php if ($isUploadedImage): ?>
+                            <img src="<?php echo htmlspecialchars($thumbnailUrl); ?>"
+                                 alt="<?php echo htmlspecialchars($template['name']); ?>"
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                 onerror="this.src='/assets/images/placeholder.jpg'">
+                            <?php else: ?>
+                            <img data-src="<?php echo htmlspecialchars($thumbnailUrl); ?>"
                                  src="/assets/images/placeholder.jpg"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="lazy w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
-                            <?php if ($template['demo_url']): 
-                                $demoUrl = $template['demo_url'];
-                                // Check if it's an uploaded video file (from our uploads directory)
-                                $isUploadedFile = (strpos($demoUrl, '/uploads/') !== false || strpos($demoUrl, 'uploads/') === 0);
+                            <?php endif; ?>
+                            <?php 
+                            $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
+                            if ($hasDemo):
+                                $demoUrl = !empty($template['demo_video_url']) ? $template['demo_video_url'] : $template['demo_url'];
                                 $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $demoUrl);
-                                $isVideo = $isUploadedFile && $hasVideoExtension;
-                                // If not uploaded video, it's a URL - show in iframe
+                                $isVideo = $hasVideoExtension;
                             ?>
                             <?php if ($isVideo): ?>
                             <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
-                                Preview
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Video
                             </button>
                             <?php else: ?>
                             <button onclick="event.stopPropagation(); openDemo('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
@@ -591,11 +605,22 @@ if ($currentView === 'templates') {
                 <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                      data-tool-id="<?php echo $tool['id']; ?>">
                     <div class="relative overflow-hidden h-40 bg-gray-100">
-                        <img data-src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                        <?php 
+                        $toolThumbnailUrl = $tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg';
+                        $isToolUploadedImage = (strpos($toolThumbnailUrl, '/uploads/') !== false || strpos($toolThumbnailUrl, 'uploads/') === 0);
+                        ?>
+                        <?php if ($isToolUploadedImage): ?>
+                        <img src="<?php echo htmlspecialchars($toolThumbnailUrl); ?>"
+                             alt="<?php echo htmlspecialchars($tool['name']); ?>"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             onerror="this.src='/assets/images/placeholder.jpg'">
+                        <?php else: ?>
+                        <img data-src="<?php echo htmlspecialchars($toolThumbnailUrl); ?>"
                              src="/assets/images/placeholder.jpg"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="lazy w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                              onerror="this.src='/assets/images/placeholder.jpg'">
+                        <?php endif; ?>
                         <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
                         <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
                             Limited Stock
