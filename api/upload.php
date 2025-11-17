@@ -94,25 +94,16 @@ try {
             $thumbnails = $thumbnailResult['thumbnails'];
         }
     } elseif ($uploadType === 'video') {
-        // Try to process video, but don't fail if FFmpeg is unavailable
-        $videoProcessResult = VideoProcessor::processVideo($result['path'], $category);
+        // Skip heavy video processing - just use the uploaded video as-is
+        // This prevents timeouts and provides instant upload response
+        $videoData = [
+            'thumbnail_url' => '',
+            'video_versions' => [],
+            'metadata' => [],
+            'note' => 'Video uploaded successfully - using original quality'
+        ];
         
-        if ($videoProcessResult['success']) {
-            $videoData = [
-                'thumbnail_url' => $videoProcessResult['thumbnail_url'] ?? '',
-                'video_versions' => $videoProcessResult['video_versions'] ?? [],
-                'metadata' => $videoProcessResult['metadata'] ?? []
-            ];
-        } else {
-            // Video processing failed (likely FFmpeg not available), but upload succeeded
-            error_log('Upload API: Video uploaded but processing failed: ' . ($videoProcessResult['error'] ?? 'unknown'));
-            $videoData = [
-                'thumbnail_url' => '',
-                'video_versions' => [],
-                'metadata' => [],
-                'processing_warning' => 'Video uploaded successfully but advanced processing unavailable'
-            ];
-        }
+        error_log('Upload API: Video uploaded successfully without processing: ' . $result['filename']);
     }
     
     // Log activity
