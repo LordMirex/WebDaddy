@@ -62,7 +62,7 @@ WebDaddy Empire is an affiliate marketing platform for selling website templates
 - **Backup System**: Automated daily/weekly/monthly backups with email notifications.
 - **Analytics**: Detailed dashboards for site activity, product views, search terms, device tracking, IP filtering.
 - **Support**: Integrated WhatsApp floating button with contextual messages, support ticket system.
-- **File Upload System**: Robust system for images and videos with enhanced error handling, diagnostics, and security features (extension/MIME validation, malicious content scanning, PHP code detection). Max limits: 5MB for images, 10MB for videos.
+- **File Upload System**: Lightweight direct upload system for images and videos with enhanced error handling, diagnostics, and security features (extension/MIME validation, malicious content scanning, PHP code detection). Max limits: 5MB for images, 10MB for videos. **No external dependencies required** - works on any PHP hosting (no FFmpeg needed). Videos are uploaded and served in their original quality for fast, reliable playback.
 - **Image Cropping System**: Vanilla JavaScript cropper with aspect ratio support (16:9, 4:3, 1:1, free), live preview, zoom controls, and integration into admin forms for 1280x720 JPEG output. Features live dimension display and file size limits.
 - **Media Type Management**: Clean separation of template media types:
   - Templates support three media types via `media_type` ENUM column: 'demo_url' (iframe preview), 'banner' (image only), 'video' (demo video modal)
