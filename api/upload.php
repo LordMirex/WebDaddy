@@ -11,7 +11,6 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../admin/includes/auth.php';
 require_once __DIR__ . '/../includes/upload_handler.php';
 require_once __DIR__ . '/../includes/thumbnail_generator.php';
-require_once __DIR__ . '/../includes/video_processor.php';
 require_once __DIR__ . '/../includes/utilities.php';
 
 // Set JSON response header
