@@ -408,18 +408,18 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
                             <p class="text-xs text-gray-500 mb-3">Add a video preview or demo website link for customers to see your template in action.</p>
-                            <div class="flex gap-3 mb-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-none-label">
                                     <input type="radio" name="video_type" value="none" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo (!$editTemplate || (!$editTemplate['demo_url'] && !$editTemplate['demo_video_url'])) ? 'checked' : ''; ?>>
-                                    <span class="font-medium">🚫 None</span>
+                                    <span class="font-medium text-sm">🚫 None</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-video-label">
                                     <input type="radio" name="video_type" value="video" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['demo_video_url']) ? 'checked' : ''; ?>>
-                                    <span class="font-medium">🎥 Upload Video</span>
+                                    <span class="font-medium text-sm">🎥 Video</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-demo-url-label">
                                     <input type="radio" name="video_type" value="demo_url" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['demo_url']) ? 'checked' : ''; ?>>
-                                    <span class="font-medium">🌐 Demo Website</span>
+                                    <span class="font-medium text-sm">🌐 Demo URL</span>
                                 </label>
                             </div>
                         </div>

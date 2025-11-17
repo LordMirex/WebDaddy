@@ -56,7 +56,11 @@ define('AFFILIATE_COMMISSION_RATE', 0.30);  // 30% commission rate
 define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using affiliate links
 
 // Site Settings
-define('SITE_URL', 'https://webdaddy.online');  // Your site URL
+// Automatically detect the site URL based on the current domain
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$siteUrl = $protocol . $host;
+define('SITE_URL', $siteUrl);
 define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 
 // Upload Settings
