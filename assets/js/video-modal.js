@@ -123,20 +123,6 @@ class VideoModal {
         });
         
         // Video events
-        this.video.addEventListener('loadeddata', () => {
-            if (this.loadTimeout) {
-                clearTimeout(this.loadTimeout);
-                this.loadTimeout = null;
-            }
-            this.onVideoLoaded();
-        });
-        this.video.addEventListener('canplay', () => {
-            if (this.loadTimeout) {
-                clearTimeout(this.loadTimeout);
-                this.loadTimeout = null;
-            }
-            this.onVideoLoaded();
-        });
         this.video.addEventListener('error', () => this.onVideoError());
         this.video.addEventListener('play', () => this.onVideoPlay());
         this.video.addEventListener('pause', () => this.onVideoPause());
@@ -193,26 +179,32 @@ class VideoModal {
         // Prevent body scroll
         document.body.style.overflow = 'hidden';
         
-        // Show loader
-        this.loader.style.display = 'flex';
-        this.video.style.display = 'none';
-        this.playOverlay.style.display = 'none';
-        this.errorContainer.classList.add('hidden');
-        
-        // Set video source
+        // Set video source and show immediately
         this.videoSource.src = videoUrl;
         this.video.load();
         
-        // Fallback timeout - show video after 2 seconds even if not fully loaded
-        if (this.loadTimeout) {
-            clearTimeout(this.loadTimeout);
+        // Show video instantly with play button
+        this.loader.style.display = 'none';
+        this.video.style.display = 'block';
+        this.playOverlay.style.display = 'flex';
+        this.errorContainer.classList.add('hidden');
+        
+        // Try to autoplay muted
+        this.video.muted = true;
+        const playPromise = this.video.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                // Autoplay succeeded, hide play button and unmute
+                this.playOverlay.style.display = 'none';
+                setTimeout(() => {
+                    this.video.muted = false;
+                }, 100);
+            }).catch(() => {
+                // Autoplay failed, keep play button visible
+                this.playOverlay.style.display = 'flex';
+            });
         }
-        this.loadTimeout = setTimeout(() => {
-            if (this.isOpen && this.loader.style.display !== 'none') {
-                console.log('VideoModal: Timeout - showing video anyway');
-                this.onVideoLoaded();
-            }
-        }, 2000);
         
         // Track analytics
         if (typeof trackEvent === 'function') {
@@ -224,12 +216,6 @@ class VideoModal {
         if (!this.isOpen) return;
         
         this.isOpen = false;
-        
-        // Clear timeout
-        if (this.loadTimeout) {
-            clearTimeout(this.loadTimeout);
-            this.loadTimeout = null;
-        }
         
         // Pause and reset video
         this.video.pause();
@@ -268,31 +254,10 @@ class VideoModal {
         }
     }
 
-    onVideoLoaded() {
-        // Hide loader
-        this.loader.style.display = 'none';
-        
-        // Show video
-        this.video.style.display = 'block';
-        
-        // Attempt autoplay (muted for mobile compatibility)
-        this.video.muted = true;
-        this.playVideo();
-        
-        // Unmute after a brief moment (user gesture requirement)
-        setTimeout(() => {
-            this.video.muted = false;
-        }, 100);
-    }
-
     onVideoError() {
         console.error('VideoModal: Video failed to load');
-        if (this.loadTimeout) {
-            clearTimeout(this.loadTimeout);
-            this.loadTimeout = null;
-        }
-        this.loader.style.display = 'none';
         this.video.style.display = 'none';
+        this.playOverlay.style.display = 'none';
         this.errorContainer.classList.remove('hidden');
     }
 
