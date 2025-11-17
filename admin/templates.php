@@ -26,20 +26,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = sanitizeInput($_POST['description'] ?? '');
             $features = sanitizeInput($_POST['features'] ?? '');
             
-            $mediaType = sanitizeInput($_POST['media_type'] ?? 'banner');
+            $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
+            $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
+            $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+            
+            $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
             $demoUrl = null;
             $demoVideoUrl = null;
-            $thumbnailUrl = null;
+            $mediaType = 'banner';
             
-            if ($mediaType === 'demo_url') {
+            if ($videoType === 'demo_url') {
                 $demoUrl = sanitizeInput($_POST['demo_url_input'] ?? '');
-            } elseif ($mediaType === 'video') {
+                $mediaType = 'demo_url';
+            } elseif ($videoType === 'video') {
                 $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
                 $demoVideoUrl = $uploadedVideoUrl;
-            } elseif ($mediaType === 'banner') {
-                $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
-                $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
-                $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+                $mediaType = 'video';
             }
             
             $active = isset($_POST['active']) ? 1 : 0;
@@ -382,41 +384,17 @@ require_once __DIR__ . '/includes/header.php';
                             <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="features" rows="3"><?php echo htmlspecialchars($editTemplate['features'] ?? ''); ?></textarea>
                             <small class="text-gray-500 text-xs">Comma-separated list of features</small>
                         </div>
+                        
+                        <!-- Banner Section (Always Present) -->
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Media Type <span class="text-red-600">*</span></label>
-                            <div class="flex gap-3 mb-4">
-                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="media-type-demo-url-label">
-                                    <input type="radio" name="media_type" value="demo_url" onchange="handleMediaTypeChange()" class="w-4 h-4 text-primary-600" <?php echo (!$editTemplate || $editTemplate['media_type'] === 'demo_url') ? 'checked' : ''; ?>>
-                                    <span class="font-medium">🌐 Demo Website URL</span>
-                                </label>
-                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="media-type-banner-label">
-                                    <input type="radio" name="media_type" value="banner" onchange="handleMediaTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['media_type'] === 'banner') ? 'checked' : ''; ?>>
-                                    <span class="font-medium">🖼️ Banner Image</span>
-                                </label>
-                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="media-type-video-label">
-                                    <input type="radio" name="media_type" value="video" onchange="handleMediaTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['media_type'] === 'video') ? 'checked' : ''; ?>>
-                                    <span class="font-medium">🎥 Demo Video</span>
-                                </label>
-                            </div>
-                            <small class="text-gray-500 text-xs block mb-3" id="media-type-helper">
-                                Choose how you want to showcase this template
-                            </small>
-                        </div>
-                        
-                        <div id="media-demo-url-section" class="md:col-span-2" style="display: none;">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Website URL</label>
-                            <input type="url" name="demo_url_input" id="demo-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo">
-                            <small class="text-gray-500 text-xs mt-1 block">Enter the URL of a live website for interactive preview (shown in iframe)</small>
-                        </div>
-                        
-                        <div id="media-banner-section" class="md:col-span-2" style="display: none;">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Banner Image</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Template Banner <span class="text-red-600">*</span></label>
+                            <p class="text-xs text-gray-500 mb-3">Required. This image represents your template on the marketplace.</p>
                             <div class="flex gap-2 mb-3">
                                 <button type="button" onclick="toggleBannerMode('url')" id="banner-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">Paste URL</button>
                                 <button type="button" onclick="toggleBannerMode('upload')" id="banner-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                             </div>
                             <div id="banner-url-mode">
-                                <input type="url" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/banner.jpg">
+                                <input type="url" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" required placeholder="https://example.com/banner.jpg">
                             </div>
                             <div id="banner-upload-mode" style="display: none;">
                                 <input type="file" id="banner-file-input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -426,8 +404,28 @@ require_once __DIR__ . '/includes/header.php';
                             <small class="text-gray-500 text-xs mt-1 block">Upload or paste banner image URL (recommended: 1280x720px)</small>
                         </div>
                         
-                        <div id="media-video-section" class="md:col-span-2" style="display: none;">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Video</label>
+                        <!-- Video/Demo Section (Optional) -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
+                            <p class="text-xs text-gray-500 mb-3">Add a video preview or demo website link for customers to see your template in action.</p>
+                            <div class="flex gap-3 mb-4">
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-none-label">
+                                    <input type="radio" name="video_type" value="none" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo (!$editTemplate || (!$editTemplate['demo_url'] && !$editTemplate['demo_video_url'])) ? 'checked' : ''; ?>>
+                                    <span class="font-medium">🚫 None</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-video-label">
+                                    <input type="radio" name="video_type" value="video" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['demo_video_url']) ? 'checked' : ''; ?>>
+                                    <span class="font-medium">🎥 Upload Video</span>
+                                </label>
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-demo-url-label">
+                                    <input type="radio" name="video_type" value="demo_url" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['demo_url']) ? 'checked' : ''; ?>>
+                                    <span class="font-medium">🌐 Demo Website</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="video-upload-section" class="md:col-span-2" style="display: none;">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Demo Video</label>
                             <input type="file" id="video-file-input" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
                             <div id="video-upload-progress" style="margin-top: 10px; display: none;">
                                 <div class="flex items-center gap-2">
@@ -437,8 +435,14 @@ require_once __DIR__ . '/includes/header.php';
                                     <span id="video-progress-text" class="text-sm text-gray-600">0%</span>
                                 </div>
                             </div>
-                            <input type="hidden" name="demo_video_uploaded_url" id="video-uploaded-url">
+                            <input type="hidden" name="demo_video_uploaded_url" id="video-uploaded-url" value="<?php echo htmlspecialchars($editTemplate['demo_video_url'] ?? ''); ?>">
                             <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
+                        </div>
+                        
+                        <div id="demo-url-section" class="md:col-span-2" style="display: none;">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Demo Website URL</label>
+                            <input type="url" name="demo_url_input" id="demo-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo">
+                            <small class="text-gray-500 text-xs mt-1 block">Enter the URL of a live website for interactive preview (shown in iframe)</small>
                         </div>
                         <div class="md:col-span-2">
                             <label class="flex items-center gap-2 cursor-pointer">
@@ -467,38 +471,31 @@ require_once __DIR__ . '/includes/header.php';
 let bannerCropper = null;
 let videoUploadInProgress = false;
 
-function handleMediaTypeChange() {
-    const selectedType = document.querySelector('input[name="media_type"]:checked').value;
+function handleVideoTypeChange() {
+    const selectedType = document.querySelector('input[name="video_type"]:checked').value;
     
-    const demoUrlSection = document.getElementById('media-demo-url-section');
-    const bannerSection = document.getElementById('media-banner-section');
-    const videoSection = document.getElementById('media-video-section');
-    const helperText = document.getElementById('media-type-helper');
+    const demoUrlSection = document.getElementById('demo-url-section');
+    const videoUploadSection = document.getElementById('video-upload-section');
     
-    const demoUrlLabel = document.getElementById('media-type-demo-url-label');
-    const bannerLabel = document.getElementById('media-type-banner-label');
-    const videoLabel = document.getElementById('media-type-video-label');
+    const noneLabel = document.getElementById('video-type-none-label');
+    const videoLabel = document.getElementById('video-type-video-label');
+    const demoUrlLabel = document.getElementById('video-type-demo-url-label');
     
     demoUrlSection.style.display = 'none';
-    bannerSection.style.display = 'none';
-    videoSection.style.display = 'none';
+    videoUploadSection.style.display = 'none';
     
-    demoUrlLabel.classList.remove('border-primary-600', 'bg-primary-50');
-    bannerLabel.classList.remove('border-primary-600', 'bg-primary-50');
+    noneLabel.classList.remove('border-primary-600', 'bg-primary-50');
     videoLabel.classList.remove('border-primary-600', 'bg-primary-50');
+    demoUrlLabel.classList.remove('border-primary-600', 'bg-primary-50');
     
     if (selectedType === 'demo_url') {
         demoUrlSection.style.display = 'block';
         demoUrlLabel.classList.add('border-primary-600', 'bg-primary-50');
-        helperText.textContent = 'Enter a website URL for interactive iframe preview';
-    } else if (selectedType === 'banner') {
-        bannerSection.style.display = 'block';
-        bannerLabel.classList.add('border-primary-600', 'bg-primary-50');
-        helperText.textContent = 'Upload or paste a banner image URL';
     } else if (selectedType === 'video') {
-        videoSection.style.display = 'block';
+        videoUploadSection.style.display = 'block';
         videoLabel.classList.add('border-primary-600', 'bg-primary-50');
-        helperText.textContent = 'Upload a demo video file';
+    } else {
+        noneLabel.classList.add('border-primary-600', 'bg-primary-50');
     }
 }
 
@@ -517,6 +514,7 @@ function toggleBannerMode(mode) {
         urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
         uploadBtn.classList.remove('bg-primary-600', 'text-white');
         uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.required = true;
         croppedDataInput.value = '';
         
         if (bannerCropper) {
@@ -530,6 +528,7 @@ function toggleBannerMode(mode) {
         uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
         urlBtn.classList.remove('bg-primary-600', 'text-white');
         urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.required = false;
         urlInput.value = '';
     }
 }
@@ -658,7 +657,6 @@ document.getElementById('banner-file-input')?.addEventListener('change', async f
 });
 
 document.querySelector('form[method="POST"]').onsubmit = async function(e) {
-    const selectedMediaType = document.querySelector('input[name="media_type"]:checked').value;
     const bannerUploadMode = document.getElementById('banner-upload-mode');
     const croppedDataInput = document.getElementById('banner-cropped-data');
     
@@ -668,7 +666,7 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
         return false;
     }
     
-    if (selectedMediaType === 'banner' && bannerUploadMode && bannerUploadMode.style.display !== 'none' && bannerCropper) {
+    if (bannerUploadMode && bannerUploadMode.style.display !== 'none' && bannerCropper) {
         e.preventDefault();
         
         const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -729,7 +727,7 @@ document.querySelector('form[method="POST"]').onsubmit = async function(e) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    handleMediaTypeChange();
+    handleVideoTypeChange();
 });
 </script>
 

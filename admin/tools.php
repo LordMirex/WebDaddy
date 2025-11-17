@@ -751,6 +751,7 @@ function toggleToolThumbnailMode(mode, formType) {
         urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
         uploadBtn.classList.remove('bg-purple-600', 'text-white');
         uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.required = true;
         croppedDataInput.value = '';
         
         const cropper = formType === 'create' ? toolThumbnailCropperCreate : toolThumbnailCropperEdit;
@@ -769,6 +770,7 @@ function toggleToolThumbnailMode(mode, formType) {
         uploadBtn.classList.remove('bg-gray-200', 'text-gray-700');
         urlBtn.classList.remove('bg-purple-600', 'text-white');
         urlBtn.classList.add('bg-gray-200', 'text-gray-700');
+        urlInput.required = false;
         urlInput.value = '';
     }
 }
