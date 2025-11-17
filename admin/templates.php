@@ -596,7 +596,11 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                 const percentComplete = Math.round((e.loaded / e.total) * 100);
                 progressBar.style.width = percentComplete + '%';
                 if (progressPercentage) {
-                    progressPercentage.textContent = percentComplete + '%';
+                    if (percentComplete === 100) {
+                        progressPercentage.textContent = 'Processing...';
+                    } else {
+                        progressPercentage.textContent = percentComplete + '%';
+                    }
                 }
             }
         });
@@ -615,7 +619,7 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                         progressBar.classList.add('bg-green-600');
                         progressBar.style.width = '100%';
                         if (progressPercentage) {
-                            progressPercentage.textContent = '100%';
+                            progressPercentage.textContent = 'Complete!';
                             progressPercentage.classList.add('text-green-600', 'font-semibold');
                         }
                         if (progressCheck) {
@@ -623,6 +627,11 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                         }
                         videoUploadInProgress = false;
                         console.log('✅ Video uploaded successfully:', result.url);
+                        
+                        const fileInput = document.getElementById('video-file-input');
+                        if (fileInput) {
+                            fileInput.disabled = true;
+                        }
                         
                         if (result.video_data && result.video_data.processing_warning) {
                             console.warn('⚠️ ' + result.video_data.processing_warning);
