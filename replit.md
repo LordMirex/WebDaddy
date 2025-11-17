@@ -1,5 +1,13 @@
 # WebDaddy Empire - Affiliate Platform
 
+## Recent Changes
+### November 17, 2025 - Production Optimization
+- **Removed FFmpeg dependency**: Videos now upload and display directly in original quality (no processing needed)
+- **Removed all test infrastructure**: Deleted tests/, node_modules/, PHPUnit, Playwright configs
+- **Cleaned Composer dependencies**: Removed all dev packages, keeping only PHPMailer for production
+- **Codebase optimization**: Vendor directory reduced from 23MB to 656KB (97% reduction)
+- **Result**: Zero external dependencies beyond standard PHP - ready for any cheap hosting provider
+
 ## Overview
 WebDaddy Empire is an affiliate marketing platform for selling website templates and digital tools, with integrated domain management. It aims to provide an easy-to-deploy solution for cPanel environments, enabling efficient management of templates, tools, affiliates, and sales. The platform focuses on a streamlined user experience for both administrators and affiliates, offering comprehensive analytics, automated email campaigns, and secure operations. The business vision is to provide a robust platform for digital product sales, tapping into the growing market for online business tools and website assets.
 
