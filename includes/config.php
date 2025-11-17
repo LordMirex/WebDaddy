@@ -57,9 +57,16 @@ define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using 
 
 // Site Settings
 // Automatically detect the site URL based on the current domain
-$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$siteUrl = $protocol . $host;
+// Fallback to environment variable or hardcoded value for CLI contexts (cron, email jobs, etc.)
+if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
+    // CLI context or no HTTP_HOST - use environment variable or fallback
+    $siteUrl = getenv('SITE_URL') ?: 'https://webdaddy.online';
+} else {
+    // Web context - auto-detect from request
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+    $host = $_SERVER['HTTP_HOST'];
+    $siteUrl = $protocol . $host;
+}
 define('SITE_URL', $siteUrl);
 define('SITE_NAME', 'WebDaddy Empire');       // Your site name
 
