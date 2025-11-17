@@ -15,3 +15,5 @@ Stack trace:
 [17-Nov-2025 00:42:07 Africa/Lagos] Template add/edit error: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: templates.slug
 [17-Nov-2025 00:42:32 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [17-Nov-2025 00:42:32 Africa/Lagos] Upload API: Session ID: 156ebd52b06e5cf5bb0c02e3223e87f2, Admin status: yes
+[17-Nov-2025 00:52:54 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[17-Nov-2025 00:52:59 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
