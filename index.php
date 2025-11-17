@@ -420,7 +420,6 @@ if ($currentView === 'templates') {
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                 loading="lazy"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php 
                             $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
@@ -597,7 +596,6 @@ if ($currentView === 'templates') {
                         <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                             loading="lazy"
                              onerror="this.src='/assets/images/placeholder.jpg'">
                         <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
                         <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">

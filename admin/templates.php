@@ -615,7 +615,7 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                         progressBar.classList.add('bg-green-600');
                         progressBar.style.width = '100%';
                         if (progressPercentage) {
-                            progressPercentage.textContent = 'Complete ✓';
+                            progressPercentage.textContent = '100%';
                             progressPercentage.classList.add('text-green-600', 'font-semibold');
                         }
                         if (progressCheck) {
@@ -623,6 +623,10 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                         }
                         videoUploadInProgress = false;
                         console.log('✅ Video uploaded successfully:', result.url);
+                        
+                        if (result.video_data && result.video_data.processing_warning) {
+                            console.warn('⚠️ ' + result.video_data.processing_warning);
+                        }
                     } else {
                         videoUploadInProgress = false;
                         console.error('Upload failed - result:', result);
