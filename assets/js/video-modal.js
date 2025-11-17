@@ -9,6 +9,7 @@ class VideoModal {
         this.video = null;
         this.isOpen = false;
         this.observer = null;
+        this.loadTimeout = null;
         this.init();
     }
 
@@ -122,7 +123,20 @@ class VideoModal {
         });
         
         // Video events
-        this.video.addEventListener('loadeddata', () => this.onVideoLoaded());
+        this.video.addEventListener('loadeddata', () => {
+            if (this.loadTimeout) {
+                clearTimeout(this.loadTimeout);
+                this.loadTimeout = null;
+            }
+            this.onVideoLoaded();
+        });
+        this.video.addEventListener('canplay', () => {
+            if (this.loadTimeout) {
+                clearTimeout(this.loadTimeout);
+                this.loadTimeout = null;
+            }
+            this.onVideoLoaded();
+        });
         this.video.addEventListener('error', () => this.onVideoError());
         this.video.addEventListener('play', () => this.onVideoPlay());
         this.video.addEventListener('pause', () => this.onVideoPause());
@@ -189,6 +203,17 @@ class VideoModal {
         this.videoSource.src = videoUrl;
         this.video.load();
         
+        // Fallback timeout - show video after 2 seconds even if not fully loaded
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+        }
+        this.loadTimeout = setTimeout(() => {
+            if (this.isOpen && this.loader.style.display !== 'none') {
+                console.log('VideoModal: Timeout - showing video anyway');
+                this.onVideoLoaded();
+            }
+        }, 2000);
+        
         // Track analytics
         if (typeof trackEvent === 'function') {
             trackEvent('video_modal_opened', { url: videoUrl, title: title });
@@ -199,6 +224,12 @@ class VideoModal {
         if (!this.isOpen) return;
         
         this.isOpen = false;
+        
+        // Clear timeout
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
+        }
         
         // Pause and reset video
         this.video.pause();
@@ -256,6 +287,10 @@ class VideoModal {
 
     onVideoError() {
         console.error('VideoModal: Video failed to load');
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
+        }
         this.loader.style.display = 'none';
         this.video.style.display = 'none';
         this.errorContainer.classList.remove('hidden');
