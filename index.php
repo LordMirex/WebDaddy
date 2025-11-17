@@ -419,20 +419,12 @@ if ($currentView === 'templates') {
                         <div class="relative overflow-hidden h-48 bg-gray-100">
                             <?php 
                             $thumbnailUrl = $template['thumbnail_url'] ?? '/assets/images/placeholder.jpg';
-                            $isUploadedImage = (strpos($thumbnailUrl, '/uploads/') !== false || strpos($thumbnailUrl, 'uploads/') === 0);
                             ?>
-                            <?php if ($isUploadedImage): ?>
                             <img src="<?php echo htmlspecialchars($thumbnailUrl); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                 loading="lazy"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
-                            <?php else: ?>
-                            <img data-src="<?php echo htmlspecialchars($thumbnailUrl); ?>"
-                                 src="/assets/images/placeholder.jpg"
-                                 alt="<?php echo htmlspecialchars($template['name']); ?>"
-                                 class="lazy w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                 onerror="this.src='/assets/images/placeholder.jpg'">
-                            <?php endif; ?>
                             <?php 
                             $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
                             if ($hasDemo):
@@ -450,7 +442,7 @@ if ($currentView === 'templates') {
                                 Video
                             </button>
                             <?php else: ?>
-                            <button onclick="event.stopPropagation(); openDemo('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                                 Preview
                             </button>
@@ -470,7 +462,7 @@ if ($currentView === 'templates') {
                                 </span>
                             </button>
                             <?php else: ?>
-                            <button onclick="openDemo('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
+                            <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
                                     class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -607,20 +599,12 @@ if ($currentView === 'templates') {
                     <div class="relative overflow-hidden h-40 bg-gray-100">
                         <?php 
                         $toolThumbnailUrl = $tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg';
-                        $isToolUploadedImage = (strpos($toolThumbnailUrl, '/uploads/') !== false || strpos($toolThumbnailUrl, 'uploads/') === 0);
                         ?>
-                        <?php if ($isToolUploadedImage): ?>
                         <img src="<?php echo htmlspecialchars($toolThumbnailUrl); ?>"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             loading="lazy"
                              onerror="this.src='/assets/images/placeholder.jpg'">
-                        <?php else: ?>
-                        <img data-src="<?php echo htmlspecialchars($toolThumbnailUrl); ?>"
-                             src="/assets/images/placeholder.jpg"
-                             alt="<?php echo htmlspecialchars($tool['name']); ?>"
-                             class="lazy w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                             onerror="this.src='/assets/images/placeholder.jpg'">
-                        <?php endif; ?>
                         <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
                         <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
                             Limited Stock
@@ -961,26 +945,6 @@ if ($currentView === 'templates') {
         </div>
     </footer>
 
-    <!-- Demo Modal -->
-    <div id="demoModal" class="fixed inset-0 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen px-4 py-8">
-            <div onclick="closeDemo()" class="fixed inset-0 bg-black bg-opacity-75"></div>
-            <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-7xl" style="height: 90vh; max-height: 900px;">
-                <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <h5 class="text-lg font-bold text-gray-900" id="demoTitle">Template Preview</h5>
-                    <button onclick="closeDemo()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-                <div class="overflow-hidden rounded-b-xl" style="height: calc(100% - 57px);">
-                    <iframe id="demoFrame" src="" frameborder="0" class="w-full h-full rounded-b-xl"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -991,34 +955,6 @@ if ($currentView === 'templates') {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
-        });
-
-        // Demo modal functions
-        function openDemo(url, title) {
-            const modal = document.getElementById('demoModal');
-            const iframe = document.getElementById('demoFrame');
-            const titleEl = document.getElementById('demoTitle');
-            
-            titleEl.textContent = title + ' - Preview';
-            iframe.src = url;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeDemo() {
-            const modal = document.getElementById('demoModal');
-            const iframe = document.getElementById('demoFrame');
-            
-            modal.classList.add('hidden');
-            iframe.src = '';
-            document.body.style.overflow = '';
-        }
-
-        // Close modal on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeDemo();
-            }
         });
 
         // Navbar scroll effect

@@ -602,30 +602,38 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
         });
         
         xhr.addEventListener('load', () => {
-            videoUploadInProgress = false;
             if (xhr.status === 200) {
                 try {
                     const result = JSON.parse(xhr.responseText);
                     if (result.success) {
                         uploadedUrlInput.value = result.url;
+                        progressBar.classList.remove('bg-primary-600');
                         progressBar.classList.add('bg-green-600');
+                        progressBar.style.width = '100%';
                         if (progressPercentage) {
-                            progressPercentage.textContent = '100%';
+                            progressPercentage.textContent = 'Upload Complete!';
+                            progressPercentage.classList.add('text-green-600', 'font-semibold');
                         }
                         if (progressCheck) {
                             progressCheck.style.display = 'inline-block';
                         }
+                        videoUploadInProgress = false;
                         console.log('Video uploaded successfully:', result.url);
                     } else {
+                        videoUploadInProgress = false;
                         throw new Error(result.error || 'Upload failed');
                     }
                 } catch (error) {
+                    videoUploadInProgress = false;
                     console.error('Video upload error:', error);
                     alert('Failed to upload video: ' + error.message);
                     progressDiv.style.display = 'none';
                     progressBar.style.width = '0%';
+                    progressBar.classList.remove('bg-green-600');
+                    progressBar.classList.add('bg-primary-600');
                     if (progressPercentage) {
                         progressPercentage.textContent = '0%';
+                        progressPercentage.classList.remove('text-green-600', 'font-semibold');
                     }
                     if (progressCheck) {
                         progressCheck.style.display = 'none';
@@ -633,6 +641,7 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                     e.target.value = '';
                 }
             } else {
+                videoUploadInProgress = false;
                 let errorMsg = 'Upload failed with status ' + xhr.status;
                 try {
                     const result = JSON.parse(xhr.responseText);
@@ -645,6 +654,8 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                 alert('Upload failed: ' + errorMsg);
                 progressDiv.style.display = 'none';
                 progressBar.style.width = '0%';
+                progressBar.classList.remove('bg-green-600');
+                progressBar.classList.add('bg-primary-600');
                 e.target.value = '';
             }
         });
