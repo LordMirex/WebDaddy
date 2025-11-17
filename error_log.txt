@@ -12,3 +12,5 @@
 [17-Nov-2025 16:02:38 Africa/Lagos] Upload API: Session ID: b92b3679393d86b58715e51da684d87f, Admin status: yes
 [17-Nov-2025 16:34:49 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [17-Nov-2025 16:34:49 Africa/Lagos] Upload API: Session ID: 3a79d585a04a693f0f753f53dc29b4aa, Admin status: yes
+[17-Nov-2025 17:01:58 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[17-Nov-2025 17:02:37 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
