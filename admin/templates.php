@@ -602,30 +602,35 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
         });
         
         xhr.addEventListener('load', () => {
+            console.log('XHR load event - Status:', xhr.status, 'Response:', xhr.responseText.substring(0, 200));
+            
             if (xhr.status === 200) {
                 try {
                     const result = JSON.parse(xhr.responseText);
-                    if (result.success) {
+                    console.log('Parsed result:', result);
+                    
+                    if (result.success && result.url) {
                         uploadedUrlInput.value = result.url;
                         progressBar.classList.remove('bg-primary-600');
                         progressBar.classList.add('bg-green-600');
                         progressBar.style.width = '100%';
                         if (progressPercentage) {
-                            progressPercentage.textContent = 'Upload Complete!';
+                            progressPercentage.textContent = 'Complete ✓';
                             progressPercentage.classList.add('text-green-600', 'font-semibold');
                         }
                         if (progressCheck) {
                             progressCheck.style.display = 'inline-block';
                         }
                         videoUploadInProgress = false;
-                        console.log('Video uploaded successfully:', result.url);
+                        console.log('✅ Video uploaded successfully:', result.url);
                     } else {
                         videoUploadInProgress = false;
-                        throw new Error(result.error || 'Upload failed');
+                        console.error('Upload failed - result:', result);
+                        throw new Error(result.error || 'Upload failed - no URL returned');
                     }
                 } catch (error) {
                     videoUploadInProgress = false;
-                    console.error('Video upload error:', error);
+                    console.error('❌ Video upload error:', error, 'Response:', xhr.responseText);
                     alert('Failed to upload video: ' + error.message);
                     progressDiv.style.display = 'none';
                     progressBar.style.width = '0%';
@@ -642,6 +647,7 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                 }
             } else {
                 videoUploadInProgress = false;
+                console.error('❌ Upload failed with status:', xhr.status, 'Response:', xhr.responseText);
                 let errorMsg = 'Upload failed with status ' + xhr.status;
                 try {
                     const result = JSON.parse(xhr.responseText);

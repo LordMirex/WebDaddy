@@ -417,10 +417,7 @@ if ($currentView === 'templates') {
                      data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
                     <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                         <div class="relative overflow-hidden h-48 bg-gray-100">
-                            <?php 
-                            $thumbnailUrl = $template['thumbnail_url'] ?? '/assets/images/placeholder.jpg';
-                            ?>
-                            <img src="<?php echo htmlspecialchars($thumbnailUrl); ?>"
+                            <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                  loading="lazy"
@@ -597,10 +594,7 @@ if ($currentView === 'templates') {
                 <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                      data-tool-id="<?php echo $tool['id']; ?>">
                     <div class="relative overflow-hidden h-40 bg-gray-100">
-                        <?php 
-                        $toolThumbnailUrl = $tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg';
-                        ?>
-                        <img src="<?php echo htmlspecialchars($toolThumbnailUrl); ?>"
+                        <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                              loading="lazy"
