@@ -21,3 +21,9 @@
 [17-Nov-2025 17:36:38 Africa/Lagos] Upload API: Session ID: 5ab5f4cce07e6317f953660aff38f05f, Admin status: yes
 [17-Nov-2025 17:39:29 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [17-Nov-2025 17:39:29 Africa/Lagos] Upload API: Session ID: 5ab5f4cce07e6317f953660aff38f05f, Admin status: yes
+[17-Nov-2025 17:46:05 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[17-Nov-2025 17:46:05 Africa/Lagos] Upload API: Session ID: 5ab5f4cce07e6317f953660aff38f05f, Admin status: yes
+[17-Nov-2025 17:46:05 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763397965_9c8960d1_e21ab2c2d61672f5033a05f20e53a57a.mp4
+[17-Nov-2025 17:47:53 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[17-Nov-2025 17:47:53 Africa/Lagos] Upload API: Session ID: 5ab5f4cce07e6317f953660aff38f05f, Admin status: yes
+[17-Nov-2025 17:47:53 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763398073_4d915b94_how-to-design-a-celebrity-booking-with-fan-card-do.mp4
