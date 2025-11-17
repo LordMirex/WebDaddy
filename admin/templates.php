@@ -788,9 +788,12 @@ if (templateForm) {
                 const result = await response.json();
                 
                 if (result.success) {
-                    document.getElementById('banner-url-input').value = result.url;
                     croppedDataInput.value = result.url;
+                    bannerCropper.destroy();
+                    bannerCropper = null;
                     
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
                     e.target.submit();
                 } else {
                     throw new Error(result.error || 'Upload failed');

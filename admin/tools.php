@@ -841,6 +841,7 @@ const createForm = document.querySelector('form[method="POST"] input[name="actio
 if (createForm) {
     createForm.addEventListener('submit', async function(e) {
         const uploadMode = document.getElementById('tool-thumbnail-upload-mode-create');
+        const croppedDataInput = document.getElementById('tool-thumbnail-cropped-data-create');
         
         if (uploadMode && uploadMode.style.display !== 'none' && toolThumbnailCropperCreate) {
             e.preventDefault();
@@ -879,8 +880,12 @@ if (createForm) {
                 const result = await response.json();
                 
                 if (result.success) {
-                    document.getElementById('tool-thumbnail-url-input-create').value = result.url;
+                    croppedDataInput.value = result.url;
+                    toolThumbnailCropperCreate.destroy();
+                    toolThumbnailCropperCreate = null;
                     
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
                     e.target.submit();
                 } else {
                     throw new Error(result.error || 'Upload failed');
@@ -901,6 +906,7 @@ const editForm = document.querySelector('form[method="POST"] input[name="action"
 if (editForm) {
     editForm.addEventListener('submit', async function(e) {
         const uploadMode = document.getElementById('tool-thumbnail-upload-mode-edit');
+        const croppedDataInput = document.getElementById('tool-thumbnail-cropped-data-edit');
         
         if (uploadMode && uploadMode.style.display !== 'none' && toolThumbnailCropperEdit) {
             e.preventDefault();
@@ -939,8 +945,12 @@ if (editForm) {
                 const result = await response.json();
                 
                 if (result.success) {
-                    document.getElementById('tool-thumbnail-url-input-edit').value = result.url;
+                    croppedDataInput.value = result.url;
+                    toolThumbnailCropperEdit.destroy();
+                    toolThumbnailCropperEdit = null;
                     
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
                     e.target.submit();
                 } else {
                     throw new Error(result.error || 'Upload failed');
