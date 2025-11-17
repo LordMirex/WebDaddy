@@ -537,6 +537,14 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
     const file = e.target.files[0];
     if (!file) return;
     
+    const hasVideoType = file.type && file.type.match('video.*');
+    const hasVideoExtension = file.name && file.name.match(/\.(mp4|webm|mov|avi)$/i);
+    if (!hasVideoType && !hasVideoExtension) {
+        alert('Please select a video file (MP4, WebM, MOV, or AVI)');
+        e.target.value = '';
+        return;
+    }
+    
     const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
         alert('Video file is too large. Maximum size is 100MB.');
@@ -549,8 +557,14 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
     const progressText = document.getElementById('video-progress-text');
     const uploadedUrlInput = document.getElementById('video-uploaded-url');
     
+    if (!progressDiv || !progressBar || !progressText || !uploadedUrlInput) {
+        alert('Upload interface not found. Please refresh the page and try again.');
+        return;
+    }
+    
     progressDiv.style.display = 'block';
     progressBar.style.width = '0%';
+    progressBar.classList.remove('bg-green-600');
     progressText.textContent = '0%';
     videoUploadInProgress = true;
     
@@ -579,27 +593,46 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
                         uploadedUrlInput.value = result.url;
                         progressText.textContent = 'Upload complete!';
                         progressBar.classList.add('bg-green-600');
+                        console.log('Video uploaded successfully:', result.url);
                     } else {
                         throw new Error(result.error || 'Upload failed');
                     }
                 } catch (error) {
-                    console.error('Upload error:', error);
+                    console.error('Video upload error:', error);
                     alert('Failed to upload video: ' + error.message);
                     progressDiv.style.display = 'none';
+                    progressBar.style.width = '0%';
                     e.target.value = '';
                 }
             } else {
-                alert('Upload failed. Please try again.');
+                let errorMsg = 'Upload failed with status ' + xhr.status;
+                try {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.error) {
+                        errorMsg = result.error;
+                    }
+                } catch (parseError) {
+                    console.error('Failed to parse error response:', parseError);
+                }
+                alert('Upload failed: ' + errorMsg);
                 progressDiv.style.display = 'none';
+                progressBar.style.width = '0%';
                 e.target.value = '';
             }
         });
         
         xhr.addEventListener('error', () => {
             videoUploadInProgress = false;
-            alert('Upload failed. Please check your connection and try again.');
+            alert('Network error occurred. Please check your connection and try again.');
             progressDiv.style.display = 'none';
+            progressBar.style.width = '0%';
             e.target.value = '';
+        });
+        
+        xhr.addEventListener('abort', () => {
+            videoUploadInProgress = false;
+            progressDiv.style.display = 'none';
+            progressBar.style.width = '0%';
         });
         
         xhr.open('POST', '/api/upload.php');
@@ -607,9 +640,10 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
         
     } catch (error) {
         videoUploadInProgress = false;
-        console.error('Upload error:', error);
+        console.error('Video upload error:', error);
         alert('Failed to upload video: ' + error.message);
         progressDiv.style.display = 'none';
+        progressBar.style.width = '0%';
         e.target.value = '';
     }
 });
@@ -656,75 +690,75 @@ document.getElementById('banner-file-input')?.addEventListener('change', async f
     }
 });
 
-document.querySelector('form[method="POST"]').onsubmit = async function(e) {
-    const bannerUploadMode = document.getElementById('banner-upload-mode');
-    const croppedDataInput = document.getElementById('banner-cropped-data');
-    
-    if (videoUploadInProgress) {
-        e.preventDefault();
-        alert('Please wait for the video upload to complete before submitting.');
-        return false;
-    }
-    
-    if (bannerUploadMode && bannerUploadMode.style.display !== 'none' && bannerCropper) {
-        e.preventDefault();
+const bannerUploadMode = document.getElementById('banner-upload-mode');
+const templateForm = bannerUploadMode?.closest('form[method="POST"]');
+if (templateForm) {
+    templateForm.addEventListener('submit', async function(e) {
+        const croppedDataInput = document.getElementById('banner-cropped-data');
         
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Uploading...';
-        
-        try {
-            const croppedBlob = await bannerCropper.getCroppedBlob({
-                width: 1280,
-                height: 720,
-                type: 'image/jpeg',
-                quality: 0.9
-            });
-            
-            if (!croppedBlob) {
-                throw new Error('Failed to crop image');
-            }
-            
-            const formData = new FormData();
-            formData.append('file', croppedBlob, 'thumbnail.jpg');
-            formData.append('upload_type', 'image');
-            formData.append('category', 'templates');
-            
-            const response = await fetch('/api/upload.php', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            
-            if (!response.ok || !result.success) {
-                const errorMsg = result.error || `Upload failed with status ${response.status}`;
-                const debugInfo = result.debug_info ? `\n\nDebug: ${result.debug_info.file}:${result.debug_info.line}` : '';
-                throw new Error(errorMsg + debugInfo);
-            }
-            
-            if (result.success) {
-                document.getElementById('banner-url-input').value = result.url;
-                croppedDataInput.value = result.url;
-                
-                e.target.submit();
-            } else {
-                throw new Error(result.error || 'Upload failed');
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            console.error('Full error details:', error);
-            alert('Failed to upload image: ' + error.message);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
+        if (videoUploadInProgress) {
+            e.preventDefault();
+            alert('Please wait for the video upload to complete before submitting.');
+            return false;
         }
         
-        return false;
-    }
-    
-    return true;
-};
+        if (bannerUploadMode && bannerUploadMode.style.display !== 'none' && bannerCropper) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split mr-2"></i> Uploading...';
+            
+            try {
+                const croppedBlob = await bannerCropper.getCroppedBlob({
+                    width: 1280,
+                    height: 720,
+                    type: 'image/jpeg',
+                    quality: 0.9
+                });
+                
+                if (!croppedBlob) {
+                    throw new Error('Failed to crop image');
+                }
+                
+                const formData = new FormData();
+                formData.append('file', croppedBlob, 'thumbnail.jpg');
+                formData.append('upload_type', 'image');
+                formData.append('category', 'templates');
+                
+                const response = await fetch('/api/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Upload failed with status ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('banner-url-input').value = result.url;
+                    croppedDataInput.value = result.url;
+                    
+                    e.target.submit();
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Failed to upload image: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+            
+            return false;
+        }
+        
+        return true;
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     handleVideoTypeChange();
