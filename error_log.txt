@@ -1,0 +1,4 @@
+[17-Nov-2025 14:53:53 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
+[17-Nov-2025 14:53:53 Africa/Lagos] Upload API: Session ID: d3b925b58dc2309b5d62e2c6d998f7e0, Admin status: yes
+[17-Nov-2025 14:54:58 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[17-Nov-2025 14:54:58 Africa/Lagos] Upload API: Session ID: d3b925b58dc2309b5d62e2c6d998f7e0, Admin status: yes
