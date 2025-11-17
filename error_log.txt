@@ -6,3 +6,7 @@
 [17-Nov-2025 14:58:37 Africa/Lagos] Upload API: Session ID: d3b925b58dc2309b5d62e2c6d998f7e0, Admin status: yes
 [17-Nov-2025 15:40:32 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [17-Nov-2025 15:40:32 Africa/Lagos] Upload API: Session ID: b92b3679393d86b58715e51da684d87f, Admin status: yes
+[17-Nov-2025 16:01:50 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[17-Nov-2025 16:01:50 Africa/Lagos] Upload API: Session ID: b92b3679393d86b58715e51da684d87f, Admin status: yes
+[17-Nov-2025 16:02:38 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[17-Nov-2025 16:02:38 Africa/Lagos] Upload API: Session ID: b92b3679393d86b58715e51da684d87f, Admin status: yes
