@@ -27,3 +27,13 @@
 [17-Nov-2025 17:47:53 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
 [17-Nov-2025 17:47:53 Africa/Lagos] Upload API: Session ID: 5ab5f4cce07e6317f953660aff38f05f, Admin status: yes
 [17-Nov-2025 17:47:53 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763398073_4d915b94_how-to-design-a-celebrity-booking-with-fan-card-do.mp4
+[17-Nov-2025 19:42:02 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[17-Nov-2025 19:42:02 Africa/Lagos] Upload API: Session ID: 2ec34ca786ae3338ea7c227f9bd59b25, Admin status: yes
+[17-Nov-2025 19:42:02 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763404922_f3d2dd12_how-to-create-an-investment-live-trading-crypto-sw.mp4
+[17-Nov-2025 20:05:26 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
+[17-Nov-2025 20:05:26 Africa/Lagos] Upload API: Session ID: 0891000ca1a9bfd92296dbdf55d49543, Admin status: yes
+[17-Nov-2025 20:07:22 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[17-Nov-2025 20:07:22 Africa/Lagos] Upload API: Session ID: 0891000ca1a9bfd92296dbdf55d49543, Admin status: yes
+[17-Nov-2025 20:07:23 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763406442_71505f3d_c86e174b38bc8c909d8863f804cebdc5.mp4
+[17-Nov-2025 20:07:24 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[17-Nov-2025 20:07:24 Africa/Lagos] Upload API: Session ID: 0891000ca1a9bfd92296dbdf55d49543, Admin status: yes
