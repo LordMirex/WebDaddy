@@ -61,11 +61,12 @@ class VideoModal {
                             <!-- Video Element -->
                             <video id="modalVideo" 
                                    class="object-contain"
-                                   style="max-width: 100%; max-height: 80vh; width: auto; height: auto; display: none;"
+                                   style="max-width: 100%; max-height: 80vh; width: auto; height: auto;"
                                    preload="metadata"
                                    playsinline
                                    muted
-                                   controlsList="nodownload">
+                                   controlsList="nodownload"
+                                   data-video-poster>
                                 <source data-video-source type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
@@ -174,7 +175,7 @@ class VideoModal {
         }
     }
 
-    open(videoUrl, title = 'Video Preview') {
+    open(videoUrl, title = 'Video Preview', posterUrl = '') {
         if (!videoUrl) {
             console.error('VideoModal: No video URL provided');
             return;
@@ -183,20 +184,31 @@ class VideoModal {
         this.isOpen = true;
         this.title.textContent = title;
         
-        // Show modal
+        // Show modal immediately
         this.modal.classList.remove('hidden');
         
         // Prevent body scroll
         document.body.style.overflow = 'hidden';
         
-        // Show loading state and reset mute indicator
-        this.loader.style.display = 'flex';
-        this.video.style.display = 'none';
-        this.playOverlay.style.display = 'none';
+        // Reset states
         this.muteIndicator.style.display = 'none';
         this.muteIndicator.style.opacity = '1';
         this.muteIndicator.style.transition = 'opacity 0.5s ease-out';
         this.errorContainer.classList.add('hidden');
+        
+        // Set poster if available
+        if (posterUrl) {
+            this.video.poster = posterUrl;
+            // Show video with poster immediately, hide loader
+            this.video.style.display = 'block';
+            this.loader.style.display = 'none';
+            this.playOverlay.style.display = 'flex';
+        } else {
+            // No poster, show loading state
+            this.loader.style.display = 'flex';
+            this.video.style.display = 'none';
+            this.playOverlay.style.display = 'none';
+        }
         
         // Set video source and load
         this.videoSource.src = videoUrl;
@@ -205,7 +217,7 @@ class VideoModal {
         
         // Track analytics
         if (typeof trackEvent === 'function') {
-            trackEvent('video_modal_opened', { url: videoUrl, title: title });
+            trackEvent('video_modal_opened', { url: videoUrl, title: title, has_poster: !!posterUrl });
         }
     }
 
@@ -214,10 +226,13 @@ class VideoModal {
     }
 
     onVideoCanPlay() {
-        // Video is ready to play, hide loader and show video with play button
-        this.loader.style.display = 'none';
-        this.video.style.display = 'block';
-        this.playOverlay.style.display = 'flex';
+        // Video is ready to play
+        // Only update if loader is still showing (no poster was used)
+        if (this.loader.style.display !== 'none') {
+            this.loader.style.display = 'none';
+            this.video.style.display = 'block';
+            this.playOverlay.style.display = 'flex';
+        }
         this.muteIndicator.style.display = 'none';
     }
 
@@ -230,6 +245,7 @@ class VideoModal {
         this.video.pause();
         this.video.currentTime = 0;
         this.videoSource.src = '';
+        this.video.poster = '';
         
         // Hide modal
         this.modal.classList.add('hidden');
@@ -315,13 +331,30 @@ if (document.readyState === 'loading') {
     initVideoModal();
 }
 
+// Helper function to generate poster URL from video URL
+window.getVideoPosterUrl = function(videoUrl) {
+    if (!videoUrl) return '';
+    
+    // Extract filename from video URL
+    // Format: /uploads/templates/videos/video_1763438703_c8a2c038_filename.mp4
+    const match = videoUrl.match(/\/uploads\/(.+\/)videos\/(.+?)\.mp4/);
+    if (match) {
+        const category = match[1].replace(/\/$/, ''); // templates or tools
+        const filename = match[2]; // video_1763438703_c8a2c038_filename
+        return `/uploads/${category}/videos/thumbnails/${filename}_thumb.jpg`;
+    }
+    return '';
+};
+
 // Global function for opening video modal
-window.openVideoModal = function(videoUrl, title) {
+window.openVideoModal = function(videoUrl, title, posterUrl) {
     if (!window.videoModal) {
         initVideoModal();
     }
     if (window.videoModal) {
-        window.videoModal.open(videoUrl, title);
+        // Auto-generate poster URL if not provided
+        const poster = posterUrl || window.getVideoPosterUrl(videoUrl);
+        window.videoModal.open(videoUrl, title, poster);
     } else {
         console.error('VideoModal not initialized');
     }
