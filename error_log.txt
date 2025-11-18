@@ -99,3 +99,11 @@ Stack trace:
 [18-Nov-2025 10:49:04 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [18-Nov-2025 10:50:49 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [18-Nov-2025 10:50:53 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 11:41:47 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[18-Nov-2025 11:41:47 Africa/Lagos] Upload API: Session ID: ec7011e5565e1cae1b1ee607d49c271f, Admin status: yes
+[18-Nov-2025 11:41:47 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763462507_e6be7f42_how-to-build-a-funds-recovery-website-funds-recove.mp4
+[18-Nov-2025 11:41:51 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[18-Nov-2025 11:41:51 Africa/Lagos] Upload API: Session ID: ec7011e5565e1cae1b1ee607d49c271f, Admin status: yes
+[18-Nov-2025 11:52:31 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
+[18-Nov-2025 11:52:50 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 12:05:17 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
