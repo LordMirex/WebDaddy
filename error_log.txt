@@ -60,3 +60,11 @@
 [18-Nov-2025 08:08:25 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [18-Nov-2025 08:09:19 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
 [18-Nov-2025 08:14:37 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 08:46:41 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function isLoggedIn() in /home/runner/workspace/admin/migrate-urls.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/runner/workspace/admin/migrate-urls.php on line 9
+[18-Nov-2025 08:47:20 Africa/Lagos] PHP Fatal error:  Uncaught Error: Call to undefined function isLoggedIn() in /home/runner/workspace/admin/migrate-urls.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/runner/workspace/admin/migrate-urls.php on line 9

@@ -12,6 +12,15 @@ class VideoModal {
         this.loadTimeout = null;
         this.playbackAttempted = false;
         this.autoplayTimeout = null;
+        this.instructionInterval = null;
+        this.loadingInstructions = [
+            { title: "Please be patient...", text: "Video is loading" },
+            { title: "Almost there!", text: "Buffering video content" },
+            { title: "Tip: Tap video to pause/play", text: "Interactive controls available" },
+            { title: "Tip: Click speaker icon", text: "Unmute to hear audio" },
+            { title: "Loading complete!", text: "Starting playback..." }
+        ];
+        this.currentInstructionIndex = 0;
         this.init();
     }
 
@@ -49,9 +58,13 @@ class VideoModal {
                         
                         <!-- Video Container -->
                         <div class="relative bg-black rounded-b-xl overflow-hidden" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0;">
-                            <!-- Loading Spinner -->
-                            <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
-                                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white"></div>
+                            <!-- Animated Loading Instructions (5 seconds) -->
+                            <div data-video-loader class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black z-30">
+                                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white mb-6"></div>
+                                <div data-loading-instruction class="text-white text-center px-6 transition-opacity duration-500">
+                                    <p class="text-lg sm:text-xl font-semibold mb-2">Please be patient...</p>
+                                    <p class="text-sm sm:text-base text-gray-300">Video is loading</p>
+                                </div>
                             </div>
                             
                             <!-- Video Element -->
@@ -111,6 +124,7 @@ class VideoModal {
         this.modal = document.getElementById('videoModal');
         this.video = document.getElementById('modalVideo');
         this.loader = this.modal.querySelector('[data-video-loader]');
+        this.loadingInstruction = this.modal.querySelector('[data-loading-instruction]');
         this.videoSource = this.modal.querySelector('[data-video-source]');
         this.playOverlay = this.modal.querySelector('[data-play-overlay]');
         this.muteIndicator = this.modal.querySelector('[data-mute-indicator]');
@@ -193,11 +207,16 @@ class VideoModal {
         this.isOpen = true;
         this.title.textContent = title;
         this.playbackAttempted = false;
+        this.currentInstructionIndex = 0;
         
-        // Clear any existing autoplay timeout
+        // Clear any existing timeouts
         if (this.autoplayTimeout) {
             clearTimeout(this.autoplayTimeout);
             this.autoplayTimeout = null;
+        }
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
         }
         
         // Show modal immediately
@@ -215,12 +234,24 @@ class VideoModal {
         this.video.muted = true;
         this.updateMuteIcon();
         
-        // Set video source immediately
-        this.videoSource.src = videoUrl;
-        
-        // Show loader initially
+        // Show loader with first instruction
         this.loader.style.display = 'flex';
         this.video.style.display = 'block';
+        this.updateLoadingInstruction();
+        
+        // Rotate instructions every 1 second for 5 seconds
+        this.instructionInterval = setInterval(() => {
+            this.currentInstructionIndex++;
+            if (this.currentInstructionIndex < this.loadingInstructions.length) {
+                this.updateLoadingInstruction();
+            } else {
+                clearInterval(this.instructionInterval);
+                this.instructionInterval = null;
+            }
+        }, 1000);
+        
+        // Set video source immediately
+        this.videoSource.src = videoUrl;
         
         // Set poster if available for faster perceived load
         if (posterUrl) {
@@ -230,45 +261,66 @@ class VideoModal {
         // Start loading video immediately for fast playback
         this.video.load();
         
-        // Fallback: show play overlay if autoplay hasn't started within 3s
+        // After 5 seconds: force hide loader and start playback or show play button
         this.autoplayTimeout = setTimeout(() => {
-            if (this.isOpen && this.video.paused && !this.playbackAttempted) {
-                console.log('VideoModal: Autoplay timeout - showing play overlay');
-                this.loader.style.display = 'none';
-                this.playOverlay.style.display = 'flex';
+            if (this.instructionInterval) {
+                clearInterval(this.instructionInterval);
+                this.instructionInterval = null;
             }
-        }, 3000);
+            
+            if (this.isOpen) {
+                console.log('VideoModal: 5-second loading complete');
+                this.loader.style.display = 'none';
+                
+                // Try to play if not already playing
+                if (this.video.paused && !this.playbackAttempted) {
+                    this.playbackAttempted = true;
+                    this.playVideo();
+                } else if (this.video.paused) {
+                    // Show play overlay if video is still paused
+                    this.playOverlay.style.display = 'flex';
+                }
+            }
+        }, 5000);
         
         // Track analytics
         if (typeof trackEvent === 'function') {
             trackEvent('video_modal_opened', { url: videoUrl, title: title, has_poster: !!posterUrl });
         }
     }
+    
+    updateLoadingInstruction() {
+        const instruction = this.loadingInstructions[this.currentInstructionIndex];
+        this.loadingInstruction.style.opacity = '0';
+        
+        setTimeout(() => {
+            this.loadingInstruction.innerHTML = `
+                <p class="text-lg sm:text-xl font-semibold mb-2">${instruction.title}</p>
+                <p class="text-sm sm:text-base text-gray-300">${instruction.text}</p>
+            `;
+            this.loadingInstruction.style.opacity = '1';
+        }, 250);
+    }
 
     onVideoLoadedMetadata() {
-        console.log('Video metadata loaded - attempting autoplay');
-        // Hide loader as soon as metadata is loaded
-        this.loader.style.display = 'none';
-        this.video.style.display = 'block';
+        console.log('Video metadata loaded - ready for playback');
+        // Video metadata is loaded, but keep showing instructions for full 5 seconds
+        // Don't hide loader yet - let the 5-second timer handle it
         
-        // Try to play immediately after metadata loads
+        // Try to start buffering/playing in background
         if (!this.playbackAttempted) {
             this.playbackAttempted = true;
-            this.playVideo();
+            // Attempt playback silently - will be visible after 5-second loader
+            this.video.play().catch(err => {
+                console.log('Auto-play blocked, will show play button after 5s:', err);
+            });
         }
     }
 
     onVideoCanPlay() {
-        console.log('Video can play - ensuring playback');
-        // Video is ready to play - hide loader and ensure autoplay
-        this.loader.style.display = 'none';
-        this.video.style.display = 'block';
-        
-        // Try to play if not already attempted
-        if (!this.playbackAttempted) {
-            this.playbackAttempted = true;
-            this.playVideo();
-        }
+        console.log('Video can play - buffered and ready');
+        // Video is ready but keep showing 5-second instructions
+        // The autoplayTimeout will handle hiding the loader
     }
 
     close() {
@@ -276,11 +328,16 @@ class VideoModal {
         
         this.isOpen = false;
         this.playbackAttempted = false;
+        this.currentInstructionIndex = 0;
         
-        // Clear autoplay timeout
+        // Clear all timeouts and intervals
         if (this.autoplayTimeout) {
             clearTimeout(this.autoplayTimeout);
             this.autoplayTimeout = null;
+        }
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
         }
         
         // Pause and reset video
@@ -334,10 +391,10 @@ class VideoModal {
         this.playOverlay.style.display = 'none';
         this.muteIndicator.style.display = 'flex';
         
-        // Clear autoplay timeout since playback has started
-        if (this.autoplayTimeout) {
-            clearTimeout(this.autoplayTimeout);
-            this.autoplayTimeout = null;
+        // Clear instruction interval since video is playing
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
         }
     }
 
@@ -425,6 +482,15 @@ class DemoModal {
         this.isOpen = false;
         this.loadTimeout = null;
         this.hasLoaded = false;
+        this.instructionInterval = null;
+        this.loadingInstructions = [
+            { title: "Please be patient...", text: "Page is loading" },
+            { title: "Almost there!", text: "Fetching website content" },
+            { title: "Tip: Scroll to explore", text: "Full interactive preview" },
+            { title: "Tip: Click links and buttons", text: "Test all features live" },
+            { title: "Loading complete!", text: "Ready to view..." }
+        ];
+        this.currentInstructionIndex = 0;
         this.init();
     }
 
@@ -457,10 +523,11 @@ class DemoModal {
                         </div>
                         
                         <div class="relative bg-white rounded-b-xl overflow-hidden" style="height: 80vh;">
-                            <div data-demo-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-50">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-white"></div>
-                                    <p data-loader-text class="text-gray-400 text-sm">Loading preview...</p>
+                            <div data-demo-loader class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black z-50">
+                                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white mb-6"></div>
+                                <div data-loading-instruction class="text-white text-center px-6 transition-opacity duration-500">
+                                    <p class="text-lg sm:text-xl font-semibold mb-2">Please be patient...</p>
+                                    <p class="text-sm sm:text-base text-gray-300">Page is loading</p>
                                 </div>
                             </div>
                             
@@ -490,7 +557,7 @@ class DemoModal {
         this.modal = document.getElementById('demoModal');
         this.iframe = document.getElementById('modalIframe');
         this.loader = this.modal.querySelector('[data-demo-loader]');
-        this.loaderText = this.modal.querySelector('[data-loader-text]');
+        this.loadingInstruction = this.modal.querySelector('[data-loading-instruction]');
         this.errorContainer = this.modal.querySelector('[data-demo-error]');
         this.title = document.getElementById('demoModalTitle');
     }
@@ -530,52 +597,88 @@ class DemoModal {
 
         this.isOpen = true;
         this.title.textContent = title;
-        
-        this.modal.classList.remove('hidden');
-        
-        document.body.style.overflow = 'hidden';
-        
-        this.loader.style.display = 'flex';
-        this.loaderText.textContent = 'Loading preview...';
-        this.iframe.style.display = 'block';
-        this.errorContainer.classList.add('hidden');
+        this.currentInstructionIndex = 0;
         this.hasLoaded = false;
         
-        // Set iframe source immediately for faster loading
-        this.iframe.src = url;
-        
-        // Auto-hide loader after short delay to show iframe immediately
+        // Clear any existing intervals/timeouts
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
         }
-        this.loadTimeout = setTimeout(() => {
-            if (this.isOpen && this.loader.style.display !== 'none') {
-                console.log('DemoModal: Auto-hiding loader for instant display');
-                this.loader.style.display = 'none';
-            }
-        }, 1500);
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
+        }
         
-        // Fallback: ensure loader is hidden after max wait time
-        setTimeout(() => {
-            if (this.isOpen && !this.hasLoaded) {
-                console.log('DemoModal: Force hiding loader after 2s');
-                this.onIframeLoaded();
+        this.modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Show loader with first instruction
+        this.loader.style.display = 'flex';
+        this.iframe.style.display = 'block';
+        this.errorContainer.classList.add('hidden');
+        this.updateDemoInstruction();
+        
+        // Rotate instructions every 1 second for 5 seconds
+        this.instructionInterval = setInterval(() => {
+            this.currentInstructionIndex++;
+            if (this.currentInstructionIndex < this.loadingInstructions.length) {
+                this.updateDemoInstruction();
+            } else {
+                clearInterval(this.instructionInterval);
+                this.instructionInterval = null;
             }
-        }, 2000);
+        }, 1000);
+        
+        // Set iframe source IMMEDIATELY - let browser load it in background
+        this.iframe.src = url;
+        
+        // After 5 seconds: hide loader and show iframe no matter what
+        this.loadTimeout = setTimeout(() => {
+            if (this.instructionInterval) {
+                clearInterval(this.instructionInterval);
+                this.instructionInterval = null;
+            }
+            
+            if (this.isOpen) {
+                console.log('DemoModal: 5-second loading complete - showing iframe');
+                this.loader.style.display = 'none';
+                this.iframe.style.display = 'block';
+            }
+        }, 5000);
         
         if (typeof trackEvent === 'function') {
             trackEvent('demo_modal_opened', { url: url, title: title });
         }
+    }
+    
+    updateDemoInstruction() {
+        const instruction = this.loadingInstructions[this.currentInstructionIndex];
+        this.loadingInstruction.style.opacity = '0';
+        
+        setTimeout(() => {
+            this.loadingInstruction.innerHTML = `
+                <p class="text-lg sm:text-xl font-semibold mb-2">${instruction.title}</p>
+                <p class="text-sm sm:text-base text-gray-300">${instruction.text}</p>
+            `;
+            this.loadingInstruction.style.opacity = '1';
+        }, 250);
     }
 
     close() {
         if (!this.isOpen) return;
         
         this.isOpen = false;
+        this.currentInstructionIndex = 0;
         
+        // Clear all timeouts and intervals
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
             this.loadTimeout = null;
+        }
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
         }
         
         this.iframe.src = '';
@@ -590,8 +693,10 @@ class DemoModal {
     }
 
     onIframeLoaded() {
-        this.loader.style.display = 'none';
-        this.iframe.style.display = 'block';
+        this.hasLoaded = true;
+        // Iframe loaded successfully - but keep showing 5-second instructions
+        // The 5-second timeout will handle hiding the loader
+        console.log('DemoModal: Iframe loaded successfully');
     }
 
     onIframeError() {

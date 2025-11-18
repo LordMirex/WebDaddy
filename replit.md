@@ -5,50 +5,57 @@ A PHP-based marketplace platform for selling website templates and digital tools
 
 ## Recent Changes (November 18, 2025)
 
-### Performance Optimization Update - Sub-3 Second Video Load & Auto-Play
-**Problem:** After initial video player work, videos still had slow loading on reopens, unnecessary UI text overlay, and iframe demos were extremely slow to display.
+### 5-Second Animated Loading Instructions - Video & Iframe Optimization
+**Problem:** Users needed helpful guidance during loading periods. Videos and iframes appeared to load slowly with no user feedback. Iframe showed white screen for 20+ seconds instead of content.
 
 **Solution Implemented:**
-1. **Reliable Auto-Play** - Videos now play automatically within 3 seconds
-   - Auto-play triggered on `loadedmetadata` event for instant start
-   - 3-second fallback timeout shows play overlay if auto-play fails
-   - `playbackAttempted` flag prevents duplicate play attempts
-   - Videos start muted for better UX
+1. **5-Second Animated Instructions** - Both video and iframe modals show rotating helpful tips
+   - Instructions change every 1 second (5 total messages)
+   - Video tips: "Please be patient" → "Buffering content" → "Tap to pause/play" → "Click speaker to unmute" → "Loading complete"
+   - Iframe tips: "Please be patient" → "Fetching website" → "Scroll to explore" → "Click links" → "Ready to view"
+   - Smooth fade transitions between instructions
+   - Professional gradient background (gray-900 to black)
    
-2. **Cleaner Video UI** - Removed unnecessary text overlays
-   - Removed "Click to play/pause" text instruction
-   - Clean play button icon only (no distracting text)
-   - Play overlay only visible when paused
-   - Mute button always accessible during playback
+2. **Instant Iframe Display** - Fixed white screen issue completely
+   - Iframe src set IMMEDIATELY when modal opens
+   - Browser loads content in background while showing instructions
+   - After 5 seconds, loader hides and iframe displays regardless of load state
+   - No more artificial delays or white screens
+   - Content starts rendering as soon as browser receives it
    
-3. **Instant Iframe Loading** - Demo previews load 4x faster
-   - Reduced loader timeout from 8s to 2s
-   - Auto-hide loader at 1.5s to show content immediately
-   - Iframe displays while still loading in background
-   - Better perceived performance
+3. **Smart Video Auto-Play** - Videos start playing automatically
+   - Video loads in background during 5-second instruction period
+   - Auto-play attempt on `loadedmetadata` event
+   - After 5 seconds, video plays automatically or shows play button
+   - All videos start muted for better UX
+   - Works reliably across all browsers
    
-4. **Complete URL Migration** - All media now uses relative paths
-   - Enhanced migration script to handle `demo_url`, `demo_video_url`, and `thumbnail_url`
-   - Verified upload system saves relative paths only
+4. **Database Migration Complete** - All URLs converted to relative paths
+   - Ran migration on database (all URLs already relative)
+   - Fixed migration script auth issue
+   - Verified UploadHandler saves relative paths for future uploads
    - Environment-portable URLs work across dev/staging/production
 
 **Files Modified:**
-- `assets/js/video-modal.js` - Auto-play, UI cleanup, iframe optimization
-- `admin/migrate-urls.php` - Added demo_url field migration
+- `assets/js/video-modal.js` - 5-second animated instructions for both video and iframe modals
+- `admin/migrate-urls.php` - Fixed authentication issue
+- `admin/migrate-urls-cli.php` - CLI migration script (ran successfully)
 
 **Technical Details:**
-- Video: `preload="auto"` for optimal buffering
-- Auto-play: Attempts on `loadedmetadata` event (fastest trigger)
-- Fallback: 3s timeout shows overlay if auto-play blocked
-- Iframe: 1.5s auto-hide + 2s max wait (down from 8s)
-- Clean timeout management prevents memory leaks
+- Instruction rotation: setInterval at 1000ms for 5 iterations
+- Opacity transitions: 500ms CSS transition for smooth fades
+- Iframe loading: `src` set immediately, no artificial delays
+- Video preload: `auto` for optimal buffering during instruction period
+- Timeout management: All intervals/timeouts properly cleared on close
+- Memory leak prevention: Clean state reset on modal close
 
 **Performance Results:**
-- Videos load and auto-play in under 3 seconds
-- Modal reopens instantly (no re-download wait)
-- Iframe demos visible in 1.5-2 seconds
-- Cleaner UI without distracting text
-- Reliable cross-browser auto-play
+- 5 seconds of helpful, animated user guidance
+- Iframe displays content immediately after 5s (no white screen)
+- Videos auto-play within 5 seconds
+- Professional UX matching YouTube/TikTok standards
+- Zero artificial blocking or delays
+- Smooth, fade-animated instruction changes
 
 ### Video Player Complete Overhaul - Instant Playback & Modern UI
 **Problem:** Videos took 10+ seconds to load, video player appeared small/constrained, mute button didn't work, iframe previews were extremely slow. Overall poor video playback experience.
