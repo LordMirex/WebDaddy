@@ -105,19 +105,53 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                          onerror="this.src='/assets/images/placeholder.jpg'">
                     <?php 
-                    $templateMediaType = $template['media_type'] ?? 'banner';
-                    $templateMediaUrl = null;
-                    if ($templateMediaType === 'demo_url' && !empty($template['demo_url'])) {
-                        $templateMediaUrl = $template['demo_url'];
-                    } elseif ($templateMediaType === 'video' && !empty($template['demo_video_url'])) {
-                        $templateMediaUrl = $template['demo_video_url'];
-                    }
-                    if ($templateMediaUrl): 
+                    $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
+                    if ($hasDemo):
+                        $demoUrl = !empty($template['demo_video_url']) ? $template['demo_video_url'] : $template['demo_url'];
+                        $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $demoUrl);
+                        $isVideo = $hasVideoExtension;
                     ?>
-                    <button onclick="openDemo('<?php echo htmlspecialchars($templateMediaUrl); ?>', '<?php echo htmlspecialchars($template['name']); ?>')" 
+                    <?php if ($isVideo): ?>
+                    <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Video
+                    </button>
+                    <?php else: ?>
+                    <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                             class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                         Preview
                     </button>
+                    <?php endif; ?>
+                    <?php if ($isVideo): ?>
+                    <button onclick="openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            data-video-trigger
+                            data-video-url="<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>"
+                            data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>"
+                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Watch Demo
+                        </span>
+                    </button>
+                    <?php else: ?>
+                    <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
+                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Click to Preview
+                        </span>
+                    </button>
+                    <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 <div class="p-4">
@@ -200,6 +234,15 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                          onerror="this.src='/assets/images/placeholder.jpg'">
+                    <?php if (!empty($tool['demo_video_url'])): ?>
+                    <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
+                            class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        Watch Video
+                    </button>
+                    <?php endif; ?>
                     <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
                     <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
                         Limited Stock
