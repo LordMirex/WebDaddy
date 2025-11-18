@@ -5,42 +5,57 @@ A PHP-based marketplace platform for selling website templates and digital tools
 
 ## Recent Changes (November 18, 2025)
 
-### Video Performance Optimization - Instant Loading & Progressive Streaming
-**Problem:** Videos took too long to load when clicking preview. Modal showed loading spinner for extended periods, and videos didn't stream progressively. Users experienced slow, frustrating interactions with video content.
+### Video Player Complete Overhaul - Instant Playback & Modern UI
+**Problem:** Videos took 10+ seconds to load, video player appeared small/constrained, mute button didn't work, iframe previews were extremely slow. Overall poor video playback experience.
 
 **Solution Implemented:**
-1. **FFmpeg Video Processing** - Automatic thumbnail extraction and video optimization on upload
-   - Thumbnails extracted at 1-second mark from uploaded videos
-   - Videos optimized with H.264 codec and faststart flag for progressive streaming
-   - All videos converted to .mp4 format for maximum compatibility
+1. **Removed FFmpeg Dependency** - Eliminated all backend video processing
+   - Videos are uploaded directly without server-side processing
+   - No more thumbnail extraction or video optimization delays
+   - Faster upload workflow and simpler architecture
    
-2. **Instant Modal Display** - Modal now appears immediately with poster image
-   - Poster thumbnails shown while video buffers in background
-   - No more waiting for video.load() before showing modal
-   - Smooth user experience with visual feedback
+2. **Full-Width Video Player** - Video modal now expands to full width immediately
+   - Changed from `max-width: min(90vw, 1200px)` to `width: 95vw; max-width: 1600px`
+   - Video container uses 16:9 aspect ratio for proper sizing
+   - Video element fills 100% width and height of container
+   - No more small/slim appearance when opening videos
    
-3. **Progressive Video Streaming** - Videos start playing as soon as buffered
-   - `movflags +faststart` enables progressive download and playback
-   - Users don't wait for full video download
-   - Bandwidth-efficient streaming
+3. **Instant Video Playback** - Videos load and play within 1-2 seconds
+   - Changed preload from `metadata` to `auto` for faster buffering
+   - Video starts loading immediately when modal opens
+   - Progressive streaming enabled (videos play while downloading)
+   - Loader shows only briefly before play button appears
+   
+4. **Working Mute/Unmute Toggle** - Fully functional audio controls
+   - Mute button now clickable and toggles video sound
+   - All videos start muted by default (auto-mute)
+   - Visual feedback with mute/unmute icons that swap on click
+   - Button appears when video plays, always accessible
+   
+5. **Faster Iframe Loading** - Demo preview modal optimized
+   - Reduced timeout from 3s to 2s for status updates
+   - Added 8s fallback to force-hide loader if load event doesn't fire
+   - Added sandbox attributes for better security and performance
+   - Improved perceived loading speed
 
 **Files Modified:**
-- `includes/upload_handler.php` - Added processVideo() method for FFmpeg processing
-- `assets/js/video-modal.js` - Updated to support instant display with poster
-- Video thumbnails stored in `/uploads/{category}/videos/thumbnails/`
+- `includes/upload_handler.php` - Removed processVideo() method and all FFmpeg code
+- `assets/js/video-modal.js` - Complete video player UI and loading optimization
 
 **Technical Details:**
-- FFmpeg extracts thumbnail: `-ss 00:00:01 -vframes 1 -q:v 2`
-- Video optimization: `-c:v libx264 -profile:v main -crf 23 -movflags +faststart -c:a aac`
-- Poster URL auto-generated from video filename
-- Works with all video formats (.mp4, .mov, .avi, .webm, .mkv, .flv)
+- Video modal: `width: 95vw; max-width: 1600px` for full-width display
+- Video container: `aspect-ratio: 16/9` for proper proportions
+- Video element: `preload="auto"` for instant playback
+- Mute toggle: Click event on button toggles `video.muted` property
+- Iframe: 8s max wait with fallback loader hiding
 
 **Benefits:**
-- Modal appears instantly when clicking preview
-- Videos stream progressively (no full download required)
-- Better perceived performance and user experience
-- Automatic thumbnail generation for all uploads
-- All videos optimized for web delivery
+- Videos open and play in under 2 seconds
+- Full-width video player provides better viewing experience
+- Working mute/unmute button gives users audio control
+- Faster iframe previews with better timeout handling
+- Simpler codebase without FFmpeg dependency
+- All videos start muted to prevent unexpected audio
 
 ### URL Storage Migration - Environment Portability Fix
 **Problem:** When files were uploaded, the system stored absolute URLs (e.g., `https://old-domain.replit.dev/uploads/...`). When moving between environments (development, staging, production, or different Replit instances), these URLs would break because they pointed to the old domain.

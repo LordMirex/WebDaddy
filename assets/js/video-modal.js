@@ -30,7 +30,7 @@ class VideoModal {
                     
                     <!-- Modal Content -->
                     <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
-                         style="max-width: min(90vw, 1200px); max-height: 90vh;"
+                         style="width: 95vw; max-width: 1600px;"
                          data-video-container>
                         
                         <!-- Header -->
@@ -46,7 +46,7 @@ class VideoModal {
                         </div>
                         
                         <!-- Video Container -->
-                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="height: 80vh; display: flex; align-items: center; justify-content: center;">
+                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
                             <!-- Loading Spinner with Instructions -->
                             <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
                                 <div class="flex flex-col items-center gap-4 text-center px-4">
@@ -61,8 +61,8 @@ class VideoModal {
                             <!-- Video Element -->
                             <video id="modalVideo" 
                                    class="object-contain"
-                                   style="max-width: 100%; max-height: 80vh; width: auto; height: auto;"
-                                   preload="metadata"
+                                   style="width: 100%; height: 100%;"
+                                   preload="auto"
                                    playsinline
                                    muted
                                    controlsList="nodownload"
@@ -71,12 +71,18 @@ class VideoModal {
                                 Your browser does not support the video tag.
                             </video>
                             
-                            <!-- Mute Icon Overlay (Always Visible on Video) -->
-                            <div data-mute-indicator class="absolute top-4 right-4 bg-black/70 rounded-full p-3 pointer-events-none z-20" style="display: none;">
-                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <!-- Mute/Unmute Button -->
+                            <button data-mute-indicator 
+                                    class="absolute top-4 right-4 bg-black/70 hover:bg-black/90 rounded-full p-3 transition-all cursor-pointer z-20" 
+                                    style="display: none;"
+                                    aria-label="Toggle mute">
+                                <svg data-mute-icon class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                 </svg>
-                            </div>
+                                <svg data-unmute-icon class="w-6 h-6 text-white hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
                             
                             <!-- Custom Play Button Overlay -->
                             <div data-play-overlay class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30 z-10" style="display: none;">
@@ -113,6 +119,8 @@ class VideoModal {
         this.videoSource = this.modal.querySelector('[data-video-source]');
         this.playOverlay = this.modal.querySelector('[data-play-overlay]');
         this.muteIndicator = this.modal.querySelector('[data-mute-indicator]');
+        this.muteIcon = this.modal.querySelector('[data-mute-icon]');
+        this.unmuteIcon = this.modal.querySelector('[data-unmute-icon]');
         this.errorContainer = this.modal.querySelector('[data-video-error]');
         this.title = document.getElementById('videoModalTitle');
     }
@@ -144,6 +152,12 @@ class VideoModal {
         
         // Video click (play/pause toggle)
         this.video.addEventListener('click', () => this.togglePlayPause());
+        
+        // Mute button click
+        this.muteIndicator.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleMute();
+        });
         
         // Prevent modal content clicks from closing
         this.modal.querySelector('[data-video-container]').addEventListener('click', (e) => {
@@ -192,27 +206,29 @@ class VideoModal {
         
         // Reset states
         this.muteIndicator.style.display = 'none';
-        this.muteIndicator.style.opacity = '1';
-        this.muteIndicator.style.transition = 'opacity 0.5s ease-out';
         this.errorContainer.classList.add('hidden');
         
-        // Set poster if available
+        // Always start muted
+        this.video.muted = true;
+        this.updateMuteIcon();
+        
+        // Set video source immediately
+        this.videoSource.src = videoUrl;
+        
+        // Set poster if available - show immediately
         if (posterUrl) {
             this.video.poster = posterUrl;
-            // Show video with poster immediately, hide loader
             this.video.style.display = 'block';
             this.loader.style.display = 'none';
             this.playOverlay.style.display = 'flex';
         } else {
-            // No poster, show loading state
+            // No poster - show loader briefly
             this.loader.style.display = 'flex';
-            this.video.style.display = 'none';
+            this.video.style.display = 'block';
             this.playOverlay.style.display = 'none';
         }
         
-        // Set video source and load
-        this.videoSource.src = videoUrl;
-        this.video.muted = true;
+        // Start loading video immediately for fast playback
         this.video.load();
         
         // Track analytics
@@ -226,14 +242,10 @@ class VideoModal {
     }
 
     onVideoCanPlay() {
-        // Video is ready to play
-        // Only update if loader is still showing (no poster was used)
-        if (this.loader.style.display !== 'none') {
-            this.loader.style.display = 'none';
-            this.video.style.display = 'block';
-            this.playOverlay.style.display = 'flex';
-        }
-        this.muteIndicator.style.display = 'none';
+        // Video is ready to play - hide loader and show play button
+        this.loader.style.display = 'none';
+        this.video.style.display = 'block';
+        this.playOverlay.style.display = 'flex';
     }
 
     close() {
@@ -290,30 +302,33 @@ class VideoModal {
 
     onVideoPlay() {
         this.playOverlay.style.display = 'none';
-        this.muteIndicator.style.display = 'block';
-        this.muteIndicator.style.opacity = '1';
-        this.muteIndicator.style.transition = 'opacity 0.5s ease-out';
-        
-        // Auto-fade mute indicator after 3 seconds
-        setTimeout(() => {
-            if (!this.video.paused) {
-                this.muteIndicator.style.opacity = '0';
-            }
-        }, 3000);
+        this.muteIndicator.style.display = 'flex';
     }
 
     onVideoPause() {
         if (!this.video.ended) {
             this.playOverlay.style.display = 'flex';
         }
-        // Reset mute indicator opacity when paused
-        this.muteIndicator.style.opacity = '1';
     }
 
     onVideoEnded() {
         this.playOverlay.style.display = 'flex';
-        this.muteIndicator.style.opacity = '1';
         this.video.currentTime = 0;
+    }
+    
+    toggleMute() {
+        this.video.muted = !this.video.muted;
+        this.updateMuteIcon();
+    }
+    
+    updateMuteIcon() {
+        if (this.video.muted) {
+            this.muteIcon.classList.remove('hidden');
+            this.unmuteIcon.classList.add('hidden');
+        } else {
+            this.muteIcon.classList.add('hidden');
+            this.unmuteIcon.classList.remove('hidden');
+        }
     }
 }
 
@@ -415,7 +430,8 @@ class DemoModal {
                             
                             <iframe id="modalIframe" 
                                    class="w-full h-full border-0"
-                                   loading="eager">
+                                   loading="eager"
+                                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">
                             </iframe>
                             
                             <div data-demo-error class="hidden absolute inset-0 flex items-center justify-center bg-gray-900 text-white p-6">
@@ -489,17 +505,26 @@ class DemoModal {
         this.errorContainer.classList.add('hidden');
         this.hasLoaded = false;
         
+        // Set iframe source immediately for faster loading
         this.iframe.src = url;
         
+        // Shorter timeout for better perceived performance
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
         }
         this.loadTimeout = setTimeout(() => {
             if (this.isOpen && !this.hasLoaded && this.loader.style.display !== 'none') {
-                console.log('DemoModal: Still loading after 3s, updating message');
-                this.loaderText.textContent = 'Still loading... This may take a moment';
+                this.loaderText.textContent = 'Still loading...';
             }
-        }, 3000);
+        }, 2000);
+        
+        // Fallback: hide loader after max wait time even if load event doesn't fire
+        setTimeout(() => {
+            if (this.isOpen && !this.hasLoaded) {
+                console.log('DemoModal: Force hiding loader after 8s');
+                this.onIframeLoaded();
+            }
+        }, 8000);
         
         if (typeof trackEvent === 'function') {
             trackEvent('demo_modal_opened', { url: url, title: title });

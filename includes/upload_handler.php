@@ -30,28 +30,10 @@ class UploadHandler {
      * 
      * @param array $file The $_FILES array element
      * @param string $category Category: 'templates' or 'tools'
-     * @return array ['success' => bool, 'url' => string, 'path' => string, 'error' => string, 'poster_url' => string]
+     * @return array ['success' => bool, 'url' => string, 'path' => string, 'error' => string]
      */
     public static function uploadVideo($file, $category = 'templates') {
-        $result = self::uploadFile($file, 'video', $category);
-        
-        // If upload successful, process video with FFmpeg
-        if ($result['success']) {
-            $processed = self::processVideo($result['path'], $result['filename'], $category);
-            if ($processed['success']) {
-                $result['poster_url'] = $processed['poster_url'];
-                $result['optimized'] = $processed['optimized'];
-                
-                // Update URL and filename if video was converted to MP4
-                if ($processed['new_path']) {
-                    $result['path'] = $processed['new_path'];
-                    $result['url'] = $processed['new_url'];
-                    $result['filename'] = $processed['new_filename'];
-                }
-            }
-        }
-        
-        return $result;
+        return self::uploadFile($file, 'video', $category);
     }
     
     /**
@@ -144,103 +126,6 @@ class UploadHandler {
         $response['type'] = $file['type']; // Use detected type from validation
         
         return $response;
-    }
-    
-    /**
-     * Process video with FFmpeg - extract thumbnail and optimize for streaming
-     * 
-     * @param string $videoPath Full path to the uploaded video
-     * @param string $filename Original filename
-     * @param string $category Category: 'templates' or 'tools'
-     * @return array ['success' => bool, 'poster_url' => string, 'optimized' => bool, 'new_path' => string, 'new_url' => string, 'new_filename' => string]
-     */
-    private static function processVideo($videoPath, $filename, $category) {
-        $result = [
-            'success' => false,
-            'poster_url' => '',
-            'optimized' => false,
-            'new_path' => null,
-            'new_url' => null,
-            'new_filename' => null
-        ];
-        
-        // Check if FFmpeg is available
-        $ffmpegPath = trim(shell_exec('which ffmpeg 2>/dev/null'));
-        if (empty($ffmpegPath)) {
-            error_log('UploadHandler: FFmpeg not found, skipping video processing');
-            return $result;
-        }
-        
-        // Create thumbnails directory
-        $thumbnailsDir = UPLOAD_DIR . '/' . $category . '/videos/thumbnails';
-        if (!is_dir($thumbnailsDir)) {
-            if (!mkdir($thumbnailsDir, 0775, true)) {
-                error_log('UploadHandler: Failed to create thumbnails directory - ' . $thumbnailsDir);
-                return $result;
-            }
-        }
-        
-        // Generate thumbnail filename
-        $baseFilename = pathinfo($filename, PATHINFO_FILENAME);
-        $thumbnailFilename = $baseFilename . '_thumb.jpg';
-        $thumbnailPath = $thumbnailsDir . '/' . $thumbnailFilename;
-        $thumbnailUrl = '/uploads/' . $category . '/videos/thumbnails/' . $thumbnailFilename;
-        
-        // Extract thumbnail at 1 second mark
-        $cmd = sprintf(
-            '%s -i %s -ss 00:00:01 -vframes 1 -q:v 2 %s 2>&1',
-            escapeshellcmd($ffmpegPath),
-            escapeshellarg($videoPath),
-            escapeshellarg($thumbnailPath)
-        );
-        
-        exec($cmd, $output, $returnCode);
-        
-        if ($returnCode === 0 && file_exists($thumbnailPath)) {
-            $result['success'] = true;
-            $result['poster_url'] = $thumbnailUrl;
-            
-            // Always use temporary file for optimization to avoid FFmpeg conflicts
-            $tempOptimizedPath = $videoPath . '.optimized.tmp.mp4';
-            
-            // Optimize video with faststart flag for progressive playback
-            $optimizeCmd = sprintf(
-                '%s -i %s -c:v libx264 -profile:v main -level 4.0 -preset fast -crf 23 -movflags +faststart -c:a aac -b:a 128k %s 2>&1',
-                escapeshellcmd($ffmpegPath),
-                escapeshellarg($videoPath),
-                escapeshellarg($tempOptimizedPath)
-            );
-            
-            exec($optimizeCmd, $optimizeOutput, $optimizeReturnCode);
-            
-            // Replace original with optimized version
-            if ($optimizeReturnCode === 0 && file_exists($tempOptimizedPath)) {
-                // Determine final .mp4 filename
-                $newFilename = $baseFilename . '.mp4';
-                $finalPath = dirname($videoPath) . '/' . $newFilename;
-                
-                // Delete original file
-                unlink($videoPath);
-                
-                // Rename temp file to final path
-                rename($tempOptimizedPath, $finalPath);
-                
-                $result['optimized'] = true;
-                $result['new_path'] = $finalPath;
-                $result['new_url'] = '/uploads/' . $category . '/videos/' . $newFilename;
-                $result['new_filename'] = $newFilename;
-            } else {
-                error_log('UploadHandler: Video optimization failed - ' . implode("\n", $optimizeOutput));
-                // Clean up failed optimization
-                if (file_exists($tempOptimizedPath)) {
-                    unlink($tempOptimizedPath);
-                }
-            }
-        } else {
-            error_log('UploadHandler: Thumbnail extraction failed - ' . implode("\n", $output));
-        }
-        
-        return $result;
     }
     
     /**
