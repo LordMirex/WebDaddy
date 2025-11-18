@@ -51,3 +51,12 @@
 [18-Nov-2025 07:34:58 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763447698_8aa0004b_c86e174b38bc8c909d8863f804cebdc5.mp4
 [18-Nov-2025 07:35:03 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
 [18-Nov-2025 07:35:03 Africa/Lagos] Upload API: Session ID: 1bb2e6b36fffd214c48e5812c04f5919, Admin status: yes
+[18-Nov-2025 07:50:13 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[18-Nov-2025 07:50:13 Africa/Lagos] Upload API: Session ID: 1bb2e6b36fffd214c48e5812c04f5919, Admin status: yes
+[18-Nov-2025 07:50:13 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763448613_3741ec21_how-to-design-a-celebrity-booking-with-fan-card-do.mp4
+[18-Nov-2025 07:50:15 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[18-Nov-2025 07:50:15 Africa/Lagos] Upload API: Session ID: 1bb2e6b36fffd214c48e5812c04f5919, Admin status: yes
+[18-Nov-2025 08:06:17 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 08:08:25 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 08:09:19 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
+[18-Nov-2025 08:14:37 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
