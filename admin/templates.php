@@ -396,7 +396,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <button type="button" onclick="toggleBannerMode('upload')" id="banner-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                             </div>
                             <div id="banner-url-mode">
-                                <input type="url" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" required placeholder="https://example.com/banner.jpg">
+                                <input type="text" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" <?php echo !$editTemplate ? 'required' : ''; ?> placeholder="https://example.com/banner.jpg or /uploads/...">
                             </div>
                             <div id="banner-upload-mode" style="display: none;">
                                 <input type="file" id="banner-file-input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -521,7 +521,9 @@ function toggleBannerMode(mode) {
         urlBtn.classList.remove('bg-gray-200', 'text-gray-700');
         uploadBtn.classList.remove('bg-primary-600', 'text-white');
         uploadBtn.classList.add('bg-gray-200', 'text-gray-700');
-        urlInput.required = true;
+        if (!urlInput.value || urlInput.value.trim() === '') {
+            urlInput.required = true;
+        }
         croppedDataInput.value = '';
         
         if (bannerCropper) {
@@ -536,7 +538,6 @@ function toggleBannerMode(mode) {
         urlBtn.classList.remove('bg-primary-600', 'text-white');
         urlBtn.classList.add('bg-gray-200', 'text-gray-700');
         urlInput.required = false;
-        urlInput.value = '';
     }
 }
 

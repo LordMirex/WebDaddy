@@ -30,7 +30,7 @@ class VideoModal {
                     
                     <!-- Modal Content -->
                     <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
-                         style="width: 90vw; max-width: 90vw; max-height: 90vh;"
+                         style="max-width: min(90vw, 1200px); max-height: 90vh;"
                          data-video-container>
                         
                         <!-- Header -->
@@ -47,33 +47,45 @@ class VideoModal {
                         
                         <!-- Video Container -->
                         <div class="relative bg-black rounded-b-xl overflow-hidden" style="height: 80vh; display: flex; align-items: center; justify-content: center;">
-                            <!-- Loading Spinner -->
-                            <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-white"></div>
-                                    <p class="text-gray-400 text-sm">Loading video...</p>
+                            <!-- Loading Spinner with Instructions -->
+                            <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
+                                <div class="flex flex-col items-center gap-4 text-center px-4">
+                                    <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white"></div>
+                                    <div class="space-y-2">
+                                        <p class="text-white text-lg font-semibold">Loading video...</p>
+                                        <p class="text-gray-300 text-sm">Click to play/pause once loaded</p>
+                                    </div>
                                 </div>
                             </div>
                             
                             <!-- Video Element -->
                             <video id="modalVideo" 
                                    class="object-contain"
-                                   style="max-width: 100%; max-height: 80vh; display: none;"
-                                   preload="auto"
+                                   style="max-width: 100%; max-height: 80vh; width: auto; height: auto; display: none;"
+                                   preload="metadata"
                                    playsinline
+                                   muted
                                    controlsList="nodownload">
                                 <source data-video-source type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
                             
+                            <!-- Mute Icon Overlay (Always Visible on Video) -->
+                            <div data-mute-indicator class="absolute top-4 right-4 bg-black/70 rounded-full p-3 pointer-events-none z-20" style="display: none;">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            
                             <!-- Custom Play Button Overlay -->
-                            <div data-play-overlay class="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300 hover:bg-black/20" style="display: none;">
-                                <button class="bg-white/90 hover:bg-white rounded-full p-6 shadow-2xl transition-all transform hover:scale-110"
+                            <div data-play-overlay class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30 z-10" style="display: none;">
+                                <button class="bg-white/90 hover:bg-white rounded-full p-6 shadow-2xl transition-all transform hover:scale-110 mb-4"
                                         aria-label="Play video">
-                                    <svg class="w-12 h-12 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-16 h-16 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                                     </svg>
                                 </button>
+                                <p class="text-white text-base font-medium bg-black/50 px-6 py-2 rounded-full">Click to play/pause</p>
                             </div>
                             
                             <!-- Error Message -->
@@ -87,11 +99,6 @@ class VideoModal {
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Mobile-friendly controls hint -->
-                        <div class="sm:hidden px-4 py-2 bg-gray-900/90 text-xs text-gray-400 text-center">
-                            Tap video to play/pause
-                        </div>
                     </div>
                 </div>
             </div>
@@ -104,6 +111,7 @@ class VideoModal {
         this.loader = this.modal.querySelector('[data-video-loader]');
         this.videoSource = this.modal.querySelector('[data-video-source]');
         this.playOverlay = this.modal.querySelector('[data-play-overlay]');
+        this.muteIndicator = this.modal.querySelector('[data-mute-indicator]');
         this.errorContainer = this.modal.querySelector('[data-video-error]');
         this.title = document.getElementById('videoModalTitle');
     }
@@ -127,6 +135,8 @@ class VideoModal {
         this.video.addEventListener('play', () => this.onVideoPlay());
         this.video.addEventListener('pause', () => this.onVideoPause());
         this.video.addEventListener('ended', () => this.onVideoEnded());
+        this.video.addEventListener('loadedmetadata', () => this.onVideoLoadedMetadata());
+        this.video.addEventListener('canplay', () => this.onVideoCanPlay());
         
         // Play overlay click
         this.playOverlay.addEventListener('click', () => this.playVideo());
@@ -179,37 +189,36 @@ class VideoModal {
         // Prevent body scroll
         document.body.style.overflow = 'hidden';
         
-        // Set video source and show immediately
-        this.videoSource.src = videoUrl;
-        this.video.load();
-        
-        // Show video instantly with play button
-        this.loader.style.display = 'none';
-        this.video.style.display = 'block';
-        this.playOverlay.style.display = 'flex';
+        // Show loading state and reset mute indicator
+        this.loader.style.display = 'flex';
+        this.video.style.display = 'none';
+        this.playOverlay.style.display = 'none';
+        this.muteIndicator.style.display = 'none';
+        this.muteIndicator.style.opacity = '1';
+        this.muteIndicator.style.transition = 'opacity 0.5s ease-out';
         this.errorContainer.classList.add('hidden');
         
-        // Try to autoplay muted
+        // Set video source and load
+        this.videoSource.src = videoUrl;
         this.video.muted = true;
-        const playPromise = this.video.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                // Autoplay succeeded, hide play button and unmute
-                this.playOverlay.style.display = 'none';
-                setTimeout(() => {
-                    this.video.muted = false;
-                }, 100);
-            }).catch(() => {
-                // Autoplay failed, keep play button visible
-                this.playOverlay.style.display = 'flex';
-            });
-        }
+        this.video.load();
         
         // Track analytics
         if (typeof trackEvent === 'function') {
             trackEvent('video_modal_opened', { url: videoUrl, title: title });
         }
+    }
+
+    onVideoLoadedMetadata() {
+        console.log('Video metadata loaded');
+    }
+
+    onVideoCanPlay() {
+        // Video is ready to play, hide loader and show video with play button
+        this.loader.style.display = 'none';
+        this.video.style.display = 'block';
+        this.playOverlay.style.display = 'flex';
+        this.muteIndicator.style.display = 'none';
     }
 
     close() {
@@ -256,23 +265,38 @@ class VideoModal {
 
     onVideoError() {
         console.error('VideoModal: Video failed to load');
+        this.loader.style.display = 'none';
         this.video.style.display = 'none';
         this.playOverlay.style.display = 'none';
+        this.muteIndicator.style.display = 'none';
         this.errorContainer.classList.remove('hidden');
     }
 
     onVideoPlay() {
         this.playOverlay.style.display = 'none';
+        this.muteIndicator.style.display = 'block';
+        this.muteIndicator.style.opacity = '1';
+        this.muteIndicator.style.transition = 'opacity 0.5s ease-out';
+        
+        // Auto-fade mute indicator after 3 seconds
+        setTimeout(() => {
+            if (!this.video.paused) {
+                this.muteIndicator.style.opacity = '0';
+            }
+        }, 3000);
     }
 
     onVideoPause() {
         if (!this.video.ended) {
             this.playOverlay.style.display = 'flex';
         }
+        // Reset mute indicator opacity when paused
+        this.muteIndicator.style.opacity = '1';
     }
 
     onVideoEnded() {
         this.playOverlay.style.display = 'flex';
+        this.muteIndicator.style.opacity = '1';
         this.video.currentTime = 0;
     }
 }

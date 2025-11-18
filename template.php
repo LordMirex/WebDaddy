@@ -494,7 +494,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <div id="demoModal" class="fixed inset-0 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen px-4 py-8">
             <div onclick="closeDemoFullscreen()" class="fixed inset-0 bg-black bg-opacity-75"></div>
-            <div class="relative bg-white rounded-xl shadow-2xl" style="width: 90vw; max-width: 90vw; height: 90vh; max-height: 90vh;">
+            <div class="relative bg-white rounded-xl shadow-2xl" style="width: 90vw; max-width: min(90vw, 1400px); height: 90vh; max-height: 90vh;">
                 <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                     <h5 class="text-lg font-bold text-gray-900" id="demoTitle">Template Preview</h5>
                     <button onclick="closeDemoFullscreen()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
