@@ -785,84 +785,13 @@ if ($currentView === 'templates') {
                 </div>
                 <div class="bg-white rounded-lg shadow-md border border-gray-200">
                     <button @click="selected = selected === 3 ? null : 3" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>Can I customize the template?</span>
+                        <span>How do I get support?</span>
                         <svg class="w-5 h-5 transform transition-transform" :class="selected === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
                     <div x-show="selected === 3" x-collapse class="px-6 pb-4 text-gray-600">
-                        You have full control to customize colors, text, images, and content. Our team can also help with customization if needed.
-                    </div>
-                </div>
-                <div class="bg-white rounded-lg shadow-md border border-gray-200">
-                    <button @click="selected = selected === 4 ? null : 4" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>How do I get support?</span>
-                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="selected === 4" x-collapse class="px-6 pb-4 text-gray-600">
                         We offer 24/7 support via WhatsApp at <?php echo WHATSAPP_NUMBER; ?>. Our team is always ready to help you with any questions or issues.
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md border border-gray-200">
-                    <button @click="selected = selected === 5 ? null : 5" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>What types of digital working tools do you offer?</span>
-                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="selected === 5" x-collapse class="px-6 pb-4 text-gray-600">
-                        We offer a wide range of digital tools including API keys (ChatGPT, Google Maps, etc.), software licenses, automation tools, plugins, and business software to help grow your business.
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md border border-gray-200">
-                    <button @click="selected = selected === 6 ? null : 6" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>How do I receive my purchased tools?</span>
-                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 6 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="selected === 6" x-collapse class="px-6 pb-4 text-gray-600">
-                        Digital tools are delivered instantly via email after purchase confirmation. You'll receive download links, license keys, or API credentials with detailed instructions on how to use them.
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md border border-gray-200">
-                    <button @click="selected = selected === 7 ? null : 7" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>Can I get a refund for digital tools?</span>
-                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 7 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="selected === 7" x-collapse class="px-6 pb-4 text-gray-600">
-                        Due to the digital nature of our tools, all sales are final once access credentials are delivered. However, if you experience technical issues, contact our support team within 7 days for assistance.
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md border border-gray-200">
-                    <button @click="selected = selected === 8 ? null : 8" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>Are API keys lifetime or subscription-based?</span>
-                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 8 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="selected === 8" x-collapse class="px-6 pb-4 text-gray-600">
-                        This depends on the specific API provider. Some tools are lifetime access while others require monthly subscriptions. Each product listing clearly indicates the license type and duration.
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow-md border border-gray-200">
-                    <button @click="selected = selected === 9 ? null : 9" class="w-full text-left px-6 py-4 font-semibold text-gray-900 flex justify-between items-center hover:bg-gray-50 transition-colors">
-                        <span>How does the shopping cart work?</span>
-                        <svg class="w-5 h-5 transform transition-transform" :class="selected === 9 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="selected === 9" x-collapse class="px-6 pb-4 text-gray-600">
-                        You can add multiple digital tools to your cart and purchase them together in one transaction. Your cart is saved for 24 hours. Click the cart icon at the top to view and manage your items.
                     </div>
                 </div>
             </div>

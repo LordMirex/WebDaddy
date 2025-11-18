@@ -1052,9 +1052,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
     
-    // Global function for opening demo previews
+    // Global function for opening demo previews (uses modal for in-page previews)
     window.openDemo = function(demoUrl, templateName) {
         if (!demoUrl) return;
-        window.open(demoUrl, '_blank', 'noopener,noreferrer');
+        
+        // Check if it's a video file or demo URL
+        const isVideo = demoUrl.match(/\.(mp4|webm|mov|avi)$/i);
+        
+        if (isVideo) {
+            // Open video in video modal
+            if (typeof window.openVideoModal === 'function') {
+                window.openVideoModal(demoUrl, templateName || 'Preview');
+            } else {
+                console.warn('Video modal not available, opening in new tab');
+                window.open(demoUrl, '_blank', 'noopener,noreferrer');
+            }
+        } else {
+            // Open demo URL in fullscreen modal
+            if (typeof window.openDemoFullscreen === 'function') {
+                window.openDemoFullscreen(demoUrl, templateName || 'Live Preview');
+            } else {
+                console.warn('Demo modal not available, opening in new tab');
+                window.open(demoUrl, '_blank', 'noopener,noreferrer');
+            }
+        }
     };
 });
