@@ -10,6 +10,8 @@ class VideoModal {
         this.isOpen = false;
         this.observer = null;
         this.loadTimeout = null;
+        this.playbackAttempted = false;
+        this.autoplayTimeout = null;
         this.init();
     }
 
@@ -47,15 +49,9 @@ class VideoModal {
                         
                         <!-- Video Container -->
                         <div class="relative bg-black rounded-b-xl overflow-hidden" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0;">
-                            <!-- Loading Spinner with Instructions -->
+                            <!-- Loading Spinner -->
                             <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
-                                <div class="flex flex-col items-center gap-4 text-center px-4">
-                                    <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white"></div>
-                                    <div class="space-y-2">
-                                        <p class="text-white text-lg font-semibold">Loading video...</p>
-                                        <p class="text-gray-300 text-sm">Click to play/pause once loaded</p>
-                                    </div>
-                                </div>
+                                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white"></div>
                             </div>
                             
                             <!-- Video Element -->
@@ -85,14 +81,13 @@ class VideoModal {
                             </button>
                             
                             <!-- Custom Play Button Overlay -->
-                            <div data-play-overlay class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30" style="display: none; z-index: 15;">
-                                <button class="bg-white/90 hover:bg-white rounded-full p-6 shadow-2xl transition-all transform hover:scale-110 mb-4"
+                            <div data-play-overlay class="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30" style="display: none; z-index: 15;">
+                                <button class="bg-white/90 hover:bg-white rounded-full p-6 shadow-2xl transition-all transform hover:scale-110"
                                         aria-label="Play video">
                                     <svg class="w-16 h-16 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                                     </svg>
                                 </button>
-                                <p class="text-white text-base font-medium bg-black/50 px-6 py-2 rounded-full">Click to play/pause</p>
                             </div>
                             
                             <!-- Error Message -->
@@ -197,6 +192,13 @@ class VideoModal {
 
         this.isOpen = true;
         this.title.textContent = title;
+        this.playbackAttempted = false;
+        
+        // Clear any existing autoplay timeout
+        if (this.autoplayTimeout) {
+            clearTimeout(this.autoplayTimeout);
+            this.autoplayTimeout = null;
+        }
         
         // Show modal immediately
         this.modal.classList.remove('hidden');
@@ -207,6 +209,7 @@ class VideoModal {
         // Reset states
         this.muteIndicator.style.display = 'none';
         this.errorContainer.classList.add('hidden');
+        this.playOverlay.style.display = 'none';
         
         // Always start muted
         this.video.muted = true;
@@ -215,21 +218,26 @@ class VideoModal {
         // Set video source immediately
         this.videoSource.src = videoUrl;
         
-        // Set poster if available - show immediately
+        // Show loader initially
+        this.loader.style.display = 'flex';
+        this.video.style.display = 'block';
+        
+        // Set poster if available for faster perceived load
         if (posterUrl) {
             this.video.poster = posterUrl;
-            this.video.style.display = 'block';
-            this.loader.style.display = 'none';
-            this.playOverlay.style.display = 'flex';
-        } else {
-            // No poster - show loader briefly
-            this.loader.style.display = 'flex';
-            this.video.style.display = 'block';
-            this.playOverlay.style.display = 'none';
         }
         
         // Start loading video immediately for fast playback
         this.video.load();
+        
+        // Fallback: show play overlay if autoplay hasn't started within 3s
+        this.autoplayTimeout = setTimeout(() => {
+            if (this.isOpen && this.video.paused && !this.playbackAttempted) {
+                console.log('VideoModal: Autoplay timeout - showing play overlay');
+                this.loader.style.display = 'none';
+                this.playOverlay.style.display = 'flex';
+            }
+        }, 3000);
         
         // Track analytics
         if (typeof trackEvent === 'function') {
@@ -238,20 +246,42 @@ class VideoModal {
     }
 
     onVideoLoadedMetadata() {
-        console.log('Video metadata loaded');
+        console.log('Video metadata loaded - attempting autoplay');
+        // Hide loader as soon as metadata is loaded
+        this.loader.style.display = 'none';
+        this.video.style.display = 'block';
+        
+        // Try to play immediately after metadata loads
+        if (!this.playbackAttempted) {
+            this.playbackAttempted = true;
+            this.playVideo();
+        }
     }
 
     onVideoCanPlay() {
-        // Video is ready to play - hide loader and show play button
+        console.log('Video can play - ensuring playback');
+        // Video is ready to play - hide loader and ensure autoplay
         this.loader.style.display = 'none';
         this.video.style.display = 'block';
-        this.playOverlay.style.display = 'flex';
+        
+        // Try to play if not already attempted
+        if (!this.playbackAttempted) {
+            this.playbackAttempted = true;
+            this.playVideo();
+        }
     }
 
     close() {
         if (!this.isOpen) return;
         
         this.isOpen = false;
+        this.playbackAttempted = false;
+        
+        // Clear autoplay timeout
+        if (this.autoplayTimeout) {
+            clearTimeout(this.autoplayTimeout);
+            this.autoplayTimeout = null;
+        }
         
         // Pause and reset video
         this.video.pause();
@@ -303,6 +333,12 @@ class VideoModal {
     onVideoPlay() {
         this.playOverlay.style.display = 'none';
         this.muteIndicator.style.display = 'flex';
+        
+        // Clear autoplay timeout since playback has started
+        if (this.autoplayTimeout) {
+            clearTimeout(this.autoplayTimeout);
+            this.autoplayTimeout = null;
+        }
     }
 
     onVideoPause() {
@@ -508,23 +544,24 @@ class DemoModal {
         // Set iframe source immediately for faster loading
         this.iframe.src = url;
         
-        // Shorter timeout for better perceived performance
+        // Auto-hide loader after short delay to show iframe immediately
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
         }
         this.loadTimeout = setTimeout(() => {
-            if (this.isOpen && !this.hasLoaded && this.loader.style.display !== 'none') {
-                this.loaderText.textContent = 'Still loading...';
+            if (this.isOpen && this.loader.style.display !== 'none') {
+                console.log('DemoModal: Auto-hiding loader for instant display');
+                this.loader.style.display = 'none';
             }
-        }, 2000);
+        }, 1500);
         
-        // Fallback: hide loader after max wait time even if load event doesn't fire
+        // Fallback: ensure loader is hidden after max wait time
         setTimeout(() => {
             if (this.isOpen && !this.hasLoaded) {
-                console.log('DemoModal: Force hiding loader after 8s');
+                console.log('DemoModal: Force hiding loader after 2s');
                 this.onIframeLoaded();
             }
-        }, 8000);
+        }, 2000);
         
         if (typeof trackEvent === 'function') {
             trackEvent('demo_modal_opened', { url: url, title: title });

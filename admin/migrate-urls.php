@@ -19,6 +19,7 @@ $db = getDBConnection();
 $migrated = false;
 $stats = [
     'templates_thumbnail' => 0,
+    'templates_demo_url' => 0,
     'templates_demo_video' => 0,
     'tools_thumbnail' => 0,
     'total' => 0
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['migrate'])) {
     try {
         $db->exec('BEGIN TRANSACTION');
         
-        $templatesQuery = "SELECT id, thumbnail_url, demo_video_url FROM templates WHERE thumbnail_url IS NOT NULL OR demo_video_url IS NOT NULL";
+        $templatesQuery = "SELECT id, thumbnail_url, demo_url, demo_video_url FROM templates WHERE thumbnail_url IS NOT NULL OR demo_url IS NOT NULL OR demo_video_url IS NOT NULL";
         $templates = $db->query($templatesQuery)->fetchAll(PDO::FETCH_ASSOC);
         
         foreach ($templates as $template) {
@@ -43,6 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['migrate'])) {
                     $updates[] = 'thumbnail_url = :thumbnail_url';
                     $params['thumbnail_url'] = $newUrl;
                     $stats['templates_thumbnail']++;
+                }
+            }
+            
+            if (!empty($template['demo_url'])) {
+                $oldUrl = $template['demo_url'];
+                $newUrl = UrlUtils::normalizeUploadUrl($oldUrl);
+                
+                if ($oldUrl !== $newUrl) {
+                    $updates[] = 'demo_url = :demo_url';
+                    $params['demo_url'] = $newUrl;
+                    $stats['templates_demo_url']++;
                 }
             }
             
@@ -85,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['migrate'])) {
         
         $db->exec('COMMIT');
         
-        $stats['total'] = $stats['templates_thumbnail'] + $stats['templates_demo_video'] + $stats['tools_thumbnail'];
+        $stats['total'] = $stats['templates_thumbnail'] + $stats['templates_demo_url'] + $stats['templates_demo_video'] + $stats['tools_thumbnail'];
         $migrated = true;
         
     } catch (Exception $e) {
@@ -100,15 +112,17 @@ $previewQuery = "
         id,
         name,
         thumbnail_url,
+        demo_url,
         demo_video_url as video_url
     FROM templates 
-    WHERE thumbnail_url LIKE 'http%' OR demo_video_url LIKE 'http%'
+    WHERE thumbnail_url LIKE 'http%' OR demo_url LIKE 'http%' OR demo_video_url LIKE 'http%'
     UNION ALL
     SELECT 
         'tool' as type,
         id,
         name,
         thumbnail_url,
+        NULL as demo_url,
         NULL as video_url
     FROM tools 
     WHERE thumbnail_url LIKE 'http%'
@@ -149,6 +163,7 @@ $totalNeedsMigration = count($needsMigration);
                         <p><strong>Total URLs Updated:</strong> <?php echo $stats['total']; ?></p>
                         <ul class="list-disc list-inside ml-4 mt-2">
                             <li>Template Banners: <?php echo $stats['templates_thumbnail']; ?></li>
+                            <li>Template Demo URLs: <?php echo $stats['templates_demo_url']; ?></li>
                             <li>Template Videos: <?php echo $stats['templates_demo_video']; ?></li>
                             <li>Tool Banners: <?php echo $stats['tools_thumbnail']; ?></li>
                         </ul>
@@ -211,6 +226,11 @@ $totalNeedsMigration = count($needsMigration);
                                         <div class="max-w-md truncate" title="<?php echo htmlspecialchars($item['thumbnail_url']); ?>">
                                             <?php echo htmlspecialchars($item['thumbnail_url']); ?>
                                         </div>
+                                        <?php if (!empty($item['demo_url']) && strpos($item['demo_url'], 'http') === 0): ?>
+                                            <div class="max-w-md truncate text-xs text-gray-500 mt-1" title="<?php echo htmlspecialchars($item['demo_url']); ?>">
+                                                Demo URL: <?php echo htmlspecialchars($item['demo_url']); ?>
+                                            </div>
+                                        <?php endif; ?>
                                         <?php if (!empty($item['video_url']) && strpos($item['video_url'], 'http') === 0): ?>
                                             <div class="max-w-md truncate text-xs text-gray-500 mt-1" title="<?php echo htmlspecialchars($item['video_url']); ?>">
                                                 Video: <?php echo htmlspecialchars($item['video_url']); ?>
