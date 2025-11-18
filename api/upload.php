@@ -114,11 +114,17 @@ try {
         getAdminId()
     );
     
+    // Convert relative URL to absolute for API response (backward compatibility)
+    $absoluteUrl = $result['url'];
+    if (strpos($absoluteUrl, '/') === 0 && strpos($absoluteUrl, '//') !== 0) {
+        $absoluteUrl = SITE_URL . $absoluteUrl;
+    }
+    
     // Return success response
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'url' => $result['url'],
+        'url' => $absoluteUrl,
         'path' => $result['path'],
         'filename' => $result['filename'],
         'size' => $result['size'],

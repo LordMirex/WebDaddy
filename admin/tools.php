@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/url_utils.php';
 require_once __DIR__ . '/../includes/tools.php';
 require_once __DIR__ . '/includes/auth.php';
 
@@ -31,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
         $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
         $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+        $thumbnailUrl = UrlUtils::normalizeUploadUrl($thumbnailUrl);
         
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
@@ -87,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
         $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
         $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+        $thumbnailUrl = UrlUtils::normalizeUploadUrl($thumbnailUrl);
         
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;

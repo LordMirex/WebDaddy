@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/url_utils.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -29,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
             $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
             $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
+            $thumbnailUrl = UrlUtils::normalizeUploadUrl($thumbnailUrl);
             
             $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
             $demoUrl = null;
@@ -40,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mediaType = 'demo_url';
             } elseif ($videoType === 'video') {
                 $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
-                $demoVideoUrl = $uploadedVideoUrl;
+                $demoVideoUrl = UrlUtils::normalizeUploadUrl($uploadedVideoUrl);
                 $mediaType = 'video';
             }
             
