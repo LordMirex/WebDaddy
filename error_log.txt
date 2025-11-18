@@ -68,3 +68,5 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/runner/workspace/admin/migrate-urls.php on line 9
+[18-Nov-2025 09:40:00 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 09:40:05 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
