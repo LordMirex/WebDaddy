@@ -30,7 +30,7 @@ class VideoModal {
                     
                     <!-- Modal Content -->
                     <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
-                         style="max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column;"
+                         style="max-width: 95vw; max-height: 90vh; min-height: 60vh; display: flex; flex-direction: column;"
                          data-video-container>
                         
                         <!-- Header -->
@@ -61,7 +61,7 @@ class VideoModal {
                             <!-- Video Element -->
                             <video id="modalVideo" 
                                    class="object-contain"
-                                   style="max-width: 100%; max-height: 85vh; width: auto; height: auto;"
+                                   style="max-width: 100%; max-height: 85vh; width: auto; height: auto; position: relative; z-index: 1;"
                                    preload="auto"
                                    playsinline
                                    muted
@@ -85,7 +85,7 @@ class VideoModal {
                             </button>
                             
                             <!-- Custom Play Button Overlay -->
-                            <div data-play-overlay class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30 z-10" style="display: none;">
+                            <div data-play-overlay class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30" style="display: none; z-index: 15;">
                                 <button class="bg-white/90 hover:bg-white rounded-full p-6 shadow-2xl transition-all transform hover:scale-110 mb-4"
                                         aria-label="Play video">
                                     <svg class="w-16 h-16 text-gray-900" fill="currentColor" viewBox="0 0 20 20">

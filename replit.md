@@ -44,10 +44,11 @@ A PHP-based marketplace platform for selling website templates and digital tools
 - `assets/js/video-modal.js` - Complete video player UI and loading optimization
 
 **Technical Details:**
-- Video modal: `max-width: 95vw; max-height: 90vh` with flexible layout
+- Video modal: `max-width: 95vw; max-height: 90vh; min-height: 60vh` prevents flash on load
 - Video container: Flexbox layout adapts to video dimensions
 - Video element: `max-height: 85vh; width: auto; height: auto` maintains aspect ratio
 - Video element: `preload="auto"` for instant playback
+- Z-index layering: Video (z-1) < Play overlay (z-15) < Mute button (z-20) < Loader (z-30)
 - Mute toggle: Click event on button toggles `video.muted` property
 - Iframe: 8s max wait with fallback loader hiding
 
