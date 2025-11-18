@@ -14,11 +14,12 @@ A PHP-based marketplace platform for selling website templates and digital tools
    - No more thumbnail extraction or video optimization delays
    - Faster upload workflow and simpler architecture
    
-2. **Full-Width Video Player** - Video modal now expands to full width immediately
-   - Changed from `max-width: min(90vw, 1200px)` to `width: 95vw; max-width: 1600px`
-   - Video container uses 16:9 aspect ratio for proper sizing
-   - Video element fills 100% width and height of container
-   - No more small/slim appearance when opening videos
+2. **Adaptive Video Player** - Video modal adapts to video's natural aspect ratio
+   - Vertical videos (TikTok, phone recordings) display tall and full-height
+   - Horizontal videos (landscape) display wide
+   - No forced 16:9 ratio - no black bars or letterboxing
+   - Video maintains natural proportions up to 85vh height
+   - Perfectly sized for both mobile and desktop viewing
    
 3. **Instant Video Playback** - Videos load and play within 1-2 seconds
    - Changed preload from `metadata` to `auto` for faster buffering
@@ -43,8 +44,9 @@ A PHP-based marketplace platform for selling website templates and digital tools
 - `assets/js/video-modal.js` - Complete video player UI and loading optimization
 
 **Technical Details:**
-- Video modal: `width: 95vw; max-width: 1600px` for full-width display
-- Video container: `aspect-ratio: 16/9` for proper proportions
+- Video modal: `max-width: 95vw; max-height: 90vh` with flexible layout
+- Video container: Flexbox layout adapts to video dimensions
+- Video element: `max-height: 85vh; width: auto; height: auto` maintains aspect ratio
 - Video element: `preload="auto"` for instant playback
 - Mute toggle: Click event on button toggles `video.muted` property
 - Iframe: 8s max wait with fallback loader hiding

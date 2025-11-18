@@ -30,7 +30,7 @@ class VideoModal {
                     
                     <!-- Modal Content -->
                     <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
-                         style="width: 95vw; max-width: 1600px;"
+                         style="max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column;"
                          data-video-container>
                         
                         <!-- Header -->
@@ -46,7 +46,7 @@ class VideoModal {
                         </div>
                         
                         <!-- Video Container -->
-                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;">
+                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0;">
                             <!-- Loading Spinner with Instructions -->
                             <div data-video-loader class="absolute inset-0 flex items-center justify-center bg-gray-900 z-30">
                                 <div class="flex flex-col items-center gap-4 text-center px-4">
@@ -61,7 +61,7 @@ class VideoModal {
                             <!-- Video Element -->
                             <video id="modalVideo" 
                                    class="object-contain"
-                                   style="width: 100%; height: 100%;"
+                                   style="max-width: 100%; max-height: 85vh; width: auto; height: auto;"
                                    preload="auto"
                                    playsinline
                                    muted
