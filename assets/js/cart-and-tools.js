@@ -542,6 +542,29 @@ document.addEventListener('DOMContentLoaded', function() {
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                             </div>
                             
+                            ${tool.demo_video_url ? `
+                            <div class="mb-4 sm:mb-6">
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden">
+                                    <div class="bg-gray-100 border-b border-gray-200 p-3 sm:p-4 flex justify-between items-center">
+                                        <h4 class="text-base sm:text-lg font-bold text-gray-900 flex items-center">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            Demo Video
+                                        </h4>
+                                        <button onclick="openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapedNameForJs}')"
+                                                class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z"/>
+                                            </svg>
+                                            Watch Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            ` : ''}
+                            
                             ${escapedDescription ? `
                             <div class="mb-4 sm:mb-6">
                                 <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center">

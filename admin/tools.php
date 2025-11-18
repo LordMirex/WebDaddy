@@ -34,6 +34,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
         $thumbnailUrl = UrlUtils::normalizeUploadUrl($thumbnailUrl);
         
+        $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
+        $demoUrl = null;
+        $demoVideoUrl = null;
+        $mediaType = 'banner';
+        
+        if ($videoType === 'demo_url') {
+            $demoUrl = sanitizeInput($_POST['demo_url_input'] ?? '');
+            $mediaType = 'demo_url';
+        } elseif ($videoType === 'video') {
+            $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
+            $demoVideoUrl = UrlUtils::normalizeUploadUrl($uploadedVideoUrl);
+            $mediaType = 'video';
+        }
+        
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
@@ -58,6 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'features' => $features,
                     'price' => $price,
                     'thumbnail_url' => $thumbnailUrl,
+                    'media_type' => $mediaType,
+                    'demo_url' => $demoUrl,
+                    'demo_video_url' => $demoVideoUrl,
                     'delivery_instructions' => $deliveryInstructions,
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
@@ -91,6 +108,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
         $thumbnailUrl = UrlUtils::normalizeUploadUrl($thumbnailUrl);
         
+        $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
+        $demoUrl = null;
+        $demoVideoUrl = null;
+        $mediaType = 'banner';
+        
+        if ($videoType === 'demo_url') {
+            $demoUrl = sanitizeInput($_POST['demo_url_input'] ?? '');
+            $mediaType = 'demo_url';
+        } elseif ($videoType === 'video') {
+            $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
+            $demoVideoUrl = UrlUtils::normalizeUploadUrl($uploadedVideoUrl);
+            $mediaType = 'video';
+        }
+        
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
         $stockUnlimited = isset($_POST['stock_unlimited']) ? 1 : 0;
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
@@ -115,6 +146,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'features' => $features,
                     'price' => $price,
                     'thumbnail_url' => $thumbnailUrl,
+                    'media_type' => $mediaType,
+                    'demo_url' => $demoUrl,
+                    'demo_video_url' => $demoVideoUrl,
                     'delivery_instructions' => $deliveryInstructions,
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
@@ -507,6 +541,52 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
+                    <!-- Video/Demo Section (Optional) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
+                        <p class="text-xs text-gray-500 mb-3">Add a video preview or demo link for customers to see your tool in action.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-none-label-create">
+                                <input type="radio" name="video_type" value="none" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600" checked>
+                                <span class="font-medium text-sm">🚫 None</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-video-label-create">
+                                <input type="radio" name="video_type" value="video" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600">
+                                <span class="font-medium text-sm">🎥 Video</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-demo-url-label-create">
+                                <input type="radio" name="video_type" value="demo_url" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600">
+                                <span class="font-medium text-sm">🌐 Demo URL</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="tool-video-upload-section-create" class="md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Demo Video</label>
+                        <input type="file" id="tool-video-file-input-create" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                        <div id="tool-video-upload-progress-create" style="margin-top: 10px; display: none;">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div id="tool-video-progress-bar-create" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                                <span id="tool-video-progress-text-create" class="text-sm text-gray-600 flex items-center gap-1">
+                                    <span id="tool-video-progress-percentage-create">0%</span>
+                                    <svg id="tool-video-upload-check-create" class="w-4 h-4 text-green-600" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="demo_video_uploaded_url" id="tool-video-uploaded-url-create" value="">
+                        <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
+                    </div>
+                    
+                    <div id="tool-demo-url-section-create" class="md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
+                        <input type="url" name="demo_url_input" id="tool-demo-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="https://example.com/demo">
+                        <small class="text-gray-500 text-xs mt-1 block">Enter a URL for interactive preview or demo</small>
+                    </div>
+                    
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Delivery Instructions</label>
                         <textarea name="delivery_instructions" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Instructions for delivering this tool to customers"></textarea>
@@ -635,6 +715,52 @@ require_once __DIR__ . '/includes/header.php';
                             <div id="tool-thumbnail-cropper-container-edit" style="margin-top: 15px; display: none;"></div>
                             <input type="hidden" id="tool-thumbnail-cropped-data-edit" name="thumbnail_cropped_data">
                         </div>
+                    </div>
+                    
+                    <!-- Video/Demo Section (Optional) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
+                        <p class="text-xs text-gray-500 mb-3">Add a video preview or demo link for customers to see your tool in action.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-none-label-edit">
+                                <input type="radio" name="video_type" value="none" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo (!$editTool || (!$editTool['demo_url'] && !$editTool['demo_video_url'])) ? 'checked' : ''; ?>>
+                                <span class="font-medium text-sm">🚫 None</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-video-label-edit">
+                                <input type="radio" name="video_type" value="video" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && $editTool['demo_video_url']) ? 'checked' : ''; ?>>
+                                <span class="font-medium text-sm">🎥 Video</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-demo-url-label-edit">
+                                <input type="radio" name="video_type" value="demo_url" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && $editTool['demo_url']) ? 'checked' : ''; ?>>
+                                <span class="font-medium text-sm">🌐 Demo URL</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="tool-video-upload-section-edit" class="md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Upload Demo Video</label>
+                        <input type="file" id="tool-video-file-input-edit" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
+                        <div id="tool-video-upload-progress-edit" style="margin-top: 10px; display: none;">
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                    <div id="tool-video-progress-bar-edit" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                                <span id="tool-video-progress-text-edit" class="text-sm text-gray-600 flex items-center gap-1">
+                                    <span id="tool-video-progress-percentage-edit">0%</span>
+                                    <svg id="tool-video-upload-check-edit" class="w-4 h-4 text-green-600" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="demo_video_uploaded_url" id="tool-video-uploaded-url-edit" value="<?php echo htmlspecialchars($editTool['demo_video_url'] ?? ''); ?>">
+                        <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
+                    </div>
+                    
+                    <div id="tool-demo-url-section-edit" class="md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
+                        <input type="url" name="demo_url_input" id="tool-demo-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo">
+                        <small class="text-gray-500 text-xs mt-1 block">Enter a URL for interactive preview or demo</small>
                     </div>
                     
                     <div>
@@ -969,6 +1095,168 @@ if (editForm) {
         }
     });
 }
+
+// Tool Video Type Handler
+function handleToolVideoTypeChange(formType) {
+    const selectedType = document.querySelector(`input[name="video_type"]:checked`).value;
+    
+    const demoUrlSection = document.getElementById(`tool-demo-url-section-${formType}`);
+    const videoUploadSection = document.getElementById(`tool-video-upload-section-${formType}`);
+    
+    const noneLabel = document.getElementById(`tool-video-type-none-label-${formType}`);
+    const videoLabel = document.getElementById(`tool-video-type-video-label-${formType}`);
+    const demoUrlLabel = document.getElementById(`tool-video-type-demo-url-label-${formType}`);
+    
+    demoUrlSection.style.display = 'none';
+    videoUploadSection.style.display = 'none';
+    
+    noneLabel.classList.remove('border-purple-600', 'bg-purple-50');
+    videoLabel.classList.remove('border-purple-600', 'bg-purple-50');
+    demoUrlLabel.classList.remove('border-purple-600', 'bg-purple-50');
+    
+    if (selectedType === 'demo_url') {
+        demoUrlSection.style.display = 'block';
+        demoUrlLabel.classList.add('border-purple-600', 'bg-purple-50');
+    } else if (selectedType === 'video') {
+        videoUploadSection.style.display = 'block';
+        videoLabel.classList.add('border-purple-600', 'bg-purple-50');
+    } else {
+        noneLabel.classList.add('border-purple-600', 'bg-purple-50');
+    }
+}
+
+// Initialize video type on page load for edit form
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('tool-video-type-video-label-edit')) {
+        handleToolVideoTypeChange('edit');
+    }
+});
+
+// Tool Video Upload Handler - Create
+document.getElementById('tool-video-file-input-create')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const progressDiv = document.getElementById('tool-video-upload-progress-create');
+    const progressBar = document.getElementById('tool-video-progress-bar-create');
+    const progressText = document.getElementById('tool-video-progress-percentage-create');
+    const checkIcon = document.getElementById('tool-video-upload-check-create');
+    const urlInput = document.getElementById('tool-video-uploaded-url-create');
+    
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    checkIcon.style.display = 'none';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_type', 'video');
+    formData.append('category', 'tools');
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = percentComplete + '%';
+            }
+        });
+        
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                const result = JSON.parse(xhr.responseText);
+                if (result.success) {
+                    urlInput.value = result.url;
+                    checkIcon.style.display = 'inline';
+                    console.log('Video uploaded successfully:', result.url);
+                } else {
+                    alert('Video upload failed: ' + (result.error || 'Unknown error'));
+                    progressDiv.style.display = 'none';
+                }
+            } else {
+                alert('Video upload failed');
+                progressDiv.style.display = 'none';
+            }
+        });
+        
+        xhr.addEventListener('error', function() {
+            alert('Video upload failed');
+            progressDiv.style.display = 'none';
+        });
+        
+        xhr.open('POST', '/api/upload.php');
+        xhr.send(formData);
+    } catch (error) {
+        console.error('Video upload error:', error);
+        alert('Failed to upload video: ' + error.message);
+        progressDiv.style.display = 'none';
+    }
+});
+
+// Tool Video Upload Handler - Edit
+document.getElementById('tool-video-file-input-edit')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const progressDiv = document.getElementById('tool-video-upload-progress-edit');
+    const progressBar = document.getElementById('tool-video-progress-bar-edit');
+    const progressText = document.getElementById('tool-video-progress-percentage-edit');
+    const checkIcon = document.getElementById('tool-video-upload-check-edit');
+    const urlInput = document.getElementById('tool-video-uploaded-url-edit');
+    
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    checkIcon.style.display = 'none';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_type', 'video');
+    formData.append('category', 'tools');
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = percentComplete + '%';
+            }
+        });
+        
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                const result = JSON.parse(xhr.responseText);
+                if (result.success) {
+                    urlInput.value = result.url;
+                    checkIcon.style.display = 'inline';
+                    console.log('Video uploaded successfully:', result.url);
+                } else {
+                    alert('Video upload failed: ' + (result.error || 'Unknown error'));
+                    progressDiv.style.display = 'none';
+                }
+            } else {
+                alert('Video upload failed');
+                progressDiv.style.display = 'none';
+            }
+        });
+        
+        xhr.addEventListener('error', function() {
+            alert('Video upload failed');
+            progressDiv.style.display = 'none';
+        });
+        
+        xhr.open('POST', '/api/upload.php');
+        xhr.send(formData);
+    } catch (error) {
+        console.error('Video upload error:', error);
+        alert('Failed to upload video: ' + error.message);
+        progressDiv.style.display = 'none';
+    }
+});
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

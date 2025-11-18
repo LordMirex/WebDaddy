@@ -197,10 +197,10 @@ function createTool($data) {
     
     $sql = "INSERT INTO tools (
         name, slug, category, tool_type, short_description, description,
-        features, price, thumbnail_url,
+        features, price, thumbnail_url, media_type, demo_url, demo_video_url,
         delivery_instructions, stock_unlimited, stock_quantity,
         low_stock_threshold, active
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     try {
         $stmt = $db->prepare($sql);
@@ -214,6 +214,9 @@ function createTool($data) {
             $data['features'] ?? null,
             $data['price'],
             $data['thumbnail_url'] ?? null,
+            $data['media_type'] ?? 'banner',
+            $data['demo_url'] ?? null,
+            $data['demo_video_url'] ?? null,
             $data['delivery_instructions'] ?? null,
             $data['stock_unlimited'] ?? 1,
             $data['stock_quantity'] ?? 0,
@@ -246,7 +249,7 @@ function updateTool($id, $data) {
     $sql = "UPDATE tools SET 
         name = ?, slug = ?, category = ?, tool_type = ?,
         short_description = ?, description = ?, features = ?,
-        price = ?, thumbnail_url = ?,
+        price = ?, thumbnail_url = ?, media_type = ?, demo_url = ?, demo_video_url = ?,
         delivery_instructions = ?, stock_unlimited = ?, stock_quantity = ?,
         low_stock_threshold = ?, active = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?";
@@ -263,6 +266,9 @@ function updateTool($id, $data) {
             $data['features'] ?? null,
             $data['price'],
             $data['thumbnail_url'] ?? null,
+            $data['media_type'] ?? 'banner',
+            $data['demo_url'] ?? null,
+            $data['demo_video_url'] ?? null,
             $data['delivery_instructions'] ?? null,
             $data['stock_unlimited'] ?? 1,
             $data['stock_quantity'] ?? 0,
