@@ -1224,3 +1224,27 @@ function cancelOrder($orderId, $reason = '', $adminId = null)
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }
+
+function getMediaUrl($url) {
+    if (empty($url)) {
+        return $url;
+    }
+    
+    if (preg_match('#^https?://#i', $url)) {
+        if (preg_match('#^https?://[^/]+(/uploads/.+)$#i', $url, $matches)) {
+            return $matches[1];
+        }
+        
+        return $url;
+    }
+    
+    if (strpos($url, '/uploads/') === 0) {
+        return $url;
+    }
+    
+    if (strpos($url, 'uploads/') === 0) {
+        return '/' . $url;
+    }
+    
+    return $url;
+}
