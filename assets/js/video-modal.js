@@ -208,6 +208,7 @@ class VideoModal {
         this.title.textContent = title;
         this.playbackAttempted = false;
         this.currentInstructionIndex = 0;
+        this.currentVideoUrl = videoUrl;
         
         // Clear any existing timeouts
         if (this.autoplayTimeout) {
@@ -250,16 +251,40 @@ class VideoModal {
             }
         }, 1000);
         
-        // Set video source immediately
-        this.videoSource.src = videoUrl;
-        
-        // Set poster if available for faster perceived load
-        if (posterUrl) {
-            this.video.poster = posterUrl;
+        // Check if video is already preloaded
+        let preloadedVideo = null;
+        if (window.videoPreloader) {
+            preloadedVideo = window.videoPreloader.getPreloadedVideo(videoUrl);
         }
         
-        // Start loading video immediately for fast playback
-        this.video.load();
+        if (preloadedVideo) {
+            console.log('🚀 Using preloaded video - instant playback!');
+            
+            // Copy the preloaded video's current state
+            const currentTime = preloadedVideo.currentTime || 0;
+            
+            // Set video source from preloaded video
+            this.videoSource.src = videoUrl;
+            this.video.load();
+            
+            // The preloaded video has already buffered, so this should be instant
+            // Set the current time to match the preloaded state
+            if (currentTime > 0) {
+                this.video.currentTime = currentTime;
+            }
+        } else {
+            // No preloaded video, load normally
+            console.log('📥 Loading video normally...');
+            this.videoSource.src = videoUrl;
+            
+            // Set poster if available for faster perceived load
+            if (posterUrl) {
+                this.video.poster = posterUrl;
+            }
+            
+            // Start loading video immediately for fast playback
+            this.video.load();
+        }
         
         // After 5 seconds: force hide loader and start playback or show play button
         this.autoplayTimeout = setTimeout(() => {
@@ -329,6 +354,12 @@ class VideoModal {
         this.isOpen = false;
         this.playbackAttempted = false;
         this.currentInstructionIndex = 0;
+        
+        // Clean up preloaded video after use
+        if (this.currentVideoUrl && window.videoPreloader) {
+            window.videoPreloader.cleanupUsedVideo(this.currentVideoUrl);
+        }
+        this.currentVideoUrl = null;
         
         // Clear all timeouts and intervals
         if (this.autoplayTimeout) {

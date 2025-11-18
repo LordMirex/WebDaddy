@@ -137,6 +137,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <script src="/assets/js/share.js" defer></script>
     <script src="/assets/js/lazy-load.js" defer></script>
     <script src="/assets/js/performance.js" defer></script>
+    <script src="/assets/js/video-preloader.js" defer></script>
     <script src="/assets/js/video-modal.js" defer></script>
 </head>
 <body class="bg-gray-50">
