@@ -532,7 +532,7 @@ require_once __DIR__ . '/includes/header.php';
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'create')" id="tool-thumbnail-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-create">
-                            <input type="url" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required placeholder="https://example.com/image.jpg">
+                            <input type="text" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required placeholder="https://example.com/image.jpg or /uploads/image.jpg">
                         </div>
                         <div id="tool-thumbnail-upload-mode-create" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-create" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -583,7 +583,7 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <div id="tool-demo-url-section-create" class="md:col-span-2" style="display: none;">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
-                        <input type="url" name="demo_url_input" id="tool-demo-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="https://example.com/demo">
+                        <input type="text" name="demo_url_input" id="tool-demo-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="https://example.com/demo or /path/to/demo">
                         <small class="text-gray-500 text-xs mt-1 block">Enter a URL for interactive preview or demo</small>
                     </div>
                     
@@ -708,7 +708,7 @@ require_once __DIR__ . '/includes/header.php';
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'edit')" id="tool-thumbnail-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-edit">
-                            <input type="url" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg">
+                            <input type="text" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg or /uploads/image.jpg">
                         </div>
                         <div id="tool-thumbnail-upload-mode-edit" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-edit" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -759,7 +759,7 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <div id="tool-demo-url-section-edit" class="md:col-span-2" style="display: none;">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Demo URL</label>
-                        <input type="url" name="demo_url_input" id="tool-demo-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo">
+                        <input type="text" name="demo_url_input" id="tool-demo-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTool['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo or /path/to/demo">
                         <small class="text-gray-500 text-xs mt-1 block">Enter a URL for interactive preview or demo</small>
                     </div>
                     

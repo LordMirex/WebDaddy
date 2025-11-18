@@ -71,3 +71,6 @@ Stack trace:
 [18-Nov-2025 09:40:00 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [18-Nov-2025 09:40:05 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [18-Nov-2025 09:54:14 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[18-Nov-2025 10:19:06 Africa/Lagos] Upload API: Request received - Type: video, Category: tools
+[18-Nov-2025 10:19:06 Africa/Lagos] Upload API: Session ID: 3151b81ceed1889e7348a4d51ab80c8d, Admin status: yes
+[18-Nov-2025 10:19:06 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763457546_f40c3690_vid-20251118-wa0002.mp4
