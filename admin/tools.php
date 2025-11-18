@@ -1098,14 +1098,28 @@ if (editForm) {
 
 // Tool Video Type Handler
 function handleToolVideoTypeChange(formType) {
-    const selectedType = document.querySelector(`input[name="video_type"]:checked`).value;
-    
-    const demoUrlSection = document.getElementById(`tool-demo-url-section-${formType}`);
-    const videoUploadSection = document.getElementById(`tool-video-upload-section-${formType}`);
-    
     const noneLabel = document.getElementById(`tool-video-type-none-label-${formType}`);
     const videoLabel = document.getElementById(`tool-video-type-video-label-${formType}`);
     const demoUrlLabel = document.getElementById(`tool-video-type-demo-url-label-${formType}`);
+    
+    if (!noneLabel || !videoLabel || !demoUrlLabel) {
+        console.error('Video type labels not found for formType:', formType);
+        return;
+    }
+    
+    const noneRadio = noneLabel.querySelector('input[type="radio"]');
+    const videoRadio = videoLabel.querySelector('input[type="radio"]');
+    const demoUrlRadio = demoUrlLabel.querySelector('input[type="radio"]');
+    
+    let selectedType = 'none';
+    if (videoRadio && videoRadio.checked) {
+        selectedType = 'video';
+    } else if (demoUrlRadio && demoUrlRadio.checked) {
+        selectedType = 'demo_url';
+    }
+    
+    const demoUrlSection = document.getElementById(`tool-demo-url-section-${formType}`);
+    const videoUploadSection = document.getElementById(`tool-video-upload-section-${formType}`);
     
     demoUrlSection.style.display = 'none';
     videoUploadSection.style.display = 'none';
