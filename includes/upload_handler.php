@@ -41,6 +41,13 @@ class UploadHandler {
             if ($processed['success']) {
                 $result['poster_url'] = $processed['poster_url'];
                 $result['optimized'] = $processed['optimized'];
+                
+                // Update URL and filename if video was converted to MP4
+                if ($processed['new_path']) {
+                    $result['path'] = $processed['new_path'];
+                    $result['url'] = $processed['new_url'];
+                    $result['filename'] = $processed['new_filename'];
+                }
             }
         }
         
@@ -145,13 +152,16 @@ class UploadHandler {
      * @param string $videoPath Full path to the uploaded video
      * @param string $filename Original filename
      * @param string $category Category: 'templates' or 'tools'
-     * @return array ['success' => bool, 'poster_url' => string, 'optimized' => bool]
+     * @return array ['success' => bool, 'poster_url' => string, 'optimized' => bool, 'new_path' => string, 'new_url' => string, 'new_filename' => string]
      */
     private static function processVideo($videoPath, $filename, $category) {
         $result = [
             'success' => false,
             'poster_url' => '',
-            'optimized' => false
+            'optimized' => false,
+            'new_path' => null,
+            'new_url' => null,
+            'new_filename' => null
         ];
         
         // Check if FFmpeg is available
@@ -171,7 +181,8 @@ class UploadHandler {
         }
         
         // Generate thumbnail filename
-        $thumbnailFilename = pathinfo($filename, PATHINFO_FILENAME) . '_thumb.jpg';
+        $baseFilename = pathinfo($filename, PATHINFO_FILENAME);
+        $thumbnailFilename = $baseFilename . '_thumb.jpg';
         $thumbnailPath = $thumbnailsDir . '/' . $thumbnailFilename;
         $thumbnailUrl = '/uploads/' . $category . '/videos/thumbnails/' . $thumbnailFilename;
         
@@ -189,27 +200,40 @@ class UploadHandler {
             $result['success'] = true;
             $result['poster_url'] = $thumbnailUrl;
             
+            // Always use temporary file for optimization to avoid FFmpeg conflicts
+            $tempOptimizedPath = $videoPath . '.optimized.tmp.mp4';
+            
             // Optimize video with faststart flag for progressive playback
-            $optimizedPath = $videoPath . '.optimized.mp4';
             $optimizeCmd = sprintf(
                 '%s -i %s -c:v libx264 -profile:v main -level 4.0 -preset fast -crf 23 -movflags +faststart -c:a aac -b:a 128k %s 2>&1',
                 escapeshellcmd($ffmpegPath),
                 escapeshellarg($videoPath),
-                escapeshellarg($optimizedPath)
+                escapeshellarg($tempOptimizedPath)
             );
             
             exec($optimizeCmd, $optimizeOutput, $optimizeReturnCode);
             
             // Replace original with optimized version
-            if ($optimizeReturnCode === 0 && file_exists($optimizedPath)) {
+            if ($optimizeReturnCode === 0 && file_exists($tempOptimizedPath)) {
+                // Determine final .mp4 filename
+                $newFilename = $baseFilename . '.mp4';
+                $finalPath = dirname($videoPath) . '/' . $newFilename;
+                
+                // Delete original file
                 unlink($videoPath);
-                rename($optimizedPath, $videoPath);
+                
+                // Rename temp file to final path
+                rename($tempOptimizedPath, $finalPath);
+                
                 $result['optimized'] = true;
+                $result['new_path'] = $finalPath;
+                $result['new_url'] = '/uploads/' . $category . '/videos/' . $newFilename;
+                $result['new_filename'] = $newFilename;
             } else {
                 error_log('UploadHandler: Video optimization failed - ' . implode("\n", $optimizeOutput));
                 // Clean up failed optimization
-                if (file_exists($optimizedPath)) {
-                    unlink($optimizedPath);
+                if (file_exists($tempOptimizedPath)) {
+                    unlink($tempOptimizedPath);
                 }
             }
         } else {

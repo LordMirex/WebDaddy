@@ -335,9 +335,9 @@ if (document.readyState === 'loading') {
 window.getVideoPosterUrl = function(videoUrl) {
     if (!videoUrl) return '';
     
-    // Extract filename from video URL
-    // Format: /uploads/templates/videos/video_1763438703_c8a2c038_filename.mp4
-    const match = videoUrl.match(/\/uploads\/(.+\/)videos\/(.+?)\.mp4/);
+    // Extract filename from video URL (supports any video extension)
+    // Format: /uploads/templates/videos/video_1763438703_c8a2c038_filename.{ext}
+    const match = videoUrl.match(/\/uploads\/(.+\/)videos\/(.+?)\.(mp4|mov|avi|webm|mkv|flv)$/i);
     if (match) {
         const category = match[1].replace(/\/$/, ''); // templates or tools
         const filename = match[2]; // video_1763438703_c8a2c038_filename
