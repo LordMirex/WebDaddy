@@ -106,7 +106,7 @@ class UploadHandler {
         }
         
         $uploadPath = $uploadDir . '/' . $uniqueFilename;
-        $uploadUrl = UPLOAD_URL . '/' . $uploadSubDir . '/' . $uniqueFilename;
+        $uploadUrl = '/uploads/' . $uploadSubDir . '/' . $uniqueFilename;
         
         // Step 8: Move uploaded file
         if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
