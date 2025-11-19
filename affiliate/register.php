@@ -277,7 +277,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <input type="email" 
                                    id="email" 
-                                   name="email" 
+                                   name="email"
+                                   autocomplete="email" 
                                    placeholder="Enter your email"
                                    value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                    required
@@ -296,7 +297,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <input type="password" 
                                    id="password" 
-                                   name="password" 
+                                   name="password"
+                                   autocomplete="new-password" 
                                    placeholder="Create a password (min 6 characters)"
                                    minlength="6"
                                    required

@@ -141,7 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <input type="password" 
                                    id="password" 
-                                   name="password" 
+                                   name="password"
+                                   autocomplete="current-password" 
                                    placeholder="Enter password"
                                    required 
                                    minlength="6"

@@ -124,7 +124,7 @@ HTML;
             $stmt = $db->exec("DELETE FROM pending_orders WHERE status IN ('cancelled', 'pending') AND created_at < date('now', '-30 days')");
             echo "✅ Deleted old pending orders (>30 days): $stmt rows\n";
             
-            logActivity('cron_cleanup', 'Automated cleanup completed', 1);
+            logActivity('cron_cleanup', 'Automated cleanup completed', null);
         } catch (PDOException $e) {
             echo "❌ Cleanup failed: " . $e->getMessage() . "\n";
             exit(1);
