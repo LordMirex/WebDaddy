@@ -294,7 +294,5 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
             </div>
         </div>
     </div>
-
-    <?php require_once __DIR__ . '/includes/cart-drawer.php'; ?>
 </body>
 </html>
