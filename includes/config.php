@@ -85,7 +85,7 @@ define('TEMP_FILE_LIFETIME', 86400); // 24 hours in seconds
 define('SESSION_LIFETIME', 3600);
 
 // Error Display (set to false in production)
-define('DISPLAY_ERRORS', true); // Temporarily enabled for upload debugging
+define('DISPLAY_ERRORS', false); // Disabled for production launch
 
 // PHP Error Reporting
 if (DISPLAY_ERRORS) {

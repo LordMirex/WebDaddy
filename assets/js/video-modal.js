@@ -242,25 +242,23 @@ class VideoModal {
         
         // INSTANT PLAYBACK: If video is cached or same as last, skip loading animation
         if (isCached || isSameVideo) {
-            console.log('⚡ Instant playback - video already loaded!');
+            console.log('⚡ Instant playback - video already buffered, no reload needed!');
             
             // Hide loader immediately
             this.loader.style.display = 'none';
             this.video.style.display = 'block';
             
-            // If same video, it's already in the DOM with the right src
+            // If same video, it's already in the DOM with the right src and buffer
+            // If cached but different, reload the video (but browser cache makes this fast)
             if (!isSameVideo) {
                 this.videoSource.src = videoUrl;
                 this.video.load();
             }
             
-            // Get cached playback position if available
-            const cachedData = this.videoCache.get(videoUrl);
-            if (cachedData && cachedData.currentTime > 0) {
-                this.video.currentTime = cachedData.currentTime;
-            }
+            // Always restart from beginning (better UX for replays)
+            this.video.currentTime = 0;
             
-            // Play immediately
+            // Play immediately - video buffer is preserved so it starts instantly
             this.playbackAttempted = true;
             this.playVideo();
             
@@ -397,13 +395,13 @@ class VideoModal {
         this.playbackAttempted = false;
         this.currentInstructionIndex = 0;
         
-        // Cache video state before closing for instant replay
+        // Cache video state before closing for instant replay (keeps buffer in memory)
         if (this.currentVideoUrl && this.videoSource.src) {
             this.videoCache.set(this.currentVideoUrl, {
                 src: this.videoSource.src,
-                currentTime: 0, // Always restart from beginning on reopen
                 duration: this.video.duration || 0,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                buffered: true // Indicates this video element buffer is kept in DOM
             });
             
             console.log('💾 Cached video for instant replay:', this.currentVideoUrl);
@@ -421,12 +419,7 @@ class VideoModal {
             window.videoPreloader.cleanupUsedVideo(this.currentVideoUrl);
         }
         
-        // DON'T reset videoSource.src - keep it loaded for instant replay
-        // Only pause the video
-        this.video.pause();
-        this.video.currentTime = 0;
-        
-        // Clear all timeouts and intervals
+        // Clear all timeouts and intervals FIRST (prevent memory leaks)
         if (this.autoplayTimeout) {
             clearTimeout(this.autoplayTimeout);
             this.autoplayTimeout = null;
@@ -435,6 +428,23 @@ class VideoModal {
             clearInterval(this.instructionInterval);
             this.instructionInterval = null;
         }
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
+        }
+        
+        // Pause video and reset to beginning
+        this.video.pause();
+        this.video.currentTime = 0;
+        
+        // Keep video source loaded for instant replay (no memory leak - just cached src)
+        // The browser handles the video buffer efficiently
+        
+        // Reset UI states
+        this.loader.style.display = 'none';
+        this.playOverlay.style.display = 'none';
+        this.muteIndicator.style.display = 'none';
+        this.errorContainer.classList.add('hidden');
         
         // Hide modal
         this.modal.classList.add('hidden');
@@ -445,6 +455,15 @@ class VideoModal {
         // Track analytics
         if (typeof trackEvent === 'function') {
             trackEvent('video_modal_closed', { cached_videos: this.videoCache.size });
+        }
+        
+        // Clean up old cache entries (older than 5 minutes)
+        const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+        for (const [url, data] of this.videoCache.entries()) {
+            if (data.timestamp < fiveMinutesAgo) {
+                this.videoCache.delete(url);
+                console.log('🗑️ Removed expired cached video:', url);
+            }
         }
     }
 
@@ -793,6 +812,7 @@ class DemoModal {
         
         this.isOpen = false;
         this.currentInstructionIndex = 0;
+        this.hasLoaded = false;
         
         // Cache iframe state before closing for instant replay
         if (this.currentIframeUrl && this.iframe.src) {
@@ -812,7 +832,7 @@ class DemoModal {
             }
         }
         
-        // Clear all timeouts and intervals
+        // Clear all timeouts and intervals FIRST (prevent memory leaks)
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
             this.loadTimeout = null;
@@ -822,8 +842,12 @@ class DemoModal {
             this.instructionInterval = null;
         }
         
-        // DON'T reset iframe.src - keep it loaded for instant replay
-        // Iframe stays loaded in the background
+        // Keep iframe source loaded for instant replay (no memory leak - just cached src)
+        // The browser handles the iframe efficiently
+        
+        // Reset UI states
+        this.loader.style.display = 'none';
+        this.errorContainer.classList.add('hidden');
         
         this.modal.classList.add('hidden');
         
@@ -831,6 +855,15 @@ class DemoModal {
         
         if (typeof trackEvent === 'function') {
             trackEvent('demo_modal_closed', { cached_iframes: this.iframeCache.size });
+        }
+        
+        // Clean up old cache entries (older than 5 minutes)
+        const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+        for (const [url, data] of this.iframeCache.entries()) {
+            if (data.timestamp < fiveMinutesAgo) {
+                this.iframeCache.delete(url);
+                console.log('🗑️ Removed expired cached iframe:', url);
+            }
         }
     }
 
