@@ -119,6 +119,40 @@ uploads/
 
 **Rationale**: Performance-first approach targets users on varying connection speeds and devices. Progressive enhancement ensures baseline functionality while optimizing for modern browsers.
 
+### SEO Optimization (November 2025)
+
+**Social Media Sharing:**
+- **Custom OG Image**: Professional 1920×1080 banner (`assets/images/og-image.png`) for social media previews
+- **Open Graph Tags**: Complete OG meta tags on all pages (homepage, templates, tools) with proper dimensions and alt text
+- **Twitter Cards**: Summary large image cards for rich Twitter/X previews
+- **Smart Fallback Logic**: Product pages prioritize item-specific thumbnails, falling back to branded banner only when missing
+
+**Structured Data (Schema.org):**
+- **Homepage**: Organization and WebSite schema with search action support
+- **Templates**: Product schema with pricing, availability, and category information
+- **Tools**: Product schema with stock status and delivery information
+- **Consistent Fallbacks**: Schema.org image fields use same fallback logic as Open Graph
+
+**URL Structure & Routing:**
+- **Template Pages**: Clean URLs via slug (`/template-name`)
+- **Tool Pages**: Namespaced URLs (`/tool/tool-name`)
+- **Canonical Tags**: All pages include proper canonical URLs
+- **301 Redirects**: ID-based URLs redirect to slug-based URLs for SEO
+
+**Search Engine Optimization:**
+- **Dynamic Sitemap**: `/sitemap.xml` auto-generates from database, includes all templates and tools
+- **Dynamic Robots.txt**: `/robots.txt` served via PHP for environment-aware sitemap URL
+- **Meta Tags**: Comprehensive title, description, keywords, author, and robots meta tags
+- **Image Optimization**: All social images include width, height, alt text, and type attributes
+
+**Implementation Details:**
+- `sitemap.php`: Dynamically generates XML sitemap including all active templates and tools
+- `robots.php`: Serves robots.txt with correct SITE_URL for sitemap reference
+- `router.php`: Handles SEO-friendly URL routing for templates (`/slug`) and tools (`/tool/slug`)
+- `tool.php`: New dedicated detail page for tools with full SEO optimization
+
+**Rationale**: Comprehensive SEO approach ensures strong social media presence, search engine discoverability, and rich preview snippets. Product-specific images improve click-through rates while maintaining brand consistency through smart fallbacks.
+
 ## External Dependencies
 
 ### Third-Party Libraries
