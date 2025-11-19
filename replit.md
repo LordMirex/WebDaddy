@@ -3,7 +3,116 @@
 ## Overview
 A PHP-based marketplace platform for selling website templates and digital tools. Built with SQLite database, Tailwind CSS, and custom PHP components.
 
-## Recent Changes (November 18, 2025)
+## Recent Changes
+
+### November 19, 2025 - Production Launch Preparation
+
+#### Modal Performance Enhancement - SessionStorage Caching
+**Problem:** Even with video preloading, switching between different videos still required full reload cycles. Users experienced the 5-second loader animation every time they reopened a video, even if they had just viewed it moments ago.
+
+**Solution Implemented:**
+1. **SessionStorage Cache System** - Videos/iframes cached in browser memory for instant reopening
+   - Map-based cache stores video/iframe HTML content
+   - 5-minute TTL on cached items (auto-expiration)
+   - Maximum 10 items cached (LRU eviction)
+   - Cache survives across modal opens/closes within same session
+   
+2. **Smart Loader Skip** - Cached videos load instantly without 5-second animation
+   - Checks cache first before showing loader
+   - If found: instant display, no loading animation
+   - If not found: normal 5-second loader with instructions
+   - Videos restart from beginning (currentTime = 0) for clean UX
+   
+3. **Memory Leak Prevention** - All timers and intervals properly cleaned up
+   - `close()` method clears ALL timeouts/intervals
+   - No orphaned timers running in background
+   - DOM references properly cleaned up
+   - Cache size limited to prevent memory bloat
+
+**Files Modified:**
+- `assets/js/video-modal.js` - Added sessionStorage caching system with smart loader skip
+
+**Performance Results:**
+- **First view:** 5 seconds (with helpful instructions)
+- **Second view (same video):** Instant (0 seconds)
+- **Cache hit:** No loading animation, instant display
+- **Cache miss:** Standard 5-second loader
+- **Memory safe:** Auto-cleanup of old entries, max 10 items
+
+**Benefits:**
+- Instant video reopening when switching between templates
+- No memory leaks from orphaned timers
+- Clean UX with restart-from-beginning behavior
+- Cache expires after 5 minutes (prevents stale content)
+- Minimal memory footprint (10-item limit)
+
+#### Database Reset Tool - Safe Production Launch
+**Problem:** Before launch, the database needs to be completely cleared of all test/demo data while preserving admin accounts and critical system settings. Manual SQL commands are error-prone and risk data loss or lockout.
+
+**Solution Implemented:**
+1. **Safe Reset Script** - `admin/reset-database.php` clears all data except admins and settings
+   - Validates admin IDs are integers >0 before proceeding
+   - Uses TRIM() + LOWER() for role comparison (handles whitespace)
+   - Parameterized DELETE query prevents SQL injection
+   - Preserves admin accounts to prevent lockout
+   - Preserves settings table (WhatsApp, SMTP, commission rates)
+   - Resets all auto-increment IDs to start from admin's max ID + 1
+   
+2. **19 Data Tables Cleared** - Complete wipe of all customer/test data
+   - Templates, Tools, Domains
+   - Affiliates, Sales, Orders
+   - Support Tickets, Announcements
+   - Activity Logs, Page Visits, Analytics
+   - Media Files, Cart Items
+   - All test data removed for fresh launch
+   
+3. **Transaction Safety** - All operations in single transaction
+   - Either all succeed or all rollback
+   - No partial deletions or broken state
+   - Validation before deletion (admin check)
+   - Error handling with user-friendly messages
+
+**Files Created:**
+- `admin/reset-database.php` - Production-ready database reset tool
+
+**Safety Features:**
+- Requires admin login (SESSION validation)
+- Confirms admin accounts exist before deleting anything
+- Preserves settings table (critical WhatsApp/SMTP config)
+- Doesn't renumber admin IDs (sessions stay valid)
+- Single transaction (atomic operation)
+- Activity log entry for audit trail
+
+**Tables Cleared:** activity_logs, affiliate_actions, affiliates, announcement_emails, announcements, cart_items, domains, media_files, order_items, page_interactions, page_visits, pending_orders, sales, session_summary, support_tickets, templates, ticket_replies, tools, withdrawal_requests
+
+**Tables Preserved:** users (admin accounts only), settings (WhatsApp, SMTP, commission rates)
+
+#### Production Configuration - Error Display Disabled
+**Problem:** Development error messages expose sensitive system information and are unprofessional for production users.
+
+**Solution Implemented:**
+- Changed `DISPLAY_ERRORS` to `false` in `includes/config.php`
+- Production-safe error handling (logs errors, doesn't display them)
+- Professional user experience without technical debug output
+
+**Files Modified:**
+- `includes/config.php` - Set DISPLAY_ERRORS = false
+
+**Benefits:**
+- No sensitive error information exposed to users
+- Professional production appearance
+- Errors still logged for debugging
+- Ready for launch
+
+#### File Cleanup - Removed Unused Assets
+**Problem:** Unused files (webdaddy-logo.jpg) cluttering the codebase. Need to verify forms.js is still used before removal.
+
+**Solution Implemented:**
+- Removed `webdaddy-logo.jpg` (unused logo file)
+- Verified `forms.js` is still referenced in code (kept)
+- Cleaner codebase for production
+
+### November 18, 2025 - Smart Video Loading System
 
 ### Smart Video Preloading System - YouTube/TikTok-Speed Video Loading
 **Problem:** Videos (10MB-100MB, 2-5 minutes) took 30+ seconds to start playing after the 5-second loading screen. Users experienced black screens and long waits. Videos are hosted on the same server (not CDN), and cannot use ffmpeg or advanced dependencies due to cheap hosting constraints.
