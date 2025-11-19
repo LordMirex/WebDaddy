@@ -17,6 +17,9 @@ $db = getDb();
 // Get all active templates
 $templates = getTemplates(true);
 
+// Get all active tools (including out of stock for SEO)
+$tools = getTools(true, null, null, null, false);
+
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -34,6 +37,16 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <url>
         <loc><?php echo SITE_URL . '/' . $template['slug']; ?></loc>
         <lastmod><?php echo date('Y-m-d', strtotime($template['updated_at'] ?? $template['created_at'])); ?></lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <?php endforeach; ?>
+    
+    <!-- Tools -->
+    <?php foreach ($tools as $tool): ?>
+    <url>
+        <loc><?php echo SITE_URL . '/tool/' . $tool['slug']; ?></loc>
+        <lastmod><?php echo date('Y-m-d', strtotime($tool['updated_at'] ?? $tool['created_at'])); ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>

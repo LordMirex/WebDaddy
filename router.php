@@ -26,10 +26,25 @@ if (preg_match('#^/(includes|database|uploads/private)/#', $path)) {
     exit;
 }
 
+// Robots.txt routing
+if ($path === '/robots.txt' || $path === '/robots') {
+    $_SERVER['SCRIPT_NAME'] = '/robots.php';
+    require __DIR__ . '/robots.php';
+    exit;
+}
+
 // Sitemap routing
 if ($path === '/sitemap.xml' || $path === '/sitemap') {
     $_SERVER['SCRIPT_NAME'] = '/sitemap.php';
     require __DIR__ . '/sitemap.php';
+    exit;
+}
+
+// Tool detail page routing: /tool/slug-name → tool.php?slug=slug-name
+if (preg_match('#^/tool/([a-z0-9\-_]+)/?$#i', $path, $matches)) {
+    $_GET['slug'] = $matches[1];
+    $_SERVER['SCRIPT_NAME'] = '/tool.php';
+    require __DIR__ . '/tool.php';
     exit;
 }
 
@@ -38,7 +53,7 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
 // Must match pattern: /lowercase-slug-with-hyphens
 if (preg_match('#^/([a-z0-9\-_]+)/?$#i', $path, $matches)) {
     // Exclude specific directories/files
-    $excluded = ['admin', 'affiliate', 'assets', 'api', 'uploads', 'mailer', 'index', 'template', 'sitemap'];
+    $excluded = ['admin', 'affiliate', 'assets', 'api', 'uploads', 'mailer', 'index', 'template', 'sitemap', 'tool', 'robots'];
     $slug = $matches[1];
     
     if (!in_array(strtolower($slug), $excluded) && !file_exists(__DIR__ . '/' . $slug . '.php')) {

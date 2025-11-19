@@ -66,19 +66,26 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <meta name="googlebot" content="index, follow">
     
     <!-- Open Graph Tags (Social Sharing) -->
+    <?php
+    $ogImage = !empty($template['thumbnail_url']) ? $template['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png';
+    ?>
     <meta property="og:url" content="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     <meta property="og:type" content="product">
     <meta property="og:title" content="<?php echo htmlspecialchars($template['name']); ?> - <?php echo SITE_NAME; ?>">
     <meta property="og:description" content="<?php echo htmlspecialchars($template['description']); ?>">
-    <meta property="og:image" content="<?php echo htmlspecialchars($template['thumbnail_url'] ?? SITE_URL . '/assets/images/placeholder.jpg'); ?>">
+    <meta property="og:image" content="<?php echo htmlspecialchars($ogImage); ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="<?php echo htmlspecialchars($template['name']); ?> - Website Template Preview">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
     <meta property="og:locale" content="en_NG">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo htmlspecialchars($template['name']); ?>">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($template['name']); ?> - <?php echo SITE_NAME; ?>">
     <meta name="twitter:description" content="<?php echo htmlspecialchars($template['description']); ?>">
-    <meta name="twitter:image" content="<?php echo htmlspecialchars($template['thumbnail_url'] ?? SITE_URL . '/assets/images/placeholder.jpg'); ?>">
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($ogImage); ?>">
+    <meta name="twitter:image:alt" content="<?php echo htmlspecialchars($template['name']); ?> - Website Template Preview">
     
     <!-- Structured Data (Schema.org) -->
     <script type="application/ld+json">
@@ -87,7 +94,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
       "@type": "Product",
       "name": "<?php echo htmlspecialchars($template['name']); ?>",
       "description": "<?php echo htmlspecialchars($template['description']); ?>",
-      "image": "<?php echo htmlspecialchars($template['thumbnail_url'] ?? ''); ?>",
+      "image": "<?php echo htmlspecialchars($ogImage); ?>",
       "url": "<?php echo SITE_URL . '/' . $template['slug']; ?>",
       "offers": {
         "@type": "Offer",

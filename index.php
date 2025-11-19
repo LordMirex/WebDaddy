@@ -76,20 +76,64 @@ if ($currentView === 'templates') {
     <title><?php echo SITE_NAME; ?> - Professional Website Templates & Digital Working Tools</title>
     <meta name="description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
     <meta name="keywords" content="website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools">
+    <meta name="author" content="<?php echo SITE_NAME; ?>">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?php echo SITE_URL; ?>">
     
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="<?php echo SITE_NAME; ?> - Templates & Digital Tools">
-    <meta property="og:description" content="Professional website templates and digital working tools for your business. Get API keys, software licenses, and more. Launch in 24 hours.">
-    <meta property="og:url" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
+    <meta property="og:title" content="<?php echo SITE_NAME; ?> - Professional Website Templates & Digital Tools">
+    <meta property="og:description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta property="og:url" content="<?php echo SITE_URL; ?>">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
-    <meta property="og:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/assets/images/webdaddy-logo.png">
+    <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.png">
+    <meta property="og:image:width" content="1920">
+    <meta property="og:image:height" content="1080">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:locale" content="en_NG">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo SITE_NAME; ?> - Templates & Digital Tools">
-    <meta name="twitter:description" content="Professional website templates and digital working tools. Launch your business online in 24 hours.">
-    <meta name="twitter:image" content="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']; ?>/assets/images/webdaddy-logo.png">
+    <meta name="twitter:title" content="<?php echo SITE_NAME; ?> - Professional Website Templates & Digital Tools">
+    <meta name="twitter:description" content="Get professional website templates and digital working tools for your business. Launch your website in 24 hours with domain included.">
+    <meta name="twitter:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.png">
+    <meta name="twitter:image:alt" content="<?php echo SITE_NAME; ?> - Professional Templates and Digital Tools">
+    
+    <!-- Structured Data (Schema.org) for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "<?php echo SITE_NAME; ?>",
+      "url": "<?php echo SITE_URL; ?>",
+      "logo": "<?php echo SITE_URL; ?>/assets/images/webdaddy-logo.png",
+      "description": "Professional website templates and digital working tools marketplace",
+      "sameAs": [],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "availableLanguage": "English"
+      }
+    }
+    </script>
+    
+    <!-- Structured Data (Schema.org) for WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "<?php echo SITE_NAME; ?>",
+      "url": "<?php echo SITE_URL; ?>",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "<?php echo SITE_URL; ?>/?view=templates&search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
