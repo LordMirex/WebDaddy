@@ -21,6 +21,8 @@ class VideoModal {
             { title: "Loading complete!", text: "Starting playback..." }
         ];
         this.currentInstructionIndex = 0;
+        this.videoCache = new Map(); // Cache for loaded videos
+        this.lastVideoUrl = null; // Track last opened video
         this.init();
     }
 
@@ -208,7 +210,10 @@ class VideoModal {
         this.title.textContent = title;
         this.playbackAttempted = false;
         this.currentInstructionIndex = 0;
-        this.currentVideoUrl = videoUrl;
+        
+        // Check if video is already loaded (cached)
+        const isCached = this.videoCache.has(videoUrl);
+        const isSameVideo = this.lastVideoUrl === videoUrl;
         
         // Clear any existing timeouts
         if (this.autoplayTimeout) {
@@ -234,6 +239,43 @@ class VideoModal {
         // Always start muted
         this.video.muted = true;
         this.updateMuteIcon();
+        
+        // INSTANT PLAYBACK: If video is cached or same as last, skip loading animation
+        if (isCached || isSameVideo) {
+            console.log('⚡ Instant playback - video already loaded!');
+            
+            // Hide loader immediately
+            this.loader.style.display = 'none';
+            this.video.style.display = 'block';
+            
+            // If same video, it's already in the DOM with the right src
+            if (!isSameVideo) {
+                this.videoSource.src = videoUrl;
+                this.video.load();
+            }
+            
+            // Get cached playback position if available
+            const cachedData = this.videoCache.get(videoUrl);
+            if (cachedData && cachedData.currentTime > 0) {
+                this.video.currentTime = cachedData.currentTime;
+            }
+            
+            // Play immediately
+            this.playbackAttempted = true;
+            this.playVideo();
+            
+            this.lastVideoUrl = videoUrl;
+            this.currentVideoUrl = videoUrl;
+            
+            if (typeof trackEvent === 'function') {
+                trackEvent('video_modal_opened', { url: videoUrl, title: title, cached: true });
+            }
+            return;
+        }
+        
+        // NEW VIDEO: Show loading animation
+        this.currentVideoUrl = videoUrl;
+        this.lastVideoUrl = videoUrl;
         
         // Show loader with first instruction
         this.loader.style.display = 'flex';
@@ -310,7 +352,7 @@ class VideoModal {
         
         // Track analytics
         if (typeof trackEvent === 'function') {
-            trackEvent('video_modal_opened', { url: videoUrl, title: title, has_poster: !!posterUrl });
+            trackEvent('video_modal_opened', { url: videoUrl, title: title, has_poster: !!posterUrl, cached: false });
         }
     }
     
@@ -355,11 +397,34 @@ class VideoModal {
         this.playbackAttempted = false;
         this.currentInstructionIndex = 0;
         
+        // Cache video state before closing for instant replay
+        if (this.currentVideoUrl && this.videoSource.src) {
+            this.videoCache.set(this.currentVideoUrl, {
+                src: this.videoSource.src,
+                currentTime: 0, // Always restart from beginning on reopen
+                duration: this.video.duration || 0,
+                timestamp: Date.now()
+            });
+            
+            console.log('💾 Cached video for instant replay:', this.currentVideoUrl);
+            
+            // Limit cache size to 5 videos max
+            if (this.videoCache.size > 5) {
+                const firstKey = this.videoCache.keys().next().value;
+                this.videoCache.delete(firstKey);
+                console.log('🗑️ Removed oldest cached video:', firstKey);
+            }
+        }
+        
         // Clean up preloaded video after use
         if (this.currentVideoUrl && window.videoPreloader) {
             window.videoPreloader.cleanupUsedVideo(this.currentVideoUrl);
         }
-        this.currentVideoUrl = null;
+        
+        // DON'T reset videoSource.src - keep it loaded for instant replay
+        // Only pause the video
+        this.video.pause();
+        this.video.currentTime = 0;
         
         // Clear all timeouts and intervals
         if (this.autoplayTimeout) {
@@ -371,12 +436,6 @@ class VideoModal {
             this.instructionInterval = null;
         }
         
-        // Pause and reset video
-        this.video.pause();
-        this.video.currentTime = 0;
-        this.videoSource.src = '';
-        this.video.poster = '';
-        
         // Hide modal
         this.modal.classList.add('hidden');
         
@@ -385,7 +444,7 @@ class VideoModal {
         
         // Track analytics
         if (typeof trackEvent === 'function') {
-            trackEvent('video_modal_closed');
+            trackEvent('video_modal_closed', { cached_videos: this.videoCache.size });
         }
     }
 
@@ -522,6 +581,8 @@ class DemoModal {
             { title: "Loading complete!", text: "Ready to view..." }
         ];
         this.currentInstructionIndex = 0;
+        this.iframeCache = new Map(); // Cache for loaded iframes
+        this.lastIframeUrl = null; // Track last opened iframe
         this.init();
     }
 
@@ -631,6 +692,10 @@ class DemoModal {
         this.currentInstructionIndex = 0;
         this.hasLoaded = false;
         
+        // Check if iframe is already loaded (cached)
+        const isCached = this.iframeCache.has(url);
+        const isSameIframe = this.lastIframeUrl === url;
+        
         // Clear any existing intervals/timeouts
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
@@ -643,6 +708,33 @@ class DemoModal {
         
         this.modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        
+        // INSTANT DISPLAY: If iframe is cached or same as last, skip loading animation
+        if (isCached || isSameIframe) {
+            console.log('⚡ Instant iframe display - already loaded!');
+            
+            // Hide loader immediately
+            this.loader.style.display = 'none';
+            this.iframe.style.display = 'block';
+            this.errorContainer.classList.add('hidden');
+            
+            // If same iframe, it's already in the DOM with the right src
+            if (!isSameIframe) {
+                this.iframe.src = url;
+            }
+            
+            this.lastIframeUrl = url;
+            this.currentIframeUrl = url;
+            
+            if (typeof trackEvent === 'function') {
+                trackEvent('demo_modal_opened', { url: url, title: title, cached: true });
+            }
+            return;
+        }
+        
+        // NEW IFRAME: Show loading animation
+        this.currentIframeUrl = url;
+        this.lastIframeUrl = url;
         
         // Show loader with first instruction
         this.loader.style.display = 'flex';
@@ -679,7 +771,7 @@ class DemoModal {
         }, 5000);
         
         if (typeof trackEvent === 'function') {
-            trackEvent('demo_modal_opened', { url: url, title: title });
+            trackEvent('demo_modal_opened', { url: url, title: title, cached: false });
         }
     }
     
@@ -702,6 +794,24 @@ class DemoModal {
         this.isOpen = false;
         this.currentInstructionIndex = 0;
         
+        // Cache iframe state before closing for instant replay
+        if (this.currentIframeUrl && this.iframe.src) {
+            this.iframeCache.set(this.currentIframeUrl, {
+                src: this.iframe.src,
+                loaded: true,
+                timestamp: Date.now()
+            });
+            
+            console.log('💾 Cached iframe for instant replay:', this.currentIframeUrl);
+            
+            // Limit cache size to 3 iframes max (they use more memory)
+            if (this.iframeCache.size > 3) {
+                const firstKey = this.iframeCache.keys().next().value;
+                this.iframeCache.delete(firstKey);
+                console.log('🗑️ Removed oldest cached iframe:', firstKey);
+            }
+        }
+        
         // Clear all timeouts and intervals
         if (this.loadTimeout) {
             clearTimeout(this.loadTimeout);
@@ -712,14 +822,15 @@ class DemoModal {
             this.instructionInterval = null;
         }
         
-        this.iframe.src = '';
+        // DON'T reset iframe.src - keep it loaded for instant replay
+        // Iframe stays loaded in the background
         
         this.modal.classList.add('hidden');
         
         document.body.style.overflow = '';
         
         if (typeof trackEvent === 'function') {
-            trackEvent('demo_modal_closed');
+            trackEvent('demo_modal_closed', { cached_iframes: this.iframeCache.size });
         }
     }
 
