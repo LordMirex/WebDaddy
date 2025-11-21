@@ -33,6 +33,11 @@ $totalTemplates = 0;
 $totalTools = 0;
 $totalPages = 1;
 $page = max(1, (int)($_GET['page'] ?? 1));
+$autoOpenToolSlug = $_GET['tool'] ?? null;
+$autoOpenTool = null;
+if ($autoOpenToolSlug) {
+    $autoOpenTool = getToolBySlug($autoOpenToolSlug);
+}
 
 if ($currentView === 'templates') {
     // TEMPLATES VIEW
@@ -169,6 +174,18 @@ if ($currentView === 'templates') {
     <script src="/assets/js/performance.js" defer></script>
     <script src="/assets/js/video-preloader.js" defer></script>
     <script src="/assets/js/video-modal.js" defer></script>
+    <script src="/assets/js/share.js" defer></script>
+    <?php if ($autoOpenTool): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.openToolModalFromShare) {
+                    window.openToolModalFromShare(<?php echo json_encode($autoOpenTool); ?>);
+                }
+            }, 500);
+        });
+    </script>
+    <?php endif; ?>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->

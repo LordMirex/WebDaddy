@@ -68,7 +68,7 @@ function shareViaTwitter() {
 }
 
 /**
- * Copy template link to clipboard
+ * Copy template link to clipboard (deprecated - use copyTemplateLink or copyToolShareLink)
  */
 async function copyTemplateLink() {
     try {

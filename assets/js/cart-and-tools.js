@@ -667,28 +667,38 @@ document.addEventListener('DOMContentLoaded', function() {
                             ` : ''}
                         </div>
                         
-                        <!-- Footer with price and CTA -->
+                        <!-- Footer with price, share and CTA -->
                         <div class="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-200">
-                            <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
                                 <div>
                                     <p class="text-xs sm:text-sm text-gray-600 mb-1">Price</p>
                                     <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
                                 </div>
-                                ${isOutOfStock 
-                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                <div class="flex gap-2 items-center">
+                                    <button onclick="copyToolShareLink('${tool.slug}')" 
+                                            class="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2.5 border border-gray-300 text-xs sm:text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-100 transition-colors"
+                                            title="Copy shareable link">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C9.589 12.430 10.647 12 11.759 12H21a2 2 0 110 4h-9.676a2 2 0 00-1.888.684m0-11.268C3.455 11.494 1 14.036 1 17c0 2.21 1.71 4.04 4 4.131"/>
                                         </svg>
-                                        Out of Stock
-                                    </button>`
-                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
-                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                        </svg>
-                                        Add to Cart
-                                    </button>`
-                                }
+                                        Share
+                                    </button>
+                                    ${isOutOfStock 
+                                        ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                            Out of Stock
+                                        </button>`
+                                        : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
+                                            class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                            </svg>
+                                            Add to Cart
+                                        </button>`
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -705,6 +715,33 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modal) {
             modal.remove();
             document.body.style.overflow = 'auto';
+        }
+    };
+    
+    // Open tool modal from share link
+    window.openToolModalFromShare = function(tool) {
+        showToolModal(tool);
+    };
+    
+    // Copy tool share link to clipboard
+    window.copyToolShareLink = async function(slug) {
+        if (!slug) return;
+        try {
+            const shareUrl = window.location.origin + '/?tool=' + slug;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(shareUrl);
+            } else {
+                const tempInput = document.createElement('input');
+                tempInput.value = shareUrl;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+            }
+            showNotification('Tool link copied to clipboard!', 'success');
+        } catch (err) {
+            console.error('Failed to copy link:', err);
+            showNotification('Failed to copy link', 'error');
         }
     };
     
