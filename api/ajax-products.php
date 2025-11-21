@@ -15,25 +15,47 @@ if ($action === 'load_view') {
     $category = $_GET['category'] ?? null;
     $affiliateCode = $_GET['aff'] ?? '';
     
-    ob_start();
+    // Add HTTP caching and gzip compression
+    header('Cache-Control: public, max-age=300');
+    header('Vary: Accept-Encoding');
+    if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
+        ob_start('ob_gzhandler');
+    } else {
+        ob_start();
+    }
     
     if ($view === 'templates') {
         $perPage = 9;
-        $allTemplates = getTemplates(true);
-        $templateCategories = array_unique(array_column($allTemplates, 'category'));
-        sort($templateCategories);
+        $db = getDb();
         
+        // Use SQL LIMIT instead of fetching all templates
+        $sqlWhere = "WHERE active = 1";
+        $params = [];
         if ($category) {
-            $allTemplates = array_filter($allTemplates, function($t) use ($category) {
-                return $t['category'] === $category;
-            });
+            $sqlWhere .= " AND category = ?";
+            $params[] = $category;
         }
         
-        $totalTemplates = count($allTemplates);
+        // Get total count
+        $countStmt = $db->prepare("SELECT COUNT(*) as count FROM templates $sqlWhere");
+        $countStmt->execute($params);
+        $totalTemplates = (int)$countStmt->fetch(PDO::FETCH_ASSOC)['count'];
+        
+        // Fetch only needed fields and only for this page
         $totalPages = max(1, ceil($totalTemplates / $perPage));
         $page = max(1, min($page, $totalPages));
         $offset = ($page - 1) * $perPage;
-        $templates = array_slice($allTemplates, $offset, $perPage);
+        
+        $stmt = $db->prepare("SELECT id, name, category, price, thumbnail_url, demo_url FROM templates $sqlWhere ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $params[] = $perPage;
+        $params[] = $offset;
+        $stmt->execute($params);
+        $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Get categories (cached in memory during request)
+        $catStmt = $db->prepare("SELECT DISTINCT category FROM templates WHERE active = 1 ORDER BY category ASC");
+        $catStmt->execute();
+        $templateCategories = array_column($catStmt->fetchAll(PDO::FETCH_ASSOC), 'category');
         
         // Render templates grid
         renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $category, $affiliateCode);

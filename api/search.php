@@ -7,6 +7,12 @@ require_once __DIR__ . '/../includes/analytics.php';
 require_once __DIR__ . '/../includes/tools.php';
 
 header('Content-Type: application/json');
+header('Cache-Control: public, max-age=60');
+if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
+    ob_start('ob_gzhandler');
+} else {
+    ob_start();
+}
 
 startSecureSession();
 handleAffiliateTracking();
@@ -23,10 +29,10 @@ try {
     $results = [];
     
     if (empty($searchTerm)) {
-        // Return recent items when no search term
+        // Return recent items when no search term (minimal fields for fast response)
         if ($searchType === 'template' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, description, price, thumbnail_url, demo_url 
+                SELECT id, name, category, price, thumbnail_url, demo_url 
                 FROM templates 
                 WHERE active = 1 
                 ORDER BY created_at DESC
@@ -44,7 +50,7 @@ try {
         
         if ($searchType === 'tool' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, description, short_description, price, thumbnail_url, demo_url 
+                SELECT id, name, category, price, thumbnail_url, demo_url 
                 FROM tools 
                 WHERE active = 1 
                 AND (stock_unlimited = 1 OR stock_quantity > 0)
@@ -64,11 +70,12 @@ try {
         // Search templates
         if ($searchType === 'template' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, description, price, thumbnail_url, demo_url 
+                SELECT id, name, category, price, thumbnail_url, demo_url 
                 FROM templates 
                 WHERE active = 1 
                 AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
                 ORDER BY name ASC
+                LIMIT 20
             ");
             
             $searchPattern = '%' . $searchTerm . '%';
