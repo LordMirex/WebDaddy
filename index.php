@@ -87,9 +87,10 @@ if ($currentView === 'templates') {
     <meta property="og:url" content="<?php echo SITE_URL; ?>">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
     <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.png">
-    <meta property="og:image:width" content="1920">
-    <meta property="og:image:height" content="1080">
-    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png"
+>
     <meta property="og:locale" content="en_NG">
     
     <!-- Twitter Card Meta Tags -->

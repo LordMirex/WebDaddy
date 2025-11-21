@@ -68,6 +68,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <meta property="og:image" content="<?php echo htmlspecialchars($ogImage); ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:image:alt" content="<?php echo htmlspecialchars($tool['name']); ?> - Digital Tool">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
     <meta property="og:locale" content="en_NG">

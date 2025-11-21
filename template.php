@@ -76,6 +76,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <meta property="og:image" content="<?php echo htmlspecialchars($ogImage); ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:image:alt" content="<?php echo htmlspecialchars($template['name']); ?> - Website Template Preview">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
     <meta property="og:locale" content="en_NG">
