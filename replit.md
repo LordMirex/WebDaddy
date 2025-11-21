@@ -8,6 +8,15 @@ WebDaddy Empire is a production-ready PHP/SQLite marketplace platform for sellin
 
 Preferred communication style: Simple, everyday language.
 
+**CRITICAL DESIGN STANDARDS:**
+- ALL UI/UX designs must be polished, professional, and visually clean
+- NEVER implement fast/ugly designs - quality UI is non-negotiable for this website
+- ALWAYS match existing design patterns (example: template.php social sharing section)
+- ALWAYS center-align text properly and remove cluttered/awkward icon placements
+- ALWAYS use proper spacing, shadows, hover effects, and responsive sizing
+- ALWAYS test designs on mobile before delivery (user focuses on mobile experience)
+- When in doubt about design, copy the exact pattern from proven pages (template.php, index.php)
+
 ## System Architecture
 
 ### Frontend Architecture

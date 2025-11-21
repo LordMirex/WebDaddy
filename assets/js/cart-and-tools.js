@@ -694,14 +694,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             <!-- Share Section -->
                             <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 sm:p-5">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <svg class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C9.589 12.430 10.647 12 11.759 12H21a2 2 0 110 4h-9.676a2 2 0 00-1.888.684m0-11.268C3.455 11.494 1 14.036 1 17c0 2.21 1.71 4.04 4 4.131"/>
-                                    </svg>
-                                    <div>
-                                        <h3 class="text-base font-bold text-gray-900">Love this tool?</h3>
-                                        <p class="text-xs text-gray-600">Share it with your friends!</p>
-                                    </div>
+                                <div class="text-center mb-4">
+                                    <h3 class="text-base font-bold text-gray-900 mb-1">Love this tool?</h3>
+                                    <p class="text-xs text-gray-600">Share it with your friends!</p>
                                 </div>
                                 
                                 <!-- Share Buttons -->
