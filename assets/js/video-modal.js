@@ -73,14 +73,21 @@ class VideoModal {
                             <video id="modalVideo" 
                                    class="object-contain"
                                    style="max-width: 100%; max-height: 85vh; width: auto; height: auto; position: relative; z-index: 1;"
-                                   preload="auto"
+                                   preload="metadata"
                                    playsinline
                                    muted
+                                   controls
                                    controlsList="nodownload"
+                                   crossOrigin="anonymous"
                                    data-video-poster>
                                 <source data-video-source type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
+                            
+                            <!-- Buffering Progress Bar -->
+                            <div data-buffering-bar class="absolute bottom-0 left-0 right-0 h-1 bg-gray-700 hidden" style="z-index: 10;">
+                                <div class="h-full bg-blue-500 transition-all duration-300" style="width: 0%;" data-buffer-progress></div>
+                            </div>
                             
                             <!-- Mute/Unmute Button -->
                             <button data-mute-indicator 
@@ -157,6 +164,11 @@ class VideoModal {
         this.video.addEventListener('ended', () => this.onVideoEnded());
         this.video.addEventListener('loadedmetadata', () => this.onVideoLoadedMetadata());
         this.video.addEventListener('canplay', () => this.onVideoCanPlay());
+        
+        // Buffering progress tracking (for streaming video)
+        this.video.addEventListener('progress', () => this.onVideoProgress());
+        this.video.addEventListener('seeking', () => this.onVideoSeeking());
+        this.video.addEventListener('seeked', () => this.onVideoSeeked());
         
         // Play overlay click
         this.playOverlay.addEventListener('click', () => this.playVideo());
@@ -516,6 +528,37 @@ class VideoModal {
     onVideoEnded() {
         this.playOverlay.style.display = 'flex';
         this.video.currentTime = 0;
+    }
+    
+    onVideoProgress() {
+        // Track buffering progress for streaming videos
+        const bufferBar = this.modal.querySelector('[data-buffering-bar]');
+        if (!bufferBar || !this.video.duration) return;
+        
+        // Calculate buffered percentage
+        let buffered = 0;
+        if (this.video.buffered.length > 0) {
+            buffered = (this.video.buffered.end(this.video.buffered.length - 1) / this.video.duration) * 100;
+        }
+        
+        // Show buffering bar if not fully buffered
+        if (buffered < 100) {
+            bufferBar.classList.remove('hidden');
+            bufferBar.querySelector('[data-buffer-progress]').style.width = buffered + '%';
+        } else {
+            bufferBar.classList.add('hidden');
+        }
+    }
+    
+    onVideoSeeking() {
+        const bufferBar = this.modal.querySelector('[data-buffering-bar]');
+        if (bufferBar) {
+            bufferBar.classList.remove('hidden');
+        }
+    }
+    
+    onVideoSeeked() {
+        this.onVideoProgress(); // Update buffer bar after seeking
     }
     
     toggleMute() {
