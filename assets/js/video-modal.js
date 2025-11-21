@@ -645,7 +645,7 @@ class DemoModal {
                             <iframe id="modalIframe" 
                                    class="w-full h-full border-0"
                                    loading="eager"
-                                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">
+                                   sandbox="allow-scripts allow-forms allow-popups allow-modals">
                             </iframe>
                             
                             <div data-demo-error class="hidden absolute inset-0 flex items-center justify-center bg-gray-900 text-white p-6">
