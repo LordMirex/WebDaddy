@@ -1,0 +1,10 @@
+[21-Nov-2025 22:57:10 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[21-Nov-2025 22:57:10 Africa/Lagos] Upload API: Session ID: b0f68d434f21373c9d2225c41206fb84, Admin status: yes
+[21-Nov-2025 22:58:01 Africa/Lagos] Upload API: Request received - Type: video, Category: tools
+[21-Nov-2025 22:58:01 Africa/Lagos] Upload API: Session ID: b0f68d434f21373c9d2225c41206fb84, Admin status: yes
+[21-Nov-2025 22:58:01 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763762281_3918f6ad_e0f1851126ac378d7db85daf2009801f.mp4
+[21-Nov-2025 22:59:12 Africa/Lagos] Upload API: Request received - Type: video, Category: tools
+[21-Nov-2025 22:59:12 Africa/Lagos] Upload API: Session ID: b0f68d434f21373c9d2225c41206fb84, Admin status: yes
+[21-Nov-2025 22:59:12 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763762352_8a800787_e0f1851126ac378d7db85daf2009801f.mp4
+[21-Nov-2025 22:59:14 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
+[21-Nov-2025 22:59:14 Africa/Lagos] Upload API: Session ID: b0f68d434f21373c9d2225c41206fb84, Admin status: yes
