@@ -33,10 +33,15 @@ $totalTemplates = 0;
 $totalTools = 0;
 $totalPages = 1;
 $page = max(1, (int)($_GET['page'] ?? 1));
-$autoOpenToolSlug = $_GET['tool'] ?? null;
+
+// Auto-open tool from share link
 $autoOpenTool = null;
+$autoOpenToolSlug = isset($_GET['tool']) ? sanitizeInput($_GET['tool']) : null;
 if ($autoOpenToolSlug) {
     $autoOpenTool = getToolBySlug($autoOpenToolSlug);
+    if ($autoOpenTool) {
+        $currentView = 'tools'; // Force tools view if opening a tool from share link
+    }
 }
 
 if ($currentView === 'templates') {
