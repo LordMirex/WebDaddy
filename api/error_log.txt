@@ -22,3 +22,5 @@
 [21-Nov-2025 23:18:59 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [21-Nov-2025 23:33:39 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [21-Nov-2025 23:33:55 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[21-Nov-2025 23:41:15 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[21-Nov-2025 23:41:52 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
