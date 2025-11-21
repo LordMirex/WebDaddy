@@ -761,21 +761,19 @@ class DemoModal {
         this.errorContainer.classList.add('hidden');
         this.updateDemoInstruction();
         
-        // Rotate instructions every 1 second for 5 seconds
+        // Rotate instructions every 1 second indefinitely until iframe loads
         this.instructionInterval = setInterval(() => {
             this.currentInstructionIndex++;
-            if (this.currentInstructionIndex < this.loadingInstructions.length) {
-                this.updateDemoInstruction();
-            } else {
-                clearInterval(this.instructionInterval);
-                this.instructionInterval = null;
+            if (this.currentInstructionIndex >= this.loadingInstructions.length) {
+                this.currentInstructionIndex = this.loadingInstructions.length - 1;
             }
+            this.updateDemoInstruction();
         }, 1000);
         
         // Set iframe source IMMEDIATELY - let browser load it in background
         this.iframe.src = url;
         
-        // After 5 seconds: hide loader and show iframe no matter what
+        // Fallback timeout: show iframe after 30 seconds max even if not loaded
         this.loadTimeout = setTimeout(() => {
             if (this.instructionInterval) {
                 clearInterval(this.instructionInterval);
@@ -783,11 +781,11 @@ class DemoModal {
             }
             
             if (this.isOpen) {
-                console.log('DemoModal: 5-second loading complete - showing iframe');
+                console.log('DemoModal: 30-second timeout reached - showing iframe');
                 this.loader.style.display = 'none';
                 this.iframe.style.display = 'block';
             }
-        }, 5000);
+        }, 30000);
         
         if (typeof trackEvent === 'function') {
             trackEvent('demo_modal_opened', { url: url, title: title, cached: false });
@@ -869,9 +867,25 @@ class DemoModal {
 
     onIframeLoaded() {
         this.hasLoaded = true;
-        // Iframe loaded successfully - but keep showing 5-second instructions
-        // The 5-second timeout will handle hiding the loader
-        console.log('DemoModal: Iframe loaded successfully');
+        console.log('DemoModal: Iframe loaded successfully - hiding loader');
+        
+        // Clear the 30-second fallback timeout since iframe loaded
+        if (this.loadTimeout) {
+            clearTimeout(this.loadTimeout);
+            this.loadTimeout = null;
+        }
+        
+        // Clear instruction rotation
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
+        }
+        
+        // Hide loader and show iframe immediately when ready
+        if (this.isOpen) {
+            this.loader.style.display = 'none';
+            this.iframe.style.display = 'block';
+        }
     }
 
     onIframeError() {
