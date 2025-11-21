@@ -76,8 +76,6 @@ class VideoModal {
                                    preload="metadata"
                                    playsinline
                                    muted
-                                   controls
-                                   controlsList="nodownload"
                                    crossOrigin="anonymous"
                                    data-video-poster>
                                 <source data-video-source type="video/mp4">
