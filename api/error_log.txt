@@ -30,3 +30,11 @@
 [21-Nov-2025 23:46:50 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [21-Nov-2025 23:53:45 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [21-Nov-2025 23:57:47 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 00:01:44 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
+[22-Nov-2025 00:09:10 Africa/Lagos] Upload API: Request received - Type: video, Category: templates
+[22-Nov-2025 00:09:10 Africa/Lagos] Upload API: Session ID: 3df57ad1d9a741b767624e4737442e32, Admin status: yes
+[22-Nov-2025 00:09:10 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763766550_9472a6c2_27e8c75f41cc79d6d45c2fe55317fa00.mp4
+[22-Nov-2025 00:09:14 Africa/Lagos] Upload API: Request received - Type: image, Category: templates
+[22-Nov-2025 00:09:14 Africa/Lagos] Upload API: Session ID: 3df57ad1d9a741b767624e4737442e32, Admin status: yes
+[22-Nov-2025 00:10:27 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
+[22-Nov-2025 00:10:27 Africa/Lagos] Upload API: Session ID: 3df57ad1d9a741b767624e4737442e32, Admin status: yes

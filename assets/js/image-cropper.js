@@ -28,43 +28,82 @@ class ImageCropper {
     
     setupElements() {
         const containerHtml = `
-            <div class="image-cropper-wrapper" style="position: relative; width: 100%; max-width: 800px; margin: 0 auto;">
-                <div class="image-cropper-container" style="position: relative; width: 100%; background: #000; min-height: 400px; overflow: hidden; border-radius: 8px;">
-                    <canvas class="image-cropper-canvas" style="display: block; width: 100%; height: auto; cursor: move;"></canvas>
-                    <div class="crop-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
-                        <div class="crop-box" style="position: absolute; border: 2px solid #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); pointer-events: auto; cursor: move;">
-                            <div class="crop-handle nw" style="position: absolute; top: -5px; left: -5px; width: 10px; height: 10px; background: #fff; border: 1px solid #000; cursor: nw-resize; pointer-events: auto;"></div>
-                            <div class="crop-handle ne" style="position: absolute; top: -5px; right: -5px; width: 10px; height: 10px; background: #fff; border: 1px solid #000; cursor: ne-resize; pointer-events: auto;"></div>
-                            <div class="crop-handle sw" style="position: absolute; bottom: -5px; left: -5px; width: 10px; height: 10px; background: #fff; border: 1px solid #000; cursor: sw-resize; pointer-events: auto;"></div>
-                            <div class="crop-handle se" style="position: absolute; bottom: -5px; right: -5px; width: 10px; height: 10px; background: #fff; border: 1px solid #000; cursor: se-resize; pointer-events: auto;"></div>
+            <div class="image-cropper-wrapper w-full max-w-3xl mx-auto">
+                <!-- Preview Container -->
+                <div class="image-cropper-container relative w-full bg-black min-h-96 overflow-hidden rounded-xl shadow-lg border-2 border-gray-200">
+                    <canvas class="image-cropper-canvas block w-full h-auto cursor-move"></canvas>
+                    <div class="crop-overlay absolute inset-0 pointer-events-none">
+                        <div class="crop-box absolute pointer-events-auto cursor-move" style="border: 2px solid #3b82f6; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);">
+                            <!-- Resize Handles -->
+                            <div class="crop-handle nw absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-nw-resize pointer-events-auto hover:scale-110 transition-transform"></div>
+                            <div class="crop-handle ne absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-ne-resize pointer-events-auto hover:scale-110 transition-transform"></div>
+                            <div class="crop-handle sw absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-5 h-5 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-sw-resize pointer-events-auto hover:scale-110 transition-transform"></div>
+                            <div class="crop-handle se absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-5 h-5 bg-blue-500 border-2 border-white rounded-full shadow-lg cursor-se-resize pointer-events-auto hover:scale-110 transition-transform"></div>
                         </div>
                     </div>
                 </div>
-                <div class="image-cropper-info" style="margin-top: 10px; padding: 10px; background: #f3f4f6; border-radius: 6px; font-size: 12px; color: #4b5563;">
-                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+
+                <!-- Info Section -->
+                <div class="image-cropper-info mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-lg">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                         <div>
-                            <strong>Crop Area:</strong> <span class="crop-dimensions">0 × 0 px</span>
+                            <p class="text-xs text-gray-600 font-medium mb-0.5">Crop Area</p>
+                            <p class="text-lg font-bold text-blue-600"><span class="crop-dimensions">0 × 0 px</span></p>
                         </div>
+                        <div class="h-12 border-r border-blue-200 hidden sm:block"></div>
                         <div>
-                            <strong>File Limits:</strong> Max 5MB (JPG, PNG, GIF, WebP)
+                            <p class="text-xs text-gray-600 font-medium mb-0.5">File Limits</p>
+                            <p class="text-sm text-gray-700 font-medium">Max 5MB (JPG, PNG, GIF, WebP)</p>
                         </div>
                     </div>
                 </div>
-                <div class="image-cropper-controls" style="margin-top: 15px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #666;">Zoom</label>
-                        <input type="range" class="zoom-slider" min="0.1" max="3" step="0.1" value="1" style="width: 100%;">
+
+                <!-- Controls Section -->
+                <div class="image-cropper-controls mt-6 space-y-5">
+                    <!-- Zoom Control -->
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5 9a4 4 0 118 0 4 4 0 01-8 0z"/><path d="M9 16c.946 0 1.845-.123 2.707-.357l3.086 3.086a1.5 1.5 0 102.122-2.121l-3.086-3.086A7 7 0 119 2a1 1 0 000 2 5 5 0 100 10z"/>
+                                </svg>
+                                Zoom Level
+                            </label>
+                            <span class="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded zoom-value">100%</span>
+                        </div>
+                        <input type="range" class="zoom-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500" min="0.1" max="3" step="0.1" value="1">
+                        <div class="flex justify-between text-xs text-gray-500 mt-2">
+                            <span>10%</span>
+                            <span>300%</span>
+                        </div>
                     </div>
-                    <div>
-                        <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #666;">Aspect Ratio</label>
-                        <select class="aspect-ratio-select" style="padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="1.7778">16:9 (Landscape)</option>
-                            <option value="1.3333">4:3 (Standard)</option>
-                            <option value="1">1:1 (Square)</option>
-                            <option value="0">Free</option>
-                        </select>
+
+                    <!-- Aspect Ratio & Reset -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <label class="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
+                                <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+                                </svg>
+                                Aspect Ratio
+                            </label>
+                            <select class="aspect-ratio-select w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-900 bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                <option value="1.7778">16:9 (Landscape)</option>
+                                <option value="1.3333">4:3 (Standard)</option>
+                                <option value="1">1:1 (Square)</option>
+                                <option value="0">Free</option>
+                            </select>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-end">
+                            <button class="reset-btn w-full px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 1119.778 5.873 1 1 0 11-1.497-.874A5.002 5.002 0 1010.5 8a.999.999 0 00-1 1V5a1 1 0 11-2 0V3a1 1 0 011-1z" clip-rule="evenodd"/>
+                                </svg>
+                                Reset
+                            </button>
+                        </div>
                     </div>
-                    <button class="reset-btn" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Reset</button>
                 </div>
             </div>
         `;
@@ -104,6 +143,8 @@ class ImageCropper {
         
         this.zoomSlider.addEventListener('input', (e) => {
             this.setZoom(parseFloat(e.target.value));
+            const percent = Math.round(parseFloat(e.target.value) * 100);
+            this.container.querySelector('.zoom-value').textContent = percent + '%';
         });
         
         this.aspectRatioSelect.addEventListener('change', (e) => {
