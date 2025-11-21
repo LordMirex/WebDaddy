@@ -35,42 +35,23 @@ $totalPages = 1;
 $page = max(1, (int)($_GET['page'] ?? 1));
 
 if ($currentView === 'templates') {
-    // TEMPLATES VIEW - Use SQL for efficiency
+    // TEMPLATES VIEW
     $perPage = 9;
-    $category = $_GET['category'] ?? null;
+    $allTemplates = getTemplates(true);
+    $templateCategories = array_unique(array_column($allTemplates, 'category'));
+    sort($templateCategories);
     
-    // Get categories with SQL
-    $catStmt = $db->prepare("SELECT DISTINCT category FROM templates WHERE active = 1 ORDER BY category ASC");
-    $catStmt->execute();
-    $templateCategories = array_column($catStmt->fetchAll(PDO::FETCH_ASSOC), 'category');
-    
-    // Count total with proper SQL WHERE clause
-    $countWhere = "WHERE active = 1";
-    $countParams = [];
-    if ($category) {
-        $countWhere .= " AND category = ?";
-        $countParams[] = $category;
+    if ($category = $_GET['category'] ?? null) {
+        $allTemplates = array_filter($allTemplates, function($t) use ($category) {
+            return $t['category'] === $category;
+        });
     }
-    $countStmt = $db->prepare("SELECT COUNT(*) as count FROM templates $countWhere");
-    $countStmt->execute($countParams);
-    $totalTemplates = (int)$countStmt->fetch(PDO::FETCH_ASSOC)['count'];
     
-    // Fetch only needed page with SQL LIMIT
+    $totalTemplates = count($allTemplates);
     $totalPages = max(1, ceil($totalTemplates / $perPage));
     $page = max(1, min($page, $totalPages));
     $offset = ($page - 1) * $perPage;
-    
-    $fetchWhere = "WHERE active = 1";
-    $fetchParams = [];
-    if ($category) {
-        $fetchWhere .= " AND category = ?";
-        $fetchParams[] = $category;
-    }
-    $fetchStmt = $db->prepare("SELECT id, name, category, price, thumbnail_url, demo_url FROM templates $fetchWhere ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $fetchParams[] = $perPage;
-    $fetchParams[] = $offset;
-    $fetchStmt->execute($fetchParams);
-    $templates = $fetchStmt->fetchAll(PDO::FETCH_ASSOC);
+    $templates = array_slice($allTemplates, $offset, $perPage);
 } else {
     // TOOLS VIEW
     $perPage = 18;
@@ -155,12 +136,33 @@ if ($currentView === 'templates') {
     </script>
     
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <style>
-        :root { --primary-500: #3b82f6; --primary-600: #2563eb; --primary-700: #1d4ed8; }
-        .primary-500 { color: var(--primary-500); } .bg-primary-500 { background-color: var(--primary-500); }
-        .hover\:bg-primary-700:hover { background-color: var(--primary-700); }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        gold: '#d4af37',
+                        navy: '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <script src="/assets/js/lazy-load.js" defer></script>
