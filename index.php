@@ -154,8 +154,8 @@ if ($autoOpenTool) {
     <meta property="og:url" content="<?php echo $pageUrl; ?>">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
     <meta property="og:image" content="<?php echo $pageImage; ?>?v=<?php echo time(); ?>">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:image:width" content="1536">
+    <meta property="og:image:height" content="1024">
     <meta property="og:image:type" content="image/png">
     <meta property="og:locale" content="en_NG">
     
