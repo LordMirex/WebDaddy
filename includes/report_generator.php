@@ -57,13 +57,15 @@ class ReportGenerator {
             $tools = $db->query("SELECT COUNT(*) as count FROM tools")->fetch(PDO::FETCH_ASSOC);
             $report['total_tools'] = intval($tools['count'] ?? 0);
             
-            // Top selling products (actual sales, not views)
+            // Top selling products (actual completed sales ONLY)
+            // Only show products from the sales table (completed transactions)
             $topSelling = $db->query("
                 SELECT t.name, COUNT(*) as sales_count
-                FROM order_items oi 
+                FROM sales s
+                JOIN order_items oi ON oi.pending_order_id = s.pending_order_id
                 JOIN tools t ON oi.product_id = t.id 
                 WHERE oi.product_type = 'tool' 
-                AND oi.created_at >= date('now', '-7 days') 
+                AND s.created_at >= date('now', '-7 days') 
                 GROUP BY t.id 
                 ORDER BY sales_count DESC 
                 LIMIT 5
