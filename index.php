@@ -431,15 +431,34 @@ if ($currentView === 'templates') {
                         </div>
                     </div>
 
-                    <!-- Category Filter for Templates -->
+                    <!-- Category Filter - Template View -->
                     <?php if ($currentView === 'templates' && !empty($templateCategories)): ?>
                     <div class="relative lg:w-56">
                         <select id="templates-category-filter" 
                                 class="w-full px-4 py-2.5 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer text-sm">
-                            <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
-                                All Categories
-                            </option>
+                            <option value="">All Categories</option>
                             <?php foreach ($templateCategories as $cat): ?>
+                            <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($cat); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Category Filter - Tools View -->
+                    <?php if ($currentView === 'tools' && !empty($toolCategories)): ?>
+                    <div class="relative lg:w-56">
+                        <select id="tools-category-filter" 
+                                class="w-full px-4 py-2.5 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer text-sm">
+                            <option value="">All Categories</option>
+                            <?php foreach ($toolCategories as $cat): ?>
                             <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($cat); ?>
                             </option>
@@ -618,30 +637,6 @@ if ($currentView === 'templates') {
             
             <?php else: ?>
             <!-- TOOLS VIEW -->
-            <?php if (!empty($toolCategories)): ?>
-            <!-- Category Filter -->
-            <div class="mb-6 max-w-4xl mx-auto">
-                <div class="relative">
-                    <select id="tools-category-filter" 
-                            class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
-                        <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
-                            All Categories
-                        </option>
-                        <?php foreach ($toolCategories as $cat): ?>
-                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cat); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                    <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-            </div>
-            <?php endif; ?>
             
             <?php if (empty($tools)): ?>
             <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
