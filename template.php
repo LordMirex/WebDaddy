@@ -448,16 +448,6 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     </svg>
                                     Add to Cart
                                 </button>
-                                <?php if ($template['demo_url']): ?>
-                                <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-gray-800 hover:bg-gray-700 transition-all">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Preview Demo
-                                </button>
-                                <?php endif; ?>
                             </div>
 
                             <div class="space-y-3 border-t border-gray-700 pt-6">
