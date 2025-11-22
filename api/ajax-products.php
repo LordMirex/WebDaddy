@@ -120,11 +120,11 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
             <?php foreach ($templates as $template): ?>
-            <div class="group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                <div class="relative overflow-hidden h-48 bg-gray-100">
+            <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #f3f4f6;">
                     <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'">
                     <?php 
                     $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
@@ -176,20 +176,20 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                     <?php endif; ?>
                     <?php endif; ?>
                 </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-base font-bold text-gray-900 flex-1 pr-2"><?php echo htmlspecialchars($template['name']); ?></h3>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 shrink-0">
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #111827; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($template['name']); ?></h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dbeafe; color: #1e40af; white-space: nowrap;">
                             <?php echo htmlspecialchars($template['category']); ?>
                         </span>
                     </div>
-                    <p class="text-gray-600 text-xs mb-3 line-clamp-2"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
-                    <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                        <div class="flex flex-col">
-                            <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
-                            <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($template['price']); ?></span>
+                    <p style="color: #4b5563; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;"><?php echo formatCurrency($template['price']); ?></span>
                         </div>
-                        <div class="flex gap-2">
+                        <div style="display: flex; gap: 8px;">
                             <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
                                class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
                                 Details
