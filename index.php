@@ -879,6 +879,9 @@ if ($currentView === 'templates') {
         </div>
 
         <style>
+            #testimonialCarousel { scroll-behavior: smooth; transition: scroll-left 0.3s ease-out; }
+            .carousel-item { transition: opacity 0.3s ease-out; }
+            
             @media (max-width: 768px) {
                 #testimonialCarousel { scroll-snap-type: x mandatory; }
                 .carousel-item { flex: 0 0 calc(100% - 16px) !important; }
@@ -892,65 +895,78 @@ if ($currentView === 'templates') {
         </style>
 
         <script>
-            const carousel = document.getElementById('testimonialCarousel');
-            let isDown = false, startX = 0, scrollLeft = 0;
-            
-            carousel.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - carousel.offsetLeft; scrollLeft = carousel.scrollLeft; });
-            carousel.addEventListener('mouseleave', () => { isDown = false; });
-            carousel.addEventListener('mouseup', () => { isDown = false; });
-            carousel.addEventListener('mousemove', (e) => { 
-                if (!isDown) return; 
-                e.preventDefault(); 
-                const x = e.pageX - carousel.offsetLeft; 
-                const walk = (x - startX) * 1.5; 
-                carousel.scrollLeft = scrollLeft - walk;
-            });
-            
-            carousel.addEventListener('touchstart', (e) => { startX = e.touches[0].pageX - carousel.offsetLeft; scrollLeft = carousel.scrollLeft; });
-            carousel.addEventListener('touchmove', (e) => { 
-                const x = e.touches[0].pageX - carousel.offsetLeft; 
-                const walk = (x - startX) * 1.5; 
-                carousel.scrollLeft = scrollLeft - walk;
-            });
+            (function() {
+                const carousel = document.getElementById('testimonialCarousel');
+                const items = carousel.querySelectorAll('.carousel-item');
+                let isDown = false, startX = 0, scrollLeft = 0;
+                let autoScrollInterval;
+                let isUserInteracting = false;
+                
+                // Touch/Mouse drag support
+                carousel.addEventListener('mousedown', (e) => { 
+                    isDown = true; 
+                    startX = e.pageX - carousel.offsetLeft; 
+                    scrollLeft = carousel.scrollLeft; 
+                    isUserInteracting = true;
+                    clearInterval(autoScrollInterval);
+                });
+                
+                carousel.addEventListener('mouseleave', () => { isDown = false; });
+                carousel.addEventListener('mouseup', () => { isDown = false; if (isUserInteracting) startAutoScroll(); });
+                
+                carousel.addEventListener('mousemove', (e) => { 
+                    if (!isDown) return; 
+                    e.preventDefault(); 
+                    const x = e.pageX - carousel.offsetLeft; 
+                    const walk = (x - startX) * 0.8; 
+                    carousel.scrollLeft = scrollLeft - walk;
+                });
+                
+                carousel.addEventListener('touchstart', (e) => { 
+                    startX = e.touches[0].pageX - carousel.offsetLeft; 
+                    scrollLeft = carousel.scrollLeft;
+                    isUserInteracting = true;
+                    clearInterval(autoScrollInterval);
+                });
+                
+                carousel.addEventListener('touchmove', (e) => { 
+                    const x = e.touches[0].pageX - carousel.offsetLeft; 
+                    const walk = (x - startX) * 0.8; 
+                    carousel.scrollLeft = scrollLeft - walk;
+                });
+                
+                carousel.addEventListener('touchend', () => {
+                    if (isUserInteracting) startAutoScroll();
+                });
+                
+                // Smooth auto-scrolling - 45 seconds for a full cycle
+                function startAutoScroll() {
+                    clearInterval(autoScrollInterval);
+                    const itemWidth = items[0].offsetWidth + 24; // width + gap
+                    const totalWidth = itemWidth * items.length;
+                    const scrollDuration = 45000; // 45 seconds for full cycle
+                    const scrollPerFrame = totalWidth / (scrollDuration / 16); // ~16ms per frame
+                    
+                    autoScrollInterval = setInterval(() => {
+                        carousel.scrollLeft += scrollPerFrame;
+                        
+                        // Loop back to start when reaching end
+                        if (carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth - 50) {
+                            carousel.scrollLeft = 0;
+                        }
+                    }, 16);
+                }
+                
+                // Start auto-scroll on load
+                startAutoScroll();
+                
+                // Resume after 5 seconds of no interaction
+                carousel.addEventListener('scroll', () => {
+                    clearInterval(autoScrollInterval);
+                    setTimeout(startAutoScroll, 5000);
+                });
+            })();
         </script>
-    </section>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200 h-full">
-                        <div class="flex gap-1 mb-4">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        </div>
-                        <p class="text-gray-700 mb-4">"Professional, fast & affordable. Website attracts new clients weekly!"</p>
-                        <div>
-                            <div class="font-semibold text-gray-900">Barrister Emeka</div>
-                            <div class="text-sm text-gray-600">Legal Services, Port Harcourt</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200 h-full">
-                        <div class="flex gap-1 mb-4">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        </div>
-                        <p class="text-gray-700 mb-4">"Amazing service! Restaurant website live in 24 hours. Template looks professional!"</p>
-                        <div>
-                            <div class="font-semibold text-gray-900">Adebayo Johnson</div>
-                            <div class="text-sm text-gray-600">Bella's Kitchen, Lagos</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
 
     <!-- FAQ Section -->
