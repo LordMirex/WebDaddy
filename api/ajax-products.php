@@ -134,12 +134,10 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
             <?php foreach ($templates as $template): ?>
             <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #f3f4f6;">
-                    <img loading="lazy"
-                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'%3E%3Crect fill='%23f3f4f6' width='1280' height='720'/%3E%3C/svg%3E"
-                         data-src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                    <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
                          width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease; background: #f3f4f6;"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
                          decoding="async">
                     <?php 
@@ -267,12 +265,10 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
             <?php foreach ($tools as $tool): ?>
             <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;" data-tool-id="<?php echo $tool['id']; ?>">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #f3f4f6;">
-                    <img loading="lazy"
-                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'%3E%3Crect fill='%23f3f4f6' width='1280' height='720'/%3E%3C/svg%3E"
-                         data-src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                    <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
                          width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease; background: #f3f4f6;"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
                          decoding="async">
                     <?php if (!empty($tool['demo_video_url'])): ?>
