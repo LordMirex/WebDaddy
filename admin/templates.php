@@ -453,6 +453,16 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="url" name="demo_url_input" id="demo-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['demo_url'] ?? ''); ?>" placeholder="https://example.com/demo">
                             <small class="text-gray-500 text-xs mt-1 block">Enter the URL of a live website for interactive preview (shown in iframe)</small>
                         </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 3 Featured)</label>
+                            <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                <option value="">None (Regular Listing)</option>
+                                <option value="1" <?php echo ($editTemplate && $editTemplate['priority_order'] == 1) ? 'selected' : ''; ?>>⭐ #1 - Top Priority</option>
+                                <option value="2" <?php echo ($editTemplate && $editTemplate['priority_order'] == 2) ? 'selected' : ''; ?>>⭐⭐ #2 - Second Priority</option>
+                                <option value="3" <?php echo ($editTemplate && $editTemplate['priority_order'] == 3) ? 'selected' : ''; ?>>⭐⭐⭐ #3 - Third Priority</option>
+                            </select>
+                            <small class="text-gray-500 text-xs mt-1 block">Select to feature this template in the top 3 displayed first</small>
+                        </div>
                         <div class="md:col-span-2">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" name="active" id="active" <?php echo (!$editTemplate || $editTemplate['active']) ? 'checked' : ''; ?>>

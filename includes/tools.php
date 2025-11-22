@@ -199,8 +199,8 @@ function createTool($data) {
         name, slug, category, tool_type, short_description, description,
         features, price, thumbnail_url, media_type, demo_url, demo_video_url,
         delivery_instructions, stock_unlimited, stock_quantity,
-        low_stock_threshold, active
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        low_stock_threshold, active, priority_order
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     try {
         $stmt = $db->prepare($sql);
@@ -221,7 +221,8 @@ function createTool($data) {
             $data['stock_unlimited'] ?? 1,
             $data['stock_quantity'] ?? 0,
             $data['low_stock_threshold'] ?? 5,
-            $data['active'] ?? 1
+            $data['active'] ?? 1,
+            $data['priority_order'] ?? null
         ]);
         
         if ($result) {
@@ -251,7 +252,7 @@ function updateTool($id, $data) {
         short_description = ?, description = ?, features = ?,
         price = ?, thumbnail_url = ?, media_type = ?, demo_url = ?, demo_video_url = ?,
         delivery_instructions = ?, stock_unlimited = ?, stock_quantity = ?,
-        low_stock_threshold = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+        low_stock_threshold = ?, active = ?, priority_order = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?";
     
     try {
@@ -274,6 +275,7 @@ function updateTool($id, $data) {
             $data['stock_quantity'] ?? 0,
             $data['low_stock_threshold'] ?? 5,
             $data['active'] ?? 1,
+            $data['priority_order'] ?? null,
             (int)$id
         ]);
         
