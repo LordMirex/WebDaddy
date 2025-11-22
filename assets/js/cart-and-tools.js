@@ -1110,29 +1110,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const isTemplate = productType === 'template';
             
             return `
-            <div class="flex items-start gap-1.5 py-1.5 px-2 bg-gray-900 rounded-lg">
+            <div class="flex items-start gap-2 py-2 px-3 bg-gray-800 rounded-lg border border-gray-700">
                 <img src="${escapeHtml(item.thumbnail_url || '/assets/images/placeholder.jpg')}" 
                      alt="${escapeHtml(item.name)}"
-                     class="w-12 h-12 object-cover rounded flex-shrink-0"
+                     class="w-14 h-14 object-cover rounded flex-shrink-0"
                      onerror="this.src='/assets/images/placeholder.jpg'">
-                <div class="flex-1 min-w-0 text-xs">
-                    <div class="flex items-center gap-1">
-                        <h4 class="font-medium text-white truncate">${escapeHtml(item.name)}</h4>
-                        ${isTemplate ? '<span class="text-xs px-1 py-0.5 bg-blue-600 text-white rounded flex-shrink-0">🎨</span>' : '<span class="text-xs px-1 py-0.5 bg-green-600 text-white rounded flex-shrink-0">🔧</span>'}
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <h4 class="font-medium text-sm text-white truncate">${escapeHtml(item.name)}</h4>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded ${isTemplate ? 'bg-blue-900 text-blue-100' : 'bg-green-900 text-green-100'}">${isTemplate ? 'Template' : 'Tool'}</span>
                     </div>
-                    <p class="text-gray-100">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity}</p>
+                    <p class="text-xs text-gray-300">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity} = <span class="font-semibold text-white">${formatCurrency((item.price_at_add || item.price) * item.quantity)}</span></p>
                 </div>
-                <div class="flex items-center gap-0.5 flex-shrink-0">
+                <div class="flex items-center gap-1 flex-shrink-0">
                     ${!isTemplate ? `
                         <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" 
-                                class="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-gray-900 font-bold text-xs hover:bg-gray-300">−</button>
-                        <span class="w-5 text-center font-medium text-white text-xs">${item.quantity}</span>
+                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-gray-200 font-bold text-sm transition-colors">−</button>
+                        <span class="w-6 text-center font-semibold text-gray-100 text-sm">${item.quantity}</span>
                         <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" 
-                                class="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-gray-900 font-bold text-xs hover:bg-gray-300">+</button>
+                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-gray-200 font-bold text-sm transition-colors">+</button>
                     ` : ''}
                 </div>
                 <button onclick="removeFromCart(${item.id})" 
-                        class="text-red-500 hover:text-red-700 transition-colors flex-shrink-0">
+                        class="text-red-500 hover:text-red-700 transition-colors flex-shrink-0 p-0.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
