@@ -44,6 +44,32 @@ document.addEventListener('DOMContentLoaded', function() {
         setupCategoryDropdown();
         setupPaginationHandlers();
         setupAnalyticsTracking();
+        
+        // Pre-cache both views for instant switching
+        preCacheBothViews();
+    }
+    
+    // Pre-cache both views on initial load for instant tab switching
+    async function preCacheBothViews() {
+        const viewToCache = currentView === 'templates' ? 'tools' : 'templates';
+        
+        try {
+            const params = new URLSearchParams();
+            params.set('action', 'load_view');
+            params.set('view', viewToCache);
+            params.set('page', 1);
+            if (affiliateCode) params.set('aff', affiliateCode);
+            
+            const response = await fetch(`/api/ajax-products.php?${params.toString()}`);
+            const data = await response.json();
+            
+            if (data.success && data.html) {
+                viewCache[viewToCache] = data.html;
+                console.log(`✅ Pre-cached ${viewToCache} view for instant switching`);
+            }
+        } catch (err) {
+            console.log(`ℹ️ Pre-cache for ${viewToCache} skipped - will load on demand`);
+        }
     }
     
     function setupAnalyticsTracking() {

@@ -44,8 +44,17 @@ try {
     // Get action from GET parameter for GET requests
     $action = $_GET['action'] ?? '';
     
-    // GET requests
+    // GET requests - add caching headers
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        // Cache GET responses for 5 minutes
+        header('Cache-Control: public, max-age=300');
+        header('Vary: Accept-Encoding');
+        if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
+            ob_start('ob_gzhandler');
+        } else {
+            ob_start();
+        }
+        
         switch ($action) {
             case 'get':
                 // Get cart contents
