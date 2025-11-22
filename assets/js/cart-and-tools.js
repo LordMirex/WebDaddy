@@ -207,14 +207,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         return `
                         <div class="group">
                             <div class="bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                                <div class="relative overflow-hidden h-48 bg-gray-100">
+                                <div class="relative overflow-hidden h-48 bg-gray-800">
                                     <img src="${escapeHtml(template.thumbnail_url || '/assets/images/placeholder.jpg')}" 
                                          alt="${escapeHtml(template.name)}"
                                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                          onerror="this.src='/assets/images/placeholder.jpg'">
                                     ${hasDemo ? (isVideo ? `
                                     <button onclick="event.stopPropagation(); openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')"
-                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-gray-800 text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <button onclick="openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')"
                                             data-video-trigger
                                             class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-gray-800 rounded-lg font-medium shadow-lg">
+                                        <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
                                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -234,12 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </button>
                                     ` : `
                                     <button onclick="event.stopPropagation(); openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')"
-                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-gray-800 text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                                         Preview
                                     </button>
                                     <button onclick="openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')" 
                                             class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-gray-800 rounded-lg font-medium shadow-lg">
+                                        <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
                                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -251,15 +251,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
-                                        <h3 class="text-base font-bold text-gray-800 flex-1 pr-2">${escapeHtml(template.name)}</h3>
+                                        <h3 class="text-base font-bold text-white flex-1 pr-2">${escapeHtml(template.name)}</h3>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-200 shrink-0">
                                             ${escapeHtml(template.category || '')}
                                         </span>
                                     </div>
-                                    <p class="text-gray-600 text-xs mb-3 line-clamp-2">${escapeHtml((template.description || '').substring(0, 80))}...</p>
+                                    <p class="text-gray-100 text-xs mb-3 line-clamp-2">${escapeHtml((template.description || '').substring(0, 80))}...</p>
                                     <div class="flex items-center justify-between pt-3 border-t border-gray-700">
                                         <div class="flex flex-col">
-                                            <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
+                                            <span class="text-xs text-gray-200 uppercase tracking-wide">Price</span>
                                             <span class="text-base font-bold text-primary-600">${formatCurrency(template.price)}</span>
                                         </div>
                                         <div class="flex gap-2">
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                 Details
                                             </a>
                                             <button onclick="addTemplateToCart(${template.id}, '${escapeJsString(template.name)}', this)" 
-                                               class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-gray-800 bg-primary-600 hover:bg-primary-700 transition-colors gray-800space-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                                               class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors gray-800space-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                                                 <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                                 </svg>
@@ -299,14 +299,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         return `
                         <div class="tool-card group bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                              data-tool-id="${tool.id}">
-                            <div class="relative overflow-hidden h-40 bg-gray-100">
+                            <div class="relative overflow-hidden h-40 bg-gray-800">
                                 <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}"
                                      alt="${escapeHtml(tool.name)}"
                                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasVideo ? `
                                 <button onclick="openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapeJsString(tool.name)}')"
-                                        class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-gray-800 text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                                        class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
                                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M8 5v14l11-7z"/>
                                     </svg>
@@ -314,24 +314,24 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                                 ` : ''}
                                 ${isLowStock ? `
-                                <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-gray-800 text-xs font-bold rounded">
+                                <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
                                     Limited Stock
                                 </div>
                                 ` : isOutOfStock ? `
-                                <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-gray-800 text-xs font-bold rounded">
+                                <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
                                     Out of Stock
                                 </div>
                                 ` : ''}
                             </div>
                             <div class="p-4">
                                 <div class="flex justify-between items-start mb-2">
-                                    <h3 class="text-sm font-bold text-gray-800 flex-1 pr-2">${escapeHtml(tool.name)}</h3>
+                                    <h3 class="text-sm font-bold text-white flex-1 pr-2">${escapeHtml(tool.name)}</h3>
                                     ${tool.category ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">${escapeHtml(tool.category)}</span>` : ''}
                                 </div>
-                                ${tool.short_description ? `<p class="text-gray-600 text-xs mb-3 line-clamp-2">${escapeHtml(tool.short_description)}</p>` : ''}
+                                ${tool.short_description ? `<p class="text-gray-100 text-xs mb-3 line-clamp-2">${escapeHtml(tool.short_description)}</p>` : ''}
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-700">
                                     <div class="flex flex-col">
-                                        <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
+                                        <span class="text-xs text-gray-200 uppercase tracking-wide">Price</span>
                                         <span class="text-lg font-extrabold text-primary-600">${formatCurrency(tool.price)}</span>
                                     </div>
                                     <button data-tool-id="${tool.id}" 
@@ -491,10 +491,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const tabView = tabUrl.searchParams.get('view');
             
             if (tabView === view) {
-                tab.classList.add('bg-primary-600', 'text-gray-800', 'shadow-sm');
+                tab.classList.add('bg-primary-600', 'text-white', 'shadow-sm');
                 tab.classList.remove('text-gray-100', 'hover:bg-gray-900');
             } else {
-                tab.classList.remove('bg-primary-600', 'text-gray-800', 'shadow-sm');
+                tab.classList.remove('bg-primary-600', 'text-white', 'shadow-sm');
                 tab.classList.add('text-gray-100', 'hover:bg-gray-900');
             }
         });
@@ -660,7 +660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     ${stockBadge}
                                 </div>
                             </div>
-                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600 ml-2 sm:ml-4 flex-shrink-0">
+                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-100 ml-2 sm:ml-4 flex-shrink-0">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -679,8 +679,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${tool.demo_video_url ? `
                             <div class="mb-4 sm:mb-6">
                                 <div class="bg-gray-900 border border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
-                                    <div class="bg-gray-100 border-b border-gray-700 p-3 sm:p-4 flex justify-between items-center">
-                                        <h4 class="text-base sm:text-lg font-bold text-gray-800 flex items-center">
+                                    <div class="bg-gray-800 border-b border-gray-700 p-3 sm:p-4 flex justify-between items-center">
+                                        <h4 class="text-base sm:text-lg font-bold text-white flex items-center">
                                             <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -688,7 +688,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             Demo Video
                                         </h4>
                                         <button onclick="openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapedNameForJs}')"
-                                                class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md text-gray-800 bg-primary-600 hover:bg-primary-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
                                             <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
@@ -801,18 +801,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             <!-- Price and Cart Button -->
                             <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <p class="text-xs sm:text-sm text-gray-600 mb-1">Price</p>
+                                    <p class="text-xs sm:text-sm text-gray-100 mb-1">Price</p>
                                     <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
                                 </div>
                                 ${isOutOfStock 
-                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
+                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-800 cursor-not-allowed">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                         Out of Stock
                                     </button>`
                                     : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
-                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-800 bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                         </svg>
@@ -898,11 +898,11 @@ document.addEventListener('DOMContentLoaded', function() {
         floatingCart.className = 'fixed top-20 right-4 z-40';
         floatingCart.innerHTML = `
             <div class="relative">
-                <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-gray-800 rounded-full p-3 shadow-xl transition-all hover:scale-105">
+                <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-white rounded-full p-3 shadow-xl transition-all hover:scale-105">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span id="floating-cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-gray-800 font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-gray-800 text-xs">0</span>
+                    <span id="floating-cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-gray-800 text-xs">0</span>
                 </button>
             </div>
         `;
@@ -923,8 +923,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300" id="cart-drawer-content">
                 <div class="h-full flex flex-col">
                     <div class="flex items-center justify-between p-4 border-b border-gray-700">
-                        <h3 class="text-lg font-bold text-gray-800">Your Cart</h3>
-                        <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-lg font-bold text-white">Your Cart</h3>
+                        <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-gray-100">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -932,12 +932,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div id="cart-items" class="flex-1 overflow-y-auto p-4">
-                        <p class="text-gray-500 text-center py-8">Your cart is empty</p>
+                        <p class="text-gray-200 text-center py-8">Your cart is empty</p>
                     </div>
                     
                     <div id="cart-footer" class="hidden border-t border-gray-700 p-4 bg-gray-900">
                         <div class="mb-4" id="cart-totals-container">
-                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <div class="flex justify-between text-sm text-gray-100 mb-1">
                                 <span>Subtotal</span>
                                 <span id="cart-subtotal">₦0</span>
                             </div>
@@ -945,12 +945,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span>Discount (20%)</span>
                                 <span id="cart-discount-amount">-₦0</span>
                             </div>
-                            <div class="flex justify-between text-lg font-bold text-gray-800 pt-2 border-t border-gray-700">
+                            <div class="flex justify-between text-lg font-bold text-white pt-2 border-t border-gray-700">
                                 <span>Total</span>
                                 <span id="cart-total">₦0</span>
                             </div>
                         </div>
-                        <button onclick="proceedToCheckout()" class="w-full bg-primary-600 hover:bg-primary-700 text-gray-800 font-bold py-3 rounded-lg transition-colors">
+                        <button onclick="proceedToCheckout()" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg transition-colors">
                             Proceed to Checkout
                         </button>
                         <button onclick="toggleCartDrawer()" class="w-full mt-2 text-primary-600 hover:text-primary-700 font-medium py-2">
@@ -1099,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const footer = document.getElementById('cart-footer');
         
         if (items.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+            container.innerHTML = '<p class="text-gray-200 text-center py-8">Your cart is empty</p>';
             footer.classList.add('hidden');
             return;
         }
@@ -1117,10 +1117,10 @@ document.addEventListener('DOMContentLoaded', function() {
                      onerror="this.src='/assets/images/placeholder.jpg'">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                        <h4 class="font-semibold text-sm text-gray-800 truncate">${escapeHtml(item.name)}</h4>
+                        <h4 class="font-semibold text-sm text-white truncate">${escapeHtml(item.name)}</h4>
                         ${isTemplate ? '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-200 rounded-full">Template</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">Tool</span>'}
                     </div>
-                    <p class="text-xs text-gray-600">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity}</p>
+                    <p class="text-xs text-gray-100">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity}</p>
                     <p class="text-sm font-semibold text-primary-600">${formatCurrency(itemTotal)}</p>
                 </div>
                 <div class="flex items-center gap-2">
