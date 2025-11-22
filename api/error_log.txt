@@ -102,3 +102,11 @@
 [22-Nov-2025 20:38:20 Africa/Lagos] Tool view tracked: tool_id=40, session=6caaf0973288f17570042515182ee4b6, result=1
 [22-Nov-2025 23:15:06 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
 [22-Nov-2025 23:15:06 Africa/Lagos] Upload API: Session ID: 7a4551007161b79bf236eed0221fd656, Admin status: yes
+[22-Nov-2025 23:25:03 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
+[22-Nov-2025 23:25:03 Africa/Lagos] Upload API: Session ID: 7a4551007161b79bf236eed0221fd656, Admin status: yes
+[22-Nov-2025 23:25:19 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 23:25:19 Africa/Lagos] Tool view tracked: tool_id=60, session=c98edf427c174b8ad5c764c4c5c83f63, result=1
+[22-Nov-2025 23:25:55 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 23:25:55 Africa/Lagos] Tool view tracked: tool_id=49, session=c98edf427c174b8ad5c764c4c5c83f63, result=1
+[22-Nov-2025 23:25:58 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 23:25:58 Africa/Lagos] Tool view tracked: tool_id=47, session=c98edf427c174b8ad5c764c4c5c83f63, result=1

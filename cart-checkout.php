@@ -780,12 +780,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 <!-- Step 2: Order Summary -->
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
                     <div class="p-6 sm:p-8">
-                        <div class="flex items-center mb-6">
-                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white font-bold mr-3">2</span>
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-white">Order Summary</h3>
+                        <div class="flex items-center mb-3">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm mr-2">2</span>
+                            <h3 class="text-lg font-bold text-white">Order Summary</h3>
                         </div>
                         
-                        <div class="space-y-4 mb-6">
+                        <div class="space-y-0 mb-3">
                             <?php foreach ($cartItems as $item): 
                                 $productType = $item['product_type'] ?? 'tool';
                                 $itemSubtotal = $item['price_at_add'] * $item['quantity'];
@@ -798,27 +798,23 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
                                 $badgeText = $productType === 'template' ? 'Template' : 'Tool';
                             ?>
-                            <div class="flex items-start gap-3 pb-4 border-b border-gray-700">
+                            <div class="flex items-start gap-2 py-2 border-b border-gray-700">
                                 <img src="<?php echo htmlspecialchars($item['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
                                      alt="<?php echo htmlspecialchars($item['name']); ?>"
-                                     class="w-16 h-16 object-cover rounded"
+                                     class="w-12 h-12 object-cover rounded flex-shrink-0"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
-                                <div class="flex-1">
-                                    <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-white"><?php echo htmlspecialchars($item['name']); ?></h3>
-                                        <span class="<?php echo $badgeColor; ?> px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap">
-                                            <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-1">
+                                        <h3 class="font-medium text-sm text-white truncate"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                        <span class="<?php echo $badgeColor; ?> px-1.5 py-0.5 text-xs font-semibold rounded whitespace-nowrap flex-shrink-0">
+                                            <?php echo $badgeIcon; ?>
                                         </span>
                                     </div>
-                                    <?php if (!empty($item['category'])): ?>
-                                    <p class="text-xs text-gray-200 mb-1"><?php echo htmlspecialchars($item['category']); ?></p>
-                                    <?php endif; ?>
-                                    <div class="text-sm space-y-0.5">
-                                        <p class="text-gray-100"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <?php echo formatCurrency($itemSubtotal); ?></p>
+                                    <div class="text-xs space-y-0">
+                                        <p class="text-gray-100"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <span class="font-medium"><?php echo formatCurrency($itemSubtotal); ?></span></p>
                                         <?php if ($itemDiscount > 0): ?>
-                                        <p class="text-green-600 text-xs">Discount: -<?php echo formatCurrency($itemDiscount); ?></p>
+                                        <p class="text-green-600">-<?php echo formatCurrency($itemDiscount); ?></p>
                                         <?php endif; ?>
-                                        <p class="font-semibold text-primary-600"><?php echo $itemDiscount > 0 ? 'Final: ' : ''; ?><?php echo formatCurrency($itemFinal); ?></p>
                                     </div>
                                 </div>
                             </div>
