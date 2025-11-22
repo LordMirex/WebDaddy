@@ -178,17 +178,17 @@ $topTemplateViews = $db->query("
     LIMIT 10
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-$topTemplateClicks = $db->query("
+$topToolViews = $db->query("
     SELECT 
         t.id,
         t.name,
         t.price,
-        COUNT(pi.id) as click_count
+        COUNT(pi.id) as view_count
     FROM page_interactions pi
-    JOIN templates t ON pi.template_id = t.id
-    WHERE pi.action_type = 'click' $dateFilter_pi
+    JOIN tools t ON pi.tool_id = t.id
+    WHERE pi.action_type = 'view' $dateFilter_pi
     GROUP BY t.id, t.name, t.price
-    ORDER BY click_count DESC
+    ORDER BY view_count DESC
     LIMIT 10
 ")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -392,26 +392,26 @@ require_once __DIR__ . '/includes/header.php';
     <div class="bg-white rounded-xl shadow-md border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i class="bi bi-hand-index-thumb text-primary-600"></i> Top 10 Most Clicked Templates
+                <i class="bi bi-eye-fill text-primary-600"></i> Top 10 Most Viewed Tools
             </h5>
         </div>
         <div class="p-6">
-            <?php if (empty($topTemplateClicks)): ?>
-                <p class="text-gray-500 text-center py-8">No template clicks recorded yet</p>
+            <?php if (empty($topToolViews)): ?>
+                <p class="text-gray-500 text-center py-8">No tool views recorded yet</p>
             <?php else: ?>
                 <div class="space-y-3">
-                    <?php foreach ($topTemplateClicks as $index => $template): ?>
+                    <?php foreach ($topToolViews as $index => $tool): ?>
                         <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div class="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
+                            <div class="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
                                 <?php echo $index + 1; ?>
                             </div>
                             <div class="flex-1">
-                                <h6 class="font-semibold text-gray-900"><?php echo htmlspecialchars($template['name']); ?></h6>
-                                <small class="text-gray-600">₦<?php echo number_format($template['price']); ?></small>
+                                <h6 class="font-semibold text-gray-900"><?php echo htmlspecialchars($tool['name']); ?></h6>
+                                <small class="text-gray-600">₦<?php echo number_format($tool['price']); ?></small>
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-green-600"><?php echo number_format($template['click_count']); ?></div>
-                                <small class="text-gray-500">clicks</small>
+                                <div class="text-2xl font-bold text-purple-600"><?php echo number_format($tool['view_count']); ?></div>
+                                <small class="text-gray-500">views</small>
                             </div>
                         </div>
                     <?php endforeach; ?>
