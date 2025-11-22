@@ -60,3 +60,4 @@
 [22-Nov-2025 11:08:08 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
 [22-Nov-2025 11:08:08 Africa/Lagos] Analytics tracking error: SQLSTATE[HY000]: General error: 1 table activity_logs has no column named activity_type
 [22-Nov-2025 11:09:09 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 11:13:37 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed

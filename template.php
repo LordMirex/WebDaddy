@@ -56,7 +56,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title><?php echo htmlspecialchars($template['name']); ?> - <?php echo SITE_NAME; ?></title>
-    <meta name="description" content="<?php echo htmlspecialchars($template['description']); ?>">
+    <meta name="description" content="<?php echo htmlspecialchars(!empty($template['description']) ? $template['description'] : ($template['name'] . ' - Professional website template from WebDaddy Empire')); ?>">
     <link rel="canonical" href="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     
     <!-- SEO: Enhanced Meta Tags -->
@@ -77,7 +77,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <meta property="og:url" content="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     <meta property="og:type" content="product">
     <meta property="og:title" content="<?php echo htmlspecialchars($template['name']); ?> - <?php echo SITE_NAME; ?>">
-    <meta property="og:description" content="<?php echo htmlspecialchars($template['description']); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars(!empty($template['description']) ? $template['description'] : ($template['name'] . ' - Professional website template from WebDaddy Empire')); ?>">
     <meta property="og:image" content="<?php echo htmlspecialchars($ogImage); ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -89,7 +89,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?php echo htmlspecialchars($template['name']); ?> - <?php echo SITE_NAME; ?>">
-    <meta name="twitter:description" content="<?php echo htmlspecialchars($template['description']); ?>">
+    <meta name="twitter:description" content="<?php echo htmlspecialchars(!empty($template['description']) ? $template['description'] : ($template['name'] . ' - Professional website template from WebDaddy Empire')); ?>">
     <meta name="twitter:image" content="<?php echo htmlspecialchars($ogImage); ?>">
     <meta name="twitter:image:alt" content="<?php echo htmlspecialchars($template['name']); ?> - Website Template Preview">
     
@@ -99,7 +99,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
       "@context": "https://schema.org",
       "@type": "Product",
       "name": "<?php echo htmlspecialchars($template['name']); ?>",
-      "description": "<?php echo htmlspecialchars($template['description']); ?>",
+      "description": "<?php echo htmlspecialchars(!empty($template['description']) ? $template['description'] : ($template['name'] . ' - Professional website template from WebDaddy Empire')); ?>",
       "image": "<?php echo htmlspecialchars($ogImage); ?>",
       "url": "<?php echo SITE_URL . '/' . $template['slug']; ?>",
       "offers": {
