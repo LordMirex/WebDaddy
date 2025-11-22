@@ -5,14 +5,6 @@ This document outlines all changes required to make WebDaddy marketplace product
 
 ---
 
-## 1. SECURITY HARDENING
-
-### 1.1 Session & Authentication
-- ✅ Use secure session configuration (httponly, secure flags)
-- ✅ Set proper session timeout (30 minutes of inactivity)
-- ✅ Regenerate session IDs on sensitive actions
-- Action: Update `php.ini` session settings for security
-
 ## 2. PERFORMANCE OPTIMIZATION
 
 ### 2.2 Database Optimization
