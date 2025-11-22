@@ -46,33 +46,6 @@ $availableDomains = getAvailableDomains($template['id']);
 $affiliateCode = getAffiliateCode();
 $cartCount = getCartCount();
 $features = $template['features'] ? explode(',', $template['features']) : [];
-
-// Build dynamic keywords from template data
-$keywords = [
-    $template['category'] ?? 'website template',
-    'website design',
-    'template',
-    htmlspecialchars($template['name']),
-    'Nigeria'
-];
-
-// Add features as keywords if available
-if (!empty($features)) {
-    foreach (array_slice($features, 0, 5) as $feature) {
-        $trimmedFeature = trim($feature);
-        if (!empty($trimmedFeature)) {
-            $keywords[] = $trimmedFeature;
-        }
-    }
-}
-
-// Add category-specific keywords
-$categoryKeywords = [
-    'responsive design', 'mobile friendly', 'fast loading',
-    'professional', 'easy to customize', 'seo optimized'
-];
-$keywords = array_merge($keywords, $categoryKeywords);
-$allKeywords = implode(', ', array_unique($keywords));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,7 +60,7 @@ $allKeywords = implode(', ', array_unique($keywords));
     <link rel="canonical" href="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     
     <!-- SEO: Enhanced Meta Tags -->
-    <meta name="keywords" content="<?php echo htmlspecialchars($allKeywords); ?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($template['category'] ?? 'website template'); ?>, website design, template, <?php echo htmlspecialchars($template['name']); ?>, Nigeria">
     <meta name="author" content="<?php echo SITE_NAME; ?>">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
@@ -148,37 +121,33 @@ $allKeywords = implode(', ', array_unique($keywords));
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script defer>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof tailwind !== 'undefined') {
-                tailwind.config = {
-                    theme: {
-                        extend: {
-                            colors: {
-                                primary: {
-                                    50: '#eff6ff',
-                                    100: '#dbeafe',
-                                    200: '#bfdbfe',
-                                    300: '#93c5fd',
-                                    400: '#60a5fa',
-                                    500: '#3b82f6',
-                                    600: '#2563eb',
-                                    700: '#1d4ed8',
-                                    800: '#1e40af',
-                                    900: '#1e3a8a',
-                                },
-                                gold: '#d4af37',
-                                navy: '#0f172a'
-                            }
-                        }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        gold: '#d4af37',
+                        navy: '#0f172a'
                     }
                 }
             }
-        });
+        }
     </script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
-    <script src="/assets/js/share.js" defer></script>
+    <script src="/assets/js/share.js"></script>
     <script src="/assets/js/lazy-load.js" defer></script>
     <script src="/assets/js/performance.js" defer></script>
     <script src="/assets/js/video-preloader.js" defer></script>
