@@ -161,12 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (results.length === 0) {
                 contentArea.innerHTML = `
-                    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
-                        <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-gray-800 border border-gray-700 rounded-2xl p-12 text-center">
+                        <svg class="w-16 h-16 mx-auto text-blue-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <h4 class="text-xl font-bold text-gray-800 mb-2">No results found</h4>
-                        <p class="text-gray-600">Try different keywords or <button onclick="document.getElementById('clear-search').click()" class="font-semibold text-primary-600 hover:text-primary-700">clear search</button></p>
+                        <h4 class="text-xl font-bold text-white mb-2">No results found</h4>
+                        <p class="text-gray-300">Try different keywords or <button onclick="document.getElementById('clear-search').click()" class="font-semibold text-primary-600 hover:text-primary-700">clear search</button></p>
                     </div>
                 `;
                 updateCounterDisplay(0);
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="text-base font-bold text-gray-800 flex-1 pr-2">${escapeHtml(template.name)}</h3>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 shrink-0">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-200 shrink-0">
                                             ${escapeHtml(template.category || '')}
                                         </span>
                                     </div>
@@ -654,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <!-- Header with close button -->
                         <div class="flex justify-between items-start px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-700">
                             <div class="flex-1">
-                                <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2">${escapedName}</h3>
+                                <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">${escapedName}</h3>
                                 <div class="flex gap-2 items-center flex-wrap">
                                     ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
                                     ${stockBadge}
@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             ${escapedDescription ? `
                             <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center">
+                                <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             ${tool.features ? `
                             <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center">
+                                <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
@@ -735,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             ` : ''}
                             
                             <!-- Share Section in scrollable content -->
-                            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6">
+                            <div class="bg-gray-800 border-2 border-gray-700 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6">
                                 <div class="text-center mb-4">
                                     <h3 class="text-base font-bold text-gray-800 mb-1">Love this tool?</h3>
                                     <p class="text-xs text-gray-600">Share it with your friends!</p>
@@ -783,13 +783,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             
                             ${escapedDeliveryTime ? `
                             <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center">
+                                <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                     Delivery
                                 </h4>
-                                <p class="text-sm sm:text-base text-gray-100 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                <p class="text-sm sm:text-base text-gray-100 bg-gray-800 p-3 rounded-lg border border-gray-700">
                                     <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapedDeliveryTime}
                                 </p>
                             </div>
@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
                         <h4 class="font-semibold text-sm text-gray-800 truncate">${escapeHtml(item.name)}</h4>
-                        ${isTemplate ? '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">Template</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">Tool</span>'}
+                        ${isTemplate ? '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-200 rounded-full">Template</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">Tool</span>'}
                     </div>
                     <p class="text-xs text-gray-600">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity}</p>
                     <p class="text-sm font-semibold text-primary-600">${formatCurrency(itemTotal)}</p>
