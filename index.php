@@ -125,10 +125,18 @@ if ($autoOpenTool) {
     $pageDescription = htmlspecialchars($autoOpenTool['short_description'] ?? $autoOpenTool['description']);
     $pageKeywords = !empty($autoOpenTool['seo_keywords']) ? htmlspecialchars($autoOpenTool['seo_keywords']) : (htmlspecialchars($autoOpenTool['category'] ?? 'digital tool') . ', ' . htmlspecialchars($autoOpenTool['tool_type'] ?? 'working tool') . ', ' . htmlspecialchars($autoOpenTool['name']));
     $pageUrl = SITE_URL . '/?tool=' . $autoOpenToolSlug;
-    $pageImage = !empty($autoOpenTool['banner_url']) ? $autoOpenTool['banner_url'] : (!empty($autoOpenTool['thumbnail_url']) ? $autoOpenTool['thumbnail_url'] : SITE_URL . '/assets/images/og-image.jpg');
-    if (!empty($pageImage) && strpos($pageImage, 'http') !== 0) {
-        $pageImage = SITE_URL . $pageImage;
+    
+    // Use banner_url first, then thumbnail_url, fallback to default OG image
+    $toolImage = !empty($autoOpenTool['banner_url']) ? $autoOpenTool['banner_url'] : (!empty($autoOpenTool['thumbnail_url']) ? $autoOpenTool['thumbnail_url'] : '');
+    
+    // Ensure full URL
+    if (!empty($toolImage) && strpos($toolImage, 'http') !== 0) {
+        $toolImage = SITE_URL . $toolImage;
     }
+    
+    // Use tool image if available, otherwise use default OG image
+    $pageImage = !empty($toolImage) ? $toolImage : SITE_URL . '/assets/images/og-image.jpg';
+    
     $ogType = 'product';
 }
 ?>
