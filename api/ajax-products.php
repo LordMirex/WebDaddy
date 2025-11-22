@@ -4,9 +4,12 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/tools.php';
+require_once __DIR__ . '/../includes/cache.php';
+require_once __DIR__ . '/../includes/access_log.php';
 
 header('Content-Type: application/json');
 
+$startTime = microtime(true);
 $action = $_GET['action'] ?? '';
 
 if ($action === 'load_view') {
@@ -14,6 +17,32 @@ if ($action === 'load_view') {
     $page = max(1, (int)($_GET['page'] ?? 1));
     $category = $_GET['category'] ?? null;
     $affiliateCode = $_GET['aff'] ?? '';
+    
+    // Try cache for templates list
+    if ($view === 'templates') {
+        $cacheKey = 'templates_list_' . $page . '_' . ($category ?? 'all');
+        $cachedResponse = ProductCache::get($cacheKey);
+        if ($cachedResponse !== null) {
+            echo json_encode($cachedResponse);
+            $duration = (microtime(true) - $startTime) * 1000;
+            logApiAccess('/api/ajax-products.php?action=load_view&view=templates&page=' . $page, 'GET', 200, $duration);
+            rotateAccessLogs();
+            exit;
+        }
+    }
+    
+    // Try cache for tools list
+    if ($view === 'tools') {
+        $cacheKey = 'tools_list_ajax_' . $page . '_' . ($category ?? 'all');
+        $cachedResponse = ProductCache::get($cacheKey);
+        if ($cachedResponse !== null) {
+            echo json_encode($cachedResponse);
+            $duration = (microtime(true) - $startTime) * 1000;
+            logApiAccess('/api/ajax-products.php?action=load_view&view=tools&page=' . $page, 'GET', 200, $duration);
+            rotateAccessLogs();
+            exit;
+        }
+    }
     
     // Add HTTP caching and gzip compression
     header('Cache-Control: public, max-age=300');
@@ -88,12 +117,28 @@ if ($action === 'load_view') {
     
     $html = ob_get_clean();
     
-    echo json_encode([
+    $response = [
         'success' => true,
         'html' => $html,
         'view' => $view,
         'page' => $page
-    ]);
+    ];
+    
+    // Cache the response
+    if ($view === 'templates') {
+        $cacheKey = 'templates_list_' . $page . '_' . ($category ?? 'all');
+        ProductCache::set($cacheKey, $response);
+    } elseif ($view === 'tools') {
+        $cacheKey = 'tools_list_ajax_' . $page . '_' . ($category ?? 'all');
+        ProductCache::set($cacheKey, $response);
+    }
+    
+    echo json_encode($response);
+    
+    // Log API access
+    $duration = (microtime(true) - $startTime) * 1000;
+    logApiAccess('/api/ajax-products.php?action=load_view&view=' . $view . '&page=' . $page, 'GET', 200, $duration);
+    rotateAccessLogs();
     exit;
 }
 
