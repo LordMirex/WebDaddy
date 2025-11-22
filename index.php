@@ -878,11 +878,9 @@ if ($currentView === 'templates') {
                 const carousel = document.getElementById('testimonialCarousel');
                 const originals = Array.from(carousel.querySelectorAll('.original-item'));
                 
-                // Clone items multiple times for infinite scroll
+                // Clone the original set only once for infinite scroll
                 originals.forEach(item => {
-                    for (let i = 0; i < 5; i++) {
-                        carousel.appendChild(item.cloneNode(true));
-                    }
+                    carousel.appendChild(item.cloneNode(true));
                 });
                 
                 let isDown = false, startX = 0, scrollLeft = 0;
@@ -897,8 +895,8 @@ if ($currentView === 'templates') {
                     autoScrollId = setInterval(() => {
                         carousel.scrollLeft += speed;
                         
-                        // Seamless infinite loop - reset to start when past original set
-                        if (carousel.scrollLeft >= originalSetWidth * 4) {
+                        // Seamless infinite loop - reset when reaching the cloned set end
+                        if (carousel.scrollLeft >= originalSetWidth) {
                             carousel.scrollLeft = 0;
                         }
                     }, 30);
