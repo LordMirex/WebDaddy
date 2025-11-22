@@ -35,7 +35,11 @@ if (!$tool) {
 }
 
 trackPageVisit($_SERVER['REQUEST_URI'], 'Tool: ' . $tool['name']);
-trackToolView($tool['id']);
+
+// Track tool view with explicit casting and verification
+if (!empty($tool['id'])) {
+    trackToolView((int)$tool['id']);
+}
 
 $affiliateCode = getAffiliateCode();
 $cartCount = getCartCount();
