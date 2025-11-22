@@ -390,8 +390,8 @@ if ($autoOpenTool) {
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 8000);
-            }, 40000);
+                }, 25000);
+            }, 35000);
         },
         getContextualMessage() {
             const page = window.location.pathname;
@@ -413,10 +413,10 @@ if ($autoOpenTool) {
             
             <!-- Sliding Message -->
             <div x-show="showMessage" 
-                 x-transition:enter="transition ease-out duration-[2500ms]"
+                 x-transition:enter="transition ease-out duration-[10000ms]"
                  x-transition:enter-start="opacity-0 -translate-x-8"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-[2500ms]"
+                 x-transition:leave="transition ease-in duration-[5000ms]"
                  x-transition:leave-start="opacity-100 translate-x-0"
                  x-transition:leave-end="opacity-0 -translate-x-8"
                  class="text-white font-semibold text-sm whitespace-nowrap pr-2">
