@@ -14,10 +14,10 @@ class ReportGenerator {
         ];
         
         try {
-            // Total Profit
-            $profit = $db->query("SELECT COALESCE(SUM(price), 0) as total FROM orders WHERE status = 'completed' AND created_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
+            // Total Profit - From sales table (use final_amount)
+            $profit = $db->query("SELECT COALESCE(SUM(COALESCE(final_amount, amount_paid)), 0) as total FROM sales WHERE created_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
             $report['profit_this_week'] = $profit['total'] ?? 0;
-            $report['profit_all_time'] = $db->query("SELECT COALESCE(SUM(price), 0) as total FROM orders WHERE status = 'completed'")->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            $report['profit_all_time'] = $db->query("SELECT COALESCE(SUM(COALESCE(final_amount, amount_paid)), 0) as total FROM sales")->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
             
             // Template Views
             $templateViews = $db->query("SELECT COUNT(*) as views FROM page_interactions WHERE action_type = 'view' AND page_type = 'template' AND created_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
@@ -30,12 +30,12 @@ class ReportGenerator {
             $report['tool_views_total'] = $db->query("SELECT COUNT(*) as views FROM page_interactions WHERE action_type = 'view' AND page_type = 'tool'")->fetch(PDO::FETCH_ASSOC)['views'] ?? 0;
             
             // Total Orders
-            $orders = $db->query("SELECT COUNT(*) as count FROM orders WHERE created_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
+            $orders = $db->query("SELECT COUNT(*) as count FROM sales WHERE payment_confirmed_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
             $report['orders_this_week'] = $orders['count'] ?? 0;
-            $report['orders_total'] = $db->query("SELECT COUNT(*) as count FROM orders")->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+            $report['orders_total'] = $db->query("SELECT COUNT(*) as count FROM sales")->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
             
-            // Top Products
-            $topProducts = $db->query("SELECT name, COUNT(*) as sales FROM order_items oi JOIN tools t ON oi.tool_id = t.id WHERE oi.created_at >= date('now', '-7 days') GROUP BY t.id ORDER BY sales DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+            // Top Products - From order_items and tools
+            $topProducts = $db->query("SELECT t.name, COUNT(*) as sales FROM order_items oi JOIN tools t ON oi.tool_id = t.id WHERE oi.created_at >= date('now', '-7 days') GROUP BY t.id ORDER BY sales DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
             $report['top_products'] = $topProducts;
             
             return $report;
