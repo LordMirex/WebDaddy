@@ -117,7 +117,7 @@ $pageTitle = SITE_NAME . ' - Professional Website Templates & Digital Working To
 $pageDescription = 'Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.';
 $pageKeywords = 'website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools';
 $pageUrl = SITE_URL;
-$pageImage = SITE_URL . '/assets/images/og-image.png';
+$pageImage = SITE_URL . '/assets/images/og-image.jpg';
 $ogType = 'website';
 
 if ($autoOpenTool) {
@@ -125,7 +125,7 @@ if ($autoOpenTool) {
     $pageDescription = htmlspecialchars($autoOpenTool['short_description'] ?? $autoOpenTool['description']);
     $pageKeywords = !empty($autoOpenTool['seo_keywords']) ? htmlspecialchars($autoOpenTool['seo_keywords']) : (htmlspecialchars($autoOpenTool['category'] ?? 'digital tool') . ', ' . htmlspecialchars($autoOpenTool['tool_type'] ?? 'working tool') . ', ' . htmlspecialchars($autoOpenTool['name']));
     $pageUrl = SITE_URL . '/?tool=' . $autoOpenToolSlug;
-    $pageImage = !empty($autoOpenTool['banner_url']) ? $autoOpenTool['banner_url'] : (!empty($autoOpenTool['thumbnail_url']) ? $autoOpenTool['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png');
+    $pageImage = !empty($autoOpenTool['banner_url']) ? $autoOpenTool['banner_url'] : (!empty($autoOpenTool['thumbnail_url']) ? $autoOpenTool['thumbnail_url'] : SITE_URL . '/assets/images/og-image.jpg');
     if (!empty($pageImage) && strpos($pageImage, 'http') !== 0) {
         $pageImage = SITE_URL . $pageImage;
     }
@@ -154,9 +154,9 @@ if ($autoOpenTool) {
     <meta property="og:url" content="<?php echo $pageUrl; ?>">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
     <meta property="og:image" content="<?php echo $pageImage; ?>?v=<?php echo time(); ?>">
-    <meta property="og:image:width" content="1536">
-    <meta property="og:image:height" content="1024">
-    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1500">
+    <meta property="og:image:height" content="1000">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:locale" content="en_NG">
     
     <!-- Twitter Card Meta Tags -->
