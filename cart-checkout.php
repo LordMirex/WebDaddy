@@ -686,9 +686,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-green-800">20% OFF! Code: <?php echo htmlspecialchars($totals['affiliate_code']); ?></span>
+                            <span class="text-xs sm:text-sm font-semibold text-green-900">20% OFF! Code: <?php echo htmlspecialchars($totals['affiliate_code']); ?></span>
                         </div>
-                        <span class="text-xs sm:text-sm font-bold text-green-700">-<?php echo formatCurrency($totals['discount']); ?></span>
+                        <span class="text-xs sm:text-sm font-bold text-green-900">-<?php echo formatCurrency($totals['discount']); ?></span>
                     </div>
                 </div>
                 <?php else: ?>
@@ -699,7 +699,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-gray-100">Have an affiliate code? Get 20% OFF!</span>
+                            <span class="text-xs sm:text-sm font-semibold text-gray-900">Have an affiliate code? Get 20% OFF!</span>
                         </div>
                         <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
