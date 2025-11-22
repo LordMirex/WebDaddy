@@ -48,7 +48,7 @@ class ImageCropper {
                     </div>
                     <div class="flex-1">
                         <label class="text-xs text-gray-600 font-medium block mb-2">Aspect Ratio</label>
-                        <select class="aspect-ratio-select w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-white">
+                        <select class="aspect-ratio-select w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-gray-800">
                             <option value="1.7778">16:9</option>
                             <option value="1.3333">4:3</option>
                             <option value="1">1:1</option>

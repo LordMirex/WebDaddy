@@ -23,7 +23,7 @@ http_response_code(403);
 </head>
 <body class="bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 min-h-screen flex items-center justify-center p-4">
     <div class="max-w-md w-full">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 text-center">
             <div class="mb-6">
                 <svg class="w-24 h-24 mx-auto text-red-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 2.526a6 6 0 008.367 8.364m1.497-3.036a.75.75 0 10-1.06-1.061 3 3 0 11-4.243 4.243.75.75 0 101.06 1.06A4.5 4.5 0 1014.974 11.853z" clip-rule="evenodd"/>
@@ -31,8 +31,8 @@ http_response_code(403);
             </div>
             
             <h1 class="text-8xl font-extrabold text-blue-900 mb-2">403</h1>
-            <h2 class="text-2xl font-bold text-gray-900 mb-3">Access Forbidden</h2>
-            <p class="text-gray-600 mb-6">
+            <h2 class="text-2xl font-bold text-white mb-3">Access Forbidden</h2>
+            <p class="text-gray-300 mb-6">
                 You don't have permission to access this resource.
             </p>
             

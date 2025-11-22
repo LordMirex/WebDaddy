@@ -147,8 +147,8 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <script src="/assets/js/lazy-load.js" defer></script>
     <script src="/assets/js/performance.js" defer></script>
 </head>
-<body class="bg-gray-50">
-    <nav id="mainNav" class="bg-white shadow-sm sticky top-0 z-50" x-data="{ open: false }">
+<body class="bg-gray-900">
+    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -158,13 +158,13 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/?view=tools" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
+                    <a href="/?view=tools" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-100 hover:text-primary-600 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                         Back to Tools
                     </a>
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 hover:text-primary-600 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -172,7 +172,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-700 hover:text-primary-600 focus:outline-none">
+                    <button @click="open = !open" class="text-gray-100 hover:text-primary-600 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -183,9 +183,9 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                 </div>
             </div>
         </div>
-        <div x-show="open" @click.away="open = false" class="md:hidden bg-white border-t border-gray-200" style="display: none;">
+        <div x-show="open" @click.away="open = false" class="md:hidden bg-gray-800 border-t border-gray-700" style="display: none;">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="/?view=tools" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Back to Tools</a>
+                <a href="/?view=tools" class="block px-3 py-2 rounded-md text-gray-100 hover:bg-gray-800 font-medium">Back to Tools</a>
             </div>
         </div>
     </nav>
@@ -193,7 +193,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl">
-                <span class="inline-block bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4"><?php echo htmlspecialchars($tool['category'] ?? 'Digital Tool'); ?></span>
+                <span class="inline-block bg-gray-800/10 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4"><?php echo htmlspecialchars($tool['category'] ?? 'Digital Tool'); ?></span>
                 <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4"><?php echo htmlspecialchars($tool['name']); ?></h1>
                 <p class="text-lg sm:text-xl text-white/90 mb-6"><?php echo htmlspecialchars($tool['short_description'] ?? $tool['description']); ?></p>
                 <div class="flex items-center gap-4">
@@ -222,14 +222,14 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                          onerror="this.src='/assets/images/placeholder.jpg'">
                 </div>
 
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 sm:p-8 mb-8">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Description</h3>
-                    <p class="text-gray-700 leading-relaxed whitespace-pre-line"><?php echo htmlspecialchars($tool['description']); ?></p>
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 p-6 sm:p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-4">Description</h3>
+                    <p class="text-gray-100 leading-relaxed whitespace-pre-line"><?php echo htmlspecialchars($tool['description']); ?></p>
                 </div>
 
                 <?php if (!empty($features)): ?>
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 sm:p-8 mb-8">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Features</h3>
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 p-6 sm:p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-4">Features</h3>
                     <ul class="space-y-3">
                         <?php foreach ($features as $feature): 
                             $feature = trim($feature);
@@ -238,7 +238,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                             <svg class="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
-                            <span class="text-gray-700"><?php echo htmlspecialchars($feature); ?></span>
+                            <span class="text-gray-100"><?php echo htmlspecialchars($feature); ?></span>
                         </li>
                         <?php endif; endforeach; ?>
                     </ul>
@@ -246,25 +246,25 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                 <?php endif; ?>
 
                 <?php if (!empty($tool['delivery_instructions'])): ?>
-                <div class="bg-blue-50 rounded-xl border border-blue-200 p-6 sm:p-8">
+                <div class="bg-gray-800 rounded-xl border border-gray-700 p-6 sm:p-8">
                     <h3 class="text-xl font-bold text-blue-900 mb-3 flex items-center">
                         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         Delivery Information
                     </h3>
-                    <p class="text-blue-800 whitespace-pre-line"><?php echo htmlspecialchars($tool['delivery_instructions']); ?></p>
+                    <p class="text-blue-200 whitespace-pre-line"><?php echo htmlspecialchars($tool['delivery_instructions']); ?></p>
                 </div>
                 <?php endif; ?>
             </div>
 
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-24">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">Get This Tool</h3>
+                <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 p-6 sticky top-24">
+                    <h3 class="text-xl font-bold text-white mb-4">Get This Tool</h3>
                     
                     <div class="mb-6">
                         <div class="flex justify-between items-baseline mb-2">
-                            <span class="text-gray-600">Price:</span>
+                            <span class="text-gray-300">Price:</span>
                             <span class="text-3xl font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                     </div>
@@ -283,9 +283,9 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                     </button>
                     <?php endif; ?>
 
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <h4 class="font-semibold text-gray-900 mb-3">What you get:</h4>
-                        <ul class="space-y-2 text-sm text-gray-600">
+                    <div class="mt-6 pt-6 border-t border-gray-700">
+                        <h4 class="font-semibold text-white mb-3">What you get:</h4>
+                        <ul class="space-y-2 text-sm text-gray-300">
                             <li class="flex items-center">
                                 <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

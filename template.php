@@ -155,9 +155,9 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <script src="/assets/js/video-preloader.js" defer></script>
     <script src="/assets/js/video-modal.js" defer></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-900">
     <!-- Navigation -->
-    <nav id="mainNav" class="bg-white shadow-sm sticky top-0 z-50" x-data="{ open: false }">
+    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -167,13 +167,13 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">
+                    <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-100 hover:text-primary-600 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                         Back to Templates
                     </a>
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 hover:text-primary-600 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -181,7 +181,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-700 hover:text-primary-600 focus:outline-none">
+                    <button @click="open = !open" class="text-gray-100 hover:text-primary-600 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -192,9 +192,9 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 </div>
             </div>
         </div>
-        <div x-show="open" @click.away="open = false" class="md:hidden bg-white border-t border-gray-200" style="display: none;">
+        <div x-show="open" @click.away="open = false" class="md:hidden bg-gray-800 border-t border-gray-700" style="display: none;">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="/" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">
+                <a href="/" class="block px-3 py-2 rounded-md text-gray-100 hover:bg-gray-800 font-medium">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
@@ -257,7 +257,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl">
-                <span class="inline-block bg-white/10 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4"><?php echo htmlspecialchars($template['category']); ?></span>
+                <span class="inline-block bg-gray-800/10 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4"><?php echo htmlspecialchars($template['category']); ?></span>
                 <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4"><?php echo htmlspecialchars($template['name']); ?></h1>
                 <p class="text-lg sm:text-xl text-white/90 mb-6"><?php echo htmlspecialchars($template['description']); ?></p>
                 <div class="flex items-center gap-4">
@@ -295,9 +295,9 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 // Only show preview section if media type is demo_url or video
                 if (($mediaType === 'demo_url' || $mediaType === 'video') && $mediaUrl): 
                 ?>
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-8 overflow-hidden">
-                    <div class="bg-gray-50 border-b border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                        <h5 class="text-lg font-bold text-gray-900 flex items-center">
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-8 overflow-hidden">
+                    <div class="bg-gray-900 border-b border-gray-700 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                        <h5 class="text-lg font-bold text-white flex items-center">
                             <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <?php if ($mediaType === 'video'): ?>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
@@ -325,7 +325,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                             <?php endif; ?>
                             <a href="<?php echo htmlspecialchars($mediaUrl); ?>" 
                                target="_blank" 
-                               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                               class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                                 </svg>
@@ -353,8 +353,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                                 </svg>
                                 <div>
-                                    <h3 class="text-lg font-bold text-gray-900">Love this template?</h3>
-                                    <p class="text-sm text-gray-600">Share it with your friends!</p>
+                                    <h3 class="text-lg font-bold text-white">Love this template?</h3>
+                                    <p class="text-sm text-gray-300">Share it with your friends!</p>
                                 </div>
                             </div>
                             
@@ -389,7 +389,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 
                                 <!-- Copy Link -->
                                 <button onclick="copyTemplateLink()" 
-                                        class="flex items-center gap-2 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition-all shadow-md hover:shadow-lg">
+                                        class="flex items-center gap-2 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-white rounded-lg transition-all shadow-md hover:shadow-lg">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                     </svg>
@@ -410,20 +410,20 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
 
                 <?php if (!empty($features)): ?>
                 <section class="mb-8">
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-6">What's Included</h2>
-                    <div class="bg-white rounded-xl p-6 border border-gray-200">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-6">What's Included</h2>
+                    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <?php foreach (array_slice($features, 0, 6) as $feature): ?>
                             <div class="flex items-start">
                                 <svg class="w-5 h-5 text-green-500 mr-3 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-gray-700"><?php echo htmlspecialchars(trim($feature)); ?></span>
+                                <span class="text-gray-100"><?php echo htmlspecialchars(trim($feature)); ?></span>
                             </div>
                             <?php endforeach; ?>
                         </div>
                         <?php if (count($features) > 6): ?>
-                        <p class="mt-4 text-sm text-gray-500 text-center">+ <?php echo count($features) - 6; ?> more features included</p>
+                        <p class="mt-4 text-sm text-gray-400 text-center">+ <?php echo count($features) - 6; ?> more features included</p>
                         <?php endif; ?>
                     </div>
                 </section>
@@ -432,12 +432,12 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
 
             <div class="lg:col-span-1">
                 <div class="sticky top-24">
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
                         <div class="p-6 sm:p-8">
-                            <div class="text-center mb-6 pb-6 border-b border-gray-200">
-                                <div class="text-sm text-gray-500 font-semibold mb-2">Starting at</div>
+                            <div class="text-center mb-6 pb-6 border-b border-gray-700">
+                                <div class="text-sm text-gray-400 font-semibold mb-2">Starting at</div>
                                 <h2 class="text-4xl font-extrabold text-primary-600"><?php echo formatCurrency($template['price']); ?></h2>
-                                <p class="text-sm text-gray-500 mt-2">Includes domain & hosting</p>
+                                <p class="text-sm text-gray-400 mt-2">Includes domain & hosting</p>
                             </div>
 
                             <div class="space-y-3 mb-6">
@@ -450,7 +450,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 </button>
                                 <?php if ($template['demo_url']): ?>
                                 <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-white hover:bg-primary-50 transition-all">
+                                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-gray-800 hover:bg-primary-50 transition-all">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -460,20 +460,20 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 <?php endif; ?>
                             </div>
 
-                            <div class="space-y-3 border-t border-gray-200 pt-6">
-                                <div class="flex items-center text-sm text-gray-700">
+                            <div class="space-y-3 border-t border-gray-700 pt-6">
+                                <div class="flex items-center text-sm text-gray-100">
                                     <svg class="w-5 h-5 text-green-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
                                     <span>Ready in 24 hours</span>
                                 </div>
-                                <div class="flex items-center text-sm text-gray-700">
+                                <div class="flex items-center text-sm text-gray-100">
                                     <svg class="w-5 h-5 text-green-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
                                     <span>Free domain included</span>
                                 </div>
-                                <div class="flex items-center text-sm text-gray-700">
+                                <div class="flex items-center text-sm text-gray-100">
                                     <svg class="w-5 h-5 text-green-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
@@ -501,10 +501,10 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <div id="demoModal" class="fixed inset-0 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen px-4 py-8">
             <div onclick="closeDemoFullscreen()" class="fixed inset-0 bg-black bg-opacity-75"></div>
-            <div class="relative bg-white rounded-xl shadow-2xl" style="width: 90vw; max-width: min(90vw, 1400px); height: 90vh; max-height: 90vh;">
-                <div class="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                    <h5 class="text-lg font-bold text-gray-900" id="demoTitle">Template Preview</h5>
-                    <button onclick="closeDemoFullscreen()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+            <div class="relative bg-gray-800 rounded-xl shadow-2xl" style="width: 90vw; max-width: min(90vw, 1400px); height: 90vh; max-height: 90vh;">
+                <div class="flex items-center justify-between px-6 py-3 border-b border-gray-700 bg-gray-900 rounded-t-xl">
+                    <h5 class="text-lg font-bold text-white" id="demoTitle">Template Preview</h5>
+                    <button onclick="closeDemoFullscreen()" class="text-gray-400 hover:text-gray-300 transition-colors p-1">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>

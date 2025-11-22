@@ -451,9 +451,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-900">
     <!-- Navigation -->
-    <nav id="mainNav" class="bg-white shadow-sm sticky top-0 z-50">
+    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -464,7 +464,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <div class="flex items-center">
                     <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                       class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
@@ -497,42 +497,42 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                     </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h2>
-                    <p class="text-gray-600">Your order has been successfully created</p>
-                    <p class="text-sm text-gray-500 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Order Confirmed!</h2>
+                    <p class="text-gray-300">Your order has been successfully created</p>
+                    <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
                 </div>
                 
                 <!-- Order Summary Card -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
                     <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="text-2xl"><?php echo $confirmationData['hasTemplates'] && $confirmationData['hasTools'] ? '🎨🔧' : ($confirmationData['hasTemplates'] ? '🎨' : '🔧'); ?></span>
-                                <h3 class="font-bold text-gray-900"><?php echo $confirmationData['orderTypeText']; ?></h3>
+                                <h3 class="font-bold text-white"><?php echo $confirmationData['orderTypeText']; ?></h3>
                             </div>
                             <span class="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded-full">Pending Payment</span>
                         </div>
                     </div>
                     
                     <div class="p-6">
-                        <h4 class="font-bold text-gray-900 mb-4">Order Items</h4>
+                        <h4 class="font-bold text-white mb-4">Order Items</h4>
                         <div class="space-y-3 mb-6">
                             <?php foreach ($confirmationData['orderItems'] as $item): 
                                 $productType = $item['product_type'];
-                                $badgeColor = $productType === 'template' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                                $badgeColor = $productType === 'template' ? 'bg-gray-700 text-blue-200' : 'bg-purple-100 text-purple-800';
                                 $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
                                 $badgeText = $productType === 'template' ? 'Template' : 'Tool';
                                 $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
                             ?>
-                            <div class="flex items-start gap-3 pb-3 border-b border-gray-200 last:border-0">
+                            <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0">
                                 <div class="flex-1">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h5 class="font-semibold text-gray-900"><?php echo htmlspecialchars($productName); ?></h5>
+                                        <h5 class="font-semibold text-white"><?php echo htmlspecialchars($productName); ?></h5>
                                         <span class="<?php echo $badgeColor; ?> px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap">
                                             <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
                                         </span>
                                     </div>
-                                    <div class="text-sm text-gray-600">
+                                    <div class="text-sm text-gray-300">
                                         <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?></p>
                                         <p class="font-semibold text-primary-600 mt-1"><?php echo formatCurrency($item['final_amount']); ?></p>
                                     </div>
@@ -541,8 +541,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <?php endforeach; ?>
                         </div>
                         
-                        <div class="border-t border-gray-200 pt-4 space-y-2">
-                            <div class="flex justify-between text-gray-700">
+                        <div class="border-t border-gray-700 pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-100">
                                 <span>Subtotal</span>
                                 <span><?php echo formatCurrency($confirmationData['order']['original_price']); ?></span>
                             </div>
@@ -554,7 +554,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             <?php endif; ?>
                             
-                            <div class="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-200">
+                            <div class="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-700">
                                 <span>Total</span>
                                 <span><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span>
                             </div>
@@ -563,30 +563,30 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 
                 <!-- Customer Details Card -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 p-6">
-                    <h4 class="font-bold text-gray-900 mb-4">Customer Details</h4>
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
+                    <h4 class="font-bold text-white mb-4">Customer Details</h4>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Name:</span>
-                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($confirmationData['order']['customer_name']); ?></span>
+                            <span class="text-gray-300">Name:</span>
+                            <span class="font-medium text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_name']); ?></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">WhatsApp:</span>
-                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($confirmationData['order']['customer_phone']); ?></span>
+                            <span class="text-gray-300">WhatsApp:</span>
+                            <span class="font-medium text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_phone']); ?></span>
                         </div>
                         <?php if (!empty($confirmationData['order']['customer_email'])): ?>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Email:</span>
-                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></span>
+                            <span class="text-gray-300">Email:</span>
+                            <span class="font-medium text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></span>
                         </div>
                         <?php endif; ?>
                     </div>
                 </div>
                 
                 <!-- Next Steps -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
                     <h4 class="font-bold text-blue-900 mb-2">📱 Next Steps</h4>
-                    <p class="text-sm text-blue-800 mb-3">
+                    <p class="text-sm text-blue-200 mb-3">
                         Click the button below to send your order details via WhatsApp. Our team will confirm and provide payment instructions.
                     </p>
                 </div>
@@ -652,11 +652,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     $icon = $productType === 'template' ? '🎨' : '🔧';
                                     $typeLabel = $productType === 'template' ? 'Template' : 'Tool';
                                 ?>
-                                <div class="bg-white rounded-lg p-3 border border-yellow-300">
+                                <div class="bg-gray-800 rounded-lg p-3 border border-yellow-300">
                                     <div class="flex items-start gap-2">
                                         <span class="text-lg"><?php echo $icon; ?></span>
                                         <div class="flex-1">
-                                            <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($issue['tool_name']); ?></p>
+                                            <p class="font-semibold text-white"><?php echo htmlspecialchars($issue['tool_name']); ?></p>
                                             <p class="text-sm text-yellow-800 mt-1">
                                                 <span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-900 text-xs font-medium rounded mr-1"><?php echo $typeLabel; ?></span>
                                                 <?php echo htmlspecialchars($issue['issue']); ?>
@@ -693,13 +693,13 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php else: ?>
                 <!-- Affiliate Code Input -->
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-6">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="flex items-center flex-1">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-blue-800">Have an affiliate code? Get 20% OFF!</span>
+                            <span class="text-xs sm:text-sm font-semibold text-blue-200">Have an affiliate code? Get 20% OFF!</span>
                         </div>
                         <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
@@ -728,20 +728,20 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 <?php echo csrfTokenField(); ?>
                 
                 <!-- Step 1: Your Information -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
                     <div class="p-6 sm:p-8">
                         <div class="flex items-center mb-6">
                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white font-bold mr-3">1</span>
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900">Your Information</h3>
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-white">Your Information</h3>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="customer_name" class="block text-sm font-bold text-gray-700 mb-2">
+                                <label for="customer_name" class="block text-sm font-bold text-gray-100 mb-2">
                                     Full Name <span class="text-red-600">*</span>
                                 </label>
                                 <input type="text" 
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                       class="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                                        id="customer_name" 
                                        name="customer_name" 
                                        value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
@@ -750,11 +750,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             
                             <div>
-                                <label for="customer_phone" class="block text-sm font-bold text-gray-700 mb-2">
+                                <label for="customer_phone" class="block text-sm font-bold text-gray-100 mb-2">
                                     WhatsApp Number <span class="text-red-600">*</span>
                                 </label>
                                 <input type="tel" 
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                       class="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                                        id="customer_phone" 
                                        name="customer_phone" 
                                        value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
@@ -764,11 +764,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         </div>
                         
                         <div class="mt-6">
-                            <label for="customer_email" class="block text-sm font-bold text-gray-700 mb-2">
+                            <label for="customer_email" class="block text-sm font-bold text-gray-100 mb-2">
                                 Email Address (Optional)
                             </label>
                             <input type="email" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                   class="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                                    id="customer_email" 
                                    name="customer_email" 
                                    value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
@@ -778,11 +778,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 
                 <!-- Step 2: Order Summary -->
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
                     <div class="p-6 sm:p-8">
                         <div class="flex items-center mb-6">
                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white font-bold mr-3">2</span>
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900">Order Summary</h3>
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-white">Order Summary</h3>
                         </div>
                         
                         <div class="space-y-4 mb-6">
@@ -794,27 +794,27 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     $itemDiscount = ($itemSubtotal / $totals['subtotal']) * $totals['discount'];
                                 }
                                 $itemFinal = $itemSubtotal - $itemDiscount;
-                                $badgeColor = $productType === 'template' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                                $badgeColor = $productType === 'template' ? 'bg-gray-700 text-blue-200' : 'bg-purple-100 text-purple-800';
                                 $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
                                 $badgeText = $productType === 'template' ? 'Template' : 'Tool';
                             ?>
-                            <div class="flex items-start gap-3 pb-4 border-b border-gray-200">
+                            <div class="flex items-start gap-3 pb-4 border-b border-gray-700">
                                 <img src="<?php echo htmlspecialchars($item['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
                                      alt="<?php echo htmlspecialchars($item['name']); ?>"
                                      class="w-16 h-16 object-cover rounded"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 <div class="flex-1">
                                     <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h3 class="font-semibold text-gray-900"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                        <h3 class="font-semibold text-white"><?php echo htmlspecialchars($item['name']); ?></h3>
                                         <span class="<?php echo $badgeColor; ?> px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap">
                                             <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
                                         </span>
                                     </div>
                                     <?php if (!empty($item['category'])): ?>
-                                    <p class="text-xs text-gray-500 mb-1"><?php echo htmlspecialchars($item['category']); ?></p>
+                                    <p class="text-xs text-gray-400 mb-1"><?php echo htmlspecialchars($item['category']); ?></p>
                                     <?php endif; ?>
                                     <div class="text-sm space-y-0.5">
-                                        <p class="text-gray-600"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <?php echo formatCurrency($itemSubtotal); ?></p>
+                                        <p class="text-gray-300"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <?php echo formatCurrency($itemSubtotal); ?></p>
                                         <?php if ($itemDiscount > 0): ?>
                                         <p class="text-green-600 text-xs">Discount: -<?php echo formatCurrency($itemDiscount); ?></p>
                                         <?php endif; ?>
@@ -825,8 +825,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <?php endforeach; ?>
                         </div>
                         
-                        <div class="border-t border-gray-200 pt-4 space-y-2">
-                            <div class="flex justify-between text-gray-700">
+                        <div class="border-t border-gray-700 pt-4 space-y-2">
+                            <div class="flex justify-between text-gray-100">
                                 <span>Subtotal</span>
                                 <span><?php echo formatCurrency($totals['subtotal']); ?></span>
                             </div>
@@ -838,7 +838,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             <?php endif; ?>
                             
-                            <div class="flex justify-between text-xl font-bold text-gray-900 pt-2 border-t border-gray-200">
+                            <div class="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-700">
                                 <span>Total</span>
                                 <span><?php echo formatCurrency($totals['total']); ?></span>
                             </div>
@@ -847,12 +847,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 
                 <!-- Submit Button -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
                     <div class="flex items-start">
                         <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
                         </svg>
-                        <p class="text-sm text-blue-800">
+                        <p class="text-sm text-blue-200">
                             You'll be redirected to WhatsApp to complete your order. Our team will confirm your purchase and provide payment details.
                         </p>
                     </div>

@@ -23,7 +23,7 @@ http_response_code(500);
 </head>
 <body class="bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 min-h-screen flex items-center justify-center p-4">
     <div class="max-w-md w-full">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 text-center">
             <div class="mb-6">
                 <svg class="w-24 h-24 mx-auto text-red-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
@@ -31,8 +31,8 @@ http_response_code(500);
             </div>
             
             <h1 class="text-8xl font-extrabold text-blue-900 mb-2">500</h1>
-            <h2 class="text-2xl font-bold text-gray-900 mb-3">Internal Server Error</h2>
-            <p class="text-gray-600 mb-6">
+            <h2 class="text-2xl font-bold text-white mb-3">Internal Server Error</h2>
+            <p class="text-gray-300 mb-6">
                 Something went wrong on our end. We're working to fix it.
             </p>
             
@@ -43,7 +43,7 @@ http_response_code(500);
                     </svg>
                     Go to Homepage
                 </a>
-                <a href="javascript:location.reload()" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors">
+                <a href="javascript:location.reload()" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-100 font-semibold rounded-lg transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
@@ -51,8 +51,8 @@ http_response_code(500);
                 </a>
             </div>
             
-            <div class="border-t border-gray-200 pt-4">
-                <p class="text-gray-500 text-sm mb-3">Need immediate assistance?</p>
+            <div class="border-t border-gray-700 pt-4">
+                <p class="text-gray-400 text-sm mb-3">Need immediate assistance?</p>
                 <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" 
                    target="_blank"
                    class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors text-sm">

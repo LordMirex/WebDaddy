@@ -102,9 +102,9 @@ class VideoModal {
                             
                             <!-- Custom Play Button Overlay -->
                             <div data-play-overlay class="absolute inset-0 flex items-center justify-center bg-black/40 cursor-pointer transition-opacity duration-300 hover:bg-black/30" style="display: none; z-index: 15;">
-                                <button class="bg-white/90 hover:bg-white rounded-full p-6 shadow-2xl transition-all transform hover:scale-110"
+                                <button class="bg-gray-800/90 hover:bg-gray-800 rounded-full p-6 shadow-2xl transition-all transform hover:scale-110"
                                         aria-label="Play video">
-                                    <svg class="w-16 h-16 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                                     </svg>
                                 </button>
@@ -674,7 +674,7 @@ class DemoModal {
                             </button>
                         </div>
                         
-                        <div class="relative bg-white rounded-b-xl overflow-hidden" style="height: 80vh;">
+                        <div class="relative bg-gray-800 rounded-b-xl overflow-hidden" style="height: 80vh;">
                             <div data-demo-loader class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black z-50">
                                 <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-white mb-6"></div>
                                 <div data-loading-instruction class="text-white text-center px-6 transition-opacity duration-500">
