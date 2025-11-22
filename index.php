@@ -50,7 +50,7 @@ if ($autoOpenToolSlug) {
 
 if ($currentView === 'templates') {
     // TEMPLATES VIEW
-    $perPage = 9;
+    $perPage = 18;
     $allTemplates = getTemplates(true);
     $templateCategories = array_unique(array_column($allTemplates, 'category'));
     sort($templateCategories);
