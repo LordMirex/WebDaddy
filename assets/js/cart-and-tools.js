@@ -815,6 +815,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open tool modal from share link
     window.openToolModalFromShare = function(tool) {
         showToolModal(tool);
+        
+        // Track tool view when opened from share link
+        if (tool && tool.id) {
+            fetch('/api/analytics/track-tool-view', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tool_id: tool.id,
+                    source: 'modal_share'
+                })
+            }).catch(err => console.error('Error tracking tool view:', err));
+        }
     };
     
     // Copy tool share link to clipboard

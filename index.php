@@ -109,6 +109,26 @@ if ($currentView === 'templates') {
     $tools = array_slice($allTools, $offset, $perPage);
     $toolCategories = getToolCategories();
 }
+
+// Prepare meta tags - use tool data if sharing a tool, otherwise use default homepage
+$pageTitle = SITE_NAME . ' - Professional Website Templates & Digital Working Tools';
+$pageDescription = 'Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.';
+$pageKeywords = 'website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools';
+$pageUrl = SITE_URL;
+$pageImage = SITE_URL . '/assets/images/og-image.png';
+$ogType = 'website';
+
+if ($autoOpenTool) {
+    $pageTitle = htmlspecialchars($autoOpenTool['name']) . ' - ' . SITE_NAME;
+    $pageDescription = htmlspecialchars($autoOpenTool['short_description'] ?? $autoOpenTool['description']);
+    $pageKeywords = !empty($autoOpenTool['seo_keywords']) ? htmlspecialchars($autoOpenTool['seo_keywords']) : (htmlspecialchars($autoOpenTool['category'] ?? 'digital tool') . ', ' . htmlspecialchars($autoOpenTool['tool_type'] ?? 'working tool') . ', ' . htmlspecialchars($autoOpenTool['name']));
+    $pageUrl = SITE_URL . '/?tool=' . $autoOpenToolSlug;
+    $pageImage = !empty($autoOpenTool['banner_url']) ? $autoOpenTool['banner_url'] : (!empty($autoOpenTool['thumbnail_url']) ? $autoOpenTool['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png');
+    if (!empty($pageImage) && strpos($pageImage, 'http') !== 0) {
+        $pageImage = SITE_URL . $pageImage;
+    }
+    $ogType = 'product';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -118,31 +138,30 @@ if ($currentView === 'templates') {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title><?php echo SITE_NAME; ?> - Professional Website Templates & Digital Working Tools</title>
-    <meta name="description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
-    <meta name="keywords" content="website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools">
+    <title><?php echo $pageTitle; ?></title>
+    <meta name="description" content="<?php echo $pageDescription; ?>">
+    <meta name="keywords" content="<?php echo $pageKeywords; ?>">
     <meta name="author" content="<?php echo SITE_NAME; ?>">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="<?php echo SITE_URL; ?>">
+    <link rel="canonical" href="<?php echo $pageUrl; ?>">
     
     <!-- Open Graph / Social Media Meta Tags -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="<?php echo SITE_NAME; ?> - Professional Website Templates & Digital Tools">
-    <meta property="og:description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
-    <meta property="og:url" content="<?php echo SITE_URL; ?>">
+    <meta property="og:type" content="<?php echo $ogType; ?>">
+    <meta property="og:title" content="<?php echo $pageTitle; ?>">
+    <meta property="og:description" content="<?php echo $pageDescription; ?>">
+    <meta property="og:url" content="<?php echo $pageUrl; ?>">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
-    <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.png">
+    <meta property="og:image" content="<?php echo $pageImage; ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/png"
->
+    <meta property="og:image:type" content="image/png">
     <meta property="og:locale" content="en_NG">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo SITE_NAME; ?> - Professional Website Templates & Digital Tools">
-    <meta name="twitter:description" content="Get professional website templates and digital working tools for your business. Launch your website in 24 hours with domain included.">
-    <meta name="twitter:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.png">
+    <meta name="twitter:title" content="<?php echo $pageTitle; ?>">
+    <meta name="twitter:description" content="<?php echo $pageDescription; ?>">
+    <meta name="twitter:image" content="<?php echo $pageImage; ?>">
     <meta name="twitter:image:alt" content="<?php echo SITE_NAME; ?> - Professional Templates and Digital Tools">
     
     <!-- Structured Data (Schema.org) for Organization -->
