@@ -711,7 +711,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                    id="affiliate_code" 
                                    value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
                                    placeholder="ENTER CODE"
-                                   class="flex-1 sm:flex-initial sm:w-40 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
+                                   class="flex-1 sm:flex-initial sm:w-40 px-3 py-1.5 text-sm text-gray-900 placeholder:text-gray-500 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                                    style="min-width: 0;">
                             <button type="submit" 
                                     name="apply_affiliate"
@@ -741,7 +741,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     Full Name <span class="text-red-600">*</span>
                                 </label>
                                 <input type="text" 
-                                       class="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                       class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                                        id="customer_name" 
                                        name="customer_name" 
                                        value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
@@ -754,7 +754,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     WhatsApp Number <span class="text-red-600">*</span>
                                 </label>
                                 <input type="tel" 
-                                       class="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                       class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                                        id="customer_phone" 
                                        name="customer_phone" 
                                        value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
@@ -768,7 +768,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 Email Address (Optional)
                             </label>
                             <input type="email" 
-                                   class="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
+                                   class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
                                    id="customer_email" 
                                    name="customer_email" 
                                    value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
