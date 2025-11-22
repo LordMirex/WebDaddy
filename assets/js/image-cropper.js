@@ -28,34 +28,72 @@ class ImageCropper {
     
     setupElements() {
         const containerHtml = `
-            <div class="image-cropper-wrapper w-full max-w-2xl mx-auto">
-                <div class="image-cropper-container relative w-full bg-black rounded-lg overflow-hidden" style="min-height: 300px; height: 350px;">
-                    <canvas class="image-cropper-canvas block w-full h-full cursor-move"></canvas>
-                    <div class="crop-overlay absolute inset-0 pointer-events-none">
-                        <div class="crop-box absolute pointer-events-auto cursor-move" style="border: 2px solid #3b82f6; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);">
-                            <div class="crop-handle nw absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-nw-resize pointer-events-auto"></div>
-                            <div class="crop-handle ne absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-ne-resize pointer-events-auto"></div>
-                            <div class="crop-handle sw absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-sw-resize pointer-events-auto"></div>
-                            <div class="crop-handle se absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-4 h-4 bg-blue-500 border-2 border-white rounded-full cursor-se-resize pointer-events-auto"></div>
+            <div class="image-cropper-wrapper w-full max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-blue-200">
+                    <h3 class="text-lg font-bold text-gray-900">Crop Your Image</h3>
+                    <p class="text-sm text-gray-600 mt-1">Adjust the frame to select the area you want to keep. Use the blue handles to resize.</p>
+                </div>
+                
+                <!-- Canvas Container -->
+                <div class="p-6 bg-gray-50">
+                    <div class="image-cropper-container relative w-full bg-gray-900 rounded-lg overflow-hidden shadow-md" style="min-height: 300px; height: 400px;">
+                        <canvas class="image-cropper-canvas block w-full h-full cursor-move"></canvas>
+                        <div class="crop-overlay absolute inset-0 pointer-events-none">
+                            <div class="crop-box absolute pointer-events-auto cursor-move" style="border: 3px solid #3b82f6; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6);">
+                                <div class="crop-handle nw absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white rounded-full cursor-nw-resize pointer-events-auto shadow-lg"></div>
+                                <div class="crop-handle ne absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white rounded-full cursor-ne-resize pointer-events-auto shadow-lg"></div>
+                                <div class="crop-handle sw absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white rounded-full cursor-sw-resize pointer-events-auto shadow-lg"></div>
+                                <div class="crop-handle se absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white rounded-full cursor-se-resize pointer-events-auto shadow-lg"></div>
+                                <!-- Center dot for moving -->
+                                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full pointer-events-none shadow"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="image-cropper-controls mt-3 flex flex-col sm:flex-row gap-3 items-end">
-                    <div class="flex-1">
-                        <label class="text-xs text-gray-600 font-medium block mb-2">Zoom</label>
-                        <input type="range" class="zoom-slider w-full" min="0.1" max="3" step="0.1" value="1">
+                <!-- Controls -->
+                <div class="bg-gray-50 border-t border-gray-200 px-6 py-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <!-- Zoom Control -->
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">
+                                <i class="bi bi-zoom-in text-blue-600 mr-2"></i>Zoom
+                            </label>
+                            <input type="range" class="zoom-slider w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-blue-600" min="0.1" max="3" step="0.1" value="1">
+                            <p class="text-xs text-gray-500 mt-2">Scroll wheel or drag to zoom</p>
+                        </div>
+
+                        <!-- Aspect Ratio -->
+                        <div class="col-span-2 md:col-span-1">
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">
+                                <i class="bi bi-aspect-ratio text-blue-600 mr-2"></i>Aspect Ratio
+                            </label>
+                            <select class="aspect-ratio-select w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 font-medium hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1.7778">🎬 16:9 (Widescreen)</option>
+                                <option value="1.3333">📺 4:3 (Standard)</option>
+                                <option value="1">⬜ 1:1 (Square)</option>
+                                <option value="0">✂️ Free (No Constraint)</option>
+                            </select>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <div class="col-span-2 md:col-span-1 flex items-end">
+                            <button class="reset-btn w-full px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold rounded-lg transition-all flex items-center justify-center gap-2">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <label class="text-xs text-gray-600 font-medium block mb-2">Aspect Ratio</label>
-                        <select class="aspect-ratio-select w-full px-2 py-1.5 border border-gray-300 rounded text-sm bg-gray-800">
-                            <option value="1.7778">16:9</option>
-                            <option value="1.3333">4:3</option>
-                            <option value="1">1:1</option>
-                            <option value="0">Free</option>
-                        </select>
-                    </div>
-                    <button class="reset-btn px-4 py-1.5 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded transition-colors">Reset</button>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="bg-white border-t border-gray-200 px-6 py-4 flex gap-3 justify-end">
+                    <button class="crop-cancel-btn px-6 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all">
+                        <i class="bi bi-x-lg mr-2"></i>Cancel
+                    </button>
+                    <button class="crop-apply-btn px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                        <i class="bi bi-check-lg"></i> Apply Crop
+                    </button>
                 </div>
             </div>
         `;
@@ -70,6 +108,8 @@ class ImageCropper {
         this.zoomSlider = this.container.querySelector('.zoom-slider');
         this.aspectRatioSelect = this.container.querySelector('.aspect-ratio-select');
         this.resetBtn = this.container.querySelector('.reset-btn');
+        this.cropCancelBtn = this.container.querySelector('.crop-cancel-btn');
+        this.cropApplyBtn = this.container.querySelector('.crop-apply-btn');
         this.cropDimensionsEl = this.container.querySelector('.crop-dimensions');
     }
     
