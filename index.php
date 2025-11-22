@@ -126,15 +126,24 @@ if ($autoOpenTool) {
     $pageKeywords = !empty($autoOpenTool['seo_keywords']) ? htmlspecialchars($autoOpenTool['seo_keywords']) : (htmlspecialchars($autoOpenTool['category'] ?? 'digital tool') . ', ' . htmlspecialchars($autoOpenTool['tool_type'] ?? 'working tool') . ', ' . htmlspecialchars($autoOpenTool['name']));
     $pageUrl = SITE_URL . '/?tool=' . $autoOpenToolSlug;
     
-    // Use banner_url first, then thumbnail_url, fallback to default OG image
-    $toolImage = !empty($autoOpenTool['banner_url']) ? $autoOpenTool['banner_url'] : (!empty($autoOpenTool['thumbnail_url']) ? $autoOpenTool['thumbnail_url'] : '');
+    // Determine which image to use
+    $toolImage = '';
+    
+    // Check if thumbnail_source is 'upload' and use thumbnail_file
+    if (!empty($autoOpenTool['thumbnail_source']) && $autoOpenTool['thumbnail_source'] === 'upload' && !empty($autoOpenTool['thumbnail_file'])) {
+        $toolImage = '/uploads/tools/images/' . $autoOpenTool['thumbnail_file'];
+    }
+    // Otherwise use thumbnail_url if available
+    elseif (!empty($autoOpenTool['thumbnail_url'])) {
+        $toolImage = $autoOpenTool['thumbnail_url'];
+    }
     
     // Ensure full URL
     if (!empty($toolImage) && strpos($toolImage, 'http') !== 0) {
         $toolImage = SITE_URL . $toolImage;
     }
     
-    // Use tool image if available, otherwise use default OG image
+    // Use tool image if available and valid, otherwise use default OG image
     $pageImage = !empty($toolImage) ? $toolImage : SITE_URL . '/assets/images/og-image.jpg';
     
     $ogType = 'product';
