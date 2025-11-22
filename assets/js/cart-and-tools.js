@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="text-base font-bold text-white flex-1 pr-2">${escapeHtml(template.name)}</h3>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-200 shrink-0">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white shrink-0">
                                             ${escapeHtml(template.category || '')}
                                         </span>
                                     </div>
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="p-4">
                                 <div class="flex justify-between items-start mb-2">
                                     <h3 class="text-sm font-bold text-white flex-1 pr-2">${escapeHtml(tool.name)}</h3>
-                                    ${tool.category ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">${escapeHtml(tool.category)}</span>` : ''}
+                                    ${tool.category ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white shrink-0">${escapeHtml(tool.category)}</span>` : ''}
                                 </div>
                                 ${tool.short_description ? `<p class="text-gray-100 text-xs mb-3 line-clamp-2">${escapeHtml(tool.short_description)}</p>` : ''}
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-700">
@@ -642,7 +642,7 @@ document.addEventListener('DOMContentLoaded', function() {
             : isLowStock 
             ? `<span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">Limited Stock (${tool.stock_quantity} left)</span>`
             : tool.stock_unlimited == 0 
-            ? `<span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">${tool.stock_quantity} in stock</span>`
+            ? `<span class="inline-block px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full">${tool.stock_quantity} in stock</span>`
             : '';
         
         modal.innerHTML = `
@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="flex-1">
                                 <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">${escapedName}</h3>
                                 <div class="flex gap-2 items-center flex-wrap">
-                                    ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
+                                    ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-green-600 text-white text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
                                     ${stockBadge}
                                 </div>
                             </div>
@@ -1118,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
                         <h4 class="font-semibold text-sm text-white truncate">${escapeHtml(item.name)}</h4>
-                        ${isTemplate ? '<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-200 rounded-full">Template</span>' : '<span class="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">Tool</span>'}
+                        ${isTemplate ? '<span class="text-xs px-2 py-0.5 bg-blue-600 text-white rounded-full">Template</span>' : '<span class="text-xs px-2 py-0.5 bg-green-600 text-white rounded-full">Tool</span>'}
                     </div>
                     <p class="text-xs text-gray-100">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity}</p>
                     <p class="text-sm font-semibold text-primary-600">${formatCurrency(itemTotal)}</p>
