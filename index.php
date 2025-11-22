@@ -314,7 +314,6 @@ if ($autoOpenTool) {
                     Choose from our <span class="font-bold text-white">ready-made templates</span> or get 
                     <span class="font-bold text-white">powerful digital tools</span> to grow your business
                 </p>
-                <p class="text-base sm:text-lg text-white/75 mb-10">Domain included • Fast setup • Professional design</p>
                 
                 <!-- Trust Elements -->
                 <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10">
