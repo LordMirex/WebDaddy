@@ -64,14 +64,16 @@ if ($currentView === 'templates') {
         });
     }
     
-    // Sort by priority first, then by date
+    // Sort by priority first (null=999), then by newest date
     usort($allTemplates, function($a, $b) {
-        $aPriority = $a['priority_order'] ?? 999;
-        $bPriority = $b['priority_order'] ?? 999;
+        $aPriority = ($a['priority_order'] !== null && $a['priority_order'] !== '') ? intval($a['priority_order']) : 999;
+        $bPriority = ($b['priority_order'] !== null && $b['priority_order'] !== '') ? intval($b['priority_order']) : 999;
         if ($aPriority != $bPriority) {
             return $aPriority <=> $bPriority;
         }
-        return strtotime($b['created_at'] ?? 0) <=> strtotime($a['created_at'] ?? 0);
+        $aDate = strtotime($a['created_at'] ?? '0');
+        $bDate = strtotime($b['created_at'] ?? '0');
+        return $bDate <=> $aDate;
     });
     
     $totalTemplates = count($allTemplates);
@@ -88,14 +90,16 @@ if ($currentView === 'templates') {
     $db = getDb();
     $allTools = getTools(true, $category, null, null, true);
     
-    // Sort by priority first, then by date
+    // Sort by priority first (null=999), then by newest date
     usort($allTools, function($a, $b) {
-        $aPriority = $a['priority_order'] ?? 999;
-        $bPriority = $b['priority_order'] ?? 999;
+        $aPriority = ($a['priority_order'] !== null && $a['priority_order'] !== '') ? intval($a['priority_order']) : 999;
+        $bPriority = ($b['priority_order'] !== null && $b['priority_order'] !== '') ? intval($b['priority_order']) : 999;
         if ($aPriority != $bPriority) {
             return $aPriority <=> $bPriority;
         }
-        return strtotime($b['created_at'] ?? 0) <=> strtotime($a['created_at'] ?? 0);
+        $aDate = strtotime($a['created_at'] ?? '0');
+        $bDate = strtotime($b['created_at'] ?? '0');
+        return $bDate <=> $aDate;
     });
     
     $totalTools = count($allTools);
