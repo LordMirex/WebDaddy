@@ -114,7 +114,7 @@ try {
         }
         
         trackSearch($searchTerm, count($results));
-    } else {
+        
         // Cache search results
         $cacheKey = 'search_' . md5($searchTerm . $searchType);
         ProductCache::set($cacheKey, [
