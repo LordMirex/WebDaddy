@@ -126,9 +126,15 @@ if ($autoOpenTool) {
     $pageKeywords = !empty($autoOpenTool['seo_keywords']) ? htmlspecialchars($autoOpenTool['seo_keywords']) : (htmlspecialchars($autoOpenTool['category'] ?? 'digital tool') . ', ' . htmlspecialchars($autoOpenTool['tool_type'] ?? 'working tool') . ', ' . htmlspecialchars($autoOpenTool['name']));
     $pageUrl = SITE_URL . '/?tool=' . $autoOpenToolSlug;
     
-    // Always use the default OG image for tools to ensure preview works
-    // Individual tool banners can be added later when properly uploaded
+    // Use tool-specific thumbnail if available
     $pageImage = SITE_URL . '/assets/images/og-image.jpg';
+    if (!empty($autoOpenTool['thumbnail_url'])) {
+        $toolImagePath = $autoOpenTool['thumbnail_url'];
+        if (strpos($toolImagePath, 'http') !== 0) {
+            $toolImagePath = SITE_URL . $toolImagePath;
+        }
+        $pageImage = $toolImagePath;
+    }
     
     $ogType = 'product';
 }
