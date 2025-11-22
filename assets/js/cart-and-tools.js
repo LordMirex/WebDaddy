@@ -652,25 +652,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             ` : ''}
                             
-                            ${escapedDeliveryTime ? `
-                            <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    Delivery
-                                </h4>
-                                <p class="text-sm sm:text-base text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                                    <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapedDeliveryTime}
-                                </p>
-                            </div>
-                            ` : ''}
-                        </div>
-                        
-                        <!-- Footer with price and CTA -->
-                        <div class="px-4 sm:px-6 py-4 sm:py-6 bg-white border-t border-gray-200">
-                            <!-- Share Section (ABOVE Price) -->
-                            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 sm:p-5 mb-6">
+                            <!-- Share Section in scrollable content -->
+                            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6">
                                 <div class="text-center mb-4">
                                     <h3 class="text-base font-bold text-gray-900 mb-1">Love this tool?</h3>
                                     <p class="text-xs text-gray-600">Share it with your friends!</p>
@@ -716,6 +699,23 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                             
+                            ${escapedDeliveryTime ? `
+                            <div class="mb-4 sm:mb-6">
+                                <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Delivery
+                                </h4>
+                                <p class="text-sm sm:text-base text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                    <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapedDeliveryTime}
+                                </p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- Footer with price and CTA only -->
+                        <div class="px-4 sm:px-6 py-4 sm:py-6 bg-white border-t border-gray-200">
                             <!-- Price and Cart Button -->
                             <div class="flex items-center justify-between gap-4">
                                 <div>
