@@ -32,9 +32,9 @@ This document outlines all changes required to make WebDaddy marketplace product
 - ✅ Set up error logging system
 
 ### 3.4 Logging
-- ✅ Set up access logs for API requests
-- ✅ Set up error logs for exceptions
-- ✅ Rotate logs weekly to prevent storage bloat
+- ✅ Set up access logs for API requests (access_log.php middleware)
+- ✅ Set up error logs for exceptions (logs/error.log)
+- ✅ Rotate logs weekly to prevent storage bloat (auto-rotate at 10MB)
 
 ---
 

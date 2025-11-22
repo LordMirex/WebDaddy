@@ -12,6 +12,9 @@ header('Cache-Control: public, max-age=300');
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/tools.php';
 require_once __DIR__ . '/../includes/cache.php';
+require_once __DIR__ . '/../includes/access_log.php';
+
+$startTime = microtime(true);
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
@@ -120,6 +123,13 @@ try {
     error_log("Tools API error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'error' => 'Server error'
+        'error' => 'An error occurred while processing your request. Please try again.'
     ]);
 }
+
+// Log API access
+$duration = (microtime(true) - $startTime) * 1000;
+$endpoint = $_GET['action'] ?? 'list';
+logApiAccess('/api/tools.php?action=' . $endpoint, 'GET', http_response_code(), $duration);
+rotateAccessLogs();
+?>
