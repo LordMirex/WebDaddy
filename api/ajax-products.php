@@ -25,7 +25,7 @@ if ($action === 'load_view') {
     }
     
     if ($view === 'templates') {
-        $perPage = 9;
+        $perPage = 18;
         $db = getDb();
         
         // Use SQL LIMIT instead of fetching all templates
