@@ -167,13 +167,13 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-100 hover:text-primary-600 transition-colors">
+                    <a href="/" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-100 hover:text-primary-400 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                         Back to Templates
                     </a>
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 hover:text-primary-600 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 hover:text-primary-400 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -181,7 +181,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-100 hover:text-primary-600 focus:outline-none">
+                    <button @click="open = !open" class="text-gray-100 hover:text-primary-400 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -450,7 +450,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                 </button>
                                 <?php if ($template['demo_url']): ?>
                                 <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-gray-800 hover:bg-primary-50 transition-all">
+                                        class="w-full inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-lg text-primary-600 bg-gray-800 hover:bg-gray-700 transition-all">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>

@@ -158,13 +158,13 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="/?view=tools" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-100 hover:text-primary-600 transition-colors">
+                    <a href="/?view=tools" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-100 hover:text-primary-400 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                         Back to Tools
                     </a>
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 hover:text-primary-600 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 hover:text-primary-400 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -172,7 +172,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-100 hover:text-primary-600 focus:outline-none">
+                    <button @click="open = !open" class="text-gray-100 hover:text-primary-400 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>

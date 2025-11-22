@@ -265,11 +265,11 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-100 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-100 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">Tools</a>
-                    <a href="#faq" class="text-gray-100 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">FAQ</a>
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">Tools</a>
+                    <a href="#faq" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">FAQ</a>
                     <!-- Cart Badge -->
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -280,7 +280,7 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-100 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none">
+                    <button @click="open = !open" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -634,7 +634,7 @@ if ($autoOpenTool) {
                     ?>
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -649,14 +649,14 @@ if ($autoOpenTool) {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-gray-800 text-gray-100 border-gray-600 hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-gray-800 text-gray-100 border-gray-600 hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -753,7 +753,7 @@ if ($autoOpenTool) {
                                 <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
                             </div>
                             <button data-tool-id="<?php echo $tool['id']; ?>" 
-                                    class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border-2 border-primary-600 text-xs font-semibold rounded-lg text-primary-600 bg-gray-800 hover:bg-primary-50 transition-all shadow-sm hover:shadow-md whitespace-nowrap">
+                                    class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border-2 border-primary-600 text-xs font-semibold rounded-lg text-primary-600 bg-gray-800 hover:bg-gray-700 transition-all shadow-sm hover:shadow-md whitespace-nowrap">
                                 <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -777,7 +777,7 @@ if ($autoOpenTool) {
                     ?>
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -791,14 +791,14 @@ if ($autoOpenTool) {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-gray-800 text-gray-100 border-gray-600 hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-gray-800 text-gray-100 border-gray-600 hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-primary-50 hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
