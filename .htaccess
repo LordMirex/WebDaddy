@@ -31,22 +31,39 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
 # ------------------------------------------------------------------
-# 5. Sitemap routing
+# 5. Robots.txt routing
+# ------------------------------------------------------------------
+RewriteRule ^robots\.txt$ robots.php [L]
+RewriteRule ^robots/?$ robots.php [L]
+
+# ------------------------------------------------------------------
+# 6. Sitemap routing
 # ------------------------------------------------------------------
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^sitemap/?$ sitemap.php [L]
 
 # ------------------------------------------------------------------
-# 6. Template slug routing → template.php?slug=name
-#     (only triggers if file/folder doesn't exist)
+# 7. Tool detail page routing: /tool/slug-name → tool.php?slug=slug-name
 # ------------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^tool/([a-z0-9\-_]+)/?$ tool.php?slug=$1 [QSA,L]
+
+# ------------------------------------------------------------------
+# 8. Template slug routing → template.php?slug=name
+#     (only triggers if file/folder doesn't exist)
+#     Excludes: admin, affiliate, assets, api, uploads, mailer, index, template, sitemap, tool, robots
+# ------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/(admin|affiliate|assets|api|uploads|mailer|index|template|sitemap|tool|robots) [NC]
 RewriteRule ^([a-zA-Z0-9_-]+)/?$ template.php?slug=$1 [QSA,L]
 
 # ------------------------------------------------------------------
-# 7. Everything else → index.php
+# 9. Everything else → index.php (root / and catch-all)
 # ------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 
 # ------------------------------------------------------------------
