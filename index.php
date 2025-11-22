@@ -411,23 +411,21 @@ if ($currentView === 'templates') {
             </div>
 
             <!-- View Toggle Tabs -->
-            <div class="flex justify-center mb-8 px-2">
-                <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm gap-1 sm:gap-0" role="group">
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm" role="group">
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="px-4 sm:px-8 py-2.5 text-sm sm:text-base font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
-                        <span class="hidden sm:inline">Templates</span>
-                        <span class="sm:hidden">Tmpl</span>
+                        Websites
                     </a>
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="px-3 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'tools' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
-                        <svg class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="px-4 sm:px-8 py-2.5 text-sm sm:text-base font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'tools' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
-                        <span class="hidden sm:inline">Working Tools</span>
-                        <span class="sm:hidden">Tools</span>
+                        Working Tools
                     </a>
                 </div>
             </div>
