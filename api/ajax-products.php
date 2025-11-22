@@ -103,7 +103,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
     <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="templates-category-filter" 
-                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #d1d5db; border-radius: 8px; appearance: none; background: white; color: #111827; font-weight: 500; cursor: pointer; font-size: 14px;">
+                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
                 <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
                     All Categories
                 </option>
@@ -124,18 +124,18 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
     <?php endif;
     
     if (empty($templates)): ?>
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 48px; text-align: center;">
+        <div style="background: #1f2937; border: 1px solid #374151; border-radius: 16px; padding: 48px; text-align: center;">
             <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h4 style="font-size: 20px; font-weight: bold; color: #111827; margin-bottom: 8px;">No templates available</h4>
-            <p style="color: #4b5563; margin: 0;">Please check back later or contact us on WhatsApp.</p>
+            <h4 style="font-size: 20px; font-weight: bold; color: #ffffff; margin-bottom: 8px;">No templates available</h4>
+            <p style="color: #d1d5db; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
             <?php foreach ($templates as $idx => $template): ?>
-            <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;">
-                <div style="position: relative; overflow: hidden; height: 192px; background: #f3f4f6;">
+            <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
                     <img <?php echo $idx < 3 ? 'loading="eager"' : 'loading="lazy"'; ?>
                          src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
@@ -171,7 +171,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                             data-video-url="<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>"
                             data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>"
                             style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; border: none; cursor: pointer; padding: 0;">
-                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: white; color: #111827; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: #1f2937; color: #ffffff; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                             <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -182,7 +182,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                     <?php else: ?>
                     <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
                             style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; border: none; cursor: pointer; padding: 0;">
-                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: white; color: #111827; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: #1f2937; color: #ffffff; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                             <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -195,12 +195,12 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                 </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 16px; font-weight: bold; color: #111827; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($template['name']); ?></h3>
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($template['name']); ?></h3>
                         <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dbeafe; color: #1e40af; white-space: nowrap;">
                             <?php echo htmlspecialchars($template['category']); ?>
                         </span>
                     </div>
-                    <p style="color: #4b5563; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e5e7eb;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
@@ -208,7 +208,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #d1d5db; font-size: 12px; font-weight: 500; border-radius: 6px; color: #374151; background: white; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #d1d5db; font-size: 12px; font-weight: 500; border-radius: 6px; color: #374151; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
                             <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '', this)" 
@@ -235,7 +235,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
     <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="tools-category-filter" 
-                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #d1d5db; border-radius: 8px; appearance: none; background: white; color: #111827; font-weight: 500; cursor: pointer; font-size: 14px;">
+                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
                 <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
                     All Categories
                 </option>
@@ -256,18 +256,18 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
     <?php endif;
     
     if (empty($tools)): ?>
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 48px; text-align: center;">
+        <div style="background: #1f2937; border: 1px solid #374151; border-radius: 16px; padding: 48px; text-align: center;">
             <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h4 style="font-size: 20px; font-weight: bold; color: #111827; margin-bottom: 8px;">No tools available</h4>
-            <p style="color: #4b5563; margin: 0;">Please check back later or contact us on WhatsApp.</p>
+            <h4 style="font-size: 20px; font-weight: bold; color: #ffffff; margin-bottom: 8px;">No tools available</h4>
+            <p style="color: #d1d5db; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px;">
             <?php foreach ($tools as $idx => $tool): ?>
-            <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;" data-tool-id="<?php echo $tool['id']; ?>">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #f3f4f6;">
+            <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="<?php echo $tool['id']; ?>">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img <?php echo $idx < 3 ? 'loading="eager"' : 'loading="lazy"'; ?>
                          src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
@@ -296,7 +296,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                 </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #111827; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($tool['name']); ?></h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($tool['name']); ?></h3>
                         <?php if (!empty($tool['category'])): ?>
                         <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; white-space: nowrap;">
                             <?php echo htmlspecialchars($tool['category']); ?>
@@ -304,7 +304,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                         <?php endif; ?>
                     </div>
                     <?php if (!empty($tool['short_description'])): ?>
-                    <p style="color: #4b5563; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
                     <?php endif; ?>
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e5e7eb;">
                         <div style="display: flex; flex-direction: column;">
@@ -313,7 +313,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                         </div>
                         <button data-tool-id="<?php echo $tool['id']; ?>" 
                                 class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: white; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -337,7 +337,7 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
         <nav style="display: flex; align-items: center; gap: 8px;">
             <?php if ($page > 1): ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo ($page - 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: #1f2937; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
                 <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -352,14 +352,14 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
             for ($i = $start; $i <= $end; $i++):
             ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo $i; ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: white; color: #374151;'; ?>">
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: #1f2937; color: #374151;'; ?>">
                 <?php echo $i; ?>
             </a>
             <?php endfor; ?>
             
             <?php if ($page < $totalPages): ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo ($page + 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: #1f2937; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
                 Next
                 <svg style="width: 16px; height: 16px; margin-left: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -369,7 +369,7 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
         </nav>
     </div>
     <div style="margin-top: 16px; text-align: center;">
-        <p style="font-size: 14px; color: #4b5563; margin: 0;">
+        <p style="font-size: 14px; color: #d1d5db; margin: 0;">
             Page <?php echo $page; ?> of <?php echo $totalPages; ?>
         </p>
     </div>
