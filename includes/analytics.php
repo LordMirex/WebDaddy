@@ -258,6 +258,7 @@ function trackAffiliateClick($affiliateCode) {
 function trackToolView($toolId) {
     $sessionId = ensureAnalyticsSession();
     if (!$sessionId) {
+        error_log('Tool view tracking failed: No session ID');
         return false;
     }
     
@@ -267,12 +268,13 @@ function trackToolView($toolId) {
             INSERT INTO page_interactions (session_id, page_url, action_type, action_target, tool_id)
             VALUES (?, ?, 'view', 'tool', ?)
         ");
-        $stmt->execute([
+        $result = $stmt->execute([
             $sessionId,
             $_SERVER['REQUEST_URI'] ?? '',
-            $toolId
+            (int)$toolId
         ]);
-        return true;
+        error_log("Tool view tracked: tool_id=$toolId, session=$sessionId, result=$result");
+        return $result;
     } catch (PDOException $e) {
         error_log('Tool view tracking error: ' . $e->getMessage());
         return false;
