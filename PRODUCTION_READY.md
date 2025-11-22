@@ -5,6 +5,14 @@ This document outlines all changes required to make WebDaddy marketplace product
 
 ---
 
+## 2. PERFORMANCE OPTIMIZATION
+
+### 2.1 API Response Optimization
+- ✅ Limit API response sizes (max 25 items per page, limited fields)
+- ✅ Cache product data to reduce DB queries (1-hour TTL file cache)
+
+---
+
 ## 3. DEPLOYMENT & HOSTING
 
 ### 3.1 Environment Configuration
