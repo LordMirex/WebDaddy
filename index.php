@@ -375,18 +375,9 @@ if ($currentView === 'templates') {
                 <p class="text-xl text-gray-600 mb-2">
                     <?php echo $currentView === 'tools' ? 'Get powerful digital tools to grow your business' : 'Pick a professionally designed website and get started instantly'; ?>
                 </p>
-                <div class="flex justify-center gap-6 text-sm text-gray-500">
-                    <?php if ($currentView === 'templates'): ?>
-                        <span class="font-semibold"><span class="text-primary-600"><?php echo $totalTemplates; ?></span> Templates Available</span>
-                        <?php if (!empty($templateCategories)): ?>
-                        <span class="font-semibold"><span class="text-primary-600"><?php echo count($templateCategories); ?></span> Categories</span>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <span class="font-semibold"><span class="text-primary-600"><?php echo $totalTools; ?></span> Tools Available</span>
-                        <?php if (!empty($toolCategories)): ?>
-                        <span class="font-semibold"><span class="text-primary-600"><?php echo count($toolCategories); ?></span> Categories</span>
-                        <?php endif; ?>
-                    <?php endif; ?>
+                <div class="flex justify-center gap-8 text-sm text-gray-500">
+                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTemplates; ?></span> Active Templates</span>
+                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTools; ?></span> Active Tools</span>
                 </div>
             </div>
 
