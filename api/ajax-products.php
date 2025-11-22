@@ -131,10 +131,11 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
         </div>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
-            <?php foreach ($templates as $template): ?>
+            <?php foreach ($templates as $idx => $template): ?>
             <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #f3f4f6;">
-                    <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                    <img <?php echo $idx < 3 ? 'loading="eager"' : 'loading="lazy"'; ?>
+                         src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
@@ -262,10 +263,11 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
         </div>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px;">
-            <?php foreach ($tools as $tool): ?>
+            <?php foreach ($tools as $idx => $tool): ?>
             <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;" data-tool-id="<?php echo $tool['id']; ?>">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #f3f4f6;">
-                    <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                    <img <?php echo $idx < 3 ? 'loading="eager"' : 'loading="lazy"'; ?>
+                         src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
