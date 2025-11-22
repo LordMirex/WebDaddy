@@ -38,3 +38,9 @@
 [22-Nov-2025 00:09:14 Africa/Lagos] Upload API: Session ID: 3df57ad1d9a741b767624e4737442e32, Admin status: yes
 [22-Nov-2025 00:10:27 Africa/Lagos] Upload API: Request received - Type: image, Category: tools
 [22-Nov-2025 00:10:27 Africa/Lagos] Upload API: Session ID: 3df57ad1d9a741b767624e4737442e32, Admin status: yes
+[22-Nov-2025 00:13:17 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 00:13:36 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 00:13:40 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 00:17:25 Africa/Lagos] Upload API: Request received - Type: video, Category: tools
+[22-Nov-2025 00:17:25 Africa/Lagos] Upload API: Session ID: 3df57ad1d9a741b767624e4737442e32, Admin status: yes
+[22-Nov-2025 00:17:25 Africa/Lagos] Upload API: Video uploaded successfully without processing: video_1763767045_d0d09bf6_e0f1851126ac378d7db85daf2009801f.mp4
