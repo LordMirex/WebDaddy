@@ -327,7 +327,7 @@ if ($autoOpenTool) {
                         <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
-                        <span class="text-xs sm:text-sm font-semibold">24hr Setup</span>
+                        <span class="text-xs sm:text-sm font-semibold">Fast Setup</span>
                     </div>
                     <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
                         <svg class="w-5 h-5 text-primary-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
