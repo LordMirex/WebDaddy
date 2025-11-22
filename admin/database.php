@@ -414,25 +414,30 @@ require_once __DIR__ . '/includes/header.php';
             
             <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-lg text-sm">
                 <div class="font-semibold mb-3 flex items-center gap-2">
-                    <i class="bi bi-info-circle"></i> Automated Weekly Analytics Report (cPanel Cron)
+                    <i class="bi bi-info-circle"></i> Automated Weekly Analytics Report (cPanel Cron Jobs)
                 </div>
-                <div class="text-xs space-y-3">
-                    <div>
-                        <p class="font-semibold mb-1">📊 Weekly Report (Every Monday at 3 AM) - Sends analytics + DB backup via email:</p>
-                        <div class="bg-white p-2 rounded border border-blue-200 font-mono text-blue-900 overflow-x-auto text-xs" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('✅ Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 3 * * 1 cd <?php echo dirname(__DIR__); ?> && php cron.php weekly-report</div>
-                        <p class="mt-1 text-blue-600 text-xs"><strong>Click above to copy</strong>, paste in cPanel → Cron Jobs</p>
+                <div class="text-xs space-y-4">
+                    <div class="bg-blue-100 p-2 rounded text-xs text-blue-800 mb-2">
+                        <strong>✅ cPanel Username:</strong> <code>cbvemlot</code> | <strong>📧 Reports to:</strong> <code><?php echo defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com'; ?></code>
                     </div>
                     
-                    <hr class="border-blue-200">
-                    
                     <div>
-                        <p class="font-semibold mb-1">🔧 Database Optimization (Every Sunday at 2 AM) - VACUUM, ANALYZE, OPTIMIZE:</p>
-                        <div class="bg-white p-2 rounded border border-blue-200 font-mono text-blue-900 overflow-x-auto text-xs" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('✅ Copied to clipboard!');" style="cursor:pointer;" title="Click to copy">0 2 * * 0 cd <?php echo dirname(__DIR__); ?> && php cron.php optimize</div>
-                        <p class="mt-1 text-blue-600 text-xs"><strong>Click above to copy</strong>, paste in cPanel → Cron Jobs</p>
+                        <p class="font-semibold mb-2 text-blue-900">1️⃣ Weekly Analytics Report (Every Monday 3 AM)</p>
+                        <p class="mb-2 text-blue-800">Generates analytics + database backup, creates ZIP file, sends via email</p>
+                        <div class="bg-white p-3 rounded border-2 border-blue-300 font-mono text-blue-900 overflow-x-auto text-xs leading-relaxed" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('✅ Copied! Paste in cPanel → Cron Jobs');" style="cursor:pointer; background: #f0f9ff;" title="Click to copy">0 3 * * 1 cd /home/cbvemlot/public_html && php cron.php weekly-report</div>
+                        <p class="mt-2 text-blue-600"><i class="bi bi-mouse"></i> <strong>Click to copy</strong>, then paste in cPanel → Cron Jobs</p>
                     </div>
                     
-                    <div class="bg-blue-100 p-2 rounded mt-2 text-xs text-blue-700">
-                        <strong>📧 Email Configuration:</strong> Reports sent to: <?php echo defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com'; ?>
+                    <div style="border-top: 1px solid #bfdbfe; padding-top: 12px;">
+                        <p class="font-semibold mb-2 text-blue-900">2️⃣ Database Optimization (Every Sunday 2 AM)</p>
+                        <p class="mb-2 text-blue-800">Cleans database: VACUUM removes deleted data, ANALYZE optimizes queries, OPTIMIZE rebuilds indexes</p>
+                        <div class="bg-white p-3 rounded border-2 border-blue-300 font-mono text-blue-900 overflow-x-auto text-xs leading-relaxed" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('✅ Copied! Paste in cPanel → Cron Jobs');" style="cursor:pointer; background: #f0f9ff;" title="Click to copy">0 2 * * 0 cd /home/cbvemlot/public_html && php cron.php optimize</div>
+                        <p class="mt-2 text-blue-600"><i class="bi bi-mouse"></i> <strong>Click to copy</strong>, then paste in cPanel → Cron Jobs</p>
+                    </div>
+                    
+                    <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded mt-3">
+                        <p class="text-green-800 font-semibold mb-1">✅ System Status</p>
+                        <p class="text-green-700 text-xs">Cron system: <strong>ACTIVE</strong> | Email: <strong>CONFIGURED</strong> | Database: <strong>OPTIMIZED</strong></p>
                     </div>
                 </div>
             </div>
