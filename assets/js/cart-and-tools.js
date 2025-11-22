@@ -601,28 +601,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Track tool view from preview modal
     function trackToolViewFromPreview(toolId) {
-        // Get session ID from cookie
-        const cookies = document.cookie.split(';');
-        let sessionId = null;
-        for (let cookie of cookies) {
-            if (cookie.trim().startsWith('PHPSESSID=')) {
-                sessionId = cookie.trim().substring(10);
-                break;
-            }
-        }
+        if (!toolId) return;
         
-        if (sessionId && toolId) {
-            fetch('/api/track-view.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    tool_id: toolId,
-                    source: 'preview_modal'
-                })
-            }).catch(err => console.error('Error tracking tool view:', err));
-        }
+        console.log('Tracking tool view:', toolId);
+        fetch('/api/track-view.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                tool_id: toolId,
+                source: 'preview_modal'
+            })
+        })
+        .then(res => {
+            console.log('Track response:', res.status);
+            return res.json();
+        })
+        .then(data => console.log('Tracked:', data))
+        .catch(err => console.error('Error tracking tool view:', err));
     }
     
     function showToolModal(tool) {
