@@ -803,9 +803,9 @@ if ($currentView === 'templates') {
         </div>
         
         <div class="carousel-wrapper mx-auto px-4" style="max-width: 1200px;">
-            <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 20px 0;">
+            <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 20px 0;">
                 <!-- Testimonial 1 -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px; scroll-snap-align: start;">
+                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -823,7 +823,7 @@ if ($currentView === 'templates') {
                 </div>
                 
                 <!-- Testimonial 2 -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px; scroll-snap-align: start;">
+                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -841,7 +841,7 @@ if ($currentView === 'templates') {
                 </div>
                 
                 <!-- Testimonial 3 -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px; scroll-snap-align: start;">
+                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -857,33 +857,14 @@ if ($currentView === 'templates') {
                         </div>
                     </div>
                 </div>
-
-                <!-- Infinite Loop - Duplicate First Testimonial -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px; scroll-snap-align: start;">
-                    <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
-                        <div class="flex gap-1 mb-4">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        </div>
-                        <p class="text-gray-700 mb-6 flex-grow">"Amazing service! My restaurant website was live in 24 hours. The template looks professional and my customers love it."</p>
-                        <div>
-                            <div class="font-semibold text-gray-900">Adebayo Johnson</div>
-                            <div class="text-sm text-gray-600">Bella's Kitchen, Lagos</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
         <style>
-            #testimonialCarousel { scroll-behavior: smooth; transition: scroll-left 0.3s ease-out; }
-            .carousel-item { transition: opacity 0.3s ease-out; }
+            #testimonialCarousel { scroll-behavior: smooth; }
+            .carousel-item { flex-shrink: 0; }
             
             @media (max-width: 768px) {
-                #testimonialCarousel { scroll-snap-type: x mandatory; }
                 .carousel-item { flex: 0 0 calc(100% - 16px) !important; }
             }
             @media (min-width: 769px) and (max-width: 1024px) {
@@ -898,78 +879,68 @@ if ($currentView === 'templates') {
             (function() {
                 const carousel = document.getElementById('testimonialCarousel');
                 const items = carousel.querySelectorAll('.carousel-item');
-                let currentSlide = 0;
                 let isDown = false, startX = 0, scrollLeft = 0;
-                let slideInterval;
-                let isUserInteracting = false;
+                let autoScrollId;
                 
-                function getSlideWidth() {
+                function getItemWidth() {
                     return items[0].offsetWidth + 24; // width + gap
                 }
                 
-                function scrollToSlide(slideIndex, smooth = true) {
-                    const targetScroll = slideIndex * getSlideWidth();
-                    if (smooth) {
-                        carousel.scrollTo({
-                            left: targetScroll,
-                            behavior: 'smooth'
-                        });
-                    } else {
-                        carousel.scrollLeft = targetScroll;
-                    }
-                    currentSlide = slideIndex;
+                function startAutoScroll() {
+                    clearInterval(autoScrollId);
+                    
+                    let speed = 1.5; // pixels per frame - smooth speed
+                    autoScrollId = setInterval(() => {
+                        carousel.scrollLeft += speed;
+                        
+                        // Loop back to start smoothly when reaching end
+                        if (carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth - 10) {
+                            carousel.scrollLeft = 0;
+                        }
+                    }, 30); // Update every 30ms for smooth animation
                 }
                 
-                // Touch/Mouse drag support
-                carousel.addEventListener('mousedown', (e) => { 
-                    isDown = true; 
-                    startX = e.pageX - carousel.offsetLeft; 
-                    scrollLeft = carousel.scrollLeft; 
-                    isUserInteracting = true;
-                    clearInterval(slideInterval);
+                // Start auto-scroll immediately
+                startAutoScroll();
+                
+                // Pause on mouse down (drag)
+                carousel.addEventListener('mousedown', (e) => {
+                    isDown = true;
+                    startX = e.pageX - carousel.offsetLeft;
+                    scrollLeft = carousel.scrollLeft;
+                    clearInterval(autoScrollId);
                 });
                 
                 carousel.addEventListener('mouseleave', () => { isDown = false; });
-                carousel.addEventListener('mouseup', () => { isDown = false; });
+                carousel.addEventListener('mouseup', () => { 
+                    isDown = false;
+                    startAutoScroll(); // Resume after drag
+                });
                 
-                carousel.addEventListener('mousemove', (e) => { 
-                    if (!isDown) return; 
-                    e.preventDefault(); 
-                    const x = e.pageX - carousel.offsetLeft; 
-                    const walk = (x - startX) * 0.8; 
+                carousel.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - carousel.offsetLeft;
+                    const walk = (x - startX);
                     carousel.scrollLeft = scrollLeft - walk;
                 });
                 
-                carousel.addEventListener('touchstart', (e) => { 
-                    startX = e.touches[0].pageX - carousel.offsetLeft; 
+                // Touch support
+                carousel.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].pageX - carousel.offsetLeft;
                     scrollLeft = carousel.scrollLeft;
-                    isUserInteracting = true;
-                    clearInterval(slideInterval);
-                });
+                    clearInterval(autoScrollId);
+                }, false);
                 
-                carousel.addEventListener('touchmove', (e) => { 
-                    const x = e.touches[0].pageX - carousel.offsetLeft; 
-                    const walk = (x - startX) * 0.8; 
+                carousel.addEventListener('touchmove', (e) => {
+                    const x = e.touches[0].pageX - carousel.offsetLeft;
+                    const walk = (x - startX);
                     carousel.scrollLeft = scrollLeft - walk;
-                });
+                }, false);
                 
-                // Auto-slide to next testimonial every 6 seconds
-                function startAutoSlide() {
-                    clearInterval(slideInterval);
-                    slideInterval = setInterval(() => {
-                        currentSlide = (currentSlide + 1) % items.length;
-                        scrollToSlide(currentSlide, true);
-                    }, 6000); // 6 seconds per slide
-                }
-                
-                // Start auto-slide on load
-                setTimeout(startAutoSlide, 6000);
-                
-                // Resume after user stops interacting
-                carousel.addEventListener('scroll', () => {
-                    clearInterval(slideInterval);
-                    setTimeout(startAutoSlide, 3000);
-                }, { passive: true });
+                carousel.addEventListener('touchend', () => {
+                    startAutoScroll(); // Resume after touch
+                }, false);
             })();
         </script>
     </section>
