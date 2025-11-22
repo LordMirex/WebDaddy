@@ -267,7 +267,7 @@ if ($autoOpenTool) {
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="/" class="flex items-center">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-14 mr-3" onerror="this.style.display='none'">
+                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-14 mr-3" loading="eager" decoding="async" onerror="this.style.display='none'">
                         <span class="text-xl font-bold text-primary-900 dark:text-white"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
@@ -1029,7 +1029,7 @@ if ($autoOpenTool) {
                 <!-- Company Info -->
                 <div>
                     <div class="flex items-center mb-4">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-10 mr-3" onerror="this.style.display='none'">
+                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-10 mr-3" loading="eager" decoding="async" onerror="this.style.display='none'">
                         <span class="text-2xl font-bold"><?php echo SITE_NAME; ?></span>
                     </div>
                     <p class="text-gray-300 text-base mb-6 leading-relaxed">Professional website templates and digital working tools to power your business. Get custom domains, API keys, software licenses, and more. Launch in 24 hours or less.</p>
