@@ -21,8 +21,8 @@ if ($path !== '/' && file_exists(__DIR__ . $path)) {
 
 // Block access to sensitive directories
 if (preg_match('#^/(includes|database|uploads/private)/#', $path)) {
-    http_response_code(403);
-    echo '403 Forbidden';
+    $_SERVER['SCRIPT_NAME'] = '/403.php';
+    require __DIR__ . '/403.php';
     exit;
 }
 
@@ -68,10 +68,14 @@ if (preg_match('#^/([a-z0-9\-_]+)/?$#i', $path, $matches)) {
     }
 }
 
-// Fallback to index.php for root and unmatched routes
-if ($path === '/' || !file_exists(__DIR__ . $path)) {
+// Fallback: 404 for unmatched routes, index for root
+if ($path === '/') {
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     require __DIR__ . '/index.php';
+    exit;
+} elseif (!file_exists(__DIR__ . $path)) {
+    $_SERVER['SCRIPT_NAME'] = '/404.php';
+    require __DIR__ . '/404.php';
     exit;
 }
 
