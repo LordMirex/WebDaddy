@@ -67,7 +67,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     
     <!-- Open Graph Tags (Social Sharing) -->
     <?php
-    $ogImage = !empty($template['thumbnail_url']) ? $template['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png';
+    // Use banner image for social preview (larger, more impactful), fallback to thumbnail
+    $ogImage = !empty($template['banner_url']) ? $template['banner_url'] : (!empty($template['thumbnail_url']) ? $template['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png');
     ?>
     <meta property="og:url" content="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     <meta property="og:type" content="product">

@@ -63,7 +63,8 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <meta property="og:title" content="<?php echo htmlspecialchars($tool['name']); ?> - <?php echo SITE_NAME; ?>">
     <meta property="og:description" content="<?php echo htmlspecialchars($tool['short_description'] ?? $tool['description']); ?>">
     <?php
-    $ogImage = !empty($tool['thumbnail_url']) ? $tool['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png';
+    // Use banner image for social preview (larger, more impactful), fallback to thumbnail
+    $ogImage = !empty($tool['banner_url']) ? $tool['banner_url'] : (!empty($tool['thumbnail_url']) ? $tool['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png');
     ?>
     <meta property="og:image" content="<?php echo htmlspecialchars($ogImage); ?>">
     <meta property="og:image:width" content="1200">
