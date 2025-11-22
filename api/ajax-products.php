@@ -86,10 +86,10 @@ if ($action === 'load_view') {
 function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $currentCategory, $affiliateCode) {
     // Category filter for templates
     if (!empty($templateCategories)): ?>
-    <div class="mb-6 max-w-4xl mx-auto">
-        <div class="relative">
+    <div style="margin-bottom: 24px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+        <div style="position: relative;">
             <select id="templates-category-filter" 
-                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
+                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #d1d5db; border-radius: 8px; appearance: none; background: white; color: #111827; font-weight: 500; cursor: pointer; font-size: 14px;">
                 <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
                     All Categories
                 </option>
@@ -99,10 +99,10 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                 </option>
                 <?php endforeach; ?>
             </select>
-            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
-            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style="width: 20px; height: 20px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
         </div>
@@ -110,12 +110,12 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
     <?php endif;
     
     if (empty($templates)): ?>
-        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
-            <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 48px; text-align: center;">
+            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h4 class="text-xl font-bold text-gray-900 mb-2">No templates available</h4>
-            <p class="text-gray-600 mb-0">Please check back later or contact us on WhatsApp.</p>
+            <h4 style="font-size: 20px; font-weight: bold; color: #111827; margin-bottom: 8px;">No templates available</h4>
+            <p style="color: #4b5563; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
@@ -135,8 +135,8 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                     ?>
                     <?php if ($isVideo): ?>
                     <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
-                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; z-index: 10; transition: background 0.2s;">
+                        <svg style="width: 16px; height: 16px; display: inline; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -144,7 +144,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                     </button>
                     <?php else: ?>
                     <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                            style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; z-index: 10; transition: background 0.2s;">
                         Preview
                     </button>
                     <?php endif; ?>
@@ -153,9 +153,9 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                             data-video-trigger
                             data-video-url="<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>"
                             data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>"
-                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; border: none; cursor: pointer; padding: 0;">
+                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: white; color: #111827; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -164,9 +164,9 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                     </button>
                     <?php else: ?>
                     <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
-                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span class="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; border: none; cursor: pointer; padding: 0;">
+                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: white; color: #111827; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
@@ -191,12 +191,12 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                               class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #d1d5db; font-size: 12px; font-weight: 500; border-radius: 6px; color: #374151; background: white; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
                             <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '', this)" 
-                               class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
                                 Add to Cart
@@ -215,10 +215,10 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
 function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $currentCategory, $affiliateCode) {
     // Category filter for tools
     if (!empty($toolCategories)): ?>
-    <div class="mb-6 max-w-4xl mx-auto">
-        <div class="relative">
+    <div style="margin-bottom: 24px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+        <div style="position: relative;">
             <select id="tools-category-filter" 
-                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
+                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #d1d5db; border-radius: 8px; appearance: none; background: white; color: #111827; font-weight: 500; cursor: pointer; font-size: 14px;">
                 <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
                     All Categories
                 </option>
@@ -228,10 +228,10 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                 </option>
                 <?php endforeach; ?>
             </select>
-            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
-            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style="width: 20px; height: 20px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
         </div>
@@ -239,62 +239,62 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
     <?php endif;
     
     if (empty($tools)): ?>
-        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-12 text-center">
-            <svg class="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 48px; text-align: center;">
+            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h4 class="text-xl font-bold text-gray-900 mb-2">No tools available</h4>
-            <p class="text-gray-600 mb-0">Please check back later or contact us on WhatsApp.</p>
+            <h4 style="font-size: 20px; font-weight: bold; color: #111827; margin-bottom: 8px;">No tools available</h4>
+            <p style="color: #4b5563; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px;">
             <?php foreach ($tools as $tool): ?>
-            <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
-                 data-tool-id="<?php echo $tool['id']; ?>">
-                <div class="relative overflow-hidden h-40 bg-gray-100">
+            <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;" data-tool-id="<?php echo $tool['id']; ?>">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #f3f4f6;">
                     <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
-                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'">
                     <?php if (!empty($tool['demo_video_url'])): ?>
                     <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
-                            class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
-                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                        <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
                         Watch Video
                     </button>
                     <?php endif; ?>
                     <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
-                    <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
+                    <div style="position: absolute; top: 8px; right: 8px; padding: 4px 8px; background: #eab308; color: white; font-size: 12px; font-weight: bold; border-radius: 4px;">
                         Limited Stock
                     </div>
                     <?php elseif ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= 0): ?>
-                    <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
+                    <div style="position: absolute; top: 8px; right: 8px; padding: 4px 8px; background: #ef4444; color: white; font-size: 12px; font-weight: bold; border-radius: 4px;">
                         Out of Stock
                     </div>
                     <?php endif; ?>
                 </div>
-                <div class="p-4">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-sm font-bold text-gray-900 flex-1 pr-2"><?php echo htmlspecialchars($tool['name']); ?></h3>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #111827; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($tool['name']); ?></h3>
                         <?php if (!empty($tool['category'])): ?>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; white-space: nowrap;">
                             <?php echo htmlspecialchars($tool['category']); ?>
                         </span>
                         <?php endif; ?>
                     </div>
                     <?php if (!empty($tool['short_description'])): ?>
-                    <p class="text-gray-600 text-xs mb-3 line-clamp-2"><?php echo htmlspecialchars($tool['short_description']); ?></p>
+                    <p style="color: #4b5563; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
                     <?php endif; ?>
-                    <div class="flex items-center justify-between pt-3 border-t border-gray-200">
-                        <div class="flex flex-col">
-                            <span class="text-xs text-gray-500 uppercase tracking-wide">Price</span>
-                            <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                         <button data-tool-id="<?php echo $tool['id']; ?>" 
-                                class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border-2 border-primary-600 text-xs font-semibold rounded-lg text-primary-600 bg-white hover:bg-primary-50 transition-all shadow-sm hover:shadow-md whitespace-nowrap">
-                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: white; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
@@ -313,12 +313,12 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
 function renderPagination($totalPages, $page, $view, $category, $affiliateCode) {
     if ($totalPages <= 1) return;
     ?>
-    <div class="mt-12 flex justify-center">
-        <nav class="flex items-center gap-2">
+    <div style="margin-top: 48px; display: flex; justify-content: center;">
+        <nav style="display: flex; align-items: center; gap: 8px;">
             <?php if ($page > 1): ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo ($page - 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
                 Previous
@@ -332,24 +332,24 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
             for ($i = $start; $i <= $end; $i++):
             ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo $i; ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               class="<?php echo $i === $page ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300 rounded-lg transition-colors">
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: white; color: #374151;'; ?>">
                 <?php echo $i; ?>
             </a>
             <?php endfor; ?>
             
             <?php if ($page < $totalPages): ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo ($page + 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: white; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
                 Next
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style="width: 16px; height: 16px; margin-left: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
             </a>
             <?php endif; ?>
         </nav>
     </div>
-    <div class="mt-4 text-center">
-        <p class="text-sm text-gray-600">
+    <div style="margin-top: 16px; text-align: center;">
+        <p style="font-size: 14px; color: #4b5563; margin: 0;">
             Page <?php echo $page; ?> of <?php echo $totalPages; ?>
         </p>
     </div>
