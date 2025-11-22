@@ -1,7 +1,7 @@
 <?php
 /**
  * Weekly Report Generator for WebDaddy Empire
- * Generates analytics reports and sends via email
+ * Generates analytics reports and sends via email with database backup attachment
  */
 
 class ReportGenerator {
@@ -20,14 +20,14 @@ class ReportGenerator {
             $profitTotal = $db->query("SELECT COALESCE(SUM(COALESCE(final_amount, amount_paid)), 0) as total FROM sales")->fetch(PDO::FETCH_ASSOC);
             $report['profit_all_time'] = floatval($profitTotal['total'] ?? 0);
             
-            // Template Views - WHERE template_id IS NOT NULL
+            // Template Views
             $templateViews = $db->query("SELECT COUNT(*) as views FROM page_interactions WHERE template_id IS NOT NULL AND action_type = 'view' AND created_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
             $report['template_views_week'] = intval($templateViews['views'] ?? 0);
             
             $templateViewsTotal = $db->query("SELECT COUNT(*) as views FROM page_interactions WHERE template_id IS NOT NULL AND action_type = 'view'")->fetch(PDO::FETCH_ASSOC);
             $report['template_views_total'] = intval($templateViewsTotal['views'] ?? 0);
             
-            // Tool Views - WHERE tool_id IS NOT NULL
+            // Tool Views
             $toolViews = $db->query("SELECT COUNT(*) as views FROM page_interactions WHERE tool_id IS NOT NULL AND action_type = 'view' AND created_at >= date('now', '-7 days')")->fetch(PDO::FETCH_ASSOC);
             $report['tool_views_week'] = intval($toolViews['views'] ?? 0);
             
@@ -41,7 +41,7 @@ class ReportGenerator {
             $ordersTotal = $db->query("SELECT COUNT(*) as count FROM sales")->fetch(PDO::FETCH_ASSOC);
             $report['orders_total'] = intval($ordersTotal['count'] ?? 0);
             
-            // Top Products - Tools sold this week
+            // Top Products
             $topProducts = $db->query("
                 SELECT t.name, COUNT(*) as sales 
                 FROM order_items oi 
@@ -64,39 +64,7 @@ class ReportGenerator {
         }
     }
     
-    public static function createReportZip($report, $dbPath) {
-        $tmpDir = sys_get_temp_dir() . '/webdaddy_report_' . time();
-        @mkdir($tmpDir, 0755, true);
-        
-        // Create report HTML
-        $html = self::generateReportHTML($report);
-        file_put_contents($tmpDir . '/weekly_report.html', $html);
-        
-        // Copy database backup
-        $backupName = 'webdaddy_backup_' . date('Y-m-d_H-i-s') . '.db';
-        @copy($dbPath, $tmpDir . '/' . $backupName);
-        
-        // Create ZIP file
-        $zipPath = $tmpDir . '.zip';
-        $zip = new ZipArchive();
-        if ($zip->open($zipPath, ZipArchive::CREATE)) {
-            $zip->addFile($tmpDir . '/weekly_report.html', 'weekly_report.html');
-            if (file_exists($tmpDir . '/' . $backupName)) {
-                $zip->addFile($tmpDir . '/' . $backupName, $backupName);
-            }
-            $zip->close();
-        }
-        
-        // Cleanup
-        foreach (glob($tmpDir . '/*') as $file) {
-            @unlink($file);
-        }
-        @rmdir($tmpDir);
-        
-        return file_exists($zipPath) ? $zipPath : false;
-    }
-    
-    private static function generateReportHTML($report) {
+    public static function generateReportHTML($report) {
         $profit = number_format($report['profit_this_week'] ?? 0, 2);
         $profitTotal = number_format($report['profit_all_time'] ?? 0, 2);
         $templateViews = $report['template_views_week'] ?? 0;
@@ -111,110 +79,144 @@ class ReportGenerator {
             foreach ($topProducts as $product) {
                 $name = htmlspecialchars($product['name'] ?? 'Unknown');
                 $sales = intval($product['sales'] ?? 0);
-                $topProductsHTML .= "<tr><td style='padding:8px;'>{$name}</td><td style='padding:8px;'>{$sales} sales</td></tr>";
+                $topProductsHTML .= "<tr><td style='padding:12px; border-bottom:1px solid #e5e7eb;'>{$name}</td><td style='padding:12px; border-bottom:1px solid #e5e7eb; text-align:center; font-weight:bold; color:#2563eb;'>{$sales}</td></tr>";
             }
         } else {
-            $topProductsHTML = "<tr><td colspan='2' style='padding:8px; text-align:center; color:#999;'>No sales this week</td></tr>";
+            $topProductsHTML = "<tr><td colspan='2' style='padding:20px; text-align:center; color:#999;'>No sales this week</td></tr>";
         }
         
         return <<<HTML
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Report</title>
     <style>
-        body { font-family: Arial, sans-serif; color: #333; margin: 20px; background: #f9fafb; }
-        .container { max-width: 700px; margin: 0 auto; }
-        .header { background: #2563eb; color: white; padding: 25px; border-radius: 8px; margin-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 28px; }
-        .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
-        .section { background: white; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
-        .section h2 { margin: 0 0 15px 0; font-size: 18px; color: #1e3a8a; }
-        .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .metric { background: #f3f4f6; padding: 15px; border-left: 4px solid #2563eb; border-radius: 4px; }
-        .metric-value { font-size: 28px; font-weight: bold; color: #2563eb; }
-        .metric-label { font-size: 12px; color: #666; margin-top: 5px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #2563eb; color: white; padding: 10px; text-align: left; }
-        td { border-bottom: 1px solid #e5e7eb; padding: 10px; }
-        .footer { text-align: center; font-size: 12px; color: #999; margin-top: 30px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; color: #1f2937; line-height: 1.6; }
+        .container { max-width: 650px; margin: 0 auto; background: white; }
+        .header { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 40px 30px; text-align: center; border-bottom: 5px solid #1e40af; }
+        .header h1 { font-size: 32px; margin-bottom: 8px; font-weight: 700; }
+        .header p { font-size: 14px; opacity: 0.95; margin: 4px 0; }
+        .content { padding: 30px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 18px; font-weight: 700; color: #1e3a8a; margin-bottom: 18px; display: flex; align-items: center; }
+        .section-title i { margin-right: 8px; font-size: 20px; }
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .metric-card { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 18px; border-radius: 8px; border-left: 4px solid #2563eb; }
+        .metric-label { font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .metric-value { font-size: 28px; font-weight: 700; color: #2563eb; }
+        .metric-sub { font-size: 11px; color: #999; margin-top: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        thead { background: #2563eb; }
+        th { color: white; padding: 12px; text-align: left; font-weight: 600; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+        tr:last-child td { border-bottom: none; }
+        .highlight-section { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #22c55e; margin: 20px 0; }
+        .highlight-section p { font-size: 14px; color: #166534; margin: 8px 0; }
+        .highlight-section strong { font-weight: 700; }
+        .footer { background: #f8fafc; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #999; }
+        .info-box { background: #f3f4f6; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #0ea5e9; }
+        .info-box-title { font-weight: 700; color: #0369a1; margin-bottom: 8px; font-size: 13px; }
+        .info-box-text { font-size: 12px; color: #374151; }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- HEADER -->
         <div class="header">
             <h1>📊 WebDaddy Empire</h1>
             <p>Weekly Analytics Report</p>
-            <p>{$report['period']}</p>
-            <p style="margin-top: 10px; font-size: 12px;">Generated: {$report['generated_at']}</p>
+            <p style="margin-top: 12px; font-size: 13px; opacity: 0.9;">{$report['period']}</p>
+            <p style="margin-top: 8px; font-size: 11px; opacity: 0.85;">Generated: {$report['generated_at']}</p>
         </div>
-        
-        <div class="section">
-            <h2>💰 Financial Summary</h2>
-            <div class="metric-row">
-                <div class="metric">
-                    <div class="metric-label">This Week</div>
-                    <div class="metric-value">₦{$profit}</div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <!-- FINANCIAL SECTION -->
+            <div class="section">
+                <div class="section-title">💰 Financial Summary</div>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">This Week</div>
+                        <div class="metric-value">₦{$profit}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">All-Time Total</div>
+                        <div class="metric-value">₦{$profitTotal}</div>
+                    </div>
                 </div>
-                <div class="metric">
-                    <div class="metric-label">All-Time</div>
-                    <div class="metric-value">₦{$profitTotal}</div>
+            </div>
+
+            <!-- TRAFFIC SECTION -->
+            <div class="section">
+                <div class="section-title">📈 Traffic & Views</div>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Template Views</div>
+                        <div class="metric-value">{$templateViews}</div>
+                        <div class="metric-sub">this week</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Tool Views</div>
+                        <div class="metric-value">{$toolViews}</div>
+                        <div class="metric-sub">this week</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDERS SECTION -->
+            <div class="section">
+                <div class="section-title">📦 Orders</div>
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">This Week</div>
+                        <div class="metric-value">{$orders}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Orders</div>
+                        <div class="metric-value">{$ordersTotal}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOP PRODUCTS -->
+            <div class="section">
+                <div class="section-title">🏆 Top Products (This Week)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th style="text-align: center;">Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {$topProductsHTML}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- DATABASE INFO -->
+            <div class="highlight-section">
+                <p><strong>📁 Database Backup Attached</strong></p>
+                <p>Database Size: <strong>{$dbSize} MB</strong></p>
+                <p style="font-size: 12px; margin-top: 8px;">Your database backup has been attached to this email for safekeeping.</p>
+            </div>
+
+            <!-- INFO BOX -->
+            <div class="info-box">
+                <div class="info-box-title">ℹ️ Report Information</div>
+                <div class="info-box-text">
+                    This report is automatically generated every Monday at 3 AM. It contains analytics data from the past 7 days and a backup of your database.
                 </div>
             </div>
         </div>
-        
-        <div class="section">
-            <h2>📈 Traffic & Views</h2>
-            <div class="metric-row">
-                <div class="metric">
-                    <div class="metric-label">Template Views (Week)</div>
-                    <div class="metric-value">{$templateViews}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Tool Views (Week)</div>
-                    <div class="metric-value">{$toolViews}</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>📦 Orders</h2>
-            <div class="metric-row">
-                <div class="metric">
-                    <div class="metric-label">This Week</div>
-                    <div class="metric-value">{$orders}</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-label">Total Orders</div>
-                    <div class="metric-value">{$ordersTotal}</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h2>🏆 Top Products (This Week)</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Sales</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {$topProductsHTML}
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="section" style="background: #f0f9ff; border-left-color: #0ea5e9;">
-            <h2 style="color: #0369a1; margin: 0;">📁 Database Information</h2>
-            <p style="margin: 10px 0 0 0; font-size: 14px;">Database Size: <strong>{$dbSize} MB</strong></p>
-            <p style="margin: 5px 0; font-size: 14px;">Backup included in attachment</p>
-        </div>
-        
+
+        <!-- FOOTER -->
         <div class="footer">
-            <p>This is an automated weekly report from WebDaddy Empire</p>
-            <p>Database backup file included</p>
+            <p>WebDaddy Empire Automated Reports</p>
+            <p style="margin-top: 8px; color: #ccc;">© 2025 WebDaddy Empire</p>
         </div>
     </div>
 </body>
