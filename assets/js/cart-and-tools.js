@@ -1276,10 +1276,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create notification element
         const notification = document.createElement('div');
-        const bgColor = type === 'success' ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200';
-        const textColor = type === 'success' ? 'text-emerald-900' : 'text-red-900';
-        const iconColor = type === 'success' ? 'text-emerald-600' : 'text-red-600';
-        const shadowColor = type === 'success' ? 'shadow-emerald-100' : 'shadow-red-100';
+        const bgColor = type === 'success' ? 'bg-emerald-900 border-emerald-700' : 'bg-red-900 border-red-700';
+        const textColor = type === 'success' ? 'text-emerald-100' : 'text-red-100';
+        const iconColor = type === 'success' ? 'text-emerald-400' : 'text-red-400';
+        const shadowColor = type === 'success' ? 'shadow-emerald-900' : 'shadow-red-900';
         
         notification.innerHTML = `
             <div class="animate-slide-in flex items-start gap-3 px-4 py-3 sm:px-5 sm:py-4 rounded-lg border-2 ${bgColor} ${shadowColor} shadow-lg backdrop-blur-sm max-w-sm">
@@ -1292,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex-1">
                     <p class="text-sm sm:text-base font-semibold ${textColor} leading-tight">${escapeHtml(message)}</p>
                 </div>
-                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors pt-1">
+                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 text-gray-300 hover:text-white transition-colors pt-1">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                     </svg>
