@@ -438,7 +438,7 @@ if ($currentView === 'templates') {
             </div>
 
             <!-- Unified Search Interface -->
-            <div class="mb-8">
+            <div class="mb-4 sm:mb-8">
                 <div class="max-w-4xl mx-auto">
                     <div class="relative">
                         <input type="text" 
@@ -470,7 +470,7 @@ if ($currentView === 'templates') {
             <?php if ($currentView === 'templates'): ?>
             <?php if (!empty($templateCategories)): ?>
             <!-- Category Filter for Templates -->
-            <div class="mb-6 max-w-4xl mx-auto">
+            <div class="mb-3 sm:mb-6 max-w-4xl mx-auto">
                 <div class="relative">
                     <select id="templates-category-filter" 
                             class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">

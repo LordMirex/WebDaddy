@@ -100,7 +100,7 @@ if ($action === 'load_view') {
 function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $currentCategory, $affiliateCode) {
     // Category filter for templates
     if (!empty($templateCategories)): ?>
-    <div style="margin-bottom: 24px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="templates-category-filter" 
                     style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #d1d5db; border-radius: 8px; appearance: none; background: white; color: #111827; font-weight: 500; cursor: pointer; font-size: 14px;">
@@ -232,7 +232,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
 function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $currentCategory, $affiliateCode) {
     // Category filter for tools
     if (!empty($toolCategories)): ?>
-    <div style="margin-bottom: 24px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="tools-category-filter" 
                     style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #d1d5db; border-radius: 8px; appearance: none; background: white; color: #111827; font-weight: 500; cursor: pointer; font-size: 14px;">
