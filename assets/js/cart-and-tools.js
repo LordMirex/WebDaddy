@@ -590,9 +590,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success && data.tool) {
                 showToolModal(data.tool);
+                
+                // Track tool view when preview is clicked on index page
+                trackToolViewFromPreview(toolId);
             }
         } catch (error) {
             console.error('Failed to load tool details:', error);
+        }
+    }
+    
+    // Track tool view from preview modal
+    function trackToolViewFromPreview(toolId) {
+        // Get session ID from cookie
+        const cookies = document.cookie.split(';');
+        let sessionId = null;
+        for (let cookie of cookies) {
+            if (cookie.trim().startsWith('PHPSESSID=')) {
+                sessionId = cookie.trim().substring(10);
+                break;
+            }
+        }
+        
+        if (sessionId && toolId) {
+            fetch('/api/track-view.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tool_id: toolId,
+                    source: 'preview_modal'
+                })
+            }).catch(err => console.error('Error tracking tool view:', err));
         }
     }
     
