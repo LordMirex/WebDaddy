@@ -1127,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${!isTemplate ? `
                         <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" 
                                 class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">-</button>
-                        <span class="w-8 text-center font-semibold">${item.quantity}</span>
+                        <span class="w-8 text-center font-semibold text-white">${item.quantity}</span>
                         <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" 
                                 class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded hover:bg-gray-300 transition-colors">+</button>
                     ` : ''}
