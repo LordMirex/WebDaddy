@@ -311,8 +311,8 @@ if ($autoOpenTool) {
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Turn Your Ideas Into Reality</h1>
                 <p class="text-lg sm:text-xl lg:text-2xl text-white/90 mb-4 max-w-3xl mx-auto">
-                    Choose from our <span class="font-bold text-white">ready-made templates</span> or get 
-                    <span class="font-bold text-white">powerful digital tools</span> to grow your business
+                    Get a <span class="font-bold text-white">professional website live in hours</span> or grab 
+                    <span class="font-bold text-white">working tools that boost your earnings</span>
                 </p>
                 
                 <!-- Trust Elements -->
