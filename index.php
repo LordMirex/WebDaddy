@@ -803,9 +803,9 @@ if ($currentView === 'templates') {
         </div>
         
         <div class="carousel-wrapper mx-auto px-4" style="max-width: 1200px;">
-            <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 20px 0;">
-                <!-- Testimonial 1 -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
+            <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; scroll-behavior: auto; -webkit-overflow-scrolling: touch; padding: 20px 0;">
+                <!-- Items will be cloned by JavaScript for infinite scroll -->
+                <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -822,8 +822,7 @@ if ($currentView === 'templates') {
                     </div>
                 </div>
                 
-                <!-- Testimonial 2 -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
+                <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -840,8 +839,7 @@ if ($currentView === 'templates') {
                     </div>
                 </div>
                 
-                <!-- Testimonial 3 -->
-                <div class="carousel-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
+                <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -878,30 +876,36 @@ if ($currentView === 'templates') {
         <script>
             (function() {
                 const carousel = document.getElementById('testimonialCarousel');
-                const items = carousel.querySelectorAll('.carousel-item');
+                const originals = Array.from(carousel.querySelectorAll('.original-item'));
+                
+                // Clone items multiple times for infinite scroll
+                originals.forEach(item => {
+                    for (let i = 0; i < 5; i++) {
+                        carousel.appendChild(item.cloneNode(true));
+                    }
+                });
+                
                 let isDown = false, startX = 0, scrollLeft = 0;
                 let autoScrollId;
-                
-                function getItemWidth() {
-                    return items[0].offsetWidth + 24; // width + gap
-                }
+                const itemWidth = originals[0].offsetWidth + 24; // width + gap
+                const originalSetWidth = itemWidth * originals.length;
                 
                 function startAutoScroll() {
                     clearInterval(autoScrollId);
+                    let speed = 0.8; // pixels per frame - very smooth speed
                     
-                    let speed = 1.5; // pixels per frame - smooth speed
                     autoScrollId = setInterval(() => {
                         carousel.scrollLeft += speed;
                         
-                        // Loop back to start smoothly when reaching end
-                        if (carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth - 10) {
+                        // Seamless infinite loop - reset to start when past original set
+                        if (carousel.scrollLeft >= originalSetWidth * 4) {
                             carousel.scrollLeft = 0;
                         }
-                    }, 30); // Update every 30ms for smooth animation
+                    }, 30);
                 }
                 
-                // Start auto-scroll immediately
-                startAutoScroll();
+                // Start auto-scroll after a brief delay to ensure DOM is ready
+                setTimeout(startAutoScroll, 100);
                 
                 // Pause on mouse down (drag)
                 carousel.addEventListener('mousedown', (e) => {
@@ -914,7 +918,7 @@ if ($currentView === 'templates') {
                 carousel.addEventListener('mouseleave', () => { isDown = false; });
                 carousel.addEventListener('mouseup', () => { 
                     isDown = false;
-                    startAutoScroll(); // Resume after drag
+                    startAutoScroll();
                 });
                 
                 carousel.addEventListener('mousemove', (e) => {
@@ -939,7 +943,7 @@ if ($currentView === 'templates') {
                 }, false);
                 
                 carousel.addEventListener('touchend', () => {
-                    startAutoScroll(); // Resume after touch
+                    startAutoScroll();
                 }, false);
             })();
         </script>
