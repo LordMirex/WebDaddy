@@ -255,6 +255,30 @@ function trackAffiliateClick($affiliateCode) {
     }
 }
 
+function trackToolView($toolId) {
+    $sessionId = ensureAnalyticsSession();
+    if (!$sessionId) {
+        return false;
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO page_interactions (session_id, page_url, action_type, action_target, tool_id)
+            VALUES (?, ?, 'view', 'tool', ?)
+        ");
+        $stmt->execute([
+            $sessionId,
+            $_SERVER['REQUEST_URI'] ?? '',
+            $toolId
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        error_log('Tool view tracking error: ' . $e->getMessage());
+        return false;
+    }
+}
+
 function trackOrderStart($templateId) {
     $sessionId = ensureAnalyticsSession();
     if (!$sessionId) {

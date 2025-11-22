@@ -35,6 +35,7 @@ if (!$tool) {
 }
 
 trackPageVisit($_SERVER['REQUEST_URI'], 'Tool: ' . $tool['name']);
+trackToolView($tool['id']);
 
 $affiliateCode = getAffiliateCode();
 $cartCount = getCartCount();
