@@ -508,7 +508,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="text-2xl"><?php echo $confirmationData['hasTemplates'] && $confirmationData['hasTools'] ? '🎨🔧' : ($confirmationData['hasTemplates'] ? '🎨' : '🔧'); ?></span>
-                                <h3 class="font-bold text-white"><?php echo $confirmationData['orderTypeText']; ?></h3>
+                                <h3 class="font-bold text-gray-900"><?php echo $confirmationData['orderTypeText']; ?></h3>
                             </div>
                             <span class="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded-full">Pending Payment</span>
                         </div>
