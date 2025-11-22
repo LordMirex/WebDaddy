@@ -154,7 +154,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                 <div class="flex items-center">
                     <a href="/" class="flex items-center">
                         <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-14 mr-3" onerror="this.style.display='none'">
-                        <span class="text-xl font-bold text-primary-900"><?php echo SITE_NAME; ?></span>
+                        <span class="text-xl font-bold text-primary-900 dark:text-white"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
