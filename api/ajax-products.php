@@ -196,19 +196,19 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($template['name']); ?></h3>
-                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dbeafe; color: #1e40af; white-space: nowrap;">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
                             <?php echo htmlspecialchars($template['category']); ?>
                         </span>
                     </div>
                     <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;"><?php echo formatCurrency($template['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #d1d5db; font-size: 12px; font-weight: 500; border-radius: 6px; color: #374151; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
                             <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '', this)" 
@@ -298,7 +298,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($tool['name']); ?></h3>
                         <?php if (!empty($tool['category'])): ?>
-                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; white-space: nowrap;">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
                             <?php echo htmlspecialchars($tool['category']); ?>
                         </span>
                         <?php endif; ?>
@@ -306,9 +306,9 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                     <?php if (!empty($tool['short_description'])): ?>
                     <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
                     <?php endif; ?>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                         <button data-tool-id="<?php echo $tool['id']; ?>" 
@@ -337,7 +337,7 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
         <nav style="display: flex; align-items: center; gap: 8px;">
             <?php if ($page > 1): ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo ($page - 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: #1f2937; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
                 <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
@@ -352,14 +352,14 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
             for ($i = $start; $i <= $end; $i++):
             ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo $i; ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: #1f2937; color: #374151;'; ?>">
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: #2563eb; color: white; border-color: #2563eb;' : 'background: #1f2937; color: #d1d5db;'; ?>">
                 <?php echo $i; ?>
             </a>
             <?php endfor; ?>
             
             <?php if ($page < $totalPages): ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo ($page + 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151; background: #1f2937; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
                 Next
                 <svg style="width: 16px; height: 16px; margin-left: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
