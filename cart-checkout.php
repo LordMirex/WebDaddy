@@ -519,7 +519,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <div class="space-y-3 mb-6">
                             <?php foreach ($confirmationData['orderItems'] as $item): 
                                 $productType = $item['product_type'];
-                                $badgeColor = $productType === 'template' ? 'bg-gray-700 text-blue-200' : 'bg-purple-100 text-purple-800';
+                                $badgeColor = $productType === 'template' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white';
                                 $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
                                 $badgeText = $productType === 'template' ? 'Template' : 'Tool';
                                 $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
@@ -532,7 +532,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
                                         </span>
                                     </div>
-                                    <div class="text-sm text-gray-300">
+                                    <div class="text-sm text-gray-100">
                                         <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?></p>
                                         <p class="font-semibold text-primary-600 mt-1"><?php echo formatCurrency($item['final_amount']); ?></p>
                                     </div>
@@ -585,8 +585,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 <!-- Next Steps -->
                 <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-                    <h4 class="font-bold text-blue-900 mb-2">📱 Next Steps</h4>
-                    <p class="text-sm text-blue-200 mb-3">
+                    <h4 class="font-bold text-white mb-2">📱 Next Steps</h4>
+                    <p class="text-sm text-gray-100 mb-3">
                         Click the button below to send your order details via WhatsApp. Our team will confirm and provide payment instructions.
                     </p>
                 </div>
@@ -699,7 +699,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-blue-200">Have an affiliate code? Get 20% OFF!</span>
+                            <span class="text-xs sm:text-sm font-semibold text-gray-100">Have an affiliate code? Get 20% OFF!</span>
                         </div>
                         <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
@@ -794,7 +794,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     $itemDiscount = ($itemSubtotal / $totals['subtotal']) * $totals['discount'];
                                 }
                                 $itemFinal = $itemSubtotal - $itemDiscount;
-                                $badgeColor = $productType === 'template' ? 'bg-gray-700 text-blue-200' : 'bg-purple-100 text-purple-800';
+                                $badgeColor = $productType === 'template' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white';
                                 $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
                                 $badgeText = $productType === 'template' ? 'Template' : 'Tool';
                             ?>
@@ -811,10 +811,10 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         </span>
                                     </div>
                                     <?php if (!empty($item['category'])): ?>
-                                    <p class="text-xs text-gray-400 mb-1"><?php echo htmlspecialchars($item['category']); ?></p>
+                                    <p class="text-xs text-gray-200 mb-1"><?php echo htmlspecialchars($item['category']); ?></p>
                                     <?php endif; ?>
                                     <div class="text-sm space-y-0.5">
-                                        <p class="text-gray-300"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <?php echo formatCurrency($itemSubtotal); ?></p>
+                                        <p class="text-gray-100"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <?php echo formatCurrency($itemSubtotal); ?></p>
                                         <?php if ($itemDiscount > 0): ?>
                                         <p class="text-green-600 text-xs">Discount: -<?php echo formatCurrency($itemDiscount); ?></p>
                                         <?php endif; ?>
@@ -852,7 +852,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
                         </svg>
-                        <p class="text-sm text-blue-200">
+                        <p class="text-sm text-gray-100">
                             You'll be redirected to WhatsApp to complete your order. Our team will confirm your purchase and provide payment details.
                         </p>
                     </div>
