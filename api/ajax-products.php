@@ -46,7 +46,7 @@ if ($action === 'load_view') {
         $page = max(1, min($page, $totalPages));
         $offset = ($page - 1) * $perPage;
         
-        $stmt = $db->prepare("SELECT id, name, category, price, thumbnail_url, demo_url FROM templates $sqlWhere ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt = $db->prepare("SELECT id, name, category, price, thumbnail_url, demo_url, priority_order, created_at FROM templates $sqlWhere ORDER BY priority_order ASC, created_at DESC LIMIT ? OFFSET ?");
         $params[] = $perPage;
         $params[] = $offset;
         $stmt->execute($params);
@@ -61,11 +61,23 @@ if ($action === 'load_view') {
         renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $category, $affiliateCode);
     } else {
         $perPage = 18;
-        $totalTools = getToolsCount(true, $category, true);
+        $allTools = getTools(true, $category, null, null, true);
+        
+        // Sort by priority first, then by date
+        usort($allTools, function($a, $b) {
+            $aPriority = $a['priority_order'] ?? 999;
+            $bPriority = $b['priority_order'] ?? 999;
+            if ($aPriority != $bPriority) {
+                return $aPriority <=> $bPriority;
+            }
+            return strtotime($b['created_at'] ?? 0) <=> strtotime($a['created_at'] ?? 0);
+        });
+        
+        $totalTools = count($allTools);
         $totalPages = max(1, ceil($totalTools / $perPage));
         $page = max(1, min($page, $totalPages));
         $offset = ($page - 1) * $perPage;
-        $tools = getTools(true, $category, $perPage, $offset, true);
+        $tools = array_slice($allTools, $offset, $perPage);
         $toolCategories = getToolCategories();
         
         // Render tools grid

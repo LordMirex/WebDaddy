@@ -61,6 +61,16 @@ if ($currentView === 'templates') {
         });
     }
     
+    // Sort by priority first, then by date
+    usort($allTemplates, function($a, $b) {
+        $aPriority = $a['priority_order'] ?? 999;
+        $bPriority = $b['priority_order'] ?? 999;
+        if ($aPriority != $bPriority) {
+            return $aPriority <=> $bPriority;
+        }
+        return strtotime($b['created_at'] ?? 0) <=> strtotime($a['created_at'] ?? 0);
+    });
+    
     $totalTemplates = count($allTemplates);
     $totalPages = max(1, ceil($totalTemplates / $perPage));
     $page = max(1, min($page, $totalPages));
@@ -70,11 +80,26 @@ if ($currentView === 'templates') {
     // TOOLS VIEW
     $perPage = 18;
     $category = $_GET['category'] ?? null;
-    $totalTools = getToolsCount(true, $category, true);
+    
+    // Get all tools first to sort by priority
+    $db = getDb();
+    $allTools = getTools(true, $category, null, null, true);
+    
+    // Sort by priority first, then by date
+    usort($allTools, function($a, $b) {
+        $aPriority = $a['priority_order'] ?? 999;
+        $bPriority = $b['priority_order'] ?? 999;
+        if ($aPriority != $bPriority) {
+            return $aPriority <=> $bPriority;
+        }
+        return strtotime($b['created_at'] ?? 0) <=> strtotime($a['created_at'] ?? 0);
+    });
+    
+    $totalTools = count($allTools);
     $totalPages = max(1, ceil($totalTools / $perPage));
     $page = max(1, min($page, $totalPages));
     $offset = ($page - 1) * $perPage;
-    $tools = getTools(true, $category, $perPage, $offset, true);
+    $tools = array_slice($allTools, $offset, $perPage);
     $toolCategories = getToolCategories();
 }
 ?>

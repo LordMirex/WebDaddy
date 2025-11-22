@@ -47,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $active = isset($_POST['active']) ? 1 : 0;
+            $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
+            $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 3) ? $priorityOrder : null;
             
             if (empty($name) || empty($slug)) {
                 $errorMessage = 'Template name and slug are required.';
@@ -54,13 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     if ($action === 'add') {
                         $stmt = $db->prepare("
-                            INSERT INTO templates (name, slug, price, category, description, features, media_type, demo_url, demo_video_url, thumbnail_url, active)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO templates (name, slug, price, category, description, features, media_type, demo_url, demo_video_url, thumbnail_url, active, priority_order)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -72,13 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $id = intval($_POST['id']);
                         $stmt = $db->prepare("
                             UPDATE templates 
-                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, media_type = ?, demo_url = ?, demo_video_url = ?, thumbnail_url = ?, active = ?
+                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, media_type = ?, demo_url = ?, demo_video_url = ?, thumbnail_url = ?, active = ?, priority_order = ?
                             WHERE id = ?
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $id]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder, $id]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
