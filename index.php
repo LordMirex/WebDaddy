@@ -26,6 +26,10 @@ $affiliateCode = getAffiliateCode();
 // Get cart count for badge
 $cartCount = getCartCount();
 
+// Get total active templates and tools (unfiltered by category)
+$totalActiveTemplates = count(getTemplates(true));
+$totalActiveTools = getToolsCount(true, null, true);
+
 // Initialize variables
 $templates = [];
 $tools = [];
