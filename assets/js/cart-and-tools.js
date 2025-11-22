@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <h4 class="text-xl font-bold text-white mb-2">No results found</h4>
-                        <p class="text-gray-300">Try different keywords or <button onclick="document.getElementById('clear-search').click()" class="font-semibold text-primary-600 hover:text-primary-700">clear search</button></p>
+                        <p class="text-gray-100">Try different keywords or <button onclick="document.getElementById('clear-search').click()" class="font-semibold text-primary-600 hover:text-primary-700">clear search</button></p>
                     </div>
                 `;
                 updateCounterDisplay(0);
@@ -660,7 +660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     ${stockBadge}
                                 </div>
                             </div>
-                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-100 ml-2 sm:ml-4 flex-shrink-0">
+                            <button onclick="closeToolModal()" class="text-gray-200 hover:text-gray-100 ml-2 sm:ml-4 flex-shrink-0">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -738,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="bg-gray-800 border-2 border-gray-700 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6">
                                 <div class="text-center mb-4">
                                     <h3 class="text-base font-bold text-white mb-1">Love this tool?</h3>
-                                    <p class="text-xs text-gray-300">Share it with your friends!</p>
+                                    <p class="text-xs text-gray-100">Share it with your friends!</p>
                                 </div>
                                 
                                 <!-- Share Buttons -->
@@ -805,7 +805,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
                                 </div>
                                 ${isOutOfStock 
-                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-800 cursor-not-allowed">
+                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-200 bg-gray-800 cursor-not-allowed">
                                         <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="h-full flex flex-col">
                     <div class="flex items-center justify-between p-4 border-b border-gray-700">
                         <h3 class="text-lg font-bold text-white">Your Cart</h3>
-                        <button onclick="toggleCartDrawer()" class="text-gray-400 hover:text-gray-100">
+                        <button onclick="toggleCartDrawer()" class="text-gray-200 hover:text-gray-100">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -1292,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex-1">
                     <p class="text-sm sm:text-base font-semibold ${textColor} leading-tight">${escapeHtml(message)}</p>
                 </div>
-                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 text-gray-300 hover:text-white transition-colors pt-1">
+                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 text-gray-100 hover:text-white transition-colors pt-1">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                     </svg>
