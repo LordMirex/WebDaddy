@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $category = sanitizeInput($_POST['category'] ?? '');
             $description = sanitizeInput($_POST['description'] ?? '');
             $features = sanitizeInput($_POST['features'] ?? '');
+            $seoKeywords = sanitizeInput($_POST['seo_keywords'] ?? '');
             
             $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
             $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
@@ -56,13 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     if ($action === 'add') {
                         $stmt = $db->prepare("
-                            INSERT INTO templates (name, slug, price, category, description, features, media_type, demo_url, demo_video_url, thumbnail_url, active, priority_order)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO templates (name, slug, price, category, description, features, seo_keywords, media_type, demo_url, demo_video_url, thumbnail_url, active, priority_order)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $seoKeywords, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -74,13 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $id = intval($_POST['id']);
                         $stmt = $db->prepare("
                             UPDATE templates 
-                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, media_type = ?, demo_url = ?, demo_video_url = ?, thumbnail_url = ?, active = ?, priority_order = ?
+                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, seo_keywords = ?, media_type = ?, demo_url = ?, demo_video_url = ?, thumbnail_url = ?, active = ?, priority_order = ?
                             WHERE id = ?
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder, $id]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $seoKeywords, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder, $id]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }

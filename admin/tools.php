@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $shortDescription = sanitizeInput($_POST['short_description']);
         $description = trim($_POST['description'] ?? '');
         $features = trim($_POST['features'] ?? '');
+        $seoKeywords = sanitizeInput($_POST['seo_keywords'] ?? '');
         
         $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
         $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
@@ -72,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'short_description' => $shortDescription,
                     'description' => $description,
                     'features' => $features,
+                    'seo_keywords' => $seoKeywords,
                     'price' => $price,
                     'thumbnail_url' => $thumbnailUrl,
                     'media_type' => $mediaType,
@@ -105,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $shortDescription = sanitizeInput($_POST['short_description']);
         $description = trim($_POST['description'] ?? '');
         $features = trim($_POST['features'] ?? '');
+        $seoKeywords = sanitizeInput($_POST['seo_keywords'] ?? '');
         
         $croppedThumbnailData = sanitizeInput($_POST['thumbnail_cropped_data'] ?? '');
         $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
@@ -149,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'short_description' => $shortDescription,
                     'description' => $description,
                     'features' => $features,
+                    'seo_keywords' => $seoKeywords,
                     'price' => $price,
                     'thumbnail_url' => $thumbnailUrl,
                     'media_type' => $mediaType,
