@@ -48,6 +48,8 @@ if ($autoOpenToolSlug) {
     $autoOpenTool = getToolBySlug($autoOpenToolSlug);
     if ($autoOpenTool) {
         $currentView = 'tools'; // Force tools view if opening a tool from share link
+        // Track tool view when opened from share link
+        trackToolView($autoOpenTool['id']);
     }
 }
 
