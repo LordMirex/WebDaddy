@@ -623,7 +623,18 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <!-- Status -->
+                    <!-- Priority & Status -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 3 Featured)</label>
+                        <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            <option value="">None (Regular Listing)</option>
+                            <option value="1">⭐ #1 - Top Priority</option>
+                            <option value="2">⭐⭐ #2 - Second Priority</option>
+                            <option value="3">⭐⭐⭐ #3 - Third Priority</option>
+                        </select>
+                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 3 displayed first</small>
+                    </div>
+
                     <div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="active" value="1" checked class="w-4 h-4 text-purple-600 rounded">
@@ -798,6 +809,17 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 3 Featured)</label>
+                        <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                            <option value="">None (Regular Listing)</option>
+                            <option value="1" <?php echo ($editTool && $editTool['priority_order'] == 1) ? 'selected' : ''; ?>>⭐ #1 - Top Priority</option>
+                            <option value="2" <?php echo ($editTool && $editTool['priority_order'] == 2) ? 'selected' : ''; ?>>⭐⭐ #2 - Second Priority</option>
+                            <option value="3" <?php echo ($editTool && $editTool['priority_order'] == 3) ? 'selected' : ''; ?>>⭐⭐⭐ #3 - Third Priority</option>
+                        </select>
+                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 3 displayed first</small>
+                    </div>
+
                     <div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="active" value="1" <?php echo $editTool['active'] ? 'checked' : ''; ?> class="w-4 h-4 text-purple-600 rounded">
