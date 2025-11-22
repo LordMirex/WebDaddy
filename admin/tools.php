@@ -392,8 +392,11 @@ require_once __DIR__ . '/includes/header.php';
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
-                                    <?php if ($tool['thumbnail_url']): ?>
-                                    <img src="<?php echo htmlspecialchars($tool['thumbnail_url']); ?>" alt="<?php echo htmlspecialchars($tool['name']); ?>" class="w-20 h-20 object-cover rounded-lg shadow-sm">
+                                    <?php if (!empty($tool['thumbnail_url']) && trim($tool['thumbnail_url'])): ?>
+                                    <img src="<?php echo htmlspecialchars($tool['thumbnail_url']); ?>" alt="<?php echo htmlspecialchars($tool['name']); ?>" class="w-20 h-20 object-cover rounded-lg shadow-sm" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                    <div class="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center shadow-sm hidden" style="display:none;">
+                                        <i class="bi bi-tools text-purple-600 text-3xl"></i>
+                                    </div>
                                     <?php else: ?>
                                     <div class="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center shadow-sm">
                                         <i class="bi bi-tools text-purple-600 text-3xl"></i>
