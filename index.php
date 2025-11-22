@@ -186,6 +186,7 @@ if ($currentView === 'templates') {
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
+        if (typeof tailwind !== 'undefined') {
         tailwind.config = {
             theme: {
                 extend: {
@@ -208,6 +209,7 @@ if ($currentView === 'templates') {
                 }
             }
         }
+        }
     </script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -215,7 +217,7 @@ if ($currentView === 'templates') {
     <script src="/assets/js/performance.js" defer></script>
     <script src="/assets/js/video-preloader.js" defer></script>
     <script src="/assets/js/video-modal.js" defer></script>
-    <script src="/assets/js/share.js" defer></script>
+    <script src="/assets/js/share.js"></script>
     <?php if ($autoOpenTool): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

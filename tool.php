@@ -112,6 +112,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
+        if (typeof tailwind !== 'undefined') {
         tailwind.config = {
             theme: {
                 extend: {
@@ -134,9 +135,10 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                 }
             }
         }
+        }
     </script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
-    <script src="/assets/js/share.js"></script>
+    <script src="/assets/js/share.js" defer></script>
     <script src="/assets/js/lazy-load.js" defer></script>
     <script src="/assets/js/performance.js" defer></script>
 </head>
