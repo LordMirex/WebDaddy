@@ -898,9 +898,27 @@ if ($currentView === 'templates') {
             (function() {
                 const carousel = document.getElementById('testimonialCarousel');
                 const items = carousel.querySelectorAll('.carousel-item');
+                let currentSlide = 0;
                 let isDown = false, startX = 0, scrollLeft = 0;
-                let autoScrollInterval;
+                let slideInterval;
                 let isUserInteracting = false;
+                
+                function getSlideWidth() {
+                    return items[0].offsetWidth + 24; // width + gap
+                }
+                
+                function scrollToSlide(slideIndex, smooth = true) {
+                    const targetScroll = slideIndex * getSlideWidth();
+                    if (smooth) {
+                        carousel.scrollTo({
+                            left: targetScroll,
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        carousel.scrollLeft = targetScroll;
+                    }
+                    currentSlide = slideIndex;
+                }
                 
                 // Touch/Mouse drag support
                 carousel.addEventListener('mousedown', (e) => { 
@@ -908,11 +926,11 @@ if ($currentView === 'templates') {
                     startX = e.pageX - carousel.offsetLeft; 
                     scrollLeft = carousel.scrollLeft; 
                     isUserInteracting = true;
-                    clearInterval(autoScrollInterval);
+                    clearInterval(slideInterval);
                 });
                 
                 carousel.addEventListener('mouseleave', () => { isDown = false; });
-                carousel.addEventListener('mouseup', () => { isDown = false; if (isUserInteracting) startAutoScroll(); });
+                carousel.addEventListener('mouseup', () => { isDown = false; });
                 
                 carousel.addEventListener('mousemove', (e) => { 
                     if (!isDown) return; 
@@ -926,7 +944,7 @@ if ($currentView === 'templates') {
                     startX = e.touches[0].pageX - carousel.offsetLeft; 
                     scrollLeft = carousel.scrollLeft;
                     isUserInteracting = true;
-                    clearInterval(autoScrollInterval);
+                    clearInterval(slideInterval);
                 });
                 
                 carousel.addEventListener('touchmove', (e) => { 
@@ -935,36 +953,23 @@ if ($currentView === 'templates') {
                     carousel.scrollLeft = scrollLeft - walk;
                 });
                 
-                carousel.addEventListener('touchend', () => {
-                    if (isUserInteracting) startAutoScroll();
-                });
-                
-                // Smooth auto-scrolling - 45 seconds for a full cycle
-                function startAutoScroll() {
-                    clearInterval(autoScrollInterval);
-                    const itemWidth = items[0].offsetWidth + 24; // width + gap
-                    const totalWidth = itemWidth * items.length;
-                    const scrollDuration = 45000; // 45 seconds for full cycle
-                    const scrollPerFrame = totalWidth / (scrollDuration / 16); // ~16ms per frame
-                    
-                    autoScrollInterval = setInterval(() => {
-                        carousel.scrollLeft += scrollPerFrame;
-                        
-                        // Loop back to start when reaching end
-                        if (carousel.scrollLeft >= carousel.scrollWidth - carousel.clientWidth - 50) {
-                            carousel.scrollLeft = 0;
-                        }
-                    }, 16);
+                // Auto-slide to next testimonial every 6 seconds
+                function startAutoSlide() {
+                    clearInterval(slideInterval);
+                    slideInterval = setInterval(() => {
+                        currentSlide = (currentSlide + 1) % items.length;
+                        scrollToSlide(currentSlide, true);
+                    }, 6000); // 6 seconds per slide
                 }
                 
-                // Start auto-scroll on load
-                startAutoScroll();
+                // Start auto-slide on load
+                setTimeout(startAutoSlide, 6000);
                 
-                // Resume after 5 seconds of no interaction
+                // Resume after user stops interacting
                 carousel.addEventListener('scroll', () => {
-                    clearInterval(autoScrollInterval);
-                    setTimeout(startAutoScroll, 5000);
-                });
+                    clearInterval(slideInterval);
+                    setTimeout(startAutoSlide, 3000);
+                }, { passive: true });
             })();
         </script>
     </section>
