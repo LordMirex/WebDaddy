@@ -221,7 +221,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 setTimeout(() => {
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                     this.showMessage = true;
-                }, 12000);
+                }, 9000);
             }, 15000);
         },
         getContextualMessage() {
@@ -244,10 +244,10 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                  x-transition:enter="transition ease-out duration-[2000ms]"
                  x-transition:enter-start="opacity-0 -translate-x-4"
                  x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-[2000ms]"
+                 x-transition:leave="transition ease-in duration-[1000ms]"
                  x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 -translate-x-96"
-                 class="text-white font-semibold text-sm whitespace-nowrap pr-2">
+                 x-transition:leave-end="opacity-0 -translate-x-full"
+                 class="text-white font-semibold text-sm whitespace-nowrap pr-2 overflow-hidden">
                 <span x-text="messages[currentIndex]"></span>
             </div>
         </a>
