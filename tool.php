@@ -136,6 +136,9 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
         }
     </script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
+    <script src="/assets/js/share.js"></script>
+    <script src="/assets/js/lazy-load.js" defer></script>
+    <script src="/assets/js/performance.js" defer></script>
 </head>
 <body class="bg-gray-50">
     <nav id="mainNav" class="bg-white shadow-sm sticky top-0 z-50" x-data="{ open: false }">

@@ -48,6 +48,14 @@ if (preg_match('#^/tool/([a-z0-9\-_]+)/?$#i', $path, $matches)) {
     exit;
 }
 
+// Legacy tool query parameter: ?tool=name
+if (!empty($_GET['tool'])) {
+    $_GET['slug'] = $_GET['tool'];
+    $_SERVER['SCRIPT_NAME'] = '/tool.php';
+    require __DIR__ . '/tool.php';
+    exit;
+}
+
 // Template slug routing: /slug-name → template.php?slug=slug-name
 // Must not match admin, affiliate, assets, api, uploads, mailer directories
 // Must match pattern: /lowercase-slug-with-hyphens
