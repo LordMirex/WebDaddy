@@ -327,7 +327,7 @@ $cartCount = getCartCount();
                             </button>
                         </div>
                     </div>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                 </div>
                 
                 <?php if ($totalPages > 1): ?>
@@ -347,7 +347,7 @@ $cartCount = getCartCount();
                        class="inline-flex items-center justify-center w-10 h-10 font-semibold rounded-lg <?php echo $i === $page ? 'bg-primary-600 text-white shadow-md' : 'text-gray-700 bg-white border-2 border-gray-300 hover:border-primary-600 hover:text-primary-600'; ?> transition-all">
                         <?php echo $i; ?>
                     </a>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(['page' => $page + 1, 'category' => $category]); ?>#products" 
@@ -448,7 +448,7 @@ $cartCount = getCartCount();
                             </button>
                         </div>
                     </div>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                 </div>
                 
                 <?php if ($totalPages > 1): ?>
@@ -468,7 +468,7 @@ $cartCount = getCartCount();
                        class="inline-flex items-center justify-center w-10 h-10 font-semibold rounded-lg <?php echo $i === $page ? 'bg-primary-600 text-white shadow-md' : 'text-gray-700 bg-white border-2 border-gray-300 hover:border-primary-600 hover:text-primary-600'; ?> transition-all">
                         <?php echo $i; ?>
                     </a>
-                    <?php endfor; ?>
+                    <?php endforeach; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?view=tools&<?php echo http_build_query(['page' => $page + 1, 'category' => $category]); ?>#products" 
