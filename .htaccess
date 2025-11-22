@@ -3,14 +3,17 @@ Options -Indexes
 DirectoryIndex index.php index.html
 
 # ------------------------------------------------------------------
-# 1. Force HTTPS + non-www (change to your domain)
+# 1. Force HTTPS + non-www (dynamic domain handling)
 # ------------------------------------------------------------------
 RewriteEngine On
 RewriteBase /
 
-RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301,NE]
+
 RewriteCond %{HTTP_HOST} ^www\. [NC]
-RewriteRule ^ https://webdaddy.online%{REQUEST_URI} [L,R=301,NE]
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301,NE]
 
 # ------------------------------------------------------------------
 # 2. Remove trailing slashes (except real directories)
