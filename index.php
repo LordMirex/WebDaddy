@@ -209,6 +209,7 @@ if ($autoOpenTool) {
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -231,6 +232,7 @@ if ($autoOpenTool) {
             }
         }
         }
+        document.documentElement.classList.add('dark');
     </script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -251,23 +253,23 @@ if ($autoOpenTool) {
     </script>
     <?php endif; ?>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-900">
     <!-- Navigation -->
-    <nav id="mainNav" class="bg-white shadow-sm sticky top-0 z-50" x-data="{ open: false }">
+    <nav id="mainNav" class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="/" class="flex items-center">
                         <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-14 mr-3" onerror="this.style.display='none'">
-                        <span class="text-xl font-bold text-primary-900"><?php echo SITE_NAME; ?></span>
+                        <span class="text-xl font-bold text-primary-900 dark:text-white"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">Tools</a>
-                    <a href="#faq" class="text-gray-700 hover:text-primary-600 font-medium transition-colors">FAQ</a>
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">Tools</a>
+                    <a href="#faq" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">FAQ</a>
                     <!-- Cart Badge -->
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -278,7 +280,7 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-700 hover:text-primary-600 focus:outline-none">
+                    <button @click="open = !open" class="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -289,12 +291,12 @@ if ($autoOpenTool) {
                 </div>
             </div>
         </div>
-        <div x-show="open" @click.away="open = false" class="md:hidden bg-white border-t border-gray-200" style="display: none;">
+        <div x-show="open" @click.away="open = false" class="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700" style="display: none;">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Templates</a>
-                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">Tools</a>
-                <a href="#faq" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium">FAQ</a>
-                <a href="#" id="cart-button-mobile" onclick="toggleCartDrawer(); return false;" class="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 font-medium flex items-center">
+                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium">Templates</a>
+                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium">Tools</a>
+                <a href="#faq" class="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium">FAQ</a>
+                <a href="#" id="cart-button-mobile" onclick="toggleCartDrawer(); return false;" class="block px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium flex items-center">
                     Cart
                     <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-gray-900 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 10px;"><?php echo $cartCount; ?></span>
                 </a>
@@ -434,7 +436,7 @@ if ($autoOpenTool) {
                 <p class="text-xl text-gray-600 mb-2">
                     <?php echo $currentView === 'tools' ? 'Get powerful digital tools to grow your business' : 'Pick a professionally designed website and get started instantly'; ?>
                 </p>
-                <div class="flex justify-center gap-8 text-sm text-gray-500">
+                <div class="flex justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
                     <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTemplates; ?></span> Active Templates</span>
                     <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTools; ?></span> Active Tools</span>
                 </div>
@@ -442,7 +444,7 @@ if ($autoOpenTool) {
 
             <!-- View Toggle Tabs -->
             <div class="flex justify-center mb-8">
-                <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm" role="group">
+                <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-1 shadow-sm" role="group">
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
                        class="px-4 sm:px-8 py-2.5 text-sm sm:text-base font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
                         <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
