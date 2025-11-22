@@ -134,10 +134,14 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
             <?php foreach ($templates as $template): ?>
             <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #f3f4f6;">
-                    <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                    <img loading="lazy"
+                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'%3E%3Crect fill='%23f3f4f6' width='1280' height='720'/%3E%3C/svg%3E"
+                         data-src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'">
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease; background: #f3f4f6;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
                     <?php 
                     $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
                     if ($hasDemo):
@@ -263,10 +267,14 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
             <?php foreach ($tools as $tool): ?>
             <div style="background: white; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #e5e7eb; transition: all 0.3s ease;" data-tool-id="<?php echo $tool['id']; ?>">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #f3f4f6;">
-                    <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                    <img loading="lazy"
+                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1280 720'%3E%3Crect fill='%23f3f4f6' width='1280' height='720'/%3E%3C/svg%3E"
+                         data-src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'">
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease; background: #f3f4f6;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
                     <?php if (!empty($tool['demo_video_url'])): ?>
                     <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
                             style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
