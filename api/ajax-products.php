@@ -118,7 +118,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
             <p class="text-gray-600 mb-0">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
             <?php foreach ($templates as $template): ?>
             <div class="group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                 <div class="relative overflow-hidden h-48 bg-gray-100">
@@ -247,7 +247,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
             <p class="text-gray-600 mb-0">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px;">
             <?php foreach ($tools as $tool): ?>
             <div class="tool-card group bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                  data-tool-id="<?php echo $tool['id']; ?>">
