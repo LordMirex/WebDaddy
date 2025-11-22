@@ -68,7 +68,11 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <!-- Open Graph Tags (Social Sharing) -->
     <?php
     // Use banner image for social preview (larger, more impactful), fallback to thumbnail
-    $ogImage = !empty($template['banner_url']) ? $template['banner_url'] : (!empty($template['thumbnail_url']) ? $template['thumbnail_url'] : SITE_URL . '/assets/images/og-image.png');
+    $ogImage = !empty($template['banner_url']) ? $template['banner_url'] : (!empty($template['thumbnail_url']) ? $template['thumbnail_url'] : '/assets/images/og-image.png');
+    // Make image URL absolute for social sharing (required for Facebook, WhatsApp, etc.)
+    if (!empty($ogImage) && strpos($ogImage, 'http') !== 0) {
+        $ogImage = SITE_URL . $ogImage;
+    }
     ?>
     <meta property="og:url" content="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     <meta property="og:type" content="product">
@@ -143,7 +147,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     </script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
-    <script src="/assets/js/share.js" defer></script>
+    <script src="/assets/js/share.js"></script>
     <script src="/assets/js/lazy-load.js" defer></script>
     <script src="/assets/js/performance.js" defer></script>
     <script src="/assets/js/video-preloader.js" defer></script>
