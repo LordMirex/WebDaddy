@@ -410,9 +410,8 @@ document.addEventListener('DOMContentLoaded', function() {
             newUrl.hash = 'products';
             window.history.pushState({}, '', newUrl);
             
-            const rect = productsSection.getBoundingClientRect();
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (rect.top + scrollTop > scrollTop) {
+            // Always scroll to products when pagination is used
+            if (page > 1) {
                 productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
             
@@ -468,10 +467,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 newUrl.hash = 'products';
                 window.history.pushState({}, '', newUrl);
                 
-                // Smooth scroll to products section without jumping
-                const rect = productsSection.getBoundingClientRect();
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                if (rect.top + scrollTop > scrollTop) {
+                // Smooth scroll to products section - always scroll for pagination
+                if (page > 1) {
                     productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
                 
