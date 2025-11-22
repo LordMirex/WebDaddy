@@ -53,6 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
         $lowStockThreshold = intval($_POST['low_stock_threshold'] ?? 5);
         $active = isset($_POST['active']) ? 1 : 0;
+        $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
+        $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 3) ? $priorityOrder : null;
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
@@ -79,7 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
                     'low_stock_threshold' => $lowStockThreshold,
-                    'active' => $active
+                    'active' => $active,
+                    'priority_order' => $priorityOrder
                 ]);
                 
                 if ($toolId) {
@@ -127,6 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stockQuantity = $stockUnlimited ? 0 : intval($_POST['stock_quantity'] ?? 0);
         $lowStockThreshold = intval($_POST['low_stock_threshold'] ?? 5);
         $active = isset($_POST['active']) ? 1 : 0;
+        $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
+        $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 3) ? $priorityOrder : null;
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
@@ -153,7 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
                     'low_stock_threshold' => $lowStockThreshold,
-                    'active' => $active
+                    'active' => $active,
+                    'priority_order' => $priorityOrder
                 ]);
                 
                 if ($result) {
