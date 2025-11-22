@@ -721,6 +721,30 @@ if ($autoOpenTool) {
                 <?php foreach ($tools as $tool): ?>
                 <div class="tool-card group bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                      data-tool-id="<?php echo $tool['id']; ?>">
+                    <div class="relative overflow-hidden h-40 bg-gray-800">
+                        <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                             alt="<?php echo htmlspecialchars($tool['name']); ?>"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             onerror="this.src='/assets/images/placeholder.jpg'">
+                        <?php if (!empty($tool['demo_video_url'])): ?>
+                        <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
+                                class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            Watch Video
+                        </button>
+                        <?php endif; ?>
+                        <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
+                        <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
+                            Limited Stock
+                        </div>
+                        <?php elseif ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= 0): ?>
+                        <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
+                            Out of Stock
+                        </div>
+                        <?php endif; ?>
+                    </div>
                     <div class="p-4">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-sm font-bold text-white flex-1 pr-2"><?php echo htmlspecialchars($tool['name']); ?></h3>
