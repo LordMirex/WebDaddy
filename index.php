@@ -306,99 +306,67 @@ if ($autoOpenTool) {
     </nav>
 
     <!-- Hero Section -->
-    <header class="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-16 sm:py-24 lg:py-32">
-        <!-- Animated Background Elements -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute -top-40 -right-40 w-80 h-80 bg-primary-600/10 rounded-full blur-3xl opacity-50 animate-pulse"></div>
-            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl opacity-50 animate-pulse" style="animation-delay: 2s;"></div>
-        </div>
-        
+    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16 lg:py-20">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto text-center">
-                <!-- Accent Badge -->
-                <div class="inline-flex items-center gap-2 bg-primary-600/20 border border-primary-400/30 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                    <svg class="w-4 h-4 text-primary-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                    <span class="text-sm font-semibold text-primary-300">Trusted by 500+ Businesses</span>
-                </div>
-                
-                <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
-                    <span class="block mb-2">Turn Your Ideas</span>
-                    <span class="bg-gradient-to-r from-primary-300 via-primary-200 to-blue-200 bg-clip-text text-transparent">Into Reality</span>
-                </h1>
-                
-                <p class="text-lg sm:text-xl lg:text-2xl text-white/90 mb-8 max-w-3xl mx-auto font-light leading-relaxed">
-                    Choose from our <span class="font-semibold text-primary-300">ready-made templates</span> or leverage 
-                    <span class="font-semibold text-primary-300">powerful digital tools</span> to grow your business instantly
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Turn Your Ideas Into Reality</h1>
+                <p class="text-lg sm:text-xl lg:text-2xl text-white/90 mb-4 max-w-3xl mx-auto">
+                    Choose from our <span class="font-bold text-white">ready-made templates</span> or get 
+                    <span class="font-bold text-white">powerful digital tools</span> to grow your business
                 </p>
-                
-                <div class="flex flex-wrap justify-center gap-2 mb-12 text-sm sm:text-base text-white/80">
-                    <span class="flex items-center gap-1">
-                        <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                        Domain Included
-                    </span>
-                    <span class="hidden sm:flex items-center gap-1">
-                        <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                        Fast Setup
-                    </span>
-                    <span class="flex items-center gap-1">
-                        <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                        Expert Support
-                    </span>
-                </div>
+                <p class="text-base sm:text-lg text-white/75 mb-10">Domain included • Fast setup • Professional design</p>
                 
                 <!-- Trust Elements -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12 max-w-2xl mx-auto">
-                    <div class="bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-400/30 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-4 hover:border-green-400/50 transition-all">
-                        <svg class="w-6 h-6 text-green-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10">
+                    <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
+                        <svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
-                        <p class="text-xs sm:text-sm font-semibold text-green-300">30-Day Money Back</p>
+                        <span class="text-xs sm:text-sm font-semibold">30-Day Money Back</span>
                     </div>
-                    <div class="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-400/30 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-4 hover:border-yellow-400/50 transition-all">
-                        <svg class="w-6 h-6 text-yellow-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
+                        <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
-                        <p class="text-xs sm:text-sm font-semibold text-yellow-300">24hr Setup</p>
+                        <span class="text-xs sm:text-sm font-semibold">24hr Setup</span>
                     </div>
-                    <div class="bg-gradient-to-br from-primary-500/10 to-primary-600/10 border border-primary-400/30 backdrop-blur-sm rounded-xl px-4 sm:px-6 py-4 hover:border-primary-400/50 transition-all">
-                        <svg class="w-6 h-6 text-primary-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
+                        <svg class="w-5 h-5 text-primary-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
-                        <p class="text-xs sm:text-sm font-semibold text-primary-300">24/7 Support</p>
+                        <span class="text-xs sm:text-sm font-semibold">24/7 Support</span>
                     </div>
                 </div>
                 
                 <!-- CTA Buttons -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-14">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto group inline-flex items-center justify-center px-8 py-4 border-2 border-white text-base font-bold rounded-lg text-white bg-transparent hover:bg-white hover:text-primary-900 transition-all shadow-xl hover:shadow-2xl hover:scale-105">
-                        <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border-2 border-white text-base font-semibold rounded-lg text-white bg-transparent hover:bg-gray-800 hover:text-primary-900 transition-all shadow-lg">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
                         Browse Templates
                     </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto group inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 transition-all shadow-xl hover:shadow-2xl hover:scale-105">
-                        <svg class="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0114 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border border-transparent text-base font-semibold rounded-lg text-white bg-gray-800 hover:bg-gray-900 transition-all shadow-xl">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
                         Explore Tools
                     </a>
                 </div>
                 
                 <!-- Success Metrics -->
-                <div class="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto bg-white/5 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/10">
-                    <div class="text-center">
-                        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-300 mb-2">500+</div>
-                        <div class="text-xs sm:text-sm text-white/70 font-medium">Websites<br>Launched</div>
+                <div class="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
+                    <div>
+                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">500+</div>
+                        <div class="text-xs sm:text-sm text-white/75">Websites Launched</div>
                     </div>
-                    <div class="text-center border-l border-r border-white/10">
-                        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-300 mb-2">98%</div>
-                        <div class="text-xs sm:text-sm text-white/70 font-medium">Happy<br>Customers</div>
+                    <div>
+                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">98%</div>
+                        <div class="text-xs sm:text-sm text-white/75">Happy Customers</div>
                     </div>
-                    <div class="text-center">
-                        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-300 mb-2">24hrs</div>
-                        <div class="text-xs sm:text-sm text-white/70 font-medium">Average<br>Setup</div>
+                    <div>
+                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">24hrs</div>
+                        <div class="text-xs sm:text-sm text-white/75">Average Setup</div>
                     </div>
                 </div>
             </div>
