@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentView = new URLSearchParams(window.location.search).get('view') || 'templates';
     let currentPage = 1;
     let currentCategory = new URLSearchParams(window.location.search).get('category') || '';
+    const viewCache = { templates: null, tools: null };
     
     // Initialize
     init();
@@ -365,8 +366,36 @@ document.addEventListener('DOMContentLoaded', function() {
             currentCategory = '';
         }
         
-        // Show loading state
         const contentArea = productsSection.querySelector('.max-w-7xl > div:last-child');
+        
+        // Check cache first - instant load if available
+        if (viewCache[view] && !category && page === 1) {
+            if (contentArea) {
+                contentArea.innerHTML = viewCache[view];
+                contentArea.style.opacity = '1';
+                contentArea.style.pointerEvents = 'auto';
+            }
+            updateActiveTab(view);
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('view', view);
+            newUrl.searchParams.set('page', page);
+            newUrl.searchParams.delete('category');
+            if (affiliateCode) newUrl.searchParams.set('aff', affiliateCode);
+            newUrl.hash = 'products';
+            window.history.pushState({}, '', newUrl);
+            
+            const rect = productsSection.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (rect.top + scrollTop > scrollTop) {
+                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            setupCategoryFilters();
+            setupCategoryDropdown();
+            return;
+        }
+        
+        // Show loading state
         if (contentArea) {
             contentArea.style.opacity = '0.5';
             contentArea.style.pointerEvents = 'none';
@@ -385,6 +414,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success && data.html) {
+                // Cache the view HTML (only main page, not filtered/paginated)
+                if (!category && page === 1) {
+                    viewCache[view] = data.html;
+                }
+                
                 // Update content
                 if (contentArea) {
                     contentArea.innerHTML = data.html;
@@ -416,7 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Re-attach event listeners for AJAX-replaced elements
-                // Note: setupPaginationHandlers() uses document.body delegation, so no need to rebind
                 setupCategoryFilters();
                 setupCategoryDropdown();
             }
