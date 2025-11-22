@@ -46,6 +46,33 @@ $availableDomains = getAvailableDomains($template['id']);
 $affiliateCode = getAffiliateCode();
 $cartCount = getCartCount();
 $features = $template['features'] ? explode(',', $template['features']) : [];
+
+// Build dynamic keywords from template data
+$keywords = [
+    $template['category'] ?? 'website template',
+    'website design',
+    'template',
+    htmlspecialchars($template['name']),
+    'Nigeria'
+];
+
+// Add features as keywords if available
+if (!empty($features)) {
+    foreach (array_slice($features, 0, 5) as $feature) {
+        $trimmedFeature = trim($feature);
+        if (!empty($trimmedFeature)) {
+            $keywords[] = $trimmedFeature;
+        }
+    }
+}
+
+// Add category-specific keywords
+$categoryKeywords = [
+    'responsive design', 'mobile friendly', 'fast loading',
+    'professional', 'easy to customize', 'seo optimized'
+];
+$keywords = array_merge($keywords, $categoryKeywords);
+$allKeywords = implode(', ', array_unique($keywords));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,7 +87,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <link rel="canonical" href="<?php echo SITE_URL . '/' . $template['slug']; ?>">
     
     <!-- SEO: Enhanced Meta Tags -->
-    <meta name="keywords" content="<?php echo htmlspecialchars($template['category'] ?? 'website template'); ?>, website design, template, <?php echo htmlspecialchars($template['name']); ?>, Nigeria">
+    <meta name="keywords" content="<?php echo htmlspecialchars($allKeywords); ?>">
     <meta name="author" content="<?php echo SITE_NAME; ?>">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">

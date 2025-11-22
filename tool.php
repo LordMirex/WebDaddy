@@ -40,6 +40,35 @@ $affiliateCode = getAffiliateCode();
 $cartCount = getCartCount();
 $features = $tool['features'] ? explode(',', $tool['features']) : [];
 $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
+
+// Build dynamic keywords from tool data
+$keywords = [
+    $tool['category'] ?? 'digital tool',
+    $tool['tool_type'] ?? 'working tool',
+    htmlspecialchars($tool['name']),
+    'digital tools',
+    'business tools',
+    'API',
+    'software'
+];
+
+// Add features as keywords if available
+if (!empty($features)) {
+    foreach (array_slice($features, 0, 5) as $feature) {
+        $trimmedFeature = trim($feature);
+        if (!empty($trimmedFeature)) {
+            $keywords[] = $trimmedFeature;
+        }
+    }
+}
+
+// Add tool-specific keywords
+$toolKeywords = [
+    'automation', 'productivity', 'efficiency',
+    'cloud based', 'easy to use', 'secure'
+];
+$keywords = array_merge($keywords, $toolKeywords);
+$allKeywords = implode(', ', array_unique($keywords));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +82,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <meta name="description" content="<?php echo htmlspecialchars($tool['short_description'] ?? $tool['description']); ?>">
     <link rel="canonical" href="<?php echo SITE_URL . '/tool/' . $tool['slug']; ?>">
     
-    <meta name="keywords" content="<?php echo htmlspecialchars($tool['category'] ?? 'digital tool'); ?>, <?php echo htmlspecialchars($tool['tool_type'] ?? 'working tool'); ?>, <?php echo htmlspecialchars($tool['name']); ?>, digital tools, business tools, API, software">
+    <meta name="keywords" content="<?php echo htmlspecialchars($allKeywords); ?>">
     <meta name="author" content="<?php echo SITE_NAME; ?>">
     <meta name="robots" content="index, follow">
     <meta name="googlebot" content="index, follow">
