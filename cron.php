@@ -20,8 +20,8 @@ date_default_timezone_set('Africa/Lagos');
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
-require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/report_generator.php';
+require_once __DIR__ . '/includes/mailer.php';
 
 $command = $argv[1] ?? '';
 
