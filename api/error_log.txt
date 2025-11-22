@@ -110,3 +110,7 @@
 [22-Nov-2025 23:25:55 Africa/Lagos] Tool view tracked: tool_id=49, session=c98edf427c174b8ad5c764c4c5c83f63, result=1
 [22-Nov-2025 23:25:58 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
 [22-Nov-2025 23:25:58 Africa/Lagos] Tool view tracked: tool_id=47, session=c98edf427c174b8ad5c764c4c5c83f63, result=1
+[22-Nov-2025 23:33:51 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 23:33:51 Africa/Lagos] Tool view tracked: tool_id=40, session=c98edf427c174b8ad5c764c4c5c83f63, result=1
+[22-Nov-2025 23:33:55 Africa/Lagos] Analytics tracking error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[22-Nov-2025 23:33:55 Africa/Lagos] Tool view tracked: tool_id=60, session=c98edf427c174b8ad5c764c4c5c83f63, result=1
