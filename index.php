@@ -371,48 +371,48 @@ if ($currentView === 'templates') {
     <!-- Products Section (Templates & Tools) -->
     <section class="py-12 bg-white" id="products">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Section Header with Tabs -->
-            <div class="max-w-3xl mx-auto text-center mb-8">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">
-                    <?php echo $currentView === 'tools' ? 'Digital Working Tools' : 'Choose Your Template'; ?>
-                </h2>
-                <p class="text-xl text-gray-600 mb-2">
+            <!-- Section Header with Tabs - Single Line -->
+            <div class="max-w-3xl mx-auto mb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                        <?php echo $currentView === 'tools' ? 'Digital Working Tools' : 'Choose Your Template'; ?>
+                    </h2>
+                    <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm" role="group">
+                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                           class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                            <svg class="w-3 h-3 inline mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
+                            <span class="hidden sm:inline">Website Templates</span>
+                            <span class="inline sm:hidden">Templates</span>
+                        </a>
+                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                           class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'tools' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
+                            <svg class="w-3 h-3 inline mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                            <span class="hidden sm:inline">Working Tools</span>
+                            <span class="inline sm:hidden">Tools</span>
+                        </a>
+                    </div>
+                </div>
+                <p class="text-sm sm:text-base text-gray-600 mb-2">
                     <?php echo $currentView === 'tools' ? 'Get powerful digital tools to grow your business' : 'Pick a professionally designed website and get started instantly'; ?>
                 </p>
-                <div class="flex justify-center gap-8 text-sm text-gray-500">
-                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTemplates; ?></span> Active Templates</span>
-                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTools; ?></span> Active Tools</span>
+                <div class="flex justify-start gap-4 text-xs sm:text-sm text-gray-500">
+                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTemplates; ?></span> Templates</span>
+                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTools; ?></span> Tools</span>
                 </div>
             </div>
 
-            <!-- View Toggle Tabs -->
-            <div class="flex justify-center mb-8">
-                <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1 shadow-sm" role="group">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="px-6 py-2.5 text-sm font-medium rounded-md transition-all <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
-                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                        </svg>
-                        Website Templates
-                    </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="px-6 py-2.5 text-sm font-medium rounded-md transition-all <?php echo $currentView === 'tools' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'; ?>">
-                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                        Working Tools
-                    </a>
-                </div>
-            </div>
-
-            <!-- Unified Search Interface -->
-            <div class="mb-8">
-                <div class="max-w-4xl mx-auto">
-                    <div class="relative">
+            <!-- Unified Search & Filter Interface -->
+            <div class="mb-8 max-w-4xl mx-auto">
+                <div class="flex flex-col lg:flex-row gap-3">
+                    <div class="relative flex-1">
                         <input type="text" 
                                id="search-input"
                                placeholder="Search <?php echo $currentView === 'templates' ? 'templates' : 'tools'; ?>..." 
-                               class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
+                               class="w-full px-4 py-2.5 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all text-sm">
                         <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -430,35 +430,37 @@ if ($currentView === 'templates') {
                             </svg>
                         </div>
                     </div>
+
+                    <!-- Category Filter for Templates -->
+                    <?php if ($currentView === 'templates' && !empty($templateCategories)): ?>
+                    <div class="relative lg:w-56">
+                        <select id="templates-category-filter" 
+                                class="w-full px-4 py-2.5 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer text-sm">
+                            <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
+                                All Categories
+                            </option>
+                            <?php foreach ($templateCategories as $cat): ?>
+                            <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($cat); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
             <!-- Dynamic Content Area -->
             <div id="products-content-area">
             <?php if ($currentView === 'templates'): ?>
-            <?php if (!empty($templateCategories)): ?>
-            <!-- Category Filter for Templates -->
-            <div class="mb-6 max-w-4xl mx-auto">
-                <div class="relative">
-                    <select id="templates-category-filter" 
-                            class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-white text-gray-900 font-medium cursor-pointer">
-                        <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
-                            All Categories
-                        </option>
-                        <?php foreach ($templateCategories as $cat): ?>
-                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cat); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                    <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-            </div>
+            <?php if (!empty($templateCategories) && false): ?>
+            <!-- Removed - Category filter now in unified search bar above -->
             <?php endif; ?>
             
             <?php if (empty($templates)): ?>
