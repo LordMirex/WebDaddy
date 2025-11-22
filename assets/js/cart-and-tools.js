@@ -567,25 +567,26 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="flex min-h-screen items-center justify-center p-4">
                 <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" onclick="closeToolModal()"></div>
                 
-                <div class="relative inline-block bg-white rounded-2xl text-left shadow-2xl transform transition-all w-full max-w-3xl mx-4 flex flex-col max-h-[85vh]">
-                    <!-- Header with close button -->
-                    <div class="flex justify-between items-start px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-3 border-b border-gray-200 flex-shrink-0">
-                        <div class="flex-1 min-w-0 pr-3">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-900 truncate">${escapedName}</h3>
-                            <div class="flex gap-2 items-center flex-wrap mt-1.5">
-                                ${escapedCategory ? `<span class="inline-block px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">${escapedCategory}</span>` : ''}
-                                ${stockBadge}
+                <div class="relative inline-block bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-3xl mx-4">
+                    <div class="bg-white">
+                        <!-- Header with close button -->
+                        <div class="flex justify-between items-start px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-200">
+                            <div class="flex-1">
+                                <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">${escapedName}</h3>
+                                <div class="flex gap-2 items-center flex-wrap">
+                                    ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-green-100 text-green-800 text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
+                                    ${stockBadge}
+                                </div>
                             </div>
+                            <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600 ml-2 sm:ml-4 flex-shrink-0">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
                         </div>
-                        <button onclick="closeToolModal()" class="text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0 pt-1">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <!-- Scrollable Content -->
-                    <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-3 sm:py-4">
+                        
+                        <!-- Content -->
+                        <div class="px-4 sm:px-6 py-3 sm:py-4 max-h-[60vh] overflow-y-auto">
                             <div class="mb-4 sm:mb-6">
                                 <img src="${escapedThumbnail}" 
                                      alt="${escapedName}"
@@ -664,35 +665,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </p>
                             </div>
                             ` : ''}
-                    </div>
-                    
-                    <!-- Footer with price and CTA - Sticky at bottom -->
-                    <div class="px-4 sm:px-6 py-3 sm:py-4 bg-white border-t border-gray-200 flex-shrink-0">
-                            <!-- Price and Cart Button -->
-                            <div class="flex items-center justify-between gap-4 mb-6">
-                                <div>
-                                    <p class="text-xs sm:text-sm text-gray-600 mb-1">Price</p>
-                                    <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
-                                </div>
-                                ${isOutOfStock 
-                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                        Out of Stock
-                                    </button>`
-                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
-                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                        </svg>
-                                        Add to Cart
-                                    </button>`
-                                }
-                            </div>
-
-                            <!-- Share Section -->
-                            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 sm:p-5">
+                        </div>
+                        
+                        <!-- Footer with price and CTA -->
+                        <div class="px-4 sm:px-6 py-4 sm:py-6 bg-white border-t border-gray-200">
+                            <!-- Share Section (ABOVE Price) -->
+                            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 sm:p-5 mb-6">
                                 <div class="text-center mb-4">
                                     <h3 class="text-base font-bold text-gray-900 mb-1">Love this tool?</h3>
                                     <p class="text-xs text-gray-600">Share it with your friends!</p>
@@ -736,6 +714,29 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <span class="hidden sm:inline">Copy Link</span>
                                     </button>
                                 </div>
+                            </div>
+                            
+                            <!-- Price and Cart Button -->
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <p class="text-xs sm:text-sm text-gray-600 mb-1">Price</p>
+                                    <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary-600">${formatCurrency(tool.price)}</p>
+                                </div>
+                                ${isOutOfStock 
+                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-300 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-gray-100 cursor-not-allowed">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Out of Stock
+                                    </button>`
+                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
+                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                        Add to Cart
+                                    </button>`
+                                }
                             </div>
                         </div>
                     </div>
