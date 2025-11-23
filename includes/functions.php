@@ -1318,7 +1318,9 @@ function getProductRecommendations($orderId, $limit = 3)
 
 function sendAffiliateOpportunityEmail($customerName, $customerEmail)
 {
-    $subject = "🤝 Earn 20% Commission - Share WebDaddy Empire!";
+    $subject = "🤝 Earn 30% Commission - Join WebDaddy Empire Affiliates!";
+    
+    $affiliateRegisterUrl = (defined('SITE_URL') ? SITE_URL : 'https://webdaddy.com') . '/affiliate-register.php';
     
     $content = "
     <h2 style='color: #2563eb;'>Thank You for Your Purchase! 🎉</h2>
@@ -1329,19 +1331,23 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
     
     <h3 style='color: #2563eb;'>💰 Affiliate Program Benefits</h3>
     <ul style='line-height: 1.8;'>
-        <li><strong>20% Commission</strong> on every referral that converts</li>
+        <li><strong>30% Commission</strong> on every referral that converts</li>
         <li><strong>Recurring Income</strong> from customers you refer</li>
         <li><strong>Easy Sharing</strong> - We give you a unique referral code</li>
         <li><strong>Real-time Tracking</strong> - Monitor your earnings anytime</li>
         <li><strong>No Caps</strong> - Earn as much as you can!</li>
     </ul>
     
-    <h3 style='color: #2563eb;'>🚀 Get Started in 3 Steps</h3>
-    <ol style='line-height: 1.8;'>
-        <li>Reply to this email to express your interest</li>
-        <li>We'll provide your unique affiliate code</li>
-        <li>Start earning 20% on every referral!</li>
-    </ol>
+    <h3 style='color: #2563eb;'>🚀 Get Started Now</h3>
+    <p><strong><a href=\"" . htmlspecialchars($affiliateRegisterUrl) . "\" style='color: #2563eb; text-decoration: none; font-weight: bold;'>👉 Click Here to Register as an Affiliate →</a></strong></p>
+    
+    <p style='margin-top: 20px; line-height: 1.8;'>Once registered, you'll receive:</p>
+    <ul style='line-height: 1.8;'>
+        <li>✅ Your unique affiliate code</li>
+        <li>✅ Real-time earnings dashboard</li>
+        <li>✅ Marketing materials to share</li>
+        <li>✅ Support from our team</li>
+    </ul>
     
     <p style='margin-top: 30px; font-size: 14px; color: #666;'>Your unique referral link will be in the format: <code>webdaddy.com?aff=YOUR_CODE</code></p>
     
