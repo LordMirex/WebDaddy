@@ -635,4 +635,127 @@ new Chart(ctx, {
 });
 </script>
 
+<!-- Advanced Analytics from analytics-report API -->
+<div class="mt-8">
+    <!-- Top Templates & Tools Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Top Templates -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-star-fill text-yellow-500"></i> Top Templates
+                </h5>
+            </div>
+            <div id="top-templates-container" class="p-6">
+                <p class="text-center text-gray-500"><i class="bi bi-hourglass-split animate-spin"></i> Loading...</p>
+            </div>
+        </div>
+
+        <!-- Top Tools -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-gear-fill text-blue-500"></i> Top Tools
+                </h5>
+            </div>
+            <div id="top-tools-container" class="p-6">
+                <p class="text-center text-gray-500"><i class="bi bi-hourglass-split animate-spin"></i> Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Breakdown & Search Analytics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Device Breakdown -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-phone text-purple-500"></i> Device Breakdown
+                </h5>
+            </div>
+            <div id="device-breakdown-container" class="p-6">
+                <p class="text-center text-gray-500"><i class="bi bi-hourglass-split animate-spin"></i> Loading...</p>
+            </div>
+        </div>
+
+        <!-- Search Analytics -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-search text-green-500"></i> Search Analytics
+                </h5>
+            </div>
+            <div id="search-analytics-container" class="p-6">
+                <p class="text-center text-gray-500"><i class="bi bi-hourglass-split animate-spin"></i> Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load analytics-report API data asynchronously
+async function loadAdvancedAnalytics() {
+    try {
+        // Load top templates
+        const topTemplatesRes = await fetch('/api/analytics-report.php?action=top_templates&limit=10');
+        const topTemplates = await topTemplatesRes.json();
+        if (topTemplates.success && topTemplates.data.length > 0) {
+            let html = '<div class="space-y-3 max-h-80 overflow-y-auto">';
+            topTemplates.data.forEach((t, idx) => {
+                html += `<div class="flex items-center justify-between p-3 bg-gray-50 rounded"><div><strong class="text-gray-900">${idx + 1}. ${escapeHtml(t.name)}</strong><p class="text-xs text-gray-500">${t.views || 0} views, ${t.clicks || 0} clicks</p></div></div>`;
+            });
+            html += '</div>';
+            document.getElementById('top-templates-container').innerHTML = html;
+        }
+
+        // Load top tools
+        const topToolsRes = await fetch('/api/analytics-report.php?action=top_tools&limit=10');
+        const topTools = await topToolsRes.json();
+        if (topTools.success && topTools.data.length > 0) {
+            let html = '<div class="space-y-3 max-h-80 overflow-y-auto">';
+            topTools.data.forEach((t, idx) => {
+                html += `<div class="flex items-center justify-between p-3 bg-gray-50 rounded"><div><strong class="text-gray-900">${idx + 1}. ${escapeHtml(t.name)}</strong><p class="text-xs text-gray-500">${t.views || 0} views, ${t.clicks || 0} clicks</p></div></div>`;
+            });
+            html += '</div>';
+            document.getElementById('top-tools-container').innerHTML = html;
+        }
+
+        // Load device breakdown
+        const deviceRes = await fetch('/api/analytics-report.php?action=device_breakdown');
+        const deviceData = await deviceRes.json();
+        if (deviceData.success && deviceData.data) {
+            let html = '<div class="space-y-3">';
+            Object.entries(deviceData.data).forEach(([device, count]) => {
+                const pct = deviceData.total_devices > 0 ? Math.round((count / deviceData.total_devices) * 100) : 0;
+                html += `<div><div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-700">${escapeHtml(device)}</span><span class="text-sm text-gray-600">${count} (${pct}%)</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${pct}%"></div></div></div>`;
+            });
+            html += '</div>';
+            document.getElementById('device-breakdown-container').innerHTML = html;
+        }
+
+        // Load search analytics
+        const searchRes = await fetch('/api/analytics-report.php?action=search_analytics&limit=10');
+        const searchData = await searchRes.json();
+        if (searchData.success && searchData.searches.length > 0) {
+            let html = '<div class="space-y-2 max-h-80 overflow-y-auto">';
+            searchData.searches.forEach((s, idx) => {
+                html += `<div class="flex justify-between p-2 bg-gray-50 rounded"><span class="text-sm text-gray-700">${idx + 1}. ${escapeHtml(s.query)}</span><span class="text-xs text-gray-500">${s.count} searches</span></div>`;
+            });
+            html += '</div>';
+            document.getElementById('search-analytics-container').innerHTML = html;
+        }
+    } catch (error) {
+        console.log('Advanced analytics loaded (some may not be available)');
+    }
+}
+
+function escapeHtml(text) {
+    const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Load when page is ready
+document.addEventListener('DOMContentLoaded', loadAdvancedAnalytics);
+</script>
+
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
