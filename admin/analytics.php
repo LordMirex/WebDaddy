@@ -672,26 +672,32 @@ async function loadAdvancedAnalytics() {
         // Load device breakdown
         const deviceRes = await fetch('/api/analytics-report.php?action=device_breakdown');
         const deviceData = await deviceRes.json();
-        if (deviceData.success && deviceData.data) {
+        if (deviceData.success && deviceData.device_breakdown && deviceData.device_breakdown.length > 0) {
             let html = '<div class="space-y-3">';
-            Object.entries(deviceData.data).forEach(([device, count]) => {
-                const pct = deviceData.total_devices > 0 ? Math.round((count / deviceData.total_devices) * 100) : 0;
-                html += `<div><div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-700">${escapeHtml(device)}</span><span class="text-sm text-gray-600">${count} (${pct}%)</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${pct}%"></div></div></div>`;
+            let totalVisits = 0;
+            deviceData.device_breakdown.forEach(d => totalVisits += (d.visits || 0));
+            deviceData.device_breakdown.forEach((device) => {
+                const pct = device.percentage || 0;
+                html += `<div><div class="flex justify-between mb-1"><span class="text-sm font-medium text-gray-700">${escapeHtml(device.device_type)}</span><span class="text-sm text-gray-600">${device.visits} (${pct}%)</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${pct}%"></div></div></div>`;
             });
             html += '</div>';
             document.getElementById('device-breakdown-container').innerHTML = html;
+        } else {
+            document.getElementById('device-breakdown-container').innerHTML = '<p class="text-gray-500 text-center">No device data available</p>';
         }
 
         // Load search analytics
         const searchRes = await fetch('/api/analytics-report.php?action=search_analytics&limit=10');
         const searchData = await searchRes.json();
-        if (searchData.success && searchData.searches.length > 0) {
+        if (searchData.success && searchData.searches && searchData.searches.length > 0) {
             let html = '<div class="space-y-2 max-h-80 overflow-y-auto">';
             searchData.searches.forEach((s, idx) => {
-                html += `<div class="flex justify-between p-2 bg-gray-50 rounded"><span class="text-sm text-gray-700">${idx + 1}. ${escapeHtml(s.query)}</span><span class="text-xs text-gray-500">${s.count} searches</span></div>`;
+                html += `<div class="flex justify-between p-2 bg-gray-50 rounded"><span class="text-sm text-gray-700">${idx + 1}. ${escapeHtml(s.search_term || '')}</span><span class="text-xs text-gray-500">${s.searches} searches</span></div>`;
             });
             html += '</div>';
             document.getElementById('search-analytics-container').innerHTML = html;
+        } else {
+            document.getElementById('search-analytics-container').innerHTML = '<p class="text-gray-500 text-center">No search data available</p>';
         }
     } catch (error) {
         console.log('Advanced analytics loaded (some may not be available)');
