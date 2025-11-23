@@ -960,62 +960,43 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <div style="flex: 1;">
                                 <p style="margin: 0 0 6px 0; font-weight: bold; font-size: 14px;">💰 Special Offer</p>
                                 <p style="margin: 0; font-size: 13px; opacity: 0.95;">Use code <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-weight: bold;">HUSTLE</span> for 20% OFF</p>
-                                <button id="testNotifBtn" style="margin-top: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">📢 Test Notification</button>
+                                <button id="testNotifBtn" type="button" style="margin-top: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;">📢 Test</button>
                             </div>
-                            <button id="closeBannerBtn" style="background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; margin: 0;">✕</button>
+                            <button id="closeBannerBtn" type="button" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px; padding: 0; margin: 0; width: 24px; height: 24px;">✕</button>
                         </div>
                     </div>
                 `;
                 document.body.appendChild(banner);
                 console.log('✅ Cart Recovery Banner displayed');
                 
-                // Test notification button click handler
-                const testBtn = document.getElementById('testNotifBtn');
-                if (testBtn) {
-                    testBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        console.log('🔔 Test notification button clicked');
-                        
-                        if (!('Notification' in window)) {
-                            alert('❌ Notifications not supported');
-                            return;
-                        }
-                        
-                        console.log('Permission: ' + Notification.permission);
-                        
-                        if (Notification.permission === 'granted') {
-                            new Notification('🎉 Test Notification Works!', {
-                                body: 'Cart abandonment reminders are ACTIVE ✅',
-                                icon: '/assets/images/favicon.png',
-                                tag: 'test',
-                                requireInteraction: true
-                            });
-                            console.log('✅ Notification sent!');
-                        } else if (Notification.permission === 'default') {
-                            Notification.requestPermission().then(perm => {
-                                console.log('Permission: ' + perm);
-                                if (perm === 'granted') {
-                                    new Notification('🎉 Test Notification Works!', {
-                                        body: 'Cart abandonment reminders are ACTIVE ✅',
-                                        icon: '/assets/images/favicon.png',
-                                        tag: 'test',
-                                        requireInteraction: true
-                                    });
-                                }
-                            });
-                        } else {
-                            alert('⚠️ Notifications blocked. Enable in settings: Menu > Notifications');
-                        }
-                    });
-                }
-                
-                // Close banner button
-                const closeBtn = document.getElementById('closeBannerBtn');
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', function() {
-                        banner.style.display = 'none';
-                    });
-                }
+                // Attach click handlers with delay to ensure DOM is ready
+                setTimeout(function() {
+                    const testBtn = document.getElementById('testNotifBtn');
+                    if (testBtn) {
+                        console.log('✅ Test button found, attaching handler');
+                        testBtn.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            
+                            console.log('🔔 BUTTON CLICKED - Sending notification');
+                            
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                // Send a simple, basic notification
+                                const n = new Notification('Cart Reminder Working! ✅', {
+                                    body: '🛒 You will receive cart reminders'
+                                });
+                                console.log('✅ NOTIFICATION SENT');
+                                alert('✅ Notification sent! Check the notification area.');
+                            } else if ('Notification' in window) {
+                                console.log('Permission status: ' + Notification.permission);
+                                alert('⚠️ Notification permission is: ' + Notification.permission);
+                            } else {
+                                alert('❌ Notifications not supported');
+                            }
+                            return false;
+                        }, false);
+                    }
+                }, 200);
             }
             
             // Cart Abandonment Reminders (30min & 2hrs)
