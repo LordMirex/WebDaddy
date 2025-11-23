@@ -1060,11 +1060,9 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             </div>
             <?php endif; ?>
             
-            <?php if ($viewOrder['status'] !== 'pending'): ?>
-            <div class="mb-6">
-                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Domain Assignment & Notes</h6>
-                
-                <?php
+            <?php 
+            // Only show Domain Assignment section for non-pending orders with templates
+            if ($viewOrder['status'] !== 'pending'): 
                 $templateItems = [];
                 if (!empty($viewOrderItems)) {
                     foreach ($viewOrderItems as $item) {
@@ -1082,7 +1080,9 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 }
                 
                 if (!empty($templateItems)):
-                ?>
+            ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase">Domain Assignment & Notes</h6>
                 
                 <form method="POST" class="space-y-4">
                     <input type="hidden" name="action" value="update_order_domains">
@@ -1181,28 +1181,11 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         </button>
                     </div>
                 </form>
-                
-                <?php 
-                else:
-                ?>
-                <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-4">
-                    <i class="bi bi-info-circle"></i> This order contains no templates requiring domain assignment.
-                </div>
-                
-                <!-- Only show read-only notes if order is already paid/completed (not pending) -->
-                <?php if ($viewOrder['status'] !== 'pending' && !empty($viewOrder['payment_notes'])): ?>
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <i class="bi bi-sticky mr-1"></i> Payment Notes
-                    </label>
-                    <div class="bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-800 whitespace-pre-wrap">
-                        <?php echo htmlspecialchars($viewOrder['payment_notes']); ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-                <?php endif; ?>
             </div>
-            <?php endif; ?>
+                <?php 
+                endif;
+                endif;
+            ?>
             
             <?php if ($viewOrder['status'] === 'pending'): ?>
             <div class="mb-6">
