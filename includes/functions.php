@@ -461,6 +461,59 @@ function getOrders($status = null, $limit = 20, $offset = 0)
     }
 }
 
+function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
+{
+    $db = getDb();
+    try {
+        $db->beginTransaction();
+        
+        // Update order status to paid
+        $updateStmt = $db->prepare("
+            UPDATE pending_orders 
+            SET status = 'paid', payment_notes = ?, confirmed_by = ?, confirmed_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ");
+        $updateStmt->execute([$paymentNotes, $adminId, $orderId]);
+        
+        // Create sales record
+        $salesStmt = $db->prepare("
+            INSERT INTO sales (pending_order_id, admin_id, amount, payment_method, payment_confirmed_at)
+            VALUES (?, ?, ?, 'manual', CURRENT_TIMESTAMP)
+        ");
+        $salesStmt->execute([$orderId, $adminId, $amountPaid]);
+        
+        $db->commit();
+        error_log("Order #$orderId marked as paid by admin #$adminId for amount $amountPaid");
+        return true;
+    } catch (PDOException $e) {
+        $db->rollBack();
+        error_log('Error marking order paid: ' . $e->getMessage());
+        return false;
+    }
+}
+
+function getAvailableDomains($templateId = null)
+{
+    $db = getDb();
+    try {
+        $sql = "SELECT id, domain_name, status FROM domains WHERE status IN ('available', 'in_use')";
+        $params = [];
+        
+        if ($templateId) {
+            $sql .= " ORDER BY status DESC, domain_name ASC";
+        } else {
+            $sql .= " ORDER BY domain_name ASC";
+        }
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching available domains: ' . $e->getMessage());
+        return [];
+    }
+}
+
 function createOrderWithItems($orderData, $orderItems)
 {
     $db = getDb();
