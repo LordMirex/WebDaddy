@@ -694,11 +694,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load recent visits with AJAX pagination
 async function loadRecentVisitsPage(pageNum) {
-    const period = new URLSearchParams(window.location.search).get('period') || '7days';
-    const ipFilter = new URLSearchParams(window.location.search).get('ip') || '';
+    const urlParams = new URLSearchParams(window.location.search);
+    const period = urlParams.get('period') || '7days';
+    const ipFilter = urlParams.get('ip') || '';
     
     try {
-        const url = `/api/recent-visits.php?page=${pageNum}&period=${period}${ipFilter ? '&ip=' + encodeURIComponent(ipFilter) : ''}`;
+        let url = `/api/recent-visits.php?page=${pageNum}&period=${encodeURIComponent(period)}`;
+        if (ipFilter) {
+            url += `&ip=${encodeURIComponent(ipFilter)}`;
+        }
         const response = await fetch(url);
         const data = await response.json();
         

@@ -1,7 +1,10 @@
 <?php
 header('Content-Type: application/json');
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/db.php';
+
+$db = getDb();
 
 $period = $_GET['period'] ?? '7days';
 $page = max(1, (int)($_GET['page'] ?? 1));
