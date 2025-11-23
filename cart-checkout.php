@@ -960,6 +960,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <div style="flex: 1;">
                                 <p style="margin: 0 0 6px 0; font-weight: bold; font-size: 14px;">💰 Special Offer</p>
                                 <p style="margin: 0; font-size: 13px; opacity: 0.95;">Use code <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-weight: bold;">HUSTLE</span> for 20% OFF</p>
+                                <button onclick="testNotification()" style="margin-top: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">📢 Test Notification</button>
                             </div>
                             <button onclick="document.getElementById('cartRecoveryBanner').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; margin: 0;">✕</button>
                         </div>
@@ -968,6 +969,48 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 document.body.appendChild(banner);
                 console.log('✅ Cart Recovery Banner displayed');
             }
+            
+            // TEST NOTIFICATION FUNCTION
+            window.testNotification = function() {
+                console.log('🔔 Test notification triggered');
+                if (!('Notification' in window)) {
+                    alert('❌ Notifications not supported in this browser');
+                    console.error('Notifications not supported');
+                    return;
+                }
+                
+                console.log('📢 Current permission status: ' + Notification.permission);
+                
+                if (Notification.permission === 'granted') {
+                    const testNotif = new Notification('🎉 Test Notification Works!', {
+                        body: 'Cart abandonment reminders are ACTIVE ✅',
+                        icon: '/assets/images/favicon.png',
+                        tag: 'test-notification',
+                        requireInteraction: true
+                    });
+                    console.log('✅ Notification sent successfully');
+                } else if (Notification.permission === 'default') {
+                    console.log('📢 Requesting permission...');
+                    Notification.requestPermission().then(permission => {
+                        console.log('📢 Permission result: ' + permission);
+                        if (permission === 'granted') {
+                            const testNotif = new Notification('🎉 Test Notification Works!', {
+                                body: 'Cart abandonment reminders are ACTIVE ✅',
+                                icon: '/assets/images/favicon.png',
+                                tag: 'test-notification',
+                                requireInteraction: true
+                            });
+                            console.log('✅ Notification sent after permission granted');
+                        } else {
+                            console.error('❌ Permission denied');
+                            alert('❌ Notification permission denied');
+                        }
+                    });
+                } else if (Notification.permission === 'denied') {
+                    alert('❌ Notifications are blocked. Please enable in browser settings.');
+                    console.error('Notifications denied by user');
+                }
+            };
             
             // Cart Abandonment Reminders (30min & 2hrs)
             function checkCartAbandonmentReminders() {
@@ -1010,16 +1053,25 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             }
             
             // Request notification permission on page load (only once)
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission().then(permission => {
-                    console.log('📢 Notification permission: ' + permission);
-                    if (permission === 'granted') {
-                        new Notification('Cart Recovery Enabled! 🛒', {
-                            body: 'We\'ll remind you if you leave items in your cart.',
-                            icon: '/assets/images/favicon.png'
-                        });
-                    }
-                });
+            if ('Notification' in window) {
+                console.log('📢 Notifications available. Current permission: ' + Notification.permission);
+                if (Notification.permission === 'default') {
+                    console.log('📢 Requesting notification permission...');
+                    Notification.requestPermission().then(permission => {
+                        console.log('📢 Permission result: ' + permission);
+                        if (permission === 'granted') {
+                            console.log('✅ Notifications ENABLED');
+                        } else {
+                            console.warn('⚠️ Notifications disabled');
+                        }
+                    });
+                } else if (Notification.permission === 'granted') {
+                    console.log('✅ Notifications already enabled');
+                } else if (Notification.permission === 'denied') {
+                    console.error('❌ Notifications blocked by browser');
+                }
+            } else {
+                console.error('❌ Notifications not supported in this browser');
             }
             
             // Check reminders every 60 seconds
