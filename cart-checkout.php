@@ -106,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         // Re-fetch cart items and totals after validation to ensure we have fresh data
         $cartItems = getCart();
         $totals = getCartTotal(null, $affiliateCode);
+        $paymentNotes = trim($_POST['payment_notes'] ?? '');
         
         // Double-check cart is still not empty
         if (empty($cartItems)) {
@@ -233,7 +234,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             'original_price' => $totals['subtotal'],
             'discount_amount' => $totals['discount'],
             'final_amount' => $totals['total'],
-            'cart_snapshot' => $cartSnapshot
+            'cart_snapshot' => $cartSnapshot,
+            'payment_notes' => $paymentNotes
         ];
         
         $orderId = createOrderWithItems($orderData, $orderItems);
@@ -845,6 +847,27 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <span><?php echo formatCurrency($totals['total']); ?></span>
                             </div>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Notes (Optional) -->
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center mb-4">
+                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+                            </svg>
+                            <label for="payment_notes" class="text-sm font-bold text-gray-100">
+                                📝 Payment Notes (Optional)
+                            </label>
+                        </div>
+                        <textarea 
+                               id="payment_notes" 
+                               name="payment_notes" 
+                               class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                               rows="3"
+                               placeholder="e.g., Customer paid half upfront, remaining payment on delivery..."></textarea>
+                        <p class="text-xs text-gray-400 mt-2">ℹ️ These notes will be saved with the order for future reference.</p>
                     </div>
                 </div>
                 

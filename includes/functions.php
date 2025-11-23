@@ -304,8 +304,8 @@ function createOrderWithItems($orderData, $items = [])
             (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
              customer_phone, business_name, custom_fields, affiliate_code, session_id, 
              message_text, ip_address, status, original_price, discount_amount, final_amount, 
-             quantity, cart_snapshot)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
+             quantity, cart_snapshot, payment_notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)
         ");
         
         $templateId = $orderData['template_id'] ?? null;
@@ -329,7 +329,8 @@ function createOrderWithItems($orderData, $items = [])
             $orderData['discount_amount'] ?? 0,
             $orderData['final_amount'],
             $orderData['quantity'] ?? 1,
-            $orderData['cart_snapshot'] ?? null
+            $orderData['cart_snapshot'] ?? null,
+            $orderData['payment_notes'] ?? null
         ];
         
         $stmt->execute($params);
