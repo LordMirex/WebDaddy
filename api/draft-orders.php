@@ -36,13 +36,12 @@ try {
             
             $db = getDb();
             $stmt = $db->prepare('
-                INSERT INTO draft_orders (cart_snapshot, customer_email, session_id, ip_address, created_at)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                INSERT INTO draft_orders (cart_snapshot, session_id, ip_address, created_at)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)
             ');
             
             $result = $stmt->execute([
                 json_encode($draftData),
-                $data['email'] ?? '',
                 session_id(),
                 $_SERVER['REMOTE_ADDR'] ?? ''
             ]);
@@ -54,7 +53,7 @@ try {
             $draftId = $db->lastInsertId();
             $response['success'] = true;
             $response['draft_id'] = $draftId;
-            $response['message'] = 'Draft order saved successfully';
+            $response['message'] = 'Draft order auto-saved: ' . count($cartItems) . ' items';
             break;
             
         case 'load':

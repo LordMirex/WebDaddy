@@ -139,6 +139,23 @@ try {
                 if ($result['success']) {
                     // Get updated cart count
                     $count = getCartCount();
+                    
+                    // Auto-save cart as draft order
+                    $cartItems = getCart();
+                    if (!empty($cartItems)) {
+                        $db = getDb();
+                        $draftData = json_encode([
+                            'cart_items' => $cartItems,
+                            'affiliate_code' => $affiliateCode,
+                            'saved_at' => date('Y-m-d H:i:s'),
+                            'session_id' => session_id(),
+                            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
+                        ]);
+                        
+                        $stmt = $db->prepare('INSERT INTO draft_orders (cart_snapshot, session_id, ip_address, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)');
+                        @$stmt->execute([$draftData, session_id(), $_SERVER['REMOTE_ADDR'] ?? '']);
+                    }
+                    
                     echo json_encode([
                         'success' => true,
                         'message' => $result['message'],

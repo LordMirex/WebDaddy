@@ -13,6 +13,30 @@ header('Cache-Control: public, max-age=31536000, immutable', false);
 startSecureSession();
 handleAffiliateTracking();
 
+// AUTO-RESTORE SAVED CART FROM PREVIOUS VISIT (if not already loaded)
+if (empty(getCart())) {
+    $db = getDb();
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $stmt = $db->prepare('
+        SELECT id, cart_snapshot FROM draft_orders 
+        WHERE ip_address = ? AND created_at > datetime("now", "-7 days")
+        ORDER BY created_at DESC
+        LIMIT 1
+    ');
+    $stmt->execute([$ip]);
+    $draft = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($draft) {
+        $draftData = json_decode($draft['cart_snapshot'], true);
+        if (!empty($draftData['cart_items'])) {
+            $_SESSION['cart'] = $draftData['cart_items'];
+            if (!empty($draftData['affiliate_code'])) {
+                $_SESSION['affiliate_code'] = $draftData['affiliate_code'];
+            }
+        }
+    }
+}
+
 // Determine current view: 'templates' or 'tools'
 $currentView = $_GET['view'] ?? 'templates';
 $currentView = in_array($currentView, ['templates', 'tools']) ? $currentView : 'templates';
