@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS announcements;
 DROP TABLE IF EXISTS withdrawal_requests;
 DROP TABLE IF EXISTS sales;
 DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS draft_orders;
 DROP TABLE IF EXISTS pending_orders;
 DROP TABLE IF EXISTS domains;
 DROP TABLE IF EXISTS affiliates;
@@ -135,6 +136,21 @@ CREATE TABLE domains (
 CREATE INDEX idx_domains_template_id ON domains(template_id);
 CREATE INDEX idx_domains_status ON domains(status);
 CREATE INDEX idx_domains_domain_name ON domains(domain_name);
+
+-- Draft Orders Table (Cart Abandonment Recovery)
+CREATE TABLE draft_orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cart_snapshot TEXT NOT NULL,
+    customer_email TEXT,
+    session_id TEXT NOT NULL,
+    ip_address TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_draft_orders_session_id ON draft_orders(session_id);
+CREATE INDEX idx_draft_orders_customer_email ON draft_orders(customer_email);
+CREATE INDEX idx_draft_orders_created_at ON draft_orders(created_at);
 
 -- Pending Orders Table (Order Header)
 -- Updated to support both templates and tools, plus multi-item orders
