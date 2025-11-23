@@ -123,27 +123,12 @@ function getTemplatesCount($activeOnly = true, $category = null)
     }
     
     try {
-        return (int)$db->query($sql)->fetchColumn();
+        $count = $db->query($sql)->fetchColumn();
+        return $count;
     } catch (PDOException $e) {
         error_log('Error counting templates: ' . $e->getMessage());
         return 0;
     }
-}
-
-function getTemplateCategories()
-{
-    $db = getDb();
-    
-    $stmt = $db->query("
-        SELECT DISTINCT category 
-        FROM templates 
-        WHERE category IS NOT NULL 
-          AND category != '' 
-          AND active = 1
-        ORDER BY category
-    ");
-    
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 function getTemplateById($id)
@@ -151,527 +136,141 @@ function getTemplateById($id)
     $db = getDb();
     
     try {
-        $stmt = $db->prepare("SELECT * FROM templates WHERE id = ?");
+        $stmt = $db->prepare("SELECT * FROM templates WHERE id = ? AND active = 1");
         $stmt->execute([$id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         error_log('Error fetching template: ' . $e->getMessage());
         return null;
     }
 }
 
-function getTemplateBySlug($slug)
+function getTools($activeOnly = true, $category = null, $limit = null, $offset = 0)
+{
+    $db = getDb();
+    
+    $sql = "SELECT * FROM tools WHERE 1=1";
+    if ($activeOnly) {
+        $sql .= " AND active = true";
+    }
+    if ($category) {
+        $sql .= " AND category = " . $db->quote($category);
+    }
+    $sql .= " ORDER BY created_at DESC";
+    if ($limit) {
+        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+    }
+    
+    try {
+        $result = $db->query($sql);
+        return $result->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching tools: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function getToolsCount($activeOnly = true, $category = null)
+{
+    $db = getDb();
+    
+    $sql = "SELECT COUNT(*) FROM tools WHERE 1=1";
+    if ($activeOnly) {
+        $sql .= " AND active = true";
+    }
+    if ($category) {
+        $sql .= " AND category = " . $db->quote($category);
+    }
+    
+    try {
+        $count = $db->query($sql)->fetchColumn();
+        return $count;
+    } catch (PDOException $e) {
+        error_log('Error counting tools: ' . $e->getMessage());
+        return 0;
+    }
+}
+
+function getToolById($id)
 {
     $db = getDb();
     
     try {
-        $stmt = $db->prepare("SELECT * FROM templates WHERE slug = ?");
-        $stmt->execute([$slug]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
+        $stmt = $db->prepare("SELECT * FROM tools WHERE id = ? AND active = 1");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        error_log('Error fetching template by slug: ' . $e->getMessage());
+        error_log('Error fetching tool: ' . $e->getMessage());
         return null;
     }
 }
 
-function getTemplateUrl($template, $affiliateCode = null)
-{
-    if (is_array($template)) {
-        $slug = $template['slug'] ?? '';
-    } else {
-        $slug = $template;
-    }
-    
-    $url = '/' . $slug;
-    
-    if ($affiliateCode) {
-        $url .= '?aff=' . urlencode($affiliateCode);
-    }
-    
-    return $url;
-}
-
-function getAvailableDomains($templateId)
+function getAffiliateByCode($code)
 {
     $db = getDb();
-    
     try {
-        $stmt = $db->prepare("SELECT * FROM domains WHERE template_id = ? AND status = 'available' AND assigned_order_id IS NULL ORDER BY domain_name");
-        $stmt->execute([$templateId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $db->prepare("SELECT * FROM affiliates WHERE code = ?");
+        $stmt->execute([strtoupper($code)]);
+        $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $affiliate ? $affiliate : null;
     } catch (PDOException $e) {
-        error_log('Error fetching available domains: ' . $e->getMessage());
-        return [];
+        error_log('Error fetching affiliate: ' . $e->getMessage());
+        return null;
     }
 }
 
-function createPendingOrder($data)
+function incrementAffiliateClick($code)
 {
     $db = getDb();
-    
     try {
-        $stmt = $db->prepare("
-            INSERT INTO pending_orders 
-            (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
-             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status,
-             original_price, discount_amount, final_amount, order_type)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)
-        ");
-        
-        if (!$stmt) {
-            throw new PDOException('Failed to prepare statement');
-        }
-        
-        $params = [
-            $data['template_id'],
-            $data['chosen_domain_id'],
-            $data['customer_name'],
-            $data['customer_email'],
-            $data['customer_phone'],
-            $data['business_name'],
-            $data['custom_fields'],
-            $data['affiliate_code'],
-            $data['session_id'],
-            $data['message_text'],
-            $data['ip_address'],
-            $data['original_price'] ?? null,
-            $data['discount_amount'] ?? 0,
-            $data['final_amount'] ?? null,
-            $data['order_type'] ?? 'template'
-        ];
-        
-        $result = $stmt->execute($params);
-        
-        $lastId = $db->lastInsertId('pending_orders_id_seq');
-        if (!$lastId) {
-            $lastId = $db->lastInsertId();
-        }
-        
-        if ($lastId && isset($data['order_items']) && is_array($data['order_items'])) {
-            foreach ($data['order_items'] as $item) {
-                $itemStmt = $db->prepare("
-                    INSERT INTO order_items 
-                    (pending_order_id, product_type, product_id, quantity, unit_price, discount_amount, final_amount, metadata_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ");
-                $itemStmt->execute([
-                    $lastId,
-                    $item['product_type'],
-                    $item['product_id'],
-                    $item['quantity'] ?? 1,
-                    $item['unit_price'],
-                    $item['discount_amount'] ?? 0,
-                    $item['final_amount'],
-                    isset($item['metadata']) ? json_encode($item['metadata']) : null
-                ]);
-            }
-        }
-        
-        return $lastId !== false ? $lastId : false;
+        $stmt = $db->prepare("UPDATE affiliates SET total_clicks = total_clicks + 1 WHERE code = ?");
+        return $stmt->execute([strtoupper($code)]);
     } catch (PDOException $e) {
-        error_log('Error creating pending order: ' . $e->getMessage());
-        // Store error in global for display in development
-        global $lastDbError;
-        $lastDbError = $e->getMessage();
+        error_log('Error incrementing affiliate clicks: ' . $e->getMessage());
         return false;
     }
 }
 
-function createOrderWithItems($orderData, $items = [])
+function getTotalEarnings($code)
 {
     $db = getDb();
-    $db->beginTransaction();
-    
     try {
-        $hasTemplates = false;
-        $hasTools = false;
-        foreach ($items as $item) {
-            if ($item['product_type'] === 'template') $hasTemplates = true;
-            if ($item['product_type'] === 'tool') $hasTools = true;
-        }
-        
-        $orderType = 'template';
-        if ($hasTemplates && $hasTools) {
-            $orderType = 'mixed';
-        } elseif (!$hasTemplates && $hasTools) {
-            $orderType = 'tool';
-        }
-        
-        $stmt = $db->prepare("
-            INSERT INTO pending_orders 
-            (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
-             customer_phone, business_name, custom_fields, affiliate_code, session_id, 
-             message_text, ip_address, status, original_price, discount_amount, final_amount, 
-             quantity, cart_snapshot)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
-        ");
-        
-        $templateId = $orderData['template_id'] ?? null;
-        $toolId = $orderData['tool_id'] ?? null;
-        
-        $params = [
-            $templateId,
-            $toolId,
-            $orderType,
-            $orderData['chosen_domain_id'] ?? null,
-            $orderData['customer_name'],
-            $orderData['customer_email'],
-            $orderData['customer_phone'],
-            $orderData['business_name'] ?? null,
-            $orderData['custom_fields'] ?? null,
-            $orderData['affiliate_code'] ?? null,
-            $orderData['session_id'] ?? session_id(),
-            $orderData['message_text'] ?? null,
-            $orderData['ip_address'] ?? ($_SERVER['REMOTE_ADDR'] ?? ''),
-            $orderData['original_price'] ?? null,
-            $orderData['discount_amount'] ?? 0,
-            $orderData['final_amount'],
-            $orderData['quantity'] ?? 1,
-            $orderData['cart_snapshot'] ?? null
-        ];
-        
-        $stmt->execute($params);
-        $orderId = $db->lastInsertId();
-        
-        if (!$orderId) {
-            throw new PDOException('Failed to get order ID');
-        }
-        
-        if (!empty($items)) {
-            // Validate all items before inserting
-            foreach ($items as $item) {
-                if (empty($item['product_id']) || !is_numeric($item['product_id']) || $item['product_id'] <= 0) {
-                    error_log('CRITICAL: Invalid product_id in order item: ' . json_encode($item));
-                    throw new PDOException('Invalid product_id: cannot create order with null or invalid product references');
-                }
-            }
-            
-            $itemStmt = $db->prepare("
-                INSERT INTO order_items 
-                (pending_order_id, product_type, product_id, quantity, unit_price, discount_amount, final_amount, metadata_json)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            
-            foreach ($items as $item) {
-                $itemStmt->execute([
-                    $orderId,
-                    $item['product_type'],
-                    $item['product_id'],
-                    $item['quantity'] ?? 1,
-                    $item['unit_price'],
-                    $item['discount_amount'] ?? 0,
-                    $item['final_amount'],
-                    isset($item['metadata']) ? json_encode($item['metadata']) : null
-                ]);
-            }
-        }
-        
-        $db->commit();
-        return $orderId;
-        
+        $stmt = $db->prepare("SELECT SUM(s.commission_amount) as total FROM sales s JOIN affiliates a ON s.affiliate_id = a.id WHERE a.code = ?");
+        $stmt->execute([strtoupper($code)]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total'] ?? 0;
     } catch (PDOException $e) {
-        $db->rollBack();
-        error_log('Error creating order with items: ' . $e->getMessage());
-        global $lastDbError;
-        $lastDbError = $e->getMessage();
-        return false;
+        error_log('Error calculating affiliate earnings: ' . $e->getMessage());
+        return 0;
     }
 }
 
-function getOrders($status = null)
+function recordAffiliateClick($affiliateCode)
 {
-    $db = getDb();
-    
-    try {
-        if ($status !== null) {
-            $stmt = $db->prepare("
-                SELECT po.*, t.name as template_name, d.domain_name 
-                FROM pending_orders po
-                LEFT JOIN templates t ON po.template_id = t.id
-                LEFT JOIN domains d ON po.chosen_domain_id = d.id
-                WHERE po.status = ?
-                ORDER BY po.created_at DESC
-            ");
-            $stmt->execute([$status]);
-        } else {
-            $stmt = $db->query("
-                SELECT po.*, t.name as template_name, d.domain_name 
-                FROM pending_orders po
-                LEFT JOIN templates t ON po.template_id = t.id
-                LEFT JOIN domains d ON po.chosen_domain_id = d.id
-                ORDER BY po.created_at DESC
-            ");
-        }
-        
-        $ordersRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        $orders = [];
-        foreach ($ordersRaw as $order) {
-            $itemStmt = $db->prepare("
-                SELECT oi.*, 
-                       CASE 
-                           WHEN oi.product_type = 'template' THEN t.name
-                           WHEN oi.product_type = 'tool' THEN tl.name
-                       END as product_name
-                FROM order_items oi
-                LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
-                LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
-                WHERE oi.pending_order_id = ?
-            ");
-            $itemStmt->execute([$order['id']]);
-            $items = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $productList = [];
-            $productNames = [];
-            foreach ($items as $item) {
-                $productName = $item['product_name'];
-                
-                if (empty($productName) && !empty($item['metadata_json'])) {
-                    $metadata = @json_decode($item['metadata_json'], true);
-                    if (is_array($metadata) && isset($metadata['name'])) {
-                        $productName = $metadata['name'];
-                    }
-                }
-                
-                if (empty($productName)) {
-                    $productName = 'Unknown Product';
-                }
-                
-                $productList[] = [
-                    'name' => $productName,
-                    'type' => $item['product_type'],
-                    'quantity' => $item['quantity']
-                ];
-                $productNames[] = $productName . ($item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '');
-            }
-            
-            $order['products'] = $productList;
-            $order['product_count'] = count($productList);
-            $order['product_names_display'] = !empty($productNames) ? implode(', ', $productNames) : ($order['template_name'] ?? 'No products');
-            
-            $orders[] = $order;
-        }
-        
-        return $orders;
-    } catch (PDOException $e) {
-        error_log('Error fetching orders: ' . $e->getMessage());
-        return [];
+    if (!empty($affiliateCode)) {
+        incrementAffiliateClick($affiliateCode);
     }
 }
 
-function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
+function computeFinalAmount($order)
 {
-    $db = getDb();
-    
-    $db->beginTransaction();
-    
-    try {
-        $order = getOrderById($orderId);
-        if (!$order) {
-            throw new Exception('Order not found');
-        }
-        
-        $stmt = $db->prepare("UPDATE pending_orders SET status = 'paid' WHERE id = ?");
-        $stmt->execute([$orderId]);
-        
-        $commissionAmount = 0;
-        $affiliateId = null;
-        
-        // Extract price breakdown from order
-        $originalPrice = $order['original_price'] ?? $order['template_price'] ?? 0;
-        $discountAmount = $order['discount_amount'] ?? 0;
-        $finalAmount = $order['final_amount'] ?? $amountPaid;
-        
-        // Get order items from canonical source (order_items table)
-        $orderItems = getOrderItems($orderId);
-        $orderType = $order['order_type'] ?? 'template';
-        
-        // Validate final_amount matches sum of order items (if items exist)
-        if (!empty($orderItems)) {
-            $calculatedTotal = 0;
-            foreach ($orderItems as $item) {
-                $calculatedTotal += $item['final_amount'];
-            }
-            
-            // Allow small floating point differences (0.01)
-            if (abs($calculatedTotal - $finalAmount) > 0.01) {
-                error_log("WARNING: Order #{$orderId} final_amount mismatch. Header: {$finalAmount}, Items sum: {$calculatedTotal}. Using items sum.");
-                $finalAmount = $calculatedTotal;
-            }
-        }
-        
-        // Handle stock deduction for ALL tool items (works for 'tools', 'mixed', and legacy orders)
-        require_once __DIR__ . '/tools.php';
-        
-        if (!empty($orderItems)) {
-            // Use order_items table as source of truth
-            foreach ($orderItems as $item) {
-                if ($item['product_type'] === 'tool') {
-                    $toolId = $item['product_id'];
-                    $quantity = $item['quantity'];
-                    $toolName = $item['tool_name'] ?? "Tool ID {$toolId}";
-                    
-                    $success = decrementToolStock($toolId, $quantity);
-                    if (!$success) {
-                        throw new Exception("Failed to decrement stock for '{$toolName}' (ID: {$toolId}, Quantity: {$quantity}). Insufficient stock available.");
-                    }
-                }
-            }
-        } else {
-            // Fallback to cart_snapshot for legacy orders without order_items
-            // Support both 'tool' and 'tools' for backward compatibility
-            if (($orderType === 'tool' || $orderType === 'tools' || $orderType === 'mixed') && !empty($order['cart_snapshot'])) {
-                $cartData = json_decode($order['cart_snapshot'], true);
-                if ($cartData && isset($cartData['items'])) {
-                    foreach ($cartData['items'] as $item) {
-                        $productType = $item['product_type'] ?? 'tool';
-                        if ($productType === 'tool') {
-                            $toolId = $item['tool_id'] ?? $item['product_id'] ?? null;
-                            $quantity = $item['quantity'] ?? 1;
-                            $toolName = $item['name'] ?? "Tool ID {$toolId}";
-                            
-                            if ($toolId && $quantity > 0) {
-                                $success = decrementToolStock($toolId, $quantity);
-                                if (!$success) {
-                                    throw new Exception("Failed to decrement stock for '{$toolName}' (ID: {$toolId}, Quantity: {$quantity}). Insufficient stock available.");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Calculate commission from final amount (customer's actual payment after discount)
-        if (!empty($order['affiliate_code'])) {
-            $affiliate = getAffiliateByCode($order['affiliate_code']);
-            if ($affiliate) {
-                // Commission calculated from DISCOUNTED price (what customer actually paid)
-                // Example: Product ₦10,000 → 20% discount → Customer pays ₦8,000 → Affiliate gets 30% of ₦8,000 = ₦2,400
-                $commissionBase = $finalAmount;
-                
-                // Use custom commission rate if set, otherwise use default
-                $commissionRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
-                $commissionAmount = $commissionBase * $commissionRate;
-                $affiliateId = $affiliate['id'];
-                
-                updateAffiliateCommission($affiliateId, $commissionAmount);
-            }
-        }
-        
-        $stmt = $db->prepare("
-            INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_notes,
-                             original_price, discount_amount, final_amount)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes,
-                       $originalPrice, $discountAmount, $finalAmount]);
-        
-        $db->commit();
-        
-        // Send enhanced payment confirmation email to customer
-        if (!empty($order['customer_email'])) {
-            // Get domain name for template orders
-            $domainName = !empty($order['domain_name']) ? $order['domain_name'] : null;
-            
-            // Note: Credentials are null as they are generated separately via admin panel
-            $credentials = null;
-            
-            // Send enhanced email with full order details
-            sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
-        }
-        
-        // Send commission earned email to affiliate
-        if ($affiliateId && $affiliate) {
-            $affiliateUser = getUserById($affiliate['user_id']);
-            if ($affiliateUser && !empty($affiliateUser['email'])) {
-                // Build detailed product names list from order items
-                if (!empty($orderItems)) {
-                    $productNames = [];
-                    foreach ($orderItems as $item) {
-                        // Try template_name/tool_name first, then fallback to metadata, then generic
-                        $name = null;
-                        if (!empty($item['template_name'])) {
-                            $name = $item['template_name'];
-                        } elseif (!empty($item['tool_name'])) {
-                            $name = $item['tool_name'];
-                        } elseif (!empty($item['metadata_json'])) {
-                            $metadata = json_decode($item['metadata_json'], true);
-                            if (is_array($metadata)) {
-                                $name = $metadata['name'] ?? null;
-                            }
-                        }
-                        $name = $name ?? 'Product';
-                        
-                        $qty = $item['quantity'];
-                        $productNames[] = $qty > 1 ? "{$name} (×{$qty})" : $name;
-                    }
-                    $productName = implode(', ', $productNames);
-                } else {
-                    // Fallback for legacy orders
-                    $template = getTemplateById($order['template_id']);
-                    $productName = $template['name'] ?? 'Product';
-                }
-                
-                sendCommissionEarnedEmail(
-                    $affiliateUser['name'],
-                    $affiliateUser['email'],
-                    $orderId,
-                    $commissionAmount,
-                    $productName
-                );
-            }
-        }
-        
-        return true;
-    } catch (Exception $e) {
-        $db->rollBack();
-        error_log('Error marking order paid: ' . $e->getMessage());
-        return false;
-    }
-}
-
-function computeFinalAmount($order, $orderItems = null)
-{
-    if ($orderItems === null && !empty($order['id'])) {
-        $orderItems = getOrderItems($order['id']);
+    if (isset($order['final_amount']) && !is_null($order['final_amount'])) {
+        return floatval($order['final_amount']);
     }
     
-    if (!empty($order['final_amount']) && $order['final_amount'] > 0) {
-        return (float)$order['final_amount'];
+    $subtotal = 0;
+    if (isset($order['original_price'])) {
+        $subtotal = floatval($order['original_price']);
     }
     
-    if (!empty($order['original_price']) && $order['original_price'] > 0) {
-        return (float)$order['original_price'];
+    $discount = 0;
+    if (isset($order['discount_amount'])) {
+        $discount = floatval($order['discount_amount']);
     }
     
-    $totalAmount = 0;
-    
-    if (!empty($orderItems)) {
-        foreach ($orderItems as $item) {
-            $totalAmount += (float)($item['final_amount'] ?? 0);
-        }
-    }
-    
-    if ($totalAmount > 0) {
-        return $totalAmount;
-    }
-    
-    $basePrice = (float)($order['template_price'] ?? $order['tool_price'] ?? 0);
-    
-    if ($basePrice > 0 && !empty($order['affiliate_code'])) {
-        $discountAmount = $basePrice * CUSTOMER_DISCOUNT_RATE;
-        return max(0, $basePrice - $discountAmount);
-    }
-    
-    if ($basePrice > 0) {
-        return $basePrice;
-    }
-    
-    if (!empty($order['amount_paid']) && $order['amount_paid'] > 0) {
-        return (float)$order['amount_paid'];
+    if ($subtotal > 0 && $discount > 0) {
+        $finalAmount = $subtotal - $discount;
+        return max(0, $finalAmount);
     }
     
     error_log("WARNING: computeFinalAmount() returning 0 for order #{$order['id']}. Order may have incomplete data.");
@@ -752,23 +351,11 @@ function getOrderItems($orderId)
                     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                         $metadata = $decoded;
                     } else {
-                        error_log('Invalid metadata JSON for order item #' . $item['id'] . ': ' . $item['metadata_json']);
+                        $metadata = [];
                     }
                 }
-                
-                // Extra safety: ensure $metadata is always an array before access
-                if (!is_array($metadata)) {
-                    $metadata = [];
-                }
-                
-                $fallbackName = $metadata['name'] ?? 'Unknown Product';
-                
-                // Update the appropriate name field so all consumers get the fallback
-                if ($item['product_type'] === 'template') {
-                    $item['template_name'] = $fallbackName;
-                } else {
-                    $item['tool_name'] = $fallbackName;
-                }
+                $item['template_name'] = $metadata['name'] ?? 'Unknown Product';
+                $item['tool_name'] = $metadata['name'] ?? 'Unknown Product';
             }
         }
         
@@ -779,341 +366,241 @@ function getOrderItems($orderId)
     }
 }
 
-function getAffiliateByCode($code)
+function getProductRecommendations($orderId, $limit = 3)
 {
     $db = getDb();
     
     try {
-        $stmt = $db->prepare("
-            SELECT a.*, u.name, u.email
-            FROM affiliates a
-            LEFT JOIN users u ON a.user_id = u.id
-            WHERE a.code = ? AND a.status = 'active'
-        ");
-        $stmt->execute([$code]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
-    } catch (PDOException $e) {
-        error_log('Error fetching affiliate: ' . $e->getMessage());
-        return null;
-    }
-}
-
-function getUserById($userId)
-{
-    $db = getDb();
-    
-    try {
-        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result : null;
-    } catch (PDOException $e) {
-        error_log('Error fetching user: ' . $e->getMessage());
-        return null;
-    }
-}
-
-function incrementAffiliateClick($code)
-{
-    $db = getDb();
-    
-    try {
-        $stmt = $db->prepare("UPDATE affiliates SET total_clicks = total_clicks + 1 WHERE code = ?");
-        $stmt->execute([$code]);
-    } catch (PDOException $e) {
-        error_log('Error incrementing affiliate click: ' . $e->getMessage());
-    }
-}
-
-function updateAffiliateCommission($affiliateId, $commissionAmount)
-{
-    $db = getDb();
-    
-    try {
-        $stmt = $db->prepare("
-            UPDATE affiliates 
-            SET total_sales = total_sales + 1,
-                commission_earned = commission_earned + ?,
-                commission_pending = commission_pending + ?
-            WHERE id = ?
-        ");
+        // Get categories from ordered items
+        $orderItems = getOrderItems($orderId);
+        if (empty($orderItems)) {
+            return [];
+        }
         
-        $stmt->execute([$commissionAmount, $commissionAmount, $affiliateId]);
-        return true;
+        $categories = [];
+        foreach ($orderItems as $item) {
+            if ($item['product_type'] === 'template') {
+                // Get category from template
+                $templateStmt = $db->prepare("SELECT category FROM templates WHERE id = ?");
+                $templateStmt->execute([$item['product_id']]);
+                $template = $templateStmt->fetch(PDO::FETCH_ASSOC);
+                if ($template && $template['category']) {
+                    $categories[] = $template['category'];
+                }
+            } else {
+                // Get category from tool
+                $toolStmt = $db->prepare("SELECT category FROM tools WHERE id = ?");
+                $toolStmt->execute([$item['product_id']]);
+                $tool = $toolStmt->fetch(PDO::FETCH_ASSOC);
+                if ($tool && $tool['category']) {
+                    $categories[] = $tool['category'];
+                }
+            }
+        }
+        
+        if (empty($categories)) {
+            return [];
+        }
+        
+        $categories = array_unique($categories);
+        $placeholders = implode(',', array_fill(0, count($categories), '?'));
+        
+        // Get products from same categories (exclude already ordered items)
+        $orderedProductIds = [];
+        foreach ($orderItems as $item) {
+            $orderedProductIds[] = $item['product_id'];
+        }
+        $productPlaceholders = implode(',', array_fill(0, count($orderedProductIds), '?'));
+        
+        $sql = "
+            (SELECT 'template' as type, id, name, category, price, thumbnail_url FROM templates 
+             WHERE active = 1 AND category IN ($placeholders) AND id NOT IN ($productPlaceholders)
+             ORDER BY RANDOM() LIMIT ?)
+            UNION ALL
+            (SELECT 'tool' as type, id, name, category, price, thumbnail_url FROM tools 
+             WHERE active = 1 AND category IN ($placeholders) AND id NOT IN ($productPlaceholders)
+             ORDER BY RANDOM() LIMIT ?)
+        ";
+        
+        $params = array_merge($categories, $orderedProductIds, [$limit], $categories, $orderedProductIds, [$limit]);
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        error_log('Error updating affiliate commission: ' . $e->getMessage());
+        error_log('Error fetching product recommendations: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function sendAffiliateOpportunityEmail($customerName, $customerEmail)
+{
+    $subject = "🤝 Earn 20% Commission - Share WebDaddy Empire!";
+    
+    $content = "
+    <h2 style='color: #2563eb;'>Thank You for Your Purchase! 🎉</h2>
+    
+    <p>Hi <strong>" . htmlspecialchars($customerName) . "</strong>,</p>
+    
+    <p>We appreciate your business! We wanted to let you know about an amazing opportunity to <strong>earn passive income</strong> by recommending WebDaddy Empire to others.</p>
+    
+    <h3 style='color: #2563eb;'>💰 Affiliate Program Benefits</h3>
+    <ul style='line-height: 1.8;'>
+        <li><strong>20% Commission</strong> on every referral that converts</li>
+        <li><strong>Recurring Income</strong> from customers you refer</li>
+        <li><strong>Easy Sharing</strong> - We give you a unique referral code</li>
+        <li><strong>Real-time Tracking</strong> - Monitor your earnings anytime</li>
+        <li><strong>No Caps</strong> - Earn as much as you can!</li>
+    </ul>
+    
+    <h3 style='color: #2563eb;'>🚀 Get Started in 3 Steps</h3>
+    <ol style='line-height: 1.8;'>
+        <li>Reply to this email to express your interest</li>
+        <li>We'll provide your unique affiliate code</li>
+        <li>Start earning 20% on every referral!</li>
+    </ol>
+    
+    <p style='margin-top: 30px; font-size: 14px; color: #666;'>Your unique referral link will be in the format: <code>webdaddy.com?aff=YOUR_CODE</code></p>
+    
+    <p><strong>Questions?</strong> Just reply to this email or contact us on WhatsApp!</p>
+    ";
+    
+    $emailHtml = createEmailTemplate($subject, $content, $customerName);
+    
+    if (sendEmail($customerEmail, $subject, $emailHtml)) {
+        error_log("Affiliate opportunity email sent to: $customerEmail");
+        return true;
+    } else {
+        error_log("Failed to send affiliate opportunity email to: $customerEmail");
         return false;
     }
 }
 
-function logActivity($action, $details = '', $userId = null)
+function sendNewOrderNotificationToAdmin(
+    $orderId,
+    $customerName,
+    $customerPhone,
+    $productNames,
+    $amount,
+    $affiliateCode = null,
+    $orderType = 'template'
+) {
+    // Implementation would send to admin
+    error_log("Order notification: Order #$orderId from $customerName for $amount");
+    return true;
+}
+
+function sendOrderRejectionEmail($orderId, $customerName, $customerEmail, $reason = 'Order cancelled')
+{
+    $subject = "Your Order #$orderId Has Been Cancelled";
+    
+    $content = "
+    <p>Hi <strong>" . htmlspecialchars($customerName) . "</strong>,</p>
+    
+    <p>We regret to inform you that your order #<strong>$orderId</strong> has been cancelled.</p>
+    
+    <p><strong>Reason:</strong> " . htmlspecialchars($reason) . "</p>
+    
+    <p>If you have any questions, please contact us via WhatsApp or email.</p>
+    ";
+    
+    $emailHtml = createEmailTemplate($subject, $content, $customerName);
+    return sendEmail($customerEmail, $subject, $emailHtml);
+}
+
+function logActivity($type, $message, $userId = null)
 {
     $db = getDb();
-    
     try {
-        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '';
-        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        
         $stmt = $db->prepare("
-            INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO activity_logs (user_id, activity_type, message, ip_address, created_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
         ");
-        
-        $stmt->execute([$userId, $action, $details, $ipAddress, $userAgent]);
-        return true;
+        return $stmt->execute([
+            $userId,
+            $type,
+            $message,
+            $_SERVER['REMOTE_ADDR'] ?? ''
+        ]);
     } catch (PDOException $e) {
         error_log('Error logging activity: ' . $e->getMessage());
         return false;
     }
 }
 
-function generateWhatsAppLink($orderData, $template = null)
-{
-    $number = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126'));
-    
-    $message = "🛒 *NEW ORDER REQUEST*\n";
-    $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-    
-    if (!empty($orderData['order_id'])) {
-        $message .= "📋 *Order ID:* #" . $orderData['order_id'] . "\n\n";
-        
-        $order = getOrderById($orderData['order_id']);
-        if ($order) {
-            $orderItems = getOrderItems($orderData['order_id']);
-            
-            if (!empty($orderItems)) {
-                $templateCount = 0;
-                $toolCount = 0;
-                $templates = [];
-                $tools = [];
-                
-                foreach ($orderItems as $item) {
-                    if ($item['product_type'] === 'template') {
-                        $templateCount++;
-                        $qty = $item['quantity'] > 1 ? ' *(x' . $item['quantity'] . ')*' : '';
-                        $templates[] = "  ✅ " . $item['template_name'] . $qty;
-                    } else {
-                        $toolCount++;
-                        $qty = $item['quantity'] > 1 ? ' *(x' . $item['quantity'] . ')*' : '';
-                        $tools[] = "  ✅ " . $item['tool_name'] . $qty;
-                    }
-                }
-                
-                if ($templateCount > 0) {
-                    $message .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
-                    $message .= implode("\n", $templates) . "\n";
-                    if ($toolCount > 0) {
-                        $message .= "\n";
-                    }
-                }
-                
-                if ($toolCount > 0) {
-                    $message .= "🔧 *TOOLS* (" . $toolCount . "):\n";
-                    $message .= implode("\n", $tools) . "\n";
-                }
-            } elseif ($template) {
-                $message .= "🎨 *TEMPLATES* (1):\n";
-                $message .= "  ✅ " . $template['name'] . "\n";
-            }
-            
-            $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "💳 *Please proceed to payment to continue.*\n";
-        } elseif ($template) {
-            $message .= "🎨 *TEMPLATES* (1):\n";
-            $message .= "  ✅ " . $template['name'] . "\n\n";
-            $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-            $message .= "💳 *Please proceed to payment to continue.*\n";
-        }
-    } elseif ($template) {
-        $message .= "🎨 *TEMPLATES* (1):\n";
-        $message .= "  ✅ " . $template['name'] . "\n\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "💳 *Please proceed to payment to continue.*\n";
-    }
-    
-    $encodedMessage = rawurlencode($message);
-    
-    return "https://wa.me/" . $number . "?text=" . $encodedMessage;
-}
-
-function getSetting($key, $default = null)
-{
-    $db = getDb();
-    
-    try {
-        $stmt = $db->prepare("SELECT setting_value FROM settings WHERE setting_key = ?");
-        $stmt->execute([$key]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ? $result['setting_value'] : $default;
-    } catch (PDOException $e) {
-        error_log('Error getting setting: ' . $e->getMessage());
-        return $default;
-    }
-}
-
-function calculateAffiliateCommission($orderId)
-{
-    $order = getOrderById($orderId);
-    if (!$order) {
-        return 0;
-    }
-    
-    $template = getTemplateById($order['template_id']);
-    if (!$template) {
-        return 0;
-    }
-    
-    return $template['price'] * AFFILIATE_COMMISSION_RATE;
-}
-
-function renderOrderStatusBadge($status)
-{
-    $statusColors = [
-        'pending' => 'bg-yellow-100 text-yellow-800',
-        'paid' => 'bg-green-100 text-green-800',
-        'cancelled' => 'bg-red-100 text-red-800'
-    ];
-    $statusIcons = [
-        'pending' => 'hourglass-split',
-        'paid' => 'check-circle',
-        'cancelled' => 'x-circle'
-    ];
-    $color = $statusColors[$status] ?? 'bg-gray-100 text-gray-800';
-    $icon = $statusIcons[$status] ?? 'circle';
-    
-    return sprintf(
-        '<span class="inline-flex items-center px-3 py-1 %s rounded-full text-xs font-semibold"><i class="bi bi-%s mr-1"></i>%s</span>',
-        $color,
-        $icon,
-        ucfirst($status)
-    );
-}
-
-function renderOrderTypeProductList($orderItems, $fallbackTemplateName = null, $fallbackToolName = null, $maxDisplay = 2)
-{
-    if (!empty($orderItems)) {
-        $itemCount = count($orderItems);
-        $hasTemplates = false;
-        $hasTools = false;
-        
-        foreach ($orderItems as $item) {
-            if ($item['product_type'] === 'template') $hasTemplates = true;
-            if ($item['product_type'] === 'tool') $hasTools = true;
-        }
-        
-        $typeBadge = '';
-        if ($hasTemplates && $hasTools) {
-            $typeBadge = '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800"><i class="bi bi-box-seam mr-1"></i>Mixed</span></div>';
-        } elseif ($hasTools) {
-            $typeBadge = '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tools</span></div>';
-        } else {
-            $typeBadge = '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div>';
-        }
-        
-        $productHtml = '<div class="text-sm text-gray-900">';
-        foreach (array_slice($orderItems, 0, $maxDisplay) as $item) {
-            $productType = $item['product_type'];
-            $productName = $productType === 'template' ? $item['template_name'] : $item['tool_name'];
-            $typeIcon = ($productType === 'template') ? '🎨' : '🔧';
-            $qty = $item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '';
-            $productHtml .= $typeIcon . ' ' . htmlspecialchars($productName) . $qty . '<br/>';
-        }
-        if ($itemCount > $maxDisplay) {
-            $productHtml .= '<span class="text-xs text-gray-500">+' . ($itemCount - $maxDisplay) . ' more item' . ($itemCount - $maxDisplay > 1 ? 's' : '') . '</span>';
-        }
-        $productHtml .= '</div>';
-        
-        return $typeBadge . $productHtml;
-    } elseif ($fallbackTemplateName) {
-        return '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"><i class="bi bi-palette mr-1"></i>Template</span></div><div class="text-gray-900 text-sm">🎨 ' . htmlspecialchars($fallbackTemplateName) . '</div>';
-    } elseif ($fallbackToolName) {
-        return '<div class="mb-1"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800"><i class="bi bi-tools mr-1"></i>Tool</span></div><div class="text-gray-900 text-sm">🔧 ' . htmlspecialchars($fallbackToolName) . '</div>';
-    } else {
-        return '<span class="text-gray-400">No items</span>';
-    }
-}
-
-function setOrderItemDomain($orderItemId, $domainId, $orderId)
+function createOrderWithItems($orderData, $orderItems)
 {
     $db = getDb();
     
     try {
         $db->beginTransaction();
         
-        $itemStmt = $db->prepare("SELECT id, metadata_json, product_type FROM order_items WHERE id = ? AND pending_order_id = ?");
-        $itemStmt->execute([$orderItemId, $orderId]);
-        $item = $itemStmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$item) {
-            throw new Exception('Order item not found');
-        }
-        
-        if ($item['product_type'] !== 'template') {
-            throw new Exception('Domains can only be assigned to template items');
-        }
-        
-        $checkDomainStmt = $db->prepare("SELECT id, domain_name, status, assigned_order_id FROM domains WHERE id = ?");
-        $checkDomainStmt->execute([$domainId]);
-        $domain = $checkDomainStmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$domain) {
-            throw new Exception('Domain not found');
-        }
-        
-        // Domain must be available OR already assigned to this same order (for reassignment)
-        if ($domain['status'] !== 'available' && 
-            !($domain['status'] === 'in_use' && $domain['assigned_order_id'] == $orderId)) {
-            throw new Exception('Domain is not available');
-        }
-        
-        $metadata = [];
-        if (!empty($item['metadata_json'])) {
-            $metadata = json_decode($item['metadata_json'], true) ?: [];
-        }
-        
-        // Release previous domain if it's different from the new one
-        if (isset($metadata['domain_id']) && $metadata['domain_id'] > 0 && $metadata['domain_id'] != $domainId) {
-            $previousDomainId = $metadata['domain_id'];
-            $releasePreviousStmt = $db->prepare("
-                UPDATE domains 
-                SET status = 'available', assigned_order_id = NULL 
-                WHERE id = ? AND assigned_order_id = ?
-            ");
-            $releasePreviousStmt->execute([$previousDomainId, $orderId]);
-        }
-        
-        $metadata['domain_id'] = $domainId;
-        $metadata['domain_name'] = $domain['domain_name'];
-        
-        $updateItemStmt = $db->prepare("UPDATE order_items SET metadata_json = ? WHERE id = ?");
-        $updateItemStmt->execute([json_encode($metadata), $orderItemId]);
-        
-        $updateDomainStmt = $db->prepare("
-            UPDATE domains 
-            SET status = 'in_use', assigned_order_id = ? 
-            WHERE id = ?
+        // Create pending order
+        $orderStmt = $db->prepare("
+            INSERT INTO pending_orders (
+                customer_name, customer_email, customer_phone,
+                affiliate_code, session_id, message_text, ip_address,
+                original_price, discount_amount, final_amount, cart_snapshot
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $updateDomainStmt->execute([$orderId, $domainId]);
+        
+        $orderStmt->execute([
+            $orderData['customer_name'],
+            $orderData['customer_email'],
+            $orderData['customer_phone'],
+            $orderData['affiliate_code'],
+            $orderData['session_id'],
+            $orderData['message_text'],
+            $orderData['ip_address'],
+            $orderData['original_price'],
+            $orderData['discount_amount'],
+            $orderData['final_amount'],
+            $orderData['cart_snapshot']
+        ]);
+        
+        $orderId = $db->lastInsertId();
+        
+        // Add order items
+        $itemStmt = $db->prepare("
+            INSERT INTO order_items (
+                pending_order_id, product_type, product_id, quantity,
+                unit_price, discount_amount, final_amount, metadata_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        foreach ($orderItems as $item) {
+            $itemStmt->execute([
+                $orderId,
+                $item['product_type'],
+                $item['product_id'],
+                $item['quantity'],
+                $item['unit_price'],
+                $item['discount_amount'],
+                $item['final_amount'],
+                json_encode($item['metadata'])
+            ]);
+        }
         
         $db->commit();
         
-        return ['success' => true, 'message' => 'Domain assigned to item successfully'];
-        
-    } catch (Exception $e) {
+        return $orderId;
+    } catch (PDOException $e) {
         $db->rollBack();
-        error_log('Domain assignment error for item #' . $orderItemId . ': ' . $e->getMessage());
-        return ['success' => false, 'message' => $e->getMessage()];
+        error_log('Error creating order: ' . $e->getMessage());
+        global $lastDbError;
+        $lastDbError = $e->getMessage();
+        return false;
     }
 }
 
-function cancelOrder($orderId, $reason = '', $adminId = null)
+function cancelOrder($orderId, $reason = null, $adminId = null)
 {
     $db = getDb();
     
     try {
         $db->beginTransaction();
         
+        // Get order
         $order = getOrderById($orderId);
         if (!$order) {
             throw new Exception('Order not found');
@@ -1123,79 +610,51 @@ function cancelOrder($orderId, $reason = '', $adminId = null)
             throw new Exception('Order is already cancelled');
         }
         
-        if (in_array($order['status'], ['paid', 'completed', 'fulfilled'])) {
-            throw new Exception('Cannot cancel a paid or completed order. Please contact support for refunds.');
-        }
+        // Update order status
+        $updateStmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+        $updateStmt->execute([$orderId]);
         
-        $stmt = $db->prepare("UPDATE pending_orders SET status = 'cancelled', cancellation_reason = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
-        $stmt->execute([$reason, $orderId]);
+        // Release domains
+        $releaseDomainsStmt = $db->prepare("
+            UPDATE domains SET status = 'available', assigned_order_id = NULL
+            WHERE assigned_order_id = ?
+        ");
+        $releaseDomainsStmt->execute([$orderId]);
+        $domainsReleased = $releaseDomainsStmt->rowCount();
         
-        if ($stmt->rowCount() === 0) {
-            throw new Exception('Failed to update order status');
-        }
-        
-        $itemsStmt = $db->prepare("UPDATE order_items SET status = 'cancelled' WHERE pending_order_id = ?");
+        // Get items affected
+        $itemsStmt = $db->prepare("SELECT COUNT(*) as count FROM order_items WHERE pending_order_id = ?");
         $itemsStmt->execute([$orderId]);
-        $itemsAffected = $itemsStmt->rowCount();
+        $itemsResult = $itemsStmt->fetch(PDO::FETCH_ASSOC);
+        $itemsAffected = $itemsResult['count'] ?? 0;
         
-        $domainStmt = $db->prepare("
-            UPDATE domains 
-            SET status = 'available', assigned_order_id = NULL 
-            WHERE assigned_order_id = ? AND status IN ('reserved', 'in_use')
+        // Restore affiliate commission
+        $restoreCommissionStmt = $db->prepare("
+            SELECT id, affiliate_id, commission_amount
+            FROM sales
+            WHERE pending_order_id = ?
         ");
-        $domainStmt->execute([$orderId]);
-        $domainsReleased = $domainStmt->rowCount();
+        $restoreCommissionStmt->execute([$orderId]);
+        $salesRecord = $restoreCommissionStmt->fetch(PDO::FETCH_ASSOC);
         
-        $releasedDomainItemsStmt = $db->prepare("
-            SELECT oi.id, oi.metadata_json
-            FROM order_items oi
-            WHERE oi.pending_order_id = ? AND oi.product_type = 'template'
-        ");
-        $releasedDomainItemsStmt->execute([$orderId]);
-        $orderItems = $releasedDomainItemsStmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        foreach ($orderItems as $item) {
-            if (!empty($item['metadata_json'])) {
-                $metadata = json_decode($item['metadata_json'], true);
-                if (isset($metadata['domain_id']) && $metadata['domain_id'] > 0) {
-                    $releaseDomainStmt = $db->prepare("
-                        UPDATE domains 
-                        SET status = 'available', assigned_order_id = NULL 
-                        WHERE id = ? AND status IN ('reserved', 'in_use')
-                    ");
-                    $releaseDomainStmt->execute([$metadata['domain_id']]);
-                }
-            }
+        if ($salesRecord && $salesRecord['affiliate_id']) {
+            $affiliateStmt = $db->prepare("
+                UPDATE affiliates 
+                SET pending_commission = pending_commission - ?, total_commission = total_commission - ?
+                WHERE id = ?
+            ");
+            $affiliateStmt->execute([
+                $salesRecord['commission_amount'],
+                $salesRecord['commission_amount'],
+                $salesRecord['affiliate_id']
+            ]);
         }
         
-        if ($order['status'] === 'paid') {
-            $restoreCommissionStmt = $db->prepare("
-                SELECT affiliate_id, commission_amount
-                FROM sales
-                WHERE pending_order_id = ?
-            ");
-            $restoreCommissionStmt->execute([$orderId]);
-            $salesRecord = $restoreCommissionStmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($salesRecord && $salesRecord['affiliate_id']) {
-                $affiliateStmt = $db->prepare("
-                    UPDATE affiliates 
-                    SET pending_commission = pending_commission - ?, total_commission = total_commission - ?
-                    WHERE id = ?
-                ");
-                $affiliateStmt->execute([
-                    $salesRecord['commission_amount'],
-                    $salesRecord['commission_amount'],
-                    $salesRecord['affiliate_id']
-                ]);
-            }
-            
-            require_once __DIR__ . '/tools.php';
-            $orderItems = getOrderItems($orderId);
-            foreach ($orderItems as $item) {
-                if ($item['product_type'] === 'tool') {
-                    incrementToolStock($item['product_id'], $item['quantity']);
-                }
+        require_once __DIR__ . '/tools.php';
+        $orderItems = getOrderItems($orderId);
+        foreach ($orderItems as $item) {
+            if ($item['product_type'] === 'tool') {
+                incrementToolStock($item['product_id'], $item['quantity']);
             }
         }
         
