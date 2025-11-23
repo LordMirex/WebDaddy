@@ -145,66 +145,6 @@ function getTemplateById($id)
     }
 }
 
-function getTools($activeOnly = true, $category = null, $limit = null, $offset = 0)
-{
-    $db = getDb();
-    
-    $sql = "SELECT * FROM tools WHERE 1=1";
-    if ($activeOnly) {
-        $sql .= " AND active = true";
-    }
-    if ($category) {
-        $sql .= " AND category = " . $db->quote($category);
-    }
-    $sql .= " ORDER BY created_at DESC";
-    if ($limit) {
-        $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
-    }
-    
-    try {
-        $result = $db->query($sql);
-        return $result->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log('Error fetching tools: ' . $e->getMessage());
-        return [];
-    }
-}
-
-function getToolsCount($activeOnly = true, $category = null)
-{
-    $db = getDb();
-    
-    $sql = "SELECT COUNT(*) FROM tools WHERE 1=1";
-    if ($activeOnly) {
-        $sql .= " AND active = true";
-    }
-    if ($category) {
-        $sql .= " AND category = " . $db->quote($category);
-    }
-    
-    try {
-        $count = $db->query($sql)->fetchColumn();
-        return $count;
-    } catch (PDOException $e) {
-        error_log('Error counting tools: ' . $e->getMessage());
-        return 0;
-    }
-}
-
-function getToolById($id)
-{
-    $db = getDb();
-    
-    try {
-        $stmt = $db->prepare("SELECT * FROM tools WHERE id = ? AND active = 1");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log('Error fetching tool: ' . $e->getMessage());
-        return null;
-    }
-}
-
 function getAffiliateByCode($code)
 {
     $db = getDb();
