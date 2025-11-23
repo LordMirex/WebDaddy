@@ -210,28 +210,11 @@ if (!empty($ipFilter)) {
     $ipFilterQuery = " AND ip_address LIKE " . $db->quote('%' . $ipFilter . '%');
 }
 
-// Pagination for Recent Visits
-$visitsPage = max(1, (int)($_GET['visits_page'] ?? 1));
-$visitsPerPage = 10;
-$visitsOffset = ($visitsPage - 1) * $visitsPerPage;
-
+// Pagination for Recent Visits (via AJAX)
 $totalRecentVisitsCount = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter $ipFilterQuery")->fetchColumn();
+$visitsPerPage = 2;
 $totalVisitsPages = ceil($totalRecentVisitsCount / $visitsPerPage);
-
-$recentVisits = $db->query("
-    SELECT 
-        page_url,
-        page_title,
-        visit_date,
-        visit_time,
-        referrer,
-        ip_address,
-        device_type
-    FROM page_visits
-    WHERE 1=1 $dateFilter $ipFilterQuery
-    ORDER BY created_at DESC
-    LIMIT $visitsPerPage OFFSET $visitsOffset
-")->fetchAll(PDO::FETCH_ASSOC);
+$recentVisits = []; // Will be loaded via AJAX
 
 $trafficSources = $db->query("
     SELECT 
@@ -535,7 +518,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
     <div class="p-6 overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm" id="recentVisitsTable">
             <thead>
                 <tr class="border-b border-gray-200">
                     <th class="text-left py-2 px-3 font-semibold text-gray-700">Date & Time</th>
@@ -545,52 +528,17 @@ require_once __DIR__ . '/includes/header.php';
                     <th class="text-left py-2 px-3 font-semibold text-gray-700">IP Address</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php foreach ($recentVisits as $visit): ?>
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-2 px-3 text-gray-600 whitespace-nowrap"><?php echo htmlspecialchars($visit['visit_date'] . ' ' . $visit['visit_time']); ?></td>
-                        <td class="py-2 px-3">
-                            <div class="font-mono text-blue-600 text-xs"><?php echo htmlspecialchars($visit['page_url']); ?></div>
-                            <div class="text-gray-600 text-xs"><?php echo htmlspecialchars($visit['page_title'] ?: 'Untitled'); ?></div>
-                        </td>
-                        <td class="py-2 px-3">
-                            <?php 
-                            $device = $visit['device_type'] ?? 'Desktop';
-                            $deviceIcons = ['Mobile' => 'phone', 'Tablet' => 'tablet', 'Desktop' => 'laptop'];
-                            $deviceColors = ['Mobile' => 'text-green-600', 'Tablet' => 'text-purple-600', 'Desktop' => 'text-blue-600'];
-                            $icon = $deviceIcons[$device] ?? 'laptop';
-                            $color = $deviceColors[$device] ?? 'text-gray-600';
-                            ?>
-                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 rounded text-xs font-medium <?php echo $color; ?>">
-                                <i class="bi bi-<?php echo $icon; ?>"></i>
-                                <?php echo htmlspecialchars($device); ?>
-                            </span>
-                        </td>
-                        <td class="py-2 px-3 text-gray-600 text-xs max-w-xs truncate"><?php echo htmlspecialchars($visit['referrer'] ?: 'Direct'); ?></td>
-                        <td class="py-2 px-3 font-mono text-gray-700 text-xs"><?php echo htmlspecialchars($visit['ip_address']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
+            <tbody id="visitsTableBody">
+                <tr><td colspan="5" class="text-center py-4 text-gray-500">Loading visits...</td></tr>
             </tbody>
         </table>
     </div>
     <div class="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-        <div class="text-sm text-gray-600">
-            Showing <?php echo $totalRecentVisitsCount > 0 ? ($visitsOffset + 1) : 0; ?> to <?php echo min($visitsOffset + $visitsPerPage, $totalRecentVisitsCount); ?> of <?php echo number_format($totalRecentVisitsCount); ?> visits
+        <div class="text-sm text-gray-600" id="visitsInfo">
+            Showing 0 of 0 visits
         </div>
-        <div class="flex items-center gap-2">
-            <?php if ($visitsPage > 1): ?>
-                <a href="?period=<?php echo $period; ?>&visits_page=<?php echo $visitsPage - 1; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm">
-                    <i class="bi bi-chevron-left"></i> Previous
-                </a>
-            <?php endif; ?>
-            
-            <span class="text-sm text-gray-600">Page <?php echo $visitsPage; ?> of <?php echo max(1, $totalVisitsPages); ?></span>
-            
-            <?php if ($visitsPage < $totalVisitsPages): ?>
-                <a href="?period=<?php echo $period; ?>&visits_page=<?php echo $visitsPage + 1; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm">
-                    Next <i class="bi bi-chevron-right"></i>
-                </a>
-            <?php endif; ?>
+        <div class="flex items-center gap-2" id="paginationControls">
+            <!-- Pagination will be loaded here -->
         </div>
     </div>
 </div>
