@@ -1269,6 +1269,17 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     endif;
                     ?>
                     
+                    <!-- Payment Notes for all orders (especially for tool-only orders) -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-sticky mr-1"></i> Payment Notes (Optional)
+                        </label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_notes" rows="3" placeholder="e.g., Customer paid half upfront, remaining payment on delivery..."><?php echo htmlspecialchars($viewOrder['payment_notes'] ?? ''); ?></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="bi bi-info-circle"></i> These notes will be saved with the order for future reference.
+                        </p>
+                    </div>
+                    
                     <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
                         <i class="bi bi-check-circle mr-2"></i> Confirm Order
                     </button>
