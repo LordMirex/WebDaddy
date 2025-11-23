@@ -960,57 +960,63 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <div style="flex: 1;">
                                 <p style="margin: 0 0 6px 0; font-weight: bold; font-size: 14px;">💰 Special Offer</p>
                                 <p style="margin: 0; font-size: 13px; opacity: 0.95;">Use code <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-weight: bold;">HUSTLE</span> for 20% OFF</p>
-                                <button onclick="testNotification()" style="margin-top: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">📢 Test Notification</button>
+                                <button id="testNotifBtn" style="margin-top: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">📢 Test Notification</button>
                             </div>
-                            <button onclick="document.getElementById('cartRecoveryBanner').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; margin: 0;">✕</button>
+                            <button id="closeBannerBtn" style="background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; margin: 0;">✕</button>
                         </div>
                     </div>
                 `;
                 document.body.appendChild(banner);
                 console.log('✅ Cart Recovery Banner displayed');
-            }
-            
-            // TEST NOTIFICATION FUNCTION
-            window.testNotification = function() {
-                console.log('🔔 Test notification triggered');
-                if (!('Notification' in window)) {
-                    alert('❌ Notifications not supported in this browser');
-                    console.error('Notifications not supported');
-                    return;
-                }
                 
-                console.log('📢 Current permission status: ' + Notification.permission);
-                
-                if (Notification.permission === 'granted') {
-                    const testNotif = new Notification('🎉 Test Notification Works!', {
-                        body: 'Cart abandonment reminders are ACTIVE ✅',
-                        icon: '/assets/images/favicon.png',
-                        tag: 'test-notification',
-                        requireInteraction: true
-                    });
-                    console.log('✅ Notification sent successfully');
-                } else if (Notification.permission === 'default') {
-                    console.log('📢 Requesting permission...');
-                    Notification.requestPermission().then(permission => {
-                        console.log('📢 Permission result: ' + permission);
-                        if (permission === 'granted') {
-                            const testNotif = new Notification('🎉 Test Notification Works!', {
+                // Test notification button click handler
+                const testBtn = document.getElementById('testNotifBtn');
+                if (testBtn) {
+                    testBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('🔔 Test notification button clicked');
+                        
+                        if (!('Notification' in window)) {
+                            alert('❌ Notifications not supported');
+                            return;
+                        }
+                        
+                        console.log('Permission: ' + Notification.permission);
+                        
+                        if (Notification.permission === 'granted') {
+                            new Notification('🎉 Test Notification Works!', {
                                 body: 'Cart abandonment reminders are ACTIVE ✅',
                                 icon: '/assets/images/favicon.png',
-                                tag: 'test-notification',
+                                tag: 'test',
                                 requireInteraction: true
                             });
-                            console.log('✅ Notification sent after permission granted');
+                            console.log('✅ Notification sent!');
+                        } else if (Notification.permission === 'default') {
+                            Notification.requestPermission().then(perm => {
+                                console.log('Permission: ' + perm);
+                                if (perm === 'granted') {
+                                    new Notification('🎉 Test Notification Works!', {
+                                        body: 'Cart abandonment reminders are ACTIVE ✅',
+                                        icon: '/assets/images/favicon.png',
+                                        tag: 'test',
+                                        requireInteraction: true
+                                    });
+                                }
+                            });
                         } else {
-                            console.error('❌ Permission denied');
-                            alert('❌ Notification permission denied');
+                            alert('⚠️ Notifications blocked. Enable in settings: Menu > Notifications');
                         }
                     });
-                } else if (Notification.permission === 'denied') {
-                    alert('❌ Notifications are blocked. Please enable in browser settings.');
-                    console.error('Notifications denied by user');
                 }
-            };
+                
+                // Close banner button
+                const closeBtn = document.getElementById('closeBannerBtn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        banner.style.display = 'none';
+                    });
+                }
+            }
             
             // Cart Abandonment Reminders (30min & 2hrs)
             function checkCartAbandonmentReminders() {
