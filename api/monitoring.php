@@ -28,27 +28,37 @@ try {
             $recentRequests = 0;
             $systemHealth = 'HEALTHY';
             
-            // Count errors in last hour
+            // Count errors in last hour (optimized for large files)
             if (file_exists($errorLog)) {
                 $lastHour = time() - 3600;
-                $errors = file($errorLog);
-                foreach ($errors as $error) {
-                    if (strtotime(substr($error, 0, 19)) > $lastHour) {
-                        $recentErrors++;
+                $handle = fopen($errorLog, 'r');
+                if ($handle) {
+                    fseek($handle, -8192, SEEK_END); // Start from last 8KB
+                    while (!feof($handle) && $recentErrors < 1000) {
+                        $line = fgets($handle);
+                        if ($line && strtotime(substr($line, 0, 19)) > $lastHour) {
+                            $recentErrors++;
+                        }
                     }
+                    fclose($handle);
                 }
             }
             
-            // Count requests in last hour
+            // Count requests in last hour (optimized for large files)
             if (file_exists($accessLog)) {
                 $lastHour = time() - 3600;
-                $requests = file($accessLog);
-                foreach ($requests as $request) {
-                    if (preg_match('/\[(.*?)\]/', $request, $matches)) {
-                        if (strtotime($matches[1]) > $lastHour) {
-                            $recentRequests++;
+                $handle = fopen($accessLog, 'r');
+                if ($handle) {
+                    fseek($handle, -8192, SEEK_END); // Start from last 8KB
+                    while (!feof($handle) && $recentRequests < 1000) {
+                        $line = fgets($handle);
+                        if ($line && preg_match('/\[(.*?)\]/', $line, $matches)) {
+                            if (strtotime($matches[1]) > $lastHour) {
+                                $recentRequests++;
+                            }
                         }
                     }
+                    fclose($handle);
                 }
             }
             
@@ -84,18 +94,24 @@ try {
             break;
             
         case 'errors':
-            // Get recent errors
+            // Get recent errors (optimized)
             $limit = min((int)($_GET['limit'] ?? 50), 100);
             $errorLog = __DIR__ . '/../logs/error.log';
             
             $errors = [];
             if (file_exists($errorLog)) {
-                $allErrors = file($errorLog);
-                $recentErrors = array_slice($allErrors, -$limit);
-                foreach (array_reverse($recentErrors) as $line) {
-                    if (trim($line)) {
-                        $errors[] = trim($line);
+                $handle = fopen($errorLog, 'r');
+                if ($handle) {
+                    fseek($handle, -65536, SEEK_END); // Start from last 64KB
+                    $lines = [];
+                    while (!feof($handle)) {
+                        $line = fgets($handle);
+                        if (trim($line)) {
+                            $lines[] = trim($line);
+                        }
                     }
+                    $errors = array_slice(array_reverse($lines), 0, $limit);
+                    fclose($handle);
                 }
             }
             
@@ -108,10 +124,9 @@ try {
             break;
             
         case 'api_performance':
-            // Get API performance metrics
+            // Get API performance metrics (optimized for large files)
             $accessLog = __DIR__ . '/../logs/access.log';
             
-            $apiMetrics = [];
             $totalRequests = 0;
             $totalTime = 0;
             $slowestRequest = 0;
@@ -120,55 +135,53 @@ try {
             
             if (file_exists($accessLog)) {
                 $lastHour = time() - 3600;
-                $requests = file($accessLog);
-                
-                foreach ($requests as $line) {
-                    if (preg_match('/\[(.*?)\].*?GET\s(\/[^\s]*)\s.*?Status:\s(\d+).*?Time:\s([\d.]+)/', $line, $matches)) {
-                        $timestamp = $matches[1];
-                        $endpoint = $matches[2];
-                        $status = $matches[3];
-                        $time = (float)$matches[4];
-                        
-                        if (strtotime($timestamp) > $lastHour) {
-                            $totalRequests++;
-                            $totalTime += $time;
-                            $slowestRequest = max($slowestRequest, $time);
-                            $fastestRequest = min($fastestRequest, $time);
-                            
-                            if (!isset($endpointStats[$endpoint])) {
-                                $endpointStats[$endpoint] = [
-                                    'calls' => 0,
-                                    'avg_time' => 0,
-                                    'min_time' => PHP_FLOAT_MAX,
-                                    'max_time' => 0,
-                                    'errors' => 0
-                                ];
-                            }
-                            
-                            $endpointStats[$endpoint]['calls']++;
-                            $endpointStats[$endpoint]['min_time'] = min($endpointStats[$endpoint]['min_time'], $time);
-                            $endpointStats[$endpoint]['max_time'] = max($endpointStats[$endpoint]['max_time'], $time);
-                            if ($status >= 400) {
-                                $endpointStats[$endpoint]['errors']++;
+                $handle = fopen($accessLog, 'r');
+                if ($handle) {
+                    fseek($handle, -131072, SEEK_END); // Start from last 128KB
+                    while (!feof($handle) && $totalRequests < 5000) {
+                        $line = fgets($handle);
+                        if (preg_match('/\[(.*?)\].*?GET\s(\/[^\s]*)\s.*?Status:\s(\d+).*?Time:\s([\d.]+)/', $line, $matches)) {
+                            if (strtotime($matches[1]) > $lastHour) {
+                                $endpoint = $matches[2];
+                                $status = (int)$matches[3];
+                                $time = (float)$matches[4];
+                                
+                                $totalRequests++;
+                                $totalTime += $time;
+                                $slowestRequest = max($slowestRequest, $time);
+                                $fastestRequest = min($fastestRequest, $time);
+                                
+                                if (!isset($endpointStats[$endpoint])) {
+                                    $endpointStats[$endpoint] = ['calls' => 0, 'total_time' => 0, 'min_time' => PHP_FLOAT_MAX, 'max_time' => 0, 'errors' => 0];
+                                }
+                                $endpointStats[$endpoint]['calls']++;
+                                $endpointStats[$endpoint]['total_time'] += $time;
+                                $endpointStats[$endpoint]['min_time'] = min($endpointStats[$endpoint]['min_time'], $time);
+                                $endpointStats[$endpoint]['max_time'] = max($endpointStats[$endpoint]['max_time'], $time);
+                                if ($status >= 400) $endpointStats[$endpoint]['errors']++;
                             }
                         }
                     }
+                    fclose($handle);
                 }
             }
             
-            // Calculate averages
-            foreach ($endpointStats as $endpoint => $stats) {
-                $endpointStats[$endpoint]['avg_time'] = round($stats['calls'] > 0 ? array_sum(array_column([$stats], 'avg_time')) / $stats['calls'] : 0, 2);
+            // Calculate averages for endpoints
+            foreach ($endpointStats as &$stats) {
+                $stats['avg_time'] = round($stats['calls'] > 0 ? $stats['total_time'] / $stats['calls'] : 0, 2);
+                unset($stats['total_time']);
             }
+            
+            uasort($endpointStats, function($a, $b) { return $b['calls'] - $a['calls']; });
             
             echo json_encode([
                 'success' => true,
                 'period' => 'last_hour',
                 'total_requests' => $totalRequests,
                 'avg_response_time' => round($totalRequests > 0 ? $totalTime / $totalRequests : 0, 2) . 'ms',
-                'fastest_response' => round($fastestRequest, 2) . 'ms',
+                'fastest_response' => ($fastestRequest === PHP_FLOAT_MAX ? '0' : round($fastestRequest, 2)) . 'ms',
                 'slowest_response' => round($slowestRequest, 2) . 'ms',
-                'endpoints' => array_slice($endpointStats, 0, 20)
+                'endpoints' => array_slice($endpointStats, 0, 20, true)
             ]);
             break;
             
