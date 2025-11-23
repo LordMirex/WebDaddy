@@ -990,58 +990,107 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 }
             }
             
-            // Request notification permission on page load
-            if ('Notification' in window) {
-                console.log('📢 Notification status: ' + Notification.permission);
-                if (Notification.permission === 'default') {
-                    Notification.requestPermission().then(permission => {
-                        console.log('📢 User chose: ' + permission);
-                    });
-                }
+            // Request notification permission on page load (only once)
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    console.log('📢 Notification permission: ' + permission);
+                    if (permission === 'granted') {
+                        new Notification('Cart Recovery Enabled! 🛒', {
+                            body: 'We\'ll remind you if you leave items in your cart.',
+                            icon: '/assets/images/favicon.png'
+                        });
+                    }
+                });
             }
             
             // Check reminders every 60 seconds
             setInterval(checkCartAbandonmentReminders, 60000);
             
-            // Exit Intent Popup - 20% HUSTLE Discount (triggered by mouse leaving page OR ESC key)
-            let exitPopupShown = false;
-            
-            document.addEventListener('mouseout', function(e) {
-                if (e.clientY <= 0 && !exitPopupShown && !document.querySelector('.exit-intent-popup')) {
-                    console.log('👋 Exit detected - showing popup');
-                    exitPopupShown = true;
-                    showExitIntentPopup();
+            // Also check on visibility change (when user returns to tab)
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    checkCartAbandonmentReminders();
                 }
             });
             
-            // Also trigger on ESC key for testing
+            // Exit Intent Popup - 20% HUSTLE Discount (WORKS ON MOBILE + DESKTOP)
+            let exitPopupShown = false;
+            let allowExit = false;
+            
+            // Desktop: Mouse leaving page (when moving towards top edge)
+            document.addEventListener('mouseout', function(e) {
+                if (e.clientY <= 0 && !exitPopupShown && !document.querySelector('.exit-intent-popup')) {
+                    console.log('👋 Desktop exit detected');
+                    showExitIntent();
+                }
+            });
+            
+            // Mobile/All: Detect back navigation (beforeunload)
+            window.addEventListener('beforeunload', function(e) {
+                if (!allowExit && !exitPopupShown && document.querySelectorAll('[data-product]').length > 0) {
+                    console.log('📱 Mobile/Back navigation detected');
+                    showExitIntent();
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
+                }
+            });
+            
+            // ESC key for testing
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && !exitPopupShown && !document.querySelector('.exit-intent-popup')) {
                     console.log('🎯 ESC pressed - showing exit popup');
-                    exitPopupShown = true;
-                    showExitIntentPopup();
+                    showExitIntent();
                 }
             });
             
-            function showExitIntentPopup() {
+            function showExitIntent() {
+                if (exitPopupShown || document.querySelector('.exit-intent-popup')) return;
+                exitPopupShown = true;
+                
                 const popup = document.createElement('div');
                 popup.className = 'exit-intent-popup';
                 popup.innerHTML = `
-                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: white; border-radius: 12px; padding: 40px; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; font-family: Arial, sans-serif;">
-                        <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px; border: none; background: none; font-size: 24px; cursor: pointer;">✕</button>
-                        <h2 style="color: #333; margin: 0 0 10px 0; font-size: 28px; font-weight: bold;">Wait! Before you go...</h2>
-                        <p style="color: #666; margin: 0 0 20px 0; font-size: 16px;">Get <span style="font-size: 22px; font-weight: bold; color: #d4af37;">20% OFF</span> your entire order</p>
-                        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 3px solid #2563eb;">
-                            <p style="margin: 0 0 8px 0; color: #666; font-size: 14px; font-weight: bold;">USE CODE:</p>
-                            <p style="margin: 0; font-size: 36px; font-weight: bold; color: #2563eb; font-family: monospace; letter-spacing: 3px;">HUSTLE</p>
+                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: white; border-radius: 16px; padding: 30px; max-width: 90%; max-width: min(90vw, 500px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center; font-family: Arial, sans-serif;">
+                        <button onclick="closePopup()" style="position: absolute; top: 12px; right: 12px; border: none; background: none; font-size: 28px; cursor: pointer; color: #999;">✕</button>
+                        <h2 style="color: #333; margin: 0 0 12px 0; font-size: 26px; font-weight: bold;">Wait! Before you go...</h2>
+                        <p style="color: #666; margin: 0 0 18px 0; font-size: 15px;">Get <span style="font-size: 20px; font-weight: bold; color: #d4af37;">20% OFF</span> your entire order</p>
+                        <div style="background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%); padding: 18px; border-radius: 10px; margin: 18px 0; border: 3px solid #2563eb;">
+                            <p style="margin: 0 0 6px 0; color: #666; font-size: 13px; font-weight: bold; letter-spacing: 1px;">USE CODE:</p>
+                            <p style="margin: 0; font-size: 32px; font-weight: bold; color: #2563eb; font-family: monospace; letter-spacing: 4px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">HUSTLE</p>
                         </div>
-                        <button onclick="const form = document.getElementById('affiliateForm'); if(form) { document.getElementById('affiliate_code').value = 'HUSTLE'; form.submit(); } else { alert('Please go to checkout page'); }" style="width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;">✅ Apply Discount Now</button>
-                        <button onclick="this.closest('.exit-intent-popup').remove(); document.querySelector('[onclick*=parentElement]').parentElement.parentElement.remove();" style="width: 100%; padding: 12px; background: #e5e7eb; color: #333; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 10px;">No Thanks</button>
+                        <button onclick="applyCode()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 14px; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">✅ Apply Discount Now</button>
+                        <button onclick="allowLeave()" style="width: 100%; padding: 12px; background: #e5e7eb; color: #333; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 8px; font-weight: 500;">No Thanks</button>
                     </div>
-                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;" onclick="this.parentElement.remove()"></div>
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;" onclick="closePopup()"></div>
                 `;
                 document.body.appendChild(popup);
                 console.log('✅ Exit intent popup displayed');
+            }
+            
+            function closePopup() {
+                const popup = document.querySelector('.exit-intent-popup');
+                if (popup) popup.parentElement.removeChild(popup);
+                exitPopupShown = false;
+                console.log('❌ Popup closed');
+            }
+            
+            function applyCode() {
+                const form = document.getElementById('affiliateForm');
+                if (form) {
+                    document.getElementById('affiliate_code').value = 'HUSTLE';
+                    closePopup();
+                    form.submit();
+                } else {
+                    alert('HUSTLE code ready to apply at checkout!');
+                    allowLeave();
+                }
+            }
+            
+            function allowLeave() {
+                allowExit = true;
+                closePopup();
+                console.log('✅ User allowed to leave');
             }
         });
     </script>
