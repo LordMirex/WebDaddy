@@ -874,17 +874,49 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     </div>
     
     <script>
-        // Preserve customer form fields when applying affiliate code
         document.addEventListener('DOMContentLoaded', function() {
+            // 1. PRE-FILL FORM WITH SAVED CUSTOMER INFO FOR REPEAT BUYERS
+            const savedCustomer = localStorage.getItem('webdaddy_customer');
+            if (savedCustomer) {
+                try {
+                    const customer = JSON.parse(savedCustomer);
+                    const nameField = document.getElementById('customer_name');
+                    const phoneField = document.getElementById('customer_phone');
+                    const emailField = document.getElementById('customer_email');
+                    
+                    if (nameField && customer.name) nameField.value = customer.name;
+                    if (phoneField && customer.phone) phoneField.value = customer.phone;
+                    if (emailField && customer.email) emailField.value = customer.email;
+                } catch (e) {
+                    // Invalid stored data, skip
+                }
+            }
+            
+            // 2. AUTO-APPLY AFFILIATE CODE FROM URL PARAMETER
+            const urlParams = new URLSearchParams(window.location.search);
+            const affiliateCodeFromUrl = urlParams.get('aff');
+            if (affiliateCodeFromUrl) {
+                const affiliateInput = document.getElementById('affiliate_code');
+                if (affiliateInput && !affiliateInput.value) {
+                    affiliateInput.value = affiliateCodeFromUrl.toUpperCase();
+                    // Auto-submit the affiliate form after short delay
+                    setTimeout(() => {
+                        const affiliateForm = document.getElementById('affiliateForm');
+                        if (affiliateForm) {
+                            affiliateForm.submit();
+                        }
+                    }, 500);
+                }
+            }
+            
+            // 3. PRESERVE CUSTOMER DATA WHEN APPLYING AFFILIATE CODE
             const affiliateForm = document.getElementById('affiliateForm');
             if (affiliateForm) {
                 affiliateForm.addEventListener('submit', function(e) {
-                    // Get current values from customer fields
                     const customerName = document.getElementById('customer_name');
                     const customerEmail = document.getElementById('customer_email');
                     const customerPhone = document.getElementById('customer_phone');
                     
-                    // Update hidden fields in affiliate form
                     if (customerName) {
                         document.getElementById('aff_customer_name').value = customerName.value;
                     }
@@ -893,6 +925,24 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     }
                     if (customerPhone) {
                         document.getElementById('aff_customer_phone').value = customerPhone.value;
+                    }
+                });
+            }
+            
+            // 4. SAVE CUSTOMER INFO AFTER SUCCESSFUL ORDER
+            const orderForm = document.getElementById('orderForm');
+            if (orderForm) {
+                orderForm.addEventListener('submit', function(e) {
+                    const customerName = document.getElementById('customer_name')?.value;
+                    const customerPhone = document.getElementById('customer_phone')?.value;
+                    const customerEmail = document.getElementById('customer_email')?.value;
+                    
+                    if (customerName && customerPhone) {
+                        localStorage.setItem('webdaddy_customer', JSON.stringify({
+                            name: customerName,
+                            phone: customerPhone,
+                            email: customerEmail || ''
+                        }));
                     }
                 });
             }
