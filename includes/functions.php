@@ -581,6 +581,11 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             
             // Send enhanced email with full order details
             sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
+            
+            // Send affiliate opportunity email to non-affiliates
+            if (empty($order['affiliate_code'])) {
+                sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
+            }
         }
         
         // Send commission earned email to affiliate
@@ -1247,4 +1252,109 @@ function getMediaUrl($url) {
     }
     
     return $url;
+}
+
+function getProductRecommendations($orderId, $limit = 3)
+{
+    $db = getDb();
+    try {
+        $orderItems = getOrderItems($orderId);
+        if (empty($orderItems)) {
+            return [];
+        }
+        
+        $categories = [];
+        foreach ($orderItems as $item) {
+            if ($item['product_type'] === 'template') {
+                $templateStmt = $db->prepare("SELECT category FROM templates WHERE id = ?");
+                $templateStmt->execute([$item['product_id']]);
+                $template = $templateStmt->fetch(PDO::FETCH_ASSOC);
+                if ($template && $template['category']) {
+                    $categories[] = $template['category'];
+                }
+            } else {
+                $toolStmt = $db->prepare("SELECT category FROM tools WHERE id = ?");
+                $toolStmt->execute([$item['product_id']]);
+                $tool = $toolStmt->fetch(PDO::FETCH_ASSOC);
+                if ($tool && $tool['category']) {
+                    $categories[] = $tool['category'];
+                }
+            }
+        }
+        
+        if (empty($categories)) {
+            return [];
+        }
+        
+        $categories = array_unique($categories);
+        $placeholders = implode(',', array_fill(0, count($categories), '?'));
+        
+        $orderedProductIds = [];
+        foreach ($orderItems as $item) {
+            $orderedProductIds[] = $item['product_id'];
+        }
+        $productPlaceholders = implode(',', array_fill(0, count($orderedProductIds), '?'));
+        
+        $sql = "
+            (SELECT 'template' as type, id, name, category, price, thumbnail_url FROM templates 
+             WHERE active = 1 AND category IN ($placeholders) AND id NOT IN ($productPlaceholders)
+             ORDER BY RANDOM() LIMIT ?)
+            UNION ALL
+            (SELECT 'tool' as type, id, name, category, price, thumbnail_url FROM tools 
+             WHERE active = 1 AND category IN ($placeholders) AND id NOT IN ($productPlaceholders)
+             ORDER BY RANDOM() LIMIT ?)
+        ";
+        
+        $params = array_merge($categories, $orderedProductIds, [$limit], $categories, $orderedProductIds, [$limit]);
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching product recommendations: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function sendAffiliateOpportunityEmail($customerName, $customerEmail)
+{
+    $subject = "🤝 Earn 20% Commission - Share WebDaddy Empire!";
+    
+    $content = "
+    <h2 style='color: #2563eb;'>Thank You for Your Purchase! 🎉</h2>
+    
+    <p>Hi <strong>" . htmlspecialchars($customerName) . "</strong>,</p>
+    
+    <p>We appreciate your business! We wanted to let you know about an amazing opportunity to <strong>earn passive income</strong> by recommending WebDaddy Empire to others.</p>
+    
+    <h3 style='color: #2563eb;'>💰 Affiliate Program Benefits</h3>
+    <ul style='line-height: 1.8;'>
+        <li><strong>20% Commission</strong> on every referral that converts</li>
+        <li><strong>Recurring Income</strong> from customers you refer</li>
+        <li><strong>Easy Sharing</strong> - We give you a unique referral code</li>
+        <li><strong>Real-time Tracking</strong> - Monitor your earnings anytime</li>
+        <li><strong>No Caps</strong> - Earn as much as you can!</li>
+    </ul>
+    
+    <h3 style='color: #2563eb;'>🚀 Get Started in 3 Steps</h3>
+    <ol style='line-height: 1.8;'>
+        <li>Reply to this email to express your interest</li>
+        <li>We'll provide your unique affiliate code</li>
+        <li>Start earning 20% on every referral!</li>
+    </ol>
+    
+    <p style='margin-top: 30px; font-size: 14px; color: #666;'>Your unique referral link will be in the format: <code>webdaddy.com?aff=YOUR_CODE</code></p>
+    
+    <p><strong>Questions?</strong> Just reply to this email or contact us on WhatsApp!</p>
+    ";
+    
+    $emailHtml = createEmailTemplate($subject, $content, $customerName);
+    
+    if (sendEmail($customerEmail, $subject, $emailHtml)) {
+        error_log("Affiliate opportunity email sent to: $customerEmail");
+        return true;
+    } else {
+        error_log("Failed to send affiliate opportunity email to: $customerEmail");
+        return false;
+    }
 }
