@@ -209,6 +209,15 @@ $ipFilterQuery = '';
 if (!empty($ipFilter)) {
     $ipFilterQuery = " AND ip_address LIKE " . $db->quote('%' . $ipFilter . '%');
 }
+
+// Pagination for Recent Visits
+$visitsPage = max(1, (int)($_GET['visits_page'] ?? 1));
+$visitsPerPage = 10;
+$visitsOffset = ($visitsPage - 1) * $visitsPerPage;
+
+$totalRecentVisitsCount = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter $ipFilterQuery")->fetchColumn();
+$totalVisitsPages = ceil($totalRecentVisitsCount / $visitsPerPage);
+
 $recentVisits = $db->query("
     SELECT 
         page_url,
@@ -221,7 +230,7 @@ $recentVisits = $db->query("
     FROM page_visits
     WHERE 1=1 $dateFilter $ipFilterQuery
     ORDER BY created_at DESC
-    LIMIT 50
+    LIMIT $visitsPerPage OFFSET $visitsOffset
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 $trafficSources = $db->query("
@@ -563,6 +572,26 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+    <div class="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+        <div class="text-sm text-gray-600">
+            Showing <?php echo $totalRecentVisitsCount > 0 ? ($visitsOffset + 1) : 0; ?> to <?php echo min($visitsOffset + $visitsPerPage, $totalRecentVisitsCount); ?> of <?php echo number_format($totalRecentVisitsCount); ?> visits
+        </div>
+        <div class="flex items-center gap-2">
+            <?php if ($visitsPage > 1): ?>
+                <a href="?period=<?php echo $period; ?>&visits_page=<?php echo $visitsPage - 1; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm">
+                    <i class="bi bi-chevron-left"></i> Previous
+                </a>
+            <?php endif; ?>
+            
+            <span class="text-sm text-gray-600">Page <?php echo $visitsPage; ?> of <?php echo max(1, $totalVisitsPages); ?></span>
+            
+            <?php if ($visitsPage < $totalVisitsPages): ?>
+                <a href="?period=<?php echo $period; ?>&visits_page=<?php echo $visitsPage + 1; ?><?php echo $ipFilter ? '&ip=' . urlencode($ipFilter) : ''; ?>" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
