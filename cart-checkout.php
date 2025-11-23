@@ -950,25 +950,92 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             // 5. PERSISTENT FLOATING CART RECOVERY BANNER (ALWAYS VISIBLE)
             console.log('✅ Cart Recovery Features Initialized');
             
+            // Create styles for in-app notifications
+            if (!document.getElementById('notificationStyles')) {
+                const style = document.createElement('style');
+                style.id = 'notificationStyles';
+                style.innerHTML = `
+                    .webdaddy-notification {
+                        position: fixed;
+                        top: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        color: white;
+                        padding: 16px 24px;
+                        border-radius: 8px;
+                        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+                        z-index: 10000;
+                        font-family: Arial, sans-serif;
+                        animation: slideDown 0.3s ease-out;
+                        max-width: 90%;
+                        text-align: center;
+                    }
+                    @keyframes slideDown {
+                        from {
+                            transform: translateX(-50%) translateY(-100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(-50%) translateY(0);
+                            opacity: 1;
+                        }
+                    }
+                    @keyframes slideUp {
+                        from {
+                            transform: translateX(-50%) translateY(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateX(-50%) translateY(-100%);
+                            opacity: 0;
+                        }
+                    }
+                    .webdaddy-notification.hide {
+                        animation: slideUp 0.3s ease-out forwards;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Show in-app notification (for mobile where browser notifications don't work)
+            window.showInAppNotification = function(title, message) {
+                const existing = document.querySelector('.webdaddy-notification');
+                if (existing) existing.remove();
+                
+                const notif = document.createElement('div');
+                notif.className = 'webdaddy-notification';
+                notif.innerHTML = '<strong>' + title + '</strong><br>' + message;
+                document.body.appendChild(notif);
+                console.log('✅ In-app notification shown: ' + title);
+                
+                setTimeout(() => {
+                    notif.classList.add('hide');
+                    setTimeout(() => notif.remove(), 300);
+                }, 4000);
+            };
+            
             // Global function for test notification - accessible from inline onclick
             window.sendTestNotification = function() {
                 console.log('🔔 TEST NOTIFICATION TRIGGERED');
-                alert('✅ Button clicked! Sending notification now...');
                 
-                if (!('Notification' in window)) {
-                    alert('❌ Notifications not supported in browser');
-                    return;
-                }
+                // ALWAYS show in-app notification (works on mobile)
+                window.showInAppNotification('🎉 Test Notification Works!', '✅ Cart reminders are ENABLED - You will get reminders at 30 min & 2 hours');
                 
-                if (Notification.permission === 'granted') {
-                    new Notification('🎉 Test Notification Works!', {
-                        body: '✅ Cart reminders are ENABLED - You will get reminders at 30 min & 2 hours',
-                        icon: '/assets/images/favicon.png',
-                        tag: 'test-' + Date.now()
-                    });
-                    alert('✅ Notification sent successfully!');
+                // ALSO try browser notification
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try {
+                        new Notification('🎉 Test Notification Works!', {
+                            body: '✅ Cart reminders are ENABLED - You will get reminders at 30 min & 2 hours',
+                            icon: '/assets/images/favicon.png',
+                            tag: 'test-' + Date.now()
+                        });
+                        console.log('✅ Browser notification sent');
+                    } catch(e) {
+                        console.error('Browser notification failed: ' + e);
+                    }
                 } else {
-                    alert('⚠️ Permission status: ' + Notification.permission);
+                    console.log('Browser notifications not available or not granted');
                 }
             };
             
@@ -1004,12 +1071,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 // 30 minute reminder
                 if (elapsed > thirtyMin && elapsed < thirtyMin + 60000) {
                     if (!localStorage.getItem('webdaddy_30min_notified')) {
+                        console.log('🔔 Sending 30-minute reminder');
+                        window.showInAppNotification('🛒 Your Cart is Waiting!', 'You left items in your cart. Complete your order and save 20%!');
                         if ('Notification' in window && Notification.permission === 'granted') {
-                            console.log('🔔 Sending 30-minute reminder');
-                            new Notification('🛒 Your Cart is Waiting!', {
-                                body: 'You left items in your cart. Complete your order and save 20%!',
-                                icon: '/assets/images/favicon.png'
-                            });
+                            try {
+                                new Notification('🛒 Your Cart is Waiting!', {
+                                    body: 'You left items in your cart. Complete your order and save 20%!',
+                                    icon: '/assets/images/favicon.png'
+                                });
+                            } catch(e) {}
                         }
                         localStorage.setItem('webdaddy_30min_notified', 'true');
                     }
@@ -1018,12 +1088,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 // 2 hour reminder
                 if (elapsed > twoHours && elapsed < twoHours + 60000) {
                     if (!localStorage.getItem('webdaddy_2hr_notified')) {
+                        console.log('🔔 Sending 2-hour reminder');
+                        window.showInAppNotification('⏰ Last Chance - Cart Expiring!', 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!');
                         if ('Notification' in window && Notification.permission === 'granted') {
-                            console.log('🔔 Sending 2-hour reminder');
-                            new Notification('⏰ Last Chance - Cart Expiring!', {
-                                body: 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!',
-                                icon: '/assets/images/favicon.png'
-                            });
+                            try {
+                                new Notification('⏰ Last Chance - Cart Expiring!', {
+                                    body: 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!',
+                                    icon: '/assets/images/favicon.png'
+                                });
+                            } catch(e) {}
                         }
                         localStorage.setItem('webdaddy_2hr_notified', 'true');
                     }
