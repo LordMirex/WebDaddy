@@ -79,14 +79,6 @@
 
 ### TEST 4: SHOPPING CART
 **What to Test:**
-- [ ] Navigate to Templates page
-- [ ] Click "Add to Cart" on any template
-- [ ] Verify cart count increments in top nav
-- [ ] Click cart icon to view cart
-- [ ] Verify product details show correctly
-- [ ] Try adding another tool to cart
-- [ ] Verify both items appear in cart
-- [ ] Click "Remove" and verify item disappears
 
 ### TEST 10: CHECKOUT FLOW
 **What to Test:**
