@@ -1254,68 +1254,6 @@ function getMediaUrl($url) {
     return $url;
 }
 
-function getProductRecommendations($orderId, $limit = 3)
-{
-    $db = getDb();
-    try {
-        $orderItems = getOrderItems($orderId);
-        if (empty($orderItems)) {
-            return [];
-        }
-        
-        $categories = [];
-        foreach ($orderItems as $item) {
-            if ($item['product_type'] === 'template') {
-                $templateStmt = $db->prepare("SELECT category FROM templates WHERE id = ?");
-                $templateStmt->execute([$item['product_id']]);
-                $template = $templateStmt->fetch(PDO::FETCH_ASSOC);
-                if ($template && $template['category']) {
-                    $categories[] = $template['category'];
-                }
-            } else {
-                $toolStmt = $db->prepare("SELECT category FROM tools WHERE id = ?");
-                $toolStmt->execute([$item['product_id']]);
-                $tool = $toolStmt->fetch(PDO::FETCH_ASSOC);
-                if ($tool && $tool['category']) {
-                    $categories[] = $tool['category'];
-                }
-            }
-        }
-        
-        if (empty($categories)) {
-            return [];
-        }
-        
-        $categories = array_unique($categories);
-        $placeholders = implode(',', array_fill(0, count($categories), '?'));
-        
-        $orderedProductIds = [];
-        foreach ($orderItems as $item) {
-            $orderedProductIds[] = $item['product_id'];
-        }
-        $productPlaceholders = implode(',', array_fill(0, count($orderedProductIds), '?'));
-        
-        $sql = "
-            (SELECT 'template' as type, id, name, category, price, thumbnail_url FROM templates 
-             WHERE active = 1 AND category IN ($placeholders) AND id NOT IN ($productPlaceholders)
-             ORDER BY RANDOM() LIMIT ?)
-            UNION ALL
-            (SELECT 'tool' as type, id, name, category, price, thumbnail_url FROM tools 
-             WHERE active = 1 AND category IN ($placeholders) AND id NOT IN ($productPlaceholders)
-             ORDER BY RANDOM() LIMIT ?)
-        ";
-        
-        $params = array_merge($categories, $orderedProductIds, [$limit], $categories, $orderedProductIds, [$limit]);
-        
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log('Error fetching product recommendations: ' . $e->getMessage());
-        return [];
-    }
-}
-
 function sendAffiliateOpportunityEmail($customerName, $customerEmail)
 {
     $subject = "🤝 Earn 30% Commission - Join WebDaddy Empire Affiliates!";

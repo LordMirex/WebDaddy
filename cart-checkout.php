@@ -376,17 +376,13 @@ if ($confirmedOrderId) {
         $encodedMessage = rawurlencode($message);
         $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
         
-        // Get product recommendations
-        $recommendations = getProductRecommendations($confirmedOrderId, 3);
-        
         $confirmationData = [
             'order' => $order,
             'orderItems' => $orderItems,
             'hasTemplates' => $hasTemplates,
             'hasTools' => $hasTools,
             'orderTypeText' => $orderTypeText,
-            'whatsappUrl' => $whatsappUrl,
-            'recommendations' => $recommendations
+            'whatsappUrl' => $whatsappUrl
         ];
     } else {
         // Invalid order or unauthorized access - redirect to home
@@ -877,30 +873,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                    class="block text-center text-primary-600 hover:text-primary-700 font-medium py-2 mt-4">
                     ← Continue Shopping
                 </a>
-                
-                <?php if (!empty($confirmationData['recommendations'])): ?>
-                <div class="mt-8 pt-8 border-t border-gray-700">
-                    <h3 class="text-lg font-bold text-white mb-4">🎁 Customers Who Bought This Also Liked</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <?php foreach ($confirmationData['recommendations'] as $rec): ?>
-                        <div class="bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                            <img src="<?php echo htmlspecialchars($rec['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
-                                 alt="<?php echo htmlspecialchars($rec['name']); ?>" 
-                                 class="w-full h-40 object-cover">
-                            <div class="p-3">
-                                <p class="text-sm text-gray-400"><?php echo htmlspecialchars($rec['type'] === 'template' ? '🎨 Template' : '🔧 Tool'); ?></p>
-                                <h4 class="font-semibold text-white text-sm truncate"><?php echo htmlspecialchars(truncateText($rec['name'], 25)); ?></h4>
-                                <p class="text-primary-400 font-bold text-sm mt-2"><?php echo formatCurrency($rec['price']); ?></p>
-                                <button onclick="addToCartAndRedirect('<?php echo $rec['type']; ?>', <?php echo $rec['id']; ?>)" 
-                                        class="w-full mt-3 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2 px-3 rounded transition-colors">
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
                 
                 </form>
             <?php endif; ?>
