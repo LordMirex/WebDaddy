@@ -1189,7 +1189,8 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     <i class="bi bi-info-circle"></i> This order contains no templates requiring domain assignment.
                 </div>
                 
-                <?php if (!empty($viewOrder['payment_notes'])): ?>
+                <!-- Only show read-only notes if order is already paid/completed (not pending) -->
+                <?php if ($viewOrder['status'] !== 'pending' && !empty($viewOrder['payment_notes'])): ?>
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="bi bi-sticky mr-1"></i> Payment Notes
