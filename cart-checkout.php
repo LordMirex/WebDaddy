@@ -947,99 +947,10 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
-            // 5. PERSISTENT FLOATING CART RECOVERY BANNER (ALWAYS VISIBLE)
+            // 5. CART RECOVERY BANNER - SHOW HUSTLE DISCOUNT CODE
             console.log('✅ Cart Recovery Features Initialized');
             
-            // Create styles for in-app notifications
-            if (!document.getElementById('notificationStyles')) {
-                const style = document.createElement('style');
-                style.id = 'notificationStyles';
-                style.innerHTML = `
-                    .webdaddy-notification {
-                        position: fixed;
-                        top: 20px;
-                        left: 50%;
-                        transform: translateX(-50%);
-                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                        color: white;
-                        padding: 16px 24px;
-                        border-radius: 8px;
-                        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-                        z-index: 10000;
-                        font-family: Arial, sans-serif;
-                        animation: slideDown 0.3s ease-out;
-                        max-width: 90%;
-                        text-align: center;
-                    }
-                    @keyframes slideDown {
-                        from {
-                            transform: translateX(-50%) translateY(-100%);
-                            opacity: 0;
-                        }
-                        to {
-                            transform: translateX(-50%) translateY(0);
-                            opacity: 1;
-                        }
-                    }
-                    @keyframes slideUp {
-                        from {
-                            transform: translateX(-50%) translateY(0);
-                            opacity: 1;
-                        }
-                        to {
-                            transform: translateX(-50%) translateY(-100%);
-                            opacity: 0;
-                        }
-                    }
-                    .webdaddy-notification.hide {
-                        animation: slideUp 0.3s ease-out forwards;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            // Show in-app notification (for mobile where browser notifications don't work)
-            window.showInAppNotification = function(title, message) {
-                const existing = document.querySelector('.webdaddy-notification');
-                if (existing) existing.remove();
-                
-                const notif = document.createElement('div');
-                notif.className = 'webdaddy-notification';
-                notif.innerHTML = '<strong>' + title + '</strong><br>' + message;
-                document.body.appendChild(notif);
-                console.log('✅ In-app notification shown: ' + title);
-                
-                setTimeout(() => {
-                    notif.classList.add('hide');
-                    setTimeout(() => notif.remove(), 300);
-                }, 4000);
-            };
-            
-            // Global function for test notification - accessible from inline onclick
-            window.sendTestNotification = function() {
-                console.log('🔔 TEST NOTIFICATION TRIGGERED');
-                
-                // ALWAYS show in-app notification (works on mobile)
-                window.showInAppNotification('🎉 Test Notification Works!', '✅ Cart reminders are ENABLED - You will get reminders at 30 min & 2 hours');
-                
-                // ALSO try browser notification
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    try {
-                        new Notification('🎉 Test Notification Works!', {
-                            body: '✅ Cart reminders are ENABLED - You will get reminders at 30 min & 2 hours',
-                            icon: '/assets/images/favicon.png',
-                            tag: 'test-' + Date.now()
-                        });
-                        console.log('✅ Browser notification sent');
-                    } catch(e) {
-                        console.error('Browser notification failed: ' + e);
-                    }
-                } else {
-                    console.log('Browser notifications not available or not granted');
-                }
-            };
-            
-            // Show banner ALWAYS on checkout - create it immediately
+            // Show discount banner on checkout
             const banner = document.createElement('div');
             banner.id = 'cartRecoveryBanner';
             banner.innerHTML = `
@@ -1048,102 +959,13 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <div style="flex: 1;">
                             <p style="margin: 0 0 6px 0; font-weight: bold; font-size: 14px;">💰 Special Offer</p>
                             <p style="margin: 0; font-size: 13px; opacity: 0.95;">Use code <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-weight: bold;">HUSTLE</span> for 20% OFF</p>
-                            <button onclick="window.sendTestNotification()" style="margin-top: 8px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;">📢 Test Notification</button>
                         </div>
                         <button onclick="document.getElementById('cartRecoveryBanner').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px; padding: 0; margin: 0; width: 24px; height: 24px;">✕</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(banner);
-            console.log('✅ Cart Recovery Banner displayed ALWAYS');
-            
-            // Cart Abandonment Reminders (30min & 2hrs)
-            function checkCartAbandonmentReminders() {
-                const savedAt = localStorage.getItem('webdaddy_cart_saved_at');
-                if (!savedAt) return;
-                
-                const elapsed = Date.now() - parseInt(savedAt);
-                const thirtyMin = 30 * 60 * 1000;
-                const twoHours = 2 * 60 * 60 * 1000;
-                
-                console.log('📊 Cart reminder check: ' + Math.round(elapsed / 1000) + 's elapsed');
-                
-                // 30 minute reminder
-                if (elapsed > thirtyMin && elapsed < thirtyMin + 60000) {
-                    if (!localStorage.getItem('webdaddy_30min_notified')) {
-                        console.log('🔔 Sending 30-minute reminder');
-                        window.showInAppNotification('🛒 Your Cart is Waiting!', 'You left items in your cart. Complete your order and save 20%!');
-                        if ('Notification' in window && Notification.permission === 'granted') {
-                            try {
-                                new Notification('🛒 Your Cart is Waiting!', {
-                                    body: 'You left items in your cart. Complete your order and save 20%!',
-                                    icon: '/assets/images/favicon.png'
-                                });
-                            } catch(e) {}
-                        }
-                        localStorage.setItem('webdaddy_30min_notified', 'true');
-                    }
-                }
-                
-                // 2 hour reminder
-                if (elapsed > twoHours && elapsed < twoHours + 60000) {
-                    if (!localStorage.getItem('webdaddy_2hr_notified')) {
-                        console.log('🔔 Sending 2-hour reminder');
-                        window.showInAppNotification('⏰ Last Chance - Cart Expiring!', 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!');
-                        if ('Notification' in window && Notification.permission === 'granted') {
-                            try {
-                                new Notification('⏰ Last Chance - Cart Expiring!', {
-                                    body: 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!',
-                                    icon: '/assets/images/favicon.png'
-                                });
-                            } catch(e) {}
-                        }
-                        localStorage.setItem('webdaddy_2hr_notified', 'true');
-                    }
-                }
-            }
-            
-            // Request notification permission on page load (only once)
-            if ('Notification' in window) {
-                console.log('📢 Notifications available. Current permission: ' + Notification.permission);
-                if (Notification.permission === 'default') {
-                    console.log('📢 Requesting notification permission...');
-                    Notification.requestPermission().then(permission => {
-                        console.log('📢 Permission result: ' + permission);
-                        if (permission === 'granted') {
-                            console.log('✅ Notifications ENABLED');
-                        } else {
-                            console.warn('⚠️ Notifications disabled');
-                        }
-                    });
-                } else if (Notification.permission === 'granted') {
-                    console.log('✅ Notifications already enabled');
-                } else if (Notification.permission === 'denied') {
-                    console.error('❌ Notifications blocked by browser');
-                }
-            } else {
-                console.error('❌ Notifications not supported in this browser');
-            }
-            
-            // Check reminders every 60 seconds
-            setInterval(checkCartAbandonmentReminders, 60000);
-            
-            // Also check on visibility change (when user returns to tab)
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    checkCartAbandonmentReminders();
-                }
-            });
-            
-            // Tap banner code to auto-apply HUSTLE discount
-            window.applyHustleCode = function() {
-                const form = document.getElementById('affiliateForm');
-                if (form) {
-                    document.getElementById('affiliate_code').value = 'HUSTLE';
-                    form.submit();
-                    console.log('✅ HUSTLE code applied!');
-                }
-            };
+            console.log('✅ Discount Banner displayed');
         });
     </script>
 </body>
