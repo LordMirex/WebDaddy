@@ -1258,7 +1258,7 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
 {
     $subject = "🤝 Earn 30% Commission - Join WebDaddy Empire Affiliates!";
     
-    $affiliateRegisterUrl = (defined('SITE_URL') ? SITE_URL : 'https://webdaddy.com') . '/affiliate-register.php';
+    $affiliateRegisterUrl = (defined('SITE_URL') ? SITE_URL : 'https://webdaddy.com') . '/affiliate/register.php';
     
     $content = "
     <h2 style='color: #2563eb;'>Thank You for Your Purchase! 🎉</h2>
