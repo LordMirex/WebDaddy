@@ -421,8 +421,8 @@ function logActivity($type, $message, $userId = null)
     $db = getDb();
     try {
         $stmt = $db->prepare("
-            INSERT INTO activity_logs (user_id, activity_type, message, ip_address, created_at)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO activity_logs (user_id, action, details, ip_address)
+            VALUES (?, ?, ?, ?)
         ");
         return $stmt->execute([
             $userId,
@@ -433,6 +433,31 @@ function logActivity($type, $message, $userId = null)
     } catch (PDOException $e) {
         error_log('Error logging activity: ' . $e->getMessage());
         return false;
+    }
+}
+
+function getOrders($status = null, $limit = 20, $offset = 0)
+{
+    $db = getDb();
+    try {
+        $sql = "SELECT * FROM pending_orders WHERE 1=1";
+        $params = [];
+        
+        if ($status) {
+            $sql .= " AND status = ?";
+            $params[] = $status;
+        }
+        
+        $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching orders: ' . $e->getMessage());
+        return [];
     }
 }
 
