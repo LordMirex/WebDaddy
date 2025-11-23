@@ -267,6 +267,11 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endif; ?>
             </ul>
         </nav>
+        <div class="text-center text-gray-500 mt-3">
+            <small>Page <?php echo $page; ?> of <?php echo $totalPages; ?> (<?php echo number_format($totalLogs); ?> logs)</small>
+        </div>
     </div>
     <?php endif; ?>
 </div>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
