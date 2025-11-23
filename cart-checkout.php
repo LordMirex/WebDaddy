@@ -948,6 +948,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             }
             
             // 5. EXIT INTENT & BROWSER NOTIFICATIONS (NO MANUAL SAVE BUTTON NEEDED - AUTO-SAVED)
+            console.log('✅ Cart Recovery Features Loaded');
             
             // Cart Abandonment Reminders (30min & 2hrs)
             function checkCartAbandonmentReminders() {
@@ -958,41 +959,65 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 const thirtyMin = 30 * 60 * 1000;
                 const twoHours = 2 * 60 * 60 * 1000;
                 
+                console.log('📊 Cart reminder check: ' + Math.round(elapsed / 1000) + 's elapsed');
+                
                 // 30 minute reminder
                 if (elapsed > thirtyMin && elapsed < thirtyMin + 60000) {
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('🛒 Your Cart is Waiting!', {
-                            body: 'You left items in your cart. Complete your order and save 20%!',
-                            icon: '/assets/images/favicon.png'
-                        });
+                    if (!localStorage.getItem('webdaddy_30min_notified')) {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            console.log('🔔 Sending 30-minute reminder');
+                            new Notification('🛒 Your Cart is Waiting!', {
+                                body: 'You left items in your cart. Complete your order and save 20%!',
+                                icon: '/assets/images/favicon.png'
+                            });
+                        }
+                        localStorage.setItem('webdaddy_30min_notified', 'true');
                     }
-                    localStorage.setItem('webdaddy_30min_notified', 'true');
                 }
                 
                 // 2 hour reminder
                 if (elapsed > twoHours && elapsed < twoHours + 60000) {
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('⏰ Last Chance - Cart Expiring!', {
-                            body: 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!',
-                            icon: '/assets/images/favicon.png'
-                        });
+                    if (!localStorage.getItem('webdaddy_2hr_notified')) {
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            console.log('🔔 Sending 2-hour reminder');
+                            new Notification('⏰ Last Chance - Cart Expiring!', {
+                                body: 'Your cart will expire soon. Use code HUSTLE for 20% OFF now!',
+                                icon: '/assets/images/favicon.png'
+                            });
+                        }
+                        localStorage.setItem('webdaddy_2hr_notified', 'true');
                     }
-                    localStorage.setItem('webdaddy_2hr_notified', 'true');
                 }
             }
             
             // Request notification permission on page load
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
+            if ('Notification' in window) {
+                console.log('📢 Notification status: ' + Notification.permission);
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission().then(permission => {
+                        console.log('📢 User chose: ' + permission);
+                    });
+                }
             }
             
-            // Check reminders every minute
+            // Check reminders every 60 seconds
             setInterval(checkCartAbandonmentReminders, 60000);
             
-            // Exit Intent Popup - 20% HUSTLE Discount
+            // Exit Intent Popup - 20% HUSTLE Discount (triggered by mouse leaving page OR ESC key)
             let exitPopupShown = false;
+            
             document.addEventListener('mouseout', function(e) {
-                if (e.clientY < 10 && !exitPopupShown && !document.querySelector('.exit-intent-popup')) {
+                if (e.clientY <= 0 && !exitPopupShown && !document.querySelector('.exit-intent-popup')) {
+                    console.log('👋 Exit detected - showing popup');
+                    exitPopupShown = true;
+                    showExitIntentPopup();
+                }
+            });
+            
+            // Also trigger on ESC key for testing
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !exitPopupShown && !document.querySelector('.exit-intent-popup')) {
+                    console.log('🎯 ESC pressed - showing exit popup');
                     exitPopupShown = true;
                     showExitIntentPopup();
                 }
@@ -1002,20 +1027,21 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 const popup = document.createElement('div');
                 popup.className = 'exit-intent-popup';
                 popup.innerHTML = `
-                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: white; border-radius: 12px; padding: 40px; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;">
+                    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; background: white; border-radius: 12px; padding: 40px; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; font-family: Arial, sans-serif;">
                         <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 10px; right: 10px; border: none; background: none; font-size: 24px; cursor: pointer;">✕</button>
-                        <h2 style="color: #333; margin: 0 0 10px 0; font-size: 24px;">Wait! Before you go...</h2>
-                        <p style="color: #666; margin: 0 0 20px 0;">Get <span style="font-size: 20px; font-weight: bold; color: #d4af37;">20% OFF</span> your entire order</p>
-                        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
-                            <p style="margin: 0 0 5px 0; color: #666; font-size: 12px;">Use Code:</p>
-                            <p style="margin: 0; font-size: 28px; font-weight: bold; color: #2563eb; font-family: monospace; letter-spacing: 2px;">HUSTLE</p>
+                        <h2 style="color: #333; margin: 0 0 10px 0; font-size: 28px; font-weight: bold;">Wait! Before you go...</h2>
+                        <p style="color: #666; margin: 0 0 20px 0; font-size: 16px;">Get <span style="font-size: 22px; font-weight: bold; color: #d4af37;">20% OFF</span> your entire order</p>
+                        <div style="background: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border: 3px solid #2563eb;">
+                            <p style="margin: 0 0 8px 0; color: #666; font-size: 14px; font-weight: bold;">USE CODE:</p>
+                            <p style="margin: 0; font-size: 36px; font-weight: bold; color: #2563eb; font-family: monospace; letter-spacing: 3px;">HUSTLE</p>
                         </div>
-                        <button onclick="this.closest('.exit-intent-popup').remove(); document.getElementById('affiliate_code').value = 'HUSTLE'; document.getElementById('affiliateForm').submit();" style="width: 100%; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;">Apply Discount Now</button>
-                        <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; padding: 12px; background: #e5e7eb; color: #333; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 10px;">No Thanks</button>
+                        <button onclick="const form = document.getElementById('affiliateForm'); if(form) { document.getElementById('affiliate_code').value = 'HUSTLE'; form.submit(); } else { alert('Please go to checkout page'); }" style="width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;">✅ Apply Discount Now</button>
+                        <button onclick="this.closest('.exit-intent-popup').remove(); document.querySelector('[onclick*=parentElement]').parentElement.parentElement.remove();" style="width: 100%; padding: 12px; background: #e5e7eb; color: #333; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 10px;">No Thanks</button>
                     </div>
                     <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999;" onclick="this.parentElement.remove()"></div>
                 `;
                 document.body.appendChild(popup);
+                console.log('✅ Exit intent popup displayed');
             }
         });
     </script>
