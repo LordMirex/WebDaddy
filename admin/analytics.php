@@ -212,7 +212,7 @@ if (!empty($ipFilter)) {
 
 // Pagination for Recent Visits (via AJAX)
 $totalRecentVisitsCount = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter $ipFilterQuery")->fetchColumn();
-$visitsPerPage = 2;
+$visitsPerPage = 20;
 $totalVisitsPages = ceil($totalRecentVisitsCount / $visitsPerPage);
 $recentVisits = []; // Will be loaded via AJAX
 
@@ -687,7 +687,78 @@ function escapeHtml(text) {
 }
 
 // Load when page is ready
-document.addEventListener('DOMContentLoaded', loadAdvancedAnalytics);
+document.addEventListener('DOMContentLoaded', () => {
+    loadAdvancedAnalytics();
+    loadRecentVisitsPage(1);
+});
+
+// Load recent visits with AJAX pagination
+async function loadRecentVisitsPage(pageNum) {
+    const period = new URLSearchParams(window.location.search).get('period') || '7days';
+    const ipFilter = new URLSearchParams(window.location.search).get('ip') || '';
+    
+    try {
+        const url = `/api/recent-visits.php?page=${pageNum}&period=${period}${ipFilter ? '&ip=' + encodeURIComponent(ipFilter) : ''}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (!data.success) {
+            document.getElementById('visitsTableBody').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Error loading visits</td></tr>';
+            return;
+        }
+        
+        // Build table rows
+        let html = '';
+        if (data.visits.length === 0) {
+            html = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No visits recorded</td></tr>';
+        } else {
+            data.visits.forEach(visit => {
+                html += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-2 px-3 text-gray-600 whitespace-nowrap">${visit.visit_date_time}</td>
+                        <td class="py-2 px-3">
+                            <div class="font-mono text-blue-600 text-xs">${visit.page_url}</div>
+                            <div class="text-gray-600 text-xs">${visit.page_title}</div>
+                        </td>
+                        <td class="py-2 px-3">
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 rounded text-xs font-medium ${visit.device_color}">
+                                <i class="bi bi-${visit.device_icon}"></i>
+                                ${visit.device_type}
+                            </span>
+                        </td>
+                        <td class="py-2 px-3 text-gray-600 text-xs max-w-xs truncate">${visit.referrer}</td>
+                        <td class="py-2 px-3 font-mono text-gray-700 text-xs">${visit.ip_address}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        document.getElementById('visitsTableBody').innerHTML = html;
+        
+        // Update pagination info
+        const offset = (pageNum - 1) * data.per_page;
+        const showing = data.total_count > 0 ? offset + 1 : 0;
+        const to = Math.min(offset + data.per_page, data.total_count);
+        document.getElementById('visitsInfo').textContent = `Showing ${showing} to ${to} of ${data.total_count.toLocaleString()} visits`;
+        
+        // Build pagination controls
+        let paginationHtml = '';
+        if (data.page > 1) {
+            paginationHtml += `<button onclick="loadRecentVisitsPage(${data.page - 1})" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm"><i class="bi bi-chevron-left"></i> Previous</button>`;
+        }
+        
+        paginationHtml += `<span class="text-sm text-gray-600">Page ${data.page} of ${data.total_pages}</span>`;
+        
+        if (data.page < data.total_pages) {
+            paginationHtml += `<button onclick="loadRecentVisitsPage(${data.page + 1})" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-sm">Next <i class="bi bi-chevron-right"></i></button>`;
+        }
+        
+        document.getElementById('paginationControls').innerHTML = paginationHtml;
+    } catch (error) {
+        console.error('Error loading visits:', error);
+        document.getElementById('visitsTableBody').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Failed to load visits</td></tr>';
+    }
+}
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

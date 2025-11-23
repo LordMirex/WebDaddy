@@ -6,7 +6,7 @@ require_once __DIR__ . '/../config.php';
 $period = $_GET['period'] ?? '7days';
 $page = max(1, (int)($_GET['page'] ?? 1));
 $ipFilter = trim($_GET['ip'] ?? '');
-$perPage = 2;
+$perPage = 20;
 
 // Date filters
 $dateFilter = '';
