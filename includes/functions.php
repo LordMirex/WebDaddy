@@ -476,38 +476,6 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
     }
 }
 
-function sendNewOrderNotificationToAdmin(
-    $orderId,
-    $customerName,
-    $customerPhone,
-    $productNames,
-    $amount,
-    $affiliateCode = null,
-    $orderType = 'template'
-) {
-    // Implementation would send to admin
-    error_log("Order notification: Order #$orderId from $customerName for $amount");
-    return true;
-}
-
-function sendOrderRejectionEmail($orderId, $customerName, $customerEmail, $reason = 'Order cancelled')
-{
-    $subject = "Your Order #$orderId Has Been Cancelled";
-    
-    $content = "
-    <p>Hi <strong>" . htmlspecialchars($customerName) . "</strong>,</p>
-    
-    <p>We regret to inform you that your order #<strong>$orderId</strong> has been cancelled.</p>
-    
-    <p><strong>Reason:</strong> " . htmlspecialchars($reason) . "</p>
-    
-    <p>If you have any questions, please contact us via WhatsApp or email.</p>
-    ";
-    
-    $emailHtml = createEmailTemplate($subject, $content, $customerName);
-    return sendEmail($customerEmail, $subject, $emailHtml);
-}
-
 function logActivity($type, $message, $userId = null)
 {
     $db = getDb();
