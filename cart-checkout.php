@@ -924,19 +924,19 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 <button type="submit" 
                         <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
-                        class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-6">
+                        class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                     Confirm Order
                 </button>
                 
+                </form>
+                
                 <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                   class="block text-center text-primary-600 hover:text-primary-700 font-medium py-2 mt-4">
+                   class="block text-center text-primary-600 hover:text-primary-700 font-medium py-3 mt-2">
                     ← Continue Shopping
                 </a>
-                
-                </form>
             <?php endif; ?>
         </div>
     </div>
