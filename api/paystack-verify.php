@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/paystack.php';
 require_once __DIR__ . '/../includes/delivery.php';
 require_once __DIR__ . '/../includes/cart.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 header('Content-Type: application/json');
 
@@ -14,51 +15,74 @@ startSecureSession();
 try {
     $input = json_decode(file_get_contents('php://input'), true);
     
-    // SECURITY: CSRF protection for payment verification
-    if (empty($input['csrf_token']) || !validateCsrfToken($input['csrf_token'])) {
-        throw new Exception('Security validation failed');
+    if (empty($input['reference']) || empty($input['order_id'])) {
+        throw new Exception('Missing required parameters');
     }
     
-    if (empty($input['reference'])) {
-        throw new Exception('Missing payment reference');
-    }
+    $orderId = (int)$input['order_id'];
+    $reference = $input['reference'];
     
-    // Verify payment with Paystack (this updates payment record automatically)
-    $verification = verifyPayment($input['reference']);
-    
-    if (!$verification['success']) {
-        throw new Exception($verification['message']);
-    }
-    
-    // Get order ID from verification response
-    $orderId = $verification['order_id'];
-    if (!$orderId) {
-        throw new Exception('Order ID not found in verification response');
-    }
+    // Verify payment with Paystack
+    $verification = verifyPayment($reference);
     
     $db = getDb();
+    
+    // Get order details for notifications
+    $stmt = $db->prepare("SELECT id, customer_name, customer_phone, affiliate_code, original_price, final_amount FROM pending_orders WHERE id = ?");
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$order) {
+        throw new Exception('Order not found');
+    }
+    
+    // Get order items
+    $stmt = $db->prepare("
+        SELECT 
+            COALESCE(t.name, to.name) as name, 
+            oi.product_type,
+            COUNT(*) as qty
+        FROM order_items oi
+        LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+        LEFT JOIN tools to ON oi.product_type = 'tool' AND oi.product_id = to.id
+        WHERE oi.order_id = ?
+        GROUP BY oi.product_id, oi.product_type
+    ");
+    $stmt->execute([$orderId]);
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $productNames = implode(', ', array_map(function($item) {
+        return $item['name'] . ($item['qty'] > 1 ? ' (x' . $item['qty'] . ')' : '');
+    }, $items));
+    
+    // Determine order type
+    $hasTemplates = false;
+    $hasTools = false;
+    foreach ($items as $item) {
+        if ($item['product_type'] === 'template') $hasTemplates = true;
+        if ($item['product_type'] === 'tool') $hasTools = true;
+    }
+    
+    $orderType = 'template';
+    if ($hasTemplates && $hasTools) {
+        $orderType = 'mixed';
+    } elseif ($hasTemplates) {
+        $orderType = 'template';
+    } else {
+        $orderType = 'tool';
+    }
     
     // SECURITY: Use transaction to prevent race conditions
     $db->beginTransaction();
     
     try {
-        // IDEMPOTENCY: Check if order is already processed
-        $stmt = $db->prepare("SELECT status, session_id FROM pending_orders WHERE id = ?");
+        // Check current status
+        $stmt = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
         $stmt->execute([$orderId]);
-        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        $currentOrder = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if (!$order) {
-            throw new Exception('Order not found');
-        }
-        
-        // SECURITY: Verify this session created the order
-        if ($order['session_id'] !== session_id()) {
-            throw new Exception('Unauthorized access to order');
-        }
-        
-        // IDEMPOTENCY: Only process if status is pending
-        if ($order['status'] === 'paid') {
-            // Already processed - return success without duplicate delivery
+        if ($currentOrder && $currentOrder['status'] === 'paid') {
+            // Already processed
             $db->rollBack();
             echo json_encode([
                 'success' => true,
@@ -68,30 +92,69 @@ try {
             exit;
         }
         
-        // Update order status to paid
-        $stmt = $db->prepare("
-            UPDATE pending_orders 
-            SET status = 'paid', 
-                payment_verified_at = datetime('now'),
-                payment_method = 'paystack'
-            WHERE id = ? AND status = 'pending'
-        ");
-        $stmt->execute([$orderId]);
-        
-        // Commit transaction before delivery (delivery is separate process)
-        $db->commit();
-        
-        // Create delivery records and send emails (outside transaction)
-        createDeliveryRecords($orderId);
-        
-        // Clear cart (safe to do after commit)
-        clearCart();
-        
-        echo json_encode([
-            'success' => true,
-            'order_id' => $orderId,
-            'message' => 'Payment verified successfully'
-        ]);
+        if ($verification['success']) {
+            // PAYMENT SUCCEEDED: Mark order as PAID and send admin notification
+            $stmt = $db->prepare("
+                UPDATE pending_orders 
+                SET status = 'paid', 
+                    payment_verified_at = datetime('now'),
+                    payment_method = 'paystack'
+                WHERE id = ? AND status = 'pending'
+            ");
+            $stmt->execute([$orderId]);
+            
+            $db->commit();
+            
+            // Send admin notification about successful payment (outside transaction)
+            sendPaymentSuccessNotificationToAdmin(
+                $orderId,
+                $order['customer_name'],
+                $order['customer_phone'],
+                $productNames,
+                formatCurrency($order['final_amount']),
+                $order['affiliate_code'],
+                $orderType
+            );
+            
+            // Create delivery records
+            createDeliveryRecords($orderId);
+            
+            clearCart();
+            
+            echo json_encode([
+                'success' => true,
+                'order_id' => $orderId,
+                'message' => 'Payment verified successfully'
+            ]);
+        } else {
+            // PAYMENT FAILED: Mark order as FAILED and send admin notification
+            $failureReason = $verification['message'] ?? 'Payment verification failed';
+            
+            $stmt = $db->prepare("
+                UPDATE pending_orders 
+                SET status = 'failed',
+                    payment_verified_at = datetime('now'),
+                    payment_method = 'paystack'
+                WHERE id = ?
+            ");
+            $stmt->execute([$orderId]);
+            
+            $db->commit();
+            
+            // Send admin notification about failed payment (outside transaction)
+            sendPaymentFailureNotificationToAdmin(
+                $orderId,
+                $order['customer_name'],
+                $order['customer_phone'],
+                $productNames,
+                formatCurrency($order['final_amount']),
+                $failureReason,
+                $order['affiliate_code'],
+                $orderType
+            );
+            
+            throw new Exception('Payment verification failed: ' . $failureReason);
+        }
         
     } catch (Exception $e) {
         $db->rollBack();

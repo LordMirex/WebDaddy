@@ -953,3 +953,95 @@ function sendAnnouncementEmails($announcementId, $title, $message, $type, $affil
     
     return $stats;
 }
+
+/**
+ * Send payment success notification to admin (when Paystack payment succeeds)
+ */
+function sendPaymentSuccessNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $affiliateCode = null, $orderType = 'template') {
+    $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
+    $subject = "✅ Payment Received - Order #{$orderId}";
+    
+    $affiliateInfo = '';
+    if ($affiliateCode) {
+        $affiliateInfo = "<p style='margin:5px 0; color:#374151;'><strong>Affiliate Code:</strong> {$affiliateCode}</p>";
+    }
+    
+    $orderTypeLabels = [
+        'template' => '🎨 Template Order',
+        'tool' => '🔧 Tool Order',
+        'tools' => '🔧 Tool Order',
+        'mixed' => '📦 Mixed Order'
+    ];
+    $orderTypeLabel = $orderTypeLabels[$orderType] ?? '📦 Order';
+    
+    $content = <<<HTML
+<h2 style="color:#16a34a; margin:0 0 15px 0; font-size:22px;">✅ Payment Confirmed</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    Payment has been successfully received for the {$orderTypeLabel}.
+</p>
+<div style="background:#f0fdf4; padding:15px; border-radius:6px; margin:15px 0; border-left:4px solid #16a34a;">
+    <p style="margin:5px 0; color:#374151;"><strong>Order ID:</strong> #{$orderId}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Customer:</strong> {$customerName}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Phone:</strong> {$customerPhone}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Products:</strong> {$productNames}</p>
+    <p style="margin:5px 0; color:#16a34a; font-weight:bold;"><strong>Amount:</strong> {$price} ✅</p>
+    {$affiliateInfo}
+    <p style="margin:10px 0 0 0; color:#16a34a; font-weight:bold;"><strong>Status:</strong> PAID</p>
+</div>
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    Proceed with order fulfillment. Customer delivery is automated.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Admin');
+    return sendEmail($adminEmail, $subject, $emailBody);
+}
+
+/**
+ * Send payment failure notification to admin (when Paystack payment fails)
+ */
+function sendPaymentFailureNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $failureReason = '', $affiliateCode = null, $orderType = 'template') {
+    $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
+    $subject = "❌ Payment Failed - Order #{$orderId}";
+    
+    $affiliateInfo = '';
+    if ($affiliateCode) {
+        $affiliateInfo = "<p style='margin:5px 0; color:#374151;'><strong>Affiliate Code:</strong> {$affiliateCode}</p>";
+    }
+    
+    $failureReasonHtml = '';
+    if ($failureReason) {
+        $failureReasonHtml = "<p style='margin:5px 0; color:#dc2626;'><strong>Reason:</strong> {$failureReason}</p>";
+    }
+    
+    $orderTypeLabels = [
+        'template' => '🎨 Template Order',
+        'tool' => '🔧 Tool Order',
+        'tools' => '🔧 Tool Order',
+        'mixed' => '📦 Mixed Order'
+    ];
+    $orderTypeLabel = $orderTypeLabels[$orderType] ?? '📦 Order';
+    
+    $content = <<<HTML
+<h2 style="color:#dc2626; margin:0 0 15px 0; font-size:22px;">❌ Payment Failed</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    A payment attempt for the {$orderTypeLabel} has failed.
+</p>
+<div style="background:#fef2f2; padding:15px; border-radius:6px; margin:15px 0; border-left:4px solid #dc2626;">
+    <p style="margin:5px 0; color:#374151;"><strong>Order ID:</strong> #{$orderId}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Customer:</strong> {$customerName}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Phone:</strong> {$customerPhone}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Products:</strong> {$productNames}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Amount:</strong> {$price}</p>
+    {$failureReasonHtml}
+    {$affiliateInfo}
+    <p style="margin:10px 0 0 0; color:#dc2626; font-weight:bold;"><strong>Status:</strong> FAILED</p>
+</div>
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    Customer was notified. They may retry or contact via WhatsApp.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Admin');
+    return sendEmail($adminEmail, $subject, $emailBody);
+}

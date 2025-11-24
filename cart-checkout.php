@@ -1079,29 +1079,32 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             },
                             onSuccess: function(response) {
                                 // Verify payment on server
+                                const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
                                 fetch('/api/paystack-verify.php', {
                                     method: 'POST',
                                     headers: {'Content-Type': 'application/json'},
                                     body: JSON.stringify({
                                         reference: response.reference,
                                         order_id: paymentData.order_id,
-                                        customer_email: paymentData.customer_email
+                                        csrf_token: csrfToken
                                     })
                                 })
                                 .then(r => r.json())
                                 .then(data => {
                                     if (data.success) {
-                                        alert('✅ Payment successful! Your order is being processed.');
+                                        alert('✅ Payment successful! Your products are being set up.');
                                         // Redirect to confirmation page after successful payment
                                         window.location.href = paymentData.redirect_on_failure;
                                     } else {
-                                        alert('Payment verification failed. Redirecting to order page...');
-                                        window.location.href = paymentData.redirect_on_failure;
+                                        alert('❌ Payment failed: ' + (data.message || 'Unknown error'));
+                                        // Redirect to order page but don't go to confirmation
+                                        // User can try again or use manual payment
+                                        window.location.reload();
                                     }
                                 })
-                                .catch(() => {
-                                    alert('Error verifying payment. Redirecting to order page...');
-                                    window.location.href = paymentData.redirect_on_failure;
+                                .catch(err => {
+                                    alert('Error verifying payment: ' + err.message);
+                                    window.location.reload();
                                 });
                             }
                         });
