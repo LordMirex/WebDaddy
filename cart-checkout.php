@@ -407,7 +407,7 @@ if ($confirmedOrderId) {
         $messageDiscussion .= "\n\n🏦 *PAYMENT DETAILS:*\n";
         if ($bankName) $messageDiscussion .= "Bank: " . $bankName . "\n";
         if ($bankAccountNumber) $messageDiscussion .= "Account: " . $bankAccountNumber . "\n";
-        if ($bankNumber) $messageDiscussion .= "Code: " . $bankNumber . "\n";
+        if ($bankNumber) $messageDiscussion .= "Account Name: " . $bankNumber . "\n";
         
         $messageDiscussion .= "\nI have some inquiries about these products before I complete the payment. Can you please help me confirm the details and answer any questions I have? Thank you! 🚀";
         
