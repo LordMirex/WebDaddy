@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/cart.php';
 require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/mailer.php';
+require_once __DIR__ . '/includes/delivery.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -418,6 +419,18 @@ if ($confirmedOrderId) {
         $whatsappUrlPaymentProof = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessagePaymentProof;
         $whatsappUrlDiscussion = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessageDiscussion;
         
+        // Get delivery status for this order
+        $deliveries = getDeliveryStatus($confirmedOrderId);
+        
+        // Separate deliveries by type
+        $toolDeliveries = array_filter($deliveries, function($d) {
+            return $d['product_type'] === 'tool';
+        });
+        
+        $templateDeliveries = array_filter($deliveries, function($d) {
+            return $d['product_type'] === 'template';
+        });
+        
         $confirmationData = [
             'order' => $order,
             'orderItems' => $orderItems,
@@ -428,7 +441,10 @@ if ($confirmedOrderId) {
             'whatsappUrlDiscussion' => $whatsappUrlDiscussion,
             'bankAccountNumber' => $bankAccountNumber,
             'bankName' => $bankName,
-            'bankNumber' => $bankNumber
+            'bankNumber' => $bankNumber,
+            'deliveries' => $deliveries,
+            'toolDeliveries' => $toolDeliveries,
+            'templateDeliveries' => $templateDeliveries
         ];
     } else {
         // Invalid order or unauthorized access - redirect to home
@@ -621,6 +637,95 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         </div>
                     </div>
                 </div>
+                
+                <!-- Delivery Information (Phase 3) -->
+                <?php if (!empty($confirmationData['deliveries']) && $confirmationData['order']['payment_status'] === 'paid'): ?>
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
+                    <div class="p-6">
+                        <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <span>📦</span> Your Deliverables
+                        </h4>
+                        
+                        <?php if (!empty($confirmationData['toolDeliveries'])): ?>
+                        <div class="mb-6">
+                            <h5 class="text-lg font-semibold text-white mb-3">🔧 Digital Tools (Ready Now)</h5>
+                            <?php foreach ($confirmationData['toolDeliveries'] as $tool): ?>
+                            <div class="bg-gray-700/50 rounded-lg p-4 mb-3 border border-gray-600">
+                                <h6 class="font-semibold text-white mb-2"><?php echo htmlspecialchars($tool['product_name']); ?></h6>
+                                <?php if ($tool['delivery_note']): ?>
+                                <p class="text-sm text-gray-300 mb-3"><?php echo htmlspecialchars($tool['delivery_note']); ?></p>
+                                <?php endif; ?>
+                                
+                                <?php
+                                $links = json_decode($tool['delivery_link'], true);
+                                if ($links && is_array($links)):
+                                ?>
+                                <div class="mt-3">
+                                    <strong class="text-white text-sm">📥 Download Files:</strong>
+                                    <ul class="list-none mt-2 space-y-2">
+                                        <?php foreach ($links as $link): ?>
+                                        <li>
+                                            <a href="<?php echo htmlspecialchars($link['url']); ?>" 
+                                               class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors" 
+                                               target="_blank">
+                                                📄 <?php echo htmlspecialchars($link['name']); ?>
+                                            </a>
+                                            <small class="text-gray-400 block mt-1 ml-1">
+                                                Expires: <?php echo date('M d, Y', strtotime($link['expires_at'])); ?>
+                                            </small>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <div class="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3 mt-3">
+                                    <p class="text-sm text-gray-300">
+                                        ✉️ Download links have also been sent to 
+                                        <strong class="text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if (!empty($confirmationData['templateDeliveries'])): ?>
+                        <div>
+                            <h5 class="text-lg font-semibold text-white mb-3">🎨 Website Templates</h5>
+                            <?php foreach ($confirmationData['templateDeliveries'] as $template): ?>
+                            <div class="bg-gray-700/50 rounded-lg p-4 mb-3 border border-gray-600">
+                                <h6 class="font-semibold text-white mb-2"><?php echo htmlspecialchars($template['product_name']); ?></h6>
+                                <?php if ($template['delivery_note']): ?>
+                                <p class="text-sm text-gray-300 mb-3"><?php echo htmlspecialchars($template['delivery_note']); ?></p>
+                                <?php endif; ?>
+                                
+                                <?php if ($template['delivery_status'] === 'ready' && $template['hosted_url']): ?>
+                                <div class="bg-green-900/30 border border-green-500/30 rounded-lg p-3">
+                                    <p class="text-sm text-gray-300 mb-2">✅ Your template is ready!</p>
+                                    <a href="<?php echo htmlspecialchars($template['hosted_url']); ?>" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors" 
+                                       target="_blank">
+                                        🚀 Access Template
+                                    </a>
+                                </div>
+                                <?php else: ?>
+                                <div class="bg-yellow-900/30 border border-yellow-500/30 rounded-lg p-3">
+                                    <p class="text-sm text-gray-300">
+                                        ⏱️ Your template will be ready in approximately 24 hours.
+                                        <br>
+                                        We'll email you the access link at 
+                                        <strong class="text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong>
+                                    </p>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
                 
                 <!-- Bank Payment Details Card - Matches template dark theme -->
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-4 p-4">
