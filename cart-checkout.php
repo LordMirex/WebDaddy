@@ -636,11 +636,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 <div class="space-y-2">
                     <!-- Button 1: I have sent the money - PRIMARY RECOMMENDED -->
                     <div class="relative">
-                        <span class="absolute -top-2 left-4 bg-green-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">✓ RECOMMENDED</span>
+                        <span class="absolute -top-2 left-4 bg-yellow-400 text-yellow-900 text-xs font-bold px-2.5 py-0.5 rounded-full">⚡ INSTANT</span>
                         <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
-                           class="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl text-center border-2 border-green-500 block">
+                           class="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl text-center border-2 border-green-500 block">
                             <span class="text-2xl">⚡</span>
-                            <div>
+                            <div class="text-left">
                                 <div class="text-sm font-bold">I've Sent the Money</div>
                                 <div class="text-xs opacity-90">Submit payment proof now</div>
                             </div>
@@ -651,10 +651,17 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
                        class="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg text-center block">
                         <span class="text-xl">💬</span>
-                        <div>
+                        <div class="text-left">
                             <div class="text-sm font-semibold">Send Me Account Details</div>
                             <div class="text-xs opacity-85">Via WhatsApp chat</div>
                         </div>
+                    </a>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="/?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                       class="text-sm text-gray-400 hover:text-gray-200 font-medium transition-colors">
+                        ← Continue Shopping
                     </a>
                 </div>
                 
