@@ -25,7 +25,22 @@ try {
         throw new Exception('Cart is empty');
     }
     
-    $affiliateCode = $input['affiliate_code'] ?? null;
+    // Validate affiliate code (sanitize and verify it's active)
+    $affiliateCode = null;
+    if (!empty($input['affiliate_code'])) {
+        $rawCode = strtoupper(trim($input['affiliate_code']));
+        
+        // Verify affiliate code is valid and active
+        if (function_exists('getAffiliateByCode')) {
+            $affiliate = getAffiliateByCode($rawCode);
+            if ($affiliate && $affiliate['status'] === 'active') {
+                $affiliateCode = $rawCode;
+            }
+        } else {
+            $affiliateCode = $rawCode;
+        }
+    }
+    
     $totals = getCartTotal(null, $affiliateCode);
     
     // Create pending order

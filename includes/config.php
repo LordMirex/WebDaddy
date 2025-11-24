@@ -41,14 +41,19 @@ define('WHATSAPP_NUMBER', $whatsappNumber);
 // ============================================
 
 // SMTP/Email Configuration (for sending emails)
-// Update these with your actual SMTP credentials
-define('SMTP_HOST', 'mail.webdaddy.online');           // SMTP server
-define('SMTP_PORT', 465);                                  // SMTP port (465 for SSL, 587 for TLS)
-define('SMTP_SECURE', 'ssl');                              // SSL or TLS
-define('SMTP_USER', 'admin@webdaddy.online');        // SMTP username
-define('SMTP_PASS', 'ItuZq%kF%5oE');                       // SMTP password
-define('SMTP_FROM_EMAIL', 'admin@webdaddy.online');  // From email address
-define('SMTP_FROM_NAME', 'WebDaddy Empire');               // From name
+// SECURITY: All credentials loaded from environment variables
+define('SMTP_HOST', getenv('SMTP_HOST') ?: 'mail.webdaddy.online');
+define('SMTP_PORT', getenv('SMTP_PORT') ?: 465);
+define('SMTP_SECURE', getenv('SMTP_SECURE') ?: 'ssl');
+define('SMTP_USER', getenv('SMTP_USER') ?: '');
+define('SMTP_PASS', getenv('SMTP_PASS') ?: '');
+define('SMTP_FROM_EMAIL', getenv('SMTP_FROM_EMAIL') ?: '');
+define('SMTP_FROM_NAME', getenv('SMTP_FROM_NAME') ?: 'WebDaddy Empire');
+
+// Validate SMTP credentials are set
+if (empty(SMTP_USER) || empty(SMTP_PASS) || empty(SMTP_FROM_EMAIL)) {
+    error_log('WARNING: SMTP credentials not configured. Email sending will fail. Set SMTP_USER, SMTP_PASS, and SMTP_FROM_EMAIL environment variables.');
+}
 
 // Affiliate Settings
 define('AFFILIATE_COOKIE_DAYS', 30);        // How long affiliate cookies last
@@ -101,9 +106,17 @@ if (DISPLAY_ERRORS) {
 // ============================================
 // PAYSTACK CONFIGURATION
 // ============================================
-define('PAYSTACK_SECRET_KEY', getenv('PAYSTACK_SECRET_KEY') ?: '');
-define('PAYSTACK_PUBLIC_KEY', getenv('PAYSTACK_PUBLIC_KEY') ?: '');
-define('PAYSTACK_MODE', getenv('PAYSTACK_MODE') ?: 'test');
+// SECURITY: Paystack keys MUST be set as environment variables
+$paystackSecretKey = getenv('PAYSTACK_SECRET_KEY');
+$paystackPublicKey = getenv('PAYSTACK_PUBLIC_KEY');
+
+if (empty($paystackSecretKey) || empty($paystackPublicKey)) {
+    error_log('WARNING: Paystack API keys not configured. Payment processing will fail. Set PAYSTACK_SECRET_KEY and PAYSTACK_PUBLIC_KEY environment variables.');
+}
+
+define('PAYSTACK_SECRET_KEY', $paystackSecretKey ?: '');
+define('PAYSTACK_PUBLIC_KEY', $paystackPublicKey ?: '');
+define('PAYSTACK_MODE', getenv('PAYSTACK_MODE') ?: 'live');
 define('PAYMENT_CURRENCY', 'NGN');
 define('DOWNLOAD_LINK_EXPIRY_DAYS', 7);
 define('MAX_DOWNLOAD_ATTEMPTS', 5);

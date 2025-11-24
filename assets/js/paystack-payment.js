@@ -94,12 +94,21 @@ async function verifyPayment(reference) {
     document.getElementById('pay-now-btn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying payment...';
     
     try {
+        // Get CSRF token from page
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            throw new Error('Security token not found');
+        }
+        
         const response = await fetch('/api/paystack-verify.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ reference: reference })
+            body: JSON.stringify({ 
+                reference: reference,
+                csrf_token: csrfToken
+            })
         });
         
         const data = await response.json();
@@ -116,6 +125,11 @@ async function verifyPayment(reference) {
         alert('Failed to verify payment. Please contact support with reference: ' + reference);
         resetPayButton();
     }
+}
+
+function getCsrfToken() {
+    const csrfInput = document.querySelector('input[name="csrf_token"]');
+    return csrfInput ? csrfInput.value : null;
 }
 
 function resetPayButton() {

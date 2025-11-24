@@ -55,41 +55,71 @@ function handleSuccessfulPayment($data) {
         return;
     }
     
-    // Already processed?
+    // IDEMPOTENCY: Already processed?
     if ($payment['status'] === 'completed') {
+        logPaymentEvent('payment_already_completed', 'paystack', 'info', $payment['pending_order_id'], $payment['id'], null, $data);
         return;
     }
     
     $db = getDb();
     
-    // Update payment record
-    $stmt = $db->prepare("
-        UPDATE payments 
-        SET status = 'completed',
-            amount_paid = ?,
-            paystack_response = ?,
-            payment_verified_at = datetime('now')
-        WHERE id = ?
-    ");
-    $stmt->execute([
-        $data['amount'] / 100, // Convert from kobo
-        json_encode($data),
-        $payment['id']
-    ]);
+    // SECURITY: Use transaction to prevent race conditions
+    $db->beginTransaction();
     
-    // Update order
-    $stmt = $db->prepare("
-        UPDATE pending_orders 
-        SET status = 'paid',
-            payment_verified_at = datetime('now')
-        WHERE id = ?
-    ");
-    $stmt->execute([$payment['pending_order_id']]);
-    
-    // Trigger delivery
-    createDeliveryRecords($payment['pending_order_id']);
-    
-    logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);
+    try {
+        // IDEMPOTENCY: Check order status
+        $stmt = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
+        $stmt->execute([$payment['pending_order_id']]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order) {
+            throw new Exception('Order not found');
+        }
+        
+        // IDEMPOTENCY: Skip if already paid (prevent duplicate delivery)
+        if ($order['status'] === 'paid') {
+            $db->rollBack();
+            logPaymentEvent('order_already_paid', 'paystack', 'info', $payment['pending_order_id'], $payment['id'], null, $data);
+            return;
+        }
+        
+        // Update payment record
+        $stmt = $db->prepare("
+            UPDATE payments 
+            SET status = 'completed',
+                amount_paid = ?,
+                paystack_response = ?,
+                payment_verified_at = datetime('now')
+            WHERE id = ? AND status != 'completed'
+        ");
+        $stmt->execute([
+            $data['amount'] / 100, // Convert from kobo
+            json_encode($data),
+            $payment['id']
+        ]);
+        
+        // Update order status
+        $stmt = $db->prepare("
+            UPDATE pending_orders 
+            SET status = 'paid',
+                payment_verified_at = datetime('now'),
+                payment_method = 'paystack'
+            WHERE id = ? AND status = 'pending'
+        ");
+        $stmt->execute([$payment['pending_order_id']]);
+        
+        // Commit transaction before delivery
+        $db->commit();
+        
+        // Trigger delivery (outside transaction)
+        createDeliveryRecords($payment['pending_order_id']);
+        
+        logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);
+        
+    } catch (Exception $e) {
+        $db->rollBack();
+        logPaymentEvent('payment_processing_failed', 'paystack', 'error', $payment['pending_order_id'], $payment['id'], null, ['error' => $e->getMessage(), 'data' => $data]);
+    }
 }
 
 function handleFailedPayment($data) {
