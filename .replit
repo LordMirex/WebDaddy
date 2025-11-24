@@ -27,16 +27,12 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -c php.ini -S 0.0.0.0:5000 router.php"
+args = "cd /home/runner/WebDaddyEmpire && php -S 0.0.0.0:5000"
 waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 36427
-externalPort = 3000
 
 [[ports]]
 localPort = 38175
