@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/mailer.php';
 
 /**
  * Queue an email
@@ -176,11 +177,9 @@ function processEmailQueue() {
     
     foreach ($emails as $email) {
         try {
-            // TODO: Implement actual email sending using PHPMailer or mail()
-            // For now, we'll just mark as sent
-            // $sent = sendEmail($email['recipient_email'], $email['subject'], $email['body'], $email['html_body']);
-            
-            $sent = true; // Placeholder
+            // Send email using PHPMailer
+            $htmlBody = $email['html_body'] ?: nl2br(htmlspecialchars($email['body'], ENT_QUOTES, 'UTF-8'));
+            $sent = sendEmail($email['recipient_email'], $email['subject'], $htmlBody);
             
             if ($sent) {
                 // Mark as sent
@@ -191,7 +190,7 @@ function processEmailQueue() {
                 ");
                 $updateStmt->execute([$email['id']]);
             } else {
-                throw new Exception('Failed to send email');
+                throw new Exception('Email send returned false');
             }
         } catch (Exception $e) {
             // Increment attempts
