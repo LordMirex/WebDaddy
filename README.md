@@ -17,9 +17,13 @@ WebDaddy Empire is a production-ready marketplace where customers can purchase p
 The system manages 9 core data entities:
 
 #### **1. Settings**
-- Global site configuration (WhatsApp number, site name, commission rates, affiliate cookie duration)
+- Global site configuration (WhatsApp number, site name, commission rates, affiliate cookie duration, bank account details)
 - All settings are database-driven and can be updated via admin panel
 - Fallback to config.php constants if database values don't exist
+- **New (Nov 2025):** Bank payment settings for manual transfer flow:
+  - `site_account_number`: Business bank account number displayed to customers
+  - `site_bank_name`: Bank name (e.g., "Access Bank", "GTBank")
+  - `site_bank_number`: Bank code/identification number
 
 #### **2. Users**
 - Stores both admin and affiliate accounts

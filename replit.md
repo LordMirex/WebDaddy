@@ -55,6 +55,15 @@ Preferred communication style: Simple, everyday language.
 - **JSON Fields**: Used for flexible data (custom form fields, bank details) stored as JSON within SQLite
 - **File Uploads**: Organized directory structure (`uploads/templates/`, `uploads/tools/`) with security measures
 
+**Settings Configuration (November 2025 Payment Flow Update):**
+- Settings stored in flexible key-value format in SQLite `settings` table
+- Core settings: `whatsapp_number`, `site_name`, `commission_rate`, `affiliate_cookie_days`
+- **New bank payment settings:**
+  - `site_account_number`: Customer receives this for manual bank transfers
+  - `site_bank_name`: Bank name displayed on order confirmation page
+  - `site_bank_number`: Bank code for customer reference
+- Admin can configure all settings via `/admin/settings.php` panel
+
 **Security Measures:**
 - Password hashing for user authentication
 - PHP execution disabled in upload directories
@@ -66,14 +75,18 @@ Preferred communication style: Simple, everyday language.
 
 ### Payment Processing Architecture
 
-**WhatsApp-Based Flow:**
+**WhatsApp-Based Flow (Updated November 2025):**
 1. Customer submits order form with template and domain selection
-2. System generates pre-formatted WhatsApp message with order details
-3. Customer contacts business via WhatsApp link
-4. Admin manually confirms payment and marks order as paid
-5. Domain automatically assigned to customer upon payment confirmation
+2. Customer confirms and proceeds to order confirmation page
+3. **NEW:** Confirmation page displays business bank account details (account number, bank name, bank code)
+4. Customer manually transfers exact order amount to business account
+5. Customer sends payment proof via WhatsApp using one of two options:
+   - "⚡ I have sent the money" - Sends payment proof message with order details (instant confirmation)
+   - "💬 Discuss more on WhatsApp" - Alternative discussion pathway for customers with questions
+6. Admin reviews payment proof and marks order as paid
+7. Domain automatically assigned to customer upon payment confirmation
 
-**Rationale**: WhatsApp payment approach chosen for markets where informal payment methods are common, reduces payment gateway fees, and provides direct customer communication channel. Trade-off: manual payment confirmation required.
+**Rationale**: Improved flow eliminates delays - bank details shown upfront, no back-and-forth for account info. Customers make transfer immediately, send proof via WhatsApp. Faster payment confirmation, higher conversion. WhatsApp chosen for markets where informal payment methods are common, reduces gateway fees, provides direct communication channel.
 
 ### Affiliate Marketing System
 
