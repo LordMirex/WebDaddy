@@ -378,12 +378,12 @@ if ($confirmedOrderId) {
         if ($bankNumber) $messagePaymentProof .= "Code: " . $bankNumber . "\n";
         $messagePaymentProof .= "\n📸 *Attached is the screenshot of my payment receipt*";
         
-        // MESSAGE TYPE 2: Discussion Message (Discuss more on WhatsApp)
-        $messageDiscussion = "🛒 *ORDER INQUIRY*\n";
+        // MESSAGE TYPE 2: Discussion Message (Request payment details)
+        $messageDiscussion = "🛒 *ORDER INQUIRY - SEND ACCOUNT DETAILS*\n";
         $messageDiscussion .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         $messageDiscussion .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
-        $messageDiscussion .= "💬 I need more information about this order before proceeding with payment.\n";
-        $messageDiscussion .= "Please let me discuss the details with you.";
+        $messageDiscussion .= "👋 Hi, I'm ready to pay for this order.\n";
+        $messageDiscussion .= "Could you please send me the account details and payment instructions?";
         
         // Generate WhatsApp links for both message types
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
@@ -632,33 +632,31 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </ul>
                 </div>
                 
-                <!-- Two WhatsApp Buttons - Compact -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <!-- Button 1: I have sent the money -->
-                    <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
-                       class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-md hover:shadow-lg text-center">
-                        <span>⚡</span>
-                        <div>
-                            <div class="text-xs">I sent the money</div>
-                            <div class="text-xs opacity-80">w/ payment proof</div>
-                        </div>
-                    </a>
+                <!-- Two WhatsApp Buttons - with badge highlighting primary action -->
+                <div class="space-y-2">
+                    <!-- Button 1: I have sent the money - PRIMARY RECOMMENDED -->
+                    <div class="relative">
+                        <span class="absolute -top-2 left-4 bg-green-500 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">✓ RECOMMENDED</span>
+                        <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
+                           class="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl text-center border-2 border-green-500 block">
+                            <span class="text-2xl">⚡</span>
+                            <div>
+                                <div class="text-sm font-bold">I've Sent the Money</div>
+                                <div class="text-xs opacity-90">Submit payment proof now</div>
+                            </div>
+                        </a>
+                    </div>
                     
-                    <!-- Button 2: Discuss more -->
+                    <!-- Button 2: Get account details via WhatsApp -->
                     <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
-                       class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-md hover:shadow-lg text-center">
-                        <span>💬</span>
+                       class="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg text-center block">
+                        <span class="text-xl">💬</span>
                         <div>
-                            <div class="text-xs">Let's discuss</div>
-                            <div class="text-xs opacity-80">Ask questions first</div>
+                            <div class="text-sm font-semibold">Send Me Account Details</div>
+                            <div class="text-xs opacity-85">Via WhatsApp chat</div>
                         </div>
                     </a>
                 </div>
-                
-                <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                   class="block text-center text-primary-600 hover:text-primary-700 font-medium py-2">
-                    ← Continue Shopping
-                </a>
                 
             <?php else: ?>
                 <!-- Regular Checkout Form -->
