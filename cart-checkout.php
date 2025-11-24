@@ -376,7 +376,7 @@ if ($confirmedOrderId) {
         $messagePaymentProof .= "\n\n🏦 *PAYMENT DETAILS:*\n";
         if ($bankName) $messagePaymentProof .= "Bank: " . $bankName . "\n";
         if ($bankAccountNumber) $messagePaymentProof .= "Account: " . $bankAccountNumber . "\n";
-        if ($bankNumber) $messagePaymentProof .= "Code: " . $bankNumber . "\n";
+        if ($bankNumber) $messagePaymentProof .= "Account Name: " . $bankNumber . "\n";
         $messagePaymentProof .= "\n📸 *Attached is the screenshot of my payment receipt*";
         
         // MESSAGE TYPE 2: Proceed with Payment Message (Formal structure with order details)
