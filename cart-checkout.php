@@ -669,8 +669,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     <div class="flex gap-3">
                         <span class="text-lg flex-shrink-0">💬</span>
                         <div>
-                            <div class="text-xs font-bold text-white uppercase">Button 2: Proceed With Payment</div>
-                            <div class="text-xs text-gray-300">Click this to proceed and discuss payment on WhatsApp. We'll help you complete the process and answer any questions you have.</div>
+                            <div class="text-xs font-bold text-white uppercase">Button 2: Pay via WhatsApp</div>
+                            <div class="text-xs text-gray-300">Click this to process your payment via WhatsApp. We'll guide you through the payment process and answer any questions before you pay.</div>
                         </div>
                     </div>
                 </div>
@@ -684,11 +684,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <span>I've Sent the Money</span>
                     </a>
                     
-                    <!-- Button 2: Proceed with payment - SECONDARY ACTION -->
+                    <!-- Button 2: Pay via WhatsApp - SECONDARY ACTION -->
                     <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 hover:bg-gray-900 border border-gray-600 rounded-lg transition-colors whitespace-nowrap">
                         <span>💬</span>
-                        <span>Proceed With Payment</span>
+                        <span>Pay via WhatsApp</span>
                     </a>
                 </div>
                 
