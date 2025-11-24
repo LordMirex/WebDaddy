@@ -922,6 +922,19 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 </div>
                 
+                <!-- Special Offer Banner -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg p-4 mb-6 shadow-lg">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">💰</span>
+                            <div>
+                                <p class="font-bold text-sm mb-1">Special Bonus Offer</p>
+                                <p class="text-xs opacity-95">Use code <span class="bg-blue-500 px-2 py-1 rounded font-bold">HUSTLE</span> for 20% OFF</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <button type="submit" 
                         <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
                         class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
