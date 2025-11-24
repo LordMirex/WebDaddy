@@ -98,6 +98,16 @@ if (DISPLAY_ERRORS) {
     ini_set('display_errors', 0);
 }
 
+// ============================================
+// PAYSTACK CONFIGURATION
+// ============================================
+define('PAYSTACK_SECRET_KEY', getenv('PAYSTACK_SECRET_KEY') ?: '');
+define('PAYSTACK_PUBLIC_KEY', getenv('PAYSTACK_PUBLIC_KEY') ?: '');
+define('PAYSTACK_MODE', getenv('PAYSTACK_MODE') ?: 'test');
+define('PAYMENT_CURRENCY', 'NGN');
+define('DOWNLOAD_LINK_EXPIRY_DAYS', 7);
+define('MAX_DOWNLOAD_ATTEMPTS', 5);
+
 // SQLite Database Check - verify database file exists
 $dbFile = __DIR__ . '/../database/webdaddy.db';
 if (!file_exists($dbFile)) {
