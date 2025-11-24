@@ -1017,23 +1017,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             
             // 5. CART RECOVERY BANNER - SHOW HUSTLE DISCOUNT CODE
             console.log('✅ Cart Recovery Features Initialized');
-            
-            // Show discount banner on checkout
-            const banner = document.createElement('div');
-            banner.id = 'cartRecoveryBanner';
-            banner.innerHTML = `
-                <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 16px 20px; border-radius: 10px; max-width: 300px; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); font-family: Arial, sans-serif;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-                        <div style="flex: 1;">
-                            <p style="margin: 0 0 6px 0; font-weight: bold; font-size: 14px;">💰 Special Offer</p>
-                            <p style="margin: 0; font-size: 13px; opacity: 0.95;">Use code <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-weight: bold;">HUSTLE</span> for 20% OFF</p>
-                        </div>
-                        <button onclick="document.getElementById('cartRecoveryBanner').style.display='none'" style="background: none; border: none; color: white; cursor: pointer; font-size: 20px; padding: 0; margin: 0; width: 24px; height: 24px;">✕</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(banner);
-            console.log('✅ Discount Banner displayed');
         });
     </script>
 </body>
