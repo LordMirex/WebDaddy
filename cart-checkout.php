@@ -910,30 +910,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 </div>
                 
-                <!-- Submit Button -->
-                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
-                        </svg>
-                        <p class="text-sm text-gray-100">
-                            You'll be redirected to WhatsApp to complete your order. Our team will confirm your purchase and provide payment details.
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Special Offer Banner -->
-                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg p-4 mb-6 shadow-lg">
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">💰</span>
-                            <div>
-                                <p class="font-bold text-sm mb-1">Special Bonus Offer</p>
-                                <p class="text-xs opacity-95">Use code <span class="bg-blue-500 px-2 py-1 rounded font-bold">HUSTLE</span> for 20% OFF</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <button type="submit" 
                         <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
@@ -1028,8 +1004,22 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
-            // 5. CART RECOVERY BANNER - SHOW HUSTLE DISCOUNT CODE
+            // 5. FLOATING BONUS OFFER BANNER
             console.log('✅ Cart Recovery Features Initialized');
+            
+            const floatingBanner = document.createElement('div');
+            floatingBanner.innerHTML = `
+                <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 250px; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 18px;">💰</span>
+                        <div>
+                            <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 13px;">Special Bonus</p>
+                            <p style="margin: 0; font-size: 12px; opacity: 0.95;">Code: <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-weight: bold;">HUSTLE</span> = 20% OFF</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(floatingBanner);
         });
     </script>
 </body>
