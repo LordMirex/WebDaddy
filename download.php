@@ -41,8 +41,9 @@ $stmt = $db->prepare("
 ");
 $stmt->execute([$download['id']]);
 
-// Track download
-trackDownload($download['file_id'], $download['pending_order_id']);
+// Update file download count
+$stmt = $db->prepare("UPDATE tool_files SET download_count = download_count + 1 WHERE id = ?");
+$stmt->execute([$download['file_id']]);
 
 // Serve file
 $filePath = __DIR__ . '/' . $download['file_path'];

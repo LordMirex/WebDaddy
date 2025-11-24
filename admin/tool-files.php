@@ -25,9 +25,21 @@ if ($selectedToolId) {
 // Handle file upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
     try {
+        // CSRF protection
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            throw new Exception('Security validation failed');
+        }
+        
         $toolId = $_POST['tool_id'];
         $fileType = $_POST['file_type'];
         $description = $_POST['description'] ?? '';
+        
+        // Validate tool exists and is active
+        $stmt = $db->prepare("SELECT id FROM tools WHERE id = ? AND active = 1");
+        $stmt->execute([$toolId]);
+        if (!$stmt->fetch()) {
+            throw new Exception('Invalid tool selected');
+        }
         
         if (isset($_FILES['tool_file']) && $_FILES['tool_file']['error'] === UPLOAD_ERR_OK) {
             uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
@@ -45,27 +57,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
 // Handle file deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_file'])) {
     try {
+        // CSRF protection
+        if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+            throw new Exception('Security validation failed');
+        }
+        
         $fileId = $_POST['file_id'];
         $toolId = $_POST['tool_id'];
         
-        // Get file info
-        $stmt = $db->prepare("SELECT * FROM tool_files WHERE id = ?");
-        $stmt->execute([$fileId]);
+        // Get file info and verify ownership
+        $stmt = $db->prepare("SELECT * FROM tool_files WHERE id = ? AND tool_id = ?");
+        $stmt->execute([$fileId, $toolId]);
         $file = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($file) {
-            // Delete physical file
-            $filePath = __DIR__ . '/../' . $file['file_path'];
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-            
-            // Delete from database
-            $stmt = $db->prepare("DELETE FROM tool_files WHERE id = ?");
-            $stmt->execute([$fileId]);
-            
-            $success = 'File deleted successfully!';
+        if (!$file) {
+            throw new Exception('File not found or does not belong to this tool');
         }
+        
+        // Delete physical file
+        $filePath = __DIR__ . '/../' . $file['file_path'];
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+        
+        // Delete from database
+        $stmt = $db->prepare("DELETE FROM tool_files WHERE id = ? AND tool_id = ?");
+        $stmt->execute([$fileId, $toolId]);
+        
+        $success = 'File deleted successfully!';
         
         header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
         exit;
@@ -121,6 +140,7 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="card-body">
             <form method="POST" enctype="multipart/form-data">
+                <?php echo csrfTokenField(); ?>
                 <input type="hidden" name="tool_id" value="<?php echo $selectedToolId; ?>">
                 
                 <div class="mb-3">
@@ -200,6 +220,7 @@ require_once __DIR__ . '/includes/header.php';
                                 </a>
                                 <form method="POST" style="display:inline;" 
                                       onsubmit="return confirm('Are you sure you want to delete this file? This cannot be undone.');">
+                                    <?php echo csrfTokenField(); ?>
                                     <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
                                     <input type="hidden" name="tool_id" value="<?php echo $selectedToolId; ?>">
                                     <button type="submit" name="delete_file" class="btn btn-sm btn-danger">

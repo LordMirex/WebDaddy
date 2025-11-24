@@ -572,6 +572,20 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         
         $db->commit();
         
+        // Create delivery records for automatic tool delivery and template tracking (Phase 3)
+        // IDEMPOTENCY: Only create deliveries if they don't already exist
+        // ERROR HANDLING: Log failures but don't block payment confirmation
+        try {
+            require_once __DIR__ . '/delivery.php';
+            $existingDeliveries = getDeliveryStatus($orderId);
+            if (empty($existingDeliveries)) {
+                createDeliveryRecords($orderId);
+            }
+        } catch (Exception $e) {
+            error_log("Failed to create delivery records for order #{$orderId}: " . $e->getMessage());
+            // Don't throw - payment is already confirmed, admin can manually retry delivery creation
+        }
+        
         // Send enhanced payment confirmation email to customer
         if (!empty($order['customer_email'])) {
             // Get domain name for template orders
