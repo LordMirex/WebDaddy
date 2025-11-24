@@ -322,12 +322,7 @@ if ($confirmedOrderId) {
             $orderTypeText = 'TOOLS ORDER';
         }
         
-        // Build WhatsApp message - Conversion-focused
-        $message = "🛒 *NEW ORDER REQUEST*\n";
-        $message .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-        $message .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
-        
-        // Categorize items
+        // Categorize items (used for both messages)
         $templateCount = 0;
         $toolCount = 0;
         $templates = [];
@@ -347,34 +342,55 @@ if ($confirmedOrderId) {
             }
         }
         
-        // Display templates section
+        // Get bank details from settings
+        $bankAccountNumber = getSetting('site_account_number', '');
+        $bankName = getSetting('site_bank_name', '');
+        $bankNumber = getSetting('site_bank_number', '');
+        
+        // MESSAGE TYPE 1: Payment Proof Message (I have sent the money)
+        $messagePaymentProof = "🛒 *NEW ORDER REQUEST*\n";
+        $messagePaymentProof .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $messagePaymentProof .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
+        
         if ($templateCount > 0) {
-            $message .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
-            $message .= implode("\n", $templates) . "\n";
+            $messagePaymentProof .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
+            $messagePaymentProof .= implode("\n", $templates) . "\n";
             if ($toolCount > 0) {
-                $message .= "\n";
+                $messagePaymentProof .= "\n";
             }
         }
         
-        // Display tools section
         if ($toolCount > 0) {
-            $message .= "🔧 *TOOLS* (" . $toolCount . "):\n";
-            $message .= implode("\n", $tools) . "\n";
+            $messagePaymentProof .= "🔧 *TOOLS* (" . $toolCount . "):\n";
+            $messagePaymentProof .= implode("\n", $tools) . "\n";
         }
         
-        $message .= "\n━━━━━━━━━━━━━━━━━━━━\n";
-        $message .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
+        $messagePaymentProof .= "\n━━━━━━━━━━━━━━━━━━━━\n";
+        $messagePaymentProof .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
         
         if (!empty($order['affiliate_code'])) {
-            $message .= "\n🎁 *Discount Applied:* 20% OFF";
+            $messagePaymentProof .= "\n🎁 *Discount Applied:* 20% OFF";
         }
         
-        $message .= "\n\nPlease share your payment account details so I can complete this order. Thank you! 🚀";
+        $messagePaymentProof .= "\n\n🏦 *PAYMENT DETAILS:*\n";
+        if ($bankName) $messagePaymentProof .= "Bank: " . $bankName . "\n";
+        if ($bankAccountNumber) $messagePaymentProof .= "Account: " . $bankAccountNumber . "\n";
+        if ($bankNumber) $messagePaymentProof .= "Code: " . $bankNumber . "\n";
+        $messagePaymentProof .= "\n📸 *Attached is the screenshot of my payment receipt*";
         
-        // Generate WhatsApp link
+        // MESSAGE TYPE 2: Discussion Message (Discuss more on WhatsApp)
+        $messageDiscussion = "🛒 *ORDER INQUIRY*\n";
+        $messageDiscussion .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $messageDiscussion .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
+        $messageDiscussion .= "💬 I need more information about this order before proceeding with payment.\n";
+        $messageDiscussion .= "Please let me discuss the details with you.";
+        
+        // Generate WhatsApp links for both message types
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
-        $encodedMessage = rawurlencode($message);
-        $whatsappUrl = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessage;
+        $encodedMessagePaymentProof = rawurlencode($messagePaymentProof);
+        $encodedMessageDiscussion = rawurlencode($messageDiscussion);
+        $whatsappUrlPaymentProof = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessagePaymentProof;
+        $whatsappUrlDiscussion = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessageDiscussion;
         
         $confirmationData = [
             'order' => $order,
@@ -382,7 +398,11 @@ if ($confirmedOrderId) {
             'hasTemplates' => $hasTemplates,
             'hasTools' => $hasTools,
             'orderTypeText' => $orderTypeText,
-            'whatsappUrl' => $whatsappUrl
+            'whatsappUrlPaymentProof' => $whatsappUrlPaymentProof,
+            'whatsappUrlDiscussion' => $whatsappUrlDiscussion,
+            'bankAccountNumber' => $bankAccountNumber,
+            'bankName' => $bankName,
+            'bankNumber' => $bankNumber
         ];
     } else {
         // Invalid order or unauthorized access - redirect to home
@@ -568,43 +588,78 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 </div>
                 
-                <!-- Customer Details Card -->
-                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
-                    <h4 class="font-bold text-white mb-4">Customer Details</h4>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-300">Name:</span>
-                            <span class="font-medium text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_name']); ?></span>
+                <!-- Bank Payment Details Card -->
+                <div class="bg-gradient-to-br from-blue-900 to-blue-800 rounded-xl shadow-md border border-blue-600 mb-6 p-6">
+                    <h4 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <span class="text-xl">🏦</span>Bank Payment Details
+                    </h4>
+                    <div class="bg-white bg-opacity-10 rounded-lg p-4 space-y-3">
+                        <?php if ($confirmationData['bankAccountNumber']): ?>
+                        <div>
+                            <div class="text-xs font-semibold text-blue-200 mb-1">ACCOUNT NUMBER</div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-white font-mono"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
+                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓ Copied'" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded transition-colors" title="Copy account number">
+                                    📋 Copy
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-300">WhatsApp:</span>
-                            <span class="font-medium text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_phone']); ?></span>
+                        <?php endif; ?>
+                        
+                        <?php if ($confirmationData['bankName']): ?>
+                        <div class="border-t border-blue-600 border-opacity-30 pt-3">
+                            <div class="text-xs font-semibold text-blue-200 mb-1">BANK NAME</div>
+                            <div class="text-base font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankName']); ?></div>
                         </div>
-                        <?php if (!empty($confirmationData['order']['customer_email'])): ?>
-                        <div class="flex justify-between">
-                            <span class="text-gray-300">Email:</span>
-                            <span class="font-medium text-white"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></span>
+                        <?php endif; ?>
+                        
+                        <?php if ($confirmationData['bankNumber']): ?>
+                        <div class="border-t border-blue-600 border-opacity-30 pt-3">
+                            <div class="text-xs font-semibold text-blue-200 mb-1">BANK CODE</div>
+                            <div class="text-base font-semibold text-white font-mono"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></div>
                         </div>
                         <?php endif; ?>
                     </div>
+                </div>
+                
+                <!-- Payment Instructions -->
+                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-4 mb-6">
+                    <h5 class="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                        <span class="text-lg">📝</span>Payment Instructions
+                    </h5>
+                    <ul class="text-sm text-amber-800 space-y-1">
+                        <li>✓ Send the exact amount <strong><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></strong> to the account details above</li>
+                        <li>✓ Take a screenshot of your payment receipt</li>
+                        <li>✓ Send proof via WhatsApp using the button below</li>
+                    </ul>
                 </div>
                 
                 <!-- Next Steps -->
                 <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
                     <h4 class="font-bold text-white mb-2">📱 Next Steps</h4>
                     <p class="text-sm text-gray-100 mb-3">
-                        Click the button below to send your order details via WhatsApp. Our team will confirm and provide payment instructions.
+                        Choose an option below to proceed:
                     </p>
                 </div>
                 
-                <!-- WhatsApp Button -->
-                <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrl']); ?>" 
-                   class="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl text-center mb-4">
-                    <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                    </svg>
-                    Send Order via WhatsApp
-                </a>
+                <!-- Two WhatsApp Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <!-- Button 1: I have sent the money -->
+                    <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
+                       class="flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-lg transition-colors shadow-lg hover:shadow-xl text-center">
+                        <div class="text-2xl mb-1">⚡</div>
+                        <div class="text-sm font-semibold">I have sent the money</div>
+                        <div class="text-xs font-normal opacity-90 mt-1">Instant confirmation</div>
+                    </a>
+                    
+                    <!-- Button 2: Discuss more -->
+                    <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
+                       class="flex flex-col items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-colors shadow-lg hover:shadow-xl text-center">
+                        <div class="text-2xl mb-1">💬</div>
+                        <div class="text-sm font-semibold">Discuss more on WhatsApp</div>
+                        <div class="text-xs font-normal opacity-90 mt-1">Ask questions first</div>
+                    </a>
+                </div>
                 
                 <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
                    class="block text-center text-primary-600 hover:text-primary-700 font-medium py-2">
