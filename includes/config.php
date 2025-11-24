@@ -26,10 +26,10 @@ define('SMTP_PASS', 'your_password_here');        // Your email password
 define('SMTP_FROM_EMAIL', 'support@webdaddy.online');
 define('SMTP_FROM_NAME', 'WebDaddy Empire');
 
-// PAYSTACK CONFIGURATION - EDIT THESE WITH YOUR API KEYS
-define('PAYSTACK_SECRET_KEY', 'sk_live_your_secret_key_here');  // Get from Paystack Dashboard
-define('PAYSTACK_PUBLIC_KEY', 'pk_live_your_public_key_here');  // Get from Paystack Dashboard
-define('PAYSTACK_MODE', 'live');                  // Now in LIVE mode
+// PAYSTACK CONFIGURATION - YOUR LIVE API KEYS
+define('PAYSTACK_SECRET_KEY', 'sk_live_7a98b3f6c784370454b96340b08836d518405b55');
+define('PAYSTACK_PUBLIC_KEY', 'pk_live_3d212bae617ffaedeaa3319351b283356498824e');
+define('PAYSTACK_MODE', 'live');
 
 // WhatsApp Configuration
 $whatsappNumber = '+2349132672126'; // Your WhatsApp number
