@@ -279,16 +279,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             
             $productNamesString = implode(', ', $productNamesList);
             
-            // Send new order notification to admin
-            sendNewOrderNotificationToAdmin(
-                $orderId,
-                $customerName,
-                $customerPhone,
-                $productNamesString,
-                formatCurrency($totals['total']),
-                $totals['affiliate_code'],
-                $orderType
-            );
+            // CRITICAL: Only send admin notification for MANUAL payments
+            // For Paystack (automatic), wait for payment verification before notifying admin
+            if ($paymentMethod === 'manual') {
+                sendNewOrderNotificationToAdmin(
+                    $orderId,
+                    $customerName,
+                    $customerPhone,
+                    $productNamesString,
+                    formatCurrency($totals['total']),
+                    $totals['affiliate_code'],
+                    $orderType
+                );
+            }
             
             // Send affiliate opportunity email to customer
             if (!empty($customerEmail)) {
@@ -305,6 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             
             if ($paymentMethod === 'automatic') {
                 // Automatic payment: Return payment data to trigger Paystack popup immediately
+                // Admin will be notified AFTER payment verification (success or failure)
                 echo json_encode([
                     'success' => true,
                     'payment_method' => 'automatic',
@@ -316,6 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 exit;
             } else {
                 // Manual payment: Return redirect URL
+                // Admin already notified above
                 echo json_encode([
                     'success' => true,
                     'payment_method' => 'manual',

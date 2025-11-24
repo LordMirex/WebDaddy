@@ -31,20 +31,22 @@ try {
         throw new Exception('Cannot cancel paid order');
     }
     
-    // Delete order and its items
+    // Mark order as cancelled instead of deleting (keeps audit trail)
     $db->beginTransaction();
     try {
-        $stmt = $db->prepare("DELETE FROM order_items WHERE order_id = ?");
-        $stmt->execute([$orderId]);
-        
-        $stmt = $db->prepare("DELETE FROM pending_orders WHERE id = ?");
+        $stmt = $db->prepare("
+            UPDATE pending_orders 
+            SET status = 'cancelled',
+                updated_at = datetime('now')
+            WHERE id = ?
+        ");
         $stmt->execute([$orderId]);
         
         $db->commit();
         
         echo json_encode([
             'success' => true,
-            'message' => 'Order cancelled and deleted'
+            'message' => 'Payment cancelled. Order marked as cancelled.'
         ]);
     } catch (Exception $e) {
         $db->rollBack();
