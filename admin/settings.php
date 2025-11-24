@@ -172,12 +172,12 @@ require_once __DIR__ . '/includes/header.php';
 
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i class="bi bi-hash text-indigo-600 mr-1"></i>Bank Code/Number
+                                <i class="bi bi-person-circle text-indigo-600 mr-1"></i>Account Name
                             </label>
                             <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="site_bank_number"
                                    value="<?php echo htmlspecialchars($currentSettings['site_bank_number'] ?? ''); ?>" 
-                                   placeholder="e.g., 044">
-                            <small class="text-gray-500 text-sm">Your bank's code or number for identification</small>
+                                   placeholder="e.g., Business Account">
+                            <small class="text-gray-500 text-sm">Name associated with your bank account</small>
                         </div>
                     </div>
 
@@ -231,7 +231,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <div class="border border-gray-200 rounded-lg p-4 bg-blue-50 border-blue-200">
-                        <div class="text-sm text-gray-600 mb-1">🔢 Bank Code/Number</div>
+                        <div class="text-sm text-gray-600 mb-1">👤 Account Name</div>
                         <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['site_bank_number'] ?? 'Not set'); ?></div>
                     </div>
                 </div>

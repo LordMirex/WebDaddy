@@ -615,8 +615,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         
                         <?php if ($confirmationData['bankNumber']): ?>
                         <div class="border-t border-blue-600 border-opacity-30 pt-3">
-                            <div class="text-xs font-semibold text-blue-200 mb-1">BANK CODE</div>
-                            <div class="text-base font-semibold text-white font-mono"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></div>
+                            <div class="text-xs font-semibold text-blue-200 mb-1">ACCOUNT NAME</div>
+                            <div class="text-base font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></div>
                         </div>
                         <?php endif; ?>
                     </div>
