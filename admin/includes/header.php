@@ -155,6 +155,26 @@
                     <span class="font-semibold">Affiliates</span>
                 </a>
 
+                <!-- Payments & Delivery Section -->
+                <div class="pt-4 pb-2">
+                    <div class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Payments & Delivery</div>
+                </div>
+
+                <a href="/admin/deliveries.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'deliveries.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-box-seam <?php echo basename($_SERVER['PHP_SELF']) == 'deliveries.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Deliveries</span>
+                </a>
+
+                <a href="/admin/tool-files.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'tool-files.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-file-earmark-zip <?php echo basename($_SERVER['PHP_SELF']) == 'tool-files.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Tool Files</span>
+                </a>
+
+                <a href="/admin/payment-logs.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'payment-logs.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-receipt <?php echo basename($_SERVER['PHP_SELF']) == 'payment-logs.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Payment Logs</span>
+                </a>
+
                 <a href="/admin/support.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-headset <?php echo basename($_SERVER['PHP_SELF']) == 'support.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Support Tickets</span>

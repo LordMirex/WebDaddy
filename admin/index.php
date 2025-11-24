@@ -24,6 +24,23 @@ $totalRevenue = $db->query("SELECT COALESCE(SUM(amount_paid), 0) FROM sales")->f
 $totalAffiliates = $db->query("SELECT COUNT(*) FROM affiliates WHERE status = 'active'")->fetchColumn();
 $pendingWithdrawals = $db->query("SELECT COUNT(*) FROM withdrawal_requests WHERE status = 'pending'")->fetchColumn();
 
+$paystackPaymentsCount = $db->query("
+    SELECT COUNT(*) FROM payments WHERE payment_method = 'paystack' AND status = 'completed'
+")->fetchColumn();
+
+$paystackRevenue = $db->query("
+    SELECT COALESCE(SUM(amount_paid), 0) FROM payments 
+    WHERE payment_method = 'paystack' AND status = 'completed'
+")->fetchColumn();
+
+$manualPaymentsCount = $db->query("
+    SELECT COUNT(*) FROM payments WHERE payment_method = 'manual' AND status = 'completed'
+")->fetchColumn();
+
+$pendingDeliveriesCount = $db->query("
+    SELECT COUNT(*) FROM deliveries WHERE delivery_status = 'pending'
+")->fetchColumn();
+
 $ordersByType = $db->query("
     SELECT order_type, COUNT(*) as count 
     FROM pending_orders 
@@ -110,6 +127,45 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($totalAffiliates); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($pendingWithdrawals); ?> pending withdrawals</small>
+    </div>
+</div>
+
+<!-- Payments & Delivery Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Paystack Payments</h6>
+            <i class="bi bi-credit-card text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($paystackPaymentsCount); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatCurrency($paystackRevenue); ?> revenue</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Manual Payments</h6>
+            <i class="bi bi-bank text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($manualPaymentsCount); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">WhatsApp / Bank Transfer</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Pending Deliveries</h6>
+            <i class="bi bi-box-seam text-xl sm:text-2xl text-yellow-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($pendingDeliveriesCount); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Awaiting preparation</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Total Payments</h6>
+            <i class="bi bi-cash-stack text-xl sm:text-2xl text-green-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($paystackPaymentsCount + $manualPaymentsCount); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">All payment methods</small>
     </div>
 </div>
 
