@@ -404,7 +404,7 @@ if ($confirmedOrderId) {
             $messageDiscussion .= "\n🎁 *Discount Applied:* 20% OFF";
         }
         
-        $messageDiscussion .= "\n\nI'm ready to proceed with payment via WhatsApp. Please guide me through the payment process. Thank you! 🚀";
+        $messageDiscussion .= "\n\nI have some inquiries about these products before I complete the payment. Can you please help me confirm the details and answer any questions I have? Thank you! 🚀";
         
         // Generate WhatsApp links for both message types
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
