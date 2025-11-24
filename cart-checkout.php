@@ -1072,6 +1072,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     if (result.data.payment_method === 'automatic') {
                         // Automatic payment: Open Paystack popup immediately
                         const paymentData = result.data;
+                        console.log('🔵 Paystack Payment Data:', {
+                            amount: paymentData.amount,
+                            email: paymentData.customer_email,
+                            ref: 'ORDER-' + paymentData.order_id,
+                            orderId: paymentData.order_id
+                        });
                         const handler = PaystackPop.setup({
                             key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
                             email: paymentData.customer_email,
@@ -1138,6 +1144,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             .catch(error => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
+                console.error('❌ Form submission error:', error);
                 alert('Error: ' + error.message);
             });
         }
