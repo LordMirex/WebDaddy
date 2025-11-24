@@ -379,12 +379,32 @@ if ($confirmedOrderId) {
         if ($bankNumber) $messagePaymentProof .= "Code: " . $bankNumber . "\n";
         $messagePaymentProof .= "\n📸 *Attached is the screenshot of my payment receipt*";
         
-        // MESSAGE TYPE 2: Discussion Message (Request payment details)
-        $messageDiscussion = "🛒 *ORDER INQUIRY - SEND ACCOUNT DETAILS*\n";
+        // MESSAGE TYPE 2: Proceed with Payment Message (Formal structure with order details)
+        $messageDiscussion = "🛒 *NEW ORDER REQUEST*\n";
         $messageDiscussion .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         $messageDiscussion .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
-        $messageDiscussion .= "👋 Hi, I'm ready to pay for this order.\n";
-        $messageDiscussion .= "Could you please send me the account details and payment instructions?";
+        
+        if ($templateCount > 0) {
+            $messageDiscussion .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
+            $messageDiscussion .= implode("\n", $templates) . "\n";
+            if ($toolCount > 0) {
+                $messageDiscussion .= "\n";
+            }
+        }
+        
+        if ($toolCount > 0) {
+            $messageDiscussion .= "🔧 *TOOLS* (" . $toolCount . "):\n";
+            $messageDiscussion .= implode("\n", $tools) . "\n";
+        }
+        
+        $messageDiscussion .= "\n━━━━━━━━━━━━━━━━━━━━\n";
+        $messageDiscussion .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
+        
+        if (!empty($order['affiliate_code'])) {
+            $messageDiscussion .= "\n🎁 *Discount Applied:* 20% OFF";
+        }
+        
+        $messageDiscussion .= "\n\nI'm ready to proceed with payment via WhatsApp. Please guide me through the payment process. Thank you! 🚀";
         
         // Generate WhatsApp links for both message types
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
