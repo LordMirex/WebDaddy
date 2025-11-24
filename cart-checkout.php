@@ -298,9 +298,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Clear cart only on successful order creation
             clearCart();
             
-            // Redirect to confirmation page with order ID
-            header('Location: /cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''));
-            exit;
+            // CRITICAL: Different handling for payment methods - both return JSON for AJAX
+            header('Content-Type: application/json');
+            
+            $confirmationUrl = '/cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : '');
+            
+            if ($paymentMethod === 'automatic') {
+                // Automatic payment: Return payment data to trigger Paystack popup immediately
+                echo json_encode([
+                    'success' => true,
+                    'payment_method' => 'automatic',
+                    'order_id' => $orderId,
+                    'amount' => (int)($totals['total'] * 100), // Paystack uses cents
+                    'customer_email' => $customerEmail,
+                    'redirect_on_failure' => $confirmationUrl
+                ]);
+                exit;
+            } else {
+                // Manual payment: Return redirect URL
+                echo json_encode([
+                    'success' => true,
+                    'payment_method' => 'manual',
+                    'redirect' => $confirmationUrl
+                ]);
+                exit;
+            }
         }
     }
 }
@@ -848,7 +870,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php endif; ?>
                 
-                <form method="POST" action="" id="orderForm" data-validate data-loading>
+                <form method="POST" action="" id="orderForm" data-validate data-loading onsubmit="handleCheckoutSubmit(event); return false;">
                 <?php echo csrfTokenField(); ?>
                 
                 <!-- Step 1: Your Information -->
@@ -899,17 +921,42 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                        placeholder="+234 800 000 0000">
                             </div>
 
-                            <div>
-                                <label for="payment_method" class="block text-sm font-bold text-gray-100 mb-2">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-gray-100 mb-3">
                                     Payment Method <span class="text-red-600">*</span>
                                 </label>
-                                <select id="payment_method" 
-                                        name="payment_method" 
-                                        class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
-                                    <option value="manual" selected>🏦 Bank Transfer (24hr)</option>
-                                    <option value="automatic">💳 Card Payment (Instant)</option>
-                                </select>
-                                <p class="text-xs text-gray-400 mt-1">Choose how you want to pay</p>
+                                <div class="flex gap-2 p-1 bg-gray-700 rounded-lg w-full">
+                                    <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="hidden" />
+                                    <label for="method_manual" class="flex-1 py-3 px-4 text-center font-semibold rounded-lg cursor-pointer transition-all bg-primary-600 text-white shadow-md" id="label_manual">
+                                        🏦 Bank Transfer
+                                        <div class="text-xs font-normal text-primary-100">24 hour setup</div>
+                                    </label>
+                                    
+                                    <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="hidden" />
+                                    <label for="method_automatic" class="flex-1 py-3 px-4 text-center font-semibold rounded-lg cursor-pointer transition-all bg-gray-600 text-gray-200" id="label_automatic">
+                                        💳 Card Payment
+                                        <div class="text-xs font-normal text-gray-300">Instant access</div>
+                                    </label>
+                                </div>
+                                <script>
+                                    // Toggle payment method styling
+                                    document.getElementById('method_manual').addEventListener('change', function() {
+                                        if (this.checked) {
+                                            document.getElementById('label_manual').classList.add('bg-primary-600', 'text-white', 'shadow-md');
+                                            document.getElementById('label_manual').classList.remove('bg-gray-600', 'text-gray-200');
+                                            document.getElementById('label_automatic').classList.add('bg-gray-600', 'text-gray-200');
+                                            document.getElementById('label_automatic').classList.remove('bg-primary-600', 'text-white', 'shadow-md');
+                                        }
+                                    });
+                                    document.getElementById('method_automatic').addEventListener('change', function() {
+                                        if (this.checked) {
+                                            document.getElementById('label_automatic').classList.add('bg-primary-600', 'text-white', 'shadow-md');
+                                            document.getElementById('label_automatic').classList.remove('bg-gray-600', 'text-gray-200');
+                                            document.getElementById('label_manual').classList.add('bg-gray-600', 'text-gray-200');
+                                            document.getElementById('label_manual').classList.remove('bg-primary-600', 'text-white', 'shadow-md');
+                                        }
+                                    });
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -1004,7 +1051,92 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <script>
-        // Paystack Payment Handler
+        // AJAX Checkout Form Handler
+        function handleCheckoutSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Processing...';
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action || '/cart-checkout.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.headers.get('Content-Type')?.includes('application/json')) {
+                    return response.json().then(data => ({ data, isJson: true }));
+                } else {
+                    return response.text().then(text => ({ text, isJson: false }));
+                }
+            })
+            .then(result => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
+                if (result.isJson && result.data.success) {
+                    if (result.data.payment_method === 'automatic') {
+                        // Automatic payment: Open Paystack popup immediately
+                        const paymentData = result.data;
+                        const handler = PaystackPop.setup({
+                            key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
+                            email: paymentData.customer_email,
+                            amount: paymentData.amount,
+                            currency: 'NGN',
+                            ref: 'ORDER-' + paymentData.order_id,
+                            onClose: function() {
+                                // User closed popup - redirect to confirmation page to retry
+                                window.location.href = paymentData.redirect_on_failure;
+                            },
+                            onSuccess: function(response) {
+                                // Verify payment on server
+                                fetch('/api/paystack-verify.php', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({
+                                        reference: response.reference,
+                                        order_id: paymentData.order_id,
+                                        customer_email: paymentData.customer_email
+                                    })
+                                })
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('✅ Payment successful! Your order is being processed.');
+                                        // Redirect to confirmation page after successful payment
+                                        window.location.href = paymentData.redirect_on_failure;
+                                    } else {
+                                        alert('Payment verification failed. Redirecting to order page...');
+                                        window.location.href = paymentData.redirect_on_failure;
+                                    }
+                                })
+                                .catch(() => {
+                                    alert('Error verifying payment. Redirecting to order page...');
+                                    window.location.href = paymentData.redirect_on_failure;
+                                });
+                            }
+                        });
+                        handler.openIframe();
+                    } else if (result.data.payment_method === 'manual') {
+                        // Manual payment: Redirect to confirmation page
+                        window.location.href = result.data.redirect;
+                    }
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                alert('Error: ' + error.message);
+            });
+        }
+        
+        // Paystack Payment Handler (for confirmation page)
         document.getElementById('paystack-payment-btn')?.addEventListener('click', function() {
             const btn = this;
             btn.disabled = true;
