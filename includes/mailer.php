@@ -15,15 +15,9 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool
  */
 function sendEmail($email, $subject, $message) {
-    // TEMPORARY: Skip email sending if SMTP password not properly configured
-    if (!defined('SMTP_PASS') || SMTP_PASS === 'your_password_here' || empty(SMTP_PASS)) {
-        error_log("Email sending skipped: SMTP not configured. To: {$email}");
-        return false;
-    }
-    
     // SECURITY: Validate SMTP credentials are configured
-    if (!defined('SMTP_USER') || !defined('SMTP_FROM_EMAIL') ||
-        empty(SMTP_USER) || empty(SMTP_FROM_EMAIL)) {
+    if (!defined('SMTP_USER') || !defined('SMTP_PASS') || !defined('SMTP_FROM_EMAIL') ||
+        empty(SMTP_USER) || empty(SMTP_PASS) || empty(SMTP_FROM_EMAIL)) {
         error_log("Email sending failed: SMTP credentials not configured");
         return false;
     }
@@ -31,7 +25,7 @@ function sendEmail($email, $subject, $message) {
     $mail = new PHPMailer(true);
     
     // Set timeout to prevent hanging
-    $mail->Timeout = 5; // 5 second timeout
+    $mail->Timeout = 10; // 10 second timeout
     
     try {
         // SMTP Settings

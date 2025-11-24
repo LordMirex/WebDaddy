@@ -21,9 +21,9 @@ ini_set('memory_limit', '256M');
 define('SMTP_HOST', 'mail.webdaddy.online');      // Your mail server
 define('SMTP_PORT', 465);                         // Email port
 define('SMTP_SECURE', 'ssl');                     // ssl or tls
-define('SMTP_USER', 'support@webdaddy.online');   // Your email
-define('SMTP_PASS', 'your_password_here');        // Your email password
-define('SMTP_FROM_EMAIL', 'support@webdaddy.online');
+define('SMTP_USER', 'admin@webdaddy.online');     // Your email
+define('SMTP_PASS', 'ItuZq%kF%5oE');              // Your email password
+define('SMTP_FROM_EMAIL', 'admin@webdaddy.online');
 define('SMTP_FROM_NAME', 'WebDaddy Empire');
 
 // PAYSTACK CONFIGURATION - YOUR LIVE API KEYS
