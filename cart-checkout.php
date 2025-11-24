@@ -1074,8 +1074,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             currency: 'NGN',
                             ref: 'ORDER-' + paymentData.order_id,
                             onClose: function() {
-                                // User closed popup - redirect to confirmation page to retry
-                                window.location.href = paymentData.redirect_on_failure;
+                                // User cancelled payment - reload checkout page (don't show pending order)
+                                alert('Payment cancelled. Returning to checkout...');
+                                window.location.reload();
                             },
                             onSuccess: function(response) {
                                 // Verify payment on server
