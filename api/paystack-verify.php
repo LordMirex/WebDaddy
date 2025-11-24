@@ -16,40 +16,48 @@ try {
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (empty($input['reference']) || empty($input['order_id'])) {
-        throw new Exception('Missing required parameters');
+        throw new Exception('Missing required parameters: reference=' . ($input['reference'] ?? 'EMPTY') . ', order_id=' . ($input['order_id'] ?? 'EMPTY'));
     }
     
     $orderId = (int)$input['order_id'];
     $reference = $input['reference'];
     
+    error_log("🔍 PAYSTACK VERIFY: Starting verification for Order #$orderId, Ref: $reference");
+    
     // Verify payment with Paystack
     $verification = verifyPayment($reference);
+    
+    error_log("🔍 PAYSTACK VERIFY: Verification result: " . json_encode($verification));
     
     $db = getDb();
     
     // Get order details for notifications
-    $stmt = $db->prepare("SELECT id, customer_name, customer_phone, affiliate_code, original_price, final_amount FROM pending_orders WHERE id = ?");
+    $stmt = $db->prepare("SELECT id, customer_name, customer_phone, affiliate_code, original_price, final_amount, status FROM pending_orders WHERE id = ?");
     $stmt->execute([$orderId]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
     
+    error_log("🔍 PAYSTACK VERIFY: Order details: " . json_encode($order));
+    
     if (!$order) {
-        throw new Exception('Order not found');
+        throw new Exception('Order #' . $orderId . ' not found');
     }
     
-    // Get order items
+    // Get order items (FIXED: use pending_order_id not order_id)
     $stmt = $db->prepare("
         SELECT 
-            COALESCE(t.name, to.name) as name, 
+            COALESCE(t.name, tl.name) as name, 
             oi.product_type,
             COUNT(*) as qty
         FROM order_items oi
         LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
-        LEFT JOIN tools to ON oi.product_type = 'tool' AND oi.product_id = to.id
-        WHERE oi.order_id = ?
+        LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+        WHERE oi.pending_order_id = ?
         GROUP BY oi.product_id, oi.product_type
     ");
     $stmt->execute([$orderId]);
     $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    error_log("🔍 PAYSTACK VERIFY: Order items found: " . count($items));
     
     $productNames = implode(', ', array_map(function($item) {
         return $item['name'] . ($item['qty'] > 1 ? ' (x' . $item['qty'] . ')' : '');
@@ -81,9 +89,12 @@ try {
         $stmt->execute([$orderId]);
         $currentOrder = $stmt->fetch(PDO::FETCH_ASSOC);
         
+        error_log("🔍 PAYSTACK VERIFY: Current order status: " . ($currentOrder['status'] ?? 'NOT_FOUND'));
+        
         if ($currentOrder && $currentOrder['status'] === 'paid') {
             // Already processed
             $db->rollBack();
+            error_log("✅ PAYSTACK VERIFY: Order #$orderId already marked as paid");
             echo json_encode([
                 'success' => true,
                 'order_id' => $orderId,
@@ -93,7 +104,9 @@ try {
         }
         
         if ($verification['success']) {
-            // PAYMENT SUCCEEDED: Mark order as PAID and send admin notification
+            // PAYMENT SUCCEEDED: Mark order as PAID
+            error_log("✅ PAYSTACK VERIFY: Payment succeeded! Marking order as PAID");
+            
             $stmt = $db->prepare("
                 UPDATE pending_orders 
                 SET status = 'paid', 
@@ -101,11 +114,17 @@ try {
                     payment_method = 'paystack'
                 WHERE id = ? AND status = 'pending'
             ");
-            $stmt->execute([$orderId]);
+            $updateResult = $stmt->execute([$orderId]);
+            $affectedRows = $stmt->rowCount();
+            
+            error_log("✅ PAYSTACK VERIFY: Update executed. Affected rows: " . $affectedRows);
             
             $db->commit();
             
+            error_log("✅ PAYSTACK VERIFY: Transaction committed");
+            
             // Send admin notification about successful payment (outside transaction)
+            error_log("✅ PAYSTACK VERIFY: Sending admin notification");
             sendPaymentSuccessNotificationToAdmin(
                 $orderId,
                 $order['customer_name'],
@@ -117,9 +136,12 @@ try {
             );
             
             // Create delivery records
+            error_log("✅ PAYSTACK VERIFY: Creating delivery records");
             createDeliveryRecords($orderId);
             
             clearCart();
+            
+            error_log("✅ PAYSTACK VERIFY: Order #$orderId complete! Payment verified, deliveries created");
             
             echo json_encode([
                 'success' => true,
@@ -127,8 +149,10 @@ try {
                 'message' => 'Payment verified successfully'
             ]);
         } else {
-            // PAYMENT FAILED: Mark order as FAILED and send admin notification
+            // PAYMENT FAILED: Mark order as FAILED
             $failureReason = $verification['message'] ?? 'Payment verification failed';
+            
+            error_log("❌ PAYSTACK VERIFY: Payment failed: " . $failureReason);
             
             $stmt = $db->prepare("
                 UPDATE pending_orders 
@@ -157,11 +181,13 @@ try {
         }
         
     } catch (Exception $e) {
+        error_log("❌ PAYSTACK VERIFY: Exception in transaction: " . $e->getMessage());
         $db->rollBack();
         throw $e;
     }
     
 } catch (Exception $e) {
+    error_log("❌ PAYSTACK VERIFY: Error: " . $e->getMessage());
     http_response_code(400);
     echo json_encode([
         'success' => false,

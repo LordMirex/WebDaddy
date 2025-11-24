@@ -1103,7 +1103,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             },
                             onSuccess: function(response) {
                                 // Verify payment on server
+                                console.log('🟢 Paystack payment successful. Reference:', response.reference);
                                 const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
+                                
+                                // Show loading state
+                                alert('Processing your payment... Please wait...');
+                                
                                 fetch('/api/paystack-verify.php', {
                                     method: 'POST',
                                     headers: {'Content-Type': 'application/json'},
@@ -1113,22 +1118,28 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         csrf_token: csrfToken
                                     })
                                 })
-                                .then(r => r.json())
+                                .then(r => {
+                                    console.log('📊 Verification response status:', r.status);
+                                    return r.json();
+                                })
                                 .then(data => {
+                                    console.log('📊 Verification response:', data);
                                     if (data.success) {
-                                        alert('✅ Payment successful! Your products are being set up.');
+                                        console.log('✅ Payment verified successfully!');
+                                        alert('✅ Payment successful! Redirecting to your order...');
                                         // Redirect to confirmation page after successful payment
-                                        window.location.href = paymentData.redirect_on_failure;
+                                        window.location.href = paymentData.redirect_on_failure + '&payment=success';
                                     } else {
-                                        alert('❌ Payment failed: ' + (data.message || 'Unknown error'));
-                                        // Redirect to order page but don't go to confirmation
-                                        // User can try again or use manual payment
-                                        window.location.reload();
+                                        console.error('❌ Verification failed:', data.message);
+                                        alert('❌ Payment verification failed: ' + (data.message || 'Unknown error'));
+                                        // Reload to allow retry
+                                        setTimeout(() => { window.location.reload(); }, 2000);
                                     }
                                 })
                                 .catch(err => {
+                                    console.error('❌ Fetch error:', err);
                                     alert('Error verifying payment: ' + err.message);
-                                    window.location.reload();
+                                    setTimeout(() => { window.location.reload(); }, 2000);
                                 });
                             }
                         });
