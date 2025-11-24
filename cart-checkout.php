@@ -925,38 +925,23 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <label class="block text-sm font-bold text-gray-100 mb-3">
                                     Payment Method <span class="text-red-600">*</span>
                                 </label>
-                                <div class="flex gap-2 p-1 bg-gray-700 rounded-lg w-full">
-                                    <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="hidden" />
-                                    <label for="method_manual" class="flex-1 py-3 px-4 text-center font-semibold rounded-lg cursor-pointer transition-all bg-primary-600 text-white shadow-md" id="label_manual">
-                                        🏦 Bank Transfer
-                                        <div class="text-xs font-normal text-primary-100">24 hour setup</div>
-                                    </label>
+                                <div class="space-y-3">
+                                    <div class="flex items-center p-3 border border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition">
+                                        <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-4 h-4 cursor-pointer" />
+                                        <label for="method_manual" class="ml-3 cursor-pointer flex-1">
+                                            <div class="font-semibold text-gray-100">🏦 Manual Payment (Bank Transfer)</div>
+                                            <div class="text-xs text-gray-400">24-hour setup via WhatsApp</div>
+                                        </label>
+                                    </div>
                                     
-                                    <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="hidden" />
-                                    <label for="method_automatic" class="flex-1 py-3 px-4 text-center font-semibold rounded-lg cursor-pointer transition-all bg-gray-600 text-gray-200" id="label_automatic">
-                                        💳 Card Payment
-                                        <div class="text-xs font-normal text-gray-300">Instant access</div>
-                                    </label>
+                                    <div class="flex items-center p-3 border border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition">
+                                        <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-4 h-4 cursor-pointer" />
+                                        <label for="method_automatic" class="ml-3 cursor-pointer flex-1">
+                                            <div class="font-semibold text-gray-100">💳 Automatic Payment (Card)</div>
+                                            <div class="text-xs text-gray-400">Instant - powered by Paystack</div>
+                                        </label>
+                                    </div>
                                 </div>
-                                <script>
-                                    // Toggle payment method styling
-                                    document.getElementById('method_manual').addEventListener('change', function() {
-                                        if (this.checked) {
-                                            document.getElementById('label_manual').classList.add('bg-primary-600', 'text-white', 'shadow-md');
-                                            document.getElementById('label_manual').classList.remove('bg-gray-600', 'text-gray-200');
-                                            document.getElementById('label_automatic').classList.add('bg-gray-600', 'text-gray-200');
-                                            document.getElementById('label_automatic').classList.remove('bg-primary-600', 'text-white', 'shadow-md');
-                                        }
-                                    });
-                                    document.getElementById('method_automatic').addEventListener('change', function() {
-                                        if (this.checked) {
-                                            document.getElementById('label_automatic').classList.add('bg-primary-600', 'text-white', 'shadow-md');
-                                            document.getElementById('label_automatic').classList.remove('bg-gray-600', 'text-gray-200');
-                                            document.getElementById('label_manual').classList.add('bg-gray-600', 'text-gray-200');
-                                            document.getElementById('label_manual').classList.remove('bg-primary-600', 'text-white', 'shadow-md');
-                                        }
-                                    });
-                                </script>
                             </div>
                         </div>
                     </div>
