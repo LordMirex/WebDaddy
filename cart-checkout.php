@@ -621,15 +621,34 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 
                 <!-- Payment Instructions - Dark Theme -->
-                <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-3">
+                <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-4">
                     <h5 class="font-bold text-white text-sm mb-2 flex items-center gap-2">
                         <span>📝</span>What to do next:
                     </h5>
                     <ul class="text-xs text-gray-300 space-y-1 ml-2">
                         <li>1. Send exactly <span class="text-primary-400 font-semibold"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span> to account above</li>
                         <li>2. Screenshot your payment receipt</li>
-                        <li>3. Click a button below to contact us via WhatsApp</li>
+                        <li>3. Choose an option below to contact us</li>
                     </ul>
+                </div>
+                
+                <!-- Guide: What each button does -->
+                <div class="bg-gray-900 border border-gray-700 rounded-xl p-3 mb-4 space-y-3">
+                    <div class="flex gap-3">
+                        <span class="text-lg flex-shrink-0">⚡</span>
+                        <div>
+                            <div class="text-xs font-bold text-white uppercase">Button 1: I've Sent the Money</div>
+                            <div class="text-xs text-gray-300">Click this if you've already transferred the money to the account above. We'll verify your payment proof screenshot and process your order immediately via WhatsApp.</div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-700"></div>
+                    <div class="flex gap-3">
+                        <span class="text-lg flex-shrink-0">💬</span>
+                        <div>
+                            <div class="text-xs font-bold text-white uppercase">Button 2: Send Me Account Details</div>
+                            <div class="text-xs text-gray-300">Click this if you want to discuss first or need us to confirm the payment details. We'll send you a message on WhatsApp with all the information you need before you pay.</div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Two WhatsApp Buttons - matches site button convention -->
