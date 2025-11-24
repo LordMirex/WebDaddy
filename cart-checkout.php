@@ -404,7 +404,12 @@ if ($confirmedOrderId) {
             $messageDiscussion .= "\n🎁 *Discount Applied:* 20% OFF";
         }
         
-        $messageDiscussion .= "\n\nI have some inquiries about these products before I complete the payment. Can you please help me confirm the details and answer any questions I have? Thank you! 🚀";
+        $messageDiscussion .= "\n\n🏦 *PAYMENT DETAILS:*\n";
+        if ($bankName) $messageDiscussion .= "Bank: " . $bankName . "\n";
+        if ($bankAccountNumber) $messageDiscussion .= "Account: " . $bankAccountNumber . "\n";
+        if ($bankNumber) $messageDiscussion .= "Code: " . $bankNumber . "\n";
+        
+        $messageDiscussion .= "\nI have some inquiries about these products before I complete the payment. Can you please help me confirm the details and answer any questions I have? Thank you! 🚀";
         
         // Generate WhatsApp links for both message types
         $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));

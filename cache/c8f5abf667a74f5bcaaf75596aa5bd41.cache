@@ -1,0 +1,645 @@
+a:4:{s:7:"success";b:1;s:4:"html";s:61206:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+        <div style="position: relative;">
+            <select id="tools-category-filter" 
+                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
+                <option value="" selected>
+                    All Categories
+                </option>
+                                <option value="Analytics" >
+                    Analytics                </option>
+                                <option value="Content Creator" >
+                    Content Creator                </option>
+                                <option value="Design Tool" >
+                    Design Tool                </option>
+                                <option value="Email Marketing" >
+                    Email Marketing                </option>
+                                <option value="Optimizer" >
+                    Optimizer                </option>
+                                <option value="SEO Tool" >
+                    SEO Tool                </option>
+                                <option value="Social Media" >
+                    Social Media                </option>
+                                <option value="Website Builder" >
+                    Website Builder                </option>
+                            </select>
+            <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg style="width: 20px; height: 20px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+    </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px;">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="19">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="Analytics 3"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Analytics 3</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Analytics                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="19" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="20">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="Email Marketing 3"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Email Marketing 3</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Email Marketing                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦2,900.00</span>
+                        </div>
+                        <button data-tool-id="20" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="21">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="Social Media 3"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Social Media 3</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Social Media                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,200.00</span>
+                        </div>
+                        <button data-tool-id="21" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="22">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Design Tool 3"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Design Tool 3</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Design Tool                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="22" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="23">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Content Creator 3"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Content Creator 3</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Content Creator                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦2,900.00</span>
+                        </div>
+                        <button data-tool-id="23" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="24">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Optimizer 3"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Optimizer 3</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Optimizer                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,200.00</span>
+                        </div>
+                        <button data-tool-id="24" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="25">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Website Builder 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Website Builder 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Website Builder                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,200.00</span>
+                        </div>
+                        <button data-tool-id="25" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="26">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="SEO Tool 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">SEO Tool 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            SEO Tool                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="26" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="27">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Analytics 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Analytics 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Analytics                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,800.00</span>
+                        </div>
+                        <button data-tool-id="27" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="28">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Email Marketing 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Email Marketing 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Email Marketing                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,200.00</span>
+                        </div>
+                        <button data-tool-id="28" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="29">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Social Media 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Social Media 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Social Media                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="29" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="30">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Design Tool 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Design Tool 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Design Tool                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,800.00</span>
+                        </div>
+                        <button data-tool-id="30" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="31">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Content Creator 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Content Creator 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Content Creator                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,200.00</span>
+                        </div>
+                        <button data-tool-id="31" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="32">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Optimizer 4"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Optimizer 4</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Optimizer                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="32" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="33">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Website Builder 5"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Website Builder 5</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Website Builder                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="33" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="34">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="SEO Tool 5"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">SEO Tool 5</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            SEO Tool                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,800.00</span>
+                        </div>
+                        <button data-tool-id="34" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="35">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Analytics 5"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Analytics 5</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Analytics                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,100.00</span>
+                        </div>
+                        <button data-tool-id="35" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="36">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Email Marketing 5"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Email Marketing 5</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Email Marketing                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
+                        </div>
+                        <button data-tool-id="36" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                    </div>
+        
+            <div style="margin-top: 48px; display: flex; justify-content: center;">
+        <nav style="display: flex; align-items: center; gap: 8px;">
+                        <a href="?view=tools&page=1&aff=SAPA#products" 
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Previous
+            </a>
+                        
+                        <a href="?view=tools&page=1&aff=SAPA#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
+                1            </a>
+                        <a href="?view=tools&page=2&aff=SAPA#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #2563eb; color: white; border-color: #2563eb;">
+                2            </a>
+                        <a href="?view=tools&page=3&aff=SAPA#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
+                3            </a>
+                        
+                        <a href="?view=tools&page=3&aff=SAPA#products" 
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+                Next
+                <svg style="width: 16px; height: 16px; margin-left: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+                    </nav>
+    </div>
+    <div style="margin-top: 16px; text-align: center;">
+        <p style="font-size: 14px; color: #d1d5db; margin: 0;">
+            Page 2 of 3        </p>
+    </div>
+        ";s:4:"view";s:5:"tools";s:4:"page";i:2;}
