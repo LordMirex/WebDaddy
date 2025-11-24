@@ -588,56 +588,33 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 </div>
                 
-                <!-- Bank Payment Details Card - Modern Premium Design -->
-                <div class="bg-white rounded-2xl shadow-xl mb-6 border border-gray-200 overflow-hidden">
-                    <!-- Header Section -->
-                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-                        <h4 class="font-bold text-white text-lg flex items-center gap-3">
-                            <span class="text-2xl">🏦</span>
-                            <span>Transfer Payment Details</span>
-                        </h4>
-                        <p class="text-blue-100 text-sm mt-1">Send the exact amount to this account</p>
-                    </div>
-                    
-                    <!-- Content Section -->
-                    <div class="p-6 space-y-5">
+                <!-- Bank Payment Details Card - Matches template dark theme -->
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-4">
+                    <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                        <span>🏦</span>Bank Payment Details
+                    </h4>
+                    <div class="space-y-2">
                         <?php if ($confirmationData['bankAccountNumber']): ?>
-                        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Account Number</div>
-                            <div class="flex items-center justify-between gap-3">
-                                <span class="text-2xl font-bold text-gray-900 font-mono tracking-wider"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
-                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); alert('Copied!'); this.classList.add('opacity-50');" class="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-semibold text-sm flex items-center gap-2 active:scale-95" title="Copy account number">
-                                    <span>📋</span>
-                                    <span class="hidden sm:inline">Copy</span>
-                                </button>
-                            </div>
+                        <div class="flex items-center justify-between py-2">
+                            <span class="text-xs text-gray-400 uppercase">Account Number:</span>
+                            <span class="text-sm font-mono text-white"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
+                            <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓ Copied'; setTimeout(() => this.textContent='📋 Copy', 2000);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors ml-2">📋 Copy</button>
                         </div>
                         <?php endif; ?>
                         
-                        <!-- Two Column Grid for Bank Details -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <?php if ($confirmationData['bankName']): ?>
-                            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                                <div class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Bank Name</div>
-                                <div class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($confirmationData['bankName']); ?></div>
-                            </div>
-                            <?php endif; ?>
-                            
-                            <?php if ($confirmationData['bankNumber']): ?>
-                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-                                <div class="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Account Name</div>
-                                <div class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></div>
-                            </div>
-                            <?php endif; ?>
+                        <?php if ($confirmationData['bankName']): ?>
+                        <div class="flex items-center justify-between py-2 border-t border-gray-700">
+                            <span class="text-xs text-gray-400 uppercase">Bank Name:</span>
+                            <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankName']); ?></span>
                         </div>
+                        <?php endif; ?>
                         
-                        <!-- Important Notice -->
-                        <div class="flex gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <span class="text-xl flex-shrink-0">⚠️</span>
-                            <div class="text-sm text-amber-900">
-                                <strong>Important:</strong> Make sure the amount is exactly <strong><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></strong>. Even slightly wrong amounts won't be accepted.
-                            </div>
+                        <?php if ($confirmationData['bankNumber']): ?>
+                        <div class="flex items-center justify-between py-2 border-t border-gray-700">
+                            <span class="text-xs text-gray-400 uppercase">Account Name:</span>
+                            <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></span>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 
