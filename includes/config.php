@@ -50,9 +50,15 @@ define('SMTP_PASS', getenv('SMTP_PASS') ?: '');
 define('SMTP_FROM_EMAIL', getenv('SMTP_FROM_EMAIL') ?: '');
 define('SMTP_FROM_NAME', getenv('SMTP_FROM_NAME') ?: 'WebDaddy Empire');
 
-// Validate SMTP credentials are set
+// Validate SMTP credentials are set (CRITICAL for email delivery)
 if (empty(SMTP_USER) || empty(SMTP_PASS) || empty(SMTP_FROM_EMAIL)) {
-    error_log('WARNING: SMTP credentials not configured. Email sending will fail. Set SMTP_USER, SMTP_PASS, and SMTP_FROM_EMAIL environment variables.');
+    $message = 'CRITICAL: SMTP credentials not configured. Set SMTP_USER, SMTP_PASS, and SMTP_FROM_EMAIL environment variables.';
+    error_log($message);
+    
+    // PRODUCTION SAFETY: Fail fast on web requests if in production mode
+    if (php_sapi_name() !== 'cli' && getenv('PAYSTACK_MODE') === 'live') {
+        throw new RuntimeException($message);
+    }
 }
 
 // Affiliate Settings
@@ -110,13 +116,26 @@ if (DISPLAY_ERRORS) {
 $paystackSecretKey = getenv('PAYSTACK_SECRET_KEY');
 $paystackPublicKey = getenv('PAYSTACK_PUBLIC_KEY');
 
+// PRODUCTION SAFETY: Fail fast if Paystack keys missing in live mode
+$paystackMode = getenv('PAYSTACK_MODE') ?: 'live';
 if (empty($paystackSecretKey) || empty($paystackPublicKey)) {
-    error_log('WARNING: Paystack API keys not configured. Payment processing will fail. Set PAYSTACK_SECRET_KEY and PAYSTACK_PUBLIC_KEY environment variables.');
+    $message = 'CRITICAL: Paystack API keys not configured. Set PAYSTACK_SECRET_KEY and PAYSTACK_PUBLIC_KEY environment variables.';
+    error_log($message);
+    
+    // Fail fast on payment pages in live mode (prevent accidental production deployment)
+    if (php_sapi_name() !== 'cli' && $paystackMode === 'live') {
+        $isPaymentPage = (strpos($_SERVER['REQUEST_URI'] ?? '', 'cart-checkout') !== false) ||
+                         (strpos($_SERVER['REQUEST_URI'] ?? '', 'paystack') !== false);
+        
+        if ($isPaymentPage) {
+            throw new RuntimeException($message);
+        }
+    }
 }
 
 define('PAYSTACK_SECRET_KEY', $paystackSecretKey ?: '');
 define('PAYSTACK_PUBLIC_KEY', $paystackPublicKey ?: '');
-define('PAYSTACK_MODE', getenv('PAYSTACK_MODE') ?: 'live');
+define('PAYSTACK_MODE', $paystackMode);
 define('PAYMENT_CURRENCY', 'NGN');
 define('DOWNLOAD_LINK_EXPIRY_DAYS', 7);
 define('MAX_DOWNLOAD_ATTEMPTS', 5);

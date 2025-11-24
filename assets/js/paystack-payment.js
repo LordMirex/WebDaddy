@@ -128,6 +128,13 @@ async function verifyPayment(reference) {
 }
 
 function getCsrfToken() {
+    // First try meta tag (for Paystack flows)
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    if (csrfMeta) {
+        return csrfMeta.getAttribute('content');
+    }
+    
+    // Fallback to hidden input field
     const csrfInput = document.querySelector('input[name="csrf_token"]');
     return csrfInput ? csrfInput.value : null;
 }

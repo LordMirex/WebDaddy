@@ -15,17 +15,40 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool
  */
 function sendEmail($email, $subject, $message) {
+    // SECURITY: Validate SMTP credentials are configured
+    if (!defined('SMTP_USER') || !defined('SMTP_PASS') || !defined('SMTP_FROM_EMAIL') ||
+        empty(SMTP_USER) || empty(SMTP_PASS) || empty(SMTP_FROM_EMAIL)) {
+        error_log("Email sending failed: SMTP credentials not configured");
+        return false;
+    }
+    
     $mail = new PHPMailer(true);
     
     try {
         // SMTP Settings
         $mail->isSMTP();
         $mail->Host = defined('SMTP_HOST') ? SMTP_HOST : 'smtp.example.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = defined('SMTP_USER') ? SMTP_USER : 'noreply@example.com';
-        $mail->Password = defined('SMTP_PASS') ? SMTP_PASS : '';
-        $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 587;
-        $mail->SMTPSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'tls';
+        $mail->SMTPAuth = true; // REQUIRED: Always authenticate
+        $mail->Username = SMTP_USER;
+        $mail->Password = SMTP_PASS;
+        $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 465;
+        
+        // SECURITY: Enforce encrypted connection (SSL/TLS)
+        $smtpSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'ssl';
+        if ($smtpSecure === 'ssl') {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL on port 465
+        } else {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS on port 587
+        }
+        
+        // SECURITY: Enforce TLS peer verification (prevent MITM attacks)
+        $mail->SMTPOptions = [
+            'ssl' => [
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'allow_self_signed' => false
+            ]
+        ];
         
         // Fix encoding issues - force UTF-8
         $mail->CharSet = 'UTF-8';
@@ -33,15 +56,9 @@ function sendEmail($email, $subject, $message) {
 
         // Email Settings
         $mail->isHTML(true);
-        $mail->setFrom(
-            defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'noreply@example.com',
-            defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : SITE_NAME
-        );
+        $mail->setFrom(SMTP_FROM_EMAIL, defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : SITE_NAME);
         $mail->addAddress($email);
-        $mail->addReplyTo(
-            defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'noreply@example.com',
-            defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : SITE_NAME
-        );
+        $mail->addReplyTo(SMTP_FROM_EMAIL, defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : SITE_NAME);
         $mail->Subject = $subject;
         $mail->Body = $message;
 

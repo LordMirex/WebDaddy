@@ -451,6 +451,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <title><?php echo $pageTitle; ?></title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     
+    <!-- CSRF Token for JavaScript (Paystack payment) -->
+    <meta name="csrf-token" content="<?php echo getCsrfToken(); ?>">
+    
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
