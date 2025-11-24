@@ -589,71 +589,69 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 
                 <!-- Bank Payment Details Card - Matches template dark theme -->
-                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-4">
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-4 p-4">
                     <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
                         <span>🏦</span>Bank Payment Details
                     </h4>
                     <div class="space-y-2">
                         <?php if ($confirmationData['bankAccountNumber']): ?>
                         <div class="flex items-center justify-between py-2">
-                            <span class="text-xs text-gray-400 uppercase">Account Number:</span>
-                            <span class="text-sm font-mono text-white"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
-                            <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓ Copied'; setTimeout(() => this.textContent='📋 Copy', 2000);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors ml-2">📋 Copy</button>
+                            <span class="text-xs text-gray-500 uppercase font-medium">Account Number:</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-mono text-white"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
+                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1500);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors">📋</button>
+                            </div>
                         </div>
                         <?php endif; ?>
                         
                         <?php if ($confirmationData['bankName']): ?>
                         <div class="flex items-center justify-between py-2 border-t border-gray-700">
-                            <span class="text-xs text-gray-400 uppercase">Bank Name:</span>
+                            <span class="text-xs text-gray-500 uppercase font-medium">Bank Name:</span>
                             <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankName']); ?></span>
                         </div>
                         <?php endif; ?>
                         
                         <?php if ($confirmationData['bankNumber']): ?>
                         <div class="flex items-center justify-between py-2 border-t border-gray-700">
-                            <span class="text-xs text-gray-400 uppercase">Account Name:</span>
+                            <span class="text-xs text-gray-500 uppercase font-medium">Account Name:</span>
                             <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></span>
                         </div>
                         <?php endif; ?>
                     </div>
                 </div>
                 
-                <!-- Payment Instructions -->
-                <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-4 mb-6">
-                    <h5 class="font-bold text-amber-900 mb-2 flex items-center gap-2">
-                        <span class="text-lg">📝</span>Payment Instructions
+                <!-- Payment Instructions - Dark Theme -->
+                <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-3">
+                    <h5 class="font-bold text-white text-sm mb-2 flex items-center gap-2">
+                        <span>📝</span>What to do next:
                     </h5>
-                    <ul class="text-sm text-amber-800 space-y-1">
-                        <li>✓ Send the exact amount <strong><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></strong> to the account details above</li>
-                        <li>✓ Take a screenshot of your payment receipt</li>
-                        <li>✓ Send proof via WhatsApp using the button below</li>
+                    <ul class="text-xs text-gray-300 space-y-1 ml-2">
+                        <li>1. Send exactly <span class="text-primary-400 font-semibold"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span> to account above</li>
+                        <li>2. Screenshot your payment receipt</li>
+                        <li>3. Click a button below to contact us via WhatsApp</li>
                     </ul>
                 </div>
                 
-                <!-- Next Steps -->
-                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
-                    <h4 class="font-bold text-white mb-2">📱 Next Steps</h4>
-                    <p class="text-sm text-gray-100 mb-3">
-                        Choose an option below to proceed:
-                    </p>
-                </div>
-                
-                <!-- Two WhatsApp Buttons -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <!-- Two WhatsApp Buttons - Compact -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <!-- Button 1: I have sent the money -->
                     <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
-                       class="flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 rounded-lg transition-colors shadow-lg hover:shadow-xl text-center">
-                        <div class="text-2xl mb-1">⚡</div>
-                        <div class="text-sm font-semibold">I have sent the money</div>
-                        <div class="text-xs font-normal opacity-90 mt-1">Instant confirmation</div>
+                       class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-md hover:shadow-lg text-center">
+                        <span>⚡</span>
+                        <div>
+                            <div class="text-xs">I sent the money</div>
+                            <div class="text-xs opacity-80">w/ payment proof</div>
+                        </div>
                     </a>
                     
                     <!-- Button 2: Discuss more -->
                     <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
-                       class="flex flex-col items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-lg transition-colors shadow-lg hover:shadow-xl text-center">
-                        <div class="text-2xl mb-1">💬</div>
-                        <div class="text-sm font-semibold">Discuss more on WhatsApp</div>
-                        <div class="text-xs font-normal opacity-90 mt-1">Ask questions first</div>
+                       class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-3 rounded-lg transition-colors shadow-md hover:shadow-lg text-center">
+                        <span>💬</span>
+                        <div>
+                            <div class="text-xs">Let's discuss</div>
+                            <div class="text-xs opacity-80">Ask questions first</div>
+                        </div>
                     </a>
                 </div>
                 
