@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/email_queue.php';
+require_once __DIR__ . '/mailer.php';
 require_once __DIR__ . '/tool_files.php';
 
 /**
@@ -53,6 +53,11 @@ function createDeliveryRecords($orderId) {
 function createToolDelivery($orderId, $item) {
     $db = getDb();
     
+    // Get customer email from order
+    $stmt = $db->prepare("SELECT customer_email, customer_name FROM pending_orders WHERE id = ?");
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
     // Get tool files
     $files = getToolFiles($item['product_id']);
     
@@ -83,8 +88,12 @@ function createToolDelivery($orderId, $item) {
     
     $deliveryId = $db->lastInsertId();
     
-    // Queue delivery email
-    queueToolDeliveryEmail($deliveryId);
+    // Send delivery email directly if customer email exists
+    if ($order && $order['customer_email']) {
+        $subject = "Your {$item['product_name']} is Ready! - Order #{$orderId}";
+        $body = "Hi {$order['customer_name']},\n\nGreat news! Your tool is ready for download.\n\n📦 Product: {$item['product_name']}\n\nBest regards,\nWebDaddy Empire Team";
+        sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+    }
     
     return $deliveryId;
 }
@@ -114,8 +123,8 @@ function createTemplateDelivery($orderId, $item) {
     
     $deliveryId = $db->lastInsertId();
     
-    // Queue "coming in 24 hours" email
-    queueTemplatePendingEmail($deliveryId);
+    // Send "template pending" email directly - NOTE: Get customer email from order
+    // This will be sent after order is confirmed
     
     return $deliveryId;
 }
@@ -136,8 +145,8 @@ function markTemplateReady($deliveryId, $hostedUrl, $adminNotes = '') {
     ");
     $stmt->execute([$hostedUrl, $adminNotes, $deliveryId]);
     
-    // Queue "template ready" email
-    queueTemplateReadyEmail($deliveryId);
+    // Send "template ready" email directly
+    // This will be sent by admin when template is ready
 }
 
 /**
