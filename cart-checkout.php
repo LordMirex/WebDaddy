@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         $customerName = trim($_POST['customer_name'] ?? '');
         $customerEmail = trim($_POST['customer_email'] ?? '');
         $customerPhone = trim($_POST['customer_phone'] ?? '');
-        $paymentMethod = trim($_POST['payment_method'] ?? 'automatic');
+        $paymentMethod = trim($_POST['payment_method'] ?? 'manual');
         
         if (empty($customerName)) {
             $errors[] = 'Please enter your full name';
@@ -95,6 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         
         if (empty($customerEmail)) {
             $errors[] = 'Please enter your email address';
+        } elseif (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Please enter a valid email address';
         }
         
         if (empty($customerPhone)) {
@@ -184,7 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         if ($customerEmail) {
             $message .= "Email: " . $customerEmail . "\n";
         }
-        $message .= "Payment Method: " . ($paymentMethod === 'automatic' ? 'Paystack (Card)' : 'Manual Bank Transfer') . "\n";
         $message .= "\n✅ Please confirm this order and provide payment details.";
         
         // Create cart snapshot for admin records
@@ -240,8 +241,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             'original_price' => $totals['subtotal'],
             'discount_amount' => $totals['discount'],
             'final_amount' => $totals['total'],
-            'payment_method' => $paymentMethod,
-            'cart_snapshot' => $cartSnapshot
+            'cart_snapshot' => $cartSnapshot,
+            'payment_method' => $paymentMethod
         ];
         
         $orderId = createOrderWithItems($orderData, $orderItems);
@@ -257,12 +258,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
-            // Send new order notification to admin
+            // Build product names list and determine order type for admin notification
             $productNamesList = [];
+            $hasTemplates = false;
+            $hasTools = false;
             foreach ($cartItems as $item) {
+                $productType = $item['product_type'] ?? 'tool';
                 $productNamesList[] = $item['name'] . ($item['quantity'] > 1 ? ' (x' . $item['quantity'] . ')' : '');
+                
+                if ($productType === 'template') $hasTemplates = true;
+                if ($productType === 'tool') $hasTools = true;
             }
-            $productNamesString = implode(', ', $productNamesList);
             
             $orderType = 'template';
             if ($hasTemplates && $hasTools) {
@@ -271,6 +277,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 $orderType = 'tool';
             }
             
+            $productNamesString = implode(', ', $productNamesList);
+            
+            // Send new order notification to admin
             sendNewOrderNotificationToAdmin(
                 $orderId,
                 $customerName,
@@ -289,14 +298,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Clear cart only on successful order creation
             clearCart();
             
-            // Handle redirect based on payment method
-            if ($paymentMethod === 'automatic') {
-                // For Paystack, redirect to confirmation with payment_method parameter
-                header('Location: /cart-checkout.php?confirmed=' . $orderId . '&method=automatic' . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''));
-            } else {
-                // For Manual, redirect to confirmation
-                header('Location: /cart-checkout.php?confirmed=' . $orderId . '&method=manual' . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''));
-            }
+            // Redirect to confirmation page with order ID
+            header('Location: /cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''));
             exit;
         }
     }
@@ -304,8 +307,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
 
 // Handle order confirmation page
 $confirmationData = null;
-$paymentMethod = isset($_GET['method']) ? $_GET['method'] : 'manual';
-
 if ($confirmedOrderId) {
     $order = getOrderById($confirmedOrderId);
     
@@ -330,7 +331,7 @@ if ($confirmedOrderId) {
             $orderTypeText = 'TOOLS ORDER';
         }
         
-        // Categorize items
+        // Categorize items (used for both messages)
         $templateCount = 0;
         $toolCount = 0;
         $templates = [];
@@ -386,7 +387,7 @@ if ($confirmedOrderId) {
         if ($bankNumber) $messagePaymentProof .= "Account Name: " . $bankNumber . "\n";
         $messagePaymentProof .= "\n📸 *Attached is the screenshot of my payment receipt*";
         
-        // MESSAGE TYPE 2: Proceed with Payment Message
+        // MESSAGE TYPE 2: Proceed with Payment Message (Formal structure with order details)
         $messageDiscussion = "🛒 *NEW ORDER REQUEST*\n";
         $messageDiscussion .= "━━━━━━━━━━━━━━━━━━━━\n\n";
         $messageDiscussion .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
@@ -462,7 +463,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
     <script>
         // Flag to indicate if this is a confirmation page
         const isConfirmationPage = <?php echo json_encode($confirmedOrderId ? true : false); ?>;
@@ -511,37 +511,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 min-height: 44px;
                 min-width: 44px;
             }
-        }
-        
-        /* Toggle Switch Styling */
-        .toggle-switch {
-            display: inline-flex;
-            background: #1f2937;
-            border-radius: 9999px;
-            padding: 4px;
-            border: 2px solid #374151;
-            cursor: pointer;
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .toggle-switch button {
-            flex: 1;
-            padding: 10px 16px;
-            font-weight: 600;
-            font-size: 14px;
-            border: none;
-            background: transparent;
-            color: #9ca3af;
-            cursor: pointer;
-            border-radius: 9999px;
-            transition: all 0.3s ease;
-        }
-        
-        .toggle-switch button.active {
-            background: #3b82f6;
-            color: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
     </style>
 </head>
@@ -656,8 +625,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 </div>
                 
-                <?php if ($paymentMethod === 'manual'): ?>
-                <!-- Bank Payment Details Card - For Manual Payment -->
+                <!-- Bank Payment Details Card - Matches template dark theme -->
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-4 p-4">
                     <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
                         <span>🏦</span>Bank Payment Details
@@ -701,6 +669,43 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </ul>
                 </div>
                 
+                <!-- Guide: What each button does -->
+                <div class="bg-gray-900 border border-gray-700 rounded-xl p-3 mb-4 space-y-3">
+                    <div class="flex gap-3">
+                        <span class="text-lg flex-shrink-0">⚡</span>
+                        <div>
+                            <div class="text-xs font-bold text-white uppercase">Button 1: I've Sent the Money</div>
+                            <div class="text-xs text-gray-300">Click this if you've already transferred the money to the account above. We'll verify your payment proof screenshot and process your order immediately via WhatsApp.</div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-700"></div>
+                    <div class="flex gap-3">
+                        <span class="text-lg flex-shrink-0">💬</span>
+                        <div>
+                            <div class="text-xs font-bold text-white uppercase">Button 2: Pay via WhatsApp</div>
+                            <div class="text-xs text-gray-300">Click this to process your payment via WhatsApp. We'll guide you through the payment process and answer any questions before you pay.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Paystack Payment Button - ONLY IF AUTOMATIC PAYMENT METHOD -->
+                <?php if (!empty($confirmationData['order']['payment_method']) && $confirmationData['order']['payment_method'] === 'automatic'): ?>
+                <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md border border-green-500 mb-4 p-4">
+                    <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                        <span>💳</span>Complete Payment Securely
+                    </h4>
+                    <p class="text-green-50 text-xs mb-4">Click below to pay instantly with your card via Paystack</p>
+                    <button type="button" 
+                            id="paystack-payment-btn" 
+                            class="w-full px-4 py-3 bg-white hover:bg-gray-100 text-green-600 font-bold rounded-lg transition-colors shadow-lg">
+                        💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount']); ?> with Card
+                    </button>
+                    <p class="text-green-100 text-xs text-center mt-3">🔒 Secure payment powered by Paystack</p>
+                </div>
+                <?php endif; ?>
+                
+                <!-- WhatsApp Buttons - ONLY IF MANUAL PAYMENT METHOD -->
+                <?php if (empty($confirmationData['order']['payment_method']) || $confirmationData['order']['payment_method'] === 'manual'): ?>
                 <!-- Two WhatsApp Buttons - matches site button convention -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     <!-- Button 1: I have sent the money - PRIMARY ACTION -->
@@ -717,20 +722,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <span>Pay via WhatsApp</span>
                     </a>
                 </div>
-                <?php elseif ($paymentMethod === 'automatic'): ?>
-                <!-- Paystack Payment Processing -->
-                <div class="bg-blue-900/30 border border-blue-500/50 rounded-xl p-6 mb-4">
-                    <h4 class="font-bold text-white text-lg mb-3">💳 Paystack Payment</h4>
-                    <p class="text-gray-300 mb-4">Click the button below to complete your payment securely via Paystack.</p>
-                    <div class="bg-gray-800 p-3 rounded mb-4">
-                        <p class="text-sm text-gray-400">Amount to Pay: <span class="font-bold text-white text-lg"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span></p>
-                        <p class="text-sm text-gray-400 mt-2">Order Reference: <span class="font-mono text-white">ORDER-<?php echo $confirmationData['order']['id']; ?></span></p>
-                    </div>
-                    <button id="paystack-payment-btn" 
-                            class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
-                        💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount']); ?> with Card
-                    </button>
-                </div>
                 <?php endif; ?>
                 
                 <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
@@ -739,7 +730,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </a>
                 
             <?php else: ?>
-                <!-- Checkout Form Page -->
+                <!-- Regular Checkout Form -->
                 <?php if (!empty($success)): ?>
                 <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
                     <div class="flex">
@@ -799,6 +790,13 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 </div>
                                 <?php endforeach; ?>
                             </div>
+                            <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                               class="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-semibold mt-4">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                </svg>
+                                Return to shopping
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -871,8 +869,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                        id="customer_name" 
                                        name="customer_name" 
                                        value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
-                                       placeholder="John Doe"
-                                       required>
+                                       required
+                                       placeholder="John Doe">
                             </div>
                             
                             <div>
@@ -884,10 +882,10 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                        id="customer_email" 
                                        name="customer_email" 
                                        value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
-                                       placeholder="you@example.com"
-                                       required>
+                                       required
+                                       placeholder="you@example.com">
                             </div>
-                            
+
                             <div>
                                 <label for="customer_phone" class="block text-sm font-bold text-gray-100 mb-2">
                                     WhatsApp Number <span class="text-red-600">*</span>
@@ -897,8 +895,21 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                        id="customer_phone" 
                                        name="customer_phone" 
                                        value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
-                                       placeholder="+234 800 000 0000"
-                                       required>
+                                       required
+                                       placeholder="+234 800 000 0000">
+                            </div>
+
+                            <div>
+                                <label for="payment_method" class="block text-sm font-bold text-gray-100 mb-2">
+                                    Payment Method <span class="text-red-600">*</span>
+                                </label>
+                                <select id="payment_method" 
+                                        name="payment_method" 
+                                        class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                    <option value="manual" selected>🏦 Bank Transfer (24hr)</option>
+                                    <option value="automatic">💳 Card Payment (Instant)</option>
+                                </select>
+                                <p class="text-xs text-gray-400 mt-1">Choose how you want to pay</p>
                             </div>
                         </div>
                     </div>
@@ -907,23 +918,43 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 <!-- Step 2: Order Summary -->
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
                     <div class="p-6 sm:p-8">
-                        <div class="flex items-center mb-6">
-                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white font-bold mr-3">2</span>
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-white">Order Summary</h3>
+                        <div class="flex items-center mb-3">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm mr-2">2</span>
+                            <h3 class="text-lg font-bold text-white">Order Summary</h3>
                         </div>
                         
-                        <div class="space-y-3 mb-6 max-h-64 overflow-y-auto">
+                        <div class="space-y-0 mb-3">
                             <?php foreach ($cartItems as $item): 
                                 $productType = $item['product_type'] ?? 'tool';
                                 $itemSubtotal = $item['price_at_add'] * $item['quantity'];
+                                $itemDiscount = 0;
+                                if ($totals['has_discount'] && $totals['subtotal'] > 0) {
+                                    $itemDiscount = ($itemSubtotal / $totals['subtotal']) * $totals['discount'];
+                                }
+                                $itemFinal = $itemSubtotal - $itemDiscount;
+                                $badgeColor = $productType === 'template' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white';
+                                $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
+                                $badgeText = $productType === 'template' ? 'Template' : 'Tool';
                             ?>
-                            <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0">
-                                <span class="text-lg"><?php echo $productType === 'template' ? '🎨' : '🔧'; ?></span>
-                                <div class="flex-1">
-                                    <p class="font-semibold text-white"><?php echo htmlspecialchars($item['name']); ?></p>
-                                    <p class="text-sm text-gray-300"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?></p>
+                            <div class="flex items-start gap-2 py-2 border-b border-gray-700">
+                                <img src="<?php echo htmlspecialchars($item['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>" 
+                                     alt="<?php echo htmlspecialchars($item['name']); ?>"
+                                     class="w-12 h-12 object-cover rounded flex-shrink-0"
+                                     onerror="this.src='/assets/images/placeholder.jpg'">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-1">
+                                        <h3 class="font-medium text-sm text-white truncate"><?php echo htmlspecialchars($item['name']); ?></h3>
+                                        <span class="<?php echo $badgeColor; ?> px-1.5 py-0.5 text-xs font-semibold rounded whitespace-nowrap flex-shrink-0">
+                                            <?php echo $badgeIcon; ?>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs space-y-0">
+                                        <p class="text-gray-100"><?php echo formatCurrency($item['price_at_add']); ?> × <?php echo $item['quantity']; ?> = <span class="font-medium"><?php echo formatCurrency($itemSubtotal); ?></span></p>
+                                        <?php if ($itemDiscount > 0): ?>
+                                        <p class="text-green-600">-<?php echo formatCurrency($itemDiscount); ?></p>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
-                                <p class="font-bold text-white"><?php echo formatCurrency($itemSubtotal); ?></p>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -935,147 +966,182 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             
                             <?php if ($totals['has_discount']): ?>
-                            <div class="flex justify-between text-green-400">
+                            <div class="flex justify-between text-green-600">
                                 <span>Affiliate Discount (20%)</span>
                                 <span>-<?php echo formatCurrency($totals['discount']); ?></span>
                             </div>
                             <?php endif; ?>
                             
                             <div class="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-700">
-                                <span>TOTAL</span>
-                                <span class="text-primary-400"><?php echo formatCurrency($totals['total']); ?></span>
+                                <span>Total</span>
+                                <span><?php echo formatCurrency($totals['total']); ?></span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Step 3: Payment Method Toggle -->
-                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
-                    <div class="p-6 sm:p-8">
-                        <div class="flex items-center mb-6">
-                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white font-bold mr-3">3</span>
-                            <h3 class="text-xl sm:text-2xl font-extrabold text-white">Choose Payment Method</h3>
-                        </div>
-                        
-                        <div class="flex justify-center mb-6">
-                            <div class="toggle-switch">
-                                <button type="button" class="payment-toggle active" data-method="automatic">
-                                    💳 Automatic (Paystack)
-                                </button>
-                                <button type="button" class="payment-toggle" data-method="manual">
-                                    🏦 Manual Transfer
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" name="payment_method" id="payment_method" value="automatic">
-                        
-                        <!-- Payment Method Descriptions -->
-                        <div id="method-description-automatic" class="payment-description p-4 bg-primary-900/20 border border-primary-500/30 rounded-lg mb-4">
-                            <p class="text-sm text-gray-100">
-                                <strong class="text-primary-300">Instant Payment:</strong> Pay securely with your card using Paystack. Your order will be processed immediately.
-                            </p>
-                        </div>
-                        
-                        <div id="method-description-manual" class="payment-description hidden p-4 bg-gray-700 border border-gray-600 rounded-lg mb-4">
-                            <p class="text-sm text-gray-100">
-                                <strong class="text-gray-300">Bank Transfer:</strong> Transfer to our bank account and confirm via WhatsApp. We'll process your order within 24 hours.
-                            </p>
-                        </div>
-                    </div>
-                </div>
                 
-                <!-- Submit Buttons -->
-                <div class="flex gap-3 mb-6">
-                    <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="flex-1 px-6 py-3 text-center bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors">
-                        ← Back to Shopping
-                    </a>
-                    
-                    <button type="submit" id="submit-btn" class="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
-                        Complete Payment
-                    </button>
-                </div>
+                <button type="submit" 
+                        <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
+                        class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Confirm Order
+                </button>
                 
                 </form>
+                
+                <a href="/<?php echo $affiliateCode ? '?aff=' . urlencode($affiliateCode) : ''; ?>" 
+                   class="block text-center text-primary-600 hover:text-primary-700 font-medium py-3 mt-2">
+                    ← Continue Shopping
+                </a>
             <?php endif; ?>
         </div>
     </div>
-
+    
+    <!-- Load Paystack SDK -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    
     <script>
-        // Payment Method Toggle
-        if (document.getElementById('orderForm')) {
-            document.querySelectorAll('.payment-toggle').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const method = this.dataset.method;
-                    
-                    // Update hidden field
-                    document.getElementById('payment_method').value = method;
-                    
-                    // Update active state
-                    document.querySelectorAll('.payment-toggle').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update descriptions
-                    document.querySelectorAll('.payment-description').forEach(desc => desc.classList.add('hidden'));
-                    document.getElementById(`method-description-${method}`).classList.remove('hidden');
-                    
-                    // Update button text
-                    const btnText = method === 'automatic' ? 'Pay with Paystack' : 'Proceed to Confirmation';
-                    document.getElementById('submit-btn').textContent = btnText;
-                });
-            });
-        }
-        
-        // Paystack Payment Handler (on confirmation page)
-        const paystackBtn = document.getElementById('paystack-payment-btn');
-        if (paystackBtn) {
-            paystackBtn.addEventListener('click', function() {
-                const btn = this;
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-                
-                const handler = PaystackPop.setup({
-                    key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
-                    email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?>',
-                    amount: <?php echo (int)($confirmationData['order']['final_amount'] * 100); ?>,
-                    currency: 'NGN',
-                    ref: 'ORDER-<?php echo $confirmationData['order']['id']; ?>',
-                    onClose: function() {
-                        btn.disabled = false;
-                        btn.innerHTML = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount']); ?> with Card';
-                        alert('Payment cancelled. You can try again.');
-                    },
-                    onSuccess: function(response) {
-                        // Verify payment on server
-                        fetch('/api/paystack-verify.php', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({
-                                reference: response.reference,
-                                order_id: <?php echo $confirmationData['order']['id']; ?>,
-                                customer_email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?>',
-                                csrf_token: '<?php echo getCsrfToken(); ?>'
-                            })
-                        }).then(r => r.json()).then(data => {
-                            if (data.success) {
-                                alert('Payment successful! Your order is being processed.');
-                                window.location.reload();
-                            } else {
-                                btn.disabled = false;
-                                btn.innerHTML = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount']); ?> with Card';
-                                alert('Payment verification failed: ' + (data.message || 'Unknown error'));
-                            }
-                        }).catch(err => {
+        // Paystack Payment Handler
+        document.getElementById('paystack-payment-btn')?.addEventListener('click', function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+            
+            const handler = PaystackPop.setup({
+                key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
+                email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email'] ?? ''); ?>',
+                amount: <?php echo (int)(($confirmationData['order']['final_amount'] ?? 0) * 100); ?>,
+                currency: 'NGN',
+                ref: 'ORDER-<?php echo $confirmationData['order']['id'] ?? 0; ?>',
+                onClose: function() {
+                    btn.disabled = false;
+                    btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                    alert('Payment cancelled. You can try again.');
+                },
+                onSuccess: function(response) {
+                    // Verify payment on server
+                    fetch('/api/paystack-verify.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            reference: response.reference,
+                            order_id: <?php echo $confirmationData['order']['id'] ?? 0; ?>,
+                            customer_email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email'] ?? ''); ?>'
+                        })
+                    }).then(r => r.json()).then(data => {
+                        if (data.success) {
+                            alert('✅ Payment successful! Your order is being processed.');
+                            location.reload();
+                        } else {
                             btn.disabled = false;
-                            btn.innerHTML = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount']); ?> with Card';
-                            alert('Error: ' + err.message);
-                        });
+                            btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                            alert('Payment verification failed: ' + (data.message || 'Unknown error'));
+                        }
+                    }).catch(err => {
+                        btn.disabled = false;
+                        btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                        alert('Error: ' + err.message);
+                    });
+                }
+            });
+            handler.openIframe();
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. PRE-FILL FORM WITH SAVED CUSTOMER INFO FOR REPEAT BUYERS
+            const savedCustomer = localStorage.getItem('webdaddy_customer');
+            if (savedCustomer) {
+                try {
+                    const customer = JSON.parse(savedCustomer);
+                    const nameField = document.getElementById('customer_name');
+                    const phoneField = document.getElementById('customer_phone');
+                    const emailField = document.getElementById('customer_email');
+                    
+                    if (nameField && customer.name) nameField.value = customer.name;
+                    if (phoneField && customer.phone) phoneField.value = customer.phone;
+                    if (emailField && customer.email) emailField.value = customer.email;
+                } catch (e) {
+                    // Invalid stored data, skip
+                }
+            }
+            
+            // 2. AUTO-APPLY AFFILIATE CODE FROM URL PARAMETER
+            const urlParams = new URLSearchParams(window.location.search);
+            const affiliateCodeFromUrl = urlParams.get('aff');
+            if (affiliateCodeFromUrl) {
+                const affiliateInput = document.getElementById('affiliate_code');
+                if (affiliateInput && !affiliateInput.value) {
+                    affiliateInput.value = affiliateCodeFromUrl.toUpperCase();
+                    // Auto-submit the affiliate form after short delay
+                    setTimeout(() => {
+                        const affiliateForm = document.getElementById('affiliateForm');
+                        if (affiliateForm) {
+                            affiliateForm.submit();
+                        }
+                    }, 500);
+                }
+            }
+            
+            // 3. PRESERVE CUSTOMER DATA WHEN APPLYING AFFILIATE CODE
+            const affiliateForm = document.getElementById('affiliateForm');
+            if (affiliateForm) {
+                affiliateForm.addEventListener('submit', function(e) {
+                    const customerName = document.getElementById('customer_name');
+                    const customerEmail = document.getElementById('customer_email');
+                    const customerPhone = document.getElementById('customer_phone');
+                    
+                    if (customerName) {
+                        document.getElementById('aff_customer_name').value = customerName.value;
+                    }
+                    if (customerEmail) {
+                        document.getElementById('aff_customer_email').value = customerEmail.value;
+                    }
+                    if (customerPhone) {
+                        document.getElementById('aff_customer_phone').value = customerPhone.value;
                     }
                 });
-                handler.openIframe();
-            });
-        }
+            }
+            
+            // 4. SAVE CUSTOMER INFO AFTER SUCCESSFUL ORDER
+            const orderForm = document.getElementById('orderForm');
+            if (orderForm) {
+                orderForm.addEventListener('submit', function(e) {
+                    const customerName = document.getElementById('customer_name')?.value;
+                    const customerPhone = document.getElementById('customer_phone')?.value;
+                    const customerEmail = document.getElementById('customer_email')?.value;
+                    
+                    if (customerName && customerPhone) {
+                        localStorage.setItem('webdaddy_customer', JSON.stringify({
+                            name: customerName,
+                            phone: customerPhone,
+                            email: customerEmail || ''
+                        }));
+                    }
+                });
+            }
+            
+            // 5. FLOATING BONUS OFFER BANNER - ONLY SHOW ON CHECKOUT FORM, NOT ON CONFIRMATION PAGE
+            console.log('✅ Cart Recovery Features Initialized');
+            
+            if (!isConfirmationPage) {
+                const floatingBanner = document.createElement('div');
+                floatingBanner.innerHTML = `
+                    <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 250px; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 18px;">💰</span>
+                            <div>
+                                <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 13px;">Special Bonus</p>
+                                <p style="margin: 0; font-size: 12px; opacity: 0.95;">Code: <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-weight: bold;">HUSTLE</span> = 20% OFF</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(floatingBanner);
+            }
+        });
     </script>
 </body>
 </html>

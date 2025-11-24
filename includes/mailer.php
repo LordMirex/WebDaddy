@@ -36,9 +36,9 @@ function sendEmail($email, $subject, $message) {
         // SECURITY: Enforce encrypted connection (SSL/TLS)
         $smtpSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'ssl';
         if ($smtpSecure === 'ssl') {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // SSL on port 465
+            $mail->SMTPSecure = 'ssl'; // SSL on port 465
         } else {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS on port 587
+            $mail->SMTPSecure = 'tls'; // TLS on port 587
         }
         
         // SECURITY: Enforce TLS peer verification (prevent MITM attacks)
