@@ -431,6 +431,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
+        // Flag to indicate if this is a confirmation page
+        const isConfirmationPage = <?php echo json_encode($confirmedOrderId ? true : false); ?>;
+        
         tailwind.config = {
             theme: {
                 extend: {
@@ -1005,22 +1008,24 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
-            // 5. FLOATING BONUS OFFER BANNER
+            // 5. FLOATING BONUS OFFER BANNER - ONLY SHOW ON CHECKOUT FORM, NOT ON CONFIRMATION PAGE
             console.log('✅ Cart Recovery Features Initialized');
             
-            const floatingBanner = document.createElement('div');
-            floatingBanner.innerHTML = `
-                <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 250px; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 18px;">💰</span>
-                        <div>
-                            <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 13px;">Special Bonus</p>
-                            <p style="margin: 0; font-size: 12px; opacity: 0.95;">Code: <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-weight: bold;">HUSTLE</span> = 20% OFF</p>
+            if (!isConfirmationPage) {
+                const floatingBanner = document.createElement('div');
+                floatingBanner.innerHTML = `
+                    <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 250px; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 18px;">💰</span>
+                            <div>
+                                <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 13px;">Special Bonus</p>
+                                <p style="margin: 0; font-size: 12px; opacity: 0.95;">Code: <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-weight: bold;">HUSTLE</span> = 20% OFF</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-            document.body.appendChild(floatingBanner);
+                `;
+                document.body.appendChild(floatingBanner);
+            }
         });
     </script>
 </body>
