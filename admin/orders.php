@@ -14,11 +14,57 @@ $db = getDb();
 $successMessage = '';
 $errorMessage = '';
 
+// No action needed here - retry is now handled via POST below
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         $action = $_POST['action'];
         
-        if ($action === 'mark_paid') {
+        // Handle delivery retry with CSRF protection (Phase 3)
+        if ($action === 'retry_delivery') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== getCSRFToken()) {
+                header("Location: /admin/orders.php?error=" . urlencode('Invalid security token. Please try again.'));
+                exit;
+            }
+            
+            $orderId = intval($_POST['order_id']);
+            if ($orderId <= 0) {
+                header("Location: /admin/orders.php?error=" . urlencode('Invalid order ID.'));
+                exit;
+            }
+            
+            // Validate order exists and is paid before retrying delivery
+            $order = getOrderById($orderId);
+            if (!$order) {
+                header("Location: /admin/orders.php?error=" . urlencode("Order #$orderId not found."));
+                exit;
+            } elseif ($order['status'] !== 'paid') {
+                header("Location: /admin/orders.php?error=" . urlencode("Cannot create delivery for Order #$orderId - order must be paid first. Current status: " . htmlspecialchars($order['status'])));
+                exit;
+            } else {
+                        require_once __DIR__ . '/../includes/delivery.php';
+                        try {
+                            $existingDeliveries = getDeliveryStatus($orderId);
+                            if (empty($existingDeliveries)) {
+                                createDeliveryRecords($orderId);
+                                $successMsg = "✅ Delivery records created successfully for Order #$orderId. Customers will receive download links via email.";
+                                logActivity('delivery_retry', "Manually retried delivery creation for Order #$orderId", getAdminId());
+                                header("Location: /admin/orders.php?success=" . urlencode($successMsg));
+                                exit;
+                            } else {
+                                $successMsg = "ℹ️ Delivery records already exist for Order #$orderId. No action needed.";
+                                header("Location: /admin/orders.php?success=" . urlencode($successMsg));
+                                exit;
+                            }
+                        } catch (Exception $e) {
+                            // Retry failed - log and redirect with persistent error banner and retry button
+                            logActivity('delivery_retry_failed', "Delivery retry failed for Order #$orderId: " . $e->getMessage(), getAdminId());
+                            $retryErrorMsg = "⚠️ DELIVERY RETRY FAILED for Order #$orderId: " . htmlspecialchars($e->getMessage());
+                            header("Location: /admin/orders.php?delivery_error=" . urlencode($retryErrorMsg) . "&delivery_error_order=" . $orderId);
+                            exit;
+                        }
+                    }
+        } elseif ($action === 'mark_paid') {
             $orderId = intval($_POST['order_id']);
             $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
             
@@ -56,14 +102,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // Proceed with payment confirmation
                         if (empty($domainAssignmentErrors)) {
-                            if (markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes)) {
+                            $result = markOrderPaid($orderId, getAdminId(), $amountPaid, $paymentNotes);
+                            if ($result['success']) {
                                 $successMessage = 'Order confirmed successfully! Amount: ' . formatCurrency($amountPaid);
                                 if (!empty($paymentNotes)) {
                                     $successMessage .= ' Payment notes have been saved.';
                                 }
+                                
+                                // CRITICAL: Warn admin if delivery creation failed - persist in URL for visibility
+                                if (!empty($result['delivery_error'])) {
+                                    $deliveryErrorMsg = '⚠️ DELIVERY FAILURE: Order confirmed but delivery creation failed. Error: ' . htmlspecialchars($result['delivery_error']);
+                                    header("Location: /admin/orders.php?delivery_error=" . urlencode($deliveryErrorMsg) . "&delivery_error_order=" . $orderId . "&success=" . urlencode($successMessage));
+                                    exit;
+                                }
+                                
                                 logActivity('order_marked_paid', "Order #$orderId marked as paid with amount " . formatCurrency($amountPaid), getAdminId());
                             } else {
-                                $errorMessage = 'Failed to confirm order. Please try again.';
+                                $errorMessage = 'Failed to confirm order: ' . ($result['message'] ?? 'Unknown error. Please try again.');
                             }
                         } else {
                             $errorMessage = 'Domain assignment failed: ' . implode(', ', $domainAssignmentErrors);
@@ -171,6 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderIds = $_POST['order_ids'] ?? [];
             $successCount = 0;
             $failCount = 0;
+            $deliveryFailures = []; // Track orders with delivery creation failures
             
             foreach ($orderIds as $orderId) {
                 $orderId = intval($orderId);
@@ -219,8 +275,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
                         
-                        if ($payableAmount > 0 && markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed')) {
-                            $successCount++;
+                        if ($payableAmount > 0) {
+                            $result = markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed');
+                            if ($result['success']) {
+                                $successCount++;
+                                // Track delivery errors in bulk processing for UI feedback
+                                if (!empty($result['delivery_error'])) {
+                                    $deliveryFailures[] = $orderId;
+                                    error_log("Order #{$orderId} delivery creation failed during bulk processing: " . $result['delivery_error']);
+                                }
+                            } else {
+                                $failCount++;
+                                error_log("Bulk payment failed for order #{$orderId}: " . ($result['message'] ?? 'Unknown error'));
+                            }
                         } else {
                             $failCount++;
                             error_log("Bulk payment failed for order #{$orderId}: payableAmount = {$payableAmount}");
@@ -236,6 +303,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($failCount > 0) {
                     $successMessage .= ". {$failCount} failed.";
                 }
+                
+                // Alert admin about delivery failures in bulk processing
+                if (!empty($deliveryFailures)) {
+                    $failedOrdersList = implode(', #', $deliveryFailures);
+                    $errorMessage = "⚠️ WARNING: Delivery creation failed for " . count($deliveryFailures) . " order(s): #" . $failedOrdersList . ". Please retry delivery creation individually for each order.";
+                }
+                
                 logActivity('bulk_orders_processed', "Bulk processed {$successCount} orders", getAdminId());
             } else {
                 $errorMessage = 'No orders were processed.';
@@ -341,6 +415,14 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     
     fclose($output);
     exit;
+}
+
+// Handle persistent delivery error messages from redirects (Phase 3)
+if (isset($_GET['delivery_error'])) {
+    $errorMessage = $_GET['delivery_error'];
+}
+if (isset($_GET['success']) && empty($successMessage)) {
+    $successMessage = $_GET['success'];
 }
 
 $searchTerm = $_GET['search'] ?? '';
@@ -456,14 +538,27 @@ require_once __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <?php if ($errorMessage): ?>
-<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
-    <div class="flex items-center gap-3">
-        <i class="bi bi-exclamation-triangle text-xl"></i>
-        <span><?php echo htmlspecialchars($errorMessage); ?></span>
+<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+            <i class="bi bi-exclamation-triangle text-xl"></i>
+            <span><?php echo $errorMessage; ?></span>
+        </div>
+        <button @click="show = false" class="text-red-700 hover:text-red-900">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
-    <button @click="show = false" class="text-red-700 hover:text-red-900">
-        <i class="bi bi-x-lg"></i>
-    </button>
+    <?php if (isset($_GET['delivery_error_order'])): ?>
+    <form method="POST" class="mt-3 inline-block">
+        <input type="hidden" name="action" value="retry_delivery">
+        <input type="hidden" name="order_id" value="<?php echo intval($_GET['delivery_error_order']); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
+        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors inline-flex items-center gap-2">
+            <i class="bi bi-arrow-clockwise"></i>
+            Retry Delivery Creation for Order #<?php echo intval($_GET['delivery_error_order']); ?>
+        </button>
+    </form>
+    <?php endif; ?>
 </div>
 <?php endif; ?>
 

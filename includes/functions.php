@@ -574,7 +574,8 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         
         // Create delivery records for automatic tool delivery and template tracking (Phase 3)
         // IDEMPOTENCY: Only create deliveries if they don't already exist
-        // ERROR HANDLING: Log failures but don't block payment confirmation
+        // ERROR HANDLING: Track failures for admin visibility but don't block payment confirmation
+        $deliveryError = null;
         try {
             require_once __DIR__ . '/delivery.php';
             $existingDeliveries = getDeliveryStatus($orderId);
@@ -582,7 +583,8 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
                 createDeliveryRecords($orderId);
             }
         } catch (Exception $e) {
-            error_log("Failed to create delivery records for order #{$orderId}: " . $e->getMessage());
+            $deliveryError = $e->getMessage();
+            error_log("Failed to create delivery records for order #{$orderId}: " . $deliveryError);
             // Don't throw - payment is already confirmed, admin can manually retry delivery creation
         }
         
@@ -645,11 +647,19 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             }
         }
         
-        return true;
+        // Return success with delivery status information
+        return [
+            'success' => true,
+            'delivery_error' => $deliveryError,
+            'order_id' => $orderId
+        ];
     } catch (Exception $e) {
         $db->rollBack();
         error_log('Error marking order paid: ' . $e->getMessage());
-        return false;
+        return [
+            'success' => false,
+            'message' => $e->getMessage()
+        ];
     }
 }
 
