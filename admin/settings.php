@@ -23,7 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'whatsapp_number' => sanitizeInput($_POST['whatsapp_number']),
                 'site_name' => sanitizeInput($_POST['site_name']),
                 'commission_rate' => (float)$_POST['commission_rate'],
-                'affiliate_cookie_days' => (int)$_POST['affiliate_cookie_days']
+                'affiliate_cookie_days' => (int)$_POST['affiliate_cookie_days'],
+                'site_account_number' => sanitizeInput($_POST['site_account_number'] ?? ''),
+                'site_bank_name' => sanitizeInput($_POST['site_bank_name'] ?? ''),
+                'site_bank_number' => sanitizeInput($_POST['site_bank_number'] ?? '')
             ];
 
             try {
@@ -146,6 +149,36 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <small class="text-gray-500 text-sm">How long affiliate tracking cookies last</small>
                         </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-bank text-indigo-600 mr-1"></i>Bank Account Number
+                            </label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="site_account_number"
+                                   value="<?php echo htmlspecialchars($currentSettings['site_account_number'] ?? ''); ?>" 
+                                   placeholder="e.g., 1234567890">
+                            <small class="text-gray-500 text-sm">Your business bank account number for customer transfers</small>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-building text-indigo-600 mr-1"></i>Bank Name
+                            </label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="site_bank_name"
+                                   value="<?php echo htmlspecialchars($currentSettings['site_bank_name'] ?? ''); ?>" 
+                                   placeholder="e.g., Access Bank, GTBank">
+                            <small class="text-gray-500 text-sm">Name of your bank</small>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-hash text-indigo-600 mr-1"></i>Bank Code/Number
+                            </label>
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="site_bank_number"
+                                   value="<?php echo htmlspecialchars($currentSettings['site_bank_number'] ?? ''); ?>" 
+                                   placeholder="e.g., 044">
+                            <small class="text-gray-500 text-sm">Your bank's code or number for identification</small>
+                        </div>
                     </div>
 
                     <div class="mt-6">
@@ -185,6 +218,21 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <div class="text-sm text-gray-600 mb-1">Cookie Duration</div>
                         <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['affiliate_cookie_days'] ?? '30'); ?> days</div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 bg-blue-50 border-blue-200">
+                        <div class="text-sm text-gray-600 mb-1">🏦 Bank Account Number</div>
+                        <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['site_account_number'] ?? 'Not set'); ?></div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 bg-blue-50 border-blue-200">
+                        <div class="text-sm text-gray-600 mb-1">🏢 Bank Name</div>
+                        <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['site_bank_name'] ?? 'Not set'); ?></div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-lg p-4 bg-blue-50 border-blue-200">
+                        <div class="text-sm text-gray-600 mb-1">🔢 Bank Code/Number</div>
+                        <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['site_bank_number'] ?? 'Not set'); ?></div>
                     </div>
                 </div>
             </div>
