@@ -137,6 +137,24 @@ function validateEmail(email) {
 }
 
 function getAffiliateCode() {
+    const affiliateInput = document.getElementById('affiliate_code');
+    if (affiliateInput && affiliateInput.value) {
+        return affiliateInput.value.toUpperCase();
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('aff') || '';
+    const urlAff = urlParams.get('aff');
+    if (urlAff) {
+        return urlAff.toUpperCase();
+    }
+    
+    const affiliateBanner = document.querySelector('[class*="from-green-"] span');
+    if (affiliateBanner && affiliateBanner.textContent.includes('Code:')) {
+        const match = affiliateBanner.textContent.match(/Code:\s*([A-Z0-9]+)/);
+        if (match) {
+            return match[1];
+        }
+    }
+    
+    return '';
 }

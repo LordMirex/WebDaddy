@@ -17,40 +17,43 @@ try {
         throw new Exception('Missing payment reference');
     }
     
-    // Verify payment with Paystack
+    // Verify payment with Paystack (this updates payment record automatically)
     $verification = verifyPayment($input['reference']);
     
     if (!$verification['success']) {
         throw new Exception($verification['message']);
     }
     
-    // Get payment record
-    $payment = getPaymentByReference($input['reference']);
-    if (!$payment) {
-        throw new Exception('Payment record not found');
+    // Get order ID from verification response
+    $orderId = $verification['order_id'];
+    if (!$orderId) {
+        throw new Exception('Order ID not found in verification response');
     }
     
     $db = getDb();
     
-    // Mark order as paid
+    // Update order status to paid
     $stmt = $db->prepare("
         UPDATE pending_orders 
         SET status = 'paid', 
             payment_verified_at = datetime('now'),
             payment_method = 'paystack'
-        WHERE id = ?
+        WHERE id = ? AND status = 'pending'
     ");
-    $stmt->execute([$payment['pending_order_id']]);
+    $stmt->execute([$orderId]);
     
-    // Create delivery records and send emails
-    createDeliveryRecords($payment['pending_order_id']);
-    
-    // Clear cart
-    clearCart();
+    // Only proceed if order was actually updated (not already processed)
+    if ($stmt->rowCount() > 0) {
+        // Create delivery records and send emails
+        createDeliveryRecords($orderId);
+        
+        // Clear cart
+        clearCart();
+    }
     
     echo json_encode([
         'success' => true,
-        'order_id' => $payment['pending_order_id'],
+        'order_id' => $orderId,
         'message' => 'Payment verified successfully'
     ]);
     

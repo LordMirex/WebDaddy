@@ -484,6 +484,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     </script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="/assets/js/paystack-payment.js" defer></script>
     <style>
         * {
             box-sizing: border-box;
@@ -939,8 +941,99 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 </div>
                 
+                <!-- Step 3: Payment Method -->
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center mb-4">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm mr-2">3</span>
+                            <h3 class="text-lg font-bold text-white">Select Payment Method</h3>
+                        </div>
+                        
+                        <!-- Payment Method Tabs -->
+                        <div x-data="{ paymentMethod: 'manual' }" class="space-y-4">
+                            <!-- Tab Navigation -->
+                            <div class="flex gap-3 border-b border-gray-700 pb-3">
+                                <button @click="paymentMethod = 'manual'" 
+                                        type="button"
+                                        class="flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all"
+                                        :class="paymentMethod === 'manual' ? 'bg-primary-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'">
+                                    💬 Manual Payment
+                                </button>
+                                <button @click="paymentMethod = 'paystack'" 
+                                        type="button"
+                                        class="flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all"
+                                        :class="paymentMethod === 'paystack' ? 'bg-primary-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'">
+                                    💳 Instant Payment
+                                </button>
+                            </div>
+                            
+                            <!-- Manual Payment Tab Content -->
+                            <div x-show="paymentMethod === 'manual'" x-cloak>
+                                <div class="bg-gray-700/50 rounded-lg p-4 mb-4">
+                                    <h4 class="font-semibold text-white mb-2 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                        How Manual Payment Works
+                                    </h4>
+                                    <ul class="text-sm text-gray-300 space-y-1.5 ml-7">
+                                        <li>✅ Click "Confirm Order" to proceed to WhatsApp</li>
+                                        <li>✅ Transfer payment to our bank account</li>
+                                        <li>✅ Send payment proof via WhatsApp</li>
+                                        <li>✅ We verify and deliver within 24 hours</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Paystack Payment Tab Content -->
+                            <div x-show="paymentMethod === 'paystack'" x-cloak>
+                                <div class="bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded-lg p-4 mb-4 border border-green-500/30">
+                                    <h4 class="font-semibold text-white mb-2 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Instant Automatic Delivery
+                                    </h4>
+                                    <ul class="text-sm text-gray-300 space-y-1.5 ml-7">
+                                        <li>⚡ Pay securely with your card (Visa, Mastercard, Verve)</li>
+                                        <li>⚡ Automatic payment verification</li>
+                                        <li>⚡ <span class="font-bold text-green-400">Digital tools delivered instantly via email</span></li>
+                                        <li>⚡ Templates setup within 24 hours</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Manual Payment Button -->
+                            <div x-show="paymentMethod === 'manual'" x-cloak>
+                                <button type="submit" 
+                                        <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
+                                        class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl">
+                                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Confirm Order
+                                </button>
+                            </div>
+                            
+                            <!-- Paystack Payment Button -->
+                            <div x-show="paymentMethod === 'paystack'" x-cloak>
+                                <button type="button" 
+                                        id="pay-now-btn"
+                                        data-amount="<?php echo number_format($totals['final'], 0, '', ''); ?>"
+                                        <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
+                                        class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl">
+                                    💳 Pay ₦<?php echo number_format($totals['final'], 0, '', ''); ?> Now
+                                </button>
+                                <p class="text-xs text-gray-400 text-center mt-2">
+                                    🔒 Secured by Paystack - Your payment information is encrypted
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <button type="submit" 
+                
+                <button type="submit" style="display:none;" 
                         <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
                         class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
