@@ -1709,7 +1709,7 @@ if ($confirmedOrderId) {
                                 <h6><?php echo htmlspecialchars($tool['product_name']); ?></h6>
                                 <p class="text-muted small">
                                     <?php echo htmlspecialchars($tool['delivery_note']); ?>
-                                </p>
+                                </I'mp>
                                 
                                 <?php
                                 $links = json_decode($tool['delivery_link'], true);
