@@ -35,6 +35,10 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
+localPort = 35753
+externalPort = 4200
+
+[[ports]]
 localPort = 40273
 externalPort = 3002
 
@@ -49,3 +53,9 @@ externalPort = 3001
 [[ports]]
 localPort = 46743
 externalPort = 3003
+
+[userenv]
+
+[userenv.shared]
+PAYSTACK_MODE = "test"
+BUSINESS_EMAIL = "support@webdaddyempire.com"

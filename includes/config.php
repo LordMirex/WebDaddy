@@ -42,13 +42,14 @@ define('WHATSAPP_NUMBER', $whatsappNumber);
 
 // SMTP/Email Configuration (for sending emails)
 // SECURITY: All credentials loaded from environment variables
-define('SMTP_HOST', getenv('SMTP_HOST') ?: 'mail.webdaddy.online');
-define('SMTP_PORT', getenv('SMTP_PORT') ?: 465);
-define('SMTP_SECURE', getenv('SMTP_SECURE') ?: 'ssl');
-define('SMTP_USER', getenv('SMTP_USER') ?: '');
-define('SMTP_PASS', getenv('SMTP_PASS') ?: '');
-define('SMTP_FROM_EMAIL', getenv('SMTP_FROM_EMAIL') ?: '');
-define('SMTP_FROM_NAME', getenv('SMTP_FROM_NAME') ?: 'WebDaddy Empire');
+// Use $_SERVER for Replit secrets compatibility
+define('SMTP_HOST', $_SERVER['SMTP_HOST'] ?? $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: 'mail.webdaddy.online');
+define('SMTP_PORT', $_SERVER['SMTP_PORT'] ?? $_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: 465);
+define('SMTP_SECURE', $_SERVER['SMTP_SECURE'] ?? $_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?: 'ssl');
+define('SMTP_USER', $_SERVER['SMTP_USER'] ?? $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
+define('SMTP_PASS', $_SERVER['SMTP_PASS'] ?? $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+define('SMTP_FROM_EMAIL', $_SERVER['SMTP_FROM_EMAIL'] ?? $_ENV['SMTP_FROM_EMAIL'] ?? getenv('SMTP_FROM_EMAIL') ?: '');
+define('SMTP_FROM_NAME', $_SERVER['SMTP_FROM_NAME'] ?? $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: 'WebDaddy Empire');
 
 // Validate SMTP credentials are set (CRITICAL for email delivery)
 if (empty(SMTP_USER) || empty(SMTP_PASS) || empty(SMTP_FROM_EMAIL)) {
@@ -113,11 +114,12 @@ if (DISPLAY_ERRORS) {
 // PAYSTACK CONFIGURATION
 // ============================================
 // SECURITY: Paystack keys MUST be set as environment variables
-$paystackSecretKey = getenv('PAYSTACK_SECRET_KEY');
-$paystackPublicKey = getenv('PAYSTACK_PUBLIC_KEY');
+// Use $_SERVER for Replit secrets compatibility
+$paystackSecretKey = $_SERVER['PAYSTACK_SECRET_KEY'] ?? $_ENV['PAYSTACK_SECRET_KEY'] ?? getenv('PAYSTACK_SECRET_KEY');
+$paystackPublicKey = $_SERVER['PAYSTACK_PUBLIC_KEY'] ?? $_ENV['PAYSTACK_PUBLIC_KEY'] ?? getenv('PAYSTACK_PUBLIC_KEY');
 
 // PRODUCTION SAFETY: Fail fast if Paystack keys missing in live mode
-$paystackMode = getenv('PAYSTACK_MODE') ?: 'live';
+$paystackMode = $_SERVER['PAYSTACK_MODE'] ?? $_ENV['PAYSTACK_MODE'] ?? getenv('PAYSTACK_MODE') ?: 'test';
 if (empty($paystackSecretKey) || empty($paystackPublicKey)) {
     $message = 'CRITICAL: Paystack API keys not configured. Set PAYSTACK_SECRET_KEY and PAYSTACK_PUBLIC_KEY environment variables.';
     error_log($message);
