@@ -649,8 +649,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     <div class="flex gap-3">
                         <span class="text-lg flex-shrink-0">💬</span>
                         <div>
-                            <div class="text-xs font-bold text-white uppercase">Button 2: Send Me Account Details</div>
-                            <div class="text-xs text-gray-300">Click this if you want to discuss first or need us to confirm the payment details. We'll send you a message on WhatsApp with all the information you need before you pay.</div>
+                            <div class="text-xs font-bold text-white uppercase">Button 2: Proceed With Payment</div>
+                            <div class="text-xs text-gray-300">Click this to proceed and discuss payment on WhatsApp. We'll help you complete the process and answer any questions you have.</div>
                         </div>
                     </div>
                 </div>
@@ -664,15 +664,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <span>I've Sent the Money</span>
                     </a>
                     
-                    <!-- Button 2: Get account details - SECONDARY ACTION -->
+                    <!-- Button 2: Proceed with payment - SECONDARY ACTION -->
                     <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
                        class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 hover:bg-gray-900 border border-gray-600 rounded-lg transition-colors whitespace-nowrap">
                         <span>💬</span>
-                        <span>Send Me Account Details</span>
+                        <span>Proceed With Payment</span>
                     </a>
                 </div>
                 
-                <a href="/?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
                    class="block text-center text-xs text-gray-400 hover:text-gray-200 font-medium transition-colors py-2">
                     ← Continue Shopping
                 </a>
