@@ -1050,16 +1050,16 @@ define('MAX_DOWNLOAD_ATTEMPTS', 5);
 
 ### 1.6 Phase 1 Checklist
 
-- [ ] Create 6 new database tables (payments, deliveries, tool_files, download_tokens, email_queue, payment_logs)
-- [ ] Update 3 existing tables (pending_orders, tools, templates)
-- [ ] Create `/includes/paystack.php`
-- [ ] Create `/includes/delivery.php`
-- [ ] Create `/includes/email_queue.php`
-- [ ] Create `/includes/tool_files.php`
-- [ ] Add environment variables in Replit Secrets
-- [ ] Update `/includes/config.php` with Paystack constants
-- [ ] Test: Run SQL migrations successfully
-- [ ] Test: Verify all PHP files load without errors
+- [x] Create 6 new database tables (payments, deliveries, tool_files, download_tokens, email_queue, payment_logs)
+- [x] Update 3 existing tables (pending_orders, tools, templates)
+- [x] Create `/includes/paystack.php`
+- [x] Create `/includes/delivery.php`
+- [x] Create `/includes/email_queue.php`
+- [x] Create `/includes/tool_files.php`
+- [x] Add environment variables in Replit Secrets
+- [x] Update `/includes/config.php` with Paystack constants
+- [x] Test: Run SQL migrations successfully
+- [x] Test: Verify all PHP files load without errors
 
 ---
 
@@ -1575,16 +1575,16 @@ function handleFailedPayment($data) {
 
 ### 2.4 Phase 2 Checklist
 
-- [ ] Update `/cart-checkout.php` with payment tabs
-- [ ] Create `/assets/js/paystack-payment.js`
-- [ ] Create `/api/paystack-initialize.php`
-- [ ] Create `/api/paystack-verify.php`
-- [ ] Create `/api/paystack-webhook.php`
-- [ ] Add Paystack Inline JS to checkout page
-- [ ] Test: Tabs switch correctly
-- [ ] Test: Pay button initializes Paystack popup
-- [ ] Test: Paystack test card works (4084 0840 8408 4081)
-- [ ] Test: Webhook signature verification works
+- [x] Update `/cart-checkout.php` with payment tabs
+- [x] Create `/assets/js/paystack-payment.js`
+- [x] Create `/api/paystack-initialize.php`
+- [x] Create `/api/paystack-verify.php`
+- [x] Create `/api/paystack-webhook.php`
+- [x] Add Paystack Inline JS to checkout page
+- [x] Test: Tabs switch correctly
+- [x] Test: Pay button initializes Paystack popup
+- [x] Test: Paystack test card works (4084 0840 8408 4081)
+- [x] Test: Webhook signature verification works
 
 ---
 
@@ -1986,16 +1986,16 @@ require_once __DIR__ . '/includes/header.php';
 
 ### 3.5 Phase 3 Checklist
 
-- [ ] Create `/download.php` secure download handler
-- [ ] Update `/cart-checkout.php` confirmation section with delivery info
-- [ ] Create `/cron/process-emails.php` email processor
-- [ ] Create `/admin/tool-files.php` file upload interface
-- [ ] Create `/uploads/tools/files/` directory with proper permissions
-- [ ] Test: Upload a file to a tool
-- [ ] Test: Download link generation works
-- [ ] Test: Download link expires after time
-- [ ] Test: Email queue processes successfully
-- [ ] Test: Tool delivery email sends with download links
+- [x] Create `/download.php` secure download handler
+- [x] Update `/cart-checkout.php` confirmation section with delivery info
+- [x] Create `/cron/process-emails.php` email processor
+- [x] Create `/admin/tool-files.php` file upload interface
+- [x] Create `/uploads/tools/files/` directory with proper permissions
+- [x] Test: Upload a file to a tool
+- [x] Test: Download link generation works
+- [x] Test: Download link expires after time
+- [x] Test: Email queue processes successfully
+- [x] Test: Tool delivery email sends with download links
 
 ---
 
