@@ -44,12 +44,12 @@ function sendEmail($email, $subject, $message) {
             $mail->SMTPSecure = 'tls'; // TLS on port 587
         }
         
-        // SECURITY: Enforce TLS peer verification (prevent MITM attacks)
+        // SMTP Options - Allow self-signed certificates for internal mail servers
         $mail->SMTPOptions = [
             'ssl' => [
-                'verify_peer' => true,
-                'verify_peer_name' => true,
-                'allow_self_signed' => false
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
             ]
         ];
         
