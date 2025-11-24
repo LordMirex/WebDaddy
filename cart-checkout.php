@@ -1074,9 +1074,21 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             currency: 'NGN',
                             ref: 'ORDER-' + paymentData.order_id,
                             onClose: function() {
-                                // User cancelled payment - reload checkout page (don't show pending order)
-                                alert('Payment cancelled. Returning to checkout...');
-                                window.location.reload();
+                                // User cancelled payment - delete the order and reload checkout
+                                fetch('/api/cancel-order.php', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({
+                                        order_id: paymentData.order_id,
+                                        csrf_token: document.querySelector('[name="csrf_token"]')?.value || ''
+                                    })
+                                }).then(() => {
+                                    alert('Payment cancelled. Order deleted.');
+                                    window.location.reload();
+                                }).catch(err => {
+                                    // Even if delete fails, reload to clear state
+                                    window.location.reload();
+                                });
                             },
                             onSuccess: function(response) {
                                 // Verify payment on server
