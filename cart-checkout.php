@@ -933,7 +933,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 </form>
                 
-                <a href="/?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                <a href="/<?php echo $affiliateCode ? '?aff=' . urlencode($affiliateCode) : ''; ?>" 
                    class="block text-center text-primary-600 hover:text-primary-700 font-medium py-3 mt-2">
                     ← Continue Shopping
                 </a>
