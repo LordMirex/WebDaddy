@@ -11,7 +11,7 @@ require_once __DIR__ . '/db.php';
  * Initialize a payment with Paystack
  */
 function initializePayment($orderData) {
-    $secretKey = getenv('PAYSTACK_SECRET_KEY');
+    $secretKey = defined('PAYSTACK_SECRET_KEY') ? PAYSTACK_SECRET_KEY : getenv('PAYSTACK_SECRET_KEY');
     if (!$secretKey) {
         return [
             'success' => false,
@@ -125,7 +125,7 @@ function verifyPayment($reference) {
  * Make API call to Paystack
  */
 function paystackApiCall($url, $fields = null, $method = 'POST') {
-    $secretKey = getenv('PAYSTACK_SECRET_KEY');
+    $secretKey = defined('PAYSTACK_SECRET_KEY') ? PAYSTACK_SECRET_KEY : getenv('PAYSTACK_SECRET_KEY');
     if (!$secretKey) {
         return ['status' => false, 'message' => 'Paystack secret key not configured'];
     }
