@@ -10,6 +10,27 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Fixes (November 25, 2025)
 
+**DATABASE CONSTRAINT FIX: Added 'failed' Status to Pending Orders ✅**
+- **THE PROBLEM**: When Paystack payment verification failed, code tried to set status to 'failed' but constraint rejected it
+- **ROOT CAUSE**: CHECK constraint only allowed ('pending', 'paid', 'cancelled') - missing 'failed'
+- **THE SOLUTION**: Recreated pending_orders table with updated constraint
+- **NEW CONSTRAINT**: `CHECK(status IN ('pending', 'paid', 'cancelled', 'failed'))`
+- **RESULT**: Payment failures now properly recorded with 'failed' status ✅
+
+**PAYSTACK IP WHITELIST ISSUE - USER ACTION REQUIRED ⚠️**
+- **THE PROBLEM**: Paystack API is blocking Replit's IP address
+- **ERROR**: "Your IP address is not allowed to make this call"
+- **ROOT CAUSE**: Your Paystack account likely has IP whitelist enabled (security feature)
+- **SOLUTION**: You need to:
+  1. Login to your Paystack Dashboard
+  2. Go to Settings → API Keys & Webhooks
+  3. Find "Whitelisted IPs" or "IP Whitelist" setting
+  4. Either: a) Add Replit IPs to whitelist, OR b) Disable IP whitelisting if not needed
+- **RESULT**: Once Paystack IP check passes, payment verification will succeed ✅
+- **NOTE**: After fixing, test again - payment will now redirect to success page + send affiliate emails
+
+## Recent Fixes (November 25, 2025)
+
 **CRITICAL FIX: Paystack Payment Callback - NOW REDIRECTS TO SUCCESS PAGE ✅✅✅**
 - **THE PROBLEM**: Payment successful but user stayed on checkout page (no redirect, no confirmation)
 - **ROOT CAUSE**: Using wrong Paystack callback name (`onSuccess` doesn't exist) - should be `callback`
