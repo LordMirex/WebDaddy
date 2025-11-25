@@ -66,29 +66,51 @@ function sendEmail($email, $subject, $message) {
         $mail->Body = $message;
         
         // ============================================================
-        // ANTI-SPAM HEADERS - Prevent emails from going to spam
+        // ADVANCED ANTI-SPAM HEADERS - Prevent emails from going to spam
         // ============================================================
         
         // Return-Path header - tells servers where bounces should go
         $mail->ReturnPath = SMTP_FROM_EMAIL;
         
-        // Priority headers - shows this is important mail
-        $mail->addCustomHeader('X-Priority', '2');
-        $mail->addCustomHeader('X-MSMail-Priority', 'High');
+        // Generate unique Message-ID for tracking and authentication
+        $messageId = '<' . time() . '-' . rand(10000, 99999) . '@webdaddy.online>';
+        $mail->addCustomHeader('Message-ID', $messageId);
         
-        // Authentication headers for spam filter bypass
-        $mail->addCustomHeader('X-Mailer', 'WebDaddy-Empire/2.0');
+        // Priority headers - shows this is important/transactional mail
+        $mail->addCustomHeader('X-Priority', '3');
+        $mail->addCustomHeader('X-MSMail-Priority', 'Normal');
+        $mail->addCustomHeader('Importance', 'normal');
         
-        // List headers to avoid spam filters
-        $mail->addCustomHeader('List-Unsubscribe', '<mailto:' . SMTP_FROM_EMAIL . '>');
-        $mail->addCustomHeader('List-ID', 'WebDaddy Empire <list.webdaddy.online>');
+        // Identification headers for authentication
+        $mail->addCustomHeader('X-Mailer', 'WebDaddy-Enterprise-Mail');
+        $mail->addCustomHeader('User-Agent', 'WebDaddy-Enterprise-Mail/1.0');
         
-        // Explicit MIME headers
-        $mail->addCustomHeader('MIME-Version', '1.0');
-        $mail->addCustomHeader('Content-Type', 'text/html; charset=UTF-8');
+        // Authentication and compliance headers
+        $mail->addCustomHeader('X-Originating-IP', '[' . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1') . ']');
         
-        // Mark as transactional email (not marketing)
+        // List headers (not for marketing lists, for compliance)
+        $mail->addCustomHeader('List-Unsubscribe', '<' . SITE_URL . '/unsubscribe>, <mailto:' . SMTP_FROM_EMAIL . '?subject=unsubscribe>');
+        $mail->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+        $mail->addCustomHeader('List-ID', '<list.webdaddy.online>');
+        $mail->addCustomHeader('List-Help', '<' . SITE_URL . '/help>');
+        $mail->addCustomHeader('Precedence', 'bulk');
+        
+        // Mark as transactional email (critical - stops bulk mail filters)
         $mail->addCustomHeader('X-Category', 'transaction');
+        $mail->addCustomHeader('X-Complaints-To', SMTP_FROM_EMAIL);
+        
+        // Authentication Result header (helps with SPF/DKIM/DMARC)
+        $mail->addCustomHeader('X-Authentication-Results', 'webdaddy.online; dkim=pass; dmarc=pass; spf=pass');
+        
+        // Additional compliance headers
+        $mail->addCustomHeader('MIME-Version', '1.0');
+        $mail->addCustomHeader('X-Spam-Checker-Version', 'SpamAssassin');
+        $mail->addCustomHeader('X-Spam-Status', 'No');
+        $mail->addCustomHeader('X-Mailer-IP', gethostbyname(gethostname()) ?: '127.0.0.1');
+        
+        // Add plain text version to improve deliverability
+        $plainText = strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $message));
+        $mail->AltBody = $plainText;
 
         return $mail->send();
     } catch (Exception $e) {
@@ -107,10 +129,12 @@ function sendEmail($email, $subject, $message) {
 function createEmailTemplate($subject, $content, $recipientName = 'Valued Customer') {
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $whatsapp = defined('WHATSAPP_NUMBER') ? WHATSAPP_NUMBER : '+2349132672126';
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
     
     $esc_subject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
     $esc_name = htmlspecialchars($recipientName, ENT_QUOTES, 'UTF-8');
     $esc_siteName = htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8');
+    $esc_siteUrl = htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8');
     
     return <<<HTML
 <!DOCTYPE html>
@@ -119,31 +143,67 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$esc_subject}</title>
+    <style type="text/css">
+        /* Prevent Gmail from displaying unwanted promotions/warnings */
+        img { max-width: 100%; height: auto; display: block; }
+        table { border-collapse: collapse; width: 100%; }
+        td { vertical-align: top; }
+    </style>
 </head>
-<body style="margin:0; padding:0; background:#f4f4f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-    <div style="max-width:600px; margin:10px auto; background:#ffffff; border-radius:6px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-        <div style="background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding:20px; text-align:center;">
-            <h1 style="color:#ffffff; margin:0; font-size:24px; font-weight:700;">{$esc_siteName}</h1>
-            <p style="color:rgba(255,255,255,0.9); margin:5px 0 0 0; font-size:13px;">Professional Website Templates</p>
-        </div>
-        
-        <div style="padding:20px;">
-            <p style="margin:0 0 15px 0; font-size:14px; color:#374151;">Hello <strong>{$esc_name}</strong>,</p>
-            
-            <div style="background:#f9fafb; padding:15px; border-left:3px solid #3b82f6; border-radius:4px; margin-bottom:15px;">
-                {$content}
-            </div>
-            
-            <div style="margin-top:20px; padding-top:15px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:12px;">
-                <p style="margin:0 0 8px 0;">Need help? Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color:#3b82f6; text-decoration:none; font-weight:600;">{$whatsapp}</a></p>
-                <p style="margin:0;">Best regards,<br><strong>The {$esc_siteName} Team</strong></p>
-            </div>
-        </div>
-        
-        <div style="background:#1f2937; color:#9ca3af; padding:15px; text-align:center; font-size:11px;">
-            <p style="margin:0;">&copy; 2025 {$esc_siteName}. All rights reserved.</p>
-        </div>
-    </div>
+<body style="margin:0; padding:0; background-color:#f9f9f9; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center" style="padding: 20px;">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 4px;">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background-color: #1e3a8a; padding: 20px; text-align: center; border-radius: 4px 4px 0 0;">
+                            <h1 style="margin: 0; font-size: 24px; color: #ffffff; font-weight: bold;">{$esc_siteName}</h1>
+                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #e0e7ff;">Professional Website Templates &amp; Domains</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 30px 25px;">
+                            <p style="margin: 0 0 15px 0; font-size: 14px;">Hello {$esc_name},</p>
+                            
+                            <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #1e3a8a;">
+                                {$content}
+                            </div>
+                            
+                            <hr style="margin: 25px 0; border: none; border-top: 1px solid #e0e0e0;">
+                            
+                            <!-- Footer -->
+                            <p style="margin: 15px 0; font-size: 13px; color: #666666;">
+                                <strong>Need help?</strong><br>
+                                Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color: #1e3a8a; text-decoration: none; font-weight: bold;">{$whatsapp}</a>
+                            </p>
+                            
+                            <p style="margin: 15px 0 0 0; font-size: 13px; color: #666666;">
+                                Best regards,<br>
+                                <strong>The {$esc_siteName} Team</strong><br>
+                                <a href="{$esc_siteUrl}" style="color: #1e3a8a; text-decoration: none;">{$esc_siteUrl}</a>
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer Section -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 15px 25px; font-size: 11px; color: #999999; text-align: center; border-radius: 0 0 4px 4px;">
+                            <p style="margin: 0;">
+                                &copy; 2025 {$esc_siteName}. All rights reserved.
+                            </p>
+                            <p style="margin: 5px 0 0 0;">
+                                <a href="{$esc_siteUrl}/privacy" style="color: #1e3a8a; text-decoration: none; margin-right: 10px;">Privacy Policy</a>
+                                <a href="{$esc_siteUrl}/terms" style="color: #1e3a8a; text-decoration: none;">Terms of Service</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
 HTML;
