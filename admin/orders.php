@@ -339,6 +339,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $errorMessage = 'No orders were cancelled.';
             }
+        } elseif ($action === 'save_template_credentials') {
+            if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                require_once __DIR__ . '/../includes/delivery.php';
+                
+                $deliveryId = intval($_POST['delivery_id'] ?? 0);
+                $hostedDomain = sanitizeInput($_POST['hosted_domain'] ?? '');
+                $hostedUrl = sanitizeInput($_POST['hosted_url'] ?? '');
+                $adminNotes = sanitizeInput($_POST['admin_notes'] ?? '');
+                $sendEmail = isset($_POST['send_email']) && $_POST['send_email'] === '1';
+                
+                $credentials = [
+                    'username' => sanitizeInput($_POST['template_admin_username'] ?? ''),
+                    'password' => $_POST['template_admin_password'] ?? '',
+                    'login_url' => sanitizeInput($_POST['template_login_url'] ?? ''),
+                    'hosting_provider' => sanitizeInput($_POST['hosting_provider'] ?? 'custom')
+                ];
+                
+                if ($deliveryId <= 0) {
+                    $errorMessage = 'Invalid delivery ID.';
+                } else {
+                    $result = saveTemplateCredentials($deliveryId, $credentials, $hostedDomain, $hostedUrl, $adminNotes, $sendEmail);
+                    
+                    if ($result['success']) {
+                        $successMessage = $result['message'];
+                        logActivity('template_credentials_saved', "Credentials saved for delivery #$deliveryId" . ($sendEmail ? ' and email sent' : ''), getAdminId());
+                        
+                        $delivery = getDeliveryById($deliveryId);
+                        $orderId = $delivery ? $delivery['pending_order_id'] : ($_POST['order_id'] ?? null);
+                        
+                        if ($orderId) {
+                            header("Location: /admin/orders.php?view=" . intval($orderId) . "&success=" . urlencode($successMessage));
+                            exit;
+                        }
+                    } else {
+                        $errorMessage = $result['message'];
+                    }
+                }
+            }
+        } elseif ($action === 'resend_template_email') {
+            if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                require_once __DIR__ . '/../includes/delivery.php';
+                
+                $deliveryId = intval($_POST['delivery_id'] ?? 0);
+                
+                if ($deliveryId <= 0) {
+                    $errorMessage = 'Invalid delivery ID.';
+                } else {
+                    $result = deliverTemplateWithCredentials($deliveryId);
+                    
+                    if ($result['success']) {
+                        $successMessage = 'Email resent successfully!';
+                        logActivity('template_email_resent', "Resent template delivery email for delivery #$deliveryId", getAdminId());
+                    } else {
+                        $errorMessage = $result['message'];
+                    }
+                }
+            }
         }
     }
 }
@@ -429,6 +490,10 @@ $searchTerm = $_GET['search'] ?? '';
 $filterStatus = $_GET['status'] ?? '';
 $filterTemplate = $_GET['template'] ?? '';
 $filterOrderType = $_GET['order_type'] ?? '';
+$filterPaymentMethod = $_GET['payment_method'] ?? '';
+$filterDateFrom = $_GET['date_from'] ?? '';
+$filterDateTo = $_GET['date_to'] ?? '';
+$filterDeliveryStatus = $_GET['delivery_status'] ?? '';
 
 $sql = "SELECT po.*, po.payment_notes, t.name as template_name, t.price as template_price, 
         tool.name as tool_name, tool.price as tool_price, d.domain_name,
@@ -484,6 +549,34 @@ if (!empty($filterOrderType)) {
     } elseif ($filterOrderType === 'mixed') {
         $sql .= " AND EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template')
                   AND EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool')";
+    }
+}
+
+if (!empty($filterPaymentMethod)) {
+    if ($filterPaymentMethod === 'manual') {
+        $sql .= " AND EXISTS (SELECT 1 FROM sales WHERE pending_order_id = po.id AND payment_method = 'manual')";
+    } elseif ($filterPaymentMethod === 'automatic') {
+        $sql .= " AND EXISTS (SELECT 1 FROM sales WHERE pending_order_id = po.id AND payment_method != 'manual')";
+    }
+}
+
+if (!empty($filterDateFrom)) {
+    $sql .= " AND date(po.created_at) >= ?";
+    $params[] = $filterDateFrom;
+}
+
+if (!empty($filterDateTo)) {
+    $sql .= " AND date(po.created_at) <= ?";
+    $params[] = $filterDateTo;
+}
+
+if (!empty($filterDeliveryStatus)) {
+    if ($filterDeliveryStatus === 'delivered') {
+        $sql .= " AND EXISTS (SELECT 1 FROM deliveries WHERE pending_order_id = po.id AND delivery_status = 'delivered')";
+    } elseif ($filterDeliveryStatus === 'pending_delivery') {
+        $sql .= " AND EXISTS (SELECT 1 FROM deliveries WHERE pending_order_id = po.id AND delivery_status IN ('pending', 'in_progress', 'ready'))";
+    } elseif ($filterDeliveryStatus === 'no_delivery') {
+        $sql .= " AND NOT EXISTS (SELECT 1 FROM deliveries WHERE pending_order_id = po.id)";
     }
 }
 
@@ -562,47 +655,114 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 <?php endif; ?>
 
-<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6" x-data="{ showAdvanced: false }">
     <div class="p-6">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-6 gap-4">
-            <div class="md:col-span-2">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
-                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone, products...">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                    <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search by name, email, phone, products...">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Order Type</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="order_type">
+                        <option value="">All Types</option>
+                        <option value="templates_only" <?php echo $filterOrderType === 'templates_only' ? 'selected' : ''; ?>>Templates Only</option>
+                        <option value="tools_only" <?php echo $filterOrderType === 'tools_only' ? 'selected' : ''; ?>>Tools Only</option>
+                        <option value="mixed" <?php echo $filterOrderType === 'mixed' ? 'selected' : ''; ?>>Mixed Orders</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
+                        <option value="">All Status</option>
+                        <option value="pending" <?php echo $filterStatus === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                        <option value="paid" <?php echo $filterStatus === 'paid' ? 'selected' : ''; ?>>Paid</option>
+                        <option value="cancelled" <?php echo $filterStatus === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Template</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template">
+                        <option value="">All Templates</option>
+                        <?php foreach ($templates as $tpl): ?>
+                        <option value="<?php echo $tpl['id']; ?>" <?php echo $filterTemplate == $tpl['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($tpl['name']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-search mr-2"></i> Filter
+                    </button>
+                    <button type="button" @click="showAdvanced = !showAdvanced" class="px-3 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors" title="Advanced Filters">
+                        <i class="bi bi-sliders"></i>
+                    </button>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Order Type</label>
-                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="order_type">
-                    <option value="">All Types</option>
-                    <option value="templates_only" <?php echo $filterOrderType === 'templates_only' ? 'selected' : ''; ?>>Templates Only</option>
-                    <option value="tools_only" <?php echo $filterOrderType === 'tools_only' ? 'selected' : ''; ?>>Tools Only</option>
-                    <option value="mixed" <?php echo $filterOrderType === 'mixed' ? 'selected' : ''; ?>>Mixed Orders</option>
-                </select>
+            
+            <div x-show="showAdvanced" x-transition class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_method">
+                        <option value="">All Methods</option>
+                        <option value="manual" <?php echo $filterPaymentMethod === 'manual' ? 'selected' : ''; ?>>Manual Payment</option>
+                        <option value="automatic" <?php echo $filterPaymentMethod === 'automatic' ? 'selected' : ''; ?>>Automatic (Paystack)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Delivery Status</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="delivery_status">
+                        <option value="">All Deliveries</option>
+                        <option value="delivered" <?php echo $filterDeliveryStatus === 'delivered' ? 'selected' : ''; ?>>Delivered</option>
+                        <option value="pending_delivery" <?php echo $filterDeliveryStatus === 'pending_delivery' ? 'selected' : ''; ?>>Pending Delivery</option>
+                        <option value="no_delivery" <?php echo $filterDeliveryStatus === 'no_delivery' ? 'selected' : ''; ?>>No Delivery Record</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">From Date</label>
+                    <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="date_from" value="<?php echo htmlspecialchars($filterDateFrom); ?>">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">To Date</label>
+                    <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="date_to" value="<?php echo htmlspecialchars($filterDateTo); ?>">
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Template</label>
-                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template">
-                    <option value="">All Templates</option>
-                    <?php foreach ($templates as $tpl): ?>
-                    <option value="<?php echo $tpl['id']; ?>" <?php echo $filterTemplate == $tpl['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($tpl['name']); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
+            
+            <?php
+            $hasFilters = !empty($searchTerm) || !empty($filterStatus) || !empty($filterTemplate) || !empty($filterOrderType) || !empty($filterPaymentMethod) || !empty($filterDateFrom) || !empty($filterDateTo) || !empty($filterDeliveryStatus);
+            if ($hasFilters):
+            ?>
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div class="flex flex-wrap gap-2 text-sm">
+                    <span class="text-gray-500">Active Filters:</span>
+                    <?php if (!empty($searchTerm)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs">Search: "<?php echo htmlspecialchars($searchTerm); ?>"</span>
+                    <?php endif; ?>
+                    <?php if (!empty($filterStatus)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs"><?php echo ucfirst($filterStatus); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($filterOrderType)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs"><?php echo ucwords(str_replace('_', ' ', $filterOrderType)); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($filterPaymentMethod)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs"><?php echo ucfirst($filterPaymentMethod); ?> Payment</span>
+                    <?php endif; ?>
+                    <?php if (!empty($filterDeliveryStatus)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs"><?php echo ucwords(str_replace('_', ' ', $filterDeliveryStatus)); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($filterDateFrom) || !empty($filterDateTo)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs">
+                        <?php echo $filterDateFrom ?: '*'; ?> to <?php echo $filterDateTo ?: '*'; ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+                <a href="/admin/orders.php" class="text-red-600 hover:text-red-700 text-sm font-semibold">
+                    <i class="bi bi-x-circle mr-1"></i> Clear All
+                </a>
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
-                    <option value="">All Status</option>
-                    <option value="pending" <?php echo $filterStatus === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                    <option value="paid" <?php echo $filterStatus === 'paid' ? 'selected' : ''; ?>>Paid</option>
-                    <option value="cancelled" <?php echo $filterStatus === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
-                    <i class="bi bi-search mr-2"></i> Filter
-                </button>
-            </div>
+            <?php endif; ?>
         </form>
     </div>
 </div>
@@ -1277,6 +1437,186 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                 </form>
             </div>
+            
+            <?php
+            require_once __DIR__ . '/../includes/delivery.php';
+            $orderDeliveries = getDeliveryStatus($viewOrder['id']);
+            $templateDeliveries = array_filter($orderDeliveries, function($d) { return $d['product_type'] === 'template'; });
+            
+            if (!empty($templateDeliveries)):
+            ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase flex items-center gap-2">
+                    <i class="bi bi-key text-primary-600"></i> Template Credentials & Delivery
+                </h6>
+                
+                <?php foreach ($templateDeliveries as $delivery): 
+                    $progress = getTemplateDeliveryProgress($delivery['id']);
+                    $isComplete = $progress['is_complete'] ?? false;
+                    $decryptedPassword = '';
+                    if (!empty($delivery['template_admin_password'])) {
+                        $decryptedPassword = decryptCredential($delivery['template_admin_password']);
+                    }
+                ?>
+                <div class="bg-white border-2 <?php echo $isComplete ? 'border-green-200' : 'border-yellow-200'; ?> rounded-xl p-5 mb-4 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg">🎨</span>
+                            <span class="font-bold text-gray-900"><?php echo htmlspecialchars($delivery['product_name']); ?></span>
+                            <?php if ($isComplete): ?>
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                <i class="bi bi-check-circle-fill mr-1"></i> Delivered
+                            </span>
+                            <?php else: ?>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                <i class="bi bi-clock mr-1"></i> Pending Delivery
+                            </span>
+                            <?php endif; ?>
+                        </div>
+                        <span class="text-xs text-gray-500">Delivery #<?php echo $delivery['id']; ?></span>
+                    </div>
+                    
+                    <div class="mb-4 bg-gray-50 rounded-lg p-3">
+                        <div class="text-xs font-semibold text-gray-600 mb-2">DELIVERY WORKFLOW</div>
+                        <div class="flex flex-wrap gap-2">
+                            <?php foreach ($progress['steps'] ?? [] as $key => $step): ?>
+                            <div class="flex items-center gap-1 text-sm <?php echo $step['status'] ? 'text-green-700' : 'text-gray-400'; ?>">
+                                <i class="bi <?php echo $step['status'] ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
+                                <span><?php echo htmlspecialchars($step['label']); ?></span>
+                            </div>
+                            <?php if ($key !== array_key_last($progress['steps'])): ?>
+                            <span class="text-gray-300">→</span>
+                            <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-primary-500 to-green-500 h-full transition-all duration-500" style="width: <?php echo $progress['percentage'] ?? 0; ?>%"></div>
+                        </div>
+                    </div>
+                    
+                    <?php if ($isComplete): ?>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-green-800 mb-3 flex items-center gap-2">
+                            <i class="bi bi-check-circle-fill"></i> Delivered Credentials
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">Domain:</span>
+                                <span class="font-semibold text-gray-900 ml-2"><?php echo htmlspecialchars($delivery['hosted_domain'] ?? 'Not set'); ?></span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Website URL:</span>
+                                <a href="<?php echo htmlspecialchars($delivery['hosted_url'] ?? '#'); ?>" target="_blank" class="font-semibold text-primary-600 ml-2 hover:underline"><?php echo htmlspecialchars($delivery['hosted_url'] ?? 'Not set'); ?></a>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Username:</span>
+                                <code class="font-mono bg-gray-100 px-2 py-1 rounded ml-2"><?php echo htmlspecialchars($delivery['template_admin_username'] ?? 'Not set'); ?></code>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Password:</span>
+                                <code class="font-mono bg-gray-100 px-2 py-1 rounded ml-2"><?php echo htmlspecialchars($decryptedPassword ? maskPassword($decryptedPassword) : 'Not set'); ?></code>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Login URL:</span>
+                                <a href="<?php echo htmlspecialchars($delivery['template_login_url'] ?? '#'); ?>" target="_blank" class="font-semibold text-primary-600 ml-2 hover:underline"><?php echo htmlspecialchars($delivery['template_login_url'] ?? 'Not set'); ?></a>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Delivered:</span>
+                                <span class="font-semibold text-gray-900 ml-2"><?php echo $delivery['credentials_sent_at'] ? date('M d, Y H:i', strtotime($delivery['credentials_sent_at'])) : 'Not yet'; ?></span>
+                            </div>
+                        </div>
+                        
+                        <form method="POST" class="mt-4 pt-4 border-t border-green-200">
+                            <input type="hidden" name="action" value="resend_template_email">
+                            <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
+                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                                <i class="bi bi-envelope mr-1"></i> Resend Credentials Email
+                            </button>
+                        </form>
+                    </div>
+                    <?php else: 
+                        $hasExistingPassword = !empty($delivery['template_admin_password']);
+                    ?>
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="action" value="save_template_credentials">
+                        <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
+                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-globe mr-1"></i> Domain Name <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="hosted_domain" value="<?php echo htmlspecialchars($delivery['hosted_domain'] ?? ''); ?>" placeholder="example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-link-45deg mr-1"></i> Website URL
+                                </label>
+                                <input type="url" name="hosted_url" value="<?php echo htmlspecialchars($delivery['hosted_url'] ?? ''); ?>" placeholder="https://example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
+                                <i class="bi bi-key"></i> Login Credentials
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Hosting Type</label>
+                                    <select name="hosting_provider" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                        <option value="wordpress" <?php echo ($delivery['hosting_provider'] ?? '') === 'wordpress' ? 'selected' : ''; ?>>WordPress</option>
+                                        <option value="cpanel" <?php echo ($delivery['hosting_provider'] ?? '') === 'cpanel' ? 'selected' : ''; ?>>cPanel</option>
+                                        <option value="custom" <?php echo ($delivery['hosting_provider'] ?? '') === 'custom' || empty($delivery['hosting_provider']) ? 'selected' : ''; ?>>Custom Admin</option>
+                                        <option value="static" <?php echo ($delivery['hosting_provider'] ?? '') === 'static' ? 'selected' : ''; ?>>Static Site (No Login)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Login URL</label>
+                                    <input type="url" name="template_login_url" value="<?php echo htmlspecialchars($delivery['template_login_url'] ?? ''); ?>" placeholder="https://example.com/admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
+                                    <input type="text" name="template_admin_username" value="<?php echo htmlspecialchars($delivery['template_admin_username'] ?? ''); ?>" placeholder="admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
+                                    <input type="password" name="template_admin_password" placeholder="<?php echo $hasExistingPassword ? '••••••••• (Leave blank to keep current)' : 'Enter password'; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                    <p class="text-xs text-gray-500 mt-1"><?php echo $hasExistingPassword ? 'Leave blank to keep current password' : 'Password is encrypted before storage'; ?></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="bi bi-chat-text mr-1"></i> Special Instructions for Customer
+                            </label>
+                            <textarea name="admin_notes" rows="3" placeholder="e.g., First login may take a few minutes..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"><?php echo htmlspecialchars($delivery['admin_notes'] ?? ''); ?></textarea>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <input type="checkbox" name="send_email" value="1" id="send_email_<?php echo $delivery['id']; ?>" checked class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                            <label for="send_email_<?php echo $delivery['id']; ?>" class="text-sm text-blue-800">
+                                <strong>Send email to customer immediately</strong>
+                                <br><span class="text-blue-600">Customer will receive domain and login credentials via email</span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                                <i class="bi bi-send mr-2"></i> Save & Deliver Template
+                            </button>
+                        </div>
+                    </form>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php 
+            endif;
+            ?>
                 <?php 
                 endif;
                 endif;

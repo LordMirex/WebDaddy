@@ -1374,3 +1374,107 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
         return false;
     }
 }
+
+/**
+ * Encrypt credential data using AES-256-GCM
+ * Used for template admin passwords and sensitive delivery credentials
+ * 
+ * @param string $data The data to encrypt
+ * @return string|false Base64 encoded encrypted data with IV prefix, or false on failure
+ */
+function encryptCredential($data) {
+    if (empty($data)) {
+        return '';
+    }
+    
+    $encryptionKey = getEncryptionKey();
+    $cipher = 'aes-256-gcm';
+    $ivLength = openssl_cipher_iv_length($cipher);
+    $iv = openssl_random_pseudo_bytes($ivLength);
+    $tag = '';
+    
+    $encrypted = openssl_encrypt($data, $cipher, $encryptionKey, OPENSSL_RAW_DATA, $iv, $tag, '', 16);
+    
+    if ($encrypted === false) {
+        error_log('Credential encryption failed: ' . openssl_error_string());
+        return false;
+    }
+    
+    return base64_encode($iv . $tag . $encrypted);
+}
+
+/**
+ * Mask a password for display (show first 2 and last 2 characters)
+ * Phase 1: Template Credentials System
+ * 
+ * @param string $password The password to mask
+ * @return string The masked password
+ */
+function maskPassword($password) {
+    if (strlen($password) <= 4) {
+        return str_repeat('*', strlen($password));
+    }
+    $first = substr($password, 0, 2);
+    $last = substr($password, -2);
+    $middle = str_repeat('*', max(4, strlen($password) - 4));
+    return $first . $middle . $last;
+}
+
+/**
+ * Decrypt credential data using AES-256-GCM
+ * 
+ * @param string $encryptedData Base64 encoded encrypted data
+ * @return string|false Decrypted data, or false on failure
+ */
+function decryptCredential($encryptedData) {
+    if (empty($encryptedData)) {
+        return '';
+    }
+    
+    $encryptionKey = getEncryptionKey();
+    $cipher = 'aes-256-gcm';
+    $ivLength = openssl_cipher_iv_length($cipher);
+    $tagLength = 16;
+    
+    $decoded = base64_decode($encryptedData);
+    if ($decoded === false) {
+        error_log('Credential decryption failed: Invalid base64 encoding');
+        return false;
+    }
+    
+    if (strlen($decoded) < $ivLength + $tagLength) {
+        error_log('Credential decryption failed: Data too short');
+        return false;
+    }
+    
+    $iv = substr($decoded, 0, $ivLength);
+    $tag = substr($decoded, $ivLength, $tagLength);
+    $encrypted = substr($decoded, $ivLength + $tagLength);
+    
+    $decrypted = openssl_decrypt($encrypted, $cipher, $encryptionKey, OPENSSL_RAW_DATA, $iv, $tag);
+    
+    if ($decrypted === false) {
+        error_log('Credential decryption failed: ' . openssl_error_string());
+        return false;
+    }
+    
+    return $decrypted;
+}
+
+/**
+ * Get encryption key for credential storage
+ * Uses a site-specific key derived from multiple sources for security
+ * 
+ * @return string 32-byte encryption key
+ */
+function getEncryptionKey() {
+    $dbPath = __DIR__ . '/../database/webdaddy.db';
+    $keyComponents = [
+        'webdaddy_empire_credential_encryption_v1',
+        defined('SMTP_PASS') ? SMTP_PASS : 'default_salt',
+        file_exists($dbPath) ? filemtime($dbPath) : 'no_db'
+    ];
+    
+    return hash('sha256', implode(':', $keyComponents), true);
+}
+
