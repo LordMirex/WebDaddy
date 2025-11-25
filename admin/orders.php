@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Handle delivery retry with CSRF protection (Phase 3)
         if ($action === 'retry_delivery') {
-            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== getCSRFToken()) {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== getCsrfToken()) {
                 header("Location: /admin/orders.php?error=" . urlencode('Invalid security token. Please try again.'));
                 exit;
             }
@@ -340,7 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errorMessage = 'No orders were cancelled.';
             }
         } elseif ($action === 'save_template_credentials') {
-            if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
                 $errorMessage = 'Security verification failed. Please refresh and try again.';
             } else {
                 require_once __DIR__ . '/../includes/delivery.php';
@@ -380,7 +380,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } elseif ($action === 'resend_template_email') {
-            if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
                 $errorMessage = 'Security verification failed. Please refresh and try again.';
             } else {
                 require_once __DIR__ . '/../includes/delivery.php';
@@ -645,7 +645,7 @@ require_once __DIR__ . '/includes/header.php';
     <form method="POST" class="mt-3 inline-block">
         <input type="hidden" name="action" value="retry_delivery">
         <input type="hidden" name="order_id" value="<?php echo intval($_GET['delivery_error_order']); ?>">
-        <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
         <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors inline-flex items-center gap-2">
             <i class="bi bi-arrow-clockwise"></i>
             Retry Delivery Creation for Order #<?php echo intval($_GET['delivery_error_order']); ?>
@@ -1562,7 +1562,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         <form method="POST" class="mt-4 pt-4 border-t border-green-200">
                             <input type="hidden" name="action" value="resend_template_email">
                             <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
-                            <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
                             <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <i class="bi bi-envelope mr-1"></i> Resend Credentials Email
                             </button>
@@ -1575,7 +1575,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         <input type="hidden" name="action" value="save_template_credentials">
                         <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
                         <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
