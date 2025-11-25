@@ -1211,7 +1211,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     Payment Method <span class="text-red-600">*</span>
                                 </label>
                                 <div class="space-y-3">
-                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option">
+                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option" onclick="document.getElementById('method_manual').checked=true; document.getElementById('method_manual').dispatchEvent(new Event('change', {bubbles:true}));">
                                         <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-5 h-5 cursor-pointer" />
                                         <label for="method_manual" class="ml-4 cursor-pointer flex-1">
                                             <div class="font-bold text-lg text-gray-100">🏦 Manual Payment</div>
@@ -1219,7 +1219,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         </label>
                                     </div>
                                     
-                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option">
+                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option" onclick="document.getElementById('method_automatic').checked=true; document.getElementById('method_automatic').dispatchEvent(new Event('change', {bubbles:true}));">
                                         <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-5 h-5 cursor-pointer" />
                                         <label for="method_automatic" class="ml-4 cursor-pointer flex-1">
                                             <div class="font-bold text-lg text-gray-100">💳 Automatic Payment</div>
@@ -1322,23 +1322,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <script>
-        // Click handlers for payment method boxes
-        document.getElementById('manual-option')?.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT') {
-                const radio = this.querySelector('input[name="payment_method"]');
-                if (radio) radio.checked = true;
-                radio?.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        });
-        
-        document.getElementById('automatic-option')?.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT') {
-                const radio = this.querySelector('input[name="payment_method"]');
-                if (radio) radio.checked = true;
-                radio?.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-        });
-        
         // Update submit button text when payment method changes
         document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
             radio.addEventListener('change', function() {
