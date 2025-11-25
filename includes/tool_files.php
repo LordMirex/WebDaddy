@@ -441,6 +441,34 @@ function generateBundleDownloadToken($orderId, $toolId, $expiryDays = null) {
 }
 
 /**
+ * Get download tokens for an order and specific tool
+ * Phase 3.2: Returns array of tokens with file information for admin UI
+ */
+function getDownloadTokens($orderId, $toolId = null) {
+    $db = getDb();
+    
+    $sql = "
+        SELECT dt.*, tf.file_name, tf.file_size, tf.file_type
+        FROM download_tokens dt
+        LEFT JOIN tool_files tf ON dt.file_id = tf.id
+        WHERE dt.pending_order_id = ? AND (dt.is_bundle = 0 OR dt.is_bundle IS NULL)
+    ";
+    $params = [$orderId];
+    
+    if ($toolId !== null) {
+        $sql .= " AND tf.tool_id = ?";
+        $params[] = $toolId;
+    }
+    
+    $sql .= " ORDER BY dt.created_at DESC";
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
  * Get bundle download info by token
  * Phase 3.3: Retrieves bundle info for download processing
  */
