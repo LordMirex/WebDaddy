@@ -25,23 +25,22 @@ Preferred communication style: Simple, everyday language.
   - No orphaned tables remaining
 - **Status**: Clean, audited database ready for production ✅
 
-**Affiliate Invitation Email System - FIXED (PERMANENTLY - FINAL VERSION)**
-- **Problem**: Emails weren't being sent because tracking was broken (email_queue method unreliable)
-- **Root Cause**: Previous approach relied on email_queue table which wasn't consistently updated
+**Affiliate Invitation Email System - FIXED (PERMANENTLY - FINAL VERSION v2)**
+- **Bug Found & Fixed**: Emails weren't being sent - `hasAffiliateInvitationBeenSent()` was checking if email had ANY order, catching the order being CREATED
+- **Root Cause**: Using pending_orders table for tracking was unreliable - it included the current order being created
 - **Solution Implemented** (CORRECT approach):
   - Send invitation IMMEDIATELY when order is created (PENDING status) in `cart-checkout.php`
-  - Removed duplicate send from `confirmPayment()` in `functions.php`
-  - Created `hasEmailEverPlacedOrder($email)` - Checks `pending_orders` table directly
-  - Updated `hasAffiliateInvitationBeenSent()` to call `hasEmailEverPlacedOrder()` 
-  - If email appears in ANY order (pending or completed), invitation was already sent
+  - Removed duplicate send from `confirmPayment()` in `functions.php`  
+  - Changed tracking to use `email_queue` table with `email_type='affiliate_invitation'`
+  - `hasAffiliateInvitationBeenSent()` now checks email_queue, not pending_orders
 - **Checks** (in `cart-checkout.php` line 299-305):
   1. `!isEmailAffiliate($email)` - Not already an affiliate in users table
-  2. `!hasAffiliateInvitationBeenSent($email)` - Email never placed order before (checked via pending_orders table)
+  2. `!hasAffiliateInvitationBeenSent($email)` - Email has no pending/sent invitation in email_queue
 - **Timing**: Email sent IMMEDIATELY when order created (pending), BEFORE payment
-- **Tracking**: Via `pending_orders` table - if email exists in ANY row, invitation already sent
-- **Logic**:
-  - 1st Order: Email doesn't exist in pending_orders yet → Send invitation ✓
-  - After creating order: Email now in pending_orders → Second order won't send ✓
+- **Tracking**: Via `email_queue` table with email_type='affiliate_invitation' and status IN ('pending', 'sent', 'failed')
+- **Flow**:
+  - 1st Order: email_queue empty for this email → `hasAffiliateInvitationBeenSent()` returns FALSE → Send invitation ✓
+  - Email queued → Next order checks email_queue → `hasAffiliateInvitationBeenSent()` returns TRUE → No send ✓
   - Existing Affiliate: role='affiliate' in users table → Never send ✓
 - **Status**: Sends ONE invitation when first order is created ✅
 

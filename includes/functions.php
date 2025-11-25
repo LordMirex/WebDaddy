@@ -1293,29 +1293,22 @@ function isEmailAffiliate($email) {
 }
 
 /**
- * Check if email has EVER placed an order in the system (pending or completed)
- * This is used to prevent duplicate affiliate invitations
+ * Check if affiliate invitation has already been sent to this email
+ * Checks email_queue table for previous invitation sends
  */
-function hasEmailEverPlacedOrder($email) {
+function hasAffiliateInvitationBeenSent($email) {
     $db = getDb();
-    // Check if this email appears in ANY order (pending or completed)
+    // Check if this email already has an affiliate invitation queued or sent
+    // This is more reliable than checking pending_orders since it tracks actual sends
     $stmt = $db->prepare("
-        SELECT COUNT(*) as count FROM pending_orders 
-        WHERE customer_email = ? 
-        LIMIT 1
+        SELECT COUNT(*) as count FROM email_queue 
+        WHERE recipient_email = ? 
+        AND email_type = 'affiliate_invitation'
+        AND status IN ('pending', 'sent', 'failed')
     ");
     $stmt->execute([strtolower(trim($email))]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result['count'] > 0;
-}
-
-/**
- * Check if affiliate invitation has already been sent to this email
- * Uses pending_orders table to check if email has ever placed an order
- */
-function hasAffiliateInvitationBeenSent($email) {
-    // If email has ever placed an order, invitation was already sent (or should have been)
-    return hasEmailEverPlacedOrder($email);
 }
 
 function sendAffiliateOpportunityEmail($customerName, $customerEmail)
