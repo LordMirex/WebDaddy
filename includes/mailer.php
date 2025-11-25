@@ -34,7 +34,7 @@ function sendEmail($email, $subject, $message) {
         $mail->Username = SMTP_FROM_EMAIL;
         $mail->Password = defined('SMTP_PASS') ? SMTP_PASS : '';
         $mail->Port = 465;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->SMTPSecure = 'ssl';
         
         $mail->SMTPOptions = [
             'ssl' => [
