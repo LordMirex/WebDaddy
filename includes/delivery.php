@@ -88,10 +88,30 @@ function createToolDelivery($orderId, $item) {
     
     $deliveryId = $db->lastInsertId();
     
-    // Send delivery email directly if customer email exists
-    if ($order && $order['customer_email']) {
-        $subject = "Your {$item['product_name']} is Ready! - Order #{$orderId}";
-        $body = "Hi {$order['customer_name']},\n\nGreat news! Your tool is ready for download.\n\n📦 Product: {$item['product_name']}\n\nBest regards,\nWebDaddy Empire Team";
+    // Send delivery email with download links
+    if ($order && $order['customer_email'] && !empty($downloadLinks)) {
+        $subject = "Your {$item['product_name']} is Ready to Download! - Order #{$orderId}";
+        
+        // Build download links HTML
+        $downloadLinksHtml = '<p><strong>📥 Download Your Files:</strong></p>';
+        $downloadLinksHtml .= '<div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 15px 0;">';
+        
+        foreach ($downloadLinks as $link) {
+            $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+            $fileUrl = htmlspecialchars($link['url'] ?? '');
+            $expiryDate = htmlspecialchars($link['expires_at'] ?? 'Not specified');
+            
+            $downloadLinksHtml .= '<div style="margin-bottom: 12px;">';
+            $downloadLinksHtml .= '<a href="' . $fileUrl . '" style="background-color: #1e3a8a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">📥 Download: ' . $fileName . '</a>';
+            $downloadLinksHtml .= '<br><small style="color: #666;">Expires: ' . $expiryDate . '</small>';
+            $downloadLinksHtml .= '</div>';
+        }
+        
+        $downloadLinksHtml .= '</div>';
+        $downloadLinksHtml .= '<p style="color: #666; font-size: 12px;">Links expire on ' . htmlspecialchars($downloadLinks[0]['expires_at'] ?? 'the expiry date') . '. Download and save your files before they expire.</p>';
+        
+        $body = '<p>Great news! Your tool <strong>' . htmlspecialchars($item['product_name']) . '</strong> is ready for download!</p>' . $downloadLinksHtml;
+        
         sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
     }
     
