@@ -8,6 +8,31 @@ WebDaddy Empire is a PHP/SQLite marketplace for selling website templates bundle
 
 Preferred communication style: Simple, everyday language.
 
+## Latest Updates (November 25, 2025) - Payment Flow Completed ✅
+
+### Payment Method Choice - Crystal Clear UI
+- **Made payment method selection MUCH BIGGER** - Prominent boxes with clear descriptions
+- **Button text changes dynamically**:
+  - Manual: "Confirm Order - Manual Payment"
+  - Automatic: "Proceed to Card Payment →"
+- **Overlay appears ONLY AFTER they choose automatic** - No blocking before decision
+- **Manual payment goes directly** - Skips overlay completely
+- **Result**: Clear decision → Separate flows → Professional UX
+
+### Payment Processing Flow
+- **Manual Payment**: Form → Bank details → Confirmation page (no Paystack)
+- **Automatic Payment**: Form → Paystack popup → Verification → Success page
+- **Success Page** (`cart-payment-success.php`): Order approved, products, files, downloads
+- **Emails**: Confirmation sent immediately with file links
+- **Affiliates**: Invitation sent automatically to new customers
+
+### Technical Fixes Applied
+- ✅ Fixed Paystack secret key access (was using `getenv()` instead of constant)
+- ✅ Database now supports 'failed' payment status
+- ✅ Email queue processes immediately  
+- ✅ No JavaScript alerts - smooth overlay instead
+- ✅ File delivery records created automatically
+
 ## System Architecture
 
 ### Frontend

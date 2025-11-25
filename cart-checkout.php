@@ -953,19 +953,19 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     Payment Method <span class="text-red-600">*</span>
                                 </label>
                                 <div class="space-y-3">
-                                    <div class="flex items-center p-3 border border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition">
-                                        <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-4 h-4 cursor-pointer" />
-                                        <label for="method_manual" class="ml-3 cursor-pointer flex-1">
-                                            <div class="font-semibold text-gray-100">🏦 Manual Payment (Bank Transfer)</div>
-                                            <div class="text-xs text-gray-400">24-hour setup via WhatsApp</div>
+                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option">
+                                        <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-5 h-5 cursor-pointer" />
+                                        <label for="method_manual" class="ml-4 cursor-pointer flex-1">
+                                            <div class="font-bold text-lg text-gray-100">🏦 Manual Payment</div>
+                                            <div class="text-sm text-gray-300 mt-1">Bank Transfer • Get account details via WhatsApp • 24-hour setup</div>
                                         </label>
                                     </div>
                                     
-                                    <div class="flex items-center p-3 border border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition">
-                                        <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-4 h-4 cursor-pointer" />
-                                        <label for="method_automatic" class="ml-3 cursor-pointer flex-1">
-                                            <div class="font-semibold text-gray-100">💳 Automatic Payment (Card)</div>
-                                            <div class="text-xs text-gray-400">Instant - powered by Paystack</div>
+                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option">
+                                        <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-5 h-5 cursor-pointer" />
+                                        <label for="method_automatic" class="ml-4 cursor-pointer flex-1">
+                                            <div class="font-bold text-lg text-gray-100">💳 Automatic Payment</div>
+                                            <div class="text-sm text-gray-300 mt-1">Card Payment • Instant approval • Immediate access</div>
                                         </label>
                                     </div>
                                 </div>
@@ -1042,11 +1042,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 <button type="submit" 
                         <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
+                        id="submit-btn"
                         class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Confirm Order
+                    <span id="submit-text">Confirm Order - Manual Payment</span>
                 </button>
                 
                 </form>
@@ -1063,15 +1064,28 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <script>
+        // Update submit button text when payment method changes
+        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const submitText = document.getElementById('submit-text');
+                if (this.value === 'automatic') {
+                    submitText.textContent = 'Proceed to Card Payment →';
+                } else {
+                    submitText.textContent = 'Confirm Order - Manual Payment';
+                }
+            });
+        });
+        
         // AJAX Checkout Form Handler
         function handleCheckoutSubmit(event) {
             event.preventDefault();
             const form = event.target;
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
+            const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
             
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '⏳ Processing...';
+            submitBtn.innerHTML = '⏳ Processing Order...';
             
             const formData = new FormData(form);
             
@@ -1092,86 +1106,82 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 if (result.isJson && result.data.success) {
                     if (result.data.payment_method === 'automatic') {
-                        // Automatic payment: Open Paystack popup immediately
+                        // Automatic payment: Show overlay THEN open Paystack
+                        const overlay = document.getElementById('payment-processing-overlay');
+                        const msg = document.getElementById('payment-processing-message');
+                        if (msg) msg.textContent = 'Opening payment form...';
+                        if (overlay) overlay.style.display = 'flex';
+                        
                         const paymentData = result.data;
-                        console.log('🔵 Paystack Payment Data:', {
-                            amount: paymentData.amount,
-                            email: paymentData.customer_email,
-                            ref: 'ORDER-' + paymentData.order_id,
-                            orderId: paymentData.order_id
-                        });
-                        const handler = PaystackPop.setup({
-                            key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
-                            email: paymentData.customer_email,
-                            amount: paymentData.amount,
-                            currency: 'NGN',
-                            ref: 'ORDER-' + paymentData.order_id,
-                            onClose: function() {
-                                // User cancelled payment - just reload
-                                console.log('🟡 Payment popup closed');
-                            },
-                            callback: function(response) {
-                                // Verify payment on server (CORRECT Paystack callback)
-                                console.log('🟢 Paystack payment completed. Reference:', response.reference);
-                                const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
-                                
-                                // Show loading overlay
-                                const overlay = document.getElementById('payment-processing-overlay');
-                                if (overlay) overlay.style.display = 'flex';
-                                
-                                fetch('/api/paystack-verify.php', {
-                                    method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: JSON.stringify({
-                                        reference: response.reference,
-                                        order_id: paymentData.order_id,
-                                        csrf_token: csrfToken
-                                    })
-                                })
-                                .then(r => {
-                                    console.log('📊 Verification response status:', r.status);
-                                    return r.json();
-                                })
-                                .then(data => {
-                                    console.log('📊 Verification response:', data);
-                                    if (data.success) {
-                                        console.log('✅ Payment verified successfully!');
-                                        // Update message and redirect after a short delay
-                                        const msg = document.getElementById('payment-processing-message');
-                                        if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
-                                        setTimeout(() => {
-                                            window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
-                                        }, 1500);
-                                    } else {
-                                        console.error('❌ Verification failed:', data.message);
-                                        if (overlay) overlay.style.display = 'none';
-                                        alert('❌ Payment verification failed: ' + (data.message || 'Unknown error'));
-                                        // Reload to allow retry
-                                        setTimeout(() => { window.location.reload(); }, 2000);
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error('❌ Fetch error:', err);
+                        console.log('💳 Opening Paystack payment for Order #' + paymentData.order_id);
+                        
+                        setTimeout(() => {
+                            const handler = PaystackPop.setup({
+                                key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
+                                email: paymentData.customer_email,
+                                amount: paymentData.amount,
+                                currency: 'NGN',
+                                ref: 'ORDER-' + paymentData.order_id,
+                                onClose: function() {
+                                    console.log('Payment canceled');
                                     if (overlay) overlay.style.display = 'none';
-                                    alert('Error verifying payment: ' + err.message);
-                                    setTimeout(() => { window.location.reload(); }, 2000);
-                                });
-                            }
-                        });
-                        handler.openIframe();
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = originalText;
+                                },
+                                callback: function(response) {
+                                    console.log('💳 Payment submitted. Verifying...');
+                                    const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
+                                    
+                                    if (msg) msg.textContent = 'Verifying payment...';
+                                    
+                                    fetch('/api/paystack-verify.php', {
+                                        method: 'POST',
+                                        headers: {'Content-Type': 'application/json'},
+                                        body: JSON.stringify({
+                                            reference: response.reference,
+                                            order_id: paymentData.order_id,
+                                            csrf_token: csrfToken
+                                        })
+                                    })
+                                    .then(r => r.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            console.log('✅ Payment verified!');
+                                            if (msg) msg.textContent = 'Payment confirmed! Redirecting...';
+                                            setTimeout(() => {
+                                                window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
+                                            }, 1500);
+                                        } else {
+                                            if (overlay) overlay.style.display = 'none';
+                                            alert('Payment verification failed: ' + (data.message || 'Unknown error'));
+                                            submitBtn.disabled = false;
+                                            submitBtn.innerHTML = originalText;
+                                        }
+                                    })
+                                    .catch(err => {
+                                        if (overlay) overlay.style.display = 'none';
+                                        alert('Error: ' + err.message);
+                                        submitBtn.disabled = false;
+                                        submitBtn.innerHTML = originalText;
+                                    });
+                                }
+                            });
+                            handler.openIframe();
+                        }, 800);
                     } else if (result.data.payment_method === 'manual') {
-                        // Manual payment: Redirect to confirmation page
+                        // Manual payment: Direct redirect, no overlay
+                        console.log('Manual payment selected - redirecting to order...');
                         window.location.href = result.data.redirect;
                     }
                 } else {
-                    console.error('❌ Checkout error:', result.text || result.data?.message || 'Unknown error');
+                    console.error('❌ Order error:', result.text || result.data?.message || 'Unknown error');
                     alert('An error occurred: ' + (result.data?.message || 'Please try again.'));
                 }
             })
             .catch(error => {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                console.error('❌ Form submission error:', error);
+                console.error('❌ Form error:', error);
                 alert('Error: ' + error.message);
             });
         }
