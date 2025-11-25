@@ -26,17 +26,21 @@ Preferred communication style: Simple, everyday language.
 - **Status**: Clean, audited database ready for production ✅
 
 **Affiliate Invitation Email System - FIXED (PERMANENTLY)**
-- **Problem Identified**: Emails were sent but never tracked - second purchase got duplicate invitation
-- **Root Cause**: `sendEmail()` only sent via SMTP, never recorded in email_queue table
+- **Problem Found & Fixed**: Emails were sent TWICE (duplicate sends on pending orders AND confirmed payments)
+- **Root Cause**: 
+  1. Sent early in `cart-checkout.php` when order PENDING
+  2. Sent again in `confirmPayment()` when order PAID
 - **Solution Implemented**:
-  - Modified `sendAffiliateOpportunityEmail()` to QUEUE emails using `queueEmail()` function
+  - Removed early affiliate send from `cart-checkout.php` (was sending to pending orders)
+  - Kept ONLY send in `confirmPayment()` (after payment confirmed)
+  - Modified `sendAffiliateOpportunityEmail()` to queue emails using `queueEmail()` function
   - Updated `hasAffiliateInvitationBeenSent()` to check email_queue with `email_type = 'affiliate_invitation'`
-  - Checks status IN ('pending', 'sent', 'retry') to catch both queued and sent emails
-- **Checks** (in `cart-checkout.php` line 303):
+- **Checks** (in `confirmPayment()` - functions.php line 606-614):
   1. `!isEmailAffiliate($email)` - Not already an affiliate in users table
   2. `!hasAffiliateInvitationBeenSent($email)` - Email record exists in email_queue
+- **Timing**: Email sent AFTER payment confirmed, not during order creation
 - **Tracking**: Via `email_queue` table with email_type='affiliate_invitation'
-- **Status**: Sends ONE invitation on FIRST purchase only, prevents duplicates on 2nd+ purchases ✅
+- **Status**: Sends ONE invitation on FIRST purchase only ✅
 
 **Email Queue Issue - FIXED**
 - **Problem**: Emails were being queued but never sent because the email processor wasn't running automatically
