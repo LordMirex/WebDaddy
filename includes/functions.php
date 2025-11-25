@@ -1305,16 +1305,17 @@ function isEmailAffiliate($email) {
 
 /**
  * Check if affiliate invitation has already been sent to this email
- * Uses email_queue table to check if invitation email was already sent
+ * Uses email_queue table to check if invitation email was already queued
  */
 function hasAffiliateInvitationBeenSent($email) {
     $db = getDb();
-    // Check if this email received an affiliate opportunity email before (sent status)
+    // Check if this email has an affiliate opportunity email in the queue (pending or sent)
+    // This prevents duplicate invitations on repeat purchases
     $stmt = $db->prepare("
         SELECT COUNT(*) as count FROM email_queue 
         WHERE recipient_email = ? 
-        AND subject LIKE '%Earn 30% Commission%'
-        AND status = 'sent'
+        AND email_type = 'affiliate_invitation'
+        AND status IN ('pending', 'sent', 'retry')
     ");
     $stmt->execute([strtolower(trim($email))]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1323,8 +1324,11 @@ function hasAffiliateInvitationBeenSent($email) {
 
 function sendAffiliateOpportunityEmail($customerName, $customerEmail)
 {
-    $subject = "🤝 Earn 30% Commission - Join WebDaddy Empire Affiliates!";
+    // Queue the affiliate invitation email for TRACKING
+    // This ensures we can check if it was already sent on the next purchase
+    require_once __DIR__ . '/email_queue.php';
     
+    $subject = "🤝 Earn 30% Commission - Join WebDaddy Empire Affiliates!";
     $affiliateRegisterUrl = (defined('SITE_URL') ? SITE_URL : 'https://webdaddy.com') . '/affiliate/register.php';
     
     $content = "
@@ -1361,13 +1365,21 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
     
     $emailHtml = createEmailTemplate($subject, $content, $customerName);
     
-    if (sendEmail($customerEmail, $subject, $emailHtml)) {
-        // Email was sent successfully
-        // The email_queue will track this automatically via the sendEmail function
-        error_log("Affiliate opportunity email sent to: $customerEmail");
+    // QUEUE the email for proper tracking in email_queue table
+    // This ensures we can detect duplicates on next purchase
+    $emailId = queueEmail(
+        $customerEmail,
+        'affiliate_invitation',
+        $subject,
+        strip_tags($content),
+        $emailHtml
+    );
+    
+    if ($emailId) {
+        error_log("Affiliate opportunity email queued for: $customerEmail (ID: $emailId)");
         return true;
     } else {
-        error_log("Failed to send affiliate opportunity email to: $customerEmail");
+        error_log("Failed to queue affiliate opportunity email for: $customerEmail");
         return false;
     }
 }
