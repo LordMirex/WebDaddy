@@ -13,6 +13,29 @@ ini_set('max_input_time', '300');
 ini_set('memory_limit', '256M');
 
 // ============================================
+// ERROR LOGGING CONFIGURATION
+// ============================================
+$logDir = __DIR__ . '/../logs';
+if (!file_exists($logDir)) {
+    mkdir($logDir, 0755, true);
+}
+$errorLogPath = $logDir . '/error.log';
+ini_set('error_log', $errorLogPath);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+// Ensure all error_log() calls write to the error.log file
+if (!function_exists('logError')) {
+    function logError($message, $context = null) {
+        $errorLogPath = __DIR__ . '/../logs/error.log';
+        $timestamp = date('[d-M-Y H:i:s ' . date_default_timezone_get() . ']');
+        $contextStr = $context ? ' [' . json_encode($context) . ']' : '';
+        error_log($timestamp . ' ' . $message . $contextStr);
+    }
+}
+
+// ============================================
 // SIMPLE CONFIGURATION - ALL HARDCODED HERE
 // EDIT VALUES DIRECTLY - NO ENVIRONMENT VARIABLES NEEDED
 // ============================================
