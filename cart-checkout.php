@@ -293,9 +293,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 );
             }
             
-            // NOTE: Affiliate opportunity email is sent AFTER payment is confirmed
-            // See confirmPayment() function in includes/functions.php for the actual send
-            // This prevents duplicate emails on repeat purchases
+            // Send affiliate opportunity email IMMEDIATELY when order is created (PENDING status)
+            // Check: 1) Not already affiliate  2) Never placed order before (by email)
+            if (!empty($customerEmail)) {
+                if (!isEmailAffiliate($customerEmail) && !hasAffiliateInvitationBeenSent($customerEmail)) {
+                    sendAffiliateOpportunityEmail($customerName, $customerEmail);
+                }
+            }
+            
+            // Process email queue immediately after queuing emails
+            require_once __DIR__ . '/includes/email_processor.php';
+            ensureEmailProcessing();
             
             // Clear cart only on successful order creation
             clearCart();

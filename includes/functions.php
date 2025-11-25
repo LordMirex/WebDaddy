@@ -600,19 +600,8 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             // Send enhanced email with full order details
             sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
             
-            // Send affiliate opportunity email ONLY to non-affiliates (first purchase only)
-            if (empty($order['affiliate_code'])) {
-                // Check if email is already an affiliate
-                $isExistingAffiliate = isEmailAffiliate($order['customer_email']);
-                
-                // Check if invitation was already sent to this email
-                $invitationAlreadySent = hasAffiliateInvitationBeenSent($order['customer_email']);
-                
-                // Only send if NOT an existing affiliate AND invitation not yet sent
-                if (!$isExistingAffiliate && !$invitationAlreadySent) {
-                    sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
-                }
-            }
+            // NOTE: Affiliate opportunity email is sent IMMEDIATELY when order is created (PENDING)
+            // See cart-checkout.php for the actual send - this prevents duplicate emails
         }
         
         // Send commission earned email to affiliate
@@ -1304,22 +1293,29 @@ function isEmailAffiliate($email) {
 }
 
 /**
- * Check if affiliate invitation has already been sent to this email
- * Uses email_queue table to check if invitation email was already queued
+ * Check if email has EVER placed an order in the system (pending or completed)
+ * This is used to prevent duplicate affiliate invitations
  */
-function hasAffiliateInvitationBeenSent($email) {
+function hasEmailEverPlacedOrder($email) {
     $db = getDb();
-    // Check if this email has an affiliate opportunity email in the queue (pending or sent)
-    // This prevents duplicate invitations on repeat purchases
+    // Check if this email appears in ANY order (pending or completed)
     $stmt = $db->prepare("
-        SELECT COUNT(*) as count FROM email_queue 
-        WHERE recipient_email = ? 
-        AND email_type = 'affiliate_invitation'
-        AND status IN ('pending', 'sent', 'retry')
+        SELECT COUNT(*) as count FROM pending_orders 
+        WHERE customer_email = ? 
+        LIMIT 1
     ");
     $stmt->execute([strtolower(trim($email))]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return $result['count'] > 0;
+}
+
+/**
+ * Check if affiliate invitation has already been sent to this email
+ * Uses pending_orders table to check if email has ever placed an order
+ */
+function hasAffiliateInvitationBeenSent($email) {
+    // If email has ever placed an order, invitation was already sent (or should have been)
+    return hasEmailEverPlacedOrder($email);
 }
 
 function sendAffiliateOpportunityEmail($customerName, $customerEmail)
