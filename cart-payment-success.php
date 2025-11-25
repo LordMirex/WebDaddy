@@ -46,7 +46,7 @@ $stmt = $db->prepare("
         oi.product_type,
         COALESCE(t.name, tl.name) as product_name,
         COALESCE(t.description, tl.description) as description,
-        COALESCE(t.image, tl.image) as image
+        COALESCE(t.thumbnail_url, tl.thumbnail_url) as thumbnail_url
     FROM order_items oi
     LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
     LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
@@ -312,9 +312,10 @@ $deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <?php foreach ($orderItems as $item): ?>
             <div class="product-item">
-                <?php if ($item['image']): ?>
-                    <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" class="product-image">
-                <?php else: ?>
+                <?php if (!empty($item['thumbnail_url'])): ?>
+                    <img src="<?php echo htmlspecialchars($item['thumbnail_url']); ?>" alt="<?php echo htmlspecialchars($item['product_name']); ?>" class="product-image" onerror="this.style.display='none'">
+                <?php endif; ?>
+                <?php if (empty($item['thumbnail_url']) || true): ?>
                     <div class="product-image" style="display: flex; align-items: center; justify-content: center; background: #e5e7eb; color: #9ca3af;">
                         <?php echo $item['product_type'] === 'template' ? '🎨' : '⚙️'; ?>
                     </div>
