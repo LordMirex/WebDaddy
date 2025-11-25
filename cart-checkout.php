@@ -80,9 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) {
-    // DEBUG: Log what we receive
-    error_log('POST data received: payment_method=' . ($_POST['payment_method'] ?? 'NOT SET'));
-    
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
     }
@@ -92,9 +89,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         $customerEmail = trim($_POST['customer_email'] ?? '');
         $customerPhone = trim($_POST['customer_phone'] ?? '');
         $paymentMethod = trim($_POST['payment_method'] ?? 'manual');
-        
-        // DEBUG: Log what we parsed
-        error_log('Parsed payment_method=' . $paymentMethod);
         
         if (empty($customerName)) {
             $errors[] = 'Please enter your full name';
@@ -1379,15 +1373,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             
-            // VERIFY radio states
-            const manualRadio = document.getElementById('method_manual');
-            const autoRadio = document.getElementById('method_automatic');
-            console.log('🔍 PRE-SUBMIT CHECK - Manual checked:', manualRadio?.checked, 'Auto checked:', autoRadio?.checked);
-            
             const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
-            
-            // DEBUG: Log which payment method is selected
-            console.log('📋 Payment method selected:', paymentMethod);
             
             submitBtn.disabled = true;
             submitBtn.innerHTML = '⏳ Processing Order...';
@@ -1395,13 +1381,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             const formData = new FormData(form);
             // ENSURE payment_method is definitely in FormData
             formData.set('payment_method', paymentMethod);
-            
-            // DEBUG: Verify FormData contents
-            for (let [key, value] of formData.entries()) {
-                if (key === 'payment_method') {
-                    console.log('✅ FormData payment_method:', value);
-                }
-            }
             
             fetch(form.action || '/cart-checkout.php', {
                 method: 'POST',

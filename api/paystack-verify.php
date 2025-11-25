@@ -113,7 +113,7 @@ try {
                 SET status = 'paid', 
                     payment_verified_at = datetime('now'),
                     payment_method = 'paystack'
-                WHERE id = ? AND status = 'pending'
+                WHERE id = ? AND status IN ('pending', 'failed')
             ");
             $updateResult = $stmt->execute([$orderId]);
             $affectedRows = $stmt->rowCount();
