@@ -549,7 +549,30 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
 </head>
 <body class="bg-gray-900">
     <!-- Payment Processing Overlay -->
-    <div id="payment-processing-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    <style>
+        #payment-processing-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #payment-processing-overlay.show {
+            display: flex;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <div id="payment-processing-overlay">
         <div style="background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 400px;">
             <div style="margin-bottom: 20px;">
                 <div style="width: 50px; height: 50px; margin: 0 auto; border: 4px solid #f0f0f0; border-top: 4px solid #1e40af; border-radius: 50%; animation: spin 1s linear infinite;"></div>
@@ -557,11 +580,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px; font-weight: 600;">Processing Payment</h3>
             <p id="payment-processing-message" style="margin: 0; color: #6b7280; font-size: 14px;">Verifying your payment with Paystack...</p>
         </div>
-        <style>
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
-        </style>
     </div>
 
     <!-- Navigation -->
@@ -1110,7 +1128,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         const overlay = document.getElementById('payment-processing-overlay');
                         const msg = document.getElementById('payment-processing-message');
                         if (msg) msg.textContent = 'Opening payment form...';
-                        if (overlay) overlay.style.display = 'flex';
+                        if (overlay) overlay.classList.add('show');
                         
                         const paymentData = result.data;
                         console.log('💳 Opening Paystack payment for Order #' + paymentData.order_id);
@@ -1124,7 +1142,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 ref: 'ORDER-' + paymentData.order_id,
                                 onClose: function() {
                                     console.log('Payment canceled');
-                                    if (overlay) overlay.style.display = 'none';
+                                    if (overlay) overlay.classList.remove('show');
                                     submitBtn.disabled = false;
                                     submitBtn.innerHTML = originalText;
                                 },
@@ -1152,14 +1170,14 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                                 window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
                                             }, 1500);
                                         } else {
-                                            if (overlay) overlay.style.display = 'none';
+                                            if (overlay) overlay.classList.remove('show');
                                             alert('Payment verification failed: ' + (data.message || 'Unknown error'));
                                             submitBtn.disabled = false;
                                             submitBtn.innerHTML = originalText;
                                         }
                                     })
                                     .catch(err => {
-                                        if (overlay) overlay.style.display = 'none';
+                                        if (overlay) overlay.classList.remove('show');
                                         alert('Error: ' + err.message);
                                         submitBtn.disabled = false;
                                         submitBtn.innerHTML = originalText;
@@ -1194,7 +1212,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             
             // Show loading overlay
             const overlay = document.getElementById('payment-processing-overlay');
-            if (overlay) overlay.style.display = 'flex';
+            if (overlay) overlay.classList.add('show');
             
             const handler = PaystackPop.setup({
                 key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
@@ -1205,7 +1223,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 onClose: function() {
                     btn.disabled = false;
                     btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
-                    if (overlay) overlay.style.display = 'none';
+                    if (overlay) overlay.classList.remove('show');
                 },
                 callback: function(response) {
                     // Verify payment on server (CORRECT Paystack callback)
@@ -1227,13 +1245,13 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         } else {
                             btn.disabled = false;
                             btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
-                            if (overlay) overlay.style.display = 'none';
+                            if (overlay) overlay.classList.remove('show');
                             alert('Payment verification failed: ' + (data.message || 'Unknown error'));
                         }
                     }).catch(err => {
                         btn.disabled = false;
                         btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
-                        if (overlay) overlay.style.display = 'none';
+                        if (overlay) overlay.classList.remove('show');
                         alert('Error: ' + err.message);
                     });
                 }
