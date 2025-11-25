@@ -1305,14 +1305,13 @@ function isEmailAffiliate($email) {
 
 /**
  * Check if affiliate invitation has already been sent to this email
+ * (Check if email already exists in affiliate_users with any status)
  */
 function hasAffiliateInvitationBeenSent($email) {
     $db = getDb();
     $stmt = $db->prepare("
-        SELECT COUNT(*) as count FROM email_queue 
-        WHERE recipient_email = ? 
-        AND email_type = 'affiliate_invitation'
-        AND status IN ('sent', 'pending')
+        SELECT COUNT(*) as count FROM affiliate_users 
+        WHERE email = ?
     ");
     $stmt->execute([strtolower(trim($email))]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1360,14 +1359,6 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
     $emailHtml = createEmailTemplate($subject, $content, $customerName);
     
     if (sendEmail($customerEmail, $subject, $emailHtml)) {
-        // Log this as an affiliate_invitation email to track that it was sent
-        $db = getDb();
-        $stmt = $db->prepare("
-            INSERT INTO email_queue (recipient_email, email_type, subject, body, status)
-            VALUES (?, 'affiliate_invitation', ?, ?, 'sent')
-        ");
-        $stmt->execute([$customerEmail, $subject, $emailHtml]);
-        
         error_log("Affiliate opportunity email sent to: $customerEmail");
         return true;
     } else {
