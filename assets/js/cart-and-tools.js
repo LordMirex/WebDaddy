@@ -9,7 +9,7 @@ function trackTemplateClick(templateId) {
             action: 'track_template_click',
             template_id: templateId
         })
-    }).catch(err => console.error('Analytics tracking failed:', err));
+    }).catch(err => {}); // Silently ignore analytics tracking errors
 }
 
 function trackToolClick(toolId) {
@@ -21,7 +21,7 @@ function trackToolClick(toolId) {
             action: 'track_tool_click',
             tool_id: toolId
         })
-    }).catch(err => console.error('Analytics tracking failed:', err));
+    }).catch(err => {}); // Silently ignore analytics tracking errors
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return res.json();
         })
         .then(data => console.log('Tracked:', data))
-        .catch(err => console.error('Error tracking tool view:', err));
+        .catch(err => {}); // Silently ignore tracking errors
     }
     
     function showToolModal(tool) {
