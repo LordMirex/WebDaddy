@@ -755,31 +755,153 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
         <div class="max-w-3xl mx-auto">
             
             <?php if ($confirmedOrderId && $confirmationData): ?>
-                <!-- Order Confirmation Page -->
-                <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Order Confirmed!</h2>
-                    <p class="text-gray-300">Your order has been successfully created</p>
-                    <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
-                </div>
+                <!-- DETERMINE WHICH CONFIRMATION VIEW TO SHOW -->
+                <?php 
+                $orderStatus = $confirmationData['order']['status'] ?? 'pending';
+                $paymentMethod = $confirmationData['order']['payment_method'] ?? 'manual';
+                $isManualPayment = ($paymentMethod === 'manual' || empty($paymentMethod));
+                $isAutomatic = ($paymentMethod === 'paystack' || $paymentMethod === 'automatic');
+                $isPaid = ($orderStatus === 'paid');
+                $isFailed = ($orderStatus === 'failed');
+                ?>
                 
-                <!-- Order Summary Card -->
-                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b border-green-200">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-2xl"><?php echo $confirmationData['hasTemplates'] && $confirmationData['hasTools'] ? '🎨🔧' : ($confirmationData['hasTemplates'] ? '🎨' : '🔧'); ?></span>
-                                <h3 class="font-bold text-gray-900"><?php echo $confirmationData['orderTypeText']; ?></h3>
+                <!-- ========================================
+                     MANUAL PAYMENT CONFIRMATION (Bank Transfer)
+                     ONLY: Bank details + WhatsApp buttons
+                     ======================================== -->
+                <?php if ($isManualPayment): ?>
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-4">
+                            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Order Created!</h2>
+                        <p class="text-gray-300">Your order is awaiting payment</p>
+                        <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
+                    </div>
+                    
+                    <!-- ORDER SUMMARY - SIMPLE FOR MANUAL -->
+                    <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between text-gray-100">
+                                <span>Subtotal</span>
+                                <span><?php echo formatCurrency($confirmationData['order']['original_price']); ?></span>
                             </div>
-                            <span class="px-3 py-1 bg-green-600 text-white text-sm font-semibold rounded-full">Pending Payment</span>
+                            
+                            <?php if (!empty($confirmationData['order']['discount_amount']) && $confirmationData['order']['discount_amount'] > 0): ?>
+                            <div class="flex justify-between text-green-600">
+                                <span>Affiliate Discount (20%)</span>
+                                <span>-<?php echo formatCurrency($confirmationData['order']['discount_amount']); ?></span>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <div class="flex justify-between text-xl font-bold text-white pt-4 border-t border-gray-700">
+                                <span>Total Amount</span>
+                                <span><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="p-6">
+                    <!-- Bank Payment Details Card -->
+                    <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-4 p-4">
+                        <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
+                            <span>🏦</span>Bank Payment Details
+                        </h4>
+                        <div class="space-y-2">
+                            <?php if ($confirmationData['bankAccountNumber']): ?>
+                            <div class="flex items-center justify-between py-2">
+                                <span class="text-xs text-gray-500 uppercase font-medium">Account Number:</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-mono text-white"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
+                                    <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors">📋</button>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($confirmationData['bankName']): ?>
+                            <div class="flex items-center justify-between py-2 border-t border-gray-700">
+                                <span class="text-xs text-gray-500 uppercase font-medium">Bank Name:</span>
+                                <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankName']); ?></span>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($confirmationData['bankNumber']): ?>
+                            <div class="flex items-center justify-between py-2 border-t border-gray-700">
+                                <span class="text-xs text-gray-500 uppercase font-medium">Account Name:</span>
+                                <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></span>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Instructions -->
+                    <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-4">
+                        <h5 class="font-bold text-white text-sm mb-2 flex items-center gap-2">
+                            <span>📝</span>What to do next:
+                        </h5>
+                        <ul class="text-xs text-gray-300 space-y-1 ml-2">
+                            <li>1. Send exactly <span class="text-primary-400 font-semibold"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span> to account above</li>
+                            <li>2. Screenshot your payment receipt</li>
+                            <li>3. Choose an option below to contact us</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Two WhatsApp Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
+                           class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 border border-transparent rounded-lg transition-colors whitespace-nowrap">
+                            <span>⚡</span>
+                            <span>I've Sent the Money</span>
+                        </a>
+                        
+                        <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
+                           class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 hover:bg-gray-900 border border-gray-600 rounded-lg transition-colors whitespace-nowrap">
+                            <span>💬</span>
+                            <span>Pay via WhatsApp</span>
+                        </a>
+                    </div>
+                
+                <!-- ========================================
+                     AUTOMATIC PAYMENT - PAID (Success)
+                     Shows: Order summary + products + delivery
+                     ======================================== -->
+                <?php elseif ($isAutomatic && $isPaid): ?>
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
+                            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Payment Successful!</h2>
+                        <p class="text-gray-300">Your order has been approved and processed</p>
+                        <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
+                    </div>
+                    
+                    <!-- ORDER SUMMARY -->
+                    <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between text-gray-100">
+                                <span>Subtotal</span>
+                                <span><?php echo formatCurrency($confirmationData['order']['original_price']); ?></span>
+                            </div>
+                            
+                            <?php if (!empty($confirmationData['order']['discount_amount']) && $confirmationData['order']['discount_amount'] > 0): ?>
+                            <div class="flex justify-between text-green-600">
+                                <span>Affiliate Discount (20%)</span>
+                                <span>-<?php echo formatCurrency($confirmationData['order']['discount_amount']); ?></span>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <div class="flex justify-between text-xl font-bold text-white pt-4 border-t border-gray-700">
+                                <span>Total Paid</span>
+                                <span class="text-green-400"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PRODUCTS SECTION - ONLY FOR PAID AUTOMATIC -->
+                    <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
                         <h4 class="font-bold text-white mb-4">📦 Your Products</h4>
                         
                         <!-- TEMPLATES SECTION -->
@@ -837,9 +959,44 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <?php endforeach; ?>
                         </div>
                         <?php endif; ?>
+                    </div>
+                
+                <!-- ========================================
+                     AUTOMATIC PAYMENT - FAILED
+                     Shows: Error message + reason
+                     NO products shown
+                     ======================================== -->
+                <?php elseif ($isAutomatic && $isFailed): ?>
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
+                            <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
                         </div>
-                        
-                        <div class="border-t border-gray-700 pt-4 space-y-2">
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Payment Failed</h2>
+                        <p class="text-gray-300">Your payment could not be processed</p>
+                        <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
+                    </div>
+                    
+                    <!-- ERROR MESSAGE CARD -->
+                    <div class="bg-red-900/20 border border-red-600 rounded-xl shadow-md mb-6 p-6">
+                        <h4 class="font-bold text-red-400 text-lg mb-3 flex items-center gap-2">
+                            <span>⚠️</span>Payment Declined
+                        </h4>
+                        <p class="text-red-200 mb-4">Unfortunately, your payment could not be processed. This may be due to:</p>
+                        <ul class="text-red-200 text-sm space-y-2 mb-6 ml-4 list-disc">
+                            <li>Insufficient funds on your card</li>
+                            <li>Card has expired or been blocked</li>
+                            <li>Incorrect card details</li>
+                            <li>3D Secure verification failed</li>
+                            <li>Transaction limit exceeded</li>
+                        </ul>
+                        <p class="text-red-300 font-semibold">Your order is still reserved. Please try again or contact support.</p>
+                    </div>
+                    
+                    <!-- ORDER SUMMARY ONLY -->
+                    <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
+                        <div class="space-y-4">
                             <div class="flex justify-between text-gray-100">
                                 <span>Subtotal</span>
                                 <span><?php echo formatCurrency($confirmationData['order']['original_price']); ?></span>
@@ -852,111 +1009,26 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             <?php endif; ?>
                             
-                            <div class="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-700">
-                                <span>Total</span>
-                                <span><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span>
+                            <div class="flex justify-between text-xl font-bold text-white pt-4 border-t border-gray-700">
+                                <span>Amount to Pay</span>
+                                <span class="text-red-400"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Bank Payment Details Card - Matches template dark theme -->
-                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-4 p-4">
-                    <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
-                        <span>🏦</span>Bank Payment Details
-                    </h4>
-                    <div class="space-y-2">
-                        <?php if ($confirmationData['bankAccountNumber']): ?>
-                        <div class="flex items-center justify-between py-2">
-                            <span class="text-xs text-gray-500 uppercase font-medium">Account Number:</span>
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-mono text-white"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
-                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors">📋</button>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($confirmationData['bankName']): ?>
-                        <div class="flex items-center justify-between py-2 border-t border-gray-700">
-                            <span class="text-xs text-gray-500 uppercase font-medium">Bank Name:</span>
-                            <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankName']); ?></span>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($confirmationData['bankNumber']): ?>
-                        <div class="flex items-center justify-between py-2 border-t border-gray-700">
-                            <span class="text-xs text-gray-500 uppercase font-medium">Account Name:</span>
-                            <span class="text-sm font-semibold text-white"><?php echo htmlspecialchars($confirmationData['bankNumber']); ?></span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                
-                <!-- Payment Instructions - Dark Theme -->
-                <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 mb-4">
-                    <h5 class="font-bold text-white text-sm mb-2 flex items-center gap-2">
-                        <span>📝</span>What to do next:
-                    </h5>
-                    <ul class="text-xs text-gray-300 space-y-1 ml-2">
-                        <li>1. Send exactly <span class="text-primary-400 font-semibold"><?php echo formatCurrency($confirmationData['order']['final_amount']); ?></span> to account above</li>
-                        <li>2. Screenshot your payment receipt</li>
-                        <li>3. Choose an option below to contact us</li>
-                    </ul>
-                </div>
-                
-                <!-- Guide: What each button does -->
-                <div class="bg-gray-900 border border-gray-700 rounded-xl p-3 mb-4 space-y-3">
-                    <div class="flex gap-3">
-                        <span class="text-lg flex-shrink-0">⚡</span>
-                        <div>
-                            <div class="text-xs font-bold text-white uppercase">Button 1: I've Sent the Money</div>
-                            <div class="text-xs text-gray-300">Click this if you've already transferred the money to the account above. We'll verify your payment proof screenshot and process your order immediately via WhatsApp.</div>
-                        </div>
-                    </div>
-                    <div class="border-t border-gray-700"></div>
-                    <div class="flex gap-3">
-                        <span class="text-lg flex-shrink-0">💬</span>
-                        <div>
-                            <div class="text-xs font-bold text-white uppercase">Button 2: Pay via WhatsApp</div>
-                            <div class="text-xs text-gray-300">Click this to process your payment via WhatsApp. We'll guide you through the payment process and answer any questions before you pay.</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Paystack Payment Button - ONLY IF AUTOMATIC PAYMENT METHOD -->
-                <?php if (!empty($confirmationData['order']['payment_method']) && $confirmationData['order']['payment_method'] === 'automatic'): ?>
-                <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl shadow-md border border-green-500 mb-4 p-4">
-                    <h4 class="font-bold text-white text-sm mb-3 flex items-center gap-2">
-                        <span>💳</span>Complete Payment Securely
-                    </h4>
-                    <p class="text-green-50 text-xs mb-4">Click below to pay instantly with your card via Paystack</p>
-                    <button type="button" 
-                            id="paystack-payment-btn" 
-                            class="w-full px-4 py-3 bg-white hover:bg-gray-100 text-green-600 font-bold rounded-lg transition-colors shadow-lg">
-                        💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount']); ?> with Card
-                    </button>
-                    <p class="text-green-100 text-xs text-center mt-3">🔒 Secure payment powered by Paystack</p>
-                </div>
-                <?php endif; ?>
-                
-                <!-- WhatsApp Buttons - ONLY IF MANUAL PAYMENT METHOD -->
-                <?php if (empty($confirmationData['order']['payment_method']) || $confirmationData['order']['payment_method'] === 'manual'): ?>
-                <!-- Two WhatsApp Buttons - matches site button convention -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                    <!-- Button 1: I have sent the money - PRIMARY ACTION -->
-                    <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlPaymentProof']); ?>" 
-                       class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 border border-transparent rounded-lg transition-colors whitespace-nowrap">
-                        <span>⚡</span>
-                        <span>I've Sent the Money</span>
-                    </a>
                     
-                    <!-- Button 2: Pay via WhatsApp - SECONDARY ACTION -->
-                    <a href="<?php echo htmlspecialchars($confirmationData['whatsappUrlDiscussion']); ?>" 
-                       class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 hover:bg-gray-900 border border-gray-600 rounded-lg transition-colors whitespace-nowrap">
-                        <span>💬</span>
-                        <span>Pay via WhatsApp</span>
-                    </a>
-                </div>
+                    <!-- RETRY BUTTON -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <button type="button" 
+                                id="paystack-payment-btn" 
+                                class="px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors shadow-lg">
+                            💳 Try Payment Again
+                        </button>
+                        
+                        <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                           class="inline-flex items-center justify-center px-4 py-3 text-white bg-gray-700 hover:bg-gray-600 font-bold rounded-lg transition-colors">
+                            ← Back to Shop
+                        </a>
+                    </div>
                 <?php endif; ?>
                 
                 <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
