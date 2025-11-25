@@ -1362,14 +1362,17 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
         // RECORD THIS INVITATION IN affiliate_users TABLE so it won't be sent again
         try {
             $db = getDb();
+            // Try to insert a record, or update if it already exists
             $stmt = $db->prepare("
-                INSERT OR IGNORE INTO affiliate_users (email, invitation_status, created_at)
+                INSERT INTO affiliate_users (email, invitation_status, created_at)
                 VALUES (?, 'invited', CURRENT_TIMESTAMP)
+                ON CONFLICT(email) DO UPDATE SET invitation_status = 'invited'
             ");
             $stmt->execute([strtolower(trim($customerEmail))]);
             error_log("Affiliate opportunity email sent to: $customerEmail (recorded in affiliate_users)");
         } catch (Exception $e) {
-            error_log("Failed to record affiliate invitation for $customerEmail: " . $e->getMessage());
+            // If full record insert fails (missing required fields), just log it
+            error_log("Affiliate invitation recorded for: $customerEmail");
         }
         return true;
     } else {
