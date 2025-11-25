@@ -8,6 +8,18 @@ WebDaddy Empire is a PHP/SQLite marketplace for selling website templates bundle
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Fixes (November 25, 2025)
+
+**Email Queue Issue - FIXED**
+- **Problem**: Emails were being queued but never sent because the email processor wasn't running automatically
+- **Root Cause**: The `processEmailQueue()` function needed to be triggered after orders/registrations, but it wasn't being called
+- **Solution**: Added automatic email processing triggers to:
+  - `cart-checkout.php` - Processes emails after order creation
+  - `affiliate/register.php` - Processes emails after affiliate registration
+  - `api/paystack-verify.php` - Processes emails after payment verification
+- **New File**: `includes/email_processor.php` - Safe trigger function to process the queue every 60 seconds per session
+- **Status**: All pending emails have been sent successfully ✅
+
 **CRITICAL DESIGN STANDARDS:**
 - ALL UI/UX designs must be polished, professional, and visually clean
 - NEVER implement fast/ugly designs - quality UI is non-negotiable for this website

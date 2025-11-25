@@ -132,6 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Send welcome email to new affiliate
                     sendAffiliateWelcomeEmail($name, $email, $affiliateCode);
                     
+                    // Process email queue immediately after queuing emails
+                    require_once __DIR__ . '/../includes/email_processor.php';
+                    ensureEmailProcessing();
+                    
                     // Auto-login the user
                     $stmt = $db->prepare("SELECT id FROM affiliates WHERE user_id = ?");
                     if ($stmt === false) {

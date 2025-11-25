@@ -298,6 +298,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 sendAffiliateOpportunityEmail($customerName, $customerEmail);
             }
             
+            // Process email queue immediately after queuing emails
+            require_once __DIR__ . '/includes/email_processor.php';
+            ensureEmailProcessing();
+            
             // Clear cart only on successful order creation
             clearCart();
             

@@ -139,6 +139,10 @@ try {
             error_log("✅ PAYSTACK VERIFY: Creating delivery records");
             createDeliveryRecords($orderId);
             
+            // Process email queue immediately after sending notifications
+            require_once __DIR__ . '/../includes/email_processor.php';
+            ensureEmailProcessing();
+            
             clearCart();
             
             error_log("✅ PAYSTACK VERIFY: Order #$orderId complete! Payment verified, deliveries created");
