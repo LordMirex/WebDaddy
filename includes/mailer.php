@@ -64,6 +64,31 @@ function sendEmail($email, $subject, $message) {
         $mail->addReplyTo(SMTP_FROM_EMAIL, defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : SITE_NAME);
         $mail->Subject = $subject;
         $mail->Body = $message;
+        
+        // ============================================================
+        // ANTI-SPAM HEADERS - Prevent emails from going to spam
+        // ============================================================
+        
+        // Return-Path header - tells servers where bounces should go
+        $mail->ReturnPath = SMTP_FROM_EMAIL;
+        
+        // Priority headers - shows this is important mail
+        $mail->addCustomHeader('X-Priority', '2');
+        $mail->addCustomHeader('X-MSMail-Priority', 'High');
+        
+        // Authentication headers for spam filter bypass
+        $mail->addCustomHeader('X-Mailer', 'WebDaddy-Empire/2.0');
+        
+        // List headers to avoid spam filters
+        $mail->addCustomHeader('List-Unsubscribe', '<mailto:' . SMTP_FROM_EMAIL . '>');
+        $mail->addCustomHeader('List-ID', 'WebDaddy Empire <list.webdaddy.online>');
+        
+        // Explicit MIME headers
+        $mail->addCustomHeader('MIME-Version', '1.0');
+        $mail->addCustomHeader('Content-Type', 'text/html; charset=UTF-8');
+        
+        // Mark as transactional email (not marketing)
+        $mail->addCustomHeader('X-Category', 'transaction');
 
         return $mail->send();
     } catch (Exception $e) {
