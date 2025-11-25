@@ -97,6 +97,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_file'])) {
     }
 }
 
+// Calculate stats
+$totalFiles = count($toolFiles);
+$totalDownloads = 0;
+$totalSize = 0;
+foreach ($toolFiles as $file) {
+    $totalDownloads += $file['download_count'];
+    $totalSize += $file['file_size'];
+}
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -130,7 +139,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <!-- Tool Selection Card -->
 <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 mb-8">
-    <div class="px-6 py-4 border-b border-gray-700">
+    <div class="px-6 py-4 border-b border-gray-700 bg-gray-750">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i class="bi bi-tools text-primary-400"></i> Select Tool
         </h2>
@@ -155,12 +164,42 @@ require_once __DIR__ . '/includes/header.php';
 
 <?php if ($selectedToolId && $selectedTool): ?>
 
-<!-- Tool Info -->
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+    <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 border border-blue-500/20">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-blue-100 uppercase tracking-wide">Total Files</h6>
+            <i class="bi bi-file-earmark text-2xl text-blue-200"></i>
+        </div>
+        <div class="text-3xl font-bold text-white"><?php echo $totalFiles; ?></div>
+        <p class="text-sm text-blue-100 mt-1">Uploaded for this tool</p>
+    </div>
+    
+    <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg p-6 border border-purple-500/20">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-purple-100 uppercase tracking-wide">Total Downloads</h6>
+            <i class="bi bi-download text-2xl text-purple-200"></i>
+        </div>
+        <div class="text-3xl font-bold text-white"><?php echo number_format($totalDownloads); ?></div>
+        <p class="text-sm text-purple-100 mt-1">By customers</p>
+    </div>
+    
+    <div class="bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl shadow-lg p-6 border border-orange-500/20">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-orange-100 uppercase tracking-wide">Total Size</h6>
+            <i class="bi bi-hdd text-2xl text-orange-200"></i>
+        </div>
+        <div class="text-3xl font-bold text-white"><?php echo number_format($totalSize / (1024 * 1024), 1); ?> MB</div>
+        <p class="text-sm text-orange-100 mt-1">Combined file size</p>
+    </div>
+</div>
+
+<!-- Tool Info Banner -->
 <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl shadow-lg p-6 mb-8 border border-primary-500/20">
     <div class="flex items-center justify-between">
         <div>
             <h3 class="text-2xl font-bold text-white">🔧 <?php echo htmlspecialchars($selectedTool['name']); ?></h3>
-            <p class="text-primary-100 mt-1">Total files: <span class="font-bold"><?php echo count($toolFiles); ?></span></p>
+            <p class="text-primary-100 mt-1">Managing downloadable files for automatic delivery to customers</p>
         </div>
         <i class="bi bi-file-earmark-check text-4xl text-primary-200 opacity-30"></i>
     </div>
@@ -168,7 +207,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <!-- Upload Form -->
 <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 mb-8">
-    <div class="px-6 py-4 border-b border-gray-700">
+    <div class="px-6 py-4 border-b border-gray-700 bg-gray-750">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i class="bi bi-cloud-upload text-primary-400"></i> Upload New File
         </h2>
@@ -223,77 +262,102 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Existing Files -->
+<!-- Existing Files Table -->
 <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
-    <div class="px-6 py-4 border-b border-gray-700">
+    <div class="px-6 py-4 border-b border-gray-700 bg-gray-750">
         <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i class="bi bi-folder text-primary-400"></i> Uploaded Files (<?php echo count($toolFiles); ?>)
         </h2>
     </div>
     <div class="p-6">
         <?php if (empty($toolFiles)): ?>
-        <div class="text-center py-12">
-            <i class="bi bi-inbox text-4xl text-gray-600 mb-3 block"></i>
-            <p class="text-gray-300 font-medium">No files uploaded yet</p>
-            <p class="text-gray-400 text-sm mt-1">Upload files above to make them available for automatic delivery when customers purchase this tool.</p>
+        <div class="bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 p-4 rounded-lg flex items-center gap-3">
+            <i class="bi bi-info-circle text-xl"></i>
+            <span>No files uploaded yet. Upload files above to make them available for automatic delivery when customers purchase this tool.</span>
         </div>
         <?php else: ?>
-        <div class="space-y-3">
-            <?php foreach ($toolFiles as $file): 
-                $fileTypeIcons = [
-                    'zip_archive' => '📦',
-                    'attachment' => '📎',
-                    'text_instructions' => '📝',
-                    'code' => '💻',
-                    'access_key' => '🔑',
-                    'image' => '🖼️',
-                    'video' => '🎬',
-                    'link' => '🔗'
-                ];
-                $icon = $fileTypeIcons[$file['file_type']] ?? '📄';
-            ?>
-            <div class="bg-gray-750 border border-gray-700 rounded-lg p-4 hover:bg-gray-700 transition-colors">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-2xl"><?php echo $icon; ?></span>
-                            <div class="min-w-0">
-                                <p class="font-semibold text-white truncate"><?php echo htmlspecialchars($file['file_name']); ?></p>
-                                <?php if ($file['file_description']): ?>
-                                <p class="text-xs text-gray-400 truncate"><?php echo htmlspecialchars($file['file_description']); ?></p>
-                                <?php endif; ?>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-700 bg-gray-750">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm hidden sm:table-cell">ID</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm">File Name</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm hidden md:table-cell">Type</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm hidden lg:table-cell">Size</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm hidden xl:table-cell">Downloads</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm hidden lg:table-cell">Uploaded</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-200 text-sm text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($toolFiles as $file): 
+                        $fileTypeIcons = [
+                            'zip_archive' => '📦',
+                            'attachment' => '📎',
+                            'text_instructions' => '📝',
+                            'code' => '💻',
+                            'access_key' => '🔑',
+                            'image' => '🖼️',
+                            'video' => '🎬',
+                            'link' => '🔗'
+                        ];
+                        $icon = $fileTypeIcons[$file['file_type']] ?? '📄';
+                    ?>
+                    <tr class="border-b border-gray-700 hover:bg-gray-750/50 transition-colors">
+                        <td class="py-3 px-4 text-sm font-medium text-gray-100 hidden sm:table-cell">#<?php echo $file['id']; ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-200">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg"><?php echo $icon; ?></span>
+                                <div>
+                                    <p class="font-medium text-gray-100"><?php echo htmlspecialchars($file['file_name']); ?></p>
+                                    <?php if ($file['file_description']): ?>
+                                    <p class="text-xs text-gray-400"><?php echo htmlspecialchars($file['file_description']); ?></p>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3 text-xs">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-medium bg-blue-900/40 text-blue-300 border border-blue-700">
+                        </td>
+                        <td class="py-3 px-4 text-sm hidden md:table-cell">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-900/40 text-blue-300 border border-blue-700">
                                 <?php echo ucfirst(str_replace('_', ' ', $file['file_type'])); ?>
                             </span>
-                            <span class="text-gray-400">📊 <?php echo number_format($file['file_size'] / 1024, 1); ?> KB</span>
-                            <span class="text-gray-400">📥 <?php echo $file['download_count']; ?> downloads</span>
-                            <span class="text-gray-500">📅 <?php echo date('M d, Y', strtotime($file['created_at'])); ?></span>
-                        </div>
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <a href="/<?php echo htmlspecialchars($file['file_path']); ?>" 
-                           class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
-                           target="_blank" download>
-                            <i class="bi bi-download"></i>
-                            <span>Download</span>
-                        </a>
-                        <form method="POST" style="display:inline;" 
-                              onsubmit="return confirm('⚠️ Delete this file? This cannot be undone.');">
-                            <?php echo csrfTokenField(); ?>
-                            <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
-                            <input type="hidden" name="tool_id" value="<?php echo $selectedToolId; ?>">
-                            <button type="submit" name="delete_file" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
-                                <i class="bi bi-trash"></i>
-                                <span>Delete</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-300 hidden lg:table-cell">
+                            <?php echo number_format($file['file_size'] / 1024, 1); ?> KB
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-300 hidden xl:table-cell">
+                            <div class="flex items-center gap-1">
+                                <i class="bi bi-download text-primary-400"></i>
+                                <?php echo $file['download_count']; ?>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-400 hidden lg:table-cell">
+                            <?php echo date('M d, Y', strtotime($file['created_at'])); ?>
+                            <div class="text-xs text-gray-500"><?php echo date('H:i', strtotime($file['created_at'])); ?></div>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="/<?php echo htmlspecialchars($file['file_path']); ?>" 
+                                   class="text-primary-400 hover:text-primary-300 transition-colors" 
+                                   target="_blank" 
+                                   download
+                                   title="Download file">
+                                    <i class="bi bi-download text-lg"></i>
+                                </a>
+                                <form method="POST" style="display:inline;" 
+                                      onsubmit="return confirm('⚠️ Delete this file permanently? This cannot be undone.');">
+                                    <?php echo csrfTokenField(); ?>
+                                    <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
+                                    <input type="hidden" name="tool_id" value="<?php echo $selectedToolId; ?>">
+                                    <button type="submit" name="delete_file" class="text-red-400 hover:text-red-300 transition-colors" title="Delete file">
+                                        <i class="bi bi-trash text-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
         <?php endif; ?>
     </div>
