@@ -297,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // 1. NOT already an affiliate
             // 2. NOT already received an invitation before
             if (!empty($customerEmail)) {
-                if (!isUserAlreadyAffiliate($customerEmail) && !hasAffiliateInvitationBeenSent($customerEmail)) {
+                if (!isEmailAffiliate($customerEmail) && !hasAffiliateInvitationBeenSent($customerEmail)) {
                     sendAffiliateOpportunityEmail($customerName, $customerEmail);
                 }
             }

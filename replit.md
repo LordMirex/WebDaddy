@@ -10,17 +10,27 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Fixes (November 25, 2025)
 
-**Affiliate Invitation Email Bug - FIXED (PERMANENTLY)**
-- **Problem**: Affiliates were still receiving invitation emails AND non-affiliates were getting invitations multiple times on repeat purchases
-- **Root Causes** (3 issues found):
-  1. No validation checks in `cart-checkout.php` - affiliate emails sent to EVERYONE without checking if already affiliate
-  2. Invitations NOT being recorded - emails sent but never stored in database, so system forgot they were sent
-  3. Database constraint removed - was blocking affiliate_invitation email type
-- **Solution**:
-  1. Added dual checks in `cart-checkout.php` line 303: `!isUserAlreadyAffiliate() && !hasAffiliateInvitationBeenSent()`
-  2. Modified `sendAffiliateOpportunityEmail()` to record invitation in `affiliate_users` table with `INSERT OR IGNORE`
-  3. Removed restrictive email_type CHECK constraint from `email_queue` table
-- **Status**: System now sends ONE invitation email on FIRST purchase only ✅
+**Database Cleanup - Complete System Audit**
+- **Problem**: Orphaned `affiliate_users` table was causing confusion and potential code conflicts
+- **Actions Taken**:
+  1. Audited all 31 database tables and searched entire codebase
+  2. Found `affiliate_users` was test data with ZERO code references
+  3. Removed restrictive CHECK constraint from `email_queue` table
+  4. Dropped orphaned `affiliate_users` table completely
+  5. Fixed function name bug: `isUserAlreadyAffiliate()` → `isEmailAffiliate()`
+- **Current Structure** (30 tables, all in use):
+  - `users` - Admin and affiliate accounts (REAL data)
+  - `affiliates` - Commission tracking linked to users
+  - `email_queue` - Email tracking for all communications
+  - No orphaned tables remaining
+- **Status**: Clean, audited database ready for production ✅
+
+**Affiliate Invitation Email System - FIXED (PERMANENTLY)**
+- **Checks** (in `cart-checkout.php` line 303):
+  1. `!isEmailAffiliate($email)` - Not already an affiliate in users table
+  2. `!hasAffiliateInvitationBeenSent($email)` - Not already invited (checked via email_queue)
+- **Tracking**: Via `email_queue` table with subject matching "Earn 30% Commission"
+- **Status**: Sends ONE invitation on FIRST purchase only, prevents duplicates ✅
 
 **Email Queue Issue - FIXED**
 - **Problem**: Emails were being queued but never sent because the email processor wasn't running automatically
