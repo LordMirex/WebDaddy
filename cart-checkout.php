@@ -1210,8 +1210,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <label class="block text-sm font-bold text-gray-100 mb-3">
                                     Payment Method <span class="text-red-600">*</span>
                                 </label>
-                                <div class="space-y-3">
-                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option" onclick="document.getElementById('method_manual').checked=true; document.getElementById('method_manual').dispatchEvent(new Event('change', {bubbles:true}));">
+                                <div class="space-y-3" id="payment-method-container">
+                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option">
                                         <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-5 h-5 cursor-pointer" />
                                         <label for="method_manual" class="ml-4 cursor-pointer flex-1">
                                             <div class="font-bold text-lg text-gray-100">🏦 Manual Payment</div>
@@ -1219,7 +1219,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         </label>
                                     </div>
                                     
-                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option" onclick="document.getElementById('method_automatic').checked=true; document.getElementById('method_automatic').dispatchEvent(new Event('change', {bubbles:true}));">
+                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option">
                                         <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-5 h-5 cursor-pointer" />
                                         <label for="method_automatic" class="ml-4 cursor-pointer flex-1">
                                             <div class="font-bold text-lg text-gray-100">💳 Automatic Payment</div>
@@ -1322,9 +1322,28 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <script>
+        // Make payment method container interactive
+        const container = document.getElementById('payment-method-container');
+        if (container) {
+            container.querySelectorAll('[id$="-option"]').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    // Don't interfere if clicking the radio directly
+                    if (e.target.tagName === 'INPUT' && e.target.type === 'radio') return;
+                    
+                    // Find the radio in this option
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+            });
+        }
+        
         // Update submit button text when payment method changes
         document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
             radio.addEventListener('change', function() {
+                console.log('💰 Payment method changed to:', this.value);
                 const submitText = document.getElementById('submit-text');
                 if (this.value === 'automatic') {
                     submitText.textContent = 'Proceed to Card Payment →';
@@ -1342,10 +1361,22 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             const originalText = submitBtn.innerHTML;
             const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
             
+            // DEBUG: Log which payment method is selected
+            console.log('📋 Payment method selected:', paymentMethod);
+            
             submitBtn.disabled = true;
             submitBtn.innerHTML = '⏳ Processing Order...';
             
             const formData = new FormData(form);
+            // ENSURE payment_method is definitely in FormData
+            formData.set('payment_method', paymentMethod);
+            
+            // DEBUG: Verify FormData contents
+            for (let [key, value] of formData.entries()) {
+                if (key === 'payment_method') {
+                    console.log('✅ FormData payment_method:', value);
+                }
+            }
             
             fetch(form.action || '/cart-checkout.php', {
                 method: 'POST',
