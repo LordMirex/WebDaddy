@@ -15,10 +15,9 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool
  */
 function sendEmail($email, $subject, $message) {
-    // SECURITY: Validate SMTP credentials are configured
-    if (!defined('SMTP_USER') || !defined('SMTP_PASS') || !defined('SMTP_FROM_EMAIL') ||
-        empty(SMTP_USER) || empty(SMTP_PASS) || empty(SMTP_FROM_EMAIL)) {
-        error_log("Email sending failed: SMTP credentials not configured");
+    // SECURITY: Validate FROM email is configured
+    if (!defined('SMTP_FROM_EMAIL') || empty(SMTP_FROM_EMAIL)) {
+        error_log("Email sending failed: SMTP_FROM_EMAIL not configured");
         return false;
     }
     
@@ -28,23 +27,15 @@ function sendEmail($email, $subject, $message) {
     $mail->Timeout = 10; // 10 second timeout
     
     try {
-        // SMTP Settings
+        // Use SMTP with SSL (port 465)
         $mail->isSMTP();
-        $mail->Host = defined('SMTP_HOST') ? SMTP_HOST : 'smtp.example.com';
-        $mail->SMTPAuth = true; // REQUIRED: Always authenticate
-        $mail->Username = SMTP_USER;
-        $mail->Password = SMTP_PASS;
-        $mail->Port = defined('SMTP_PORT') ? SMTP_PORT : 465;
+        $mail->Host = 'mail.webdaddy.online';
+        $mail->SMTPAuth = true;
+        $mail->Username = SMTP_FROM_EMAIL;
+        $mail->Password = defined('SMTP_PASS') ? SMTP_PASS : '';
+        $mail->Port = 465;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         
-        // SECURITY: Enforce encrypted connection (SSL/TLS)
-        $smtpSecure = defined('SMTP_SECURE') ? SMTP_SECURE : 'ssl';
-        if ($smtpSecure === 'ssl') {
-            $mail->SMTPSecure = 'ssl'; // SSL on port 465
-        } else {
-            $mail->SMTPSecure = 'tls'; // TLS on port 587
-        }
-        
-        // SMTP Options - Allow self-signed certificates for internal mail servers
         $mail->SMTPOptions = [
             'ssl' => [
                 'verify_peer' => false,
@@ -53,11 +44,11 @@ function sendEmail($email, $subject, $message) {
             ]
         ];
         
-        // Fix encoding issues - force UTF-8
+        // Force UTF-8 encoding
         $mail->CharSet = 'UTF-8';
         $mail->Encoding = 'base64';
 
-        // Email Settings
+        // Email configuration
         $mail->isHTML(true);
         $mail->setFrom(SMTP_FROM_EMAIL, defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : SITE_NAME);
         $mail->addAddress($email);
@@ -66,49 +57,17 @@ function sendEmail($email, $subject, $message) {
         $mail->Body = $message;
         
         // ============================================================
-        // ADVANCED ANTI-SPAM HEADERS - Prevent emails from going to spam
+        // MINIMAL HEADERS - Prevent email bouncing
         // ============================================================
         
-        // Return-Path header - tells servers where bounces should go
+        // Critical headers for delivery
         $mail->ReturnPath = SMTP_FROM_EMAIL;
         
-        // Generate unique Message-ID for tracking and authentication
-        $messageId = '<' . time() . '-' . rand(10000, 99999) . '@webdaddy.online>';
-        $mail->addCustomHeader('Message-ID', $messageId);
-        
-        // Priority headers - shows this is important/transactional mail
-        $mail->addCustomHeader('X-Priority', '3');
-        $mail->addCustomHeader('X-MSMail-Priority', 'Normal');
-        $mail->addCustomHeader('Importance', 'normal');
-        
-        // Identification headers for authentication
-        $mail->addCustomHeader('X-Mailer', 'WebDaddy-Enterprise-Mail');
-        $mail->addCustomHeader('User-Agent', 'WebDaddy-Enterprise-Mail/1.0');
-        
-        // Authentication and compliance headers
-        $mail->addCustomHeader('X-Originating-IP', '[' . (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1') . ']');
-        
-        // List headers (not for marketing lists, for compliance)
-        $mail->addCustomHeader('List-Unsubscribe', '<' . SITE_URL . '/unsubscribe>, <mailto:' . SMTP_FROM_EMAIL . '?subject=unsubscribe>');
-        $mail->addCustomHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
-        $mail->addCustomHeader('List-ID', '<list.webdaddy.online>');
-        $mail->addCustomHeader('List-Help', '<' . SITE_URL . '/help>');
+        // Mark as transactional (not bulk/marketing)
+        $mail->addCustomHeader('X-Category', 'transaction');
         $mail->addCustomHeader('Precedence', 'bulk');
         
-        // Mark as transactional email (critical - stops bulk mail filters)
-        $mail->addCustomHeader('X-Category', 'transaction');
-        $mail->addCustomHeader('X-Complaints-To', SMTP_FROM_EMAIL);
-        
-        // Authentication Result header (helps with SPF/DKIM/DMARC)
-        $mail->addCustomHeader('X-Authentication-Results', 'webdaddy.online; dkim=pass; dmarc=pass; spf=pass');
-        
-        // Additional compliance headers
-        $mail->addCustomHeader('MIME-Version', '1.0');
-        $mail->addCustomHeader('X-Spam-Checker-Version', 'SpamAssassin');
-        $mail->addCustomHeader('X-Spam-Status', 'No');
-        $mail->addCustomHeader('X-Mailer-IP', gethostbyname(gethostname()) ?: '127.0.0.1');
-        
-        // Add plain text version to improve deliverability
+        // Add plain text alternative for better inbox placement
         $plainText = strip_tags(str_replace(['</p>', '<br>', '<br/>', '<br />'], "\n", $message));
         $mail->AltBody = $plainText;
 
