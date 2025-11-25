@@ -216,9 +216,9 @@ function createPendingOrder($data)
         $stmt = $db->prepare("
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
-             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status,
+             business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status, payment_method,
              original_price, discount_amount, final_amount, order_type)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
         ");
         
         if (!$stmt) {
@@ -237,6 +237,7 @@ function createPendingOrder($data)
             $data['session_id'],
             $data['message_text'],
             $data['ip_address'],
+            $data['payment_method'] ?? 'manual',
             $data['original_price'] ?? null,
             $data['discount_amount'] ?? 0,
             $data['final_amount'] ?? null,
@@ -304,9 +305,9 @@ function createOrderWithItems($orderData, $items = [])
             INSERT INTO pending_orders 
             (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
              customer_phone, business_name, custom_fields, affiliate_code, session_id, 
-             message_text, ip_address, status, original_price, discount_amount, final_amount, 
+             message_text, ip_address, status, payment_method, original_price, discount_amount, final_amount, 
              quantity, cart_snapshot, payment_notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)
         ");
         
         $templateId = $orderData['template_id'] ?? null;
@@ -326,6 +327,7 @@ function createOrderWithItems($orderData, $items = [])
             $orderData['session_id'] ?? session_id(),
             $orderData['message_text'] ?? null,
             $orderData['ip_address'] ?? ($_SERVER['REMOTE_ADDR'] ?? ''),
+            $orderData['payment_method'] ?? 'manual',
             $orderData['original_price'] ?? null,
             $orderData['discount_amount'] ?? 0,
             $orderData['final_amount'],

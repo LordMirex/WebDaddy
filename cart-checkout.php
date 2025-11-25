@@ -80,6 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) {
+    // DEBUG: Log what we receive
+    error_log('POST data received: payment_method=' . ($_POST['payment_method'] ?? 'NOT SET'));
+    
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
     }
@@ -89,6 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         $customerEmail = trim($_POST['customer_email'] ?? '');
         $customerPhone = trim($_POST['customer_phone'] ?? '');
         $paymentMethod = trim($_POST['payment_method'] ?? 'manual');
+        
+        // DEBUG: Log what we parsed
+        error_log('Parsed payment_method=' . $paymentMethod);
         
         if (empty($customerName)) {
             $errors[] = 'Please enter your full name';
@@ -1322,36 +1328,49 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <script>
-        // Make payment method container interactive
-        const container = document.getElementById('payment-method-container');
-        if (container) {
-            container.querySelectorAll('[id$="-option"]').forEach(option => {
-                option.addEventListener('click', function(e) {
-                    // Don't interfere if clicking the radio directly
-                    if (e.target.tagName === 'INPUT' && e.target.type === 'radio') return;
-                    
-                    // Find the radio in this option
-                    const radio = this.querySelector('input[type="radio"]');
-                    if (radio) {
-                        radio.checked = true;
-                        radio.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                });
+        // DIRECT radio button selection
+        const methodManual = document.getElementById('method_manual');
+        const methodAutomatic = document.getElementById('method_automatic');
+        
+        // Make payment method boxes clickable
+        if (document.getElementById('manual-option')) {
+            document.getElementById('manual-option').addEventListener('click', function(e) {
+                console.log('🔘 Manual option clicked');
+                if (methodManual) {
+                    methodManual.checked = true;
+                    methodManual.dispatchEvent(new Event('change', { bubbles: true }));
+                }
             });
         }
         
-        // Update submit button text when payment method changes
-        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                console.log('💰 Payment method changed to:', this.value);
-                const submitText = document.getElementById('submit-text');
-                if (this.value === 'automatic') {
-                    submitText.textContent = 'Proceed to Card Payment →';
-                } else {
-                    submitText.textContent = 'Confirm Order - Manual Payment';
+        if (document.getElementById('automatic-option')) {
+            document.getElementById('automatic-option').addEventListener('click', function(e) {
+                console.log('🔘 Automatic option clicked');
+                if (methodAutomatic) {
+                    methodAutomatic.checked = true;
+                    methodAutomatic.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             });
-        });
+        }
+        
+        // Direct change listeners on radios
+        if (methodManual) {
+            methodManual.addEventListener('change', function() {
+                console.log('✅ Manual radio changed - checked:', this.checked);
+                if (this.checked) {
+                    document.getElementById('submit-text').textContent = 'Confirm Order - Manual Payment';
+                }
+            });
+        }
+        
+        if (methodAutomatic) {
+            methodAutomatic.addEventListener('change', function() {
+                console.log('✅ Automatic radio changed - checked:', this.checked);
+                if (this.checked) {
+                    document.getElementById('submit-text').textContent = 'Proceed to Card Payment →';
+                }
+            });
+        }
         
         // AJAX Checkout Form Handler
         function handleCheckoutSubmit(event) {
@@ -1359,6 +1378,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             const form = event.target;
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
+            
+            // VERIFY radio states
+            const manualRadio = document.getElementById('method_manual');
+            const autoRadio = document.getElementById('method_automatic');
+            console.log('🔍 PRE-SUBMIT CHECK - Manual checked:', manualRadio?.checked, 'Auto checked:', autoRadio?.checked);
+            
             const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
             
             // DEBUG: Log which payment method is selected
