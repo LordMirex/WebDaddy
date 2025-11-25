@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/cart.php';
 require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/email_queue.php';
+require_once __DIR__ . '/includes/delivery.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -459,6 +460,15 @@ if ($confirmedOrderId) {
         $whatsappUrlPaymentProof = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessagePaymentProof;
         $whatsappUrlDiscussion = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessageDiscussion;
         
+        // Get delivery information (including assigned domains)
+        $deliveries = getDeliveryStatus($confirmedOrderId);
+        
+        // Map deliveries by product_id for easy lookup
+        $deliveriesByProductId = [];
+        foreach ($deliveries as $delivery) {
+            $deliveriesByProductId[$delivery['product_id']] = $delivery;
+        }
+        
         $confirmationData = [
             'order' => $order,
             'orderItems' => $orderItems,
@@ -469,7 +479,9 @@ if ($confirmedOrderId) {
             'whatsappUrlDiscussion' => $whatsappUrlDiscussion,
             'bankAccountNumber' => $bankAccountNumber,
             'bankName' => $bankName,
-            'bankNumber' => $bankNumber
+            'bankNumber' => $bankNumber,
+            'deliveries' => $deliveries,
+            'deliveriesByProductId' => $deliveriesByProductId
         ];
     } else {
         // Invalid order or unauthorized access - redirect to home
@@ -920,12 +932,33 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <br/>✓ You'll receive domain details via email & WhatsApp
                             </div>
                             <?php foreach ($templates as $item): ?>
+                            <?php 
+                            $delivery = $confirmationData['deliveriesByProductId'][$item['product_id']] ?? null;
+                            $hasDomain = !empty($delivery['hosted_domain']);
+                            ?>
                             <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0 mb-2">
                                 <div class="flex-1">
                                     <h5 class="font-semibold text-white"><?php echo htmlspecialchars($item['template_name'] ?? 'Template'); ?></h5>
                                     <div class="text-sm text-gray-100">
                                         <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?> = <span class="text-primary-400"><?php echo formatCurrency($item['final_amount']); ?></span></p>
                                     </div>
+                                    
+                                    <!-- SHOW DOMAIN IF ASSIGNED -->
+                                    <?php if ($hasDomain): ?>
+                                    <div class="mt-2 p-2 bg-green-900/30 border border-green-600/50 rounded">
+                                        <p class="text-xs text-green-300 font-semibold mb-1">✅ Your Domain is Ready!</p>
+                                        <p class="text-sm font-bold text-green-400">🌐 <?php echo htmlspecialchars($delivery['hosted_domain']); ?></p>
+                                        <?php if (!empty($delivery['hosted_url'])): ?>
+                                        <a href="<?php echo htmlspecialchars($delivery['hosted_url']); ?>" target="_blank" 
+                                           class="text-xs text-blue-300 hover:text-blue-200 underline mt-1 inline-block">
+                                            🔗 Visit Your Website
+                                        </a>
+                                        <?php endif; ?>
+                                        <?php if (!empty($delivery['admin_notes'])): ?>
+                                        <p class="text-xs text-gray-300 mt-2 italic">📝 Note: <?php echo htmlspecialchars($delivery['admin_notes']); ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <?php endforeach; ?>
