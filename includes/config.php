@@ -102,8 +102,13 @@ define('DISPLAY_ERRORS', false);
 
 // Payment Settings
 define('PAYMENT_CURRENCY', 'NGN');
-define('DOWNLOAD_LINK_EXPIRY_DAYS', 7);
-define('MAX_DOWNLOAD_ATTEMPTS', 5);
+define('DOWNLOAD_LINK_EXPIRY_DAYS', 30);
+define('MAX_DOWNLOAD_ATTEMPTS', 10);
+
+// Delivery Settings (Phase 3)
+define('DELIVERY_RETRY_MAX_ATTEMPTS', 3);
+define('DELIVERY_RETRY_BASE_DELAY_SECONDS', 60);
+define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 
 // ============================================
 // DATABASE & ERROR REPORTING

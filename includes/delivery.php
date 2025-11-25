@@ -9,6 +9,10 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/mailer.php';
 require_once __DIR__ . '/tool_files.php';
 
+if (!defined('DELIVERY_RETRY_MAX_ATTEMPTS')) {
+    define('DELIVERY_RETRY_MAX_ATTEMPTS', 3);
+}
+
 /**
  * Create delivery records for an order
  */
@@ -49,19 +53,17 @@ function createDeliveryRecords($orderId) {
 
 /**
  * Create tool delivery
+ * Phase 3: Enhanced with retry mechanism and improved email
  */
-function createToolDelivery($orderId, $item) {
+function createToolDelivery($orderId, $item, $retryAttempt = 0) {
     $db = getDb();
     
-    // Get customer email from order
     $stmt = $db->prepare("SELECT customer_email, customer_name FROM pending_orders WHERE id = ?");
     $stmt->execute([$orderId]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Get tool files
     $files = getToolFiles($item['product_id']);
     
-    // Generate download links
     $downloadLinks = [];
     foreach ($files as $file) {
         $link = generateDownloadLink($file['id'], $orderId);
@@ -70,12 +72,12 @@ function createToolDelivery($orderId, $item) {
         }
     }
     
-    // Create delivery record
     $stmt = $db->prepare("
         INSERT INTO deliveries (
             pending_order_id, order_item_id, product_id, product_type, product_name,
-            delivery_method, delivery_type, delivery_status, delivery_link, delivery_note
-        ) VALUES (?, ?, ?, 'tool', ?, 'download', 'immediate', 'ready', ?, ?)
+            delivery_method, delivery_type, delivery_status, delivery_link, delivery_note,
+            retry_count
+        ) VALUES (?, ?, ?, 'tool', ?, 'download', 'immediate', 'ready', ?, ?, ?)
     ");
     $stmt->execute([
         $orderId,
@@ -83,39 +85,282 @@ function createToolDelivery($orderId, $item) {
         $item['product_id'],
         $item['product_name'],
         json_encode($downloadLinks),
-        $item['delivery_note']
+        $item['delivery_note'],
+        $retryAttempt
     ]);
     
     $deliveryId = $db->lastInsertId();
     
-    // Send delivery email with download links
     if ($order && $order['customer_email'] && !empty($downloadLinks)) {
-        $subject = "Your {$item['product_name']} is Ready to Download! - Order #{$orderId}";
+        $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId);
         
-        // Build download links HTML
-        $downloadLinksHtml = '<p><strong>📥 Download Your Files:</strong></p>';
-        $downloadLinksHtml .= '<div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 15px 0;">';
-        
-        foreach ($downloadLinks as $link) {
-            $fileName = htmlspecialchars($link['name'] ?? 'Download File');
-            $fileUrl = htmlspecialchars($link['url'] ?? '');
-            $expiryDate = htmlspecialchars($link['expires_at'] ?? 'Not specified');
-            
-            $downloadLinksHtml .= '<div style="margin-bottom: 12px;">';
-            $downloadLinksHtml .= '<a href="' . $fileUrl . '" style="background-color: #1e3a8a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">📥 Download: ' . $fileName . '</a>';
-            $downloadLinksHtml .= '<br><small style="color: #666;">Expires: ' . $expiryDate . '</small>';
-            $downloadLinksHtml .= '</div>';
+        if (!$emailSent && $retryAttempt < DELIVERY_RETRY_MAX_ATTEMPTS) {
+            scheduleDeliveryRetry($deliveryId, 'tool', $retryAttempt + 1);
         }
         
-        $downloadLinksHtml .= '</div>';
-        $downloadLinksHtml .= '<p style="color: #666; font-size: 12px;">Links expire on ' . htmlspecialchars($downloadLinks[0]['expires_at'] ?? 'the expiry date') . '. Download and save your files before they expire.</p>';
-        
-        $body = '<p>Great news! Your tool <strong>' . htmlspecialchars($item['product_name']) . '</strong> is ready for download!</p>' . $downloadLinksHtml;
-        
-        sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+        $stmt = $db->prepare("
+            UPDATE deliveries SET 
+                delivery_status = ?,
+                email_sent_at = CASE WHEN ? = 1 THEN datetime('now') ELSE email_sent_at END,
+                delivered_at = CASE WHEN ? = 1 THEN datetime('now') ELSE delivered_at END
+            WHERE id = ?
+        ");
+        $stmt->execute([
+            $emailSent ? 'delivered' : 'pending',
+            $emailSent ? 1 : 0,
+            $emailSent ? 1 : 0,
+            $deliveryId
+        ]);
     }
     
     return $deliveryId;
+}
+
+/**
+ * Send tool delivery email with enhanced template
+ * Phase 3: Professional email with file sizes, tips, clear expiry, and bundle download
+ */
+function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
+    $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+    $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+    
+    $subject = "📥 Your {$item['product_name']} is Ready to Download! - Order #{$orderId}";
+    
+    $totalSize = 0;
+    foreach ($downloadLinks as $link) {
+        $totalSize += $link['file_size'] ?? 0;
+    }
+    $totalSizeFormatted = formatFileSize($totalSize);
+    $fileCount = count($downloadLinks);
+    
+    $bundleUrl = null;
+    if ($fileCount > 1) {
+        require_once __DIR__ . '/tool_files.php';
+        $bundleResult = generateBundleDownloadToken($orderId, $item['product_id']);
+        if ($bundleResult['success']) {
+            $bundleUrl = $bundleResult['url'];
+        }
+    }
+    
+    $body = '<div style="text-align: center; margin-bottom: 25px;">';
+    $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Your Digital Product is Ready!</h2>';
+    $body .= '<p style="color: #666; margin-top: 10px;">Order #' . $orderId . '</p>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+    $body .= '<h3 style="margin: 0 0 10px 0;">' . htmlspecialchars($item['product_name']) . '</h3>';
+    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">' . $fileCount . ' file' . ($fileCount > 1 ? 's' : '') . ' • ' . $totalSizeFormatted . ' total</p>';
+    $body .= '</div>';
+    
+    if ($bundleUrl && $fileCount > 1) {
+        $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+        $body .= '<h4 style="margin: 0 0 10px 0;">📦 Download Everything at Once</h4>';
+        $body .= '<p style="margin: 0 0 15px 0; font-size: 14px; opacity: 0.9;">Get all ' . $fileCount . ' files in a single ZIP bundle</p>';
+        $body .= '<a href="' . htmlspecialchars($bundleUrl) . '" style="background: white; color: #059669; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">📥 Download All (' . $totalSizeFormatted . ')</a>';
+        $body .= '</div>';
+    }
+    
+    $body .= '<div style="background-color: #f8fafc; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
+    $body .= '<h4 style="color: #1e3a8a; margin: 0 0 20px 0;">📥 Individual Download Links</h4>';
+    
+    foreach ($downloadLinks as $index => $link) {
+        $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+        $fileUrl = htmlspecialchars($link['url'] ?? '');
+        $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
+        $fileType = ucfirst($link['file_type'] ?? 'file');
+        $expiryFormatted = $link['expires_formatted'] ?? date('F j, Y', strtotime("+{$expiryDays} days"));
+        
+        $body .= '<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">';
+        $body .= '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">';
+        $body .= '<div style="margin-bottom: 10px;">';
+        $body .= '<strong style="color: #1e3a8a; font-size: 15px;">' . $fileName . '</strong>';
+        $body .= '<div style="color: #666; font-size: 12px; margin-top: 4px;">' . $fileType . ' • ' . $fileSize . '</div>';
+        $body .= '</div>';
+        $body .= '</div>';
+        $body .= '<a href="' . $fileUrl . '" style="background: #1e3a8a; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px; margin-top: 5px;">📥 Download File</a>';
+        $body .= '</div>';
+    }
+    
+    $body .= '</div>';
+    
+    $body .= '<div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">';
+    $body .= '<h4 style="color: #92400e; margin: 0 0 10px 0;">⏰ Important: Download Expiry</h4>';
+    $body .= '<p style="color: #92400e; margin: 0; line-height: 1.6;">';
+    $body .= 'Your download links will expire in <strong>' . $expiryDays . ' days</strong> (on ' . date('F j, Y', strtotime("+{$expiryDays} days")) . ').<br>';
+    $body .= 'Each link allows up to <strong>' . $maxDownloads . ' downloads</strong>. Save your files to a secure location after downloading.';
+    $body .= '</p>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
+    $body .= '<h4 style="color: #065f46; margin: 0 0 15px 0;">💡 Tips for Best Experience</h4>';
+    $body .= '<ul style="color: #065f46; margin: 0; padding-left: 20px; line-height: 1.8;">';
+    $body .= '<li>Use a stable internet connection for large downloads</li>';
+    $body .= '<li>Extract ZIP files after downloading to access contents</li>';
+    $body .= '<li>Read any README or documentation files included</li>';
+    $body .= '<li>Keep a backup copy in cloud storage for safety</li>';
+    $body .= '</ul>';
+    $body .= '</div>';
+    
+    if (!empty($item['delivery_note'])) {
+        $body .= '<div style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #bae6fd;">';
+        $body .= '<h4 style="color: #0369a1; margin: 0 0 10px 0;">📝 Product Notes</h4>';
+        $body .= '<p style="color: #0369a1; margin: 0; line-height: 1.6;">' . htmlspecialchars($item['delivery_note']) . '</p>';
+        $body .= '</div>';
+    }
+    
+    $body .= '<div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px;">';
+    $body .= '<p style="color: #64748b; margin: 0 0 10px 0; font-size: 14px;">Need help? Contact us anytime:</p>';
+    $body .= '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER) . '" style="color: #1e3a8a; font-weight: bold; text-decoration: none;">💬 WhatsApp: ' . WHATSAPP_NUMBER . '</a>';
+    $body .= '</div>';
+    
+    require_once __DIR__ . '/mailer.php';
+    return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+}
+
+/**
+ * Schedule delivery retry with exponential backoff
+ * Phase 3: Auto-retry mechanism
+ */
+function scheduleDeliveryRetry($deliveryId, $deliveryType, $attemptNumber) {
+    $db = getDb();
+    
+    $baseDelay = defined('DELIVERY_RETRY_BASE_DELAY_SECONDS') ? DELIVERY_RETRY_BASE_DELAY_SECONDS : 60;
+    $delay = $baseDelay * pow(2, $attemptNumber - 1);
+    $scheduledAt = date('Y-m-d H:i:s', time() + $delay);
+    
+    $stmt = $db->prepare("
+        UPDATE deliveries SET 
+            retry_count = ?,
+            next_retry_at = ?,
+            delivery_status = 'pending_retry'
+        WHERE id = ?
+    ");
+    $stmt->execute([$attemptNumber, $scheduledAt, $deliveryId]);
+    
+    error_log("Scheduled delivery retry #{$attemptNumber} for delivery #{$deliveryId} at {$scheduledAt}");
+    
+    return $scheduledAt;
+}
+
+/**
+ * Process pending delivery retries
+ * Phase 3: Called by cron job
+ */
+function processDeliveryRetries() {
+    $db = getDb();
+    $maxAttempts = defined('DELIVERY_RETRY_MAX_ATTEMPTS') ? DELIVERY_RETRY_MAX_ATTEMPTS : 3;
+    
+    $stmt = $db->query("
+        SELECT d.*, po.customer_email, po.customer_name
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.delivery_status = 'pending_retry'
+          AND d.next_retry_at <= datetime('now')
+          AND d.retry_count < {$maxAttempts}
+        ORDER BY d.next_retry_at ASC
+        LIMIT 10
+    ");
+    $retries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $processed = 0;
+    $successful = 0;
+    
+    foreach ($retries as $delivery) {
+        $processed++;
+        
+        if ($delivery['product_type'] === 'tool') {
+            $downloadLinks = json_decode($delivery['delivery_link'], true) ?? [];
+            $item = [
+                'product_name' => $delivery['product_name'],
+                'delivery_note' => $delivery['delivery_note']
+            ];
+            $order = [
+                'customer_email' => $delivery['customer_email'],
+                'customer_name' => $delivery['customer_name']
+            ];
+            
+            $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $delivery['pending_order_id']);
+            
+            if ($emailSent) {
+                $updateStmt = $db->prepare("
+                    UPDATE deliveries SET 
+                        delivery_status = 'delivered',
+                        email_sent_at = datetime('now'),
+                        delivered_at = datetime('now'),
+                        next_retry_at = NULL
+                    WHERE id = ?
+                ");
+                $updateStmt->execute([$delivery['id']]);
+                $successful++;
+                error_log("Delivery retry successful for delivery #{$delivery['id']}");
+            } else {
+                $newAttempt = $delivery['retry_count'] + 1;
+                if ($newAttempt < $maxAttempts) {
+                    scheduleDeliveryRetry($delivery['id'], 'tool', $newAttempt);
+                } else {
+                    $failStmt = $db->prepare("
+                        UPDATE deliveries SET 
+                            delivery_status = 'failed',
+                            next_retry_at = NULL
+                        WHERE id = ?
+                    ");
+                    $failStmt->execute([$delivery['id']]);
+                    error_log("Delivery permanently failed after {$maxAttempts} attempts for delivery #{$delivery['id']}");
+                }
+            }
+        }
+    }
+    
+    return ['processed' => $processed, 'successful' => $successful];
+}
+
+/**
+ * Resend tool delivery email (manual admin action)
+ * Phase 3: Admin can resend emails
+ */
+function resendToolDeliveryEmail($deliveryId) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        SELECT d.*, po.customer_email, po.customer_name
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.id = ? AND d.product_type = 'tool'
+    ");
+    $stmt->execute([$deliveryId]);
+    $delivery = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$delivery) {
+        return ['success' => false, 'message' => 'Tool delivery not found'];
+    }
+    
+    $downloadLinks = json_decode($delivery['delivery_link'], true) ?? [];
+    if (empty($downloadLinks)) {
+        return ['success' => false, 'message' => 'No download links found for this delivery'];
+    }
+    
+    $item = [
+        'product_name' => $delivery['product_name'],
+        'delivery_note' => $delivery['delivery_note']
+    ];
+    $order = [
+        'customer_email' => $delivery['customer_email'],
+        'customer_name' => $delivery['customer_name']
+    ];
+    
+    $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $delivery['pending_order_id']);
+    
+    if ($emailSent) {
+        $updateStmt = $db->prepare("
+            UPDATE deliveries SET 
+                email_sent_at = datetime('now')
+            WHERE id = ?
+        ");
+        $updateStmt->execute([$deliveryId]);
+        return ['success' => true, 'message' => 'Tool delivery email resent successfully'];
+    }
+    
+    return ['success' => false, 'message' => 'Failed to send email. Please try again.'];
 }
 
 /**

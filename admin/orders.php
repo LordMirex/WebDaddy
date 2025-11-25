@@ -400,6 +400,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } elseif ($action === 'regenerate_download_link') {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                require_once __DIR__ . '/../includes/tool_files.php';
+                
+                $tokenId = intval($_POST['token_id'] ?? 0);
+                $orderId = intval($_POST['order_id'] ?? 0);
+                
+                if ($tokenId <= 0) {
+                    $errorMessage = 'Invalid download token ID.';
+                } else {
+                    $result = regenerateDownloadLink($tokenId);
+                    
+                    if ($result['success']) {
+                        $successMessage = 'Download link regenerated successfully! New link: ' . $result['link']['url'];
+                        logActivity('download_link_regenerated', "Regenerated download link for token #$tokenId, order #$orderId", getAdminId());
+                        
+                        if ($orderId > 0) {
+                            header("Location: /admin/orders.php?view=" . $orderId . "&success=" . urlencode($successMessage));
+                            exit;
+                        }
+                    } else {
+                        $errorMessage = $result['message'];
+                    }
+                }
+            }
+        } elseif ($action === 'resend_tool_email') {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                require_once __DIR__ . '/../includes/delivery.php';
+                
+                $deliveryId = intval($_POST['delivery_id'] ?? 0);
+                $orderId = intval($_POST['order_id'] ?? 0);
+                
+                if ($deliveryId <= 0) {
+                    $errorMessage = 'Invalid delivery ID.';
+                } else {
+                    $result = resendToolDeliveryEmail($deliveryId);
+                    
+                    if ($result['success']) {
+                        $successMessage = 'Tool delivery email resent successfully!';
+                        logActivity('tool_email_resent', "Resent tool delivery email for delivery #$deliveryId", getAdminId());
+                        
+                        if ($orderId > 0) {
+                            header("Location: /admin/orders.php?view=" . $orderId . "&success=" . urlencode($successMessage));
+                            exit;
+                        }
+                    } else {
+                        $errorMessage = $result['message'];
+                    }
+                }
+            }
         }
     }
 }
@@ -1559,14 +1613,87 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                             </div>
                         </div>
                         
-                        <form method="POST" class="mt-4 pt-4 border-t border-green-200">
-                            <input type="hidden" name="action" value="resend_template_email">
-                            <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
-                            <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
-                            <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
-                                <i class="bi bi-envelope mr-1"></i> Resend Credentials Email
+                        <div class="mt-4 pt-4 border-t border-green-200 flex flex-wrap gap-3">
+                            <form method="POST" class="inline">
+                                <input type="hidden" name="action" value="resend_template_email">
+                                <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                                    <i class="bi bi-envelope mr-1"></i> Resend Email
+                                </button>
+                            </form>
+                            <button type="button" onclick="document.getElementById('update-creds-<?php echo $delivery['id']; ?>').classList.toggle('hidden')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                                <i class="bi bi-pencil mr-1"></i> Update Credentials
                             </button>
-                        </form>
+                        </div>
+                        
+                        <div id="update-creds-<?php echo $delivery['id']; ?>" class="hidden mt-4 pt-4 border-t border-green-200">
+                            <form method="POST" class="space-y-4">
+                                <input type="hidden" name="action" value="save_template_credentials">
+                                <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
+                                <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                                
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <h5 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                        <i class="bi bi-pencil-square"></i> Update & Re-deliver Credentials
+                                    </h5>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Domain Name</label>
+                                            <input type="text" name="hosted_domain" value="<?php echo htmlspecialchars($delivery['hosted_domain'] ?? ''); ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+                                            <input type="url" name="hosted_url" value="<?php echo htmlspecialchars($delivery['hosted_url'] ?? ''); ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Login URL</label>
+                                            <input type="url" name="template_login_url" value="<?php echo htmlspecialchars($delivery['template_login_url'] ?? ''); ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Hosting Type</label>
+                                            <select name="hosting_provider" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                                <option value="wordpress" <?php echo ($delivery['hosting_provider'] ?? '') === 'wordpress' ? 'selected' : ''; ?>>WordPress</option>
+                                                <option value="cpanel" <?php echo ($delivery['hosting_provider'] ?? '') === 'cpanel' ? 'selected' : ''; ?>>cPanel</option>
+                                                <option value="custom" <?php echo ($delivery['hosting_provider'] ?? '') === 'custom' || empty($delivery['hosting_provider']) ? 'selected' : ''; ?>>Custom Admin</option>
+                                                <option value="static" <?php echo ($delivery['hosting_provider'] ?? '') === 'static' ? 'selected' : ''; ?>>Static Site</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
+                                            <input type="text" name="template_admin_username" value="<?php echo htmlspecialchars($delivery['template_admin_username'] ?? ''); ?>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password (leave blank to keep)</label>
+                                            <input type="password" name="template_admin_password" placeholder="Leave blank to keep current" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Special Instructions</label>
+                                        <textarea name="admin_notes" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"><?php echo htmlspecialchars($delivery['admin_notes'] ?? ''); ?></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                    <input type="checkbox" name="send_email" value="1" id="resend_after_update_<?php echo $delivery['id']; ?>" checked class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                                    <label for="resend_after_update_<?php echo $delivery['id']; ?>" class="text-sm text-yellow-800">
+                                        <strong>Send updated credentials to customer</strong>
+                                    </label>
+                                </div>
+                                
+                                <div class="flex gap-3">
+                                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                                        <i class="bi bi-save mr-1"></i> Update & Send
+                                    </button>
+                                    <button type="button" onclick="document.getElementById('update-creds-<?php echo $delivery['id']; ?>').classList.add('hidden')" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     <?php else: 
                         $hasExistingPassword = !empty($delivery['template_admin_password']);
@@ -1654,6 +1781,140 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 endif;
                 endif;
             ?>
+            
+            <?php
+            require_once __DIR__ . '/../includes/tool_files.php';
+            $toolDeliveries = array_filter($orderDeliveries ?? [], function($d) { return $d['product_type'] === 'tool'; });
+            
+            if (!empty($toolDeliveries)):
+            ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase flex items-center gap-2">
+                    <i class="bi bi-tools text-primary-600"></i> Tool Downloads & Delivery
+                </h6>
+                
+                <?php foreach ($toolDeliveries as $delivery): 
+                    $tokens = getDownloadTokens($viewOrder['id'], $delivery['product_id']);
+                    $isDelivered = $delivery['delivery_status'] === 'delivered';
+                    $retryCount = $delivery['retry_count'] ?? 0;
+                ?>
+                <div class="bg-white border-2 <?php echo $isDelivered ? 'border-green-200' : 'border-yellow-200'; ?> rounded-xl p-5 mb-4 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg">🔧</span>
+                            <span class="font-bold text-gray-900"><?php echo htmlspecialchars($delivery['product_name']); ?></span>
+                            <?php if ($isDelivered): ?>
+                            <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                <i class="bi bi-check-circle-fill mr-1"></i> Delivered
+                            </span>
+                            <?php elseif ($delivery['delivery_status'] === 'pending_retry'): ?>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                <i class="bi bi-arrow-repeat mr-1"></i> Retry #<?php echo $retryCount; ?> Pending
+                            </span>
+                            <?php elseif ($delivery['delivery_status'] === 'failed'): ?>
+                            <span class="bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                <i class="bi bi-x-circle-fill mr-1"></i> Failed (<?php echo $retryCount; ?> retries)
+                            </span>
+                            <?php else: ?>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                <i class="bi bi-clock mr-1"></i> Pending
+                            </span>
+                            <?php endif; ?>
+                        </div>
+                        <span class="text-xs text-gray-500">Delivery #<?php echo $delivery['id']; ?></span>
+                    </div>
+                    
+                    <?php if (!empty($tokens)): ?>
+                    <div class="mb-4 bg-gray-50 rounded-lg p-4">
+                        <h5 class="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wide">📥 Download Links</h5>
+                        <div class="space-y-3">
+                            <?php foreach ($tokens as $token): 
+                                $isExpired = strtotime($token['expires_at']) < time();
+                                $expiresIn = strtotime($token['expires_at']) - time();
+                                $daysLeft = ceil($expiresIn / 86400);
+                                $downloadsUsed = $token['download_count'] ?? 0;
+                                $maxDownloads = $token['max_downloads'] ?? 10;
+                            ?>
+                            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i class="bi bi-file-earmark-zip text-primary-600"></i>
+                                        <span class="font-medium text-gray-900 text-sm"><?php echo htmlspecialchars($token['file_name']); ?></span>
+                                        <span class="text-xs text-gray-500">(<?php echo formatFileSize($token['file_size']); ?>)</span>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                                        <span>
+                                            <i class="bi bi-download mr-1"></i>
+                                            <?php echo $downloadsUsed; ?>/<?php echo $maxDownloads; ?> downloads
+                                        </span>
+                                        <?php if ($isExpired): ?>
+                                        <span class="text-red-600 font-semibold">
+                                            <i class="bi bi-exclamation-circle mr-1"></i> Expired
+                                        </span>
+                                        <?php elseif ($daysLeft <= 3): ?>
+                                        <span class="text-yellow-600 font-semibold">
+                                            <i class="bi bi-clock mr-1"></i> Expires in <?php echo $daysLeft; ?> day(s)
+                                        </span>
+                                        <?php else: ?>
+                                        <span class="text-green-600">
+                                            <i class="bi bi-clock mr-1"></i> Valid for <?php echo $daysLeft; ?> days
+                                        </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center gap-2">
+                                    <?php if ($isExpired || $downloadsUsed >= $maxDownloads): ?>
+                                    <form method="POST" class="inline">
+                                        <input type="hidden" name="action" value="regenerate_download_link">
+                                        <input type="hidden" name="token_id" value="<?php echo $token['id']; ?>">
+                                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                                        <button type="submit" class="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg transition-colors" title="Generate new link">
+                                            <i class="bi bi-arrow-repeat"></i> Regenerate
+                                        </button>
+                                    </form>
+                                    <?php else: ?>
+                                    <button type="button" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors copy-link-btn" data-url="<?php echo htmlspecialchars(SITE_URL . '/download.php?token=' . $token['token']); ?>" title="Copy download link">
+                                        <i class="bi bi-clipboard"></i> Copy
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="flex gap-3">
+                        <form method="POST" class="inline">
+                            <input type="hidden" name="action" value="resend_tool_email">
+                            <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
+                            <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                            <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                                <i class="bi bi-envelope mr-1"></i> Resend Download Email
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <script>
+            document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var url = this.getAttribute('data-url');
+                    navigator.clipboard.writeText(url).then(function() {
+                        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                        setTimeout(function() {
+                            btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy';
+                        }, 2000);
+                    });
+                });
+            });
+            </script>
+            <?php endif; ?>
             
             <?php if ($viewOrder['status'] === 'pending'): ?>
             <div class="mb-6">
