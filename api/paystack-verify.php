@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/paystack.php';
 require_once __DIR__ . '/../includes/delivery.php';
 require_once __DIR__ . '/../includes/cart.php';
 require_once __DIR__ . '/../includes/mailer.php';
+require_once __DIR__ . '/../includes/email_queue.php';
 
 header('Content-Type: application/json');
 
@@ -139,9 +140,8 @@ try {
             error_log("✅ PAYSTACK VERIFY: Creating delivery records");
             createDeliveryRecords($orderId);
             
-            // Queue customer confirmation and affiliate emails (QUEUED ONLY, NOT SENT - keeps response fast!)
+            // Queue customer confirmation and affiliate emails - PROCESS IMMEDIATELY
             error_log("✅ PAYSTACK VERIFY: Queueing confirmation emails");
-            require_once __DIR__ . '/../includes/email_queue.php';
             
             // Queue payment confirmation email to customer
             if (!empty($order['customer_email'])) {
@@ -164,8 +164,9 @@ try {
                 }
             }
             
-            // NOTE: Emails are QUEUED but NOT PROCESSED here - keeps response fast!
-            // Background process will send them periodically
+            // CRITICAL: Process queued emails immediately so they get sent
+            processEmailQueue();
+            error_log("✅ PAYSTACK VERIFY: Queued emails processed");
             
             clearCart();
             

@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/cart.php';
 require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/mailer.php';
+require_once __DIR__ . '/includes/email_queue.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -293,14 +294,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 );
             }
             
-            // Queue affiliate opportunity email (DO NOT PROCESS - keep checkout fast!)
-            // Email will be processed in background
+            // Queue affiliate opportunity email - PROCESS IMMEDIATELY to ensure it sends
             if (!empty($customerEmail)) {
                 if (!isEmailAffiliate($customerEmail) && !hasAffiliateInvitationBeenSent($customerEmail)) {
                     sendAffiliateOpportunityEmail($customerName, $customerEmail);
-                    // NOTE: Email queued but NOT processed here - keeps checkout response time fast
                 }
             }
+            
+            // CRITICAL: Process queued emails immediately so they get sent
+            processEmailQueue();
             
             // Clear cart only on successful order creation
             clearCart();
