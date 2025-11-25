@@ -10,24 +10,34 @@ Preferred communication style: Simple, everyday language.
 
 ## Latest Updates (November 25, 2025) - Template Domain Delivery System 🌐
 
-### TEMPLATE DELIVERY WITH DOMAIN ASSIGNMENT
-- **Real-time domain display** - When admin assigns domain, customer immediately sees it on confirmation page
-- **Beautiful delivery UI** with green status indicator:
-  - Shows "✅ Your Domain is Ready!"
+### TEMPLATE DELIVERY WITH DOMAIN ASSIGNMENT & AUTOMATED EMAIL
+- **Confirmation page shows customer email** - Blue notification box displays email address where domain details will be sent
+- **Email timing** - "📧 We'll send your domain details within 24 hours after admin assigns your domain"
+- **Two-stage delivery flow**:
+  1. **Stage 1 - Pending**: Customer receives confirmation, waits for domain assignment
+  2. **Stage 2 - Delivered**: Admin assigns domain → System automatically emails customer with full details
+  3. **Status**: Delivery marked as "delivered" ONLY after email is sent to customer
+- **Beautiful delivery UI** with real-time updates:
+  - Shows "✅ Your Domain is Ready!" once domain is assigned
   - Displays domain name: "🌐 example.com"
   - Shows "🔗 Visit Your Website" link (when hosted_url available)
   - Displays admin notes if provided
-- **Admin interface integration** - Admin can assign domain in deliveries table:
-  - Fill `hosted_domain` column (domain name)
-  - Fill `hosted_url` column (full website URL)
-  - Add `admin_notes` for special instructions
-- **Automatic delivery tracking** - Deliveries created for every template at payment confirmation
-- **Database structure** - `deliveries` table supports:
-  - `hosted_domain` - Domain name (e.g., "mysite.com")
-  - `hosted_url` - Full URL to hosted website
-  - `admin_notes` - Instructions/notes for customer
-  - `delivery_status` - pending/ready/delivered
-  - `delivered_at` - Timestamp when domain assigned
+- **Admin workflow** - To deliver template:
+  1. Update `deliveries` table for that order's template:
+     - Set `hosted_domain` = domain name (e.g., "mysite.com")
+     - Set `hosted_url` = full website URL
+     - Add `admin_notes` if needed
+  2. System automatically:
+     - Sends beautiful HTML email to customer with domain details
+     - Updates `delivery_status` to "delivered"
+     - Sets `email_sent_at` timestamp
+     - Customer sees updated confirmation page immediately
+- **Email content includes**:
+  - Template product name
+  - Domain name (highlighted)
+  - Website URL (clickable link)
+  - Admin special instructions (if any)
+  - "Visit Your Website" button
 
 ### Previous Updates: Unified Beautiful Checkout ✨
 

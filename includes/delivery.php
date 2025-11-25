@@ -150,23 +150,70 @@ function createTemplateDelivery($orderId, $item) {
 }
 
 /**
- * Mark template as ready
+ * Mark template as ready and send email
  */
-function markTemplateReady($deliveryId, $hostedUrl, $adminNotes = '') {
+function markTemplateReady($deliveryId, $hostedDomain, $hostedUrl, $adminNotes = '') {
     $db = getDb();
     
+    // Get delivery details
+    $stmt = $db->prepare("SELECT * FROM deliveries WHERE id = ?");
+    $stmt->execute([$deliveryId]);
+    $delivery = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$delivery) {
+        throw new Exception('Delivery not found');
+    }
+    
+    // Get order to get customer email
+    $stmt = $db->prepare("SELECT customer_name, customer_email, customer_phone FROM pending_orders WHERE id = ?");
+    $stmt->execute([$delivery['pending_order_id']]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Update delivery status
     $stmt = $db->prepare("
         UPDATE deliveries 
-        SET delivery_status = 'ready',
+        SET delivery_status = 'delivered',
+            hosted_domain = ?,
             hosted_url = ?,
             admin_notes = ?,
-            delivered_at = datetime('now')
+            delivered_at = datetime('now'),
+            email_sent_at = datetime('now')
         WHERE id = ?
     ");
-    $stmt->execute([$hostedUrl, $adminNotes, $deliveryId]);
+    $stmt->execute([$hostedDomain, $hostedUrl, $adminNotes, $deliveryId]);
     
-    // Send "template ready" email directly
-    // This will be sent by admin when template is ready
+    // Send "template ready" email to customer
+    if ($order && $order['customer_email']) {
+        sendTemplateDeliveryEmail($order, $delivery, $hostedDomain, $hostedUrl, $adminNotes);
+    }
+}
+
+/**
+ * Send template delivery email with domain details
+ */
+function sendTemplateDeliveryEmail($order, $delivery, $hostedDomain, $hostedUrl, $adminNotes = '') {
+    $subject = "🎉 Your Website Template is Ready! Domain: " . htmlspecialchars($hostedDomain) . " - Order #" . $delivery['pending_order_id'];
+    
+    $body = '<p>Great news! 🎉</p>';
+    $body .= '<p>Your website template <strong>' . htmlspecialchars($delivery['product_name']) . '</strong> has been deployed and is ready to use!</p>';
+    
+    $body .= '<div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; margin: 20px 0;">';
+    $body .= '<h3 style="color: #333; margin-top: 0;">🌐 Your Domain Details:</h3>';
+    $body .= '<p style="color: #666;"><strong>Domain:</strong> <span style="font-size: 18px; color: #1e3a8a; font-weight: bold;">' . htmlspecialchars($hostedDomain) . '</span></p>';
+    $body .= '<p style="color: #666;"><strong>Website URL:</strong> <a href="' . htmlspecialchars($hostedUrl) . '" style="color: #1e3a8a; font-weight: bold;">' . htmlspecialchars($hostedUrl) . '</a></p>';
+    
+    if (!empty($adminNotes)) {
+        $body .= '<p style="color: #666;"><strong>📝 Special Instructions:</strong></p>';
+        $body .= '<p style="background-color: white; padding: 10px; border-left: 3px solid #1e3a8a; color: #666;">' . htmlspecialchars($adminNotes) . '</p>';
+    }
+    
+    $body .= '<p style="margin-top: 20px;"><a href="' . htmlspecialchars($hostedUrl) . '" style="background-color: #1e3a8a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">✨ Visit Your Website</a></p>';
+    $body .= '</div>';
+    
+    $body .= '<p style="color: #999; font-size: 12px; margin-top: 20px;">Your website is now live and ready to impress your audience. If you have any questions or need further customization, please reach out to us via WhatsApp.</p>';
+    
+    require_once __DIR__ . '/mailer.php';
+    sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
 }
 
 /**

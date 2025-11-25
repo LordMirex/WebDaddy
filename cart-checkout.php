@@ -927,6 +927,14 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <h5 class="font-semibold text-white">Website Templates</h5>
                                 <span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs font-semibold rounded">⏱️ Available within 24 hours</span>
                             </div>
+                            
+                            <!-- EMAIL NOTIFICATION MESSAGE -->
+                            <div class="text-xs text-blue-300 mb-3 p-3 bg-blue-900/20 rounded border border-blue-600/50">
+                                📧 We'll send your domain details to:
+                                <br/><span class="font-semibold text-blue-200"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></span>
+                                <br/>⏱️ <strong>Within 24 hours</strong> after admin assigns your domain
+                            </div>
+                            
                             <div class="text-xs text-gray-400 mb-3 p-3 bg-gray-900 rounded border border-gray-700">
                                 ✓ Admin will assign your premium domain after payment confirmation
                                 <br/>✓ You'll receive domain details via email & WhatsApp
