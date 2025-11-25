@@ -600,7 +600,21 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             $credentials = null;
             
             // Send enhanced email with full order details
-            sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
+            $emailSent = sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName, $credentials);
+            
+            // Phase 5.4: Record email event for timeline
+            if (function_exists('recordEmailEvent')) {
+                recordEmailEvent($orderId, 'payment_confirmation', [
+                    'email' => $order['customer_email'],
+                    'subject' => 'Payment Confirmed - Order #' . $orderId,
+                    'sent' => $emailSent
+                ]);
+            }
+            
+            // For mixed orders, send delivery summary email explaining what happens next
+            if ($order['order_type'] === 'mixed' && function_exists('sendMixedOrderDeliverySummaryEmail')) {
+                sendMixedOrderDeliverySummaryEmail($orderId);
+            }
             
             // NOTE: Affiliate opportunity email is sent IMMEDIATELY when order is created (PENDING)
             // See cart-checkout.php for the actual send - this prevents duplicate emails

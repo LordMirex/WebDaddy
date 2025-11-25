@@ -379,6 +379,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } elseif ($action === 'batch_template_credentials') {
+            // Phase 5.3: Batch Template Assignment handler
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                require_once __DIR__ . '/../includes/delivery.php';
+                
+                $deliveries = $_POST['deliveries'] ?? [];
+                $orderId = intval($_POST['order_id'] ?? 0);
+                $sendEmails = isset($_POST['send_emails']) && $_POST['send_emails'] === '1';
+                
+                if (empty($deliveries)) {
+                    $errorMessage = 'No template deliveries provided.';
+                } elseif ($orderId <= 0) {
+                    $errorMessage = 'Invalid order ID.';
+                } else {
+                    $successCount = 0;
+                    $failCount = 0;
+                    $failMessages = [];
+                    
+                    foreach ($deliveries as $d) {
+                        $deliveryId = intval($d['delivery_id'] ?? 0);
+                        if ($deliveryId <= 0) {
+                            $failCount++;
+                            continue;
+                        }
+                        
+                        $hostedDomain = sanitizeInput($d['hosted_domain'] ?? '');
+                        $hostedUrl = sanitizeInput($d['hosted_url'] ?? '');
+                        
+                        $credentials = [
+                            'username' => sanitizeInput($d['username'] ?? ''),
+                            'password' => $d['password'] ?? '',
+                            'login_url' => sanitizeInput($d['login_url'] ?? ''),
+                            'hosting_provider' => sanitizeInput($d['hosting_provider'] ?? 'custom')
+                        ];
+                        
+                        if (empty($hostedDomain) || empty($credentials['username']) || empty($credentials['password'])) {
+                            $failCount++;
+                            $failMessages[] = "Delivery #$deliveryId: Missing required fields";
+                            continue;
+                        }
+                        
+                        $result = saveTemplateCredentials($deliveryId, $credentials, $hostedDomain, $hostedUrl, '', $sendEmails);
+                        
+                        if ($result['success']) {
+                            $successCount++;
+                            logActivity('batch_template_credentials', "Batch delivered template #$deliveryId", getAdminId());
+                        } else {
+                            $failCount++;
+                            $failMessages[] = "Delivery #$deliveryId: " . $result['message'];
+                        }
+                    }
+                    
+                    // Update order delivery status after batch processing
+                    updateOrderDeliveryStatus($orderId);
+                    
+                    if ($successCount > 0) {
+                        $successMessage = "Successfully delivered {$successCount} template(s)";
+                        if ($sendEmails) {
+                            $successMessage .= " with email notifications sent";
+                        }
+                        if ($failCount > 0) {
+                            $successMessage .= ". {$failCount} failed.";
+                        }
+                        
+                        header("Location: /admin/orders.php?view=" . $orderId . "&success=" . urlencode($successMessage));
+                        exit;
+                    } else {
+                        $errorMessage = 'No templates were delivered. ' . implode('; ', $failMessages);
+                    }
+                }
+            }
         } elseif ($action === 'resend_template_email') {
             if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
                 $errorMessage = 'Security verification failed. Please refresh and try again.';
@@ -1597,8 +1670,286 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             require_once __DIR__ . '/../includes/delivery.php';
             $orderDeliveries = getDeliveryStatus($viewOrder['id']);
             $templateDeliveries = array_filter($orderDeliveries, function($d) { return $d['product_type'] === 'template'; });
+            $toolDeliveriesAll = array_filter($orderDeliveries, function($d) { return $d['product_type'] === 'tool'; });
             
-            if (!empty($templateDeliveries)):
+            // Phase 5.1: Mixed Order Delivery Summary - Show clear split for orders with both tools and templates
+            if (!empty($templateDeliveries) && !empty($toolDeliveriesAll)):
+                // Count delivery statuses
+                $toolsDeliveredCount = count(array_filter($toolDeliveriesAll, function($d) { 
+                    return in_array($d['delivery_status'], ['delivered', 'ready', 'sent']); 
+                }));
+                $toolsPendingCount = count($toolDeliveriesAll) - $toolsDeliveredCount;
+                
+                $templatesDeliveredCount = count(array_filter($templateDeliveries, function($d) { 
+                    return $d['delivery_status'] === 'delivered'; 
+                }));
+                $templatesPendingCount = count($templateDeliveries) - $templatesDeliveredCount;
+                
+                $totalItems = count($orderDeliveries);
+                $totalDelivered = $toolsDeliveredCount + $templatesDeliveredCount;
+                $deliveryPercentage = $totalItems > 0 ? round(($totalDelivered / $totalItems) * 100) : 0;
+                
+                $allDelivered = ($totalDelivered === $totalItems);
+            ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase flex items-center gap-2">
+                    <i class="bi bi-box-seam text-primary-600"></i> Mixed Order Delivery Status
+                </h6>
+                
+                <div class="bg-gradient-to-r <?php echo $allDelivered ? 'from-green-50 to-emerald-50 border-green-200' : 'from-blue-50 to-indigo-50 border-blue-200'; ?> border-2 rounded-xl p-5 shadow-sm">
+                    <!-- Overall Progress -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-full <?php echo $allDelivered ? 'bg-green-100' : 'bg-blue-100'; ?>">
+                                <?php if ($allDelivered): ?>
+                                <i class="bi bi-check-circle-fill text-green-600 text-xl"></i>
+                                <?php else: ?>
+                                <i class="bi bi-hourglass-split text-blue-600 text-xl"></i>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-lg">
+                                    <?php echo $allDelivered ? 'Order Fully Delivered' : 'Partial Delivery'; ?>
+                                </h4>
+                                <p class="text-sm text-gray-600">
+                                    <?php echo $totalDelivered; ?> of <?php echo $totalItems; ?> items delivered
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-extrabold <?php echo $allDelivered ? 'text-green-600' : 'text-blue-600'; ?>">
+                                <?php echo $deliveryPercentage; ?>%
+                            </div>
+                            <div class="text-xs text-gray-500">Complete</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="bg-gray-200 rounded-full h-2.5 mb-5">
+                        <div class="<?php echo $allDelivered ? 'bg-green-500' : 'bg-blue-500'; ?> h-2.5 rounded-full transition-all duration-500" style="width: <?php echo $deliveryPercentage; ?>%"></div>
+                    </div>
+                    
+                    <!-- Delivery Split -->
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <!-- Tools (Immediate) -->
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-lg">🔧</span>
+                                <h5 class="font-semibold text-gray-800">Immediate Delivery (Tools)</h5>
+                            </div>
+                            
+                            <?php if (count($toolDeliveriesAll) > 0): ?>
+                            <div class="space-y-2">
+                                <?php foreach ($toolDeliveriesAll as $td): 
+                                    $isToolDelivered = in_array($td['delivery_status'], ['delivered', 'ready', 'sent']);
+                                ?>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-700"><?php echo htmlspecialchars($td['product_name']); ?></span>
+                                    <?php if ($isToolDelivered): ?>
+                                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold">
+                                        <i class="bi bi-check-circle-fill mr-1"></i>Delivered
+                                    </span>
+                                    <?php else: ?>
+                                    <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-semibold">
+                                        <i class="bi bi-clock mr-1"></i>Pending
+                                    </span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                                <i class="bi bi-info-circle mr-1"></i>
+                                Tools are delivered automatically via email upon payment
+                            </div>
+                            <?php else: ?>
+                            <p class="text-gray-500 text-sm">No tools in this order</p>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Templates (Pending) -->
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-lg">🎨</span>
+                                <h5 class="font-semibold text-gray-800">Pending Delivery (Templates)</h5>
+                            </div>
+                            
+                            <?php if (count($templateDeliveries) > 0): ?>
+                            <div class="space-y-2">
+                                <?php foreach ($templateDeliveries as $td): 
+                                    $isTemplateDelivered = $td['delivery_status'] === 'delivered';
+                                ?>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-gray-700"><?php echo htmlspecialchars($td['product_name']); ?></span>
+                                    <?php if ($isTemplateDelivered): ?>
+                                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold">
+                                        <i class="bi bi-check-circle-fill mr-1"></i>Delivered
+                                    </span>
+                                    <?php elseif (!empty($td['hosted_domain'])): ?>
+                                    <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-semibold">
+                                        <i class="bi bi-gear mr-1"></i>In Progress
+                                    </span>
+                                    <?php else: ?>
+                                    <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-semibold">
+                                        <i class="bi bi-clock mr-1"></i>Awaiting Setup
+                                    </span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                                <i class="bi bi-info-circle mr-1"></i>
+                                Templates require domain assignment and credentials setup
+                            </div>
+                            <?php else: ?>
+                            <p class="text-gray-500 text-sm">No templates in this order</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions Needed Alert -->
+                    <?php if ($templatesPendingCount > 0): ?>
+                    <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <i class="bi bi-exclamation-triangle text-yellow-600 text-xl"></i>
+                            <div>
+                                <h5 class="font-semibold text-yellow-800 mb-1">
+                                    <?php echo $templatesPendingCount; ?> Template(s) Need Action
+                                </h5>
+                                <p class="text-sm text-yellow-700 mb-2">
+                                    Scroll down to assign domain and credentials for each pending template.
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <?php foreach ($templateDeliveries as $td): 
+                                        if ($td['delivery_status'] !== 'delivered'):
+                                    ?>
+                                    <a href="#template-delivery-<?php echo $td['id']; ?>" class="inline-flex items-center px-3 py-1.5 bg-yellow-200 hover:bg-yellow-300 text-yellow-800 text-xs font-semibold rounded-full transition-colors">
+                                        <i class="bi bi-arrow-right mr-1"></i>
+                                        <?php echo htmlspecialchars($td['product_name']); ?>
+                                    </a>
+                                    <?php 
+                                        endif;
+                                    endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <?php 
+            // Phase 5.3: Batch Template Assignment - Only show if multiple pending templates
+            $pendingTemplateDeliveries = array_filter($templateDeliveries, function($d) { 
+                return $d['delivery_status'] !== 'delivered'; 
+            });
+            
+            if (count($pendingTemplateDeliveries) > 1):
+            ?>
+            <div class="mb-6" id="batch-template-assignment">
+                <div class="flex items-center justify-between mb-3">
+                    <h6 class="text-gray-500 font-semibold text-sm uppercase flex items-center gap-2">
+                        <i class="bi bi-lightning-charge text-purple-600"></i> Quick Batch Assignment
+                    </h6>
+                    <button type="button" onclick="document.getElementById('batch-form-section').classList.toggle('hidden')" class="text-sm text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-1">
+                        <i class="bi bi-chevron-down" id="batch-toggle-icon"></i> Toggle Form
+                    </button>
+                </div>
+                
+                <div id="batch-form-section" class="bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-5 shadow-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100">
+                            <i class="bi bi-lightning-charge-fill text-purple-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Deliver <?php echo count($pendingTemplateDeliveries); ?> Templates at Once</h4>
+                            <p class="text-sm text-gray-600">Fill in credentials for all pending templates in one go</p>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="action" value="batch_template_credentials">
+                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                        
+                        <?php foreach ($pendingTemplateDeliveries as $pIdx => $pendingDelivery): ?>
+                        <div class="bg-white rounded-lg p-4 border border-purple-100">
+                            <input type="hidden" name="deliveries[<?php echo $pIdx; ?>][delivery_id]" value="<?php echo $pendingDelivery['id']; ?>">
+                            
+                            <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                                <span class="text-lg">🎨</span>
+                                <span class="font-bold text-gray-900"><?php echo htmlspecialchars($pendingDelivery['product_name']); ?></span>
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Template #<?php echo $pIdx + 1; ?></span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                        <i class="bi bi-globe mr-1"></i> Domain *
+                                    </label>
+                                    <input type="text" name="deliveries[<?php echo $pIdx; ?>][hosted_domain]" placeholder="example.com" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                        <i class="bi bi-link-45deg mr-1"></i> Website URL
+                                    </label>
+                                    <input type="url" name="deliveries[<?php echo $pIdx; ?>][hosted_url]" placeholder="https://example.com" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                        <i class="bi bi-server mr-1"></i> Hosting Type
+                                    </label>
+                                    <select name="deliveries[<?php echo $pIdx; ?>][hosting_provider]" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="wordpress">WordPress</option>
+                                        <option value="cpanel">cPanel</option>
+                                        <option value="custom" selected>Custom Admin</option>
+                                        <option value="static">Static Site</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                        <i class="bi bi-link mr-1"></i> Login URL
+                                    </label>
+                                    <input type="url" name="deliveries[<?php echo $pIdx; ?>][login_url]" placeholder="https://example.com/admin" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                        <i class="bi bi-person mr-1"></i> Username *
+                                    </label>
+                                    <input type="text" name="deliveries[<?php echo $pIdx; ?>][username]" placeholder="admin" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                        <i class="bi bi-key mr-1"></i> Password *
+                                    </label>
+                                    <input type="password" name="deliveries[<?php echo $pIdx; ?>][password]" placeholder="••••••••" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+                            <input type="checkbox" name="send_emails" value="1" id="batch_send_emails" checked class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                            <label for="batch_send_emails" class="text-sm text-blue-800">
+                                <strong>Send credentials to customer via email</strong>
+                                <br><span class="text-blue-600">Each template will be delivered with its own email</span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-lg transition-all shadow-lg flex items-center justify-center gap-2">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                                Deliver All <?php echo count($pendingTemplateDeliveries); ?> Templates
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($templateDeliveries)):
             ?>
             <div class="mb-6">
                 <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase flex items-center gap-2">
@@ -1613,7 +1964,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         $decryptedPassword = decryptCredential($delivery['template_admin_password']);
                     }
                 ?>
-                <div class="bg-white border-2 <?php echo $isComplete ? 'border-green-200' : 'border-yellow-200'; ?> rounded-xl p-5 mb-4 shadow-sm">
+                <div id="template-delivery-<?php echo $delivery['id']; ?>" class="bg-white border-2 <?php echo $isComplete ? 'border-green-200' : 'border-yellow-200'; ?> rounded-xl p-5 mb-4 shadow-sm scroll-mt-20">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <span class="text-lg">🎨</span>
@@ -1994,6 +2345,87 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 });
             });
             </script>
+            <?php endif; ?>
+            
+            <?php 
+            // Phase 5.2: Delivery Timeline - Show for paid orders
+            if ($viewOrder['status'] === 'paid' && !empty($orderDeliveries)):
+                $timeline = getDeliveryTimeline($viewOrder['id']);
+                $deliveryStats = getOrderDeliveryStats($viewOrder['id']);
+            ?>
+            <div class="mb-6">
+                <h6 class="text-gray-500 font-semibold mb-3 text-sm uppercase flex items-center gap-2">
+                    <i class="bi bi-clock-history text-primary-600"></i> Delivery Timeline
+                </h6>
+                
+                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                    <!-- Delivery Stats Summary -->
+                    <div class="flex flex-wrap gap-4 mb-5 pb-5 border-b border-gray-100">
+                        <div class="bg-gray-50 rounded-lg px-4 py-2 text-center min-w-[100px]">
+                            <div class="text-2xl font-bold text-gray-900"><?php echo $deliveryStats['total_items']; ?></div>
+                            <div class="text-xs text-gray-500">Total Items</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg px-4 py-2 text-center min-w-[100px]">
+                            <div class="text-2xl font-bold text-green-600"><?php echo $deliveryStats['delivered_items']; ?></div>
+                            <div class="text-xs text-gray-500">Delivered</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg px-4 py-2 text-center min-w-[100px]">
+                            <div class="text-2xl font-bold text-yellow-600"><?php echo $deliveryStats['pending_items']; ?></div>
+                            <div class="text-xs text-gray-500">Pending</div>
+                        </div>
+                        <div class="<?php echo $deliveryStats['is_fully_delivered'] ? 'bg-green-100' : 'bg-blue-50'; ?> rounded-lg px-4 py-2 text-center min-w-[120px]">
+                            <div class="text-2xl font-bold <?php echo $deliveryStats['is_fully_delivered'] ? 'text-green-600' : 'text-blue-600'; ?>">
+                                <?php echo $deliveryStats['delivery_percentage']; ?>%
+                            </div>
+                            <div class="text-xs text-gray-500">Complete</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline -->
+                    <div class="relative">
+                        <?php foreach ($timeline as $idx => $event): 
+                            $colorClasses = [
+                                'blue' => 'bg-blue-100 text-blue-600 border-blue-200',
+                                'green' => 'bg-green-100 text-green-600 border-green-200',
+                                'gray' => 'bg-gray-100 text-gray-500 border-gray-200',
+                                'indigo' => 'bg-indigo-100 text-indigo-600 border-indigo-200',
+                                'yellow' => 'bg-yellow-100 text-yellow-600 border-yellow-200'
+                            ];
+                            $colorClass = $colorClasses[$event['color']] ?? $colorClasses['gray'];
+                        ?>
+                        <div class="flex gap-4 <?php echo $idx < count($timeline) - 1 ? 'pb-6' : ''; ?>">
+                            <!-- Timeline dot and line -->
+                            <div class="flex flex-col items-center">
+                                <div class="flex items-center justify-center h-8 w-8 rounded-full border-2 <?php echo $colorClass; ?>">
+                                    <i class="bi <?php echo $event['icon']; ?> text-sm"></i>
+                                </div>
+                                <?php if ($idx < count($timeline) - 1): ?>
+                                <div class="w-0.5 flex-1 bg-gray-200 mt-1"></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Event content -->
+                            <div class="flex-1 pb-2">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($event['title']); ?></span>
+                                </div>
+                                <div class="text-sm text-gray-600"><?php echo htmlspecialchars($event['description']); ?></div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    <?php echo date('M d, Y g:i A', strtotime($event['timestamp'])); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                        
+                        <?php if (empty($timeline)): ?>
+                        <div class="text-center py-6 text-gray-500">
+                            <i class="bi bi-clock text-2xl mb-2"></i>
+                            <p>No delivery events yet</p>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
             <?php endif; ?>
             
             <?php if ($viewOrder['status'] === 'pending'): ?>

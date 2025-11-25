@@ -94,6 +94,15 @@ function createToolDelivery($orderId, $item, $retryAttempt = 0) {
     if ($order && $order['customer_email'] && !empty($downloadLinks)) {
         $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId);
         
+        // Phase 5.4: Record email event for timeline
+        recordEmailEvent($orderId, 'tool_delivery', [
+            'email' => $order['customer_email'],
+            'subject' => "Your {$item['product_name']} is Ready to Download! - Order #{$orderId}",
+            'sent' => $emailSent,
+            'product_name' => $item['product_name'],
+            'file_count' => count($downloadLinks)
+        ]);
+        
         if (!$emailSent && $retryAttempt < DELIVERY_RETRY_MAX_ATTEMPTS) {
             scheduleDeliveryRetry($deliveryId, 'tool', $retryAttempt + 1);
         }
@@ -598,6 +607,18 @@ function deliverTemplateWithCredentials($deliveryId) {
     
     $emailSent = sendTemplateDeliveryEmailWithCredentials($order, $delivery, $decryptedPassword);
     
+    // Phase 5.4: Record email event for timeline
+    recordEmailEvent($delivery['pending_order_id'], 'template_credentials', [
+        'email' => $order['customer_email'],
+        'subject' => "Your Website Template is Ready! Domain: " . ($delivery['hosted_domain'] ?? 'N/A'),
+        'sent' => $emailSent,
+        'product_name' => $delivery['product_name'],
+        'hosted_domain' => $delivery['hosted_domain'] ?? ''
+    ]);
+    
+    // Update order delivery status after template delivery
+    updateOrderDeliveryStatus($delivery['pending_order_id']);
+    
     if (!$emailSent) {
         return ['success' => true, 'message' => 'Template marked as delivered but email sending failed. Please retry email manually.'];
     }
@@ -852,4 +873,449 @@ function sendOverdueTemplateAlert() {
         'message' => count($overdue) . ' overdue template(s) alert sent',
         'count' => count($overdue)
     ];
+}
+
+/**
+ * Send mixed order delivery summary email
+ * Phase 5.4: Email sequence for mixed orders showing delivery split
+ */
+function sendMixedOrderDeliverySummaryEmail($orderId) {
+    $db = getDb();
+    
+    // Get order details
+    $stmt = $db->prepare("SELECT * FROM pending_orders WHERE id = ?");
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$order || empty($order['customer_email'])) {
+        return ['success' => false, 'message' => 'Order not found or no email'];
+    }
+    
+    $stats = getOrderDeliveryStats($orderId);
+    
+    // Only send if it's actually a mixed order
+    if ($stats['tools']['total'] === 0 || $stats['templates']['total'] === 0) {
+        return ['success' => false, 'message' => 'Not a mixed order'];
+    }
+    
+    // Get delivery details
+    $stmt = $db->prepare("SELECT * FROM deliveries WHERE pending_order_id = ? ORDER BY product_type ASC, id ASC");
+    $stmt->execute([$orderId]);
+    $deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $subject = "📦 Order #{$orderId} - Delivery Update";
+    
+    $body = '<p>Hello ' . htmlspecialchars($order['customer_name']) . ',</p>';
+    $body .= '<p>Here\'s an update on your order delivery status.</p>';
+    
+    // Delivery Progress
+    $body .= '<div style="background: linear-gradient(135deg, #3b82f6, #6366f1); padding: 20px; border-radius: 10px; margin: 20px 0; color: white;">';
+    $body .= '<h3 style="margin: 0 0 10px 0; color: white;">📊 Delivery Progress</h3>';
+    $body .= '<div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 3px; margin: 10px 0;">';
+    $body .= '<div style="background: white; border-radius: 6px; height: 20px; width: ' . $stats['delivery_percentage'] . '%;"></div>';
+    $body .= '</div>';
+    $body .= '<p style="margin: 0; font-size: 18px;"><strong>' . $stats['delivered_items'] . ' of ' . $stats['total_items'] . ' items delivered (' . $stats['delivery_percentage'] . '%)</strong></p>';
+    $body .= '</div>';
+    
+    // Tools Section - Immediate Delivery
+    $body .= '<div style="background: #f0fdf4; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #86efac;">';
+    $body .= '<h3 style="margin: 0 0 15px 0; color: #166534;">🔧 Digital Tools - Immediate Delivery</h3>';
+    
+    $toolDeliveries = array_filter($deliveries, function($d) { return $d['product_type'] === 'tool'; });
+    if (!empty($toolDeliveries)) {
+        $body .= '<table style="width: 100%; border-collapse: collapse;">';
+        foreach ($toolDeliveries as $td) {
+            $statusBadge = in_array($td['delivery_status'], ['delivered', 'ready', 'sent']) 
+                ? '<span style="background: #22c55e; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px;">✓ DELIVERED</span>'
+                : '<span style="background: #f59e0b; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px;">⏳ PENDING</span>';
+            
+            $body .= '<tr>';
+            $body .= '<td style="padding: 10px 0; border-bottom: 1px solid #dcfce7;">' . htmlspecialchars($td['product_name']) . '</td>';
+            $body .= '<td style="padding: 10px 0; border-bottom: 1px solid #dcfce7; text-align: right;">' . $statusBadge . '</td>';
+            $body .= '</tr>';
+        }
+        $body .= '</table>';
+        
+        if ($stats['tools']['delivered'] === $stats['tools']['total']) {
+            $body .= '<p style="color: #166534; margin: 15px 0 0 0;"><strong>✅ All tools have been delivered to your email!</strong></p>';
+        }
+    }
+    $body .= '</div>';
+    
+    // Templates Section - Pending Delivery
+    $body .= '<div style="background: #fefce8; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #fde047;">';
+    $body .= '<h3 style="margin: 0 0 15px 0; color: #854d0e;">🎨 Website Templates - Pending Setup</h3>';
+    
+    $templateDeliveries = array_filter($deliveries, function($d) { return $d['product_type'] === 'template'; });
+    if (!empty($templateDeliveries)) {
+        $body .= '<table style="width: 100%; border-collapse: collapse;">';
+        foreach ($templateDeliveries as $td) {
+            if ($td['delivery_status'] === 'delivered') {
+                $statusBadge = '<span style="background: #22c55e; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px;">✓ DELIVERED</span>';
+            } elseif (!empty($td['hosted_domain'])) {
+                $statusBadge = '<span style="background: #3b82f6; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px;">🔧 IN PROGRESS</span>';
+            } else {
+                $statusBadge = '<span style="background: #f59e0b; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px;">⏳ SETTING UP</span>';
+            }
+            
+            $body .= '<tr>';
+            $body .= '<td style="padding: 10px 0; border-bottom: 1px solid #fef9c3;">' . htmlspecialchars($td['product_name']) . '</td>';
+            $body .= '<td style="padding: 10px 0; border-bottom: 1px solid #fef9c3; text-align: right;">' . $statusBadge . '</td>';
+            $body .= '</tr>';
+        }
+        $body .= '</table>';
+        
+        if ($stats['templates']['pending'] > 0) {
+            $body .= '<div style="background: #fff7ed; padding: 15px; border-radius: 8px; margin: 15px 0 0 0; border-left: 4px solid #f97316;">';
+            $body .= '<p style="color: #9a3412; margin: 0;"><strong>📋 What\'s Next?</strong></p>';
+            $body .= '<p style="color: #78350f; margin: 10px 0 0 0;">Our team is setting up your website template(s) on a premium domain. You\'ll receive login credentials via email once complete (usually within 24-48 hours).</p>';
+            $body .= '</div>';
+        } else {
+            $body .= '<p style="color: #166534; margin: 15px 0 0 0;"><strong>✅ All templates have been delivered!</strong></p>';
+        }
+    }
+    $body .= '</div>';
+    
+    // Need help section
+    $body .= '<div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0;">';
+    $body .= '<p style="color: #475569; margin: 0;"><strong>Need Help?</strong> Reply to this email or contact us on WhatsApp. We\'re here to assist!</p>';
+    $body .= '</div>';
+    
+    require_once __DIR__ . '/mailer.php';
+    $emailBody = createEmailTemplate($subject, $body, $order['customer_name']);
+    $result = sendEmail($order['customer_email'], $subject, $emailBody);
+    
+    return [
+        'success' => $result,
+        'message' => $result ? 'Delivery summary email sent' : 'Failed to send email'
+    ];
+}
+
+/**
+ * Record email sent event for delivery timeline
+ * Phase 5.4: Track email events for order timeline
+ */
+function recordEmailEvent($orderId, $eventType, $details = []) {
+    $db = getDb();
+    
+    try {
+        // Check if email_events table exists
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='email_events'");
+        if (!$tableCheck->fetch()) {
+            // Create table if not exists
+            $db->exec("
+                CREATE TABLE IF NOT EXISTS email_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    pending_order_id INTEGER NOT NULL,
+                    event_type TEXT NOT NULL,
+                    recipient_email TEXT,
+                    subject TEXT,
+                    status TEXT DEFAULT 'sent',
+                    details TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO email_events (pending_order_id, event_type, recipient_email, subject, details)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $orderId,
+            $eventType,
+            $details['email'] ?? null,
+            $details['subject'] ?? null,
+            json_encode($details)
+        ]);
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error recording email event: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Get email sequence for an order
+ * Phase 5.4: Shows all emails sent for an order
+ */
+function getOrderEmailSequence($orderId) {
+    $db = getDb();
+    
+    try {
+        // Check if table exists
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='email_events'");
+        if (!$tableCheck->fetch()) {
+            return [];
+        }
+        
+        $stmt = $db->prepare("
+            SELECT * FROM email_events 
+            WHERE pending_order_id = ? 
+            ORDER BY created_at ASC
+        ");
+        $stmt->execute([$orderId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error fetching email sequence: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
+ * Get order delivery stats for partial delivery tracking
+ * Phase 5.2: Tracks partial fulfillment status for mixed orders
+ */
+function getOrderDeliveryStats($orderId) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        SELECT 
+            d.*,
+            CASE 
+                WHEN d.product_type = 'tool' AND d.delivery_status IN ('delivered', 'ready', 'sent') THEN 1
+                WHEN d.product_type = 'template' AND d.delivery_status = 'delivered' THEN 1
+                ELSE 0
+            END as is_delivered
+        FROM deliveries d
+        WHERE d.pending_order_id = ?
+    ");
+    $stmt->execute([$orderId]);
+    $deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $stats = [
+        'order_id' => $orderId,
+        'total_items' => count($deliveries),
+        'delivered_items' => 0,
+        'pending_items' => 0,
+        'tools' => [
+            'total' => 0,
+            'delivered' => 0,
+            'pending' => 0
+        ],
+        'templates' => [
+            'total' => 0,
+            'delivered' => 0,
+            'pending' => 0,
+            'in_progress' => 0
+        ],
+        'delivery_percentage' => 0,
+        'is_fully_delivered' => false,
+        'is_partially_delivered' => false,
+        'pending_actions' => []
+    ];
+    
+    foreach ($deliveries as $d) {
+        if ($d['product_type'] === 'tool') {
+            $stats['tools']['total']++;
+            if ($d['is_delivered']) {
+                $stats['tools']['delivered']++;
+                $stats['delivered_items']++;
+            } else {
+                $stats['tools']['pending']++;
+                $stats['pending_items']++;
+                $stats['pending_actions'][] = [
+                    'type' => 'tool_pending',
+                    'delivery_id' => $d['id'],
+                    'product_name' => $d['product_name'],
+                    'action' => 'Check tool delivery status'
+                ];
+            }
+        } else {
+            $stats['templates']['total']++;
+            if ($d['is_delivered']) {
+                $stats['templates']['delivered']++;
+                $stats['delivered_items']++;
+            } else {
+                $stats['templates']['pending']++;
+                $stats['pending_items']++;
+                
+                // Check if in progress (has some credentials)
+                if (!empty($d['hosted_domain']) || !empty($d['template_admin_username'])) {
+                    $stats['templates']['in_progress']++;
+                }
+                
+                $stats['pending_actions'][] = [
+                    'type' => 'template_pending',
+                    'delivery_id' => $d['id'],
+                    'product_name' => $d['product_name'],
+                    'action' => 'Assign domain and credentials'
+                ];
+            }
+        }
+    }
+    
+    if ($stats['total_items'] > 0) {
+        $stats['delivery_percentage'] = round(($stats['delivered_items'] / $stats['total_items']) * 100);
+        $stats['is_fully_delivered'] = ($stats['delivered_items'] === $stats['total_items']);
+        $stats['is_partially_delivered'] = ($stats['delivered_items'] > 0 && $stats['delivered_items'] < $stats['total_items']);
+    }
+    
+    return $stats;
+}
+
+/**
+ * Get all orders with partial delivery status
+ * Phase 5.2: For admin dashboard showing orders needing attention
+ */
+function getOrdersWithPartialDelivery() {
+    $db = getDb();
+    
+    // Get all paid orders with deliveries
+    $stmt = $db->prepare("
+        SELECT DISTINCT po.id, po.customer_name, po.customer_email, 
+               po.order_type, po.final_amount, po.status, po.created_at
+        FROM pending_orders po
+        JOIN deliveries d ON po.id = d.pending_order_id
+        WHERE po.status = 'paid'
+        ORDER BY po.created_at DESC
+    ");
+    $stmt->execute();
+    $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $result = [
+        'fully_delivered' => [],
+        'partially_delivered' => [],
+        'not_started' => []
+    ];
+    
+    foreach ($orders as $order) {
+        $stats = getOrderDeliveryStats($order['id']);
+        $order['delivery_stats'] = $stats;
+        
+        if ($stats['is_fully_delivered']) {
+            $result['fully_delivered'][] = $order;
+        } elseif ($stats['is_partially_delivered']) {
+            $result['partially_delivered'][] = $order;
+        } else {
+            $result['not_started'][] = $order;
+        }
+    }
+    
+    return $result;
+}
+
+/**
+ * Update order delivery status based on delivery completion
+ * Phase 5.2: Auto-update order status when all items delivered
+ */
+function updateOrderDeliveryStatus($orderId) {
+    $db = getDb();
+    $stats = getOrderDeliveryStats($orderId);
+    
+    $newStatus = 'in_progress';
+    if ($stats['is_fully_delivered']) {
+        $newStatus = 'completed';
+    } elseif ($stats['is_partially_delivered']) {
+        $newStatus = 'partial';
+    }
+    
+    $stmt = $db->prepare("UPDATE pending_orders SET delivery_status = ? WHERE id = ?");
+    $stmt->execute([$newStatus, $orderId]);
+    
+    return $newStatus;
+}
+
+/**
+ * Get delivery timeline for an order
+ * Phase 5.2: Shows chronological delivery events
+ */
+function getDeliveryTimeline($orderId) {
+    $db = getDb();
+    
+    $events = [];
+    
+    // Get order creation
+    $stmt = $db->prepare("SELECT created_at, status, paid_at FROM pending_orders WHERE id = ?");
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($order) {
+        $events[] = [
+            'type' => 'order_created',
+            'timestamp' => $order['created_at'],
+            'title' => 'Order Placed',
+            'description' => 'Customer submitted order',
+            'icon' => 'bi-cart-check',
+            'color' => 'blue'
+        ];
+        
+        if ($order['paid_at']) {
+            $events[] = [
+                'type' => 'payment_confirmed',
+                'timestamp' => $order['paid_at'],
+                'title' => 'Payment Confirmed',
+                'description' => 'Order marked as paid',
+                'icon' => 'bi-credit-card',
+                'color' => 'green'
+            ];
+        }
+    }
+    
+    // Get delivery events
+    $stmt = $db->prepare("
+        SELECT id, product_type, product_name, delivery_status, 
+               email_sent_at, delivered_at, credentials_sent_at, created_at
+        FROM deliveries 
+        WHERE pending_order_id = ?
+        ORDER BY created_at ASC
+    ");
+    $stmt->execute([$orderId]);
+    $deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($deliveries as $d) {
+        // Delivery record created
+        $events[] = [
+            'type' => 'delivery_created',
+            'timestamp' => $d['created_at'],
+            'title' => 'Delivery Initiated',
+            'description' => ($d['product_type'] === 'tool' ? '🔧 ' : '🎨 ') . $d['product_name'],
+            'icon' => 'bi-box',
+            'color' => 'gray'
+        ];
+        
+        // Email sent
+        if ($d['email_sent_at']) {
+            $events[] = [
+                'type' => 'email_sent',
+                'timestamp' => $d['email_sent_at'],
+                'title' => 'Email Sent',
+                'description' => ($d['product_type'] === 'tool' ? 'Download links' : 'Credentials') . ' sent to customer',
+                'icon' => 'bi-envelope-check',
+                'color' => 'indigo'
+            ];
+        }
+        
+        // Template credentials sent
+        if ($d['product_type'] === 'template' && $d['credentials_sent_at']) {
+            $events[] = [
+                'type' => 'credentials_sent',
+                'timestamp' => $d['credentials_sent_at'],
+                'title' => 'Template Delivered',
+                'description' => $d['product_name'] . ' credentials sent to customer',
+                'icon' => 'bi-key',
+                'color' => 'green'
+            ];
+        }
+        
+        // Delivered
+        if ($d['delivered_at']) {
+            $events[] = [
+                'type' => 'delivered',
+                'timestamp' => $d['delivered_at'],
+                'title' => ($d['product_type'] === 'tool' ? 'Tool' : 'Template') . ' Delivered',
+                'description' => $d['product_name'] . ' successfully delivered',
+                'icon' => 'bi-check-circle-fill',
+                'color' => 'green'
+            ];
+        }
+    }
+    
+    // Sort by timestamp
+    usort($events, function($a, $b) {
+        return strtotime($a['timestamp']) - strtotime($b['timestamp']);
+    });
+    
+    return $events;
 }

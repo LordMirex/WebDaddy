@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/finance_metrics.php';
+require_once __DIR__ . '/../includes/delivery.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -236,6 +237,40 @@ $trafficSources = $db->query("
 
 $totalSourceVisits = array_sum(array_column($trafficSources, 'visit_count'));
 
+$dateFilterDelivery = "";
+switch ($period) {
+    case 'today':
+        $dateFilterDelivery = "AND DATE(d.created_at) = DATE('now')";
+        break;
+    case '7days':
+        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('now', '-7 days')";
+        break;
+    case '30days':
+        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('now', '-30 days')";
+        break;
+    case '90days':
+        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('now', '-90 days')";
+        break;
+}
+
+$deliveryStats = $db->query("
+    SELECT 
+        COUNT(*) as total_deliveries,
+        SUM(CASE WHEN d.delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+        SUM(CASE WHEN d.delivery_status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN d.delivery_status = 'failed' THEN 1 ELSE 0 END) as failed,
+        SUM(CASE WHEN d.product_type = 'tool' THEN 1 ELSE 0 END) as tool_deliveries,
+        SUM(CASE WHEN d.product_type = 'template' THEN 1 ELSE 0 END) as template_deliveries,
+        AVG(CASE WHEN d.delivered_at IS NOT NULL THEN 
+            (julianday(d.delivered_at) - julianday(d.created_at)) * 24 
+        END) as avg_delivery_hours
+    FROM deliveries d
+    WHERE 1=1 {$dateFilterDelivery}
+")->fetch(PDO::FETCH_ASSOC);
+
+$overdueDeliveries = getOverdueTemplateDeliveries(24);
+$partialDeliveryData = getOrdersWithPartialDelivery();
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -332,6 +367,81 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-3xl font-bold text-gray-900"><?php echo $avgTimeOnSite; ?></div>
         <small class="text-sm text-gray-500">Minutes:Seconds</small>
+    </div>
+</div>
+
+<?php if (!empty($overdueDeliveries)): ?>
+<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-exclamation-triangle text-xl"></i>
+        <div>
+            <strong><?php echo count($overdueDeliveries); ?> Overdue Deliveries</strong>
+            <span class="text-sm ml-2">Templates pending for 24+ hours</span>
+        </div>
+        <a href="/admin/deliveries.php?type=template&status=pending" class="ml-auto px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors">
+            View Now <i class="bi bi-arrow-right ml-1"></i>
+        </a>
+    </div>
+</div>
+<?php endif; ?>
+
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-truck text-primary-600"></i> Delivery Statistics
+        </h5>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-gray-900"><?php echo number_format($deliveryStats['total_deliveries'] ?? 0); ?></div>
+                <div class="text-xs text-gray-500">Total</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-green-600"><?php echo number_format($deliveryStats['delivered'] ?? 0); ?></div>
+                <div class="text-xs text-gray-500">Delivered</div>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600"><?php echo number_format($deliveryStats['pending'] ?? 0); ?></div>
+                <div class="text-xs text-gray-500">Pending</div>
+            </div>
+            <div class="bg-red-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-red-600"><?php echo number_format($deliveryStats['failed'] ?? 0); ?></div>
+                <div class="text-xs text-gray-500">Failed</div>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600"><?php echo number_format($deliveryStats['tool_deliveries'] ?? 0); ?></div>
+                <div class="text-xs text-gray-500">Tools</div>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-blue-600"><?php echo number_format($deliveryStats['template_deliveries'] ?? 0); ?></div>
+                <div class="text-xs text-gray-500">Templates</div>
+            </div>
+            <div class="bg-indigo-50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-indigo-600"><?php echo $deliveryStats['avg_delivery_hours'] !== null ? round($deliveryStats['avg_delivery_hours'], 1) . 'h' : 'N/A'; ?></div>
+                <div class="text-xs text-gray-500">Avg Time</div>
+            </div>
+        </div>
+        
+        <?php if (!empty($partialDeliveryData)): ?>
+        <div class="mt-6 pt-4 border-t border-gray-100">
+            <h6 class="font-semibold text-gray-900 mb-3">Partial Delivery Overview</h6>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-green-50 rounded-lg p-3 text-center">
+                    <div class="text-xl font-bold text-green-600"><?php echo count($partialDeliveryData['fully_delivered'] ?? []); ?></div>
+                    <div class="text-xs text-gray-500">Fully Delivered</div>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-3 text-center">
+                    <div class="text-xl font-bold text-yellow-600"><?php echo count($partialDeliveryData['partially_delivered'] ?? []); ?></div>
+                    <div class="text-xs text-gray-500">Partial</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 text-center">
+                    <div class="text-xl font-bold text-gray-600"><?php echo count($partialDeliveryData['not_started'] ?? []); ?></div>
+                    <div class="text-xs text-gray-500">Not Started</div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
