@@ -771,3 +771,85 @@ function getTemplateDeliveryProgress($deliveryId) {
         'is_complete' => $delivery['delivery_status'] === 'delivered'
     ];
 }
+
+/**
+ * Get undelivered templates older than 24 hours
+ * Phase 4.5: Admin reminder system
+ */
+function getOverdueTemplateDeliveries($hoursOverdue = 24) {
+    $db = getDb();
+    $cutoffTime = date('Y-m-d H:i:s', time() - ($hoursOverdue * 3600));
+    
+    $stmt = $db->prepare("
+        SELECT d.*, po.customer_name, po.customer_email, po.id as order_id
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.product_type = 'template'
+          AND d.delivery_status = 'pending'
+          AND d.created_at < ?
+        ORDER BY d.created_at ASC
+    ");
+    $stmt->execute([$cutoffTime]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Send admin alert for overdue template deliveries
+ * Phase 4.5: Notifies admin of undelivered templates
+ */
+function sendOverdueTemplateAlert() {
+    $overdue = getOverdueTemplateDeliveries(24);
+    
+    if (empty($overdue)) {
+        return ['success' => true, 'message' => 'No overdue deliveries', 'count' => 0];
+    }
+    
+    $adminEmail = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'admin@webdaddyempire.com';
+    $subject = '⏰ Alert: ' . count($overdue) . ' Template(s) Pending Delivery for 24+ Hours';
+    
+    $body = '<div style="font-family: Arial, sans-serif; max-width: 600px;">';
+    $body .= '<h2 style="color: #dc2626;">⏰ Delivery Alert</h2>';
+    $body .= '<p style="color: #666;">The following templates have been pending delivery for over 24 hours:</p>';
+    
+    $body .= '<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">';
+    $body .= '<thead><tr style="background: #f3f4f6; border-bottom: 2px solid #d1d5db;">';
+    $body .= '<th style="padding: 12px; text-align: left; font-weight: bold;">Template</th>';
+    $body .= '<th style="padding: 12px; text-align: left; font-weight: bold;">Customer</th>';
+    $body .= '<th style="padding: 12px; text-align: left; font-weight: bold;">Order ID</th>';
+    $body .= '<th style="padding: 12px; text-align: left; font-weight: bold;">Hours Pending</th>';
+    $body .= '</tr></thead>';
+    $body .= '<tbody>';
+    
+    foreach ($overdue as $delivery) {
+        $hoursPending = round((time() - strtotime($delivery['created_at'])) / 3600);
+        $body .= '<tr style="border-bottom: 1px solid #e5e7eb;">';
+        $body .= '<td style="padding: 12px;">' . htmlspecialchars($delivery['product_name']) . '</td>';
+        $body .= '<td style="padding: 12px;">' . htmlspecialchars($delivery['customer_name']) . '</td>';
+        $body .= '<td style="padding: 12px;"><a href="' . SITE_URL . '/admin/orders.php?view=' . $delivery['order_id'] . '" style="color: #6366f1; text-decoration: none;">#' . $delivery['order_id'] . '</a></td>';
+        $body .= '<td style="padding: 12px;"><strong>' . $hoursPending . 'h</strong></td>';
+        $body .= '</tr>';
+    }
+    
+    $body .= '</tbody></table>';
+    
+    $body .= '<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">';
+    $body .= '<strong style="color: #92400e;">Action Required:</strong><br>';
+    $body .= 'Please review these orders and complete the credential setup to deliver the templates to your customers.';
+    $body .= '</div>';
+    
+    $body .= '<div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">';
+    $body .= '<a href="' . SITE_URL . '/admin/deliveries.php?type=template&status=pending" style="background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">';
+    $body .= 'View Pending Deliveries →</a>';
+    $body .= '</div>';
+    
+    $body .= '</div>';
+    
+    require_once __DIR__ . '/mailer.php';
+    $result = sendEmail($adminEmail, $subject, createEmailTemplate($subject, $body, 'Admin'));
+    
+    return [
+        'success' => $result,
+        'message' => count($overdue) . ' overdue template(s) alert sent',
+        'count' => count($overdue)
+    ];
+}

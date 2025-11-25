@@ -454,6 +454,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } elseif ($action === 'save_template_credentials') {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                require_once __DIR__ . '/../includes/delivery.php';
+                
+                $deliveryId = intval($_POST['delivery_id'] ?? 0);
+                $orderId = intval($_POST['order_id'] ?? 0);
+                
+                if ($deliveryId <= 0) {
+                    $errorMessage = 'Invalid delivery ID.';
+                } else {
+                    $hostedDomain = sanitizeInput($_POST['hosted_domain'] ?? '');
+                    $hostedUrl = sanitizeInput($_POST['hosted_url'] ?? '');
+                    $loginUrl = sanitizeInput($_POST['template_login_url'] ?? '');
+                    $hostingProvider = sanitizeInput($_POST['hosting_provider'] ?? 'custom');
+                    $adminUsername = sanitizeInput($_POST['template_admin_username'] ?? '');
+                    $adminPassword = $_POST['template_admin_password'] ?? '';
+                    $adminNotes = sanitizeInput($_POST['admin_notes'] ?? '');
+                    $sendEmail = isset($_POST['send_email']) && $_POST['send_email'] === '1';
+                    
+                    if (empty($hostedDomain)) {
+                        $errorMessage = 'Domain name is required.';
+                    } else {
+                        $stmt = $db->prepare("SELECT * FROM deliveries WHERE id = ?");
+                        $stmt->execute([$deliveryId]);
+                        $delivery = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if (!$delivery) {
+                            $errorMessage = 'Delivery not found.';
+                        } else {
+                            $encryptedPassword = $delivery['template_admin_password'];
+                            if (!empty($adminPassword)) {
+                                $encryptedPassword = encryptCredential($adminPassword);
+                            }
+                            
+                            $updateStmt = $db->prepare("
+                                UPDATE deliveries SET
+                                    hosted_domain = ?,
+                                    hosted_url = ?,
+                                    template_login_url = ?,
+                                    hosting_provider = ?,
+                                    template_admin_username = ?,
+                                    template_admin_password = ?,
+                                    admin_notes = ?
+                                WHERE id = ?
+                            ");
+                            $updateStmt->execute([
+                                $hostedDomain,
+                                $hostedUrl,
+                                $loginUrl,
+                                $hostingProvider,
+                                $adminUsername,
+                                $encryptedPassword,
+                                $adminNotes,
+                                $deliveryId
+                            ]);
+                            
+                            if ($sendEmail) {
+                                $result = deliverTemplateWithCredentials($deliveryId);
+                                if ($result['success']) {
+                                    $successMessage = 'Credentials updated and email resent successfully!';
+                                    logActivity('template_credentials_updated', "Updated and resent credentials for delivery #$deliveryId", getAdminId());
+                                } else {
+                                    $successMessage = 'Credentials updated but email sending failed. Please resend manually.';
+                                    logActivity('template_credentials_updated_email_failed', "Updated credentials for delivery #$deliveryId but email failed", getAdminId());
+                                }
+                            } else {
+                                $successMessage = 'Credentials updated successfully!';
+                                logActivity('template_credentials_updated', "Updated credentials for delivery #$deliveryId (no email sent)", getAdminId());
+                            }
+                            
+                            if ($orderId > 0) {
+                                header("Location: /admin/orders.php?view=" . $orderId . "&success=" . urlencode($successMessage));
+                                exit;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
