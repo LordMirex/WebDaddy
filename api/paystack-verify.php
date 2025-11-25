@@ -172,11 +172,12 @@ try {
             
             error_log("✅ PAYSTACK VERIFY: Order #$orderId complete! Payment verified, deliveries created");
             
+            http_response_code(200);
             echo json_encode([
                 'success' => true,
                 'order_id' => $orderId,
                 'message' => 'Payment verified successfully'
-            ]);
+            ], JSON_UNESCAPED_SLASHES);
         } else {
             // PAYMENT FAILED: Mark order as FAILED
             $failureReason = $verification['message'] ?? 'Payment verification failed';

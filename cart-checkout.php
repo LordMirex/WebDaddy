@@ -548,6 +548,22 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     </style>
 </head>
 <body class="bg-gray-900">
+    <!-- Payment Processing Overlay -->
+    <div id="payment-processing-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 400px;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 50px; height: 50px; margin: 0 auto; border: 4px solid #f0f0f0; border-top: 4px solid #1e40af; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+            <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px; font-weight: 600;">Processing Payment</h3>
+            <p id="payment-processing-message" style="margin: 0; color: #6b7280; font-size: 14px;">Verifying your payment with Paystack...</p>
+        </div>
+        <style>
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        </style>
+    </div>
+
     <!-- Navigation -->
     <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1099,8 +1115,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 console.log('🟢 Paystack payment completed. Reference:', response.reference);
                                 const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
                                 
-                                // Show loading state
-                                alert('Processing your payment... Please wait...');
+                                // Show loading overlay
+                                const overlay = document.getElementById('payment-processing-overlay');
+                                if (overlay) overlay.style.display = 'flex';
                                 
                                 fetch('/api/paystack-verify.php', {
                                     method: 'POST',
@@ -1119,11 +1136,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     console.log('📊 Verification response:', data);
                                     if (data.success) {
                                         console.log('✅ Payment verified successfully!');
-                                        alert('✅ Payment successful! Redirecting to your order...');
-                                        // Redirect to confirmation page after successful payment
-                                        window.location.href = paymentData.redirect_on_failure + '&payment=success';
+                                        // Update message and redirect after a short delay
+                                        const msg = document.getElementById('payment-processing-message');
+                                        if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
+                                        setTimeout(() => {
+                                            window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
+                                        }, 1500);
                                     } else {
                                         console.error('❌ Verification failed:', data.message);
+                                        if (overlay) overlay.style.display = 'none';
                                         alert('❌ Payment verification failed: ' + (data.message || 'Unknown error'));
                                         // Reload to allow retry
                                         setTimeout(() => { window.location.reload(); }, 2000);
@@ -1131,6 +1152,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 })
                                 .catch(err => {
                                     console.error('❌ Fetch error:', err);
+                                    if (overlay) overlay.style.display = 'none';
                                     alert('Error verifying payment: ' + err.message);
                                     setTimeout(() => { window.location.reload(); }, 2000);
                                 });
@@ -1142,7 +1164,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         window.location.href = result.data.redirect;
                     }
                 } else {
-                    alert('An error occurred. Please try again.');
+                    console.error('❌ Checkout error:', result.text || result.data?.message || 'Unknown error');
+                    alert('An error occurred: ' + (result.data?.message || 'Please try again.'));
                 }
             })
             .catch(error => {
@@ -1153,11 +1176,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             });
         }
         
-        // Paystack Payment Handler (for confirmation page)
+        // Paystack Payment Handler (for confirmation page - manual payment page retry)
         document.getElementById('paystack-payment-btn')?.addEventListener('click', function() {
             const btn = this;
             btn.disabled = true;
             btn.textContent = '⏳ Processing...';
+            
+            // Show loading overlay
+            const overlay = document.getElementById('payment-processing-overlay');
+            if (overlay) overlay.style.display = 'flex';
             
             const handler = PaystackPop.setup({
                 key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
@@ -1168,7 +1195,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 onClose: function() {
                     btn.disabled = false;
                     btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
-                    alert('Payment cancelled. You can try again.');
+                    if (overlay) overlay.style.display = 'none';
                 },
                 callback: function(response) {
                     // Verify payment on server (CORRECT Paystack callback)
@@ -1182,16 +1209,21 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         })
                     }).then(r => r.json()).then(data => {
                         if (data.success) {
-                            alert('✅ Payment successful! Your order is being processed.');
-                            location.reload();
+                            const msg = document.getElementById('payment-processing-message');
+                            if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
+                            setTimeout(() => {
+                                window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
+                            }, 1500);
                         } else {
                             btn.disabled = false;
                             btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                            if (overlay) overlay.style.display = 'none';
                             alert('Payment verification failed: ' + (data.message || 'Unknown error'));
                         }
                     }).catch(err => {
                         btn.disabled = false;
                         btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                        if (overlay) overlay.style.display = 'none';
                         alert('Error: ' + err.message);
                     });
                 }
