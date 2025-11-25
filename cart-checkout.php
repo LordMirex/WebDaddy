@@ -1382,9 +1382,25 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 ref: 'ORDER-' + paymentData.order_id,
                                 onClose: function() {
                                     console.log('Payment canceled');
-                                    if (overlay) overlay.classList.remove('show');
-                                    submitBtn.disabled = false;
-                                    submitBtn.innerHTML = originalText;
+                                    // Mark payment as failed and refresh
+                                    fetch('/api/payment-failed.php', {
+                                        method: 'POST',
+                                        headers: {'Content-Type': 'application/json'},
+                                        body: JSON.stringify({
+                                            order_id: paymentData.order_id,
+                                            reason: 'Payment cancelled by customer'
+                                        })
+                                    })
+                                    .then(r => r.json())
+                                    .then(data => {
+                                        window.location.href = '/cart-checkout.php?confirmed=' + paymentData.order_id;
+                                    })
+                                    .catch(err => {
+                                        console.error('Error marking payment as failed:', err);
+                                        if (overlay) overlay.classList.remove('show');
+                                        submitBtn.disabled = false;
+                                        submitBtn.innerHTML = originalText;
+                                    });
                                 },
                                 callback: function(response) {
                                     console.log('💳 Payment submitted. Verifying...');
@@ -1480,9 +1496,27 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 currency: 'NGN',
                 ref: 'ORDER-<?php echo $confirmationData['order']['id'] ?? 0; ?>',
                 onClose: function() {
-                    btn.disabled = false;
-                    btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
-                    if (overlay) overlay.classList.remove('show');
+                    console.log('Payment cancelled from retry button');
+                    // Mark payment as failed if not already paid
+                    fetch('/api/payment-failed.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            order_id: <?php echo $confirmationData['order']['id'] ?? 0; ?>,
+                            reason: 'Payment cancelled by customer on retry'
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        // Refresh page to show cancelled state
+                        window.location.href = '/cart-checkout.php?confirmed=<?php echo $confirmationData['order']['id'] ?? 0; ?>';
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        btn.disabled = false;
+                        btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                        if (overlay) overlay.classList.remove('show');
+                    });
                 },
                 callback: function(response) {
                     // Verify payment on server (CORRECT Paystack callback)
