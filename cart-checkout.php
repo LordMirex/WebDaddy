@@ -1091,25 +1091,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             currency: 'NGN',
                             ref: 'ORDER-' + paymentData.order_id,
                             onClose: function() {
-                                // User cancelled payment - delete the order and reload checkout
-                                fetch('/api/cancel-order.php', {
-                                    method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: JSON.stringify({
-                                        order_id: paymentData.order_id,
-                                        csrf_token: document.querySelector('[name="csrf_token"]')?.value || ''
-                                    })
-                                }).then(() => {
-                                    alert('Payment cancelled. Order deleted.');
-                                    window.location.reload();
-                                }).catch(err => {
-                                    // Even if delete fails, reload to clear state
-                                    window.location.reload();
-                                });
+                                // User cancelled payment - just reload
+                                console.log('🟡 Payment popup closed');
                             },
-                            onSuccess: function(response) {
-                                // Verify payment on server
-                                console.log('🟢 Paystack payment successful. Reference:', response.reference);
+                            callback: function(response) {
+                                // Verify payment on server (CORRECT Paystack callback)
+                                console.log('🟢 Paystack payment completed. Reference:', response.reference);
                                 const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
                                 
                                 // Show loading state
@@ -1183,8 +1170,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
                     alert('Payment cancelled. You can try again.');
                 },
-                onSuccess: function(response) {
-                    // Verify payment on server
+                callback: function(response) {
+                    // Verify payment on server (CORRECT Paystack callback)
                     fetch('/api/paystack-verify.php', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},

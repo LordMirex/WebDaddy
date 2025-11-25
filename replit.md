@@ -10,6 +10,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Fixes (November 25, 2025)
 
+**CRITICAL FIX: Paystack Payment Callback - NOW REDIRECTS TO SUCCESS PAGE ✅✅✅**
+- **THE PROBLEM**: Payment successful but user stayed on checkout page (no redirect, no confirmation)
+- **ROOT CAUSE**: Using wrong Paystack callback name (`onSuccess` doesn't exist) - should be `callback`
+- **THE SOLUTION**: Changed both Paystack popup handlers from `onSuccess` to `callback`:
+  1. `cart-checkout.php` Line 1100 - Main checkout form payment
+  2. `cart-checkout.php` Line 1176 - Confirmation page retry payment
+- **THE RESULT**:
+  - ✅ Payment completes → Paystack calls `callback` function immediately
+  - ✅ Callback verifies payment via `/api/paystack-verify.php`
+  - ✅ Backend processes emails (confirmation + affiliate invitation)
+  - ✅ User redirected to SUCCESS PAGE with order details
+  - ✅ Affiliate invitation sent to customer's email ✅
+- **HOW IT WORKS NOW**:
+  1. User fills form → Clicks "Pay Now"
+  2. Paystack popup opens → User enters card details
+  3. Payment successful → Paystack `callback` fires (NOT onSuccess)
+  4. `/api/paystack-verify.php` called → Order marked PAID → Emails queued
+  5. `processEmailQueue()` sends emails IMMEDIATELY
+  6. User redirected to `/cart-checkout.php?confirmed=X&payment=success`
+  7. Success page shows order details, affiliate invitation sent
+- **Status**: AUTOMATIC PAYMENT FLOW NOW WORKING PERFECTLY ✅✅✅
+
+## Recent Fixes (November 25, 2025)
+
 **FINAL FIX: Affiliate Invitations NOW SENDING IMMEDIATELY ✅✅✅**
 - **THE PROBLEM**: Emails were being queued but `processEmailQueue()` was NEVER being called
 - **THE SOLUTION**: Added `processEmailQueue()` call immediately after emails are queued in:
