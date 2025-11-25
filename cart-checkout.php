@@ -548,7 +548,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     </style>
 </head>
 <body class="bg-gray-900">
-    <!-- Payment Processing Overlay -->
+    <!-- Beautiful Payment Processing Overlay -->
     <style>
         #payment-processing-overlay {
             display: none;
@@ -557,28 +557,163 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
             z-index: 9999;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease-out;
         }
         
         #payment-processing-overlay.show {
             display: flex;
         }
         
+        #payment-processing-overlay.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9));
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .payment-modal {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            max-width: 420px;
+            width: 90%;
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .spinner-container {
+            margin-bottom: 30px;
+        }
+        
+        .animated-spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .spinner-ring {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #1e40af;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            position: relative;
+            animation: scaleIn 0.5s ease-out;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .success-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+        
+        .checkmark {
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 32px;
+            animation: popIn 0.6s ease-out 0.3s both;
+        }
+        
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        
+        .payment-status-title {
+            margin: 0 0 15px 0;
+            color: #1f2937;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .payment-status-message {
+            margin: 0;
+            color: #6b7280;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .success-message {
+            color: #059669;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 640px) {
+            .payment-modal {
+                padding: 40px 30px;
+            }
+            
+            .payment-status-title {
+                font-size: 20px;
+            }
+            
+            .payment-status-message {
+                font-size: 14px;
+            }
         }
     </style>
     
     <div id="payment-processing-overlay">
-        <div style="background: white; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 400px;">
-            <div style="margin-bottom: 20px;">
-                <div style="width: 50px; height: 50px; margin: 0 auto; border: 4px solid #f0f0f0; border-top: 4px solid #1e40af; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <div class="payment-modal">
+            <div class="spinner-container">
+                <div class="animated-spinner">
+                    <div class="spinner-ring"></div>
+                </div>
             </div>
-            <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 18px; font-weight: 600;">Processing Payment</h3>
-            <p id="payment-processing-message" style="margin: 0; color: #6b7280; font-size: 14px;">Verifying your payment with Paystack...</p>
+            <h3 class="payment-status-title">Processing Payment</h3>
+            <p id="payment-processing-message" class="payment-status-message">Opening payment form...</p>
         </div>
     </div>
 
@@ -703,7 +838,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <span class="text-xs text-gray-500 uppercase font-medium">Account Number:</span>
                             <div class="flex items-center gap-2">
                                 <span class="text-sm font-mono text-white"><?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?></span>
-                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1500);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors">📋</button>
+                                <button onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($confirmationData['bankAccountNumber']); ?>'); this.textContent='✓'; setTimeout(() => this.textContent='📋', 1000);" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 px-2 py-1 rounded transition-colors">📋</button>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -1165,10 +1300,29 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     .then(data => {
                                         if (data.success) {
                                             console.log('✅ Payment verified!');
-                                            if (msg) msg.textContent = 'Payment confirmed! Redirecting...';
+                                            // Show success animation
+                                            const overlay = document.getElementById('payment-processing-overlay');
+                                            const modalContent = overlay.querySelector('.payment-modal');
+                                            
+                                            // Replace spinner with success checkmark
+                                            const spinnerContainer = modalContent.querySelector('.spinner-container');
+                                            spinnerContainer.innerHTML = `
+                                                <div class="success-checkmark">
+                                                    <div class="success-circle">
+                                                        <div class="checkmark">✓</div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                            
+                                            // Update text
+                                            const title = modalContent.querySelector('.payment-status-title');
+                                            title.textContent = 'Payment Successful!';
+                                            
+                                            if (msg) msg.innerHTML = '<span class="success-message">Order approved • Redirecting to your order...</span>';
+                                            
                                             setTimeout(() => {
                                                 window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
-                                            }, 1500);
+                                            }, 1200);
                                         } else {
                                             if (overlay) overlay.classList.remove('show');
                                             alert('Payment verification failed: ' + (data.message || 'Unknown error'));
@@ -1185,7 +1339,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 }
                             });
                             handler.openIframe();
-                        }, 800);
+                        }, 400);
                     } else if (result.data.payment_method === 'manual') {
                         // Manual payment: Direct redirect, no overlay
                         console.log('Manual payment selected - redirecting to order...');
@@ -1241,7 +1395,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
                             setTimeout(() => {
                                 window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
-                            }, 1500);
+                            }, 1000);
                         } else {
                             btn.disabled = false;
                             btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
