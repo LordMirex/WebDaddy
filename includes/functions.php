@@ -1290,13 +1290,13 @@ function getMediaUrl($url) {
 }
 
 /**
- * Check if an email is already registered as an affiliate
+ * Check if an email is already registered as an affiliate in the USERS table
  */
 function isEmailAffiliate($email) {
     $db = getDb();
     $stmt = $db->prepare("
-        SELECT COUNT(*) as count FROM affiliate_users 
-        WHERE email = ? AND status = 'active'
+        SELECT COUNT(*) as count FROM users 
+        WHERE email = ? AND role = 'affiliate' AND status = 'active'
     ");
     $stmt->execute([strtolower(trim($email))]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1305,13 +1305,16 @@ function isEmailAffiliate($email) {
 
 /**
  * Check if affiliate invitation has already been sent to this email
- * (Check if email already exists in affiliate_users with any status)
+ * Uses email_queue table to check if invitation email was already sent
  */
 function hasAffiliateInvitationBeenSent($email) {
     $db = getDb();
+    // Check if this email received an affiliate opportunity email before (sent status)
     $stmt = $db->prepare("
-        SELECT COUNT(*) as count FROM affiliate_users 
-        WHERE email = ?
+        SELECT COUNT(*) as count FROM email_queue 
+        WHERE recipient_email = ? 
+        AND subject LIKE '%Earn 30% Commission%'
+        AND status = 'sent'
     ");
     $stmt->execute([strtolower(trim($email))]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1359,21 +1362,9 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
     $emailHtml = createEmailTemplate($subject, $content, $customerName);
     
     if (sendEmail($customerEmail, $subject, $emailHtml)) {
-        // RECORD THIS INVITATION IN affiliate_users TABLE so it won't be sent again
-        try {
-            $db = getDb();
-            // Try to insert a record, or update if it already exists
-            $stmt = $db->prepare("
-                INSERT INTO affiliate_users (email, invitation_status, created_at)
-                VALUES (?, 'invited', CURRENT_TIMESTAMP)
-                ON CONFLICT(email) DO UPDATE SET invitation_status = 'invited'
-            ");
-            $stmt->execute([strtolower(trim($customerEmail))]);
-            error_log("Affiliate opportunity email sent to: $customerEmail (recorded in affiliate_users)");
-        } catch (Exception $e) {
-            // If full record insert fails (missing required fields), just log it
-            error_log("Affiliate invitation recorded for: $customerEmail");
-        }
+        // Email was sent successfully
+        // The email_queue will track this automatically via the sendEmail function
+        error_log("Affiliate opportunity email sent to: $customerEmail");
         return true;
     } else {
         error_log("Failed to send affiliate opportunity email to: $customerEmail");
