@@ -1322,6 +1322,23 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <script>
+        // Click handlers for payment method boxes
+        document.getElementById('manual-option')?.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT') {
+                const radio = this.querySelector('input[name="payment_method"]');
+                if (radio) radio.checked = true;
+                radio?.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+        
+        document.getElementById('automatic-option')?.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT') {
+                const radio = this.querySelector('input[name="payment_method"]');
+                if (radio) radio.checked = true;
+                radio?.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+        
         // Update submit button text when payment method changes
         document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
             radio.addEventListener('change', function() {
