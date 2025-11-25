@@ -139,9 +139,33 @@ try {
             error_log("✅ PAYSTACK VERIFY: Creating delivery records");
             createDeliveryRecords($orderId);
             
-            // Process email queue immediately after sending notifications
-            require_once __DIR__ . '/../includes/email_processor.php';
-            ensureEmailProcessing();
+            // Queue customer confirmation and affiliate emails (QUEUED ONLY, NOT SENT - keeps response fast!)
+            error_log("✅ PAYSTACK VERIFY: Queueing confirmation emails");
+            require_once __DIR__ . '/../includes/email_queue.php';
+            
+            // Queue payment confirmation email to customer
+            if (!empty($order['customer_email'])) {
+                queueEmail(
+                    $order['customer_email'],
+                    'payment_confirmed',
+                    '✅ Payment Confirmed - Your Order #' . $orderId,
+                    'Your payment has been confirmed. Your order is being processed.',
+                    null,
+                    $orderId
+                );
+                error_log("✅ PAYSTACK VERIFY: Payment confirmation email queued for: " . $order['customer_email']);
+                
+                // Queue affiliate invitation if applicable
+                if (empty($order['affiliate_code']) && !isEmailAffiliate($order['customer_email'])) {
+                    if (!hasAffiliateInvitationBeenSent($order['customer_email'])) {
+                        sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
+                        error_log("✅ PAYSTACK VERIFY: Affiliate invitation email queued");
+                    }
+                }
+            }
+            
+            // NOTE: Emails are QUEUED but NOT PROCESSED here - keeps response fast!
+            // Background process will send them periodically
             
             clearCart();
             
