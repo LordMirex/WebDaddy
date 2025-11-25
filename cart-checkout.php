@@ -780,30 +780,63 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                     
                     <div class="p-6">
-                        <h4 class="font-bold text-white mb-4">Order Items</h4>
-                        <div class="space-y-3 mb-6">
-                            <?php foreach ($confirmationData['orderItems'] as $item): 
-                                $productType = $item['product_type'];
-                                $badgeColor = $productType === 'template' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white';
-                                $badgeIcon = $productType === 'template' ? '🎨' : '🔧';
-                                $badgeText = $productType === 'template' ? 'Template' : 'Tool';
-                                $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
-                            ?>
-                            <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0">
+                        <h4 class="font-bold text-white mb-4">📦 Your Products</h4>
+                        
+                        <!-- TEMPLATES SECTION -->
+                        <?php 
+                        $templates = array_filter($confirmationData['orderItems'], fn($item) => $item['product_type'] === 'template');
+                        if (!empty($templates)): 
+                        ?>
+                        <div class="mb-6 pb-6 border-b border-gray-700">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-xl">🎨</span>
+                                <h5 class="font-semibold text-white">Website Templates</h5>
+                                <span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs font-semibold rounded">⏱️ Available within 24 hours</span>
+                            </div>
+                            <div class="text-xs text-gray-400 mb-3 p-3 bg-gray-900 rounded border border-gray-700">
+                                ✓ Admin will assign your premium domain after payment confirmation
+                                <br/>✓ You'll receive domain details via email & WhatsApp
+                            </div>
+                            <?php foreach ($templates as $item): ?>
+                            <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0 mb-2">
                                 <div class="flex-1">
-                                    <div class="flex items-start justify-between gap-2 mb-1">
-                                        <h5 class="font-semibold text-white"><?php echo htmlspecialchars($productName); ?></h5>
-                                        <span class="<?php echo $badgeColor; ?> px-2 py-0.5 text-xs font-semibold rounded whitespace-nowrap">
-                                            <?php echo $badgeIcon; ?> <?php echo $badgeText; ?>
-                                        </span>
-                                    </div>
+                                    <h5 class="font-semibold text-white"><?php echo htmlspecialchars($item['template_name'] ?? 'Template'); ?></h5>
                                     <div class="text-sm text-gray-100">
-                                        <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?></p>
-                                        <p class="font-semibold text-primary-600 mt-1"><?php echo formatCurrency($item['final_amount']); ?></p>
+                                        <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?> = <span class="text-primary-400"><?php echo formatCurrency($item['final_amount']); ?></span></p>
                                     </div>
                                 </div>
                             </div>
                             <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <!-- TOOLS SECTION -->
+                        <?php 
+                        $tools = array_filter($confirmationData['orderItems'], fn($item) => $item['product_type'] === 'tool');
+                        if (!empty($tools)): 
+                        ?>
+                        <div class="mb-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-xl">🔧</span>
+                                <h5 class="font-semibold text-white">Tools & Resources</h5>
+                                <span class="px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-semibold rounded">⚡ Ready to download now</span>
+                            </div>
+                            <div class="text-xs text-gray-400 mb-3 p-3 bg-gray-900 rounded border border-gray-700">
+                                ✓ Your tools are ready for instant download
+                                <br/>✓ Download links sent to your email
+                            </div>
+                            <?php foreach ($tools as $item): ?>
+                            <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0 mb-2">
+                                <div class="flex-1">
+                                    <h5 class="font-semibold text-white"><?php echo htmlspecialchars($item['tool_name'] ?? 'Tool'); ?></h5>
+                                    <div class="text-sm text-gray-100">
+                                        <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?> = <span class="text-primary-400"><?php echo formatCurrency($item['final_amount']); ?></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
                         </div>
                         
                         <div class="border-t border-gray-700 pt-4 space-y-2">
@@ -1321,7 +1354,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             if (msg) msg.innerHTML = '<span class="success-message">Order approved • Redirecting to your order...</span>';
                                             
                                             setTimeout(() => {
-                                                window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
+                                                window.location.href = '/cart-checkout.php?confirmed=' + data.order_id;
                                             }, 1200);
                                         } else {
                                             if (overlay) overlay.classList.remove('show');
@@ -1394,7 +1427,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             const msg = document.getElementById('payment-processing-message');
                             if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
                             setTimeout(() => {
-                                window.location.href = '/cart-payment-success.php?order_id=' + data.order_id;
+                                window.location.href = '/cart-checkout.php?confirmed=' + data.order_id;
                             }, 1000);
                         } else {
                             btn.disabled = false;
