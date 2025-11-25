@@ -912,24 +912,45 @@ require_once __DIR__ . '/includes/header.php';
                             <?php endif; ?>
                         </td>
                         <td class="py-3 px-2">
-                            <?php
-                            $statusColors = [
-                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                'paid' => 'bg-green-100 text-green-800',
-                                'cancelled' => 'bg-red-100 text-red-800'
-                            ];
-                            $statusIcons = [
-                                'pending' => 'hourglass-split',
-                                'paid' => 'check-circle',
-                                'cancelled' => 'x-circle'
-                            ];
-                            $color = $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800';
-                            $icon = $statusIcons[$order['status']] ?? 'circle';
-                            ?>
-                            <span class="inline-flex items-center px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold whitespace-nowrap">
-                                <i class="bi bi-<?php echo $icon; ?>"></i>
-                                <span class="hidden sm:inline sm:ml-1"><?php echo ucfirst($order['status']); ?></span>
-                            </span>
+                            <div class="flex flex-col gap-2">
+                                <?php
+                                $statusColors = [
+                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                    'paid' => 'bg-green-100 text-green-800',
+                                    'cancelled' => 'bg-red-100 text-red-800'
+                                ];
+                                $statusIcons = [
+                                    'pending' => 'hourglass-split',
+                                    'paid' => 'check-circle',
+                                    'cancelled' => 'x-circle'
+                                ];
+                                $color = $statusColors[$order['status']] ?? 'bg-gray-100 text-gray-800';
+                                $icon = $statusIcons[$order['status']] ?? 'circle';
+                                ?>
+                                <span class="inline-flex items-center px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold whitespace-nowrap">
+                                    <i class="bi bi-<?php echo $icon; ?>"></i>
+                                    <span class="hidden sm:inline sm:ml-1"><?php echo ucfirst($order['status']); ?></span>
+                                </span>
+                                
+                                <?php
+                                $orderDeliveries = getDeliveryStatus($order['id']);
+                                $templateDeliveries = array_filter($orderDeliveries, function($d) { return $d['product_type'] === 'template'; });
+                                $deliveredCount = count(array_filter($templateDeliveries, function($d) { return $d['delivery_status'] === 'delivered'; }));
+                                $pendingCount = count(array_filter($templateDeliveries, function($d) { return $d['delivery_status'] !== 'delivered'; }));
+                                
+                                if (!empty($templateDeliveries)):
+                                    if ($deliveredCount > 0 && $pendingCount === 0):
+                                ?>
+                                <span class="inline-flex items-center px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold whitespace-nowrap">
+                                    <i class="bi bi-check-circle-fill mr-1"></i> Templates Delivered
+                                </span>
+                                <?php elseif ($pendingCount > 0): ?>
+                                <span class="inline-flex items-center px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold whitespace-nowrap">
+                                    <i class="bi bi-clock mr-1"></i> <?php echo $pendingCount; ?> Template<?php echo $pendingCount > 1 ? 's' : ''; ?> Pending
+                                </span>
+                                <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <td class="py-3 px-2 text-gray-700 text-sm">
                             <div class="font-medium"><?php echo date('D, M d, Y', strtotime($order['created_at'])); ?></div>
@@ -1476,21 +1497,33 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         <span class="text-xs text-gray-500">Delivery #<?php echo $delivery['id']; ?></span>
                     </div>
                     
-                    <div class="mb-4 bg-gray-50 rounded-lg p-3">
-                        <div class="text-xs font-semibold text-gray-600 mb-2">DELIVERY WORKFLOW</div>
-                        <div class="flex flex-wrap gap-2">
-                            <?php foreach ($progress['steps'] ?? [] as $key => $step): ?>
-                            <div class="flex items-center gap-1 text-sm <?php echo $step['status'] ? 'text-green-700' : 'text-gray-400'; ?>">
-                                <i class="bi <?php echo $step['status'] ? 'bi-check-circle-fill' : 'bi-circle'; ?>"></i>
-                                <span><?php echo htmlspecialchars($step['label']); ?></span>
+                    <div class="mb-4 bg-gray-50 rounded-lg p-4">
+                        <h5 class="text-xs font-bold text-gray-700 mb-3 uppercase tracking-wide">📋 Delivery Checklist</h5>
+                        <div class="space-y-2">
+                            <?php foreach ($progress['steps'] ?? [] as $step): ?>
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0">
+                                    <?php if ($step['status']): ?>
+                                    <div class="flex items-center justify-center h-5 w-5 rounded-full bg-green-100">
+                                        <i class="bi bi-check text-green-600 text-sm"></i>
+                                    </div>
+                                    <?php else: ?>
+                                    <div class="flex items-center justify-center h-5 w-5 rounded-full bg-gray-200">
+                                        <i class="bi bi-circle text-gray-400 text-xs"></i>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                                <span class="text-sm <?php echo $step['status'] ? 'text-green-700 font-semibold' : 'text-gray-500'; ?>">
+                                    <?php echo htmlspecialchars($step['label']); ?>
+                                </span>
                             </div>
-                            <?php if ($key !== array_key_last($progress['steps'])): ?>
-                            <span class="text-gray-300">→</span>
-                            <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
-                        <div class="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div class="mt-4 bg-gray-200 rounded-full h-1.5 overflow-hidden">
                             <div class="bg-gradient-to-r from-primary-500 to-green-500 h-full transition-all duration-500" style="width: <?php echo $progress['percentage'] ?? 0; ?>%"></div>
+                        </div>
+                        <div class="text-xs text-gray-600 mt-2 text-center font-semibold">
+                            <?php echo $progress['completed'] ?? 0; ?>/<?php echo $progress['total'] ?? 5; ?> Steps Complete
                         </div>
                     </div>
                     
@@ -1544,7 +1577,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
                         <input type="hidden" name="csrf_token" value="<?php echo getCSRFToken(); ?>">
                         
-                        <div class="grid md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     <i class="bi bi-globe mr-1"></i> Domain Name <span class="text-red-500">*</span>
@@ -1563,10 +1596,10 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                             <h4 class="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
                                 <i class="bi bi-key"></i> Login Credentials
                             </h4>
-                            <div class="grid md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Hosting Type</label>
-                                    <select name="hosting_provider" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                    <select name="hosting_provider" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm sm:text-base">
                                         <option value="wordpress" <?php echo ($delivery['hosting_provider'] ?? '') === 'wordpress' ? 'selected' : ''; ?>>WordPress</option>
                                         <option value="cpanel" <?php echo ($delivery['hosting_provider'] ?? '') === 'cpanel' ? 'selected' : ''; ?>>cPanel</option>
                                         <option value="custom" <?php echo ($delivery['hosting_provider'] ?? '') === 'custom' || empty($delivery['hosting_provider']) ? 'selected' : ''; ?>>Custom Admin</option>
@@ -1575,16 +1608,16 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Login URL</label>
-                                    <input type="url" name="template_login_url" value="<?php echo htmlspecialchars($delivery['template_login_url'] ?? ''); ?>" placeholder="https://example.com/admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                    <input type="url" name="template_login_url" value="<?php echo htmlspecialchars($delivery['template_login_url'] ?? ''); ?>" placeholder="https://example.com/admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm sm:text-base">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
-                                    <input type="text" name="template_admin_username" value="<?php echo htmlspecialchars($delivery['template_admin_username'] ?? ''); ?>" placeholder="admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                                    <input type="text" name="template_admin_username" value="<?php echo htmlspecialchars($delivery['template_admin_username'] ?? ''); ?>" placeholder="admin" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm sm:text-base">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
-                                    <input type="password" name="template_admin_password" placeholder="<?php echo $hasExistingPassword ? '••••••••• (Leave blank to keep current)' : 'Enter password'; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
-                                    <p class="text-xs text-gray-500 mt-1"><?php echo $hasExistingPassword ? 'Leave blank to keep current password' : 'Password is encrypted before storage'; ?></p>
+                                    <input type="password" name="template_admin_password" placeholder="<?php echo $hasExistingPassword ? '••••••••• (Leave blank)' : 'Enter password'; ?>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm sm:text-base">
+                                    <p class="text-xs text-gray-500 mt-1"><?php echo $hasExistingPassword ? 'Leave blank to keep current' : 'Encrypted before storage'; ?></p>
                                 </div>
                             </div>
                         </div>
