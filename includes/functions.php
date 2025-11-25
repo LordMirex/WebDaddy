@@ -184,10 +184,11 @@ function getTemplateUrl($template, $affiliateCode = null)
         $slug = $template;
     }
     
-    $url = '/' . $slug;
+    // Direct link to template.php with slug parameter (works in both development and production)
+    $url = '/template.php?slug=' . urlencode($slug);
     
     if ($affiliateCode) {
-        $url .= '?aff=' . urlencode($affiliateCode);
+        $url .= '&aff=' . urlencode($affiliateCode);
     }
     
     return $url;
