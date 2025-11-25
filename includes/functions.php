@@ -1359,7 +1359,18 @@ function sendAffiliateOpportunityEmail($customerName, $customerEmail)
     $emailHtml = createEmailTemplate($subject, $content, $customerName);
     
     if (sendEmail($customerEmail, $subject, $emailHtml)) {
-        error_log("Affiliate opportunity email sent to: $customerEmail");
+        // RECORD THIS INVITATION IN affiliate_users TABLE so it won't be sent again
+        try {
+            $db = getDb();
+            $stmt = $db->prepare("
+                INSERT OR IGNORE INTO affiliate_users (email, invitation_status, created_at)
+                VALUES (?, 'invited', CURRENT_TIMESTAMP)
+            ");
+            $stmt->execute([strtolower(trim($customerEmail))]);
+            error_log("Affiliate opportunity email sent to: $customerEmail (recorded in affiliate_users)");
+        } catch (Exception $e) {
+            error_log("Failed to record affiliate invitation for $customerEmail: " . $e->getMessage());
+        }
         return true;
     } else {
         error_log("Failed to send affiliate opportunity email to: $customerEmail");

@@ -293,9 +293,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 );
             }
             
-            // Send affiliate opportunity email to customer
+            // Send affiliate opportunity email to customer ONLY if:
+            // 1. NOT already an affiliate
+            // 2. NOT already received an invitation before
             if (!empty($customerEmail)) {
-                sendAffiliateOpportunityEmail($customerName, $customerEmail);
+                if (!isUserAlreadyAffiliate($customerEmail) && !hasAffiliateInvitationBeenSent($customerEmail)) {
+                    sendAffiliateOpportunityEmail($customerName, $customerEmail);
+                }
             }
             
             // Process email queue immediately after queuing emails

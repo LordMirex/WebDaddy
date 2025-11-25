@@ -10,6 +10,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Fixes (November 25, 2025)
 
+**Affiliate Invitation Email Bug - FIXED (PERMANENTLY)**
+- **Problem**: Affiliates were still receiving invitation emails AND non-affiliates were getting invitations multiple times on repeat purchases
+- **Root Causes** (3 issues found):
+  1. No validation checks in `cart-checkout.php` - affiliate emails sent to EVERYONE without checking if already affiliate
+  2. Invitations NOT being recorded - emails sent but never stored in database, so system forgot they were sent
+  3. Database constraint removed - was blocking affiliate_invitation email type
+- **Solution**:
+  1. Added dual checks in `cart-checkout.php` line 303: `!isUserAlreadyAffiliate() && !hasAffiliateInvitationBeenSent()`
+  2. Modified `sendAffiliateOpportunityEmail()` to record invitation in `affiliate_users` table with `INSERT OR IGNORE`
+  3. Removed restrictive email_type CHECK constraint from `email_queue` table
+- **Status**: System now sends ONE invitation email on FIRST purchase only ✅
+
 **Email Queue Issue - FIXED**
 - **Problem**: Emails were being queued but never sent because the email processor wasn't running automatically
 - **Root Cause**: The `processEmailQueue()` function needed to be triggered after orders/registrations, but it wasn't being called
