@@ -1496,12 +1496,14 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         console.log('💳 Opening Paystack payment for Order #' + paymentData.order_id);
                         
                         setTimeout(() => {
+                            // Generate UNIQUE reference for each attempt (prevents duplicate transaction errors)
+                            const uniqueRef = 'ORDER-' + paymentData.order_id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
                             const handler = PaystackPop.setup({
                                 key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
                                 email: paymentData.customer_email,
                                 amount: paymentData.amount,
                                 currency: 'NGN',
-                                ref: 'ORDER-' + paymentData.order_id,
+                                ref: uniqueRef,
                                 onClose: function() {
                                     console.log('Payment canceled');
                                     // Mark payment as failed and refresh
@@ -1611,12 +1613,14 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             const overlay = document.getElementById('payment-processing-overlay');
             if (overlay) overlay.classList.add('show');
             
+            // Generate UNIQUE reference for each retry attempt (prevents duplicate transaction errors)
+            const uniqueRef = 'ORDER-<?php echo $confirmationData['order']['id'] ?? 0; ?>-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
             const handler = PaystackPop.setup({
                 key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
                 email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email'] ?? ''); ?>',
                 amount: <?php echo (int)(($confirmationData['order']['final_amount'] ?? 0) * 100); ?>,
                 currency: 'NGN',
-                ref: 'ORDER-<?php echo $confirmationData['order']['id'] ?? 0; ?>',
+                ref: uniqueRef,
                 onClose: function() {
                     console.log('Payment cancelled from retry button');
                     // Mark payment as failed if not already paid
