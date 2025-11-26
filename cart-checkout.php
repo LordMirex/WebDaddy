@@ -1218,22 +1218,17 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </svg>
                             <span class="text-xs sm:text-sm font-semibold text-gray-900">Have an affiliate code? Get 20% OFF!</span>
                         </div>
-                        <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
+                        <form id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial" onsubmit="return false;">
                             <?php echo csrfTokenField(); ?>
-                            <input type="hidden" name="customer_name" id="aff_customer_name" value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>">
-                            <input type="hidden" name="customer_email" id="aff_customer_email" value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>">
-                            <input type="hidden" name="customer_phone" id="aff_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
                             <input type="text" 
                                    name="affiliate_code" 
                                    id="affiliate_code" 
-                                   value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
                                    placeholder="ENTER CODE"
                                    class="flex-1 sm:flex-initial sm:w-40 px-3 py-1.5 text-sm text-gray-900 placeholder:text-gray-500 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                                    style="min-width: 0;">
-                            <button type="submit" 
-                                    name="apply_affiliate"
-                                    value="1"
-                                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
+                            <button type="button" 
+                                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
+                                    onclick="submitAffiliateCodeViaAjax(document.getElementById('affiliateForm'))">
                                 Apply
                             </button>
                         </form>
@@ -1745,7 +1740,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     return;
                 }
                 
-                const btn = form.querySelector('button[type="submit"]');
+                const btn = form.querySelector('button');
                 const originalText = btn.textContent;
                 btn.disabled = true;
                 btn.textContent = '✓';
@@ -1820,13 +1815,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 setTimeout(() => message.remove(), 4000);
             }
             
-            // 3. AFFILIATE CODE FORM SUBMISSION VIA AJAX (NO PAGE RELOAD)
-            const affiliateForm = document.getElementById('affiliateForm');
-            if (affiliateForm) {
-                affiliateForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    submitAffiliateCodeViaAjax(this);
-                });
+            // Affiliate button click is handled via onclick in HTML
             }
             
             // 4. SAVE CUSTOMER INFO AFTER SUCCESSFUL ORDER
