@@ -1140,6 +1140,48 @@ function getCommissionReport()
     }
 }
 
+/**
+ * PHASE 4 CONTINUED: Balance reconciliation - verify affiliate balance accuracy
+ * Compares expected commission from sales table vs. affiliate balance
+ */
+function reconcileAffiliateBalance($affiliateId)
+{
+    $db = getDb();
+    try {
+        // Get affiliate current balance
+        $affiliate = $db->prepare("SELECT id, commission_earned, commission_pending, commission_paid FROM affiliates WHERE id = ?")->execute([$affiliateId])->fetch(PDO::FETCH_ASSOC);
+        if (!$affiliate) {
+            return ['success' => false, 'message' => 'Affiliate not found'];
+        }
+        
+        // Calculate expected commission from sales table
+        $expected = $db->prepare("
+            SELECT SUM(commission_amount) as total FROM sales s
+            JOIN pending_orders po ON s.pending_order_id = po.id
+            WHERE s.affiliate_id = ?
+        ")->execute([$affiliateId])->fetch(PDO::FETCH_ASSOC);
+        
+        $expectedCommission = $expected['total'] ?? 0;
+        $actualCommission = $affiliate['commission_earned'] + $affiliate['commission_pending'];
+        $discrepancy = abs($expectedCommission - $actualCommission);
+        
+        return [
+            'success' => true,
+            'affiliate_id' => $affiliateId,
+            'expected_commission' => $expectedCommission,
+            'actual_commission' => $actualCommission,
+            'discrepancy' => $discrepancy,
+            'balanced' => $discrepancy < 0.01,
+            'commission_earned' => $affiliate['commission_earned'],
+            'commission_pending' => $affiliate['commission_pending'],
+            'commission_paid' => $affiliate['commission_paid']
+        ];
+    } catch (Exception $e) {
+        error_log("❌ RECONCILIATION ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
 function updateAffiliateCommission($affiliateId, $commissionAmount)
 {
     $db = getDb();
