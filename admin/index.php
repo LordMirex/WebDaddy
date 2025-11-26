@@ -24,17 +24,26 @@ $totalRevenue = $db->query("SELECT COALESCE(SUM(amount_paid), 0) FROM sales")->f
 $totalAffiliates = $db->query("SELECT COUNT(*) FROM affiliates WHERE status = 'active'")->fetchColumn();
 $pendingWithdrawals = $db->query("SELECT COUNT(*) FROM withdrawal_requests WHERE status = 'pending'")->fetchColumn();
 
+// FIXED: Query from sales table (source of truth) for ALL payment methods
+// All payments create sales records regardless of method (Paystack or Manual)
 $paystackPaymentsCount = $db->query("
-    SELECT COUNT(*) FROM payments WHERE payment_method = 'paystack' AND status = 'completed'
+    SELECT COUNT(*) FROM sales WHERE id IN (
+        SELECT id FROM sales WHERE pending_order_id IN (
+            SELECT id FROM pending_orders WHERE payment_method = 'paystack'
+        )
+    )
 ")->fetchColumn();
 
 $paystackRevenue = $db->query("
-    SELECT COALESCE(SUM(amount_paid), 0) FROM payments 
-    WHERE payment_method = 'paystack' AND status = 'completed'
+    SELECT COALESCE(SUM(s.amount_paid), 0) FROM sales s
+    INNER JOIN pending_orders po ON s.pending_order_id = po.id
+    WHERE po.payment_method = 'paystack'
 ")->fetchColumn();
 
 $manualPaymentsCount = $db->query("
-    SELECT COUNT(*) FROM payments WHERE payment_method = 'manual' AND status = 'completed'
+    SELECT COUNT(*) FROM sales s
+    INNER JOIN pending_orders po ON s.pending_order_id = po.id
+    WHERE po.payment_method = 'manual'
 ")->fetchColumn();
 
 $pendingDeliveriesCount = $db->query("

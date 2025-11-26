@@ -871,6 +871,91 @@ function incrementAffiliateClick($code)
     }
 }
 
+/**
+ * UNIFIED COMMISSION PROCESSOR: Called for both Paystack and Manual payments
+ * Ensures commissions are calculated and credited identically regardless of payment method
+ */
+function processOrderCommission($orderId)
+{
+    $db = getDb();
+    error_log("💰 COMMISSION PROCESSOR: Starting for Order #$orderId");
+    
+    try {
+        // Get order details
+        $orderStmt = $db->prepare("SELECT id, affiliate_code, final_amount, customer_email FROM pending_orders WHERE id = ?");
+        $orderStmt->execute([$orderId]);
+        $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order) {
+            error_log("❌ COMMISSION PROCESSOR: Order #$orderId not found");
+            return ['success' => false, 'message' => 'Order not found'];
+        }
+        
+        // Check if commission already credited (prevent duplicates)
+        $checkStmt = $db->prepare("SELECT id FROM sales WHERE pending_order_id = ? LIMIT 1");
+        $checkStmt->execute([$orderId]);
+        $existingSales = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existingSales) {
+            error_log("⚠️  COMMISSION PROCESSOR: Order #$orderId already has sales record - skipping");
+            return ['success' => true, 'message' => 'Commission already processed'];
+        }
+        
+        $commissionAmount = 0;
+        $affiliateId = null;
+        
+        // Calculate commission only if affiliate code exists
+        if (!empty($order['affiliate_code'])) {
+            $affiliate = getAffiliateByCode($order['affiliate_code']);
+            
+            if ($affiliate && $affiliate['status'] === 'active') {
+                // Commission base is final_amount (already discounted)
+                $commissionBase = $order['final_amount'];
+                $commissionRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
+                $commissionAmount = $commissionBase * $commissionRate;
+                $affiliateId = $affiliate['id'];
+                
+                // Update affiliate balance
+                $updateStmt = $db->prepare("
+                    UPDATE affiliates 
+                    SET total_sales = total_sales + 1,
+                        commission_earned = commission_earned + ?,
+                        commission_pending = commission_pending + ?
+                    WHERE id = ? AND status = 'active'
+                ");
+                $updateStmt->execute([$commissionAmount, $commissionAmount, $affiliateId]);
+                
+                error_log("✅ COMMISSION PROCESSOR: Commission ₦" . number_format($commissionAmount, 2) . " credited to Affiliate #$affiliateId");
+            } else {
+                error_log("⚠️  COMMISSION PROCESSOR: Affiliate '{$order['affiliate_code']}' inactive or not found");
+            }
+        } else {
+            error_log("ℹ️  COMMISSION PROCESSOR: No affiliate code - Order #$orderId is direct sale");
+        }
+        
+        // Create sales record (for revenue tracking)
+        $salesStmt = $db->prepare("
+            INSERT INTO sales (pending_order_id, amount_paid, commission_amount, affiliate_id, payment_confirmed_at)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        ");
+        $salesStmt->execute([$orderId, $order['final_amount'], $commissionAmount, $affiliateId]);
+        
+        error_log("✅ COMMISSION PROCESSOR: Sales record created for Order #$orderId. Commission: ₦" . number_format($commissionAmount, 2));
+        
+        return [
+            'success' => true,
+            'order_id' => $orderId,
+            'commission_amount' => $commissionAmount,
+            'affiliate_id' => $affiliateId,
+            'message' => 'Commission processed successfully'
+        ];
+        
+    } catch (Exception $e) {
+        error_log("❌ COMMISSION PROCESSOR: Error - " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
 function updateAffiliateCommission($affiliateId, $commissionAmount)
 {
     $db = getDb();

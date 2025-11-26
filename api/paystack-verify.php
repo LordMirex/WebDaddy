@@ -124,6 +124,15 @@ try {
             
             error_log("✅ PAYSTACK VERIFY: Transaction committed");
             
+            // PROCESS COMMISSION: Unified processor for affiliate payments (CRITICAL FIX)
+            error_log("✅ PAYSTACK VERIFY: Processing affiliate commission");
+            $commissionResult = processOrderCommission($orderId);
+            if ($commissionResult['success']) {
+                error_log("✅ PAYSTACK VERIFY: Commission processed - Amount: ₦" . number_format($commissionResult['commission_amount'], 2));
+            } else {
+                error_log("⚠️  PAYSTACK VERIFY: Commission processing warning - " . $commissionResult['message']);
+            }
+            
             // Create delivery records
             error_log("✅ PAYSTACK VERIFY: Creating delivery records");
             try {
