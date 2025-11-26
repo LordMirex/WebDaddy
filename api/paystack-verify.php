@@ -147,6 +147,18 @@ try {
                 // Delivery can be created manually or retried later
             }
             
+            // Send admin notification about successful payment with CORRECT order ID
+            error_log("✅ PAYSTACK VERIFY: Sending admin notification for Order #$orderId");
+            sendPaymentSuccessNotificationToAdmin(
+                $orderId,
+                $order['customer_name'],
+                $order['customer_phone'],
+                $productNames,
+                formatCurrency($order['final_amount']),
+                $order['affiliate_code'],
+                $orderType
+            );
+            
             // SECURITY: Double-check order status is still 'paid' before sending confirmation emails
             $statusCheck = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
             $statusCheck->execute([$orderId]);
