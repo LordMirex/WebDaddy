@@ -213,15 +213,15 @@ require_once __DIR__ . '/includes/header.php';
         </h2>
     </div>
     <div class="p-6">
-        <form method="POST" enctype="multipart/form-data" class="space-y-5">
-            <?php echo csrfTokenField(); ?>
+        <form id="uploadForm" class="space-y-5">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
             <input type="hidden" name="tool_id" value="<?php echo $selectedToolId; ?>">
             
             <!-- File Input -->
             <div>
                 <label class="block text-sm font-semibold text-gray-200 mb-2">📎 Select File</label>
                 <div class="relative">
-                    <input type="file" name="tool_file" 
+                    <input type="file" id="toolFile" name="tool_file" 
                            class="w-full px-4 py-3 bg-gray-700 border-2 border-dashed border-gray-600 rounded-lg text-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all cursor-pointer file:cursor-pointer file:bg-primary-600 file:border-0 file:rounded file:px-3 file:py-1 file:text-white file:text-sm file:font-medium hover:border-primary-500"
                            required>
                 </div>
@@ -231,7 +231,7 @@ require_once __DIR__ . '/includes/header.php';
             <!-- File Type -->
             <div>
                 <label class="block text-sm font-semibold text-gray-200 mb-2">📁 File Type</label>
-                <select name="file_type" class="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" required>
+                <select id="fileType" name="file_type" class="w-full px-4 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" required>
                     <option value="zip_archive">📦 ZIP Archive</option>
                     <option value="attachment">📎 General Attachment</option>
                     <option value="text_instructions">📝 Instructions/Documentation</option>
@@ -246,21 +246,97 @@ require_once __DIR__ . '/includes/header.php';
             <!-- Description -->
             <div>
                 <label class="block text-sm font-semibold text-gray-200 mb-2">💬 Description (Optional)</label>
-                <textarea name="description" 
+                <textarea id="description" name="description" 
                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
                           rows="3"
                           placeholder="e.g., Main tool files, Updated version 2.0, Installation guide..."></textarea>
             </div>
             
+            <!-- Progress Bar (hidden initially) -->
+            <div id="uploadProgress" class="hidden space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-300">Uploading: <span id="fileName">...</span></span>
+                    <span id="progressPercent" class="text-primary-400 font-bold">0%</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div id="progressBar" class="bg-gradient-to-r from-primary-500 to-primary-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- Status Message -->
+            <div id="uploadStatus"></div>
+            
             <!-- Submit Button -->
             <div>
-                <button type="submit" name="upload_file" class="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                    <i class="bi bi-cloud-upload"></i> Upload File
+                <button type="submit" id="uploadBtn" class="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="bi bi-cloud-upload"></i> <span id="uploadBtnText">Upload File</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const file = document.getElementById('toolFile').files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('tool_file', file);
+    formData.append('tool_id', document.querySelector('input[name="tool_id"]').value);
+    formData.append('file_type', document.getElementById('fileType').value);
+    formData.append('description', document.getElementById('description').value);
+    formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+    formData.append('upload_file', '1');
+    
+    const btn = document.getElementById('uploadBtn');
+    const progressDiv = document.getElementById('uploadProgress');
+    const statusDiv = document.getElementById('uploadStatus');
+    
+    btn.disabled = true;
+    statusDiv.innerHTML = '';
+    progressDiv.classList.remove('hidden');
+    document.getElementById('fileName').textContent = file.name;
+    
+    try {
+        const response = await fetch(window.location.pathname, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.status === 200 && response.url.includes('success=1')) {
+            statusDiv.innerHTML = '<div class="p-4 bg-green-900/30 border-l-4 border-green-400 text-green-200 rounded-lg">✅ File uploaded successfully!</div>';
+            setTimeout(() => window.location.reload(), 1500);
+        } else if (response.ok) {
+            const text = await response.text();
+            if (text.includes('success')) {
+                statusDiv.innerHTML = '<div class="p-4 bg-green-900/30 border-l-4 border-green-400 text-green-200 rounded-lg">✅ File uploaded successfully!</div>';
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                throw new Error('Upload failed');
+            }
+        } else {
+            throw new Error('Upload failed with status ' + response.status);
+        }
+    } catch (err) {
+        statusDiv.innerHTML = '<div class="p-4 bg-red-900/30 border-l-4 border-red-400 text-red-200 rounded-lg">❌ ' + err.message + '</div>';
+        btn.disabled = false;
+        progressDiv.classList.add('hidden');
+    }
+});
+
+document.getElementById('toolFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 100 * 1024 * 1024) {
+            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-red-900/30 border-l-4 border-red-400 text-red-200 rounded-lg">❌ File is too large (max 100MB)</div>';
+            e.target.value = '';
+        }
+    }
+});
+</script>
 
 <!-- Existing Files Table -->
 <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
