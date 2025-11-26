@@ -1807,18 +1807,38 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             }
             
             function showSuccessMessage(msg) {
+                // Remove any existing messages
+                const existingMsg = document.querySelector('[data-affiliate-message]');
+                if (existingMsg) existingMsg.remove();
+                
+                const affiliateForm = document.getElementById('affiliateForm');
                 const message = document.createElement('div');
-                message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 14px 18px; border-radius: 8px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
-                message.textContent = msg;
-                document.body.appendChild(message);
+                message.setAttribute('data-affiliate-message', 'true');
+                message.className = 'bg-green-50 border border-green-200 text-green-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
+                message.textContent = '✅ ' + msg;
+                
+                if (affiliateForm) {
+                    affiliateForm.parentElement.insertBefore(message, affiliateForm);
+                }
+                
                 setTimeout(() => message.remove(), 4000);
             }
             
             function showErrorMessage(msg) {
+                // Remove any existing messages
+                const existingMsg = document.querySelector('[data-affiliate-message]');
+                if (existingMsg) existingMsg.remove();
+                
+                const affiliateForm = document.getElementById('affiliateForm');
                 const message = document.createElement('div');
-                message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 14px 18px; border-radius: 8px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+                message.setAttribute('data-affiliate-message', 'true');
+                message.className = 'bg-red-50 border border-red-200 text-red-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
                 message.textContent = '❌ ' + msg;
-                document.body.appendChild(message);
+                
+                if (affiliateForm) {
+                    affiliateForm.parentElement.insertBefore(message, affiliateForm);
+                }
+                
                 setTimeout(() => message.remove(), 4000);
             }
             
