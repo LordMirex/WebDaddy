@@ -942,12 +942,6 @@ async function loadRecentVisitsPage(pageNum) {
         
         document.getElementById('visitsTableBody').innerHTML = html;
         
-        // Scroll to Recent Visits table
-        const visitsTable = document.getElementById('recentVisitsTable');
-        if (visitsTable) {
-            visitsTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        
         // Update pagination info
         const offset = (pageNum - 1) * data.per_page;
         const showing = data.total_count > 0 ? offset + 1 : 0;
