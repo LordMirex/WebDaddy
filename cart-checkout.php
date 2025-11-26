@@ -1732,7 +1732,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     }, 500);
                 }
             }
-            }
             
             // 4. SAVE CUSTOMER INFO AFTER SUCCESSFUL ORDER
             const orderForm = document.getElementById('orderForm');
