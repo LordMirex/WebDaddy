@@ -956,6 +956,7 @@ function processOrderCommission($orderId)
 /**
  * PHASE 4: Log commission transaction for audit trail
  * Tracks all commission movements for reconciliation
+ * Has unique constraint on (order_id, action) to prevent duplicates
  */
 function logCommissionTransaction($orderId, $affiliateId, $action, $amount, $details = '')
 {
@@ -969,6 +970,12 @@ function logCommissionTransaction($orderId, $affiliateId, $action, $amount, $det
         error_log("📝 COMMISSION LOG: Order #$orderId - Action: $action | Amount: ₦" . number_format($amount, 2));
         return true;
     } catch (Exception $e) {
+        // Check if this is a duplicate entry (unique constraint violation)
+        if (strpos($e->getMessage(), 'UNIQUE constraint failed') !== false || 
+            strpos($e->getMessage(), 'idx_commission_log_unique') !== false) {
+            error_log("⚠️ COMMISSION LOG: Duplicate entry skipped - Order #$orderId, Action: $action");
+            return false;
+        }
         error_log("❌ COMMISSION LOG ERROR: " . $e->getMessage());
         return false;
     }
@@ -1149,35 +1156,117 @@ function reconcileAffiliateBalance($affiliateId)
     $db = getDb();
     try {
         // Get affiliate current balance
-        $affiliate = $db->prepare("SELECT id, commission_earned, commission_pending, commission_paid FROM affiliates WHERE id = ?")->execute([$affiliateId])->fetch(PDO::FETCH_ASSOC);
+        $stmt = $db->prepare("SELECT id, code, commission_earned, commission_pending, commission_paid FROM affiliates WHERE id = ?");
+        $stmt->execute([$affiliateId]);
+        $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
+        
         if (!$affiliate) {
             return ['success' => false, 'message' => 'Affiliate not found'];
         }
         
-        // Calculate expected commission from sales table
-        $expected = $db->prepare("
-            SELECT SUM(commission_amount) as total FROM sales s
-            JOIN pending_orders po ON s.pending_order_id = po.id
-            WHERE s.affiliate_id = ?
-        ")->execute([$affiliateId])->fetch(PDO::FETCH_ASSOC);
+        // Calculate expected commission from sales table (total earned from sales records)
+        $stmt = $db->prepare("SELECT COALESCE(SUM(commission_amount), 0) as total FROM sales WHERE affiliate_id = ?");
+        $stmt->execute([$affiliateId]);
+        $salesTotal = $stmt->fetch(PDO::FETCH_ASSOC);
+        $expectedEarned = floatval($salesTotal['total']);
         
-        $expectedCommission = $expected['total'] ?? 0;
-        $actualCommission = $affiliate['commission_earned'] + $affiliate['commission_pending'];
-        $discrepancy = abs($expectedCommission - $actualCommission);
+        // Calculate commission from commission_log (audit trail verification)
+        $stmt = $db->prepare("
+            SELECT COALESCE(SUM(amount), 0) as total 
+            FROM commission_log 
+            WHERE affiliate_id = ? AND action = 'commission_earned'
+        ");
+        $stmt->execute([$affiliateId]);
+        $logTotal = $stmt->fetch(PDO::FETCH_ASSOC);
+        $loggedEarned = floatval($logTotal['total']);
+        
+        // Get withdrawal totals for paid amount verification
+        $stmt = $db->prepare("
+            SELECT COALESCE(SUM(amount), 0) as total 
+            FROM withdrawal_requests 
+            WHERE affiliate_id = ? AND status = 'paid'
+        ");
+        $stmt->execute([$affiliateId]);
+        $paidTotal = $stmt->fetch(PDO::FETCH_ASSOC);
+        $expectedPaid = floatval($paidTotal['total']);
+        
+        // Calculate expected pending = earned - paid
+        $expectedPending = $expectedEarned - $expectedPaid;
+        
+        // Current stored values
+        $storedEarned = floatval($affiliate['commission_earned']);
+        $storedPending = floatval($affiliate['commission_pending']);
+        $storedPaid = floatval($affiliate['commission_paid']);
+        
+        // Calculate discrepancies
+        $earnedDiscrepancy = abs($expectedEarned - $storedEarned);
+        $pendingDiscrepancy = abs($expectedPending - $storedPending);
+        $paidDiscrepancy = abs($expectedPaid - $storedPaid);
+        $salesVsLogDiscrepancy = abs($expectedEarned - $loggedEarned);
+        
+        $isBalanced = ($earnedDiscrepancy < 0.01 && $pendingDiscrepancy < 0.01 && $paidDiscrepancy < 0.01);
         
         return [
             'success' => true,
             'affiliate_id' => $affiliateId,
-            'expected_commission' => $expectedCommission,
-            'actual_commission' => $actualCommission,
-            'discrepancy' => $discrepancy,
-            'balanced' => $discrepancy < 0.01,
-            'commission_earned' => $affiliate['commission_earned'],
-            'commission_pending' => $affiliate['commission_pending'],
-            'commission_paid' => $affiliate['commission_paid']
+            'affiliate_code' => $affiliate['code'],
+            'balanced' => $isBalanced,
+            'expected' => [
+                'earned' => $expectedEarned,
+                'pending' => $expectedPending,
+                'paid' => $expectedPaid,
+                'logged' => $loggedEarned
+            ],
+            'stored' => [
+                'earned' => $storedEarned,
+                'pending' => $storedPending,
+                'paid' => $storedPaid
+            ],
+            'discrepancies' => [
+                'earned' => $earnedDiscrepancy,
+                'pending' => $pendingDiscrepancy,
+                'paid' => $paidDiscrepancy,
+                'sales_vs_log' => $salesVsLogDiscrepancy
+            ]
         ];
     } catch (Exception $e) {
         error_log("❌ RECONCILIATION ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * Reconcile all active affiliates and return summary
+ */
+function reconcileAllAffiliateBalances()
+{
+    $db = getDb();
+    $results = [];
+    $issuesFound = 0;
+    
+    try {
+        $affiliates = $db->query("SELECT id, code FROM affiliates WHERE status = 'active'")->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($affiliates as $affiliate) {
+            $result = reconcileAffiliateBalance($affiliate['id']);
+            if ($result['success']) {
+                if (!$result['balanced']) {
+                    $issuesFound++;
+                    error_log("⚠️ BALANCE DISCREPANCY: Affiliate #{$affiliate['id']} ({$affiliate['code']}) - Earned diff: ₦" . number_format($result['discrepancies']['earned'], 2));
+                }
+                $results[] = $result;
+            }
+        }
+        
+        return [
+            'success' => true,
+            'total_affiliates' => count($affiliates),
+            'issues_found' => $issuesFound,
+            'all_balanced' => $issuesFound === 0,
+            'details' => $results
+        ];
+    } catch (Exception $e) {
+        error_log("❌ RECONCILE ALL ERROR: " . $e->getMessage());
         return ['success' => false, 'message' => $e->getMessage()];
     }
 }

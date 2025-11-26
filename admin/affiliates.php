@@ -105,9 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $stmt = $db->prepare("
                         INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
-                        VALUES (?, ?, 'warning', 1, ?, ?, ?)
+                        VALUES (?, ?, 'warning', 1, NULL, ?, ?)
                     ");
-                    $stmt->execute([$welcomeTitle, $welcomeMessage, getAdminId(), $affiliateId, $expiresAt]);
+                    $stmt->execute([$welcomeTitle, $welcomeMessage, $affiliateId, $expiresAt]);
                     
                     $db->commit();
                     $successMessage = 'Affiliate account created successfully with welcome announcement!';

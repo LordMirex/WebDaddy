@@ -412,13 +412,31 @@ CREATE TABLE affiliate_actions (
 );
 CREATE INDEX idx_affiliate_actions_affiliate ON affiliate_actions(affiliate_id);
 
--- Sales Table (Historical - can be deprecated)
-CREATE TABLE sales (
+-- Commission Log Table (Phase 6 - Audit Trail)
+CREATE TABLE commission_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     order_id INTEGER NOT NULL REFERENCES pending_orders(id) ON DELETE CASCADE,
-    template_id INTEGER REFERENCES templates(id) ON DELETE SET NULL,
-    amount REAL NOT NULL,
-    status TEXT DEFAULT 'pending',
+    affiliate_id INTEGER REFERENCES affiliates(id) ON DELETE SET NULL,
+    action TEXT NOT NULL,
+    amount REAL DEFAULT 0.00,
+    details TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_sales_order ON sales(order_id);
+CREATE INDEX idx_commission_log_order_id ON commission_log(order_id);
+CREATE INDEX idx_commission_log_affiliate_id ON commission_log(affiliate_id);
+CREATE UNIQUE INDEX idx_commission_log_unique ON commission_log(order_id, action);
+
+-- Sales Table (Source of Truth for Revenue)
+CREATE TABLE sales (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pending_order_id INTEGER NOT NULL REFERENCES pending_orders(id) ON DELETE CASCADE,
+    admin_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    amount_paid REAL NOT NULL,
+    commission_amount REAL DEFAULT 0.00,
+    affiliate_id INTEGER REFERENCES affiliates(id) ON DELETE SET NULL,
+    payment_confirmed_at TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_sales_order ON sales(pending_order_id);
+CREATE INDEX idx_sales_affiliate ON sales(affiliate_id);
+CREATE UNIQUE INDEX idx_sales_unique_order ON sales(pending_order_id);
