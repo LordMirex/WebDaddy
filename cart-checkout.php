@@ -1197,7 +1197,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 <!-- Affiliate Discount Banner -->
                 <?php if ($totals['has_discount']): ?>
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-6">
+                <div data-discount-banner="true" class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-6">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -1210,7 +1210,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php else: ?>
                 <!-- Affiliate Code Input -->
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
+                <div data-discount-banner="true" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="flex items-center flex-1">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -1727,33 +1727,75 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 const affiliateInput = document.getElementById('affiliate_code');
                 if (affiliateInput && !affiliateInput.value) {
                     affiliateInput.value = affiliateCodeFromUrl.toUpperCase();
-                    // Auto-submit the affiliate form after short delay
+                    // Auto-submit the affiliate form after short delay via AJAX
                     setTimeout(() => {
                         const affiliateForm = document.getElementById('affiliateForm');
                         if (affiliateForm) {
-                            affiliateForm.submit();
+                            submitAffiliateCodeViaAjax(affiliateForm);
                         }
                     }, 500);
                 }
             }
             
-            // 3. PRESERVE CUSTOMER DATA WHEN APPLYING AFFILIATE CODE
+            // 3. AFFILIATE CODE AJAX SUBMISSION
+            function submitAffiliateCodeViaAjax(form) {
+                const affiliateCode = document.getElementById('affiliate_code')?.value || '';
+                if (!affiliateCode) return;
+                
+                const btn = form.querySelector('button[type="submit"]');
+                const originalText = btn.textContent;
+                btn.disabled = true;
+                btn.textContent = '⏳ Applying...';
+                
+                const formData = new FormData(form);
+                formData.set('apply_affiliate', '1');
+                
+                fetch('/cart-checkout.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Parse the response to extract the new discount information
+                    const parser = new DOMParser();
+                    const newDoc = parser.parseFromString(html, 'text/html');
+                    
+                    // Find the discount banner in the new response
+                    const newDiscountBanner = newDoc.querySelector('[data-discount-banner]');
+                    const discountBanner = document.querySelector('[data-discount-banner]');
+                    
+                    if (newDiscountBanner && discountBanner) {
+                        // Replace old banner with new one
+                        discountBanner.outerHTML = newDiscountBanner.outerHTML;
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                        
+                        // Show success message
+                        const message = document.createElement('div');
+                        message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 16px; border-radius: 6px; font-weight: bold; z-index: 100; animation: slideIn 0.3s ease-out;';
+                        message.textContent = '✅ Affiliate code applied!';
+                        document.body.appendChild(message);
+                        
+                        setTimeout(() => message.remove(), 3000);
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error applying affiliate code:', err);
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                    alert('Error applying affiliate code: ' + err.message);
+                });
+            }
+            
+            // 3. AFFILIATE CODE FORM SUBMISSION VIA AJAX (NO PAGE RELOAD)
             const affiliateForm = document.getElementById('affiliateForm');
             if (affiliateForm) {
                 affiliateForm.addEventListener('submit', function(e) {
-                    const customerName = document.getElementById('customer_name');
-                    const customerEmail = document.getElementById('customer_email');
-                    const customerPhone = document.getElementById('customer_phone');
-                    
-                    if (customerName) {
-                        document.getElementById('aff_customer_name').value = customerName.value;
-                    }
-                    if (customerEmail) {
-                        document.getElementById('aff_customer_email').value = customerEmail.value;
-                    }
-                    if (customerPhone) {
-                        document.getElementById('aff_customer_phone').value = customerPhone.value;
-                    }
+                    e.preventDefault();
+                    submitAffiliateCodeViaAjax(this);
                 });
             }
             
