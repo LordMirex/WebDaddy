@@ -154,6 +154,11 @@ $templateMetrics = getTemplateSalesMetrics($db, $dateFilterSales);
 $templateRevenue = $templateMetrics['revenue'];
 $templateOrders = $templateMetrics['orders'];
 
+// Get discount metrics
+$discountMetrics = getDiscountMetrics($db, $dateFilterSales);
+$totalDiscount = $discountMetrics['total_discount'];
+$discountOrders = $discountMetrics['orders_with_discount'];
+
 $visitsOverTime = $db->query("
     SELECT 
         visit_date,
@@ -347,6 +352,15 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-3xl font-bold text-orange-600"><?php echo formatCurrency($mixedRevenue); ?></div>
         <small class="text-sm text-gray-500"><?php echo number_format($mixedOrders); ?> orders</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-sm font-semibold text-gray-600 uppercase">Total Discount</h6>
+            <i class="bi bi-percent text-2xl text-red-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-red-600"><?php echo formatCurrency($totalDiscount); ?></div>
+        <small class="text-sm text-gray-500">Given to <?php echo number_format($discountOrders); ?> customers</small>
     </div>
 </div>
 

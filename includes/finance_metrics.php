@@ -38,6 +38,35 @@ function getRevenueMetrics($db, $dateFilter = '', $params = []) {
 }
 
 /**
+ * Get discount metrics
+ * 
+ * @param PDO $db Database connection
+ * @param string $dateFilter SQL WHERE clause for date filtering (on pending_orders table)
+ * @param array $params Parameters for prepared statement
+ * @return array Discount metrics
+ */
+function getDiscountMetrics($db, $dateFilter = '', $params = []) {
+    $query = "
+        SELECT 
+            COUNT(*) as orders_with_discount,
+            COALESCE(SUM(discount_amount), 0) as total_discount,
+            COALESCE(AVG(discount_amount), 0) as avg_discount
+        FROM pending_orders
+        WHERE status = 'completed' AND discount_amount > 0 $dateFilter
+    ";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute($params);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return [
+        'total_discount' => (float)($result['total_discount'] ?? 0),
+        'orders_with_discount' => (int)($result['orders_with_discount'] ?? 0),
+        'avg_discount' => (float)($result['avg_discount'] ?? 0)
+    ];
+}
+
+/**
  * Get revenue breakdown by order type (templates, tools, mixed)
  * 
  * @param PDO $db Database connection
