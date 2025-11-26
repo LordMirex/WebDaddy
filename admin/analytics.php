@@ -159,6 +159,29 @@ $discountMetrics = getDiscountMetrics($db, $dateFilterSales);
 $totalDiscount = $discountMetrics['total_discount'];
 $discountOrders = $discountMetrics['orders_with_discount'];
 
+// Get direct sales (no affiliate) and affiliate sales breakdown
+$directSalesResult = $db->query("
+    SELECT COALESCE(SUM(s.amount_paid), 0) as direct_sales
+    FROM sales s
+    WHERE s.affiliate_id IS NULL
+")->fetch(PDO::FETCH_ASSOC);
+$directSalesRevenue = (float)($directSalesResult['direct_sales'] ?? 0);
+
+// Get affiliate sales profit (revenue - commission paid on affiliate sales)
+$affiliateSalesResult = $db->query("
+    SELECT 
+        COALESCE(SUM(s.amount_paid), 0) as affiliate_revenue,
+        COALESCE(SUM(s.commission_amount), 0) as commission_paid
+    FROM sales s
+    WHERE s.affiliate_id IS NOT NULL
+")->fetch(PDO::FETCH_ASSOC);
+$affiliateSalesRevenue = (float)($affiliateSalesResult['affiliate_revenue'] ?? 0);
+$commissionPaid = (float)($affiliateSalesResult['commission_paid'] ?? 0);
+$affiliateProfitKeep = $affiliateSalesRevenue - $commissionPaid;
+
+// Total actual profit = direct sales (100% kept) + affiliate sales (after commission)
+$yourActualProfit = $directSalesRevenue + $affiliateProfitKeep;
+
 $visitsOverTime = $db->query("
     SELECT 
         visit_date,
@@ -314,6 +337,44 @@ require_once __DIR__ . '/includes/header.php';
             <option value="30days" <?php echo $period === '30days' ? 'selected' : ''; ?>>Last 30 Days</option>
             <option value="90days" <?php echo $period === '90days' ? 'selected' : ''; ?>>Last 90 Days</option>
         </select>
+    </div>
+</div>
+
+<!-- YOUR ACTUAL PROFIT - MOST IMPORTANT -->
+<div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl shadow-lg p-4 sm:p-6 border-2 border-green-500 mb-8">
+    <div class="flex items-center justify-between mb-3">
+        <h6 class="text-sm sm:text-base font-bold text-green-700 uppercase tracking-wide">💰 YOUR ACTUAL PROFIT</h6>
+        <i class="bi bi-cash-coin text-3xl text-green-600"></i>
+    </div>
+    <div class="text-4xl sm:text-5xl font-bold text-green-700 mb-3"><?php echo formatCurrency($yourActualProfit); ?></div>
+    <div class="bg-white rounded-lg p-4 text-sm space-y-3">
+        <div class="border-b pb-3">
+            <div class="flex justify-between mb-2">
+                <span class="text-gray-700 font-semibold">Direct Sales (No Affiliate):</span>
+                <span class="font-bold text-green-700"><?php echo formatCurrency($directSalesRevenue); ?></span>
+            </div>
+            <small class="text-gray-600">100% profit - no commission or discount</small>
+        </div>
+        <div class="border-b pb-3">
+            <div class="flex justify-between mb-2">
+                <span class="text-gray-700 font-semibold">Affiliate Sales Revenue:</span>
+                <span class="font-semibold text-gray-900"><?php echo formatCurrency($affiliateSalesRevenue); ?></span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-700">Minus Commission Paid:</span>
+                <span class="font-semibold text-red-600">-<?php echo formatCurrency($commissionPaid); ?></span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mt-1">
+                <span>= You Keep from Affiliate Sales:</span>
+                <span class="font-semibold text-green-700"><?php echo formatCurrency($affiliateProfitKeep); ?></span>
+            </div>
+        </div>
+        <div class="bg-green-50 -mx-4 px-4 py-3 rounded font-bold border-t-2 border-green-200">
+            <div class="flex justify-between">
+                <span class="text-green-700">Total Actual Profit:</span>
+                <span class="text-green-700 text-lg"><?php echo formatCurrency($yourActualProfit); ?></span>
+            </div>
+        </div>
     </div>
 </div>
 
