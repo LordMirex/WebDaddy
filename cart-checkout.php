@@ -490,6 +490,15 @@ if ($confirmedOrderId) {
             $deliveriesByProductId[$delivery['product_id']] = $delivery;
         }
         
+        // FETCH AFFILIATE COMMISSION FROM SALES TABLE FOR CONFIRMATION DISPLAY
+        $commissionAmount = 0;
+        $commissionStmt = $dbConn->prepare("SELECT commission_amount FROM sales WHERE pending_order_id = ?");
+        $commissionStmt->execute([$confirmedOrderId]);
+        $commissionRecord = $commissionStmt->fetch(PDO::FETCH_ASSOC);
+        if ($commissionRecord) {
+            $commissionAmount = $commissionRecord['commission_amount'];
+        }
+        
         $confirmationData = [
             'order' => $order,
             'orderItems' => $orderItems,
@@ -502,7 +511,8 @@ if ($confirmedOrderId) {
             'bankName' => $bankName,
             'bankNumber' => $bankNumber,
             'deliveries' => $deliveries,
-            'deliveriesByProductId' => $deliveriesByProductId
+            'deliveriesByProductId' => $deliveriesByProductId,
+            'commissionAmount' => $commissionAmount
         ];
     } else {
         // Invalid order or unauthorized access - redirect to home
@@ -910,6 +920,20 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <p class="text-gray-300">Your order has been approved and processed</p>
                         <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
                     </div>
+                    
+                    <!-- AFFILIATE COMMISSION MESSAGE (WHEN APPLICABLE) -->
+                    <?php if ($confirmationData['commissionAmount'] > 0): ?>
+                    <div class="bg-gradient-to-r from-gold/20 to-yellow-600/20 border border-gold/50 rounded-xl p-4 mb-6">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🎁</span>
+                            <div>
+                                <h4 class="font-bold text-gold mb-1">Affiliate Commission Earned!</h4>
+                                <p class="text-sm text-gray-200">Your affiliate has earned <span class="font-bold text-xl text-gold">₦<?php echo number_format($confirmationData['commissionAmount'], 2); ?></span> commission from this purchase.</p>
+                                <p class="text-xs text-gray-400 mt-2">💰 Commission added to pending balance and can be withdrawn anytime.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     
                     <!-- ORDER SUMMARY -->
                     <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
