@@ -8,6 +8,7 @@ require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/email_queue.php';
 require_once __DIR__ . '/includes/delivery.php';
+require_once __DIR__ . '/includes/paystack.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -344,8 +345,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             
             if ($paymentMethod === 'automatic') {
                 // Automatic payment: Initialize Paystack payment first
-                require_once __DIR__ . '/includes/paystack.php';
-                
                 $paymentInit = initializePayment([
                     'email' => $customerEmail,
                     'amount' => $totals['total'],
