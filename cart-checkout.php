@@ -281,8 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             
             $productNamesString = implode(', ', $productNamesList);
             
-            // CRITICAL: Only send admin notification for MANUAL payments
-            // For Paystack (automatic), wait for payment verification before notifying admin
+            // Send admin notification for MANUAL payments (payment not verified yet)
             if ($paymentMethod === 'manual') {
                 sendNewOrderNotificationToAdmin(
                     $orderId,
@@ -295,10 +294,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 );
             }
             
-            // Queue affiliate opportunity email - PROCESS IMMEDIATELY to ensure it sends
+            // IMMEDIATELY send affiliate invitation email to NEW customers on FIRST purchase
             if (!empty($customerEmail)) {
                 if (!isEmailAffiliate($customerEmail) && !hasAffiliateInvitationBeenSent($customerEmail)) {
                     sendAffiliateOpportunityEmail($customerName, $customerEmail);
+                    error_log("✅ Affiliate invitation queued for: $customerEmail");
+                }
+            }
+            
+            // For AUTOMATIC payments: send payment confirmation + affiliate commission NOW since payment is already verified
+            if ($paymentMethod === 'automatic') {
+                // Get order data for confirmation email
+                $orderData = getOrderById($orderId);
+                $orderItemsData = getOrderItems($orderId);
+                
+                if ($orderData && $orderItemsData) {
+                    // Send payment confirmation to customer
+                    sendEnhancedPaymentConfirmationEmail($orderData, $orderItemsData);
+                    error_log("✅ Payment confirmation email sent for automatic order #$orderId");
+                    
+                    // Send affiliate commission email if affiliate code was used
+                    if (!empty($totals['affiliate_code'])) {
+                        $affiliate = getAffiliateByCode($totals['affiliate_code']);
+                        if ($affiliate) {
+                            $commissionAmount = $totals['total'] * AFFILIATE_COMMISSION_RATE;
+                            sendCommissionEarnedEmail(
+                                $affiliate['name'],
+                                $affiliate['email'],
+                                $orderId,
+                                $commissionAmount,
+                                $productNamesString
+                            );
+                            error_log("✅ Commission email sent to affiliate: " . $affiliate['email']);
+                        }
+                    }
                 }
             }
             
