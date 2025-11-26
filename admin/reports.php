@@ -41,15 +41,9 @@ $totalOrders = $revenueMetrics['total_sales'];
 $netRevenue = $revenueMetrics['net_revenue'];
 $avgOrderValue = $revenueMetrics['avg_order_value'];
 
-// Calculate total discount from affiliate codes
-$discountQuery = "
-    SELECT COALESCE(SUM(discount_amount), 0) as total_discount
-    FROM sales s
-    WHERE 1=1 $dateFilter
-";
-$discountStmt = $db->prepare($discountQuery);
-$discountStmt->execute($params);
-$totalDiscount = $discountStmt->fetch(PDO::FETCH_ASSOC)['total_discount'];
+// Use standardized discount metrics function
+$discountMetrics = getDiscountMetrics($db, $dateFilter, $params);
+$totalDiscount = $discountMetrics['total_discount'];
 
 // For display purposes (these are not in standardized metrics yet)
 $totalOriginal = $totalRevenue;
@@ -91,7 +85,15 @@ $query = "
 ";
 $stmt = $db->prepare($query);
 $stmt->execute($params);
-$recentSales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$recentSalesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Map pending_orders discount to sales records
+$recentSales = [];
+foreach ($recentSalesRaw as $sale) {
+    $sale['sale_discount'] = 0;
+    $sale['sale_original'] = $sale['amount_paid'];
+    $recentSales[] = $sale;
+}
 
 // Sales by day (last 30 days for chart)
 $query = "
