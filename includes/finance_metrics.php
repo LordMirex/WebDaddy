@@ -41,18 +41,21 @@ function getRevenueMetrics($db, $dateFilter = '', $params = []) {
  * Get discount metrics
  * 
  * @param PDO $db Database connection
- * @param string $dateFilter SQL WHERE clause for date filtering (on pending_orders table)
+ * @param string $dateFilter SQL WHERE clause for date filtering (converts sales table filter to pending_orders)
  * @param array $params Parameters for prepared statement
  * @return array Discount metrics
  */
 function getDiscountMetrics($db, $dateFilter = '', $params = []) {
+    // Convert date filter from sales table (s.created_at) to pending_orders table (created_at)
+    $poDateFilter = str_replace('s.created_at', 'created_at', $dateFilter);
+    
     $query = "
         SELECT 
             COUNT(*) as orders_with_discount,
             COALESCE(SUM(discount_amount), 0) as total_discount,
             COALESCE(AVG(discount_amount), 0) as avg_discount
         FROM pending_orders
-        WHERE status = 'completed' AND discount_amount > 0 $dateFilter
+        WHERE status = 'completed' AND discount_amount > 0 $poDateFilter
     ";
     
     $stmt = $db->prepare($query);
