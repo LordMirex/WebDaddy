@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/finance_metrics.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -27,8 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Get commission report - using sales table as single source of truth
-$totalEarned = $db->query("SELECT COALESCE(SUM(commission_amount), 0) FROM sales")->fetchColumn();
+// Get commission report using standardized financial metrics (single source of truth: sales table)
+$revenueMetrics = getRevenueMetrics($db, '');
+$totalEarned = $revenueMetrics['total_commission'];
 $totalPaid = $db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE status = 'paid'")->fetchColumn();
 $totalPending = (float)$totalEarned - (float)$totalPaid;
 

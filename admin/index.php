@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/finance_metrics.php';
 require_once __DIR__ . '/../includes/tools.php';
 require_once __DIR__ . '/includes/auth.php';
 
@@ -20,12 +21,15 @@ $activeTools = $db->query("SELECT COUNT(*) FROM tools WHERE active = true")->fet
 $totalOrders = $db->query("SELECT COUNT(*) FROM pending_orders")->fetchColumn();
 $pendingOrders = $db->query("SELECT COUNT(*) FROM pending_orders WHERE status = 'pending'")->fetchColumn();
 $totalSales = $db->query("SELECT COUNT(*) FROM sales")->fetchColumn();
-$totalRevenue = $db->query("SELECT COALESCE(SUM(amount_paid), 0) FROM sales")->fetchColumn();
+
+// Use standardized revenue metrics from finance_metrics.php (single source of truth: sales table)
+$revenueMetrics = getRevenueMetrics($db, '');
+$totalRevenue = $revenueMetrics['total_revenue'];
+
 $totalAffiliates = $db->query("SELECT COUNT(*) FROM affiliates WHERE status = 'active'")->fetchColumn();
 $pendingWithdrawals = $db->query("SELECT COUNT(*) FROM withdrawal_requests WHERE status = 'pending'")->fetchColumn();
 
-// FIXED: Query from sales table (source of truth) for ALL payment methods
-// All payments create sales records regardless of method (Paystack or Manual)
+// Query from sales table (source of truth) for ALL payment methods
 $paystackPaymentsCount = $db->query("
     SELECT COUNT(*) FROM sales WHERE id IN (
         SELECT id FROM sales WHERE pending_order_id IN (
@@ -82,10 +86,9 @@ $outOfStockTools = $db->query("
 $recentOrders = getOrders('pending');
 $recentOrders = array_slice($recentOrders, 0, 5);
 
-// Commission statistics from sales table (single source of truth)
-$totalEarned = $db->query("SELECT COALESCE(SUM(commission_amount), 0) FROM sales")->fetchColumn();
+// Commission statistics using standardized metrics (single source of truth: sales table)
+$totalCommissionEarned = $revenueMetrics['total_commission'];
 $totalPaid = $db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE status = 'paid'")->fetchColumn();
-$totalCommissionEarned = (float)$totalEarned;
 $totalCommissionPaid = (float)$totalPaid;
 $totalCommissionPending = $totalCommissionEarned - $totalCommissionPaid;
 
