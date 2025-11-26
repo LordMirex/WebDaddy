@@ -81,7 +81,7 @@ try {
                 // Log share event
                 $stmt = $db->prepare("
                     INSERT INTO activity_logs (activity_type, description, user_id, ip_address, created_at)
-                    VALUES (?, ?, ?, ?, datetime('now'))
+                    VALUES (?, ?, ?, ?, datetime('now', '+1 hour'))
                 ");
                 
                 $description = "Template shared via $platform: $templateSlug";

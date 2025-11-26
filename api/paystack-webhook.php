@@ -89,7 +89,7 @@ function handleSuccessfulPayment($data) {
             SET status = 'completed',
                 amount_paid = ?,
                 paystack_response = ?,
-                payment_verified_at = datetime('now')
+                payment_verified_at = datetime('now', '+1 hour')
             WHERE id = ? AND status != 'completed'
         ");
         $stmt->execute([
@@ -102,7 +102,7 @@ function handleSuccessfulPayment($data) {
         $stmt = $db->prepare("
             UPDATE pending_orders 
             SET status = 'paid',
-                payment_verified_at = datetime('now'),
+                payment_verified_at = datetime('now', '+1 hour'),
                 payment_method = 'paystack'
             WHERE id = ? AND status = 'pending'
         ");

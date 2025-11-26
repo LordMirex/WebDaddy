@@ -37,7 +37,7 @@ try {
         $stmt = $db->prepare("
             UPDATE pending_orders 
             SET status = 'cancelled',
-                updated_at = datetime('now')
+                updated_at = datetime('now', '+1 hour')
             WHERE id = ?
         ");
         $stmt->execute([$orderId]);

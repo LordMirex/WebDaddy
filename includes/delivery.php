@@ -129,8 +129,8 @@ function createToolDelivery($orderId, $item, $retryAttempt = 0) {
         $stmt = $db->prepare("
             UPDATE deliveries SET 
                 delivery_status = ?,
-                email_sent_at = CASE WHEN ? = 1 THEN datetime('now') ELSE email_sent_at END,
-                delivered_at = CASE WHEN ? = 1 THEN datetime('now') ELSE delivered_at END
+                email_sent_at = CASE WHEN ? = 1 THEN datetime('now', '+1 hour') ELSE email_sent_at END,
+                delivered_at = CASE WHEN ? = 1 THEN datetime('now', '+1 hour') ELSE delivered_at END
             WHERE id = ?
         ");
         $stmt->execute([
@@ -283,7 +283,7 @@ function processDeliveryRetries() {
         FROM deliveries d
         JOIN pending_orders po ON d.pending_order_id = po.id
         WHERE d.delivery_status = 'pending_retry'
-          AND d.next_retry_at <= datetime('now')
+          AND d.next_retry_at <= datetime('now', '+1 hour')
           AND d.retry_count < {$maxAttempts}
         ORDER BY d.next_retry_at ASC
         LIMIT 10
@@ -313,8 +313,8 @@ function processDeliveryRetries() {
                 $updateStmt = $db->prepare("
                     UPDATE deliveries SET 
                         delivery_status = 'delivered',
-                        email_sent_at = datetime('now'),
-                        delivered_at = datetime('now'),
+                        email_sent_at = datetime('now', '+1 hour'),
+                        delivered_at = datetime('now', '+1 hour'),
                         next_retry_at = NULL
                     WHERE id = ?
                 ");
@@ -381,7 +381,7 @@ function resendToolDeliveryEmail($deliveryId) {
     if ($emailSent) {
         $updateStmt = $db->prepare("
             UPDATE deliveries SET 
-                email_sent_at = datetime('now')
+                email_sent_at = datetime('now', '+1 hour')
             WHERE id = ?
         ");
         $updateStmt->execute([$deliveryId]);
@@ -449,8 +449,8 @@ function markTemplateReady($deliveryId, $hostedDomain, $hostedUrl, $adminNotes =
             hosted_domain = ?,
             hosted_url = ?,
             admin_notes = ?,
-            delivered_at = datetime('now'),
-            email_sent_at = datetime('now')
+            delivered_at = datetime('now', '+1 hour'),
+            email_sent_at = datetime('now', '+1 hour')
         WHERE id = ?
     ");
     $stmt->execute([$hostedDomain, $hostedUrl, $adminNotes, $deliveryId]);
@@ -560,7 +560,7 @@ function saveTemplateCredentials($deliveryId, $credentials, $hostedDomain, $host
             template_login_url = ?,
             hosting_provider = ?,
             admin_notes = ?,
-            updated_at = datetime('now')
+            updated_at = datetime('now', '+1 hour')
         WHERE id = ?
     ");
     
@@ -617,9 +617,9 @@ function deliverTemplateWithCredentials($deliveryId) {
     $stmt = $db->prepare("
         UPDATE deliveries 
         SET delivery_status = 'delivered',
-            delivered_at = datetime('now'),
-            email_sent_at = datetime('now'),
-            credentials_sent_at = datetime('now')
+            delivered_at = datetime('now', '+1 hour'),
+            email_sent_at = datetime('now', '+1 hour'),
+            credentials_sent_at = datetime('now', '+1 hour')
         WHERE id = ?
     ");
     $stmt->execute([$deliveryId]);

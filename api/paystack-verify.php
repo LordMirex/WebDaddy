@@ -111,7 +111,7 @@ try {
             $stmt = $db->prepare("
                 UPDATE pending_orders 
                 SET status = 'paid', 
-                    payment_verified_at = datetime('now'),
+                    payment_verified_at = datetime('now', '+1 hour'),
                     payment_method = 'paystack'
                 WHERE id = ? AND status IN ('pending', 'failed')
             ");
@@ -224,7 +224,7 @@ try {
             $stmt = $db->prepare("
                 UPDATE pending_orders 
                 SET status = 'failed',
-                    payment_verified_at = datetime('now'),
+                    payment_verified_at = datetime('now', '+1 hour'),
                     payment_method = 'paystack'
                 WHERE id = ?
             ");

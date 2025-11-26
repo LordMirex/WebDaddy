@@ -930,7 +930,7 @@ function processOrderCommission($orderId)
         // admin_id is NULL for system-generated commission records
         $salesStmt = $db->prepare("
             INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_confirmed_at)
-            VALUES (?, NULL, ?, ?, ?, datetime('now'))
+            VALUES (?, NULL, ?, ?, ?, datetime('now', '+1 hour'))
         ");
         $salesStmt->execute([$orderId, $order['final_amount'], $commissionAmount, $affiliateId]);
         
@@ -1012,7 +1012,7 @@ function logCommissionTransaction($orderId, $affiliateId, $action, $amount, $det
     try {
         $stmt = $db->prepare("
             INSERT INTO commission_log (order_id, affiliate_id, action, amount, details, created_at)
-            VALUES (?, ?, ?, ?, ?, datetime('now'))
+            VALUES (?, ?, ?, ?, ?, datetime('now', '+1 hour'))
         ");
         $stmt->execute([$orderId, $affiliateId, $action, $amount, $details]);
         error_log("📝 COMMISSION LOG: Order #$orderId - Action: $action | Amount: ₦" . number_format($amount, 2));
@@ -1071,7 +1071,7 @@ function createCommissionWithdrawal($affiliateId, $amount, $paymentMethod = '', 
         
         $stmt = $db->prepare("
             INSERT INTO commission_withdrawals (affiliate_id, amount_requested, payment_method, bank_details, requested_at, status)
-            VALUES (?, ?, ?, ?, datetime('now'), 'pending')
+            VALUES (?, ?, ?, ?, datetime('now', '+1 hour'), 'pending')
         ");
         $stmt->execute([$affiliateId, $amount, $paymentMethod, $bankDetails]);
         
@@ -1117,7 +1117,7 @@ function processCommissionPayout($withdrawalId)
         // Mark withdrawal as processed
         $processStmt = $db->prepare("
             UPDATE commission_withdrawals 
-            SET status = 'processed', processed_at = datetime('now')
+            SET status = 'processed', processed_at = datetime('now', '+1 hour')
             WHERE id = ?
         ");
         $processStmt->execute([$withdrawalId]);
@@ -1351,7 +1351,7 @@ function verifyUserAffiliateIntegrity()
             // Create affiliate record
             $stmt = $db->prepare("
                 INSERT INTO affiliates (user_id, code, status, created_at, updated_at)
-                VALUES (?, ?, 'active', datetime('now'), datetime('now'))
+                VALUES (?, ?, 'active', datetime('now', '+1 hour'), datetime('now', '+1 hour'))
             ");
             
             if ($stmt->execute([$user['id'], $code])) {

@@ -34,27 +34,27 @@ try {
             $uniqueSessions = $stmt->fetchColumn();
             
             // Total product views
-            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'view' AND DATE(CAST(datetime('now') as text)) >= ?");
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'view' AND DATE(CAST(datetime('now', '+1 hour') as text)) >= ?");
             $stmt->execute([$lastMonth]);
             $productViews = $stmt->fetchColumn() ?? 0;
             
             // Template views
-            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'view' AND action_target = 'template' AND DATE(CAST(datetime('now') as text)) >= ?");
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'view' AND action_target = 'template' AND DATE(CAST(datetime('now', '+1 hour') as text)) >= ?");
             $stmt->execute([$lastMonth]);
             $templateViews = $stmt->fetchColumn() ?? 0;
             
             // Tool views
-            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'view' AND action_target = 'tool' AND DATE(CAST(datetime('now') as text)) >= ?");
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'view' AND action_target = 'tool' AND DATE(CAST(datetime('now', '+1 hour') as text)) >= ?");
             $stmt->execute([$lastMonth]);
             $toolViews = $stmt->fetchColumn() ?? 0;
             
             // Total clicks
-            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type IN ('click', 'button_click') AND DATE(CAST(datetime('now') as text)) >= ?");
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type IN ('click', 'button_click') AND DATE(CAST(datetime('now', '+1 hour') as text)) >= ?");
             $stmt->execute([$lastMonth]);
             $totalClicks = $stmt->fetchColumn() ?? 0;
             
             // Searches
-            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'search' AND DATE(CAST(datetime('now') as text)) >= ?");
+            $stmt = $db->prepare("SELECT COUNT(*) as total FROM page_interactions WHERE action_type = 'search' AND DATE(CAST(datetime('now', '+1 hour') as text)) >= ?");
             $stmt->execute([$lastMonth]);
             $searches = $stmt->fetchColumn() ?? 0;
             

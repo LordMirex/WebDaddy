@@ -185,7 +185,7 @@ function processEmailQueue() {
                 // Mark as sent
                 $updateStmt = $db->prepare("
                     UPDATE email_queue 
-                    SET status = 'sent', sent_at = datetime('now')
+                    SET status = 'sent', sent_at = datetime('now', '+1 hour')
                     WHERE id = ?
                 ");
                 $updateStmt->execute([$email['id']]);

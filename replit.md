@@ -9,8 +9,11 @@ WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website
 - Dashboard now includes Quick Analytics Access Hub (5-card navigation)
 - Analytics page fixed: loads at top instead of jumping to pagination
 - Database integrity verified: all orphan records removed, NULL values fixed
-- All systems operational: deliveries, analytics, affiliates, email queue verified
+- **TIMEZONE FIXED**: All 33 datetime queries now use `+1 hour` offset for Nigeria time
+- Affiliate commission popup removed from customer payment confirmation
+- Affiliates table now includes email column (synced from users table)
 - System cache cleared and logs reset for fresh start
+- All systems operational: deliveries, analytics, affiliates, email queue verified
 
 ## User Preferences
 - No mock data in production paths

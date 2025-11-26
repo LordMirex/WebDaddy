@@ -117,7 +117,7 @@ function verifyPayment($reference) {
             SET status = 'completed',
                 amount_paid = ?,
                 paystack_response = ?,
-                payment_verified_at = datetime('now')
+                payment_verified_at = datetime('now', '+1 hour')
             WHERE paystack_reference = ?
         ");
         $stmt->execute([

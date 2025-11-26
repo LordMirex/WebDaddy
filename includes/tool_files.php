@@ -141,7 +141,7 @@ function getOrderDownloadTokens($orderId) {
     $db = getDb();
     $stmt = $db->prepare("
         SELECT dt.*, tf.file_name, tf.file_size, tf.file_type, tf.tool_id,
-               CASE WHEN dt.expires_at < datetime('now') THEN 1 ELSE 0 END as is_expired,
+               CASE WHEN dt.expires_at < datetime('now', '+1 hour') THEN 1 ELSE 0 END as is_expired,
                CASE WHEN dt.download_count >= dt.max_downloads THEN 1 ELSE 0 END as limit_exceeded
         FROM download_tokens dt
         JOIN tool_files tf ON dt.file_id = tf.id
@@ -222,13 +222,13 @@ function getDownloadStatistics() {
     
     $expiredStmt = $db->query("
         SELECT COUNT(*) as expired FROM download_tokens 
-        WHERE expires_at < datetime('now') AND download_count = 0
+        WHERE expires_at < datetime('now', '+1 hour') AND download_count = 0
     ");
     $stats['expired_unused'] = (int)($expiredStmt->fetchColumn() ?? 0);
     
     $activeStmt = $db->query("
         SELECT COUNT(*) as active FROM download_tokens 
-        WHERE expires_at >= datetime('now') AND download_count < max_downloads
+        WHERE expires_at >= datetime('now', '+1 hour') AND download_count < max_downloads
     ");
     $stats['active_links'] = (int)($activeStmt->fetchColumn() ?? 0);
     
