@@ -1320,6 +1320,109 @@ function reconcileAllAffiliateBalances()
 }
 
 /**
+ * DATA INTEGRITY: Verify users and affiliates relationship
+ * Ensures every affiliate user has a corresponding affiliate record
+ * Creates missing affiliate records to prevent orphaned users
+ */
+function verifyUserAffiliateIntegrity()
+{
+    $db = getDb();
+    $results = ['fixed' => 0, 'errors' => [], 'orphaned' => []];
+    
+    try {
+        // Find affiliate users without affiliate records
+        $orphans = $db->query("
+            SELECT u.id, u.name, u.email FROM users u 
+            WHERE u.role = 'affiliate' 
+            AND u.id NOT IN (SELECT user_id FROM affiliates WHERE user_id IS NOT NULL)
+        ")->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($orphans as $user) {
+            // Generate unique affiliate code
+            $code = strtoupper(substr($user['email'], 0, strpos($user['email'], '@')));
+            $originalCode = $code;
+            $counter = 1;
+            
+            while ($db->query("SELECT id FROM affiliates WHERE code = '$code'")->fetchColumn()) {
+                $code = $originalCode . $counter;
+                $counter++;
+            }
+            
+            // Create affiliate record
+            $stmt = $db->prepare("
+                INSERT INTO affiliates (user_id, code, status, created_at, updated_at)
+                VALUES (?, ?, 'active', datetime('now'), datetime('now'))
+            ");
+            
+            if ($stmt->execute([$user['id'], $code])) {
+                $results['fixed']++;
+                error_log("✅ DATA INTEGRITY: Created affiliate record for User #{$user['id']} with code $code");
+            } else {
+                $results['errors'][] = "Failed to create affiliate for User #{$user['id']}";
+                $results['orphaned'][] = $user;
+            }
+        }
+        
+        return [
+            'success' => true,
+            'orphaned_found' => count($orphans),
+            'fixed_count' => $results['fixed'],
+            'errors' => $results['errors'],
+            'details' => $results['orphaned']
+        ];
+    } catch (Exception $e) {
+        error_log("❌ DATA INTEGRITY ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * Get data integrity report (users, affiliates, commissions)
+ * Used for monitoring system health
+ */
+function getDataIntegrityReport()
+{
+    $db = getDb();
+    
+    try {
+        $report = [];
+        
+        // User-Affiliate Relationship
+        $report['users_total'] = $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
+        $report['users_admin'] = $db->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+        $report['users_affiliate'] = $db->query("SELECT COUNT(*) FROM users WHERE role = 'affiliate'")->fetchColumn();
+        
+        $report['affiliates_total'] = $db->query("SELECT COUNT(*) FROM affiliates")->fetchColumn();
+        $report['affiliates_active'] = $db->query("SELECT COUNT(*) FROM affiliates WHERE status = 'active'")->fetchColumn();
+        
+        // Check for orphaned users
+        $orphanedCount = $db->query("
+            SELECT COUNT(*) FROM users u 
+            WHERE u.role = 'affiliate' 
+            AND u.id NOT IN (SELECT user_id FROM affiliates WHERE user_id IS NOT NULL)
+        ")->fetchColumn();
+        $report['orphaned_affiliate_users'] = $orphanedCount;
+        
+        // Commission integrity
+        $report['sales_total'] = $db->query("SELECT COUNT(*) FROM sales")->fetchColumn();
+        $report['commissions_logged'] = $db->query("SELECT COUNT(*) FROM commission_log")->fetchColumn();
+        $report['total_commission_earned'] = $db->query("SELECT COALESCE(SUM(commission_earned), 0) FROM affiliates")->fetchColumn();
+        
+        // Data consistency check
+        $report['is_healthy'] = ($orphanedCount == 0);
+        
+        return [
+            'success' => true,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'report' => $report
+        ];
+    } catch (Exception $e) {
+        error_log("❌ DATA INTEGRITY REPORT ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
  * PHASE 6: Log rotation and cleanup
  * Keeps database size manageable by archiving/deleting old log entries
  */
