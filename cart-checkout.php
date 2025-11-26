@@ -1508,7 +1508,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     });
                                 },
                                 callback: function(response) {
-                                    console.log('💳 Payment submitted. Verifying...');
+                                    console.log('💳 Payment submitted. Verifying... Reference:', response);
                                     const csrfToken = document.querySelector('[name="csrf_token"]')?.value || '';
                                     
                                     if (msg) msg.textContent = 'Verifying payment...';
@@ -1517,7 +1517,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         method: 'POST',
                                         headers: {'Content-Type': 'application/json'},
                                         body: JSON.stringify({
-                                            reference: response.reference,
+                                            reference: response,
                                             order_id: paymentData.order_id,
                                             csrf_token: csrfToken
                                         })
