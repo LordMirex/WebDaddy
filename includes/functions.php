@@ -1352,8 +1352,14 @@ function getLogStats()
         ];
         
         // Database size
-        $stats['database_size'] = filesize(DB_PATH);
-        $stats['database_size_formatted'] = formatBytes(filesize(DB_PATH));
+        $dbFile = __DIR__ . '/../database/webdaddy.db';
+        if (file_exists($dbFile)) {
+            $stats['database_size'] = filesize($dbFile);
+            $stats['database_size_formatted'] = formatBytes(filesize($dbFile));
+        } else {
+            $stats['database_size'] = 0;
+            $stats['database_size_formatted'] = '0 B';
+        }
         
         return ['success' => true, 'stats' => $stats];
     } catch (Exception $e) {
