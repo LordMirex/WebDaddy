@@ -85,35 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $affiliateId = $db->lastInsertId();
                     
-                    $welcomeTitle = "📧 Important: Check Your Spam Folder!";
-                    $welcomeMessage = "<p>Welcome to <strong>WebDaddy Empire</strong>! We're excited to have you as an affiliate partner.</p>
-                        <p><strong style='color: #dc2626;'>⚠️ IMPORTANT ACTION REQUIRED:</strong></p>
-                        <ul>
-                            <li>Check your <strong>spam/junk folder</strong> for emails from us</li>
-                            <li>Mark our emails as <strong>\"Not Spam\"</strong> or <strong>\"Safe\"</strong></li>
-                            <li>Add <strong>admin@webdaddy.online</strong> to your contacts</li>
-                        </ul>
-                        <p><strong>Why is this important?</strong></p>
-                        <p>We will send you important notifications via email about:</p>
-                        <ul>
-                            <li>✅ Successful purchases made with your affiliate code</li>
-                            <li>💰 Payment confirmations and receipts</li>
-                            <li>🎯 Withdrawal request approvals</li>
-                            <li>📊 Monthly earning reports</li>
-                        </ul>
-                        <p>This announcement will disappear in 7 days. If you don't see our emails in your inbox, please check spam!</p>";
-                    
-                    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
-                    
-                    $stmt = $db->prepare("
-                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
-                        VALUES (?, ?, 'warning', 1, ?, ?, ?)
-                    ");
-                    $stmt->execute([$welcomeTitle, $welcomeMessage, getAdminId(), $affiliateId, $expiresAt]);
-                    
                     $db->commit();
-                    $successMessage = 'Affiliate account created successfully with welcome announcement!';
-                    logActivity('affiliate_created', "Affiliate created: $email (with welcome announcement)", getAdminId());
+                    $successMessage = 'Affiliate account created successfully!';
+                    logActivity('affiliate_created', "Affiliate created: $email", getAdminId());
                 } catch (Exception $e) {
                     if ($db->inTransaction()) {
                         $db->rollBack();
