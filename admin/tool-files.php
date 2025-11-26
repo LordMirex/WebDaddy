@@ -45,15 +45,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
             throw new Exception('Invalid tool selected');
         }
         
-        if (isset($_FILES['tool_file']) && $_FILES['tool_file']['error'] === UPLOAD_ERR_OK) {
-            uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
-            $success = 'File uploaded successfully!';
-            header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
-            exit;
-        } else {
-            throw new Exception('File upload failed');
+        if (!isset($_FILES['tool_file'])) {
+            throw new Exception('No file provided');
         }
+        
+        if ($_FILES['tool_file']['error'] !== UPLOAD_ERR_OK) {
+            $errorMap = [
+                UPLOAD_ERR_INI_SIZE => 'File exceeds php.ini upload_max_filesize',
+                UPLOAD_ERR_FORM_SIZE => 'File exceeds form MAX_FILE_SIZE',
+                UPLOAD_ERR_PARTIAL => 'File upload incomplete',
+                UPLOAD_ERR_NO_FILE => 'No file selected',
+                UPLOAD_ERR_NO_TMP_DIR => 'Missing temp directory',
+                UPLOAD_ERR_CANT_WRITE => 'Cannot write to disk',
+                UPLOAD_ERR_EXTENSION => 'Extension blocked'
+            ];
+            throw new Exception($errorMap[$_FILES['tool_file']['error']] ?? 'Unknown upload error');
+        }
+        
+        $fileId = uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
+        error_log("✅ File uploaded successfully: Tool ID=$toolId, File ID=$fileId");
+        $success = 'File uploaded successfully!';
+        header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
+        exit;
     } catch (Exception $e) {
+        error_log("❌ Upload error: " . $e->getMessage());
         $error = $e->getMessage();
     }
 }
@@ -277,7 +292,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+document.getElementById('uploadForm').addEventListener('submit', (e) => {
     e.preventDefault();
     
     const file = document.getElementById('toolFile').files[0];
@@ -294,29 +309,59 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     const btn = document.getElementById('uploadBtn');
     const progressDiv = document.getElementById('uploadProgress');
     const statusDiv = document.getElementById('uploadStatus');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
     
     btn.disabled = true;
     statusDiv.innerHTML = '';
     progressDiv.classList.remove('hidden');
     document.getElementById('fileName').textContent = file.name;
     
-    try {
-        const response = await fetch(window.location.pathname, {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (response.ok) {
-            statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully!</div>';
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            throw new Error('Upload failed with status ' + response.status);
+    // Use XMLHttpRequest for proper progress tracking
+    const xhr = new XMLHttpRequest();
+    
+    // Track upload progress
+    xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + '%';
+            progressPercent.textContent = percent + '%';
         }
-    } catch (err) {
-        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ ' + err.message + '</div>';
+    });
+    
+    // Handle completion
+    xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+            // Check if response contains redirect or success
+            if (xhr.responseURL.includes('success=1') || xhr.status === 200) {
+                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                throw new Error('Upload response error');
+            }
+        } else {
+            throw new Error('Upload failed with status ' + xhr.status);
+        }
+    });
+    
+    // Handle errors
+    xhr.addEventListener('error', () => {
+        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Network error during upload</div>';
         btn.disabled = false;
         progressDiv.classList.add('hidden');
-    }
+    });
+    
+    xhr.addEventListener('abort', () => {
+        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload cancelled</div>';
+        btn.disabled = false;
+        progressDiv.classList.add('hidden');
+    });
+    
+    // Send the request
+    xhr.open('POST', window.location.pathname);
+    xhr.send(formData);
 });
 
 document.getElementById('toolFile').addEventListener('change', (e) => {
