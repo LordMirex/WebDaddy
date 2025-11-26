@@ -1517,7 +1517,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         method: 'POST',
                                         headers: {'Content-Type': 'application/json'},
                                         body: JSON.stringify({
-                                            reference: response,
+                                            reference: response.reference,
                                             order_id: paymentData.order_id,
                                             csrf_token: csrfToken
                                         })
