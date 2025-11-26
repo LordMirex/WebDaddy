@@ -1737,15 +1737,18 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 }
             }
             
-            // 3. AFFILIATE CODE AJAX SUBMISSION
+            // 3. AFFILIATE CODE AJAX SUBMISSION - WITH PROPER VALIDATION
             function submitAffiliateCodeViaAjax(form) {
                 const affiliateCode = document.getElementById('affiliate_code')?.value || '';
-                if (!affiliateCode) return;
+                if (!affiliateCode) {
+                    showErrorMessage('Please enter an affiliate code');
+                    return;
+                }
                 
                 const btn = form.querySelector('button[type="submit"]');
                 const originalText = btn.textContent;
                 btn.disabled = true;
-                btn.textContent = '⏳ Applying...';
+                btn.textContent = '⏳ Validating...';
                 
                 const formData = new FormData(form);
                 formData.set('apply_affiliate', '1');
@@ -1756,38 +1759,67 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Parse the response to extract the new discount information
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                    
+                    // Parse the response
                     const parser = new DOMParser();
                     const newDoc = parser.parseFromString(html, 'text/html');
                     
-                    // Find the discount banner in the new response
+                    // Check for error messages in response
+                    const errorDivs = newDoc.querySelectorAll('[role="alert"]');
+                    let hasError = false;
+                    let errorMessage = '';
+                    
+                    errorDivs.forEach(div => {
+                        const text = div.textContent.trim();
+                        if (text && !text.includes('discount applied')) {
+                            hasError = true;
+                            errorMessage = text;
+                        }
+                    });
+                    
+                    // Check if the discount banner now shows the GREEN success banner (20% OFF!)
                     const newDiscountBanner = newDoc.querySelector('[data-discount-banner]');
                     const discountBanner = document.querySelector('[data-discount-banner]');
                     
-                    if (newDiscountBanner && discountBanner) {
-                        // Replace old banner with new one
+                    // Check if new banner has the green "20% OFF" styling (success case)
+                    const isSuccess = newDiscountBanner && newDiscountBanner.classList.contains('from-green-50');
+                    
+                    if (isSuccess && newDiscountBanner && discountBanner) {
+                        // VALID CODE - Replace banner and show success
                         discountBanner.outerHTML = newDiscountBanner.outerHTML;
-                        btn.disabled = false;
-                        btn.textContent = originalText;
-                        
-                        // Show success message
-                        const message = document.createElement('div');
-                        message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 16px; border-radius: 6px; font-weight: bold; z-index: 100; animation: slideIn 0.3s ease-out;';
-                        message.textContent = '✅ Affiliate code applied!';
-                        document.body.appendChild(message);
-                        
-                        setTimeout(() => message.remove(), 3000);
+                        showSuccessMessage('✅ Affiliate code applied! You get 20% OFF!');
+                    } else if (hasError) {
+                        // INVALID CODE - Show error
+                        showErrorMessage(errorMessage || 'Invalid or inactive affiliate code');
                     } else {
-                        btn.disabled = false;
-                        btn.textContent = originalText;
+                        // Fallback: check if banner changed from blue to green
+                        showErrorMessage('Invalid or inactive affiliate code');
                     }
                 })
                 .catch(err => {
                     console.error('Error applying affiliate code:', err);
                     btn.disabled = false;
                     btn.textContent = originalText;
-                    alert('Error applying affiliate code: ' + err.message);
+                    showErrorMessage('Error applying code: ' + err.message);
                 });
+            }
+            
+            function showSuccessMessage(msg) {
+                const message = document.createElement('div');
+                message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 14px 18px; border-radius: 8px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+                message.textContent = msg;
+                document.body.appendChild(message);
+                setTimeout(() => message.remove(), 4000);
+            }
+            
+            function showErrorMessage(msg) {
+                const message = document.createElement('div');
+                message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 14px 18px; border-radius: 8px; font-weight: bold; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+                message.textContent = '❌ ' + msg;
+                document.body.appendChild(message);
+                setTimeout(() => message.remove(), 4000);
             }
             
             // 3. AFFILIATE CODE FORM SUBMISSION VIA AJAX (NO PAGE RELOAD)
