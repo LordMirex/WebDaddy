@@ -37,22 +37,49 @@ function initializePayment($orderData) {
     $response = paystackApiCall($url, $fields);
     
     if ($response && isset($response['status']) && $response['status']) {
-        // Store payment record
+        // Store payment record - check if exists first to avoid constraint violation
         $db = getDb();
-        $stmt = $db->prepare("
-            INSERT INTO payments (
-                pending_order_id, payment_method, amount_requested, currency,
-                paystack_reference, paystack_access_code, paystack_authorization_url
-            ) VALUES (?, 'paystack', ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([
-            $orderData['order_id'],
-            $orderData['amount'],
-            $fields['currency'],
-            $fields['reference'],
-            $response['data']['access_code'],
-            $response['data']['authorization_url']
-        ]);
+        
+        // Check if payment already exists for this order
+        $checkStmt = $db->prepare("SELECT id FROM payments WHERE pending_order_id = ?");
+        $checkStmt->execute([$orderData['order_id']]);
+        $existingPayment = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existingPayment) {
+            // Update existing payment record
+            $stmt = $db->prepare("
+                UPDATE payments 
+                SET amount_requested = ?, currency = ?,
+                    paystack_reference = ?, paystack_access_code = ?, 
+                    paystack_authorization_url = ?, status = 'pending',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE pending_order_id = ?
+            ");
+            $stmt->execute([
+                $orderData['amount'],
+                $fields['currency'],
+                $fields['reference'],
+                $response['data']['access_code'],
+                $response['data']['authorization_url'],
+                $orderData['order_id']
+            ]);
+        } else {
+            // Insert new payment record
+            $stmt = $db->prepare("
+                INSERT INTO payments (
+                    pending_order_id, payment_method, amount_requested, currency,
+                    paystack_reference, paystack_access_code, paystack_authorization_url
+                ) VALUES (?, 'paystack', ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $orderData['order_id'],
+                $orderData['amount'],
+                $fields['currency'],
+                $fields['reference'],
+                $response['data']['access_code'],
+                $response['data']['authorization_url']
+            ]);
+        }
         
         // Log event
         logPaymentEvent('initialize', 'paystack', 'success', $orderData['order_id'], null, $fields, $response);
