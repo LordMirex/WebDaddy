@@ -1737,7 +1737,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 }
             }
             
-            // 3. AFFILIATE CODE AJAX SUBMISSION - WITH PROPER VALIDATION
+            // 3. AFFILIATE CODE AJAX SUBMISSION - FAST JSON API
             function submitAffiliateCodeViaAjax(form) {
                 const affiliateCode = document.getElementById('affiliate_code')?.value || '';
                 if (!affiliateCode) {
@@ -1748,52 +1748,32 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 const btn = form.querySelector('button[type="submit"]');
                 const originalText = btn.textContent;
                 btn.disabled = true;
-                btn.textContent = '⏳ Validating...';
+                btn.textContent = '✓';
                 
                 const formData = new FormData(form);
-                formData.set('apply_affiliate', '1');
+                formData.set('csrf_token', document.querySelector('input[name="csrf_token"]').value);
                 
-                fetch('/cart-checkout.php', {
+                fetch('/api/apply-affiliate.php', {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.text())
-                .then(html => {
+                .then(response => response.json())
+                .then(data => {
                     btn.disabled = false;
                     btn.textContent = originalText;
                     
-                    // Parse the response
-                    const parser = new DOMParser();
-                    const newDoc = parser.parseFromString(html, 'text/html');
-                    
-                    // Check if "Invalid or inactive affiliate code" error appears in response
-                    const hasInvalidError = html.includes('Invalid or inactive affiliate code');
-                    
-                    if (hasInvalidError) {
-                        showErrorMessage('Invalid or inactive affiliate code');
-                        return;
-                    }
-                    
-                    // Check if the discount banner contains "20% OFF!" (indicating success)
-                    const newDiscountBanner = newDoc.querySelector('[data-discount-banner]');
-                    const discountBanner = document.querySelector('[data-discount-banner]');
-                    
-                    // Check if "20% OFF!" text appears in the new banner (success indicator)
-                    const isSuccess = newDiscountBanner && newDiscountBanner.textContent.includes('20% OFF!');
-                    
-                    if (isSuccess && discountBanner) {
-                        // VALID CODE - Replace old banner with new green banner
-                        discountBanner.outerHTML = newDiscountBanner.outerHTML;
-                        showSuccessMessage('✅ 20% discount applied!');
+                    if (data.success) {
+                        // Reload the banner area to show updated discount
+                        location.reload();
                     } else {
-                        showErrorMessage('Invalid or inactive affiliate code');
+                        showErrorMessage(data.message || 'Invalid or inactive affiliate code');
                     }
                 })
                 .catch(err => {
-                    console.error('Error applying affiliate code:', err);
+                    console.error('Error:', err);
                     btn.disabled = false;
                     btn.textContent = originalText;
-                    showErrorMessage('Error applying code: ' + err.message);
+                    showErrorMessage('Error applying code');
                 });
             }
             
