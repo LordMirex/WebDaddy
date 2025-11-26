@@ -85,9 +85,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     $affiliateId = $db->lastInsertId();
                     
+                    // Send welcome announcement ONLY on first creation
+                    $welcomeTitle = "🎉 Welcome to WebDaddy Empire Affiliate Program!";
+                    $welcomeMessage = "<p>Welcome <strong>$name</strong>! Your affiliate account has been activated.</p>
+                        <p><strong>Your Affiliate Code:</strong> <span style='background: #f3f4f6; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-family: monospace;'>$code</span></p>
+                        <p>You can now start earning 30% commission on every sale made with your code!</p>";
+                    
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
+                    
+                    $stmt = $db->prepare("
+                        INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
+                        VALUES (?, ?, 'success', 1, ?, ?, ?)
+                    ");
+                    $stmt->execute([$welcomeTitle, $welcomeMessage, getAdminId(), $affiliateId, $expiresAt]);
+                    
                     $db->commit();
-                    $successMessage = 'Affiliate account created successfully!';
-                    logActivity('affiliate_created', "Affiliate created: $email", getAdminId());
+                    $successMessage = 'Affiliate account created successfully with welcome notification!';
+                    logActivity('affiliate_created', "Affiliate created: $email (Code: $code)", getAdminId());
                 } catch (Exception $e) {
                     if ($db->inTransaction()) {
                         $db->rollBack();
