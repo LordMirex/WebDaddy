@@ -56,22 +56,7 @@ function handleAffiliateTracking()
 
 function getAffiliateCode()
 {
-    $code = $_SESSION['affiliate_code'] ?? $_COOKIE['affiliate_code'] ?? null;
-    
-    // Validate that the affiliate code still exists in database AND is active
-    if (!empty($code) && function_exists('getAffiliateByCode')) {
-        $affiliate = getAffiliateByCode($code);
-        
-        // If affiliate doesn't exist or is inactive, clear cached data and return null
-        if (empty($affiliate) || $affiliate['status'] !== 'active') {
-            unset($_SESSION['affiliate_code']);
-            setcookie('affiliate_code', '', time() - 3600, '/', '', 
-                isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on', true);
-            return null; // CRITICAL: Return null for invalid codes
-        }
-    }
-    
-    return $code;
+    return $_SESSION['affiliate_code'] ?? $_COOKIE['affiliate_code'] ?? null;
 }
 
 function isLoggedIn()

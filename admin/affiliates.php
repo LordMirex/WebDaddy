@@ -65,14 +65,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new Exception('Failed to create user account.');
                     }
                     
-                    // Get the user ID by querying the database
-                    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
-                    $stmt->execute([$email]);
-                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                    if (!$user) {
-                        throw new Exception('Failed to retrieve user ID after creation.');
+                    $dbType = getDbType();
+                    if ($dbType === 'pgsql') {
+                        $userId = $db->lastInsertId('users_id_seq');
+                    } else {
+                        $userId = $db->lastInsertId();
                     }
-                    $userId = $user['id'];
                     
                     $stmt = $db->prepare("INSERT INTO affiliates (user_id, code, status) VALUES (?, ?, 'active')");
                     if ($stmt === false) {
@@ -83,32 +81,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new Exception('Failed to create affiliate record.');
                     }
                     
-                    // Get affiliate ID by querying with the code we just inserted
-                    $stmt = $db->prepare("SELECT id FROM affiliates WHERE code = ?");
-                    $stmt->execute([$code]);
-                    $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
-                    if (!$affiliate) {
-                        throw new Exception('Failed to retrieve affiliate ID after creation.');
-                    }
-                    $affiliateId = $affiliate['id'];
+                    $affiliateId = $db->lastInsertId();
                     
-                    // Send welcome announcement ONLY on first creation
-                    $welcomeTitle = "🎉 Welcome to WebDaddy Empire Affiliate Program!";
-                    $welcomeMessage = "<p>Welcome <strong>$name</strong>! Your affiliate account has been activated.</p>
-                        <p><strong>Your Affiliate Code:</strong> <span style='background: #f3f4f6; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-family: monospace;'>$code</span></p>
-                        <p>You can now start earning 30% commission on every sale made with your code!</p>";
+                    $welcomeTitle = "📧 Important: Check Your Spam Folder!";
+                    $welcomeMessage = "<p>Welcome to <strong>WebDaddy Empire</strong>! We're excited to have you as an affiliate partner.</p>
+                        <p><strong style='color: #dc2626;'>⚠️ IMPORTANT ACTION REQUIRED:</strong></p>
+                        <ul>
+                            <li>Check your <strong>spam/junk folder</strong> for emails from us</li>
+                            <li>Mark our emails as <strong>\"Not Spam\"</strong> or <strong>\"Safe\"</strong></li>
+                            <li>Add <strong>admin@webdaddy.online</strong> to your contacts</li>
+                        </ul>
+                        <p><strong>Why is this important?</strong></p>
+                        <p>We will send you important notifications via email about:</p>
+                        <ul>
+                            <li>✅ Successful purchases made with your affiliate code</li>
+                            <li>💰 Payment confirmations and receipts</li>
+                            <li>🎯 Withdrawal request approvals</li>
+                            <li>📊 Monthly earning reports</li>
+                        </ul>
+                        <p>This announcement will disappear in 7 days. If you don't see our emails in your inbox, please check spam!</p>";
                     
-                    $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
                     
                     $stmt = $db->prepare("
                         INSERT INTO announcements (title, message, type, is_active, created_by, affiliate_id, expires_at)
-                        VALUES (?, ?, 'success', 1, ?, ?, ?)
+                        VALUES (?, ?, 'warning', 1, ?, ?, ?)
                     ");
                     $stmt->execute([$welcomeTitle, $welcomeMessage, getAdminId(), $affiliateId, $expiresAt]);
                     
                     $db->commit();
-                    $successMessage = 'Affiliate account created successfully with welcome notification!';
-                    logActivity('affiliate_created', "Affiliate created: $email (Code: $code)", getAdminId());
+                    $successMessage = 'Affiliate account created successfully with welcome announcement!';
+                    logActivity('affiliate_created', "Affiliate created: $email (with welcome announcement)", getAdminId());
                 } catch (Exception $e) {
                     if ($db->inTransaction()) {
                         $db->rollBack();

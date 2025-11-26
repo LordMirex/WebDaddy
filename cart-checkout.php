@@ -1197,7 +1197,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 
                 <!-- Affiliate Discount Banner -->
                 <?php if ($totals['has_discount']): ?>
-                <div data-discount-banner="true" class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-6">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -1210,7 +1210,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php else: ?>
                 <!-- Affiliate Code Input -->
-                <div data-discount-banner="true" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="flex items-center flex-1">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -1218,11 +1218,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </svg>
                             <span class="text-xs sm:text-sm font-semibold text-gray-900">Have an affiliate code? Get 20% OFF!</span>
                         </div>
-                        <form method="POST" action="" class="flex gap-2 flex-1 sm:flex-initial">
+                        <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
+                            <input type="hidden" name="customer_name" id="aff_customer_name" value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>">
+                            <input type="hidden" name="customer_email" id="aff_customer_email" value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>">
+                            <input type="hidden" name="customer_phone" id="aff_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
                             <input type="text" 
                                    name="affiliate_code" 
                                    id="affiliate_code" 
+                                   value="<?php echo htmlspecialchars($submittedAffiliateCode); ?>" 
                                    placeholder="ENTER CODE"
                                    class="flex-1 sm:flex-initial sm:w-40 px-3 py-1.5 text-sm text-gray-900 placeholder:text-gray-500 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                                    style="min-width: 0;">
@@ -1725,12 +1729,32 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     affiliateInput.value = affiliateCodeFromUrl.toUpperCase();
                     // Auto-submit the affiliate form after short delay
                     setTimeout(() => {
-                        const form = affiliateInput.closest('form');
-                        if (form) {
-                            form.submit();
+                        const affiliateForm = document.getElementById('affiliateForm');
+                        if (affiliateForm) {
+                            affiliateForm.submit();
                         }
                     }, 500);
                 }
+            }
+            
+            // 3. PRESERVE CUSTOMER DATA WHEN APPLYING AFFILIATE CODE
+            const affiliateForm = document.getElementById('affiliateForm');
+            if (affiliateForm) {
+                affiliateForm.addEventListener('submit', function(e) {
+                    const customerName = document.getElementById('customer_name');
+                    const customerEmail = document.getElementById('customer_email');
+                    const customerPhone = document.getElementById('customer_phone');
+                    
+                    if (customerName) {
+                        document.getElementById('aff_customer_name').value = customerName.value;
+                    }
+                    if (customerEmail) {
+                        document.getElementById('aff_customer_email').value = customerEmail.value;
+                    }
+                    if (customerPhone) {
+                        document.getElementById('aff_customer_phone').value = customerPhone.value;
+                    }
+                });
             }
             
             // 4. SAVE CUSTOMER INFO AFTER SUCCESSFUL ORDER
