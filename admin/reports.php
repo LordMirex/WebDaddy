@@ -33,7 +33,7 @@ if ($period === 'today') {
     $params = [$startDate, $endDate];
 }
 
-// Use standardized financial metrics
+// Use standardized financial metrics (calculates from sales table - single source of truth)
 $revenueMetrics = getRevenueMetrics($db, $dateFilter, $params);
 $totalRevenue = $revenueMetrics['total_revenue'];
 $totalCommission = $revenueMetrics['total_commission'];
@@ -53,6 +53,9 @@ $totalDiscount = $discountStmt->fetch(PDO::FETCH_ASSOC)['total_discount'];
 
 // For display purposes (these are not in standardized metrics yet)
 $totalOriginal = $totalRevenue;
+
+// NOTE: All commission amounts use sales table as single source of truth
+// This ensures consistency across all admin pages and affiliate dashboard
 
 // Use standardized top products function
 $topProducts = getTopProducts($db, $dateFilter, $params, 10);

@@ -25,12 +25,36 @@ $db = getDb();
 $affiliateId = getAffiliateId();
 $affiliateCode = getAffiliateCode();
 
+// Calculate accurate commission from sales table (single source of truth)
+$commissionStmt = $db->prepare("
+    SELECT 
+        COALESCE(SUM(s.commission_amount), 0) as total_earned,
+        COUNT(DISTINCT s.id) as total_sales_count
+    FROM sales s
+    WHERE s.affiliate_id = ?
+");
+$commissionStmt->execute([$affiliateId]);
+$commissionData = $commissionStmt->fetch(PDO::FETCH_ASSOC);
+
+// Get paid withdrawals total
+$paidStmt = $db->prepare("
+    SELECT COALESCE(SUM(amount), 0) as total_paid
+    FROM withdrawal_requests
+    WHERE affiliate_id = ? AND status = 'paid'
+");
+$paidStmt->execute([$affiliateId]);
+$paidData = $paidStmt->fetch(PDO::FETCH_ASSOC);
+
+$totalEarned = (float)$commissionData['total_earned'];
+$totalPaid = (float)$paidData['total_paid'];
+$totalPending = $totalEarned - $totalPaid;
+
 $stats = [
     'total_clicks' => $affiliateInfo['total_clicks'] ?? 0,
-    'total_sales' => $affiliateInfo['total_sales'] ?? 0,
-    'commission_earned' => $affiliateInfo['commission_earned'] ?? 0,
-    'commission_pending' => $affiliateInfo['commission_pending'] ?? 0,
-    'commission_paid' => $affiliateInfo['commission_paid'] ?? 0
+    'total_sales' => (int)$commissionData['total_sales_count'],
+    'commission_earned' => $totalEarned,
+    'commission_pending' => $totalPending,
+    'commission_paid' => $totalPaid
 ];
 
 try {
