@@ -937,6 +937,11 @@ function processOrderCommission($orderId)
         // Log sales record creation
         logCommissionTransaction($orderId, $affiliateId, 'sales_record_created', $commissionAmount, 'Revenue recorded in sales table');
         
+        // SAFEGUARD: Sync affiliate commission totals with sales table to prevent discrepancies
+        if ($affiliateId) {
+            syncAffiliateCommissions($affiliateId);
+        }
+        
         error_log("✅ COMMISSION PROCESSOR: Sales record created for Order #$orderId. Commission: ₦" . number_format($commissionAmount, 2));
         
         return [
@@ -950,6 +955,49 @@ function processOrderCommission($orderId)
     } catch (Exception $e) {
         error_log("❌ COMMISSION PROCESSOR: Error - " . $e->getMessage());
         return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * SAFEGUARD: Sync affiliate commission totals with sales table
+ * Prevents discrepancies between affiliates table cache and sales table (single source of truth)
+ * Called automatically after commission is credited
+ */
+function syncAffiliateCommissions($affiliateId = null)
+{
+    $db = getDb();
+    try {
+        $query = "SELECT id FROM affiliates WHERE status = 'active'";
+        $params = [];
+        
+        if ($affiliateId) {
+            $query .= " AND id = ?";
+            $params[] = $affiliateId;
+        }
+        
+        $affiliates = $db->prepare($query)->execute($params);
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        $affiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($affiliates as $aff) {
+            $id = $aff['id'];
+            
+            // Get actual totals from sales table (SOURCE OF TRUTH)
+            $earned = $db->query("SELECT COALESCE(SUM(commission_amount), 0) as total FROM sales WHERE affiliate_id=$id")->fetchColumn();
+            $paid = $db->query("SELECT COALESCE(SUM(amount), 0) as total FROM withdrawal_requests WHERE affiliate_id=$id AND status='paid'")->fetchColumn();
+            $pending = $earned - $paid;
+            
+            // Update affiliates table with correct values
+            $updateStmt = $db->prepare("UPDATE affiliates SET commission_earned=?, commission_pending=?, commission_paid=? WHERE id=?");
+            $updateStmt->execute([$earned, $pending, $paid, $id]);
+        }
+        
+        error_log("✅ COMMISSION SYNC: Affiliate commission totals synced from sales table");
+        return true;
+    } catch (Exception $e) {
+        error_log("❌ COMMISSION SYNC ERROR: " . $e->getMessage());
+        return false;
     }
 }
 
