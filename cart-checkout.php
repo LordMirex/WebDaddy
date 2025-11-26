@@ -8,7 +8,6 @@ require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/email_queue.php';
 require_once __DIR__ . '/includes/delivery.php';
-require_once __DIR__ . '/includes/paystack.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -344,27 +343,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             $confirmationUrl = '/cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : '');
             
             if ($paymentMethod === 'automatic') {
-                // Automatic payment: Initialize Paystack payment first
-                $paymentInit = initializePayment([
-                    'email' => $customerEmail,
-                    'amount' => $totals['total'],
-                    'currency' => 'NGN',
-                    'order_id' => $orderId,
-                    'customer_name' => $customerName,
-                    'callback_url' => (defined('SITE_URL') ? SITE_URL : '') . '/cart-checkout.php'
-                ]);
-                
-                if (!$paymentInit['success']) {
-                    error_log('❌ Payment initialization failed for order #' . $orderId . ': ' . ($paymentInit['message'] ?? 'Unknown error'));
-                    http_response_code(400);
-                    echo json_encode([
-                        'success' => false,
-                        'message' => 'Payment initialization failed. Please try again.'
-                    ]);
-                    exit;
-                }
-                
-                // Return payment data with Paystack reference to trigger Paystack popup
+                // Automatic payment: Return payment data to trigger Paystack popup immediately
+                // Payment will be initialized by Paystack JavaScript
                 // Admin will be notified AFTER payment verification (success or failure)
                 echo json_encode([
                     'success' => true,
@@ -372,9 +352,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                     'order_id' => $orderId,
                     'amount' => (int)($totals['total'] * 100), // Paystack uses cents
                     'customer_email' => $customerEmail,
-                    'reference' => $paymentInit['reference'],
-                    'access_code' => $paymentInit['access_code'],
-                    'authorization_url' => $paymentInit['authorization_url'],
                     'redirect_on_failure' => $confirmationUrl
                 ]);
                 exit;
@@ -1508,7 +1485,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 email: paymentData.customer_email,
                                 amount: paymentData.amount,
                                 currency: 'NGN',
-                                ref: paymentData.reference,
+                                ref: 'ORDER-' + paymentData.order_id,
                                 onClose: function() {
                                     console.log('Payment canceled');
                                     // Mark payment as failed and refresh
