@@ -1697,6 +1697,89 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             handler.openIframe();
         });
         
+        // GLOBAL AFFILIATE FUNCTIONS - ACCESSIBLE FROM HTML ONCLICK
+        function submitAffiliateCodeViaAjax(form) {
+            const affiliateCode = document.getElementById('affiliate_code')?.value || '';
+            if (!affiliateCode) {
+                showErrorMessage('Please enter an affiliate code');
+                return;
+            }
+            
+            const btn = form.querySelector('button');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '✓';
+            
+            const formData = new FormData(form);
+            formData.set('affiliate_code', affiliateCode);
+            
+            // Get CSRF token from the affiliate form itself
+            const csrfInput = form.querySelector('input[name="csrf_token"]');
+            if (csrfInput) {
+                formData.set('csrf_token', csrfInput.value);
+            }
+            
+            fetch('/api/apply-affiliate.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                
+                if (data.success) {
+                    showSuccessMessage('20% discount applied!');
+                    // Reload the page to show updated discount
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    showErrorMessage(data.message || 'Invalid or inactive affiliate code');
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                btn.disabled = false;
+                btn.textContent = originalText;
+                showErrorMessage('Error applying code');
+            });
+        }
+        
+        function showSuccessMessage(msg) {
+            // Remove any existing messages
+            const existingMsg = document.querySelector('[data-affiliate-message]');
+            if (existingMsg) existingMsg.remove();
+            
+            const affiliateForm = document.getElementById('affiliateForm');
+            const message = document.createElement('div');
+            message.setAttribute('data-affiliate-message', 'true');
+            message.className = 'bg-green-50 border border-green-200 text-green-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
+            message.textContent = '✅ ' + msg;
+            
+            if (affiliateForm) {
+                affiliateForm.parentElement.insertBefore(message, affiliateForm);
+            }
+            
+            setTimeout(() => message.remove(), 4000);
+        }
+        
+        function showErrorMessage(msg) {
+            // Remove any existing messages
+            const existingMsg = document.querySelector('[data-affiliate-message]');
+            if (existingMsg) existingMsg.remove();
+            
+            const affiliateForm = document.getElementById('affiliateForm');
+            const message = document.createElement('div');
+            message.setAttribute('data-affiliate-message', 'true');
+            message.className = 'bg-red-50 border border-red-200 text-red-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
+            message.textContent = '❌ ' + msg;
+            
+            if (affiliateForm) {
+                affiliateForm.parentElement.insertBefore(message, affiliateForm);
+            }
+            
+            setTimeout(() => message.remove(), 4000);
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // 1. PRE-FILL FORM WITH SAVED CUSTOMER INFO FOR REPEAT BUYERS
             const savedCustomer = localStorage.getItem('webdaddy_customer');
@@ -1730,89 +1813,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         }
                     }, 500);
                 }
-            }
-            
-            // 3. AFFILIATE CODE AJAX SUBMISSION - FAST JSON API
-            function submitAffiliateCodeViaAjax(form) {
-                const affiliateCode = document.getElementById('affiliate_code')?.value || '';
-                if (!affiliateCode) {
-                    showErrorMessage('Please enter an affiliate code');
-                    return;
-                }
-                
-                const btn = form.querySelector('button');
-                const originalText = btn.textContent;
-                btn.disabled = true;
-                btn.textContent = '✓';
-                
-                const formData = new FormData(form);
-                formData.set('affiliate_code', affiliateCode);
-                
-                // Get CSRF token from the affiliate form itself
-                const csrfInput = form.querySelector('input[name="csrf_token"]');
-                if (csrfInput) {
-                    formData.set('csrf_token', csrfInput.value);
-                }
-                
-                fetch('/api/apply-affiliate.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                    
-                    if (data.success) {
-                        showSuccessMessage('✅ 20% discount applied!');
-                        // Reload the page to show updated discount
-                        setTimeout(() => location.reload(), 500);
-                    } else {
-                        showErrorMessage(data.message || 'Invalid or inactive affiliate code');
-                    }
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                    showErrorMessage('Error applying code');
-                });
-            }
-            
-            function showSuccessMessage(msg) {
-                // Remove any existing messages
-                const existingMsg = document.querySelector('[data-affiliate-message]');
-                if (existingMsg) existingMsg.remove();
-                
-                const affiliateForm = document.getElementById('affiliateForm');
-                const message = document.createElement('div');
-                message.setAttribute('data-affiliate-message', 'true');
-                message.className = 'bg-green-50 border border-green-200 text-green-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
-                message.textContent = '✅ ' + msg;
-                
-                if (affiliateForm) {
-                    affiliateForm.parentElement.insertBefore(message, affiliateForm);
-                }
-                
-                setTimeout(() => message.remove(), 4000);
-            }
-            
-            function showErrorMessage(msg) {
-                // Remove any existing messages
-                const existingMsg = document.querySelector('[data-affiliate-message]');
-                if (existingMsg) existingMsg.remove();
-                
-                const affiliateForm = document.getElementById('affiliateForm');
-                const message = document.createElement('div');
-                message.setAttribute('data-affiliate-message', 'true');
-                message.className = 'bg-red-50 border border-red-200 text-red-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
-                message.textContent = '❌ ' + msg;
-                
-                if (affiliateForm) {
-                    affiliateForm.parentElement.insertBefore(message, affiliateForm);
-                }
-                
-                setTimeout(() => message.remove(), 4000);
             }
             
             // Affiliate button click is handled via onclick in HTML
