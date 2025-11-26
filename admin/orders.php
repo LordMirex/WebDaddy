@@ -168,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             }
                         }
                     }
+                }
                 
                 if (empty($updateErrors)) {
                     if ($updateCount > 0) {
