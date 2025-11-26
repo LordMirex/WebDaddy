@@ -65,12 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new Exception('Failed to create user account.');
                     }
                     
-                    $dbType = getDbType();
-                    if ($dbType === 'pgsql') {
-                        $userId = $db->lastInsertId('users_id_seq');
-                    } else {
-                        $userId = $db->lastInsertId();
+                    // Get the user ID by querying the database
+                    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+                    $stmt->execute([$email]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$user) {
+                        throw new Exception('Failed to retrieve user ID after creation.');
                     }
+                    $userId = $user['id'];
                     
                     $stmt = $db->prepare("INSERT INTO affiliates (user_id, code, status) VALUES (?, ?, 'active')");
                     if ($stmt === false) {
