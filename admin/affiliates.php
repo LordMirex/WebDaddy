@@ -83,7 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         throw new Exception('Failed to create affiliate record.');
                     }
                     
-                    $affiliateId = $db->lastInsertId();
+                    // Get affiliate ID by querying with the code we just inserted
+                    $stmt = $db->prepare("SELECT id FROM affiliates WHERE code = ?");
+                    $stmt->execute([$code]);
+                    $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$affiliate) {
+                        throw new Exception('Failed to retrieve affiliate ID after creation.');
+                    }
+                    $affiliateId = $affiliate['id'];
                     
                     // Send welcome announcement ONLY on first creation
                     $welcomeTitle = "🎉 Welcome to WebDaddy Empire Affiliate Program!";
