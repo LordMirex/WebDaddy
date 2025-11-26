@@ -48,6 +48,9 @@ $totalDiscount = $discountMetrics['total_discount'];
 // For display purposes (these are not in standardized metrics yet)
 $totalOriginal = $totalRevenue;
 
+// YOUR ACTUAL PROFIT = What customers paid you - What you paid affiliates
+$yourActualProfit = $totalRevenue - $totalCommission;
+
 // NOTE: All commission amounts use sales table as single source of truth
 // This ensures consistency across all admin pages and affiliate dashboard
 
@@ -116,6 +119,29 @@ require_once __DIR__ . '/includes/header.php';
         <i class="bi bi-graph-up text-primary-600"></i> Sales Reports & Analytics
     </h1>
     <p class="text-gray-600 mt-2">Comprehensive sales and revenue analytics</p>
+</div>
+
+<!-- YOUR ACTUAL PROFIT - MOST IMPORTANT -->
+<div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl shadow-lg p-4 sm:p-6 border-2 border-green-500 mb-8">
+    <div class="flex items-center justify-between mb-3">
+        <h6 class="text-sm sm:text-base font-bold text-green-700 uppercase tracking-wide">💰 YOUR ACTUAL PROFIT</h6>
+        <i class="bi bi-cash-coin text-3xl text-green-600"></i>
+    </div>
+    <div class="text-4xl sm:text-5xl font-bold text-green-700 mb-3"><?php echo formatCurrency($yourActualProfit); ?></div>
+    <div class="bg-white rounded-lg p-3 text-sm space-y-2">
+        <div class="flex justify-between">
+            <span class="text-gray-700">Total Customer Payments:</span>
+            <span class="font-semibold text-gray-900"><?php echo formatCurrency($totalRevenue); ?></span>
+        </div>
+        <div class="border-t pt-2 flex justify-between">
+            <span class="text-gray-700">Minus Affiliate Commissions:</span>
+            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalCommission); ?></span>
+        </div>
+        <div class="border-t pt-2 flex justify-between bg-green-50 -mx-3 px-3 py-2 rounded font-bold">
+            <span class="text-green-700">= Money You Keep:</span>
+            <span class="text-green-700"><?php echo formatCurrency($yourActualProfit); ?></span>
+        </div>
+    </div>
 </div>
 
 <!-- Filter Section -->
