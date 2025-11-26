@@ -1271,6 +1271,110 @@ function reconcileAllAffiliateBalances()
     }
 }
 
+/**
+ * PHASE 6: Log rotation and cleanup
+ * Keeps database size manageable by archiving/deleting old log entries
+ */
+function cleanupOldLogs($daysToKeep = 90)
+{
+    $db = getDb();
+    $results = [];
+    
+    try {
+        $cutoffDate = date('Y-m-d H:i:s', strtotime("-{$daysToKeep} days"));
+        
+        // Activity logs - keep last N days
+        $stmt = $db->prepare("DELETE FROM activity_logs WHERE created_at < ?");
+        $stmt->execute([$cutoffDate]);
+        $results['activity_logs'] = $stmt->rowCount();
+        
+        // Commission logs - keep last N days (but preserve commission_earned and sales_record_created)
+        $stmt = $db->prepare("
+            DELETE FROM commission_log 
+            WHERE created_at < ? 
+            AND action NOT IN ('commission_earned', 'sales_record_created')
+        ");
+        $stmt->execute([$cutoffDate]);
+        $results['commission_log'] = $stmt->rowCount();
+        
+        // Old expired pending orders (older than 30 days and still expired)
+        $expiredCutoff = date('Y-m-d H:i:s', strtotime("-30 days"));
+        $stmt = $db->prepare("DELETE FROM pending_orders WHERE status = 'expired' AND created_at < ?");
+        $stmt->execute([$expiredCutoff]);
+        $results['expired_orders'] = $stmt->rowCount();
+        
+        // Vacuum the database to reclaim space (SQLite specific)
+        $db->exec("VACUUM");
+        
+        $totalDeleted = array_sum($results);
+        error_log("🧹 LOG CLEANUP: Deleted $totalDeleted records (Activity: {$results['activity_logs']}, Commission: {$results['commission_log']}, Expired Orders: {$results['expired_orders']})");
+        
+        return [
+            'success' => true,
+            'total_deleted' => $totalDeleted,
+            'details' => $results,
+            'cutoff_date' => $cutoffDate
+        ];
+    } catch (Exception $e) {
+        error_log("❌ LOG CLEANUP ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * Get log statistics for monitoring
+ */
+function getLogStats()
+{
+    $db = getDb();
+    
+    try {
+        $stats = [];
+        
+        // Activity logs
+        $stats['activity_logs'] = [
+            'total' => $db->query("SELECT COUNT(*) FROM activity_logs")->fetchColumn(),
+            'last_7_days' => $db->query("SELECT COUNT(*) FROM activity_logs WHERE created_at >= datetime('now', '-7 days')")->fetchColumn(),
+            'oldest' => $db->query("SELECT MIN(created_at) FROM activity_logs")->fetchColumn()
+        ];
+        
+        // Commission logs
+        $stats['commission_log'] = [
+            'total' => $db->query("SELECT COUNT(*) FROM commission_log")->fetchColumn(),
+            'by_action' => $db->query("SELECT action, COUNT(*) as count FROM commission_log GROUP BY action")->fetchAll(PDO::FETCH_KEY_PAIR),
+            'oldest' => $db->query("SELECT MIN(created_at) FROM commission_log")->fetchColumn()
+        ];
+        
+        // Pending orders
+        $stats['pending_orders'] = [
+            'total' => $db->query("SELECT COUNT(*) FROM pending_orders")->fetchColumn(),
+            'by_status' => $db->query("SELECT status, COUNT(*) as count FROM pending_orders GROUP BY status")->fetchAll(PDO::FETCH_KEY_PAIR)
+        ];
+        
+        // Database size
+        $stats['database_size'] = filesize(DB_PATH);
+        $stats['database_size_formatted'] = formatBytes(filesize(DB_PATH));
+        
+        return ['success' => true, 'stats' => $stats];
+    } catch (Exception $e) {
+        error_log("❌ LOG STATS ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * Format bytes to human readable format
+ */
+function formatBytes($bytes, $precision = 2)
+{
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+    $bytes /= pow(1024, $pow);
+    return round($bytes, $precision) . ' ' . $units[$pow];
+}
+
 function updateAffiliateCommission($affiliateId, $commissionAmount)
 {
     $db = getDb();
