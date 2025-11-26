@@ -181,14 +181,32 @@ All systems verified working:
 - Real-time updates where possible
 
 ## Recent Changes (Session)
-- Added missing `getDownloadTokens()` function to `tool_files.php`
-- Enhanced admin/orders.php with credential update UI for delivered templates
-- Implemented comprehensive admin/deliveries.php dashboard
-- Added overdue template alert system (24h+ pending)
-- Database migration 010 applied (bundle_downloads table)
-- All functions tested and verified operational
-- Phase 5.7 Analytics Dashboard added to admin/analytics.php
-- Phase 5.10 Export & Reporting implemented at admin/export.php
-- **Migration files consolidated:** All 10 migration files applied and removed. Current schema exported to `database/schema_sqlite.sql`
-- **Consolidated schema file** now contains complete database structure with all 25 tables and indexes
-- **Project cleanup completed:** Removed implementation documentation (IMPLEMENTATION_PLAN.md, PHASE_1_2_VERIFICATION.md), legacy database file (marketplace.db), all migration files, and temporary files. Project is now production-ready with clean structure.
+- ✅ Fixed critical security vulnerability: confirmation emails now only sent AFTER Paystack verifies payment
+- ✅ Fixed duplicate transaction reference error with timestamped payment references
+- ✅ Fixed customer confirmation email delivery (added customer_email field to query)
+- ✅ Added admin payment success notification with correct order ID
+- ✅ Removed duplicate admin email sending on successful Paystack payments
+- ✅ Verified both Paystack automatic and manual bank transfer payments working correctly
+
+## PHASE 6: Commission & Analytics Refactor (PLANNED)
+**Status:** Comprehensive 5-phase plan created in `REFACTOR_PLAN_COMMISSION_ANALYTICS.md`
+
+### Critical Issues Identified:
+1. **Affiliate Commissions Not Credited for Paystack Payments** - Commission processor only runs on manual payments
+2. **Revenue Analytics Showing Wrong Data** - Admin dashboard queries `payments` table instead of `sales` table
+3. **Admin Statistics Inconsistent** - Different pages show conflicting revenue/commission totals
+4. **No Commission Audit Trail** - Can't track why affiliate balance doesn't match expected commission
+
+### 5-Phase Solution Plan:
+- **Phase 1:** Audit and unify payment data structure
+- **Phase 2:** Create unified commission processor and log system
+- **Phase 3:** Fix admin dashboard and analytics queries
+- **Phase 4:** Affiliate balance reconciliation and auditing
+- **Phase 5:** Testing, monitoring, documentation
+
+### Implementation Roadmap:
+- **Phase 1-2 (Priority):** Fix commission crediting for Paystack payments → ensures affiliate payments are accurate
+- **Phase 3 (Priority):** Fix admin dashboard → ensures admin sees correct revenue/commission data
+- **Phase 4-5:** Auditing tools and monitoring → prevents future discrepancies
+
+See `REFACTOR_PLAN_COMMISSION_ANALYTICS.md` for full implementation details and 7 additional issues discovered
