@@ -1751,7 +1751,13 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 btn.textContent = '✓';
                 
                 const formData = new FormData(form);
-                formData.set('csrf_token', document.querySelector('input[name="csrf_token"]').value);
+                formData.set('affiliate_code', affiliateCode);
+                
+                // Get CSRF token from the affiliate form itself
+                const csrfInput = form.querySelector('input[name="csrf_token"]');
+                if (csrfInput) {
+                    formData.set('csrf_token', csrfInput.value);
+                }
                 
                 fetch('/api/apply-affiliate.php', {
                     method: 'POST',
@@ -1763,8 +1769,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     btn.textContent = originalText;
                     
                     if (data.success) {
-                        // Reload the banner area to show updated discount
-                        location.reload();
+                        showSuccessMessage('✅ 20% discount applied!');
+                        // Reload the page to show updated discount
+                        setTimeout(() => location.reload(), 500);
                     } else {
                         showErrorMessage(data.message || 'Invalid or inactive affiliate code');
                     }
