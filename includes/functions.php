@@ -924,9 +924,10 @@ function processOrderCommission($orderId)
         }
         
         // Create sales record (for revenue tracking)
+        // admin_id is NULL for system-generated commission records
         $salesStmt = $db->prepare("
-            INSERT INTO sales (pending_order_id, amount_paid, commission_amount, affiliate_id, payment_confirmed_at)
-            VALUES (?, ?, ?, ?, datetime('now'))
+            INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_confirmed_at)
+            VALUES (?, NULL, ?, ?, ?, datetime('now'))
         ");
         $salesStmt->execute([$orderId, $order['final_amount'], $commissionAmount, $affiliateId]);
         
