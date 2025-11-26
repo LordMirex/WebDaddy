@@ -915,6 +915,9 @@ function processOrderCommission($orderId)
                 ");
                 $updateStmt->execute([$commissionAmount, $commissionAmount, $affiliateId]);
                 
+                // Log commission transaction for audit trail (Phase 4)
+                logCommissionTransaction($orderId, $affiliateId, 'commission_earned', $commissionAmount, 'Affiliate commission calculated from order');
+                
                 error_log("✅ COMMISSION PROCESSOR: Commission ₦" . number_format($commissionAmount, 2) . " credited to Affiliate #$affiliateId");
             } else {
                 error_log("⚠️  COMMISSION PROCESSOR: Affiliate '{$order['affiliate_code']}' inactive or not found");
@@ -931,6 +934,9 @@ function processOrderCommission($orderId)
         ");
         $salesStmt->execute([$orderId, $order['final_amount'], $commissionAmount, $affiliateId]);
         
+        // Log sales record creation
+        logCommissionTransaction($orderId, $affiliateId, 'sales_record_created', $commissionAmount, 'Revenue recorded in sales table');
+        
         error_log("✅ COMMISSION PROCESSOR: Sales record created for Order #$orderId. Commission: ₦" . number_format($commissionAmount, 2));
         
         return [
@@ -944,6 +950,27 @@ function processOrderCommission($orderId)
     } catch (Exception $e) {
         error_log("❌ COMMISSION PROCESSOR: Error - " . $e->getMessage());
         return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * PHASE 4: Log commission transaction for audit trail
+ * Tracks all commission movements for reconciliation
+ */
+function logCommissionTransaction($orderId, $affiliateId, $action, $amount, $details = '')
+{
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO commission_log (order_id, affiliate_id, action, amount, details, created_at)
+            VALUES (?, ?, ?, ?, ?, datetime('now'))
+        ");
+        $stmt->execute([$orderId, $affiliateId, $action, $amount, $details]);
+        error_log("📝 COMMISSION LOG: Order #$orderId - Action: $action | Amount: ₦" . number_format($amount, 2));
+        return true;
+    } catch (Exception $e) {
+        error_log("❌ COMMISSION LOG ERROR: " . $e->getMessage());
+        return false;
     }
 }
 
