@@ -1766,35 +1766,26 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     const parser = new DOMParser();
                     const newDoc = parser.parseFromString(html, 'text/html');
                     
-                    // Check for error messages in response
-                    const errorDivs = newDoc.querySelectorAll('[role="alert"]');
-                    let hasError = false;
-                    let errorMessage = '';
+                    // Check if "Invalid or inactive affiliate code" error appears in response
+                    const hasInvalidError = html.includes('Invalid or inactive affiliate code');
                     
-                    errorDivs.forEach(div => {
-                        const text = div.textContent.trim();
-                        if (text && !text.includes('discount applied')) {
-                            hasError = true;
-                            errorMessage = text;
-                        }
-                    });
+                    if (hasInvalidError) {
+                        showErrorMessage('Invalid or inactive affiliate code');
+                        return;
+                    }
                     
-                    // Check if the discount banner now shows the GREEN success banner (20% OFF!)
+                    // Check if the discount banner contains "20% OFF!" (indicating success)
                     const newDiscountBanner = newDoc.querySelector('[data-discount-banner]');
                     const discountBanner = document.querySelector('[data-discount-banner]');
                     
-                    // Check if new banner has the green "20% OFF" styling (success case)
-                    const isSuccess = newDiscountBanner && newDiscountBanner.classList.contains('from-green-50');
+                    // Check if "20% OFF!" text appears in the new banner (success indicator)
+                    const isSuccess = newDiscountBanner && newDiscountBanner.textContent.includes('20% OFF!');
                     
-                    if (isSuccess && newDiscountBanner && discountBanner) {
-                        // VALID CODE - Replace banner and show success
+                    if (isSuccess && discountBanner) {
+                        // VALID CODE - Replace old banner with new green banner
                         discountBanner.outerHTML = newDiscountBanner.outerHTML;
-                        showSuccessMessage('✅ Affiliate code applied! You get 20% OFF!');
-                    } else if (hasError) {
-                        // INVALID CODE - Show error
-                        showErrorMessage(errorMessage || 'Invalid or inactive affiliate code');
+                        showSuccessMessage('✅ 20% discount applied!');
                     } else {
-                        // Fallback: check if banner changed from blue to green
                         showErrorMessage('Invalid or inactive affiliate code');
                     }
                 })
