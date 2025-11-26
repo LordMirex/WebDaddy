@@ -82,19 +82,12 @@ $outOfStockTools = $db->query("
 $recentOrders = getOrders('pending');
 $recentOrders = array_slice($recentOrders, 0, 5);
 
-// ADDED: Commission statistics for dashboard
-$commissionStats = $db->query("
-    SELECT 
-        SUM(commission_pending) as total_pending,
-        SUM(commission_earned) as total_earned,
-        SUM(commission_paid) as total_paid
-    FROM affiliates 
-    WHERE status = 'active'
-")->fetch(PDO::FETCH_ASSOC);
-
-$totalCommissionPending = $commissionStats['total_pending'] ?? 0;
-$totalCommissionEarned = $commissionStats['total_earned'] ?? 0;
-$totalCommissionPaid = $commissionStats['total_paid'] ?? 0;
+// Commission statistics from sales table (single source of truth)
+$totalEarned = $db->query("SELECT COALESCE(SUM(commission_amount), 0) FROM sales")->fetchColumn();
+$totalPaid = $db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE status = 'paid'")->fetchColumn();
+$totalCommissionEarned = (float)$totalEarned;
+$totalCommissionPaid = (float)$totalPaid;
+$totalCommissionPending = $totalCommissionEarned - $totalCommissionPaid;
 
 require_once __DIR__ . '/includes/header.php';
 ?>

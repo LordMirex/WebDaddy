@@ -13,10 +13,23 @@ requireAffiliate();
 $db = getDb();
 $affiliateId = $_SESSION['affiliate_id'];
 
-// Get affiliate stats
+// Get affiliate stats from affiliates table
 $stmt = $db->prepare("SELECT * FROM affiliates WHERE id = ?");
 $stmt->execute([$affiliateId]);
 $affiliate = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// OVERRIDE: Calculate accurate commission from sales table (single source of truth)
+$stmtCommission = $db->prepare("SELECT COALESCE(SUM(commission_amount), 0) as total_earned FROM sales WHERE affiliate_id = ?");
+$stmtCommission->execute([$affiliateId]);
+$commissionData = $stmtCommission->fetch(PDO::FETCH_ASSOC);
+
+$stmtPaid = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_paid FROM withdrawal_requests WHERE affiliate_id = ? AND status = 'paid'");
+$stmtPaid->execute([$affiliateId]);
+$paidData = $stmtPaid->fetch(PDO::FETCH_ASSOC);
+
+$affiliate['commission_earned'] = (float)$commissionData['total_earned'];
+$affiliate['commission_paid'] = (float)$paidData['total_paid'];
+$affiliate['commission_pending'] = $affiliate['commission_earned'] - $affiliate['commission_paid'];
 
 // Pagination
 $page = max(1, (int)($_GET['page'] ?? 1));

@@ -20,6 +20,19 @@ if (!$affiliateInfo) {
 $db = getDb();
 $affiliateId = getAffiliateId();
 
+// OVERRIDE: Calculate accurate commission from sales table (single source of truth)
+$stmtCommission = $db->prepare("SELECT COALESCE(SUM(commission_amount), 0) as total_earned FROM sales WHERE affiliate_id = ?");
+$stmtCommission->execute([$affiliateId]);
+$commissionData = $stmtCommission->fetch(PDO::FETCH_ASSOC);
+
+$stmtPaid = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_paid FROM withdrawal_requests WHERE affiliate_id = ? AND status = 'paid'");
+$stmtPaid->execute([$affiliateId]);
+$paidData = $stmtPaid->fetch(PDO::FETCH_ASSOC);
+
+$affiliateInfo['commission_earned'] = (float)$commissionData['total_earned'];
+$affiliateInfo['commission_paid'] = (float)$paidData['total_paid'];
+$affiliateInfo['commission_pending'] = $affiliateInfo['commission_earned'] - $affiliateInfo['commission_paid'];
+
 $error = '';
 $success = '';
 
