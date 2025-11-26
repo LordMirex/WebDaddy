@@ -71,7 +71,7 @@ async function initializePayment() {
                     ]
                 },
                 callback: function(response) {
-                    verifyPayment(response.reference);
+                    verifyPayment(response.reference, data.order_id);
                 },
                 onClose: function() {
                     resetPayButton();
@@ -90,7 +90,7 @@ async function initializePayment() {
     }
 }
 
-async function verifyPayment(reference) {
+async function verifyPayment(reference, order_id) {
     document.getElementById('pay-now-btn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying payment...';
     
     try {
@@ -107,6 +107,7 @@ async function verifyPayment(reference) {
             },
             body: JSON.stringify({ 
                 reference: reference,
+                order_id: order_id,
                 csrf_token: csrfToken
             })
         });
