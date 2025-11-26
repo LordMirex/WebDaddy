@@ -110,15 +110,15 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <div class="mb-8">
-    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
-        <i class="bi bi-file-earmark-arrow-up text-primary-400"></i> Tool Files Management
+    <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent flex items-center gap-3">
+        <i class="bi bi-file-earmark-arrow-up text-primary-600"></i> Tool Files Management
     </h1>
-    <p class="text-gray-300 mt-2">Upload and manage downloadable files for your tools</p>
+    <p class="text-primary-600 mt-2 font-medium">Upload and manage downloadable files for your tools</p>
 </div>
 
 <!-- Alert Messages -->
 <?php if (isset($_GET['success'])): ?>
-<div class="mb-6 p-4 bg-green-900/30 border-l-4 border-green-400 text-green-200 rounded-lg flex items-start gap-3">
+<div class="mb-6 p-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-l-4 border-emerald-500 text-emerald-700 rounded-lg flex items-start gap-3">
     <i class="bi bi-check-circle text-xl mt-0.5"></i>
     <div>
         <strong>Success!</strong>
@@ -128,7 +128,7 @@ require_once __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <?php if (isset($error)): ?>
-<div class="mb-6 p-4 bg-red-900/30 border-l-4 border-red-400 text-red-200 rounded-lg flex items-start gap-3">
+<div class="mb-6 p-4 bg-gradient-to-r from-rose-500/10 to-red-500/10 border-l-4 border-rose-500 text-rose-700 rounded-lg flex items-start gap-3">
     <i class="bi bi-exclamation-circle text-xl mt-0.5"></i>
     <div>
         <strong>Error!</strong>
@@ -138,10 +138,10 @@ require_once __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <!-- Tool Selection Card -->
-<div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 mb-8">
-    <div class="px-6 py-4 border-b border-gray-700 bg-gray-750">
-        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-            <i class="bi bi-tools text-primary-400"></i> Select Tool
+<div class="bg-white rounded-xl shadow-lg border border-primary-100 mb-8 card-shadow">
+    <div class="px-6 py-4 border-b border-primary-100 bg-gradient-to-r from-primary-50 to-primary-100">
+        <h2 class="text-xl font-bold text-primary-900 flex items-center gap-2">
+            <i class="bi bi-tools text-primary-600"></i> Select Tool
         </h2>
     </div>
     <div class="p-6">
