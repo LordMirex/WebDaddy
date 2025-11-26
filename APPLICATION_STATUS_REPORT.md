@@ -37,26 +37,7 @@ WebDaddy Empire is a production-ready PHP/SQLite marketplace platform for sellin
 
 ## Issues Identified
 
-### 🔴 CRITICAL - Security Issues
-
-#### 1. Hardcoded Credentials in Config (includes/config.php)
-**Location**: Lines 44-60
-
-```php
-// EXPOSED CREDENTIALS (MUST BE MOVED TO ENVIRONMENT VARIABLES)
-define('SMTP_PASS', 'ItuZq%kF%5oE');           // Production SMTP password exposed!
-define('PAYSTACK_SECRET_KEY', 'sk_test_...');  // Test keys (OK for now, but should be env vars)
-```
-
-**Risk**: Anyone with repository access can see the email password
-**Priority**: HIGH - Rotate SMTP password immediately after moving to environment variables
-
-#### 2. Database File in Repository
-The SQLite database file (`database/webdaddy.db`) is version-controlled, which could expose sensitive customer and order data.
-
----
-
-### 🟠 HIGH PRIORITY - Functional Issues
+### 🔴 HIGH PRIORITY - Functional Issues
 
 #### 1. Affiliate Registration Foreign Key Errors
 **Error Message**:
@@ -116,11 +97,6 @@ While logging exists, there's no unique constraint preventing duplicate commissi
 - Multiple `.cache` files in `/cache/` directory
 - No documented cleanup/invalidation strategy
 
-#### 3. Configuration Management
-- All configuration hardcoded in `config.php`
-- No separation between development/production environments
-- No `config.sample.php` template for safe version control
-
 ---
 
 ## Database Schema Summary
@@ -149,30 +125,22 @@ The application uses SQLite with **25+ tables** including:
 
 ## Recommended Action Plan
 
-### Phase 1: Security Hardening (Immediate - Day 0-1)
-1. Move SMTP credentials to environment variables
-2. Move Paystack keys to environment variables
-3. Create `config.sample.php` template without actual values
-4. Add database file to .gitignore
-5. Rotate SMTP password after migration
-
-### Phase 2: Fix Critical Bugs (Day 1-2)
+### Phase 1: Fix Critical Bugs (Day 1)
 1. Fix affiliate registration FK error by:
    - Moving `logActivity()` call inside transaction, OR
    - Wrapping `logActivity()` in try-catch to prevent registration failure
 2. Add validation for affiliate status before commission crediting
 
-### Phase 3: Complete Commission Refactor (Day 2-4)
+### Phase 2: Complete Commission Refactor (Day 2-3)
 1. Implement `reconcileAffiliateBalance()` function
 2. Add unique constraint on commission_log to prevent duplicates
 3. Create affiliate balance verification page
 4. Add monitoring alerts for commission discrepancies
 
-### Phase 4: Maintenance & Quality (Day 4-5)
+### Phase 3: Maintenance & Quality (Day 4)
 1. Implement log rotation strategy
-2. Add configuration environment separation
-3. Clean up cache management
-4. Document deployment procedures
+2. Clean up cache management
+3. Document deployment procedures
 
 ---
 
@@ -180,19 +148,15 @@ The application uses SQLite with **25+ tables** including:
 
 | File | Issue | Priority |
 |------|-------|----------|
-| `includes/config.php` | Hardcoded credentials | 🔴 Critical |
-| `affiliate/register.php` | FK error on logActivity | 🟠 High |
+| `affiliate/register.php` | FK error on logActivity | 🔴 High |
 | `includes/functions.php` | Add reconcileAffiliateBalance() | 🟡 Medium |
 | `admin/analytics.php` | Verify uses sales table | 🟡 Medium |
-| `.gitignore` | Add database file | 🟢 Low |
 
 ---
 
 ## Verification Checklist
 
 Before Production Deployment:
-- [ ] SMTP credentials moved to environment variables
-- [ ] Paystack keys moved to environment variables  
 - [ ] Affiliate registration tested successfully
 - [ ] Payment flow tested (both Paystack and Manual)
 - [ ] Commission crediting verified
