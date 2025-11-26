@@ -974,6 +974,172 @@ function logCommissionTransaction($orderId, $affiliateId, $action, $amount, $det
     }
 }
 
+/**
+ * PHASE 5: Get pending commissions for an affiliate or all affiliates
+ * Used for withdrawal requests and monitoring
+ */
+function getPendingCommissions($affiliateId = null)
+{
+    $db = getDb();
+    try {
+        $query = "SELECT id, code, commission_pending, commission_earned, total_sales FROM affiliates WHERE status = 'active'";
+        $params = [];
+        
+        if ($affiliateId) {
+            $query .= " AND id = ?";
+            $params[] = $affiliateId;
+        }
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
+        return $affiliateId ? $stmt->fetch(PDO::FETCH_ASSOC) : $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        error_log("❌ GET PENDING COMMISSIONS ERROR: " . $e->getMessage());
+        return $affiliateId ? null : [];
+    }
+}
+
+/**
+ * PHASE 5: Create commission withdrawal request
+ * Tracks affiliate payout requests
+ */
+function createCommissionWithdrawal($affiliateId, $amount, $paymentMethod = '', $bankDetails = '')
+{
+    $db = getDb();
+    try {
+        // Verify affiliate has enough pending commission
+        $affiliate = getPendingCommissions($affiliateId);
+        if (!$affiliate || $affiliate['commission_pending'] < $amount) {
+            error_log("❌ WITHDRAWAL: Insufficient pending commission. Requested: ₦" . number_format($amount, 2) . ", Available: ₦" . number_format($affiliate['commission_pending'] ?? 0, 2));
+            return ['success' => false, 'message' => 'Insufficient pending commission'];
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO commission_withdrawals (affiliate_id, amount_requested, payment_method, bank_details, requested_at, status)
+            VALUES (?, ?, ?, ?, datetime('now'), 'pending')
+        ");
+        $stmt->execute([$affiliateId, $amount, $paymentMethod, $bankDetails]);
+        
+        error_log("✅ WITHDRAWAL REQUEST: Affiliate #$affiliateId requested ₦" . number_format($amount, 2));
+        return ['success' => true, 'message' => 'Withdrawal request created'];
+    } catch (Exception $e) {
+        error_log("❌ WITHDRAWAL ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * PHASE 5: Process commission payout
+ * Moves commission from pending to paid
+ */
+function processCommissionPayout($withdrawalId)
+{
+    $db = getDb();
+    try {
+        $db->beginTransaction();
+        
+        // Get withdrawal request
+        $stmt = $db->prepare("SELECT affiliate_id, amount_requested FROM commission_withdrawals WHERE id = ? AND status = 'pending'");
+        $stmt->execute([$withdrawalId]);
+        $withdrawal = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$withdrawal) {
+            throw new Exception('Withdrawal request not found or already processed');
+        }
+        
+        $affiliateId = $withdrawal['affiliate_id'];
+        $amount = $withdrawal['amount_requested'];
+        
+        // Update affiliate balance
+        $updateStmt = $db->prepare("
+            UPDATE affiliates 
+            SET commission_pending = commission_pending - ?,
+                commission_paid = commission_paid + ?
+            WHERE id = ?
+        ");
+        $updateStmt->execute([$amount, $amount, $affiliateId]);
+        
+        // Mark withdrawal as processed
+        $processStmt = $db->prepare("
+            UPDATE commission_withdrawals 
+            SET status = 'processed', processed_at = datetime('now')
+            WHERE id = ?
+        ");
+        $processStmt->execute([$withdrawalId]);
+        
+        // Create alert for affiliate
+        $alertStmt = $db->prepare("
+            INSERT INTO commission_alerts (affiliate_id, alert_type, message, amount)
+            VALUES (?, 'payout_processed', ?, ?)
+        ");
+        $alertStmt->execute([$affiliateId, 'Your commission payout of ₦' . number_format($amount, 2) . ' has been processed', $amount]);
+        
+        $db->commit();
+        error_log("✅ PAYOUT PROCESSED: ₦" . number_format($amount, 2) . " for Affiliate #$affiliateId");
+        return ['success' => true, 'message' => 'Payout processed successfully'];
+    } catch (Exception $e) {
+        $db->rollBack();
+        error_log("❌ PAYOUT ERROR: " . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+/**
+ * PHASE 5: Get commission report for dashboard
+ */
+function getCommissionReport()
+{
+    $db = getDb();
+    try {
+        $report = [];
+        
+        // Total commission metrics
+        $totals = $db->query("
+            SELECT 
+                SUM(commission_pending) as total_pending,
+                SUM(commission_earned) as total_earned,
+                SUM(commission_paid) as total_paid
+            FROM affiliates WHERE status = 'active'
+        ")->fetch(PDO::FETCH_ASSOC);
+        
+        $report['totals'] = $totals;
+        
+        // Top earning affiliates
+        $report['top_earners'] = $db->query("
+            SELECT id, code, commission_earned, commission_pending, total_sales
+            FROM affiliates 
+            WHERE status = 'active' AND commission_earned > 0
+            ORDER BY commission_earned DESC
+            LIMIT 10
+        ")->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Pending withdrawals
+        $report['pending_withdrawals'] = $db->query("
+            SELECT cw.id, a.code, cw.amount_requested, cw.requested_at
+            FROM commission_withdrawals cw
+            JOIN affiliates a ON cw.affiliate_id = a.id
+            WHERE cw.status = 'pending'
+            ORDER BY cw.requested_at DESC
+            LIMIT 20
+        ")->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Recent payouts
+        $report['recent_payouts'] = $db->query("
+            SELECT cw.id, a.code, cw.amount_requested, cw.processed_at
+            FROM commission_withdrawals cw
+            JOIN affiliates a ON cw.affiliate_id = a.id
+            WHERE cw.status = 'processed'
+            ORDER BY cw.processed_at DESC
+            LIMIT 10
+        ")->fetchAll(PDO::FETCH_ASSOC);
+        
+        return $report;
+    } catch (Exception $e) {
+        error_log("❌ COMMISSION REPORT ERROR: " . $e->getMessage());
+        return null;
+    }
+}
+
 function updateAffiliateCommission($affiliateId, $commissionAmount)
 {
     $db = getDb();
