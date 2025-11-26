@@ -32,8 +32,8 @@ try {
     
     $db = getDb();
     
-    // Get order details for notifications
-    $stmt = $db->prepare("SELECT id, customer_name, customer_phone, affiliate_code, original_price, final_amount, status FROM pending_orders WHERE id = ?");
+    // Get order details for notifications (MUST include customer_email for delivery emails)
+    $stmt = $db->prepare("SELECT id, customer_name, customer_email, customer_phone, affiliate_code, original_price, final_amount, status FROM pending_orders WHERE id = ?");
     $stmt->execute([$orderId]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -160,28 +160,38 @@ try {
                 
                 // Queue payment confirmation email to customer
                 if (!empty($order['customer_email'])) {
-                    queueEmail(
-                        $order['customer_email'],
-                        'payment_confirmed',
-                        '✅ Payment Confirmed - Your Order #' . $orderId,
-                        'Your payment has been confirmed. Your order is being processed.',
-                        null,
-                        $orderId
-                    );
-                    error_log("✅ PAYSTACK VERIFY: Payment confirmation email queued for: " . $order['customer_email']);
+                    error_log("✅ PAYSTACK VERIFY: Sending confirmation to customer: " . $order['customer_email']);
+                    
+                    // SEND EMAIL IMMEDIATELY (don't queue - send now to customer)
+                    $confirmationSubject = '✅ Payment Confirmed - Your Order #' . $orderId . ' is Being Processed';
+                    $confirmationContent = '<h2 style="color:#16a34a;">Payment Confirmed!</h2>' .
+                        '<p>Your payment has been received and verified. Your order is being processed and will be delivered shortly.</p>' .
+                        '<p><strong>Order ID:</strong> #' . $orderId . '</p>' .
+                        '<p><strong>Products:</strong> ' . htmlspecialchars($productNames) . '</p>' .
+                        '<p style="color:#16a34a; font-weight:bold;"><strong>Amount Paid:</strong> ' . formatCurrency($order['final_amount']) . '</p>' .
+                        '<p>You will receive another email shortly with download links and delivery details.</p>';
+                    
+                    $confirmationEmail = createEmailTemplate($confirmationSubject, $confirmationContent, $order['customer_name']);
+                    $emailSent = sendEmail($order['customer_email'], $confirmationSubject, $confirmationEmail);
+                    
+                    if ($emailSent) {
+                        error_log("✅ PAYSTACK VERIFY: Confirmation email sent successfully to: " . $order['customer_email']);
+                    } else {
+                        error_log("❌ PAYSTACK VERIFY: Failed to send confirmation email to: " . $order['customer_email']);
+                    }
                     
                     // Queue affiliate invitation if applicable
                     if (empty($order['affiliate_code']) && !isEmailAffiliate($order['customer_email'])) {
                         if (!hasAffiliateInvitationBeenSent($order['customer_email'])) {
                             sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
-                            error_log("✅ PAYSTACK VERIFY: Affiliate invitation email queued");
+                            error_log("✅ PAYSTACK VERIFY: Affiliate invitation email sent");
                         }
                     }
+                } else {
+                    error_log("❌ PAYSTACK VERIFY: No customer email found for Order #$orderId");
                 }
                 
-                // CRITICAL: Process queued emails immediately so they get sent
-                processEmailQueue();
-                error_log("✅ PAYSTACK VERIFY: Queued emails processed");
+                error_log("✅ PAYSTACK VERIFY: Email delivery complete");
             } else {
                 error_log("❌ PAYSTACK VERIFY: SECURITY: Order #$orderId status is NOT 'paid' (status: " . ($statusCheckResult['status'] ?? 'UNKNOWN') . ") - NO CONFIRMATION EMAILS SENT");
             }
