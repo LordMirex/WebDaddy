@@ -487,7 +487,24 @@ $sql .= " ORDER BY a.created_at DESC";
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
-$affiliates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$affiliatesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// FIX: Override with actual commission data from sales table (single source of truth)
+$affiliates = [];
+foreach ($affiliatesRaw as $aff) {
+    $commStmt = $db->prepare("
+        SELECT COALESCE(SUM(commission_amount), 0) as earned,
+               (SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE affiliate_id = ? AND status = 'paid') as paid
+        FROM sales WHERE affiliate_id = ?
+    ");
+    $commStmt->execute([$aff['id'], $aff['id']]);
+    $commData = $commStmt->fetch(PDO::FETCH_ASSOC);
+    
+    $aff['commission_earned'] = (float)$commData['earned'];
+    $aff['commission_paid'] = (float)$commData['paid'];
+    $aff['commission_pending'] = $aff['commission_earned'] - $aff['commission_paid'];
+    $affiliates[] = $aff;
+}
 
 $withdrawalRequests = $db->query("
     SELECT wr.*, a.code as affiliate_code, u.name as affiliate_name, u.email as affiliate_email
@@ -523,6 +540,19 @@ if (isset($_GET['view'])) {
     $viewAffiliate = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($viewAffiliate) {
+        // FIX: Get accurate commission from sales table (single source of truth)
+        $commStmt = $db->prepare("
+            SELECT COALESCE(SUM(commission_amount), 0) as earned,
+                   (SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE affiliate_id = ? AND status = 'paid') as paid
+            FROM sales WHERE affiliate_id = ?
+        ");
+        $commStmt->execute([$viewAffiliate['id'], $viewAffiliate['id']]);
+        $commData = $commStmt->fetch(PDO::FETCH_ASSOC);
+        
+        $viewAffiliate['commission_earned'] = (float)$commData['earned'];
+        $viewAffiliate['commission_paid'] = (float)$commData['paid'];
+        $viewAffiliate['commission_pending'] = $viewAffiliate['commission_earned'] - $viewAffiliate['commission_paid'];
+        
         $stmt = $db->prepare("
             SELECT s.*, po.customer_name, po.customer_email, t.name as template_name
             FROM sales s
