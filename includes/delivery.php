@@ -19,36 +19,55 @@ if (!defined('DELIVERY_RETRY_MAX_ATTEMPTS')) {
 function createDeliveryRecords($orderId) {
     $db = getDb();
     
-    // Get order items
-    $stmt = $db->prepare("
-        SELECT oi.*, 
-               CASE 
-                   WHEN oi.product_type = 'template' THEN t.name
-                   WHEN oi.product_type = 'tool' THEN tl.name
-               END as product_name,
-               CASE 
-                   WHEN oi.product_type = 'template' THEN t.delivery_note
-                   WHEN oi.product_type = 'tool' THEN tl.delivery_note
-               END as delivery_note
-        FROM order_items oi
-        LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
-        LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
-        WHERE oi.pending_order_id = ?
-    ");
-    $stmt->execute([$orderId]);
-    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    error_log("📦 Creating delivery records for Order #$orderId");
     
-    foreach ($items as $item) {
-        if ($item['product_type'] === 'tool') {
-            createToolDelivery($orderId, $item);
-        } else {
-            createTemplateDelivery($orderId, $item);
+    try {
+        // Get order items - ensure we get ALL items
+        $stmt = $db->prepare("
+            SELECT oi.id, oi.product_id, oi.product_type, oi.quantity,
+                   COALESCE(t.name, tl.name) as product_name,
+                   COALESCE(t.delivery_note, tl.delivery_note) as delivery_note
+            FROM order_items oi
+            LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+            LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+            WHERE oi.pending_order_id = ?
+            ORDER BY oi.id ASC
+        ");
+        $stmt->execute([$orderId]);
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        error_log("📦 Found " . count($items) . " items for Order #$orderId");
+        
+        if (empty($items)) {
+            error_log("⚠️  No order items found for Order #$orderId");
+            return;
         }
+        
+        foreach ($items as $item) {
+            error_log("📦 Processing item: ID={$item['id']}, Type={$item['product_type']}, ProductID={$item['product_id']}");
+            
+            try {
+                if ($item['product_type'] === 'tool') {
+                    createToolDelivery($orderId, $item);
+                } else {
+                    createTemplateDelivery($orderId, $item);
+                }
+                error_log("✅ Delivery created for item {$item['id']}");
+            } catch (Exception $itemError) {
+                error_log("❌ Error creating delivery for item {$item['id']}: " . $itemError->getMessage());
+                throw $itemError;
+            }
+        }
+        
+        // Update order delivery status
+        $stmt = $db->prepare("UPDATE pending_orders SET delivery_status = 'in_progress' WHERE id = ?");
+        $stmt->execute([$orderId]);
+        
+        error_log("✅ All deliveries created for Order #$orderId");
+    } catch (Exception $e) {
+        error_log("❌ Exception in createDeliveryRecords: " . $e->getMessage());
+        throw $e;
     }
-    
-    // Update order delivery status
-    $stmt = $db->prepare("UPDATE pending_orders SET delivery_status = 'in_progress' WHERE id = ?");
-    $stmt->execute([$orderId]);
 }
 
 /**

@@ -138,7 +138,14 @@ try {
             
             // Create delivery records
             error_log("✅ PAYSTACK VERIFY: Creating delivery records");
-            createDeliveryRecords($orderId);
+            try {
+                createDeliveryRecords($orderId);
+                error_log("✅ PAYSTACK VERIFY: Delivery records created successfully");
+            } catch (Exception $deliveryError) {
+                error_log("❌ PAYSTACK VERIFY: Error creating delivery records: " . $deliveryError->getMessage());
+                // Don't fail the entire payment - just log it
+                // Delivery can be created manually or retried later
+            }
             
             // Queue customer confirmation and affiliate emails - PROCESS IMMEDIATELY
             error_log("✅ PAYSTACK VERIFY: Queueing confirmation emails");
