@@ -34,10 +34,11 @@ if ($exportType) {
             'Payment Method', 'Affiliate Code', 'Commission Amount', 'Notes'
         ]);
         
+        // Use sales table as source of truth for commission (actual paid commissions)
         $stmt = $db->prepare("
-            SELECT po.*, 
-                   CASE WHEN po.affiliate_code IS NOT NULL THEN po.final_amount * 0.3 ELSE 0 END as commission
+            SELECT po.*, s.commission_amount
             FROM pending_orders po
+            LEFT JOIN sales s ON po.id = s.pending_order_id
             WHERE po.created_at BETWEEN ? AND ?
             ORDER BY po.created_at DESC
         ");
@@ -58,7 +59,7 @@ if ($exportType) {
                 number_format($order['final_amount'] ?? 0, 2, '.', ''),
                 $order['payment_method'] ?? 'manual',
                 $order['affiliate_code'] ?? '',
-                number_format($order['commission'] ?? 0, 2, '.', ''),
+                number_format($order['commission_amount'] ?? 0, 2, '.', ''),
                 $order['payment_notes'] ?? ''
             ]);
         }

@@ -27,8 +27,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Get commission report
-$report = getCommissionReport();
+// Get commission report - using sales table as single source of truth
+$totalEarned = $db->query("SELECT COALESCE(SUM(commission_amount), 0) FROM sales")->fetchColumn();
+$totalPaid = $db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE status = 'paid'")->fetchColumn();
+$totalPending = (float)$totalEarned - (float)$totalPaid;
+
+// Get pending withdrawals
+$pendingWithdrawals = $db->query("
+    SELECT cw.id, a.code, u.name, u.email, cw.amount, cw.requested_at
+    FROM withdrawal_requests cw
+    JOIN affiliates a ON cw.affiliate_id = a.id
+    JOIN users u ON a.user_id = u.id
+    WHERE cw.status = 'pending'
+    ORDER BY cw.requested_at DESC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// Get top earning affiliates from sales table
+$topEarners = $db->query("
+    SELECT a.id, a.code, u.name, u.email,
+           COALESCE(SUM(s.commission_amount), 0) as commission_earned,
+           (SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE affiliate_id = a.id AND status = 'paid') as commission_paid,
+           COALESCE(SUM(s.commission_amount), 0) - COALESCE((SELECT SUM(amount) FROM withdrawal_requests WHERE affiliate_id = a.id AND status = 'paid'), 0) as commission_pending
+    FROM affiliates a
+    JOIN users u ON a.user_id = u.id
+    LEFT JOIN sales s ON a.id = s.affiliate_id
+    WHERE a.status = 'active'
+    GROUP BY a.id
+    ORDER BY commission_earned DESC
+    LIMIT 10
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$report = [
+    'totals' => [
+        'total_earned' => (float)$totalEarned,
+        'total_paid' => (float)$totalPaid,
+        'total_pending' => $totalPending
+    ],
+    'pending_withdrawals' => $pendingWithdrawals,
+    'top_earners' => $topEarners
+];
 
 require_once __DIR__ . '/includes/header.php';
 ?>
