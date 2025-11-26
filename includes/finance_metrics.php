@@ -55,7 +55,7 @@ function getDiscountMetrics($db, $dateFilter = '', $params = []) {
             COALESCE(SUM(discount_amount), 0) as total_discount,
             COALESCE(AVG(discount_amount), 0) as avg_discount
         FROM pending_orders
-        WHERE status = 'completed' AND discount_amount > 0 $poDateFilter
+        WHERE status IN ('paid', 'completed') AND discount_amount > 0 $poDateFilter
     ";
     
     $stmt = $db->prepare($query);
