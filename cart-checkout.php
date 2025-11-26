@@ -313,37 +313,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 }
             }
             
-            // For AUTOMATIC payments: send payment confirmation + affiliate commission NOW since payment is already verified
-            if ($paymentMethod === 'automatic') {
-                // Get order data for confirmation email
-                $orderData = getOrderById($orderId);
-                $orderItemsData = getOrderItems($orderId);
-                
-                if ($orderData && $orderItemsData) {
-                    // Send payment confirmation to customer
-                    sendEnhancedPaymentConfirmationEmail($orderData, $orderItemsData);
-                    error_log("✅ Payment confirmation email sent for automatic order #$orderId");
-                    
-                    // Send affiliate commission email if affiliate code was used
-                    if (!empty($totals['affiliate_code'])) {
-                        $affiliate = getAffiliateByCode($totals['affiliate_code']);
-                        if ($affiliate) {
-                            $commissionAmount = $totals['total'] * AFFILIATE_COMMISSION_RATE;
-                            sendCommissionEarnedEmail(
-                                $affiliate['name'],
-                                $affiliate['email'],
-                                $orderId,
-                                $commissionAmount,
-                                $productNamesString
-                            );
-                            error_log("✅ Commission email sent to affiliate: " . $affiliate['email']);
-                        }
-                    }
-                }
-            }
+            // SECURITY: For AUTOMATIC payments, DO NOT send confirmation emails yet!
+            // Emails will only be sent AFTER payment is verified in paystack-verify.php
+            // This prevents fraud where customers cancel payment but receive confirmation
             
-            // CRITICAL: Process queued emails immediately so they get sent
-            processEmailQueue();
+            // Only process queued emails for non-automatic orders (affiliate invitations)
+            if ($paymentMethod !== 'automatic') {
+                processEmailQueue();
+            }
             
             // Clear cart only on successful order creation
             clearCart();
