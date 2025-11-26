@@ -201,16 +201,7 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-graph-up text-xl sm:text-2xl text-orange-600 flex-shrink-0"></i>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionEarned); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">Total commission earned</small>
-    </div>
-    
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
-        <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Paid</h6>
-            <i class="bi bi-check-circle text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionPaid); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">Total paid out</small>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Total owed to affiliates</small>
     </div>
 </div>
 
@@ -231,7 +222,14 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-bank text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($manualPaymentsCount); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">WhatsApp / Bank Transfer</small>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php 
+            $manualRevenue = $db->query("
+                SELECT COALESCE(SUM(s.amount_paid), 0) FROM sales s
+                INNER JOIN pending_orders po ON s.pending_order_id = po.id
+                WHERE po.payment_method = 'manual'
+            ")->fetchColumn();
+            echo formatCurrency($manualRevenue); 
+        ?> revenue</small>
     </div>
     
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
