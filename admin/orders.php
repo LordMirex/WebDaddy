@@ -134,33 +134,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($orderId <= 0) {
                 $errorMessage = 'Invalid order ID.';
             } else {
-                $updateErrors = [];
-                $updateCount = 0;
-                
-                // Update payment notes
-                if (!empty($paymentNotes)) {
-                    $stmt = $db->prepare("UPDATE pending_orders SET payment_notes = ? WHERE id = ?");
-                    if ($stmt->execute([$paymentNotes, $orderId])) {
-                        $updateCount++;
+                // SECURITY: Check if order is paid before allowing domain assignment
+                $order = getOrderById($orderId);
+                if (!$order) {
+                    $errorMessage = "Order #$orderId not found.";
+                } elseif ($order['status'] !== 'paid') {
+                    $errorMessage = "❌ SECURITY BLOCK: Cannot assign domains to this order. Order status is '{$order['status']}' - only PAID orders can have domains assigned. This prevents fraud and unauthorized access.";
+                } else {
+                    $updateErrors = [];
+                    $updateCount = 0;
+                    
+                    // Update payment notes
+                    if (!empty($paymentNotes)) {
+                        $stmt = $db->prepare("UPDATE pending_orders SET payment_notes = ? WHERE id = ?");
+                        if ($stmt->execute([$paymentNotes, $orderId])) {
+                            $updateCount++;
+                        }
                     }
-                }
-                
-                // Process all domain assignments
-                foreach ($_POST as $key => $value) {
-                    if (strpos($key, 'domain_id_') === 0 && !empty($value)) {
-                        $orderItemId = intval(str_replace('domain_id_', '', $key));
-                        $domainId = intval($value);
-                        
-                        if ($orderItemId > 0 && $domainId > 0) {
-                            $result = setOrderItemDomain($orderItemId, $domainId, $orderId);
-                            if ($result['success']) {
-                                $updateCount++;
-                            } else {
-                                $updateErrors[] = $result['message'];
+                    
+                    // Process all domain assignments
+                    foreach ($_POST as $key => $value) {
+                        if (strpos($key, 'domain_id_') === 0 && !empty($value)) {
+                            $orderItemId = intval(str_replace('domain_id_', '', $key));
+                            $domainId = intval($value);
+                            
+                            if ($orderItemId > 0 && $domainId > 0) {
+                                $result = setOrderItemDomain($orderItemId, $domainId, $orderId);
+                                if ($result['success']) {
+                                    $updateCount++;
+                                } else {
+                                    $updateErrors[] = $result['message'];
+                                }
                             }
                         }
                     }
-                }
                 
                 if (empty($updateErrors)) {
                     if ($updateCount > 0) {
@@ -185,7 +192,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($orderId <= 0 || $domainId <= 0) {
                 $errorMessage = 'Invalid order or domain ID.';
             } else {
-                if ($orderItemId) {
+                // SECURITY: Check if order is paid before allowing domain assignment
+                $order = getOrderById($orderId);
+                if (!$order) {
+                    $errorMessage = "Order #$orderId not found.";
+                } elseif ($order['status'] !== 'paid') {
+                    $errorMessage = "❌ SECURITY BLOCK: Cannot assign domain to this order. Order status is '{$order['status']}' - only PAID orders can have domains assigned. This prevents fraud and unauthorized access.";
+                } elseif ($orderItemId) {
                     $result = setOrderItemDomain($orderItemId, $domainId, $orderId);
                     if ($result['success']) {
                         $successMessage = $result['message'];
