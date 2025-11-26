@@ -217,8 +217,8 @@ function createPendingOrder($data)
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
              business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status, payment_method,
-             original_price, discount_amount, final_amount, order_type)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)
+             original_price, discount_amount, final_amount, order_type, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
         ");
         
         if (!$stmt) {
@@ -306,8 +306,8 @@ function createOrderWithItems($orderData, $items = [])
             (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
              customer_phone, business_name, custom_fields, affiliate_code, session_id, 
              message_text, ip_address, status, payment_method, original_price, discount_amount, final_amount, 
-             quantity, cart_snapshot, payment_notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)
+             quantity, cart_snapshot, payment_notes, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
         ");
         
         $templateId = $orderData['template_id'] ?? null;
