@@ -253,23 +253,41 @@ switch ($period) {
         break;
 }
 
-$deliveryStats = $db->query("
-    SELECT 
-        COUNT(*) as total_deliveries,
-        SUM(CASE WHEN d.delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
-        SUM(CASE WHEN d.delivery_status = 'pending' THEN 1 ELSE 0 END) as pending,
-        SUM(CASE WHEN d.delivery_status = 'failed' THEN 1 ELSE 0 END) as failed,
-        SUM(CASE WHEN d.product_type = 'tool' THEN 1 ELSE 0 END) as tool_deliveries,
-        SUM(CASE WHEN d.product_type = 'template' THEN 1 ELSE 0 END) as template_deliveries,
-        AVG(CASE WHEN d.delivered_at IS NOT NULL THEN 
-            (julianday(d.delivered_at) - julianday(d.created_at)) * 24 
-        END) as avg_delivery_hours
-    FROM deliveries d
-    WHERE 1=1 {$dateFilterDelivery}
-")->fetch(PDO::FETCH_ASSOC);
+$deliveryStats = [
+    'total_deliveries' => 0,
+    'delivered' => 0,
+    'pending' => 0,
+    'failed' => 0,
+    'tool_deliveries' => 0,
+    'template_deliveries' => 0,
+    'avg_delivery_hours' => null
+];
 
-$overdueDeliveries = getOverdueTemplateDeliveries(24);
-$partialDeliveryData = getOrdersWithPartialDelivery();
+try {
+    $result = $db->query("
+        SELECT 
+            COUNT(*) as total_deliveries,
+            SUM(CASE WHEN d.delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+            SUM(CASE WHEN d.delivery_status = 'pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN d.delivery_status = 'failed' THEN 1 ELSE 0 END) as failed,
+            SUM(CASE WHEN d.product_type = 'tool' THEN 1 ELSE 0 END) as tool_deliveries,
+            SUM(CASE WHEN d.product_type = 'template' THEN 1 ELSE 0 END) as template_deliveries,
+            AVG(CASE WHEN d.delivered_at IS NOT NULL THEN 
+                (julianday(d.delivered_at) - julianday(d.created_at)) * 24 
+            END) as avg_delivery_hours
+        FROM deliveries d
+        WHERE 1=1 {$dateFilterDelivery}
+    ")->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+        $deliveryStats = array_merge($deliveryStats, $result);
+    }
+} catch (Exception $e) {
+    error_log('Analytics delivery stats query error: ' . $e->getMessage());
+}
+
+$overdueDeliveries = function_exists('getOverdueTemplateDeliveries') ? getOverdueTemplateDeliveries(24) : [];
+$partialDeliveryData = function_exists('getOrdersWithPartialDelivery') ? getOrdersWithPartialDelivery() : ['fully_delivered' => [], 'partially_delivered' => [], 'not_started' => []];
 
 require_once __DIR__ . '/includes/header.php';
 ?>
