@@ -124,18 +124,6 @@ try {
             
             error_log("✅ PAYSTACK VERIFY: Transaction committed");
             
-            // Send admin notification about successful payment (outside transaction)
-            error_log("✅ PAYSTACK VERIFY: Sending admin notification");
-            sendPaymentSuccessNotificationToAdmin(
-                $orderId,
-                $order['customer_name'],
-                $order['customer_phone'],
-                $productNames,
-                formatCurrency($order['final_amount']),
-                $order['affiliate_code'],
-                $orderType
-            );
-            
             // Create delivery records
             error_log("✅ PAYSTACK VERIFY: Creating delivery records");
             try {
