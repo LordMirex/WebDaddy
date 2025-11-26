@@ -39,11 +39,14 @@ $submittedAffiliateCode = '';
 // Check if showing order confirmation or failure
 $confirmationStatus = 'none';
 if ($confirmedOrderId) {
-    $statusStmt = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
-    $statusStmt->execute([$confirmedOrderId]);
-    $orderStatus = $statusStmt->fetch(PDO::FETCH_ASSOC);
-    if ($orderStatus) {
-        $confirmationStatus = $orderStatus['status'];
+    $dbConn = getDb();
+    if ($dbConn) {
+        $statusStmt = $dbConn->prepare("SELECT status FROM pending_orders WHERE id = ?");
+        $statusStmt->execute([$confirmedOrderId]);
+        $orderStatus = $statusStmt->fetch(PDO::FETCH_ASSOC);
+        if ($orderStatus) {
+            $confirmationStatus = $orderStatus['status'];
+        }
     }
 }
 
