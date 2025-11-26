@@ -82,6 +82,20 @@ $outOfStockTools = $db->query("
 $recentOrders = getOrders('pending');
 $recentOrders = array_slice($recentOrders, 0, 5);
 
+// ADDED: Commission statistics for dashboard
+$commissionStats = $db->query("
+    SELECT 
+        SUM(commission_pending) as total_pending,
+        SUM(commission_earned) as total_earned,
+        SUM(commission_paid) as total_paid
+    FROM affiliates 
+    WHERE status = 'active'
+")->fetch(PDO::FETCH_ASSOC);
+
+$totalCommissionPending = $commissionStats['total_pending'] ?? 0;
+$totalCommissionEarned = $commissionStats['total_earned'] ?? 0;
+$totalCommissionPaid = $commissionStats['total_paid'] ?? 0;
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -136,6 +150,36 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($totalAffiliates); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($pendingWithdrawals); ?> pending withdrawals</small>
+    </div>
+</div>
+
+<!-- Commission Statistics -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Pending</h6>
+            <i class="bi bi-hourglass-split text-xl sm:text-2xl text-yellow-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionPending); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Awaiting payout</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Earned</h6>
+            <i class="bi bi-graph-up text-xl sm:text-2xl text-green-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionEarned); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Total commission earned</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Paid</h6>
+            <i class="bi bi-check-circle text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionPaid); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Total paid out</small>
     </div>
 </div>
 

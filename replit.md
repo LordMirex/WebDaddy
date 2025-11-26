@@ -188,25 +188,49 @@ All systems verified working:
 - ✅ Removed duplicate admin email sending on successful Paystack payments
 - ✅ Verified both Paystack automatic and manual bank transfer payments working correctly
 
-## PHASE 6: Commission & Analytics Refactor (PLANNED)
-**Status:** Comprehensive 5-phase plan created in `REFACTOR_PLAN_COMMISSION_ANALYTICS.md`
+## PHASE 6: Commission & Analytics Refactor (IN PROGRESS)
+**Status:** Phase 2 & 3 partially completed in current session
 
-### Critical Issues Identified:
-1. **Affiliate Commissions Not Credited for Paystack Payments** - Commission processor only runs on manual payments
-2. **Revenue Analytics Showing Wrong Data** - Admin dashboard queries `payments` table instead of `sales` table
-3. **Admin Statistics Inconsistent** - Different pages show conflicting revenue/commission totals
-4. **No Commission Audit Trail** - Can't track why affiliate balance doesn't match expected commission
+### ✅ COMPLETED (Current Session):
+**Phase 2 - Unified Commission Processor:**
+1. ✅ Created `processOrderCommission($orderId)` function with:
+   - Idempotency check (prevents duplicate commission crediting)
+   - Affiliate active status validation
+   - Commission calculation from final_amount (already discounted)
+   - Sales record creation for revenue tracking
+   - Comprehensive error logging
 
-### 5-Phase Solution Plan:
-- **Phase 1:** Audit and unify payment data structure
-- **Phase 2:** Create unified commission processor and log system
-- **Phase 3:** Fix admin dashboard and analytics queries
-- **Phase 4:** Affiliate balance reconciliation and auditing
-- **Phase 5:** Testing, monitoring, documentation
+2. ✅ Integrated processor into `api/paystack-verify.php`:
+   - Commission processes immediately after Paystack verification
+   - Correct order ID used throughout
+   - Affiliate balance updates in real-time
 
-### Implementation Roadmap:
-- **Phase 1-2 (Priority):** Fix commission crediting for Paystack payments → ensures affiliate payments are accurate
-- **Phase 3 (Priority):** Fix admin dashboard → ensures admin sees correct revenue/commission data
-- **Phase 4-5:** Auditing tools and monitoring → prevents future discrepancies
+3. ✅ Integrated processor into manual payment flow (`markOrderPaid()`):
+   - Unified commission processing for both payment methods
+   - Removed old inline commission logic to prevent duplicates
 
-See `REFACTOR_PLAN_COMMISSION_ANALYTICS.md` for full implementation details and 7 additional issues discovered
+**Phase 3 - Admin Dashboard Analytics:**
+1. ✅ Fixed revenue queries in `admin/index.php`:
+   - Changed from legacy `payments` table to `sales` table (source of truth)
+   - Paystack revenue now calculated with correct JOIN to pending_orders
+   - Manual revenue calculated correctly
+
+2. ✅ Added commission statistics to dashboard:
+   - Commission Pending display
+   - Commission Earned display
+   - Commission Paid display
+   - Professional card layout matching existing design
+
+### 🔧 REMAINING (Not in scope for this session):
+- **Phase 4:** Affiliate balance reconciliation tool
+- **Phase 5:** Monitoring alerts and documentation
+- Additional issues from REFACTOR_PLAN_COMMISSION_ANALYTICS.md
+
+### System Status:
+✅ **Paystack payments** - Commission now credited automatically
+✅ **Manual payments** - Commission now credited automatically via same processor
+✅ **Admin dashboard** - Shows correct revenue and commission totals
+✅ **Data integrity** - Duplicate prevention in place
+✅ **Server running** - No PHP errors, system stable
+
+See `REFACTOR_PLAN_COMMISSION_ANALYTICS.md` for complete 5-phase plan with Phase 4-5 details

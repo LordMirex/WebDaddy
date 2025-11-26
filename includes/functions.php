@@ -548,32 +548,22 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             }
         }
         
-        // Calculate commission from final amount (customer's actual payment after discount)
-        if (!empty($order['affiliate_code'])) {
-            $affiliate = getAffiliateByCode($order['affiliate_code']);
-            if ($affiliate) {
-                // Commission calculated from DISCOUNTED price (what customer actually paid)
-                // Example: Product ₦10,000 → 20% discount → Customer pays ₦8,000 → Affiliate gets 30% of ₦8,000 = ₦2,400
-                $commissionBase = $finalAmount;
-                
-                // Use custom commission rate if set, otherwise use default
-                $commissionRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
-                $commissionAmount = $commissionBase * $commissionRate;
-                $affiliateId = $affiliate['id'];
-                
-                updateAffiliateCommission($affiliateId, $commissionAmount);
-            }
-        }
-        
-        $stmt = $db->prepare("
-            INSERT INTO sales (pending_order_id, admin_id, amount_paid, commission_amount, affiliate_id, payment_notes,
-                             original_price, discount_amount, final_amount)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$orderId, $adminId, $amountPaid, $commissionAmount, $affiliateId, $paymentNotes,
-                       $originalPrice, $discountAmount, $finalAmount]);
-        
+        // UNIFIED COMMISSION PROCESSOR: Process commission via new function (works for both manual and paystack)
         $db->commit();
+        
+        error_log("✅ MARK ORDER PAID: Order #$orderId marked as paid");
+        
+        // Call unified commission processor (handles affiliate validation, prevents duplicates, logs everything)
+        error_log("✅ MARK ORDER PAID: Processing affiliate commission for Order #$orderId");
+        $commissionResult = processOrderCommission($orderId);
+        if ($commissionResult['success']) {
+            $commissionAmount = $commissionResult['commission_amount'];
+            $affiliateId = $commissionResult['affiliate_id'];
+            error_log("✅ MARK ORDER PAID: Commission processed - Amount: ₦" . number_format($commissionAmount, 2));
+        } else {
+            error_log("⚠️  MARK ORDER PAID: Commission processing - " . $commissionResult['message']);
+            $commissionAmount = 0;
+        }
         
         // Create delivery records for automatic tool delivery and template tracking (Phase 3)
         // IDEMPOTENCY: Only create deliveries if they don't already exist
