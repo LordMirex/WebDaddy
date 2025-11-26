@@ -1218,7 +1218,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </svg>
                             <span class="text-xs sm:text-sm font-semibold text-gray-900">Have an affiliate code? Get 20% OFF!</span>
                         </div>
-                        <form id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial" onsubmit="return false;">
+                        <form method="POST" action="" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
                             <input type="text" 
                                    name="affiliate_code" 
@@ -1226,9 +1226,10 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                    placeholder="ENTER CODE"
                                    class="flex-1 sm:flex-initial sm:w-40 px-3 py-1.5 text-sm text-gray-900 placeholder:text-gray-500 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
                                    style="min-width: 0;">
-                            <button type="button" 
-                                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap"
-                                    onclick="submitAffiliateCodeViaAjax(document.getElementById('affiliateForm'))">
+                            <button type="submit" 
+                                    name="apply_affiliate"
+                                    value="1"
+                                    class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap">
                                 Apply
                             </button>
                         </form>
@@ -1697,89 +1698,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             handler.openIframe();
         });
         
-        // GLOBAL AFFILIATE FUNCTIONS - ACCESSIBLE FROM HTML ONCLICK
-        function submitAffiliateCodeViaAjax(form) {
-            const affiliateCode = document.getElementById('affiliate_code')?.value || '';
-            if (!affiliateCode) {
-                showErrorMessage('Please enter an affiliate code');
-                return;
-            }
-            
-            const btn = form.querySelector('button');
-            const originalText = btn.textContent;
-            btn.disabled = true;
-            btn.textContent = '✓';
-            
-            const formData = new FormData(form);
-            formData.set('affiliate_code', affiliateCode);
-            
-            // Get CSRF token from the affiliate form itself
-            const csrfInput = form.querySelector('input[name="csrf_token"]');
-            if (csrfInput) {
-                formData.set('csrf_token', csrfInput.value);
-            }
-            
-            fetch('/api/apply-affiliate.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.textContent = originalText;
-                
-                if (data.success) {
-                    showSuccessMessage('20% discount applied!');
-                    // Reload the page to show updated discount
-                    setTimeout(() => location.reload(), 500);
-                } else {
-                    showErrorMessage(data.message || 'Invalid or inactive affiliate code');
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                btn.disabled = false;
-                btn.textContent = originalText;
-                showErrorMessage('Error applying code');
-            });
-        }
-        
-        function showSuccessMessage(msg) {
-            // Remove any existing messages
-            const existingMsg = document.querySelector('[data-affiliate-message]');
-            if (existingMsg) existingMsg.remove();
-            
-            const affiliateForm = document.getElementById('affiliateForm');
-            const message = document.createElement('div');
-            message.setAttribute('data-affiliate-message', 'true');
-            message.className = 'bg-green-50 border border-green-200 text-green-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
-            message.textContent = '✅ ' + msg;
-            
-            if (affiliateForm) {
-                affiliateForm.parentElement.insertBefore(message, affiliateForm);
-            }
-            
-            setTimeout(() => message.remove(), 4000);
-        }
-        
-        function showErrorMessage(msg) {
-            // Remove any existing messages
-            const existingMsg = document.querySelector('[data-affiliate-message]');
-            if (existingMsg) existingMsg.remove();
-            
-            const affiliateForm = document.getElementById('affiliateForm');
-            const message = document.createElement('div');
-            message.setAttribute('data-affiliate-message', 'true');
-            message.className = 'bg-red-50 border border-red-200 text-red-900 px-3 py-2 rounded-lg text-sm font-semibold mb-3';
-            message.textContent = '❌ ' + msg;
-            
-            if (affiliateForm) {
-                affiliateForm.parentElement.insertBefore(message, affiliateForm);
-            }
-            
-            setTimeout(() => message.remove(), 4000);
-        }
-        
         document.addEventListener('DOMContentLoaded', function() {
             // 1. PRE-FILL FORM WITH SAVED CUSTOMER INFO FOR REPEAT BUYERS
             const savedCustomer = localStorage.getItem('webdaddy_customer');
@@ -1805,17 +1723,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 const affiliateInput = document.getElementById('affiliate_code');
                 if (affiliateInput && !affiliateInput.value) {
                     affiliateInput.value = affiliateCodeFromUrl.toUpperCase();
-                    // Auto-submit the affiliate form after short delay via AJAX
+                    // Auto-submit the affiliate form after short delay
                     setTimeout(() => {
-                        const affiliateForm = document.getElementById('affiliateForm');
-                        if (affiliateForm) {
-                            submitAffiliateCodeViaAjax(affiliateForm);
+                        const form = affiliateInput.closest('form');
+                        if (form) {
+                            form.submit();
                         }
                     }, 500);
                 }
             }
-            
-            // Affiliate button click is handled via onclick in HTML
             }
             
             // 4. SAVE CUSTOMER INFO AFTER SUCCESSFUL ORDER
