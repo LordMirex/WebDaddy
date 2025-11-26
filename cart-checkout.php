@@ -36,6 +36,17 @@ $success = '';
 // Track submitted affiliate code for error display
 $submittedAffiliateCode = '';
 
+// Check if showing order confirmation or failure
+$confirmationStatus = 'none';
+if ($confirmedOrderId) {
+    $statusStmt = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
+    $statusStmt->execute([$confirmedOrderId]);
+    $orderStatus = $statusStmt->fetch(PDO::FETCH_ASSOC);
+    if ($orderStatus) {
+        $confirmationStatus = $orderStatus['status'];
+    }
+}
+
 // Handle affiliate code application (separate from order submission)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {

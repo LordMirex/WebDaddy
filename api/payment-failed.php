@@ -31,8 +31,8 @@ try {
     
     // SECURITY: Only update if not already paid - prevent race conditions
     if ($order['status'] !== 'paid') {
-        $stmt = $db->prepare("UPDATE pending_orders SET status = 'failed', payment_failed_reason = ? WHERE id = ? AND status != 'paid'");
-        $stmt->execute([$reason, $orderId]);
+        $stmt = $db->prepare("UPDATE pending_orders SET status = 'failed' WHERE id = ? AND status != 'paid'");
+        $stmt->execute([$orderId]);
         $affectedRows = $stmt->rowCount();
         
         error_log("⚠️ PAYMENT FAILED: Order #$orderId status updated (rows affected: $affectedRows)");
