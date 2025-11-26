@@ -147,33 +147,44 @@ try {
                 // Delivery can be created manually or retried later
             }
             
-            // Queue customer confirmation and affiliate emails - PROCESS IMMEDIATELY
-            error_log("✅ PAYSTACK VERIFY: Queueing confirmation emails");
+            // SECURITY: Double-check order status is still 'paid' before sending confirmation emails
+            $statusCheck = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
+            $statusCheck->execute([$orderId]);
+            $statusCheckResult = $statusCheck->fetch(PDO::FETCH_ASSOC);
             
-            // Queue payment confirmation email to customer
-            if (!empty($order['customer_email'])) {
-                queueEmail(
-                    $order['customer_email'],
-                    'payment_confirmed',
-                    '✅ Payment Confirmed - Your Order #' . $orderId,
-                    'Your payment has been confirmed. Your order is being processed.',
-                    null,
-                    $orderId
-                );
-                error_log("✅ PAYSTACK VERIFY: Payment confirmation email queued for: " . $order['customer_email']);
+            error_log("✅ PAYSTACK VERIFY: Final status check - Order #$orderId status: " . ($statusCheckResult['status'] ?? 'UNKNOWN'));
+            
+            if ($statusCheckResult && $statusCheckResult['status'] === 'paid') {
+                // Queue customer confirmation and affiliate emails - PROCESS IMMEDIATELY
+                error_log("✅ PAYSTACK VERIFY: Queueing confirmation emails");
                 
-                // Queue affiliate invitation if applicable
-                if (empty($order['affiliate_code']) && !isEmailAffiliate($order['customer_email'])) {
-                    if (!hasAffiliateInvitationBeenSent($order['customer_email'])) {
-                        sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
-                        error_log("✅ PAYSTACK VERIFY: Affiliate invitation email queued");
+                // Queue payment confirmation email to customer
+                if (!empty($order['customer_email'])) {
+                    queueEmail(
+                        $order['customer_email'],
+                        'payment_confirmed',
+                        '✅ Payment Confirmed - Your Order #' . $orderId,
+                        'Your payment has been confirmed. Your order is being processed.',
+                        null,
+                        $orderId
+                    );
+                    error_log("✅ PAYSTACK VERIFY: Payment confirmation email queued for: " . $order['customer_email']);
+                    
+                    // Queue affiliate invitation if applicable
+                    if (empty($order['affiliate_code']) && !isEmailAffiliate($order['customer_email'])) {
+                        if (!hasAffiliateInvitationBeenSent($order['customer_email'])) {
+                            sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
+                            error_log("✅ PAYSTACK VERIFY: Affiliate invitation email queued");
+                        }
                     }
                 }
+                
+                // CRITICAL: Process queued emails immediately so they get sent
+                processEmailQueue();
+                error_log("✅ PAYSTACK VERIFY: Queued emails processed");
+            } else {
+                error_log("❌ PAYSTACK VERIFY: SECURITY: Order #$orderId status is NOT 'paid' (status: " . ($statusCheckResult['status'] ?? 'UNKNOWN') . ") - NO CONFIRMATION EMAILS SENT");
             }
-            
-            // CRITICAL: Process queued emails immediately so they get sent
-            processEmailQueue();
-            error_log("✅ PAYSTACK VERIFY: Queued emails processed");
             
             clearCart();
             
