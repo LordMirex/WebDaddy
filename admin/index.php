@@ -251,6 +251,59 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Quick Access to Key Analytics -->
+<div class="mb-8">
+    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <i class="bi bi-lightning-fill text-yellow-500"></i> Quick Analytics Access
+    </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <a href="/admin/analytics.php" class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-l-4 border-blue-500 hover:border-blue-700 group">
+            <div class="flex items-center justify-between mb-2">
+                <i class="bi bi-graph-up text-2xl text-blue-600 group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">Visitor Data</span>
+            </div>
+            <h6 class="font-bold text-gray-900 group-hover:text-blue-700">Analytics</h6>
+            <p class="text-xs text-gray-600">Visits, bounce rate, time on site</p>
+        </a>
+        
+        <a href="/admin/reports.php" class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-l-4 border-green-500 hover:border-green-700 group">
+            <div class="flex items-center justify-between mb-2">
+                <i class="bi bi-bar-chart text-2xl text-green-600 group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">Sales Data</span>
+            </div>
+            <h6 class="font-bold text-gray-900 group-hover:text-green-700">Reports</h6>
+            <p class="text-xs text-gray-600">Revenue, products, affiliates</p>
+        </a>
+        
+        <a href="/admin/search_analytics.php" class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-l-4 border-purple-500 hover:border-purple-700 group">
+            <div class="flex items-center justify-between mb-2">
+                <i class="bi bi-search text-2xl text-purple-600 group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-semibold">Searches</span>
+            </div>
+            <h6 class="font-bold text-gray-900 group-hover:text-purple-700">Search Analytics</h6>
+            <p class="text-xs text-gray-600">Customer search terms</p>
+        </a>
+        
+        <a href="/admin/monitoring.php" class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-l-4 border-orange-500 hover:border-orange-700 group">
+            <div class="flex items-center justify-between mb-2">
+                <i class="bi bi-speedometer2 text-2xl text-orange-600 group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-semibold">System</span>
+            </div>
+            <h6 class="font-bold text-gray-900 group-hover:text-orange-700">System Monitoring</h6>
+            <p class="text-xs text-gray-600">Database, performance stats</p>
+        </a>
+        
+        <a href="/admin/export.php" class="bg-white rounded-lg shadow hover:shadow-lg transition-all p-4 border-l-4 border-indigo-500 hover:border-indigo-700 group">
+            <div class="flex items-center justify-between mb-2">
+                <i class="bi bi-download text-2xl text-indigo-600 group-hover:scale-110 transition-transform"></i>
+                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-semibold">Export</span>
+            </div>
+            <h6 class="font-bold text-gray-900 group-hover:text-indigo-700">Export Data</h6>
+            <p class="text-xs text-gray-600">CSV, reports, records</p>
+        </a>
+    </div>
+</div>
+
 <!-- Order Type Breakdown & Inventory Alerts -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <!-- Order Type Breakdown -->
