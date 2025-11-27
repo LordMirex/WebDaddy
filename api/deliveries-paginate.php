@@ -2,10 +2,10 @@
 /**
  * AJAX Pagination for Deliveries
  */
-require_once __DIR__ . '/../../includes/config.php';
-require_once __DIR__ . '/../../includes/db.php';
-require_once __DIR__ . '/../../includes/session.php';
-require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/admin/includes/auth.php';
 
 startSecureSession();
 requireAdmin();
@@ -23,9 +23,11 @@ $sql = "
     SELECT d.*, 
            po.customer_name, 
            po.customer_email,
-           po.id as order_id
+           po.id as order_id,
+           p.product_name
     FROM deliveries d
     INNER JOIN pending_orders po ON d.pending_order_id = po.id
+    LEFT JOIN products p ON d.product_id = p.id
     WHERE 1=1
 ";
 $params = [];

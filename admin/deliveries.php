@@ -421,7 +421,7 @@ require_once __DIR__ . '/includes/header.php';
             const type = new URLSearchParams(window.location.search).get('type') || '';
             const status = new URLSearchParams(window.location.search).get('status') || '';
             const days = new URLSearchParams(window.location.search).get('days') || '';
-            fetch(`/admin/api/deliveries-paginate.php?page=${page}&type=${type}&status=${status}&days=${days}`)
+            fetch(`/api/deliveries-paginate.php?page=${page}&type=${type}&status=${status}&days=${days}`)
                 .then(r => r.json())
                 .then(d => {
                     document.getElementById('deliveriesTableBody').innerHTML = d.html;
