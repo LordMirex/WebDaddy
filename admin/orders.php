@@ -2319,9 +2319,19 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                                         </button>
                                     </form>
                                     <?php else: ?>
-                                    <button type="button" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors copy-link-btn" data-url="<?php echo htmlspecialchars(SITE_URL . '/download.php?token=' . $token['token']); ?>" title="Copy download link">
+                                    <?php 
+                                        $isLink = ($token['file_type'] === 'link');
+                                        $downloadUrl = SITE_URL . '/download.php?token=' . $token['token'];
+                                    ?>
+                                    <?php if ($isLink): ?>
+                                    <a href="<?php echo htmlspecialchars($downloadUrl); ?>" target="_blank" rel="noopener noreferrer" class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1" title="Open external link in new tab">
+                                        <i class="bi bi-box-arrow-up-right"></i> Open
+                                    </a>
+                                    <?php else: ?>
+                                    <button type="button" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors copy-link-btn" data-url="<?php echo htmlspecialchars($downloadUrl); ?>" title="Copy download link">
                                         <i class="bi bi-clipboard"></i> Copy
                                     </button>
+                                    <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             </div>

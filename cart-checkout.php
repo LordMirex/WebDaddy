@@ -1065,13 +1065,18 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         <?php foreach ($filteredTokens as $token): 
                                             $isExpired = strtotime($token['expires_at']) < time();
                                             $daysLeft = ceil((strtotime($token['expires_at']) - time()) / 86400);
+                                            $isLink = ($token['file_type'] === 'link');
+                                            $linkTarget = $isLink ? '_blank' : '_self';
+                                            $downloadAttr = $isLink ? '' : 'download';
                                         ?>
                                         <div class="flex items-center gap-2 p-2 bg-gray-900/50 rounded border border-green-600/30">
                                             <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>" 
+                                               target="<?php echo $linkTarget; ?>"
+                                               <?php if ($downloadAttr): ?>download<?php endif; ?>
                                                class="flex-1 text-xs text-green-400 hover:text-green-300 underline flex items-center gap-1">
-                                                <span>📥</span>
+                                                <span><?php echo $isLink ? '🔗' : '📥'; ?></span>
                                                 <span><?php echo htmlspecialchars($token['file_name']); ?></span>
-                                                <span class="text-gray-500">(<?php echo formatFileSize($token['file_size']); ?>)</span>
+                                                <span class="text-gray-500"><?php echo $isLink ? '(external)' : '(' . formatFileSize($token['file_size']) . ')'; ?></span>
                                             </a>
                                             <span class="text-xs text-gray-400">Valid for <?php echo $daysLeft; ?> days</span>
                                         </div>

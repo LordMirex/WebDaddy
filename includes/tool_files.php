@@ -476,12 +476,13 @@ function generateBundleDownloadToken($orderId, $toolId, $expiryDays = null) {
 /**
  * Get download tokens for an order and specific tool
  * Phase 3.2: Returns array of tokens with file information for admin UI
+ * Includes file_type to differentiate between files and external links
  */
 function getDownloadTokens($orderId, $toolId = null) {
     $db = getDb();
     
     $sql = "
-        SELECT dt.*, tf.file_name, tf.file_size, tf.file_type
+        SELECT dt.*, tf.file_name, tf.file_size, tf.file_type, tf.file_path
         FROM download_tokens dt
         LEFT JOIN tool_files tf ON dt.file_id = tf.id
         WHERE dt.pending_order_id = ? AND (dt.is_bundle = 0 OR dt.is_bundle IS NULL)
