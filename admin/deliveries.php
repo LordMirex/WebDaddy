@@ -92,59 +92,59 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <div class="mb-8">
-    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
         <i class="bi bi-box-seam text-primary-400"></i> Delivery Management
     </h1>
-    <p class="text-gray-300 mt-2">Monitor and manage product deliveries</p>
+    <p class="text-gray-600 mt-2">Monitor and manage product deliveries</p>
 </div>
 
 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-    <a href="?status=pending" class="bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-xl shadow-lg p-4 border border-yellow-500/20 hover:scale-105 transition-transform">
+    <a href="?status=pending" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
         <div class="flex items-center justify-between mb-2">
             <h6 class="text-xs font-semibold text-yellow-100 uppercase">Pending</h6>
-            <i class="bi bi-hourglass-split text-xl text-yellow-200"></i>
+            <i class="bi bi-hourglass-split text-xl text-gray-600"></i>
         </div>
-        <div class="text-2xl font-bold text-white"><?php echo $pendingCount; ?></div>
+        <div class="text-2xl font-bold text-gray-900"><?php echo $pendingCount; ?></div>
     </a>
     
-    <a href="?status=pending_retry" class="bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl shadow-lg p-4 border border-orange-500/20 hover:scale-105 transition-transform">
+    <a href="?status=pending_retry" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
         <div class="flex items-center justify-between mb-2">
             <h6 class="text-xs font-semibold text-orange-100 uppercase">Retrying</h6>
-            <i class="bi bi-arrow-repeat text-xl text-orange-200"></i>
+            <i class="bi bi-arrow-repeat text-xl text-gray-600"></i>
         </div>
-        <div class="text-2xl font-bold text-white"><?php echo $pendingRetryCount; ?></div>
+        <div class="text-2xl font-bold text-gray-900"><?php echo $pendingRetryCount; ?></div>
     </a>
     
-    <a href="?status=failed" class="bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-lg p-4 border border-red-500/20 hover:scale-105 transition-transform">
+    <a href="?status=failed" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
         <div class="flex items-center justify-between mb-2">
             <h6 class="text-xs font-semibold text-red-100 uppercase">Failed</h6>
-            <i class="bi bi-x-circle text-xl text-red-200"></i>
+            <i class="bi bi-x-circle text-xl text-gray-600"></i>
         </div>
-        <div class="text-2xl font-bold text-white"><?php echo $failedCount; ?></div>
+        <div class="text-2xl font-bold text-gray-900"><?php echo $failedCount; ?></div>
     </a>
     
-    <a href="?status=delivered" class="bg-gradient-to-br from-green-600 to-green-700 rounded-xl shadow-lg p-4 border border-green-500/20 hover:scale-105 transition-transform">
+    <a href="?status=delivered" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
         <div class="flex items-center justify-between mb-2">
             <h6 class="text-xs font-semibold text-green-100 uppercase">Completed</h6>
-            <i class="bi bi-check-circle text-xl text-green-200"></i>
+            <i class="bi bi-check-circle text-xl text-gray-600"></i>
         </div>
-        <div class="text-2xl font-bold text-white"><?php echo $completedCount; ?></div>
+        <div class="text-2xl font-bold text-gray-900"><?php echo $completedCount; ?></div>
     </a>
     
     <a href="?" class="bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl shadow-lg p-4 border border-gray-500/20 hover:scale-105 transition-transform">
         <div class="flex items-center justify-between mb-2">
-            <h6 class="text-xs font-semibold text-gray-100 uppercase">Total</h6>
+            <h6 class="text-xs font-semibold text-gray-600 uppercase">Total</h6>
             <i class="bi bi-box text-xl text-gray-200"></i>
         </div>
-        <div class="text-2xl font-bold text-white"><?php echo count($deliveries); ?></div>
+        <div class="text-2xl font-bold text-gray-900"><?php echo count($deliveries); ?></div>
     </a>
 </div>
 
 <?php if (!empty($overdueTemplates)): ?>
 <div class="bg-red-900/30 border border-red-700 rounded-xl p-6 mb-8">
     <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center">
-            <i class="bi bi-exclamation-triangle text-2xl text-white"></i>
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+            <i class="bi bi-exclamation-triangle text-2xl text-gray-900"></i>
         </div>
         <div>
             <h3 class="text-xl font-bold text-red-300">Templates Requiring Attention</h3>
@@ -159,7 +159,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="bg-red-950/50 border border-red-800 rounded-lg p-4 flex items-center justify-between flex-wrap gap-3">
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-white font-semibold"><?php echo htmlspecialchars($overdue['product_name']); ?></span>
+                    <span class="text-gray-900 font-semibold"><?php echo htmlspecialchars($overdue['product_name']); ?></span>
                     <span class="text-xs bg-red-700 text-red-100 px-2 py-0.5 rounded-full"><?php echo $hoursOverdue; ?>h overdue</span>
                 </div>
                 <div class="text-sm text-red-300">
@@ -167,7 +167,7 @@ require_once __DIR__ . '/includes/header.php';
                     <span class="text-red-400 ml-2"><?php echo htmlspecialchars($overdue['customer_email']); ?></span>
                 </div>
             </div>
-            <a href="/admin/orders.php?view=<?php echo $overdue['order_id']; ?>" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-lg text-sm transition-colors">
+            <a href="/admin/orders.php?view=<?php echo $overdue['order_id']; ?>" class="px-4 py-2 bg-red-100 hover:bg-red-500 text-gray-900 font-semibold rounded-lg text-sm transition-colors">
                 <i class="bi bi-arrow-right mr-1"></i> Process Now
             </a>
         </div>
@@ -178,15 +178,15 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 mb-6">
     <div class="px-6 py-4 border-b border-gray-700 bg-gray-750">
-        <h5 class="text-lg font-bold text-white flex items-center gap-2">
+        <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
             <i class="bi bi-funnel text-primary-400"></i> Filters
         </h5>
     </div>
     <div class="p-4">
         <form method="GET" class="flex flex-wrap gap-4 items-end">
             <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Product Type</label>
-                <select name="type" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-primary-500">
+                <label class="block text-sm font-medium text-gray-600 mb-2">Product Type</label>
+                <select name="type" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-600 focus:ring-2 focus:ring-primary-500">
                     <option value="">All Types</option>
                     <option value="template" <?php echo $filterType === 'template' ? 'selected' : ''; ?>>Templates</option>
                     <option value="tool" <?php echo $filterType === 'tool' ? 'selected' : ''; ?>>Tools</option>
@@ -194,8 +194,8 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Status</label>
-                <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-primary-500">
+                <label class="block text-sm font-medium text-gray-600 mb-2">Status</label>
+                <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-600 focus:ring-2 focus:ring-primary-500">
                     <option value="">All Statuses</option>
                     <option value="pending" <?php echo $filterStatus === 'pending' ? 'selected' : ''; ?>>Pending</option>
                     <option value="pending_retry" <?php echo $filterStatus === 'pending_retry' ? 'selected' : ''; ?>>Pending Retry</option>
@@ -205,8 +205,8 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <div class="flex-1 min-w-[150px]">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Time Period</label>
-                <select name="days" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-primary-500">
+                <label class="block text-sm font-medium text-gray-600 mb-2">Time Period</label>
+                <select name="days" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-600 focus:ring-2 focus:ring-primary-500">
                     <option value="">All Time</option>
                     <option value="1" <?php echo $filterDays === '1' ? 'selected' : ''; ?>>Last 24 Hours</option>
                     <option value="7" <?php echo $filterDays === '7' ? 'selected' : ''; ?>>Last 7 Days</option>
@@ -215,10 +215,10 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <div class="flex gap-2">
-                <button type="submit" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                <button type="submit" class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-gray-900 font-semibold rounded-lg transition-colors">
                     <i class="bi bi-search mr-1"></i> Filter
                 </button>
-                <a href="?" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg transition-colors">
+                <a href="?" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-gray-900 font-semibold rounded-lg transition-colors">
                     <i class="bi bi-x"></i> Clear
                 </a>
             </div>
@@ -229,7 +229,7 @@ require_once __DIR__ . '/includes/header.php';
 <div class="grid lg:grid-cols-2 gap-6 mb-6">
     <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
         <div class="px-6 py-4 border-b border-gray-700 bg-gray-750 flex items-center justify-between">
-            <h5 class="text-lg font-bold text-white flex items-center gap-2">
+            <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <i class="bi bi-palette text-purple-400"></i> Template Deliveries
             </h5>
             <span class="text-xs bg-purple-900/50 text-purple-300 px-2 py-1 rounded-full"><?php echo $templatesPending; ?> pending</span>
@@ -248,7 +248,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?php foreach (array_slice($templateDeliveries, 0, 5) as $d): ?>
                 <a href="/admin/orders.php?view=<?php echo $d['order_id']; ?>" class="block bg-gray-750 hover:bg-gray-700 rounded-lg p-3 transition-colors">
                     <div class="flex items-center justify-between mb-1">
-                        <span class="font-semibold text-gray-100"><?php echo htmlspecialchars($d['product_name']); ?></span>
+                        <span class="font-semibold text-gray-600"><?php echo htmlspecialchars($d['product_name']); ?></span>
                         <?php if ($d['delivery_status'] === 'delivered'): ?>
                         <span class="text-xs bg-green-900/50 text-green-300 px-2 py-0.5 rounded-full">Delivered</span>
                         <?php elseif ($d['delivery_status'] === 'pending'): ?>
@@ -274,7 +274,7 @@ require_once __DIR__ . '/includes/header.php';
     
     <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
         <div class="px-6 py-4 border-b border-gray-700 bg-gray-750 flex items-center justify-between">
-            <h5 class="text-lg font-bold text-white flex items-center gap-2">
+            <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <i class="bi bi-tools text-blue-400"></i> Tool Deliveries
             </h5>
             <span class="text-xs bg-blue-900/50 text-blue-300 px-2 py-1 rounded-full"><?php echo $toolsPending; ?> pending</span>
@@ -293,7 +293,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?php foreach (array_slice($toolDeliveries, 0, 5) as $d): ?>
                 <a href="/admin/orders.php?view=<?php echo $d['order_id']; ?>" class="block bg-gray-750 hover:bg-gray-700 rounded-lg p-3 transition-colors">
                     <div class="flex items-center justify-between mb-1">
-                        <span class="font-semibold text-gray-100"><?php echo htmlspecialchars($d['product_name']); ?></span>
+                        <span class="font-semibold text-gray-600"><?php echo htmlspecialchars($d['product_name']); ?></span>
                         <?php if ($d['delivery_status'] === 'delivered'): ?>
                         <span class="text-xs bg-green-900/50 text-green-300 px-2 py-0.5 rounded-full">Delivered</span>
                         <?php elseif ($d['delivery_status'] === 'pending_retry'): ?>
@@ -324,7 +324,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
     <div class="px-6 py-4 border-b border-gray-700 bg-gray-750">
-        <h5 class="text-xl font-bold text-white flex items-center gap-2">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
             <i class="bi bi-list-check text-primary-400"></i> All Deliveries
             <?php if (!empty($filterType) || !empty($filterStatus) || !empty($filterDays)): ?>
             <span class="text-sm font-normal text-gray-400">(filtered: <?php echo count($deliveries); ?> results)</span>
@@ -333,7 +333,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <div class="p-6">
         <?php if (empty($deliveries)): ?>
-        <div class="bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 p-4 rounded-lg flex items-center gap-3">
+        <div class="bg-blue-900/30 border-l-4 border-blue-400 text-gray-600 p-4 rounded-lg flex items-center gap-3">
             <i class="bi bi-info-circle text-xl"></i>
             <span>No deliveries found matching your filters.</span>
         </div>
@@ -355,14 +355,14 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody>
                     <?php foreach ($deliveries as $d): ?>
                     <tr class="border-b border-gray-700 hover:bg-gray-750/50 transition-colors">
-                        <td class="py-3 px-4 text-sm font-medium text-gray-100 hidden sm:table-cell">#<?php echo $d['id']; ?></td>
+                        <td class="py-3 px-4 text-sm font-medium text-gray-600 hidden sm:table-cell">#<?php echo $d['id']; ?></td>
                         <td class="py-3 px-4 text-sm text-gray-200">
                             <a href="/admin/orders.php?view=<?php echo $d['order_id']; ?>" class="text-primary-400 hover:text-primary-300 font-medium">
                                 #<?php echo $d['order_id']; ?>
                             </a>
                         </td>
                         <td class="py-3 px-4 text-sm hidden md:table-cell">
-                            <div class="font-medium text-gray-100"><?php echo htmlspecialchars($d['customer_name']); ?></div>
+                            <div class="font-medium text-gray-600"><?php echo htmlspecialchars($d['customer_name']); ?></div>
                             <div class="text-xs text-gray-400"><?php echo htmlspecialchars($d['customer_email']); ?></div>
                         </td>
                         <td class="py-3 px-4 text-sm text-gray-200 hidden lg:table-cell"><?php echo htmlspecialchars($d['product_name']); ?></td>
@@ -388,7 +388,7 @@ require_once __DIR__ . '/includes/header.php';
                                 'delivered' => ['bg' => 'bg-green-900/40', 'text' => 'text-green-300', 'border' => 'border-green-700', 'icon' => 'check-circle-fill'],
                                 'failed' => ['bg' => 'bg-red-900/40', 'text' => 'text-red-300', 'border' => 'border-red-700', 'icon' => 'x-circle']
                             ];
-                            $badge = $statusBadges[$d['delivery_status']] ?? ['bg' => 'bg-gray-900/40', 'text' => 'text-gray-300', 'border' => 'border-gray-700', 'icon' => 'question-circle'];
+                            $badge = $statusBadges[$d['delivery_status']] ?? ['bg' => 'bg-gray-900/40', 'text' => 'text-gray-600', 'border' => 'border-gray-700', 'icon' => 'question-circle'];
                             $retryInfo = '';
                             if (isset($d['retry_count']) && $d['retry_count'] > 0) {
                                 $retryInfo = ' (' . $d['retry_count'] . 'x)';
@@ -405,7 +405,7 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="text-xs text-gray-500"><?php echo date('H:i', strtotime($d['created_at'])); ?></div>
                         </td>
                         <td class="py-3 px-4 text-sm text-center">
-                            <a href="/admin/orders.php?view=<?php echo $d['order_id']; ?>" class="inline-flex items-center px-3 py-1 bg-primary-600 hover:bg-primary-500 text-white text-xs font-semibold rounded-lg transition-colors">
+                            <a href="/admin/orders.php?view=<?php echo $d['order_id']; ?>" class="inline-flex items-center px-3 py-1 bg-primary-600 hover:bg-primary-500 text-gray-900 text-xs font-semibold rounded-lg transition-colors">
                                 <i class="bi bi-eye mr-1"></i> View
                             </a>
                         </td>
