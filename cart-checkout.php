@@ -630,6 +630,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             max-width: 420px;
             width: 90%;
             animation: slideUp 0.4s ease-out;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
         
         @keyframes slideUp {
@@ -736,6 +738,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
         @media (max-width: 640px) {
             .payment-modal {
                 padding: 40px 30px;
+                max-width: 100%;
             }
             
             .payment-status-title {
@@ -744,6 +747,31 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             
             .payment-status-message {
                 font-size: 14px;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+        }
+        
+        /* Fix long file names in download modals */
+        .file-name, [class*="file"], [class*="link"], 
+        .payment-modal * {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Ensure both template and tools sections display properly on mobile mixed orders */
+        .mb-6 {
+            word-break: break-word;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                word-wrap: break-word;
+            }
+            
+            * {
+                word-break: break-word;
+                overflow-wrap: break-word;
             }
         }
     </style>
