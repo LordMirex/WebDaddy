@@ -4,6 +4,14 @@
 WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website templates, premium domains, and digital tools. It features a robust dual payment system (manual bank transfer and Paystack), an affiliate marketing program with a 30% commission, secure encrypted template credential delivery, and comprehensive admin management. The platform is designed for high reliability and data integrity, ensuring seamless operations for both customers and administrators.
 
 ## Current Status
+✅ **DOWNLOAD URL VS LOCAL FILE FIX (Nov 27)**
+- Fixed critical issue where local files were being redirected instead of downloaded
+- Changed detection logic from checking `file_type === 'link'` to checking if file_path is an actual URL (starts with http:// or https://)
+- Fixed database entry where local text file (id=14) was incorrectly marked as file_type='link'
+- File downloads now return HTTP 200 with correct content type
+- External link redirects return HTTP 302 to the correct URL
+- Both manual payments and Paystack payments correctly trigger automatic tool delivery emails
+
 ✅ **CRITICAL DOWNLOAD BUG FIX - TIMEZONE INCONSISTENCY (Nov 27)**
 - Fixed timezone offset bug in download.php that was causing valid download tokens to appear expired
 - Line 57: Changed `datetime('now')` to `datetime('now', '+1 hour')` for Nigeria time consistency
