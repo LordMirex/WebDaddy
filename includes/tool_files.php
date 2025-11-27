@@ -469,6 +469,44 @@ function getDownloadTokens($orderId, $toolId = null) {
 }
 
 /**
+ * Filter tokens to show only the best one per file
+ * Keeps the token with available downloads, or newest if all are used
+ */
+function filterBestDownloadTokens($tokens) {
+    if (empty($tokens)) {
+        return [];
+    }
+    
+    $filtered = [];
+    
+    foreach ($tokens as $token) {
+        $fileName = $token['file_name'] ?? 'unknown';
+        
+        if (!isset($filtered[$fileName])) {
+            $filtered[$fileName] = $token;
+        } else {
+            $existing = $filtered[$fileName];
+            $existingUsed = ($existing['download_count'] ?? 0) >= ($existing['max_downloads'] ?? 10);
+            $currentUsed = ($token['download_count'] ?? 0) >= ($token['max_downloads'] ?? 10);
+            
+            if (!$currentUsed && $existingUsed) {
+                $filtered[$fileName] = $token;
+            } elseif (!$currentUsed && !$existingUsed) {
+                if (strtotime($token['created_at']) > strtotime($existing['created_at'])) {
+                    $filtered[$fileName] = $token;
+                }
+            } elseif ($currentUsed && $existingUsed) {
+                if (strtotime($token['created_at']) > strtotime($existing['created_at'])) {
+                    $filtered[$fileName] = $token;
+                }
+            }
+        }
+    }
+    
+    return array_values($filtered);
+}
+
+/**
  * Get bundle download info by token
  * Phase 3.3: Retrieves bundle info for download processing
  */

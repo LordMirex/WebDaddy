@@ -2237,7 +2237,8 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 </h6>
                 
                 <?php foreach ($toolDeliveries as $delivery): 
-                    $tokens = getDownloadTokens($viewOrder['id'], $delivery['product_id']);
+                    $allTokens = getDownloadTokens($viewOrder['id'], $delivery['product_id']);
+                    $tokens = filterBestDownloadTokens($allTokens);
                     $isDelivered = $delivery['delivery_status'] === 'delivered';
                     $retryCount = $delivery['retry_count'] ?? 0;
                 ?>
