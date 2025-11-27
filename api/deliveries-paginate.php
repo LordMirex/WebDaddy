@@ -2,10 +2,10 @@
 /**
  * AJAX Pagination for Deliveries
  */
-require_once __DIR__ . '/includes/config.php';
-require_once __DIR__ . '/includes/db.php';
-require_once __DIR__ . '/includes/session.php';
-require_once __DIR__ . '/admin/includes/auth.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../admin/includes/auth.php';
 
 startSecureSession();
 requireAdmin();
