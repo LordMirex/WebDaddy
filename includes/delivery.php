@@ -15,6 +15,8 @@ if (!defined('DELIVERY_RETRY_MAX_ATTEMPTS')) {
 
 /**
  * Create delivery records for an order
+ * FIXED: Now checks for existing deliveries and only creates MISSING ones
+ * This fixes the mixed order bug where template deliveries were skipped if tool delivery already existed
  */
 function createDeliveryRecords($orderId) {
     $db = getDb();
@@ -43,7 +45,24 @@ function createDeliveryRecords($orderId) {
             return;
         }
         
+        // FIX: Get existing deliveries for this order (keyed by order_item_id)
+        $existingDeliveriesStmt = $db->prepare("SELECT order_item_id FROM deliveries WHERE pending_order_id = ?");
+        $existingDeliveriesStmt->execute([$orderId]);
+        $existingDeliveryItemIds = $existingDeliveriesStmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        error_log("📦 Existing deliveries for Order #$orderId: " . count($existingDeliveryItemIds) . " items");
+        
+        $createdCount = 0;
+        $skippedCount = 0;
+        
         foreach ($items as $item) {
+            // FIX: Skip if delivery already exists for this order item
+            if (in_array($item['id'], $existingDeliveryItemIds)) {
+                error_log("⏭️  Skipping item {$item['id']} - delivery already exists");
+                $skippedCount++;
+                continue;
+            }
+            
             error_log("📦 Processing item: ID={$item['id']}, Type={$item['product_type']}, ProductID={$item['product_id']}");
             
             try {
@@ -53,6 +72,7 @@ function createDeliveryRecords($orderId) {
                     createTemplateDelivery($orderId, $item);
                 }
                 error_log("✅ Delivery created for item {$item['id']}");
+                $createdCount++;
             } catch (Exception $itemError) {
                 error_log("❌ Error creating delivery for item {$item['id']}: " . $itemError->getMessage());
                 throw $itemError;
@@ -63,7 +83,7 @@ function createDeliveryRecords($orderId) {
         $stmt = $db->prepare("UPDATE pending_orders SET delivery_status = 'in_progress' WHERE id = ?");
         $stmt->execute([$orderId]);
         
-        error_log("✅ All deliveries created for Order #$orderId");
+        error_log("✅ Deliveries for Order #$orderId: Created $createdCount, Skipped $skippedCount (already existed)");
     } catch (Exception $e) {
         error_log("❌ Exception in createDeliveryRecords: " . $e->getMessage());
         throw $e;

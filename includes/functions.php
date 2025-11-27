@@ -566,15 +566,14 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         }
         
         // Create delivery records for automatic tool delivery and template tracking (Phase 3)
-        // IDEMPOTENCY: Only create deliveries if they don't already exist
+        // IDEMPOTENCY: createDeliveryRecords now handles its own idempotency - checks for existing deliveries
+        // and only creates MISSING ones. This fixes the mixed order bug where templates were skipped.
         // ERROR HANDLING: Track failures for admin visibility but don't block payment confirmation
         $deliveryError = null;
         try {
             require_once __DIR__ . '/delivery.php';
-            $existingDeliveries = getDeliveryStatus($orderId);
-            if (empty($existingDeliveries)) {
-                createDeliveryRecords($orderId);
-            }
+            // Always call - function now internally checks for missing deliveries
+            createDeliveryRecords($orderId);
         } catch (Exception $e) {
             $deliveryError = $e->getMessage();
             error_log("Failed to create delivery records for order #{$orderId}: " . $deliveryError);
