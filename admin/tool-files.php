@@ -240,7 +240,7 @@ require_once __DIR__ . '/includes/header.php';
                            class="w-full px-4 py-3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all cursor-pointer file:cursor-pointer file:bg-primary-600 file:border-0 file:rounded file:px-3 file:py-1 file:text-white file:text-sm file:font-medium hover:border-primary-500"
                            required>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">💡 Recommended: ZIP files for complete tool packages. Max size: 100MB</p>
+                <p class="text-xs text-gray-500 mt-2">💡 Recommended: ZIP files for complete tool packages. Max size: 2GB (uploads in 5MB chunks)</p>
             </div>
             
             <!-- File Type -->
@@ -292,19 +292,16 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-document.getElementById('uploadForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const file = document.getElementById('toolFile').files[0];
-    if (!file) return;
-    
-    const formData = new FormData();
-    formData.append('tool_file', file);
-    formData.append('tool_id', document.querySelector('input[name="tool_id"]').value);
-    formData.append('file_type', document.getElementById('fileType').value);
-    formData.append('description', document.getElementById('description').value);
-    formData.append('csrf_token', document.querySelector('input[name="csrf_token"]').value);
-    formData.append('upload_file', '1');
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+
+function generateFileHash(file) {
+    return 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function uploadChunks(file, toolId, fileType, description) {
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const fileHash = generateFileHash(file);
+    let uploadedChunks = 0;
     
     const btn = document.getElementById('uploadBtn');
     const progressDiv = document.getElementById('uploadProgress');
@@ -313,63 +310,99 @@ document.getElementById('uploadForm').addEventListener('submit', (e) => {
     const progressPercent = document.getElementById('progressPercent');
     
     btn.disabled = true;
-    statusDiv.innerHTML = '';
     progressDiv.classList.remove('hidden');
+    
+    // Upload all chunks
+    const uploadPromises = [];
+    for (let i = 0; i < totalChunks; i++) {
+        uploadPromises.push(
+            new Promise((resolve, reject) => {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunk = file.slice(start, end);
+                
+                const formData = new FormData();
+                formData.append('chunk', chunk);
+                formData.append('chunk_index', i);
+                formData.append('total_chunks', totalChunks);
+                formData.append('tool_id', toolId);
+                formData.append('file_type', fileType);
+                formData.append('description', description);
+                formData.append('file_name', file.name);
+                formData.append('file_hash', fileHash);
+                
+                const xhr = new XMLHttpRequest();
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            uploadedChunks++;
+                            
+                            // Update progress
+                            const percent = Math.round((uploadedChunks / totalChunks) * 100);
+                            progressBar.style.width = percent + '%';
+                            progressPercent.textContent = percent + '%';
+                            
+                            if (response.completed) {
+                                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
+                                progressBar.style.width = '100%';
+                                progressPercent.textContent = '100%';
+                                resolve(response);
+                            } else {
+                                resolve(response);
+                            }
+                        } catch (e) {
+                            reject(new Error('Invalid response: ' + e.message));
+                        }
+                    } else {
+                        reject(new Error('Chunk upload failed: ' + xhr.status));
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    reject(new Error('Network error'));
+                });
+                
+                xhr.open('POST', '/api/chunk-upload.php');
+                xhr.send(formData);
+            })
+        );
+    }
+    
+    Promise.all(uploadPromises).then((results) => {
+        setTimeout(() => window.location.reload(), 1500);
+    }).catch((error) => {
+        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ ' + error.message + '</div>';
+        btn.disabled = false;
+        progressDiv.classList.add('hidden');
+    });
+}
+
+document.getElementById('uploadForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const file = document.getElementById('toolFile').files[0];
+    if (!file) return;
+    
     document.getElementById('fileName').textContent = file.name;
+    document.getElementById('uploadStatus').innerHTML = '';
     
-    // Use XMLHttpRequest for proper progress tracking
-    const xhr = new XMLHttpRequest();
+    const toolId = document.querySelector('input[name="tool_id"]').value;
+    const fileType = document.getElementById('fileType').value;
+    const description = document.getElementById('description').value;
     
-    // Track upload progress
-    xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-            const percent = Math.round((e.loaded / e.total) * 100);
-            progressBar.style.width = percent + '%';
-            progressPercent.textContent = percent + '%';
-        }
-    });
-    
-    // Handle completion
-    xhr.addEventListener('load', () => {
-        if (xhr.status === 200) {
-            // Check if response contains redirect or success
-            if (xhr.responseURL.includes('success=1') || xhr.status === 200) {
-                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
-                progressBar.style.width = '100%';
-                progressPercent.textContent = '100%';
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                throw new Error('Upload response error');
-            }
-        } else {
-            throw new Error('Upload failed with status ' + xhr.status);
-        }
-    });
-    
-    // Handle errors
-    xhr.addEventListener('error', () => {
-        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Network error during upload</div>';
-        btn.disabled = false;
-        progressDiv.classList.add('hidden');
-    });
-    
-    xhr.addEventListener('abort', () => {
-        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload cancelled</div>';
-        btn.disabled = false;
-        progressDiv.classList.add('hidden');
-    });
-    
-    // Send the request
-    xhr.open('POST', window.location.pathname);
-    xhr.send(formData);
+    uploadChunks(file, toolId, fileType, description);
 });
 
 document.getElementById('toolFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-        if (file.size > 100 * 1024 * 1024) {
-            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ File is too large (max 100MB)</div>';
+        if (file.size > 2 * 1024 * 1024 * 1024) {
+            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ File is too large (max 2GB)</div>';
             e.target.value = '';
+        } else {
+            document.getElementById('uploadStatus').innerHTML = '';
         }
     }
 });
