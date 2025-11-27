@@ -2282,11 +2282,11 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                                 $maxDownloads = $token['max_downloads'] ?? 10;
                             ?>
                             <div class="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <i class="bi bi-file-earmark-zip text-primary-600"></i>
-                                        <span class="font-medium text-gray-900 text-sm"><?php echo htmlspecialchars($token['file_name']); ?></span>
-                                        <span class="text-xs text-gray-500">(<?php echo formatFileSize($token['file_size']); ?>)</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                        <i class="bi bi-file-earmark-zip text-primary-600 flex-shrink-0"></i>
+                                        <span class="font-medium text-gray-900 text-sm break-all" style="word-break: break-word; overflow-wrap: break-word; word-wrap: break-word;"><?php echo htmlspecialchars($token['file_name']); ?></span>
+                                        <span class="text-xs text-gray-500 flex-shrink-0">(<?php echo formatFileSize($token['file_size']); ?>)</span>
                                     </div>
                                     <div class="flex items-center gap-4 text-xs text-gray-500">
                                         <span>
