@@ -302,12 +302,27 @@ class UploadQueue {
         this.running = 0;
         this.queue = [];
         this.results = [];
+        this.allTasksAdded = false;
     }
     
     async add(task) {
         return new Promise((resolve) => {
             this.queue.push({ task, resolve });
             this.process();
+        });
+    }
+    
+    async waitAll() {
+        this.allTasksAdded = true;
+        return new Promise((resolve) => {
+            const checkDone = () => {
+                if (this.queue.length === 0 && this.running === 0) {
+                    resolve();
+                } else {
+                    setTimeout(checkDone, 50);
+                }
+            };
+            checkDone();
         });
     }
     
@@ -403,6 +418,9 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
             });
         });
     }
+    
+    // Wait for all chunks to complete
+    await queue.waitAll();
 }
 
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
