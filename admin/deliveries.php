@@ -58,7 +58,14 @@ $sql .= " ORDER BY d.created_at DESC";
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
-$deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$allDeliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$perPage = 15;
+$page = 1;
+$totalDeliveries = count($allDeliveries);
+$totalPages = ceil($totalDeliveries / $perPage);
+$offset = ($page - 1) * $perPage;
+$deliveries = array_slice($allDeliveries, $offset, $perPage);
 
 $pendingCount = 0;
 $pendingRetryCount = 0;
@@ -414,7 +421,43 @@ require_once __DIR__ . '/includes/header.php';
                 </tbody>
             </table>
         </div>
-        <div id="deliveriesPagination" class="mt-4"></div>
+        <div id="deliveriesPagination" class="mt-4">
+            <?php if ($totalPages > 1): ?>
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                <div class="text-sm text-gray-600">Showing <?php echo ($offset + 1); ?>-<?php echo min(($page * $perPage), $totalDeliveries); ?> of <?php echo $totalDeliveries; ?> deliveries</div>
+                <div class="flex gap-2">
+                    <?php if ($page > 1): ?>
+                    <button onclick="loadDeliveriesPage(<?php echo ($page - 1); ?>)" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-semibold rounded-lg">← Prev</button>
+                    <?php endif; ?>
+                    
+                    <?php 
+                    $startPage = max(1, $page - 2);
+                    $endPage = min($totalPages, $page + 2);
+                    if ($startPage > 1): ?>
+                        <button onclick="loadDeliveriesPage(1)" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-semibold rounded-lg">1</button>
+                        <?php if ($startPage > 2): ?><span class="px-2 py-1 text-gray-600">...</span><?php endif; ?>
+                    <?php endif; ?>
+                    
+                    <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                        <?php if ($i == $page): ?>
+                        <button class="px-3 py-1 bg-primary-600 text-white text-sm font-semibold rounded-lg"><?php echo $i; ?></button>
+                        <?php else: ?>
+                        <button onclick="loadDeliveriesPage(<?php echo $i; ?>)" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-semibold rounded-lg"><?php echo $i; ?></button>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                    
+                    <?php if ($endPage < $totalPages): ?>
+                        <?php if ($endPage < $totalPages - 1): ?><span class="px-2 py-1 text-gray-600">...</span><?php endif; ?>
+                        <button onclick="loadDeliveriesPage(<?php echo $totalPages; ?>)" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-semibold rounded-lg"><?php echo $totalPages; ?></button>
+                    <?php endif; ?>
+                    
+                    <?php if ($page < $totalPages): ?>
+                    <button onclick="loadDeliveriesPage(<?php echo ($page + 1); ?>)" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-900 text-sm font-semibold rounded-lg">Next →</button>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
         <script>
         function loadDeliveriesPage(page) {
@@ -426,9 +469,9 @@ require_once __DIR__ . '/includes/header.php';
                 .then(d => {
                     document.getElementById('deliveriesTableBody').innerHTML = d.html;
                     document.getElementById('deliveriesPagination').innerHTML = d.pagination;
+                    window.scrollTo({top: document.querySelector('table').offsetTop - 100, behavior: 'smooth'});
                 });
         }
-        loadDeliveriesPage(1);
         </script>
     </div>
 </div>
