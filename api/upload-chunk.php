@@ -6,9 +6,6 @@ require_once __DIR__ . '/../includes/session.php';
 startSecureSession();
 header('Content-Type: application/json');
 
-$logfile = __DIR__ . '/../uploads/upload.log';
-file_put_contents($logfile, date('Y-m-d H:i:s') . " - POST " . json_encode($_POST) . " FILES: " . (isset($_FILES['chunk']) ? 'YES' : 'NO') . "\n", FILE_APPEND);
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
@@ -38,7 +35,7 @@ try {
     
     $chunkPath = $tempDir . '/chunk_' . (int)$chunkIndex;
     if (!move_uploaded_file($_FILES['chunk']['tmp_name'], $chunkPath)) {
-        throw new Exception('Failed to save chunk to: ' . $chunkPath);
+        throw new Exception('Failed to save chunk');
     }
     
     $uploadedChunks = count(glob($tempDir . '/chunk_*'));
@@ -87,13 +84,11 @@ try {
             'application/octet-stream'
         ]);
         
-        file_put_contents($logfile, date('Y-m-d H:i:s') . " - SUCCESS: File saved to " . $relPath . " (Size: " . $fileSize . ")\n", FILE_APPEND);
         echo json_encode(['success' => true, 'completed' => true]);
     } else {
         echo json_encode(['success' => true, 'uploaded' => $uploadedChunks, 'total' => $totalChunks]);
     }
 } catch (Exception $e) {
-    file_put_contents($logfile, date('Y-m-d H:i:s') . " - ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
     http_response_code(400);
     echo json_encode(['error' => $e->getMessage()]);
 }
