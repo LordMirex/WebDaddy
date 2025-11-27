@@ -51,7 +51,7 @@ if ($isBundle) {
         SELECT dt.*, tf.file_path, tf.file_name, tf.mime_type, tf.file_type
         FROM download_tokens dt
         INNER JOIN tool_files tf ON dt.file_id = tf.id
-        WHERE dt.token = ? AND dt.expires_at > datetime('now') AND (dt.is_bundle = 0 OR dt.is_bundle IS NULL)
+        WHERE dt.token = ? AND dt.expires_at > datetime('now', '+1 hour') AND (dt.is_bundle = 0 OR dt.is_bundle IS NULL)
     ");
     $stmt->execute([$token]);
     $download = $stmt->fetch(PDO::FETCH_ASSOC);
