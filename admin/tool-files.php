@@ -26,7 +26,7 @@ if ($selectedToolId) {
     $selectedTool = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-// Handle file upload
+// Handle file upload or link addition
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
     try {
         // CSRF protection
@@ -45,6 +45,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
             throw new Exception('Invalid tool selected');
         }
         
+        // Handle external link
+        if ($fileType === 'link') {
+            $externalLink = $_POST['external_link'] ?? '';
+            if (empty($externalLink)) {
+                throw new Exception('Please provide a link URL');
+            }
+            if (!filter_var($externalLink, FILTER_VALIDATE_URL)) {
+                throw new Exception('Invalid URL format');
+            }
+            
+            $fileId = addToolLink($toolId, $externalLink, $description);
+            error_log("✅ Link added successfully: Tool ID=$toolId, File ID=$fileId");
+            $success = 'Link added successfully!';
+            header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
+            exit;
+        }
+        
+        // Handle file upload
         if (!isset($_FILES['tool_file'])) {
             throw new Exception('No file provided');
         }
@@ -232,15 +250,23 @@ require_once __DIR__ . '/includes/header.php';
             <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?? ''; ?>">
             <input type="hidden" name="tool_id" value="<?php echo $selectedToolId; ?>">
             
-            <!-- File Input -->
-            <div>
+            <!-- File Input (hidden when External Link selected) -->
+            <div id="fileInputDiv">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">📎 Select File</label>
                 <div class="relative">
                     <input type="file" id="toolFile" name="tool_file" 
-                           class="w-full px-4 py-3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all cursor-pointer file:cursor-pointer file:bg-primary-600 file:border-0 file:rounded file:px-3 file:py-1 file:text-white file:text-sm file:font-medium hover:border-primary-500"
-                           required>
+                           class="w-full px-4 py-3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all cursor-pointer file:cursor-pointer file:bg-primary-600 file:border-0 file:rounded file:px-3 file:py-1 file:text-white file:text-sm file:font-medium hover:border-primary-500">
                 </div>
-                <p class="text-xs text-gray-500 mt-2">💡 Recommended: ZIP files for complete tool packages. Max size: 2GB (intelligent chunked upload - 20MB chunks, 3 concurrent)</p>
+                <p class="text-xs text-gray-500 mt-2">💡 Recommended: ZIP files for complete tool packages. Max size: 2GB (intelligent chunked upload - 20MB chunks, 6 concurrent)</p>
+            </div>
+            
+            <!-- Link Input (shown only when External Link selected) -->
+            <div id="linkInputDiv" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">🔗 External Link URL</label>
+                <input type="url" id="externalLink" name="external_link" 
+                       class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                       placeholder="https://example.com/resource or https://docs.yourservice.com">
+                <p class="text-xs text-gray-500 mt-2">💡 Paste the full URL to the external service or resource. Customers will receive this link for download/access.</p>
             </div>
             
             <!-- File Type -->
@@ -446,20 +472,67 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
     await queue.waitAll();
 }
 
+// Show/hide file or link input based on file type selection
+document.getElementById('fileType').addEventListener('change', (e) => {
+    const isLink = e.target.value === 'link';
+    document.getElementById('fileInputDiv').classList.toggle('hidden', isLink);
+    document.getElementById('linkInputDiv').classList.toggle('hidden', !isLink);
+    document.getElementById('toolFile').required = !isLink;
+    document.getElementById('externalLink').required = isLink;
+    document.getElementById('uploadStatus').innerHTML = '';
+});
+
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const fileType = document.getElementById('fileType').value;
+    const toolId = document.querySelector('input[name="tool_id"]').value;
+    const description = document.getElementById('description').value;
+    const statusDiv = document.getElementById('uploadStatus');
+    
+    // Handle external link submission
+    if (fileType === 'link') {
+        const externalLink = document.getElementById('externalLink').value.trim();
+        if (!externalLink) {
+            statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Please enter a URL</div>';
+            return;
+        }
+        
+        const form = document.getElementById('uploadForm');
+        const csrfToken = form.querySelector('input[name="csrf_token"]').value;
+        
+        const formData = new FormData();
+        formData.append('upload_file', '1');
+        formData.append('csrf_token', csrfToken);
+        formData.append('tool_id', toolId);
+        formData.append('file_type', fileType);
+        formData.append('description', description);
+        formData.append('external_link', externalLink);
+        
+        statusDiv.innerHTML = '<div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-700 rounded-lg animate-pulse">🔄 Adding link...</div>';
+        
+        try {
+            const response = await fetch('/admin/tool-files.php?tool_id=' + toolId, {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ Link added! Reloading...</div>';
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        } catch (error) {
+            statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Error: ' + error.message + '</div>';
+        }
+        return;
+    }
+    
+    // Handle file upload
     const file = document.getElementById('toolFile').files[0];
     if (!file) return;
     
-    document.getElementById('uploadStatus').innerHTML = '';
-    
-    const toolId = document.querySelector('input[name="tool_id"]').value;
-    const fileType = document.getElementById('fileType').value;
-    const description = document.getElementById('description').value;
+    statusDiv.innerHTML = '';
     
     // IMMEDIATE FEEDBACK - show upload is starting
-    const statusDiv = document.getElementById('uploadStatus');
     statusDiv.innerHTML = '<div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-700 rounded-lg animate-pulse">🔄 Upload starting... sending chunks to server</div>';
     
     try {
