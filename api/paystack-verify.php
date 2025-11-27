@@ -138,6 +138,11 @@ try {
             try {
                 createDeliveryRecords($orderId);
                 error_log("✅ PAYSTACK VERIFY: Delivery records created successfully");
+                
+                // Send automatic tool delivery email with all tools ready for download
+                error_log("✅ PAYSTACK VERIFY: Sending tool delivery emails");
+                sendAllToolDeliveryEmailsForOrder($orderId);
+                error_log("✅ PAYSTACK VERIFY: Tool delivery emails sent");
             } catch (Exception $deliveryError) {
                 error_log("❌ PAYSTACK VERIFY: Error creating delivery records: " . $deliveryError->getMessage());
                 // Don't fail the entire payment - just log it

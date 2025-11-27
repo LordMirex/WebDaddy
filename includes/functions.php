@@ -574,6 +574,11 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             require_once __DIR__ . '/delivery.php';
             // Always call - function now internally checks for missing deliveries
             createDeliveryRecords($orderId);
+            
+            // Send automatic tool delivery email with all tools ready for download
+            error_log("✅ MARK ORDER PAID: Sending tool delivery emails");
+            sendAllToolDeliveryEmailsForOrder($orderId);
+            error_log("✅ MARK ORDER PAID: Tool delivery emails sent");
         } catch (Exception $e) {
             $deliveryError = $e->getMessage();
             error_log("Failed to create delivery records for order #{$orderId}: " . $deliveryError);

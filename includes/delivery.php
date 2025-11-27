@@ -1488,3 +1488,161 @@ function getDeliveryTimeline($orderId) {
     
     return $events;
 }
+
+/**
+ * Send ALL tool delivery emails immediately after tools become available
+ * Called automatically after createDeliveryRecords() when payment is confirmed
+ * CRITICAL: This sends a single comprehensive email with all tools ready for download
+ */
+function sendAllToolDeliveryEmailsForOrder($orderId) {
+    $db = getDb();
+    
+    error_log("📧 SENDING TOOL DELIVERY EMAILS: Starting for Order #$orderId");
+    
+    try {
+        // Get order and customer info
+        $orderStmt = $db->prepare("SELECT customer_email, customer_name FROM pending_orders WHERE id = ?");
+        $orderStmt->execute([$orderId]);
+        $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order || empty($order['customer_email'])) {
+            error_log("❌ TOOL DELIVERY EMAIL: No customer email found for Order #$orderId");
+            return false;
+        }
+        
+        // Get ALL tool deliveries for this order
+        $toolsStmt = $db->prepare("
+            SELECT d.id, d.product_id, d.product_name, d.delivery_link, d.delivery_note
+            FROM deliveries d
+            WHERE d.pending_order_id = ? AND d.product_type = 'tool' AND d.delivery_status IN ('ready', 'delivered')
+        ");
+        $toolsStmt->execute([$orderId]);
+        $toolDeliveries = $toolsStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (empty($toolDeliveries)) {
+            error_log("⚠️  TOOL DELIVERY EMAIL: No ready tool deliveries found for Order #$orderId");
+            return false;
+        }
+        
+        error_log("📧 TOOL DELIVERY EMAIL: Found " . count($toolDeliveries) . " tools ready for Order #$orderId");
+        
+        // Build comprehensive email with ALL tools
+        $subject = "🎉 Your Tools are Ready to Download - Order #" . $orderId;
+        
+        $body = '<div style="text-align: center; margin-bottom: 25px;">';
+        $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Your Tools are Ready!</h2>';
+        $body .= '<p style="color: #666; margin-top: 10px;">Order #' . $orderId . '</p>';
+        $body .= '</div>';
+        
+        $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+        $body .= '<h3 style="margin: 0 0 10px 0;">✅ All ' . count($toolDeliveries) . ' Tool(s) Ready for Download</h3>';
+        $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Click the links below to download your tools instantly</p>';
+        $body .= '</div>';
+        
+        // List all tools with their files
+        $body .= '<div style="background-color: #f8fafc; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
+        $body .= '<h4 style="color: #1e3a8a; margin: 0 0 20px 0;">📦 Your Tools</h4>';
+        
+        $totalSize = 0;
+        $totalFiles = 0;
+        
+        foreach ($toolDeliveries as $toolDelivery) {
+            $downloadLinks = json_decode($toolDelivery['delivery_link'], true) ?? [];
+            
+            if (!empty($downloadLinks)) {
+                $toolSize = 0;
+                foreach ($downloadLinks as $link) {
+                    $toolSize += $link['file_size'] ?? 0;
+                    $totalFiles++;
+                }
+                $totalSize += $toolSize;
+                
+                $toolSizeFormatted = formatFileSize($toolSize);
+                
+                $body .= '<div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #059669;">';
+                $body .= '<h5 style="color: #059669; margin: 0 0 12px 0; font-size: 16px;">🔧 ' . htmlspecialchars($toolDelivery['product_name']) . '</h5>';
+                $body .= '<p style="color: #666; font-size: 13px; margin: 0 0 12px 0;">' . count($downloadLinks) . ' file(s) • ' . $toolSizeFormatted . '</p>';
+                
+                // List individual files
+                foreach ($downloadLinks as $link) {
+                    $fileName = htmlspecialchars($link['name'] ?? 'Download');
+                    $fileUrl = htmlspecialchars($link['url'] ?? '');
+                    $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
+                    $isExternal = preg_match('/^https?:\/\//i', $link['file_path'] ?? '');
+                    
+                    if ($isExternal) {
+                        $body .= '<div style="margin-bottom: 8px; padding: 8px; background: #f0f9ff; border-radius: 6px;">';
+                        $body .= '<a href="' . $fileUrl . '" target="_blank" style="color: #0369a1; text-decoration: none; font-weight: 500;">🔗 ' . $fileName . ' (External Link)</a>';
+                        $body .= '</div>';
+                    } else {
+                        $body .= '<div style="margin-bottom: 8px; padding: 8px; background: #f0fdf4; border-radius: 6px;">';
+                        $body .= '<a href="' . $fileUrl . '" style="color: #059669; text-decoration: none; font-weight: 500;">📥 ' . $fileName . ' (' . $fileSize . ')</a>';
+                        $body .= '</div>';
+                    }
+                }
+                
+                $body .= '</div>';
+            }
+        }
+        
+        $body .= '</div>';
+        
+        // Important info section
+        $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+        $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+        
+        $body .= '<div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">';
+        $body .= '<h4 style="color: #92400e; margin: 0 0 10px 0;">⏰ Important: Download Information</h4>';
+        $body .= '<p style="color: #92400e; margin: 0; line-height: 1.6;">';
+        $body .= '<strong>Total Size:</strong> ' . formatFileSize($totalSize) . '<br>';
+        $body .= '<strong>Files:</strong> ' . $totalFiles . ' file(s)<br>';
+        $body .= '<strong>Expiry:</strong> Links expire in ' . $expiryDays . ' days (on ' . date('F j, Y', strtotime("+{$expiryDays} days")) . ')<br>';
+        $body .= '<strong>Downloads:</strong> Each link allows up to ' . $maxDownloads . ' downloads';
+        $body .= '</p>';
+        $body .= '</div>';
+        
+        // Tips
+        $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
+        $body .= '<h4 style="color: #065f46; margin: 0 0 15px 0;">💡 Tips for Best Experience</h4>';
+        $body .= '<ul style="color: #065f46; margin: 0; padding-left: 20px; line-height: 1.8;">';
+        $body .= '<li>Use a stable internet connection for large downloads</li>';
+        $body .= '<li>Extract ZIP files after downloading to access contents</li>';
+        $body .= '<li>Save files to a secure location for future access</li>';
+        $body .= '<li>Keep these download links safe - you can retrieve them from your account</li>';
+        $body .= '</ul>';
+        $body .= '</div>';
+        
+        // Support section
+        $body .= '<div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px;">';
+        $body .= '<p style="color: #64748b; margin: 0 0 10px 0; font-size: 14px;">Need help? Contact us anytime:</p>';
+        if (defined('WHATSAPP_NUMBER')) {
+            $body .= '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER) . '" style="color: #1e3a8a; font-weight: bold; text-decoration: none;">💬 WhatsApp: ' . WHATSAPP_NUMBER . '</a>';
+        }
+        $body .= '</div>';
+        
+        // Send email
+        require_once __DIR__ . '/mailer.php';
+        $emailSent = sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+        
+        if ($emailSent) {
+            error_log("✅ TOOL DELIVERY EMAIL: Successfully sent all " . count($toolDeliveries) . " tool(s) to " . $order['customer_email']);
+            
+            // Update delivery status to show email was sent
+            foreach ($toolDeliveries as $toolDelivery) {
+                $updateStmt = $db->prepare("
+                    UPDATE deliveries SET email_sent_at = datetime('now', '+1 hour'), delivery_status = 'delivered'
+                    WHERE id = ?
+                ");
+                $updateStmt->execute([$toolDelivery['id']]);
+            }
+        } else {
+            error_log("❌ TOOL DELIVERY EMAIL: Failed to send email for Order #$orderId to " . $order['customer_email']);
+        }
+        
+        return $emailSent;
+        
+    } catch (Exception $e) {
+        error_log("❌ TOOL DELIVERY EMAIL: Exception for Order #$orderId: " . $e->getMessage());
+        return false;
+    }
+}
