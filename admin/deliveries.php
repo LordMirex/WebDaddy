@@ -73,8 +73,10 @@ $failedCount = 0;
 $completedCount = 0;
 $templatesPending = 0;
 $toolsPending = 0;
+$templatesTotal = 0;
+$toolsTotal = 0;
 
-foreach ($deliveries as $d) {
+foreach ($allDeliveries as $d) {
     if ($d['delivery_status'] === 'pending') {
         $pendingCount++;
         if ($d['product_type'] === 'template') $templatesPending++;
@@ -83,6 +85,9 @@ foreach ($deliveries as $d) {
     elseif ($d['delivery_status'] === 'pending_retry') $pendingRetryCount++;
     elseif ($d['delivery_status'] === 'failed') $failedCount++;
     elseif (in_array($d['delivery_status'], ['sent', 'delivered', 'ready'])) $completedCount++;
+    
+    if ($d['product_type'] === 'template') $templatesTotal++;
+    if ($d['product_type'] === 'tool') $toolsTotal++;
 }
 
 $overdueTemplates = [];
@@ -268,10 +273,10 @@ require_once __DIR__ . '/includes/header.php';
                 </a>
                 <?php endforeach; ?>
             </div>
-            <?php if (count($templateDeliveries) > 5): ?>
+            <?php if ($templatesTotal > 5): ?>
             <div class="text-center mt-3">
                 <a href="?type=template" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                    View all <?php echo count($templateDeliveries); ?> templates <i class="bi bi-arrow-right"></i>
+                    View all <?php echo $templatesTotal; ?> templates <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
             <?php endif; ?>
@@ -317,10 +322,10 @@ require_once __DIR__ . '/includes/header.php';
                 </a>
                 <?php endforeach; ?>
             </div>
-            <?php if (count($toolDeliveries) > 5): ?>
+            <?php if ($toolsTotal > 5): ?>
             <div class="text-center mt-3">
                 <a href="?type=tool" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
-                    View all <?php echo count($toolDeliveries); ?> tools <i class="bi bi-arrow-right"></i>
+                    View all <?php echo $toolsTotal; ?> tools <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
             <?php endif; ?>

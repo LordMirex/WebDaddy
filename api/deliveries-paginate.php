@@ -23,11 +23,9 @@ $sql = "
     SELECT d.*, 
            po.customer_name, 
            po.customer_email,
-           po.id as order_id,
-           p.product_name
+           po.id as order_id
     FROM deliveries d
     INNER JOIN pending_orders po ON d.pending_order_id = po.id
-    LEFT JOIN products p ON d.product_id = p.id
     WHERE 1=1
 ";
 $params = [];
