@@ -431,12 +431,14 @@ document.getElementById('toolFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const sizeInGB = file.size / (1024 * 1024 * 1024);
+        const sizeMB = file.size / (1024 * 1024);
         if (sizeInGB > 2) {
             document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ File too large (max 2GB). Your file: ' + sizeInGB.toFixed(2) + 'GB</div>';
             e.target.value = '';
         } else {
             const chunks = Math.ceil(file.size / CHUNK_SIZE);
-            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">💡 File will upload in ' + chunks + ' chunks (20MB each) with 3 concurrent streams</div>';
+            const displaySize = sizeMB > 1024 ? (sizeInGB).toFixed(2) + 'GB' : Math.round(sizeMB) + 'MB';
+            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">💡 ' + displaySize + ' file → ' + chunks + ' chunks (20MB each) + 3 concurrent uploads</div>';
         }
     }
 });
