@@ -6,7 +6,6 @@ require_once __DIR__ . '/../includes/session.php';
 startSecureSession();
 header('Content-Type: application/json');
 
-// Log all requests for debugging
 $logfile = __DIR__ . '/../uploads/upload.log';
 file_put_contents($logfile, date('Y-m-d H:i:s') . " - POST " . json_encode($_POST) . " FILES: " . (isset($_FILES['chunk']) ? 'YES' : 'NO') . "\n", FILE_APPEND);
 
@@ -71,15 +70,24 @@ try {
         @rmdir($tempDir);
         
         $db = getDb();
-        $db->prepare("INSERT INTO tool_files (tool_id, file_name, file_path, file_size, mime_type) VALUES (?, ?, ?, ?, ?)")
-            ->execute([
-                $toolId,
-                $fileName,
-                str_replace(__DIR__ . '/../', '', $finalFile),
-                filesize($finalFile),
-                'application/octet-stream'
-            ]);
+        $fileSize = filesize($finalFile);
+        $relPath = str_replace(__DIR__ . '/../', '', $finalFile);
         
+        $db->prepare("
+            INSERT INTO tool_files 
+            (tool_id, file_name, file_path, file_type, file_description, file_size, mime_type) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ")->execute([
+            $toolId,
+            $fileName,
+            $relPath,
+            'attachment',
+            '',
+            $fileSize,
+            'application/octet-stream'
+        ]);
+        
+        file_put_contents($logfile, date('Y-m-d H:i:s') . " - SUCCESS: File saved to " . $relPath . " (Size: " . $fileSize . ")\n", FILE_APPEND);
         echo json_encode(['success' => true, 'completed' => true]);
     } else {
         echo json_encode(['success' => true, 'uploaded' => $uploadedChunks, 'total' => $totalChunks]);
