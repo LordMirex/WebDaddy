@@ -292,8 +292,8 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB chunks for faster uploads
-const MAX_CONCURRENT = 6; // 6 concurrent uploads = maximum speed
+const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks - proven stable
+const MAX_CONCURRENT = 6; // 6 concurrent uploads = 3x faster than before
 const UPLOAD_ID = 'upload_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
 class UploadQueue {
@@ -456,7 +456,7 @@ document.getElementById('toolFile').addEventListener('change', (e) => {
         } else {
             const chunks = Math.ceil(file.size / CHUNK_SIZE);
             const displaySize = sizeMB > 1024 ? (sizeInGB).toFixed(2) + 'GB' : Math.round(sizeMB) + 'MB';
-            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⚡ ' + displaySize + ' file → ' + chunks + ' chunks (50MB each) + 6 concurrent uploads</div>';
+            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⚡ ' + displaySize + ' file → ' + chunks + ' chunks (20MB each) + 6 concurrent = 3x faster!</div>';
         }
     }
 });
