@@ -1095,8 +1095,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     <?php if ($hasFiles): ?>
                                     <div class="space-y-2">
                                         <?php foreach ($filteredTokens as $token): 
-                                            $isExpired = strtotime($token['expires_at']) < time();
-                                            $daysLeft = max(1, ceil((strtotime($token['expires_at']) - time()) / 86400));
+                                            $expiryTime = strtotime($token['expires_at']);
+                                            $nowTime = time();
+                                            $daysLeft = max(1, ceil(($expiryTime - $nowTime) / 86400));
                                             $isLink = ($token['file_type'] === 'link');
                                         ?>
                                         <div class="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-green-600/30 hover:border-green-500 transition-colors">
@@ -1104,21 +1105,21 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>" 
                                                target="_blank"
                                                rel="noopener noreferrer"
-                                               class="flex-1 text-sm text-blue-400 hover:text-blue-300 underline flex items-center gap-2">
-                                                <span>🔗</span>
+                                               class="flex-1 text-sm text-blue-400 hover:text-blue-300 underline flex items-center gap-2 min-w-0">
+                                                <span class="flex-shrink-0">🔗</span>
                                                 <span class="truncate"><?php echo htmlspecialchars($token['file_name']); ?></span>
-                                                <span class="text-gray-500 text-xs">(external)</span>
+                                                <span class="text-gray-500 text-xs flex-shrink-0">(external)</span>
                                             </a>
                                             <?php else: ?>
                                             <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>"
-                                               class="flex-1 text-sm text-green-400 hover:text-green-300 underline flex items-center gap-2"
+                                               class="flex-1 text-sm text-green-400 hover:text-green-300 underline flex items-center gap-2 min-w-0"
                                                onclick="this.classList.add('opacity-50'); this.querySelector('.download-icon').innerHTML = '⏳';">
-                                                <span class="download-icon">📥</span>
+                                                <span class="download-icon flex-shrink-0">📥</span>
                                                 <span class="truncate"><?php echo htmlspecialchars($token['file_name']); ?></span>
-                                                <span class="text-gray-500 text-xs">(<?php echo formatFileSize($token['file_size']); ?>)</span>
+                                                <span class="text-gray-500 text-xs flex-shrink-0">(<?php echo formatFileSize($token['file_size']); ?>)</span>
                                             </a>
                                             <?php endif; ?>
-                                            <span class="text-xs text-gray-400 whitespace-nowrap">Valid for <?php echo $daysLeft; ?> days</span>
+                                            <span class="text-xs text-gray-400 flex-shrink-0">Valid<?php echo $daysLeft > 1 ? ' ' . $daysLeft . 'd' : ' 1d'; ?></span>
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
