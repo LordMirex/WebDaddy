@@ -2221,8 +2221,11 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 <?php endforeach; ?>
             </div>
             <?php 
-            endif;  // Close if (!empty($templateDeliveries))
-            endif;  // Close if ($viewOrder['status'] !== 'pending')
+            endif;
+            ?>
+                <?php 
+                endif;
+                endif;
             ?>
             
             <?php
@@ -2531,8 +2534,6 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
         </div>
     </div>
 </div>
-<?php 
-endif;  // Close main if ($viewOrder)
-?>
+<?php endif; ?>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
