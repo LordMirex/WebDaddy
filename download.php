@@ -48,7 +48,7 @@ if ($isBundle) {
     
 } else {
     $stmt = $db->prepare("
-        SELECT dt.*, tf.file_path, tf.file_name, tf.mime_type
+        SELECT dt.*, tf.file_path, tf.file_name, tf.mime_type, tf.file_type
         FROM download_tokens dt
         INNER JOIN tool_files tf ON dt.file_id = tf.id
         WHERE dt.token = ? AND dt.expires_at > datetime('now') AND (dt.is_bundle = 0 OR dt.is_bundle IS NULL)
@@ -78,6 +78,12 @@ if ($isBundle) {
 
     $stmt = $db->prepare("UPDATE tool_files SET download_count = download_count + 1 WHERE id = ?");
     $stmt->execute([$download['file_id']]);
+
+    // Handle external links - redirect instead of download
+    if ($download['file_type'] === 'link') {
+        header('Location: ' . $download['file_path']);
+        exit;
+    }
 
     $filePath = __DIR__ . '/' . $download['file_path'];
     $fileName = $download['file_name'];

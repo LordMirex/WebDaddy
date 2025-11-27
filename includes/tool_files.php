@@ -35,6 +35,39 @@ function getToolFiles($toolId) {
 }
 
 /**
+ * Add external link for a tool
+ * Stores the URL in file_path column with file_type='link'
+ */
+function addToolLink($toolId, $externalUrl, $description = '', $sortOrder = 0) {
+    $db = getDb();
+    
+    // Extract domain from URL for display
+    $parsedUrl = parse_url($externalUrl);
+    $linkName = $parsedUrl['host'] ?? 'External Link';
+    
+    $stmt = $db->prepare("
+        INSERT INTO tool_files (
+            tool_id, file_name, file_path, file_type, file_description,
+            file_size, mime_type, sort_order
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([
+        $toolId,
+        $linkName,
+        $externalUrl,
+        'link',
+        $description,
+        0,
+        'text/plain',
+        $sortOrder
+    ]);
+    
+    $db->exec("UPDATE tools SET total_files = (SELECT COUNT(*) FROM tool_files WHERE tool_id = {$toolId}) WHERE id = {$toolId}");
+    
+    return $db->lastInsertId();
+}
+
+/**
  * Generate download link with token
  * Phase 3: Updated with configurable expiry (30 days default)
  */
