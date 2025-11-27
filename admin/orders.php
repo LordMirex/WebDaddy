@@ -2223,10 +2223,6 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             <?php 
             endif;
             ?>
-                <?php 
-                endif;
-                endif;
-            ?>
             
             <?php
             require_once __DIR__ . '/../includes/tool_files.php';

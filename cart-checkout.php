@@ -980,7 +980,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         $templates = array_filter($confirmationData['orderItems'], fn($item) => $item['product_type'] === 'template');
                         if (!empty($templates)): 
                         ?>
-                        <div class="mb-6 pb-6 border-b border-gray-700 block">
+                        <div class="mb-6 pb-6 border-b border-gray-700">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="text-xl">🎨</span>
                                 <h5 class="font-semibold text-white">Website Templates</h5>
@@ -1037,7 +1037,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         $tools = array_filter($confirmationData['orderItems'], fn($item) => $item['product_type'] === 'tool');
                         if (!empty($tools)): 
                         ?>
-                        <div class="mb-6 block">
+                        <div class="mb-6">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="text-xl">🔧</span>
                                 <h5 class="font-semibold text-white">Tools & Resources</h5>
