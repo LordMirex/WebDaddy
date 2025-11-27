@@ -49,7 +49,8 @@ $topEarners = $db->query("
     SELECT a.id, a.code, u.name, u.email,
            COALESCE(SUM(s.commission_amount), 0) as commission_earned,
            (SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE affiliate_id = a.id AND status = 'paid') as commission_paid,
-           COALESCE(SUM(s.commission_amount), 0) - COALESCE((SELECT SUM(amount) FROM withdrawal_requests WHERE affiliate_id = a.id AND status = 'paid'), 0) as commission_pending
+           COALESCE(SUM(s.commission_amount), 0) - COALESCE((SELECT SUM(amount) FROM withdrawal_requests WHERE affiliate_id = a.id AND status = 'paid'), 0) as commission_pending,
+           COUNT(DISTINCT s.pending_order_id) as total_sales
     FROM affiliates a
     JOIN users u ON a.user_id = u.id
     LEFT JOIN sales s ON a.id = s.affiliate_id
@@ -153,7 +154,7 @@ require_once __DIR__ . '/includes/header.php';
                     <td class="px-6 py-4 text-sm font-medium text-gray-900"><?php echo htmlspecialchars($affiliate['code']); ?></td>
                     <td class="px-6 py-4 text-sm text-right text-gray-900">₦<?php echo number_format($affiliate['commission_earned'], 2); ?></td>
                     <td class="px-6 py-4 text-sm text-right text-gray-900">₦<?php echo number_format($affiliate['commission_pending'], 2); ?></td>
-                    <td class="px-6 py-4 text-sm text-right text-gray-900"><?php echo $affiliate['total_sales']; ?></td>
+                    <td class="px-6 py-4 text-sm text-right text-gray-900"><?php echo intval($affiliate['total_sales']); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
