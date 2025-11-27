@@ -359,6 +359,7 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const queue = new UploadQueue(MAX_CONCURRENT);
     let uploadedChunks = 0;
+    let startedChunks = 0;
     
     // Queue all chunks for upload
     for (let i = 0; i < totalChunks; i++) {
@@ -376,6 +377,13 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
                 formData.append('total_chunks', totalChunks);
                 formData.append('tool_id', toolId);
                 formData.append('file_name', file.name);
+                
+                // IMMEDIATE: Show this chunk is starting to upload
+                startedChunks++;
+                const startPercent = Math.round((startedChunks / totalChunks) * 100);
+                progressBar.style.width = Math.max(startPercent, 5) + '%';
+                progressPercent.textContent = Math.max(startPercent, 5) + '%';
+                statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Sending chunk ' + startedChunks + ' of ' + totalChunks + '...</div>';
                 
                 const xhr = new XMLHttpRequest();
                 
