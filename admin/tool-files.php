@@ -389,6 +389,9 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
                             progressBar.style.width = percent + '%';
                             progressPercent.textContent = percent + '%';
                             
+                            // Show real-time status for each chunk
+                            statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Uploading: ' + uploadedChunks + ' of ' + totalChunks + ' chunks complete</div>';
+                            
                             if (response.completed) {
                                 statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
                                 progressBar.style.width = '100%';
@@ -398,19 +401,31 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
                             
                             resolve(response);
                         } catch (e) {
-                            reject(new Error('Invalid response'));
+                            reject(new Error('Invalid response: ' + xhr.responseText));
                         }
                     } else {
-                        reject(new Error('Chunk failed: ' + xhr.status));
+                        reject(new Error('Server error (' + xhr.status + '): ' + xhr.responseText));
                     }
                 });
                 
                 xhr.addEventListener('error', () => {
+                    statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Network error - check connection</div>';
                     reject(new Error('Network error'));
                 });
                 
                 xhr.addEventListener('abort', () => {
+                    statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload cancelled</div>';
                     reject(new Error('Upload cancelled'));
+                });
+                
+                xhr.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        // Show sending progress for this chunk
+                        const chunkPercent = Math.round((e.loaded / e.total) * 100);
+                        if (chunkPercent > 0 && chunkPercent < 100) {
+                            statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Uploading chunk ' + (chunkIndex + 1) + ' of ' + totalChunks + ' (' + chunkPercent + '%)</div>';
+                        }
+                    }
                 });
                 
                 xhr.open('POST', '/api/upload-chunk.php');
@@ -435,10 +450,13 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     const fileType = document.getElementById('fileType').value;
     const description = document.getElementById('description').value;
     
+    // IMMEDIATE FEEDBACK - show upload is starting
+    const statusDiv = document.getElementById('uploadStatus');
+    statusDiv.innerHTML = '<div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-700 rounded-lg animate-pulse">🔄 Upload starting... sending chunks to server</div>';
+    
     try {
         await uploadFileInChunks(file, toolId, fileType, description);
     } catch (error) {
-        const statusDiv = document.getElementById('uploadStatus');
         statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload failed: ' + error.message + '</div>';
         document.getElementById('uploadBtn').disabled = false;
         document.getElementById('uploadProgress').classList.add('hidden');
