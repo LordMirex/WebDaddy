@@ -80,7 +80,11 @@ if ($isBundle) {
     $stmt->execute([$download['file_id']]);
 
     // Handle external links - redirect instead of download
-    if ($download['file_type'] === 'link') {
+    // Check if file_path is actually an external URL (not just file_type='link')
+    // Some local files may have file_type='link' but are stored locally
+    $isExternalUrl = preg_match('/^https?:\/\//i', $download['file_path']);
+    
+    if ($isExternalUrl) {
         header('Location: ' . $download['file_path']);
         exit;
     }
