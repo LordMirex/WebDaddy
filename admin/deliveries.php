@@ -98,57 +98,57 @@ require_once __DIR__ . '/includes/header.php';
     <p class="text-gray-600 mt-2">Monitor and manage product deliveries</p>
 </div>
 
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-    <a href="?status=pending" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
-        <div class="flex items-center justify-between mb-2">
-            <h6 class="text-xs font-semibold text-yellow-100 uppercase">Pending</h6>
-            <i class="bi bi-hourglass-split text-xl text-gray-600"></i>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
+    <a href="?status=pending" class="bg-yellow-50 rounded-xl shadow-md p-5 sm:p-4 border border-yellow-200 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+            <h6 class="text-xs font-semibold text-yellow-700 uppercase">Pending</h6>
+            <i class="bi bi-hourglass-split text-lg text-yellow-600"></i>
         </div>
-        <div class="text-2xl font-bold text-gray-900"><?php echo $pendingCount; ?></div>
+        <div class="text-3xl sm:text-2xl font-bold text-yellow-900"><?php echo $pendingCount; ?></div>
     </a>
     
-    <a href="?status=pending_retry" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
-        <div class="flex items-center justify-between mb-2">
-            <h6 class="text-xs font-semibold text-orange-100 uppercase">Retrying</h6>
-            <i class="bi bi-arrow-repeat text-xl text-gray-600"></i>
+    <a href="?status=pending_retry" class="bg-orange-50 rounded-xl shadow-md p-5 sm:p-4 border border-orange-200 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+            <h6 class="text-xs font-semibold text-orange-700 uppercase">Retrying</h6>
+            <i class="bi bi-arrow-repeat text-lg text-orange-600"></i>
         </div>
-        <div class="text-2xl font-bold text-gray-900"><?php echo $pendingRetryCount; ?></div>
+        <div class="text-3xl sm:text-2xl font-bold text-orange-900"><?php echo $pendingRetryCount; ?></div>
     </a>
     
-    <a href="?status=failed" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
-        <div class="flex items-center justify-between mb-2">
-            <h6 class="text-xs font-semibold text-red-100 uppercase">Failed</h6>
-            <i class="bi bi-x-circle text-xl text-gray-600"></i>
+    <a href="?status=failed" class="bg-red-50 rounded-xl shadow-md p-5 sm:p-4 border border-red-200 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+            <h6 class="text-xs font-semibold text-red-700 uppercase">Failed</h6>
+            <i class="bi bi-x-circle text-lg text-red-600"></i>
         </div>
-        <div class="text-2xl font-bold text-gray-900"><?php echo $failedCount; ?></div>
+        <div class="text-3xl sm:text-2xl font-bold text-red-900"><?php echo $failedCount; ?></div>
     </a>
     
-    <a href="?status=delivered" class="bg-white rounded-xl shadow-lg p-4 border border-gray-200 hover:scale-105 transition-transform">
-        <div class="flex items-center justify-between mb-2">
-            <h6 class="text-xs font-semibold text-green-100 uppercase">Completed</h6>
-            <i class="bi bi-check-circle text-xl text-gray-600"></i>
+    <a href="?status=delivered" class="bg-green-50 rounded-xl shadow-md p-5 sm:p-4 border border-green-200 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+            <h6 class="text-xs font-semibold text-green-700 uppercase">Completed</h6>
+            <i class="bi bi-check-circle text-lg text-green-600"></i>
         </div>
-        <div class="text-2xl font-bold text-gray-900"><?php echo $completedCount; ?></div>
+        <div class="text-3xl sm:text-2xl font-bold text-green-900"><?php echo $completedCount; ?></div>
     </a>
     
-    <a href="?" class="bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl shadow-lg p-4 border border-gray-500/20 hover:scale-105 transition-transform">
-        <div class="flex items-center justify-between mb-2">
-            <h6 class="text-xs font-semibold text-gray-600 uppercase">Total</h6>
-            <i class="bi bi-box text-xl text-gray-200"></i>
+    <a href="?" class="bg-blue-50 rounded-xl shadow-md p-5 sm:p-4 border border-blue-200 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+            <h6 class="text-xs font-semibold text-blue-700 uppercase">Total</h6>
+            <i class="bi bi-box text-lg text-blue-600"></i>
         </div>
-        <div class="text-2xl font-bold text-gray-900"><?php echo count($deliveries); ?></div>
+        <div class="text-3xl sm:text-2xl font-bold text-blue-900"><?php echo count($deliveries); ?></div>
     </a>
 </div>
 
 <?php if (!empty($overdueTemplates)): ?>
-<div class="bg-red-900/30 border border-red-700 rounded-xl p-6 mb-8">
+<div class="bg-red-50 border border-red-200 rounded-xl p-4 sm:p-6 mb-8">
     <div class="flex items-center gap-3 mb-4">
         <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-            <i class="bi bi-exclamation-triangle text-2xl text-gray-900"></i>
+            <i class="bi bi-exclamation-triangle text-2xl text-red-600"></i>
         </div>
         <div>
-            <h3 class="text-xl font-bold text-red-300">Templates Requiring Attention</h3>
-            <p class="text-red-400 text-sm"><?php echo count($overdueTemplates); ?> template(s) pending for over 24 hours</p>
+            <h3 class="text-lg sm:text-xl font-bold text-red-900">Templates Requiring Attention</h3>
+            <p class="text-red-700 text-sm"><?php echo count($overdueTemplates); ?> template(s) pending for over 24 hours</p>
         </div>
     </div>
     
@@ -156,18 +156,18 @@ require_once __DIR__ . '/includes/header.php';
         <?php foreach ($overdueTemplates as $overdue): 
             $hoursOverdue = round((time() - strtotime($overdue['created_at'])) / 3600);
         ?>
-        <div class="bg-red-950/50 border border-red-800 rounded-lg p-4 flex items-center justify-between flex-wrap gap-3">
+        <div class="bg-white border border-red-200 rounded-lg p-4 flex items-center justify-between flex-wrap gap-3 hover:shadow-md transition-shadow">
             <div>
-                <div class="flex items-center gap-2 mb-1">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
                     <span class="text-gray-900 font-semibold"><?php echo htmlspecialchars($overdue['product_name']); ?></span>
-                    <span class="text-xs bg-red-700 text-red-100 px-2 py-0.5 rounded-full"><?php echo $hoursOverdue; ?>h overdue</span>
+                    <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-semibold"><?php echo $hoursOverdue; ?>h overdue</span>
                 </div>
-                <div class="text-sm text-red-300">
-                    Order #<?php echo $overdue['order_id']; ?> - <?php echo htmlspecialchars($overdue['customer_name']); ?>
-                    <span class="text-red-400 ml-2"><?php echo htmlspecialchars($overdue['customer_email']); ?></span>
+                <div class="text-sm text-gray-600">
+                    Order #<?php echo $overdue['order_id']; ?> - <?php echo htmlspecialchars($overdue['customer_name']); ?> 
+                    <span class="text-gray-500 ml-1"><?php echo htmlspecialchars($overdue['customer_email']); ?></span>
                 </div>
             </div>
-            <a href="/admin/orders.php?view=<?php echo $overdue['order_id']; ?>" class="px-4 py-2 bg-red-100 hover:bg-red-500 text-gray-900 font-semibold rounded-lg text-sm transition-colors">
+            <a href="/admin/orders.php?view=<?php echo $overdue['order_id']; ?>" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg text-sm transition-colors">
                 <i class="bi bi-arrow-right mr-1"></i> Process Now
             </a>
         </div>
