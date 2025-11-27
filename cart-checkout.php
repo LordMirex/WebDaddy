@@ -5,6 +5,7 @@ require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/cart.php';
 require_once __DIR__ . '/includes/tools.php';
+require_once __DIR__ . '/includes/tool_files.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/email_queue.php';
 require_once __DIR__ . '/includes/delivery.php';
