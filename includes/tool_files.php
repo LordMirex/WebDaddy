@@ -105,6 +105,7 @@ function generateDownloadLink($fileId, $orderId, $expiryDays = null) {
         'expires_at' => $expiresAt,
         'expires_formatted' => date('F j, Y', strtotime($expiresAt)),
         'file_type' => $file['file_type'],
+        'file_path' => $file['file_path'],
         'file_size' => $file['file_size'],
         'file_size_formatted' => formatFileSize($file['file_size']),
         'max_downloads' => $maxDownloads

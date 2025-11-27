@@ -215,17 +215,24 @@ function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
         $fileName = htmlspecialchars($link['name'] ?? 'Download File');
         $fileUrl = htmlspecialchars($link['url'] ?? '');
         $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
-        $fileType = ucfirst($link['file_type'] ?? 'file');
+        $fileType = ucfirst(str_replace('_', ' ', $link['file_type'] ?? 'file'));
         $expiryFormatted = $link['expires_formatted'] ?? date('F j, Y', strtotime("+{$expiryDays} days"));
+        $isLink = ($link['file_type'] === 'link');
         
         $body .= '<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">';
         $body .= '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">';
         $body .= '<div style="margin-bottom: 10px;">';
-        $body .= '<strong style="color: #1e3a8a; font-size: 15px;">' . $fileName . '</strong>';
-        $body .= '<div style="color: #666; font-size: 12px; margin-top: 4px;">' . $fileType . ' • ' . $fileSize . '</div>';
+        $body .= '<strong style="color: #1e3a8a; font-size: 15px;">' . ($isLink ? '🔗 ' : '📥 ') . $fileName . '</strong>';
+        $body .= '<div style="color: #666; font-size: 12px; margin-top: 4px;">' . $fileType . ($isLink ? ' • External URL' : ' • ' . $fileSize) . '</div>';
         $body .= '</div>';
         $body .= '</div>';
-        $body .= '<a href="' . $fileUrl . '" style="background: #1e3a8a; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px; margin-top: 5px;">📥 Download File</a>';
+        
+        if ($isLink) {
+            $body .= '<a href="' . $fileUrl . '" target="_blank" style="background: #059669; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px; margin-top: 5px;">🔗 Visit Link (opens in new tab)</a>';
+        } else {
+            $body .= '<a href="' . $fileUrl . '" style="background: #1e3a8a; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px; margin-top: 5px;">📥 Download File</a>';
+        }
+        
         $body .= '</div>';
     }
     
