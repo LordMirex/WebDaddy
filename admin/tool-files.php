@@ -57,8 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
             
             $fileId = addToolLink($toolId, $externalLink, $description);
             error_log("✅ Link added successfully: Tool ID=$toolId, File ID=$fileId");
+            
+            // Process pending deliveries and send emails to customers who were waiting for files
+            require_once __DIR__ . '/../includes/delivery.php';
+            $deliveryResult = processPendingToolDeliveries($toolId);
+            
             $success = 'Link added successfully!';
-            header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
+            if ($deliveryResult['sent'] > 0) {
+                $success .= " {$deliveryResult['sent']} customer(s) have been notified with download links.";
+            }
+            
+            header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1' . ($deliveryResult['sent'] > 0 ? '&emails_sent=' . $deliveryResult['sent'] : ''));
             exit;
         }
         
@@ -82,8 +91,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
         
         $fileId = uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
         error_log("✅ File uploaded successfully: Tool ID=$toolId, File ID=$fileId");
+        
+        // Process pending deliveries and send emails to customers who were waiting for files
+        require_once __DIR__ . '/../includes/delivery.php';
+        $deliveryResult = processPendingToolDeliveries($toolId);
+        
         $success = 'File uploaded successfully!';
-        header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
+        if ($deliveryResult['sent'] > 0) {
+            $success .= " {$deliveryResult['sent']} customer(s) have been notified with download links.";
+        }
+        
+        header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1' . ($deliveryResult['sent'] > 0 ? '&emails_sent=' . $deliveryResult['sent'] : ''));
         exit;
     } catch (Exception $e) {
         error_log("❌ Upload error: " . $e->getMessage());
@@ -156,6 +174,11 @@ require_once __DIR__ . '/includes/header.php';
     <div>
         <strong>Success!</strong>
         <p class="text-sm mt-1">Operation completed successfully.</p>
+        <?php if (isset($_GET['emails_sent']) && intval($_GET['emails_sent']) > 0): ?>
+        <p class="text-sm mt-1 text-green-300 font-semibold">
+            📧 <?php echo intval($_GET['emails_sent']); ?> customer(s) have been automatically notified with download links!
+        </p>
+        <?php endif; ?>
     </div>
 </div>
 <?php endif; ?>

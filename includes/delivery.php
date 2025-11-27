@@ -419,6 +419,129 @@ function resendToolDeliveryEmail($deliveryId) {
 }
 
 /**
+ * Process pending tool deliveries when admin uploads files
+ * This function is called after admin uploads files for a tool
+ * It finds all pending deliveries without download links and sends emails
+ */
+function processPendingToolDeliveries($toolId) {
+    $db = getDb();
+    require_once __DIR__ . '/tool_files.php';
+    
+    // Get tool info
+    $stmt = $db->prepare("SELECT id, name FROM tools WHERE id = ?");
+    $stmt->execute([$toolId]);
+    $tool = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$tool) {
+        error_log("❌ processPendingToolDeliveries: Tool not found: $toolId");
+        return ['success' => false, 'message' => 'Tool not found', 'processed' => 0, 'sent' => 0];
+    }
+    
+    // Get tool files
+    $files = getToolFiles($toolId);
+    if (empty($files)) {
+        error_log("❌ processPendingToolDeliveries: No files found for tool $toolId");
+        return ['success' => false, 'message' => 'No files found for tool', 'processed' => 0, 'sent' => 0];
+    }
+    
+    // Find pending deliveries for this tool that don't have download links yet
+    // (delivery_link is NULL, empty, or contains empty array [])
+    $stmt = $db->prepare("
+        SELECT d.*, po.customer_email, po.customer_name
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.product_id = ? 
+          AND d.product_type = 'tool'
+          AND po.status = 'paid'
+          AND (d.delivery_link IS NULL OR d.delivery_link = '' OR d.delivery_link = '[]')
+        ORDER BY d.created_at DESC
+    ");
+    $stmt->execute([$toolId]);
+    $pendingDeliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    error_log("📧 processPendingToolDeliveries: Found " . count($pendingDeliveries) . " pending deliveries for tool $toolId ({$tool['name']})");
+    
+    $processed = 0;
+    $sent = 0;
+    
+    foreach ($pendingDeliveries as $delivery) {
+        $processed++;
+        $orderId = $delivery['pending_order_id'];
+        
+        // Generate download links for each file
+        $downloadLinks = [];
+        foreach ($files as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $downloadLinks[] = $link;
+            }
+        }
+        
+        if (empty($downloadLinks)) {
+            error_log("⚠️ processPendingToolDeliveries: No download links generated for delivery {$delivery['id']}");
+            continue;
+        }
+        
+        // Update delivery with download links
+        $updateStmt = $db->prepare("
+            UPDATE deliveries SET 
+                delivery_link = ?,
+                delivery_status = 'ready'
+            WHERE id = ?
+        ");
+        $updateStmt->execute([json_encode($downloadLinks), $delivery['id']]);
+        
+        // Send email to customer
+        $item = [
+            'product_name' => $delivery['product_name'],
+            'delivery_note' => $delivery['delivery_note'],
+            'product_id' => $delivery['product_id']
+        ];
+        $order = [
+            'customer_email' => $delivery['customer_email'],
+            'customer_name' => $delivery['customer_name']
+        ];
+        
+        $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId);
+        
+        if ($emailSent) {
+            $sent++;
+            $updateStmt = $db->prepare("
+                UPDATE deliveries SET 
+                    delivery_status = 'delivered',
+                    email_sent_at = datetime('now', '+1 hour'),
+                    delivered_at = datetime('now', '+1 hour')
+                WHERE id = ?
+            ");
+            $updateStmt->execute([$delivery['id']]);
+            
+            // Record email event
+            recordEmailEvent($orderId, 'tool_delivery_delayed', [
+                'email' => $delivery['customer_email'],
+                'subject' => "Your {$delivery['product_name']} is Ready to Download!",
+                'sent' => true,
+                'product_name' => $delivery['product_name'],
+                'file_count' => count($downloadLinks),
+                'delayed_delivery' => true
+            ]);
+            
+            error_log("✅ processPendingToolDeliveries: Email sent to {$delivery['customer_email']} for order #$orderId");
+        } else {
+            error_log("❌ processPendingToolDeliveries: Email failed to {$delivery['customer_email']} for order #$orderId");
+        }
+    }
+    
+    error_log("📧 processPendingToolDeliveries: Completed - Processed: $processed, Emails Sent: $sent");
+    
+    return [
+        'success' => true, 
+        'message' => "Processed $processed deliveries, sent $sent emails",
+        'processed' => $processed, 
+        'sent' => $sent
+    ];
+}
+
+/**
  * Create template delivery
  */
 function createTemplateDelivery($orderId, $item) {

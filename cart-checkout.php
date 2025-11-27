@@ -1038,49 +1038,119 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         $tools = array_filter($confirmationData['orderItems'], fn($item) => $item['product_type'] === 'tool');
                         if (!empty($tools)): 
                         ?>
+                        <?php 
+                        // Check if all tools have files ready for download
+                        $toolsWithFilesCount = 0;
+                        $toolsWithoutFilesCount = 0;
+                        foreach ($tools as $checkItem) {
+                            $checkTokens = getDownloadTokens($confirmationData['order']['id'], $checkItem['product_id']);
+                            $checkFiltered = filterBestDownloadTokens($checkTokens);
+                            if (!empty($checkFiltered)) {
+                                $toolsWithFilesCount++;
+                            } else {
+                                $toolsWithoutFilesCount++;
+                            }
+                        }
+                        $allToolsReady = ($toolsWithoutFilesCount === 0);
+                        ?>
                         <div class="mb-6 block">
-                            <div class="flex items-center gap-2 mb-3">
+                            <div class="flex items-center gap-2 mb-3 flex-wrap">
                                 <span class="text-xl">🔧</span>
                                 <h5 class="font-semibold text-white">Tools & Resources</h5>
+                                <?php if ($allToolsReady): ?>
                                 <span class="px-2 py-0.5 bg-green-600/20 text-green-400 text-xs font-semibold rounded">⚡ Ready to download now</span>
+                                <?php elseif ($toolsWithFilesCount > 0): ?>
+                                <span class="px-2 py-0.5 bg-yellow-600/20 text-yellow-400 text-xs font-semibold rounded">⏳ Partially ready</span>
+                                <?php else: ?>
+                                <span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs font-semibold rounded">📧 Files coming via email</span>
+                                <?php endif; ?>
                             </div>
+                            <?php if ($allToolsReady): ?>
                             <div class="text-xs text-gray-400 mb-3 p-3 bg-gray-900 rounded border border-gray-700">
                                 ✓ Your tools are ready for instant download
                                 <br/>✓ Download links sent to your email
                             </div>
+                            <?php elseif ($toolsWithoutFilesCount > 0): ?>
+                            <div class="text-xs text-blue-300 mb-3 p-3 bg-blue-900/20 rounded border border-blue-600/50">
+                                📧 <?php echo $toolsWithoutFilesCount; ?> tool(s) - files will be sent to your email when ready
+                                <?php if ($toolsWithFilesCount > 0): ?>
+                                <br/>✓ <?php echo $toolsWithFilesCount; ?> tool(s) - ready to download now
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
                             <?php foreach ($tools as $item): 
                                 $toolFiles = getToolFiles($item['product_id']);
                                 $downloadTokens = getDownloadTokens($confirmationData['order']['id'], $item['product_id']);
                                 $filteredTokens = filterBestDownloadTokens($downloadTokens);
+                                $hasFiles = !empty($filteredTokens);
+                                $hasToolFilesUploaded = !empty($toolFiles);
                             ?>
-                            <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0 mb-2">
+                            <div class="pb-4 border-b border-gray-700 last:border-0 mb-4">
                                 <div class="flex-1">
-                                    <h5 class="font-semibold text-white"><?php echo htmlspecialchars($item['tool_name'] ?? 'Tool'); ?></h5>
-                                    <div class="text-sm text-gray-100 mb-2">
-                                        <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?> = <span class="text-primary-400"><?php echo formatCurrency($item['final_amount']); ?></span></p>
+                                    <h5 class="font-semibold text-white text-lg mb-1"><?php echo htmlspecialchars($item['tool_name'] ?? 'Tool'); ?></h5>
+                                    <div class="text-sm text-gray-100 mb-3">
+                                        <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?> = <span class="text-primary-400 font-bold"><?php echo formatCurrency($item['final_amount']); ?></span></p>
                                     </div>
                                     
-                                    <?php if (!empty($filteredTokens)): ?>
+                                    <?php if ($hasFiles): ?>
                                     <div class="space-y-2">
                                         <?php foreach ($filteredTokens as $token): 
                                             $isExpired = strtotime($token['expires_at']) < time();
-                                            $daysLeft = ceil((strtotime($token['expires_at']) - time()) / 86400);
+                                            $daysLeft = max(1, ceil((strtotime($token['expires_at']) - time()) / 86400));
                                             $isLink = ($token['file_type'] === 'link');
-                                            $linkTarget = $isLink ? '_blank' : '_self';
-                                            $downloadAttr = $isLink ? '' : 'download';
                                         ?>
-                                        <div class="flex items-center gap-2 p-2 bg-gray-900/50 rounded border border-green-600/30">
+                                        <div class="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-green-600/30 hover:border-green-500 transition-colors">
+                                            <?php if ($isLink): ?>
                                             <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>" 
-                                               target="<?php echo $linkTarget; ?>"
-                                               <?php if ($downloadAttr): ?>download<?php endif; ?>
-                                               class="flex-1 text-xs text-green-400 hover:text-green-300 underline flex items-center gap-1">
-                                                <span><?php echo $isLink ? '🔗' : '📥'; ?></span>
-                                                <span><?php echo htmlspecialchars($token['file_name']); ?></span>
-                                                <span class="text-gray-500"><?php echo $isLink ? '(external)' : '(' . formatFileSize($token['file_size']) . ')'; ?></span>
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               class="flex-1 text-sm text-blue-400 hover:text-blue-300 underline flex items-center gap-2">
+                                                <span>🔗</span>
+                                                <span class="truncate"><?php echo htmlspecialchars($token['file_name']); ?></span>
+                                                <span class="text-gray-500 text-xs">(external)</span>
                                             </a>
-                                            <span class="text-xs text-gray-400">Valid for <?php echo $daysLeft; ?> days</span>
+                                            <?php else: ?>
+                                            <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>"
+                                               class="flex-1 text-sm text-green-400 hover:text-green-300 underline flex items-center gap-2"
+                                               onclick="this.classList.add('opacity-50'); this.querySelector('.download-icon').innerHTML = '⏳';">
+                                                <span class="download-icon">📥</span>
+                                                <span class="truncate"><?php echo htmlspecialchars($token['file_name']); ?></span>
+                                                <span class="text-gray-500 text-xs">(<?php echo formatFileSize($token['file_size']); ?>)</span>
+                                            </a>
+                                            <?php endif; ?>
+                                            <span class="text-xs text-gray-400 whitespace-nowrap">Valid for <?php echo $daysLeft; ?> days</span>
                                         </div>
                                         <?php endforeach; ?>
+                                    </div>
+                                    <?php elseif (!$hasToolFilesUploaded): ?>
+                                    <!-- Tool files not yet uploaded by admin -->
+                                    <div class="p-4 bg-yellow-900/20 border border-yellow-600/50 rounded-lg">
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-xl">📧</span>
+                                            <div>
+                                                <p class="text-yellow-300 font-semibold text-sm mb-1">Files Coming Soon!</p>
+                                                <p class="text-yellow-200/80 text-xs leading-relaxed">
+                                                    We're preparing your files for this tool. You'll receive a download email at 
+                                                    <strong class="text-yellow-100"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong> 
+                                                    as soon as the files are ready (usually within a few hours).
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php else: ?>
+                                    <!-- Tool files exist but no download tokens yet -->
+                                    <div class="p-4 bg-blue-900/20 border border-blue-600/50 rounded-lg">
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-xl">⏳</span>
+                                            <div>
+                                                <p class="text-blue-300 font-semibold text-sm mb-1">Processing Your Download Links</p>
+                                                <p class="text-blue-200/80 text-xs leading-relaxed">
+                                                    Your download links are being generated. Please check your email at 
+                                                    <strong class="text-blue-100"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong> 
+                                                    or refresh this page in a few moments.
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                     <?php endif; ?>
                                 </div>
