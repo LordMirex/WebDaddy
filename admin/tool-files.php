@@ -292,13 +292,15 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB chunks for faster speed
+const MAX_CONCURRENT = 4; // Limit concurrent uploads to avoid overwhelming server
 
 function generateFileHash(file) {
     return 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-function uploadChunks(file, toolId, fileType, description) {
+// Upload chunks with concurrency control
+async function uploadChunksWithLimit(file, toolId, fileType, description) {
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const fileHash = generateFileHash(file);
     let uploadedChunks = 0;
@@ -312,18 +314,25 @@ function uploadChunks(file, toolId, fileType, description) {
     btn.disabled = true;
     progressDiv.classList.remove('hidden');
     
-    // Upload all chunks
-    const uploadPromises = [];
+    // Create chunk upload tasks
+    const chunks = [];
     for (let i = 0; i < totalChunks; i++) {
-        uploadPromises.push(
+        chunks.push(i);
+    }
+    
+    // Process chunks with concurrency limit
+    const results = [];
+    for (let i = 0; i < chunks.length; i += MAX_CONCURRENT) {
+        const batch = chunks.slice(i, i + MAX_CONCURRENT);
+        const batchPromises = batch.map(chunkIndex => 
             new Promise((resolve, reject) => {
-                const start = i * CHUNK_SIZE;
+                const start = chunkIndex * CHUNK_SIZE;
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunk = file.slice(start, end);
                 
                 const formData = new FormData();
                 formData.append('chunk', chunk);
-                formData.append('chunk_index', i);
+                formData.append('chunk_index', chunkIndex);
                 formData.append('total_chunks', totalChunks);
                 formData.append('tool_id', toolId);
                 formData.append('file_type', fileType);
@@ -339,41 +348,45 @@ function uploadChunks(file, toolId, fileType, description) {
                             const response = JSON.parse(xhr.responseText);
                             uploadedChunks++;
                             
-                            // Update progress
                             const percent = Math.round((uploadedChunks / totalChunks) * 100);
                             progressBar.style.width = percent + '%';
                             progressPercent.textContent = percent + '%';
                             
-                            if (response.completed) {
-                                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
-                                progressBar.style.width = '100%';
-                                progressPercent.textContent = '100%';
-                                resolve(response);
-                            } else {
-                                resolve(response);
-                            }
+                            resolve(response);
                         } catch (e) {
-                            reject(new Error('Invalid response: ' + e.message));
+                            reject(new Error('Invalid response'));
                         }
                     } else {
-                        reject(new Error('Chunk upload failed: ' + xhr.status));
+                        reject(new Error('Upload failed'));
                     }
                 });
                 
-                xhr.addEventListener('error', () => {
-                    reject(new Error('Network error'));
-                });
-                
+                xhr.addEventListener('error', () => reject(new Error('Network error')));
                 xhr.open('POST', '/api/chunk-upload.php');
                 xhr.send(formData);
             })
         );
+        
+        await Promise.all(batchPromises).then(r => results.push(...r));
     }
     
-    Promise.all(uploadPromises).then((results) => {
+    // Check if completed
+    const lastResult = results[results.length - 1];
+    if (lastResult && lastResult.completed) {
+        statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
+        progressBar.style.width = '100%';
+        progressPercent.textContent = '100%';
         setTimeout(() => window.location.reload(), 1500);
-    }).catch((error) => {
-        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ ' + error.message + '</div>';
+    }
+}
+
+function uploadChunks(file, toolId, fileType, description) {
+    uploadChunksWithLimit(file, toolId, fileType, description).catch((error) => {
+        const statusDiv = document.getElementById('uploadStatus');
+        const btn = document.getElementById('uploadBtn');
+        const progressDiv = document.getElementById('uploadProgress');
+        
+        statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload failed</div>';
         btn.disabled = false;
         progressDiv.classList.add('hidden');
     });
