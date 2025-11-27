@@ -4,6 +4,14 @@
 WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website templates, premium domains, and digital tools. It features a robust dual payment system (manual bank transfer and Paystack), an affiliate marketing program with a 30% commission, secure encrypted template credential delivery, and comprehensive admin management. The platform is designed for high reliability and data integrity, ensuring seamless operations for both customers and administrators.
 
 ## Current Status
+✅ **MIXED ORDER DELIVERY BUG FIX (Nov 27)**
+- Fixed critical bug where template delivery records were not being created for mixed orders (orders containing both tools AND templates)
+- Template Credentials & Delivery section now correctly displays for all mixed orders in admin order detail modal
+- `createDeliveryRecords` now uses per-item idempotency checking to only create missing delivery records
+- `markOrderPaid` relies on the new idempotency logic instead of all-or-nothing check
+- Backfilled 11 missing template delivery records for affected paid orders
+- All systems operational: template deliveries, tool deliveries, mixed orders verified
+
 ✅ **COMPREHENSIVE SYSTEM AUDIT & FIXES COMPLETE (Nov 26)**
 - All financial pages display **"YOUR ACTUAL PROFIT"** with clear breakdown
 - Dashboard now includes Quick Analytics Access Hub (5-card navigation)
