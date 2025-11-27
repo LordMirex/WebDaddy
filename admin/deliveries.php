@@ -352,7 +352,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="deliveriesTableBody">
                     <?php foreach ($deliveries as $d): ?>
                     <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
                         <td class="py-3 px-4 text-sm font-medium text-gray-600 hidden sm:table-cell">#<?php echo $d['id']; ?></td>
@@ -414,7 +414,22 @@ require_once __DIR__ . '/includes/header.php';
                 </tbody>
             </table>
         </div>
+        <div id="deliveriesPagination" class="mt-4"></div>
         <?php endif; ?>
+        <script>
+        function loadDeliveriesPage(page) {
+            const type = new URLSearchParams(window.location.search).get('type') || '';
+            const status = new URLSearchParams(window.location.search).get('status') || '';
+            const days = new URLSearchParams(window.location.search).get('days') || '';
+            fetch(`/admin/api/deliveries-paginate.php?page=${page}&type=${type}&status=${status}&days=${days}`)
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('deliveriesTableBody').innerHTML = d.html;
+                    document.getElementById('deliveriesPagination').innerHTML = d.pagination;
+                });
+        }
+        loadDeliveriesPage(1);
+        </script>
     </div>
 </div>
 
