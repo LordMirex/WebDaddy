@@ -1047,13 +1047,36 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 ✓ Your tools are ready for instant download
                                 <br/>✓ Download links sent to your email
                             </div>
-                            <?php foreach ($tools as $item): ?>
+                            <?php foreach ($tools as $item): 
+                                $toolFiles = getToolFiles($item['product_id']);
+                                $downloadTokens = getDownloadTokens($confirmationData['order']['id'], $item['product_id']);
+                                $filteredTokens = filterBestDownloadTokens($downloadTokens);
+                            ?>
                             <div class="flex items-start gap-3 pb-3 border-b border-gray-700 last:border-0 mb-2">
                                 <div class="flex-1">
                                     <h5 class="font-semibold text-white"><?php echo htmlspecialchars($item['tool_name'] ?? 'Tool'); ?></h5>
-                                    <div class="text-sm text-gray-100">
+                                    <div class="text-sm text-gray-100 mb-2">
                                         <p><?php echo formatCurrency($item['unit_price']); ?> × <?php echo $item['quantity']; ?> = <span class="text-primary-400"><?php echo formatCurrency($item['final_amount']); ?></span></p>
                                     </div>
+                                    
+                                    <?php if (!empty($filteredTokens)): ?>
+                                    <div class="space-y-2">
+                                        <?php foreach ($filteredTokens as $token): 
+                                            $isExpired = strtotime($token['expires_at']) < time();
+                                            $daysLeft = ceil((strtotime($token['expires_at']) - time()) / 86400);
+                                        ?>
+                                        <div class="flex items-center gap-2 p-2 bg-gray-900/50 rounded border border-green-600/30">
+                                            <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>" 
+                                               class="flex-1 text-xs text-green-400 hover:text-green-300 underline flex items-center gap-1">
+                                                <span>📥</span>
+                                                <span><?php echo htmlspecialchars($token['file_name']); ?></span>
+                                                <span class="text-gray-500">(<?php echo formatFileSize($token['file_size']); ?>)</span>
+                                            </a>
+                                            <span class="text-xs text-gray-400">Valid for <?php echo $daysLeft; ?> days</span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <?php endforeach; ?>
