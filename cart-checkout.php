@@ -1098,7 +1098,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             $expiryTime = strtotime($token['expires_at']);
                                             $nowTime = time();
                                             $daysLeft = max(1, ceil(($expiryTime - $nowTime) / 86400));
-                                            $isLink = ($token['file_type'] === 'link');
+                                            $isLink = preg_match('/^https?:\/\//i', $token['file_path'] ?? '');
                                         ?>
                                         <div class="flex items-center gap-2 p-3 bg-gray-900/50 rounded-lg border border-green-600/30 hover:border-green-500 transition-colors">
                                             <?php if ($isLink): ?>
