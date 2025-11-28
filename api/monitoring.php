@@ -247,7 +247,7 @@ try {
             }
             
             // Email events
-            $stmt = $db->query("SELECT 'email' as type, 'Emails' as category, email_type as description, CONCAT('To: ', recipient_email) as details, created_at FROM email_events ORDER BY created_at DESC LIMIT $limit");
+            $stmt = $db->query("SELECT 'email' as type, 'Emails' as category, event_type as description, CONCAT('To: ', recipient_email) as details, created_at FROM email_events ORDER BY created_at DESC LIMIT $limit");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $allLogs[] = $row;
             }
