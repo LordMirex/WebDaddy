@@ -1408,7 +1408,7 @@ function getDeliveryTimeline($orderId) {
     $events = [];
     
     // Get order creation
-    $stmt = $db->prepare("SELECT created_at, status, paid_at FROM pending_orders WHERE id = ?");
+    $stmt = $db->prepare("SELECT created_at, status, payment_verified_at FROM pending_orders WHERE id = ?");
     $stmt->execute([$orderId]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -1422,10 +1422,10 @@ function getDeliveryTimeline($orderId) {
             'color' => 'blue'
         ];
         
-        if ($order['paid_at']) {
+        if ($order['payment_verified_at']) {
             $events[] = [
                 'type' => 'payment_confirmed',
-                'timestamp' => $order['paid_at'],
+                'timestamp' => $order['payment_verified_at'],
                 'title' => 'Payment Confirmed',
                 'description' => 'Order marked as paid',
                 'icon' => 'bi-credit-card',
