@@ -423,6 +423,7 @@ function generateToolZipBundle($orderId, $toolId) {
 /**
  * Generate bundle download token
  * Phase 3.3: Creates a secure download token for the ZIP bundle
+ * FIXED: Uses bundle_tokens table instead of download_tokens to avoid FK constraint issues
  */
 function generateBundleDownloadToken($orderId, $toolId, $expiryDays = null) {
     $db = getDb();
@@ -431,47 +432,68 @@ function generateBundleDownloadToken($orderId, $toolId, $expiryDays = null) {
         $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
     }
     
-    $result = generateToolZipBundle($orderId, $toolId);
-    if (!$result['success']) {
-        return $result;
+    try {
+        $result = generateToolZipBundle($orderId, $toolId);
+        if (!$result['success']) {
+            return $result;
+        }
+        
+        $token = bin2hex(random_bytes(32));
+        $expiresAt = date('Y-m-d H:i:s', strtotime("+{$expiryDays} days"));
+        $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+        
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='bundle_tokens'");
+        if (!$tableCheck->fetch()) {
+            $db->exec("
+                CREATE TABLE IF NOT EXISTS bundle_tokens (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    tool_id INTEGER NOT NULL,
+                    pending_order_id INTEGER NOT NULL,
+                    token TEXT NOT NULL UNIQUE,
+                    download_count INTEGER DEFAULT 0,
+                    max_downloads INTEGER DEFAULT 5,
+                    expires_at TIMESTAMP NOT NULL,
+                    last_downloaded_at TIMESTAMP NULL,
+                    zip_path TEXT,
+                    zip_name TEXT,
+                    file_count INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (pending_order_id) REFERENCES pending_orders(id) ON DELETE CASCADE
+                )
+            ");
+            $db->exec("CREATE INDEX IF NOT EXISTS idx_bundle_tokens_token ON bundle_tokens(token)");
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO bundle_tokens (
+                tool_id, pending_order_id, token, expires_at, max_downloads, zip_path, zip_name, file_count
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $toolId, 
+            $orderId, 
+            $token, 
+            $expiresAt, 
+            $maxDownloads,
+            $result['zip_path'],
+            $result['zip_name'],
+            $result['file_count']
+        ]);
+        
+        $siteUrl = defined('SITE_URL') ? SITE_URL : '';
+        
+        return [
+            'success' => true,
+            'token' => $token,
+            'url' => $siteUrl . '/download.php?token=' . $token . '&bundle=1',
+            'expires_at' => $expiresAt,
+            'file_count' => $result['file_count'],
+            'zip_size' => $result['zip_size']
+        ];
+    } catch (Exception $e) {
+        error_log("Bundle token generation failed for order $orderId, tool $toolId: " . $e->getMessage());
+        return ['success' => false, 'message' => 'Bundle generation failed: ' . $e->getMessage()];
     }
-    
-    $token = bin2hex(random_bytes(32));
-    $expiresAt = date('Y-m-d H:i:s', strtotime("+{$expiryDays} days"));
-    $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
-    
-    $stmt = $db->prepare("
-        INSERT INTO download_tokens (
-            file_id, pending_order_id, token, expires_at, max_downloads, is_bundle
-        ) VALUES (?, ?, ?, ?, ?, 1)
-    ");
-    $stmt->execute([-$toolId, $orderId, $token, $expiresAt, $maxDownloads]);
-    
-    $tokenId = $db->lastInsertId();
-    
-    $bundleStmt = $db->prepare("
-        INSERT INTO bundle_downloads (token_id, tool_id, order_id, zip_path, zip_name, file_count)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-    $bundleStmt->execute([
-        $tokenId,
-        $toolId,
-        $orderId,
-        $result['zip_path'],
-        $result['zip_name'],
-        $result['file_count']
-    ]);
-    
-    $siteUrl = defined('SITE_URL') ? SITE_URL : '';
-    
-    return [
-        'success' => true,
-        'token' => $token,
-        'url' => $siteUrl . '/download.php?token=' . $token . '&bundle=1',
-        'expires_at' => $expiresAt,
-        'file_count' => $result['file_count'],
-        'zip_size' => $result['zip_size']
-    ];
 }
 
 /**

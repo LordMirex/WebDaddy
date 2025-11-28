@@ -54,6 +54,8 @@ function createDeliveryRecords($orderId) {
         
         $createdCount = 0;
         $skippedCount = 0;
+        $failedCount = 0;
+        $failedItems = [];
         
         foreach ($items as $item) {
             // FIX: Skip if delivery already exists for this order item
@@ -74,16 +76,26 @@ function createDeliveryRecords($orderId) {
                 error_log("✅ Delivery created for item {$item['id']}");
                 $createdCount++;
             } catch (Exception $itemError) {
-                error_log("❌ Error creating delivery for item {$item['id']}: " . $itemError->getMessage());
-                throw $itemError;
+                error_log("⚠️  Error creating delivery for item {$item['id']}: " . $itemError->getMessage());
+                $failedCount++;
+                $failedItems[] = [
+                    'item_id' => $item['id'],
+                    'product_name' => $item['product_name'],
+                    'error' => $itemError->getMessage()
+                ];
             }
         }
         
         // Update order delivery status
-        $stmt = $db->prepare("UPDATE pending_orders SET delivery_status = 'in_progress' WHERE id = ?");
-        $stmt->execute([$orderId]);
+        $deliveryStatus = ($createdCount > 0) ? 'in_progress' : 'pending';
+        $stmt = $db->prepare("UPDATE pending_orders SET delivery_status = ? WHERE id = ?");
+        $stmt->execute([$deliveryStatus, $orderId]);
         
-        error_log("✅ Deliveries for Order #$orderId: Created $createdCount, Skipped $skippedCount (already existed)");
+        error_log("✅ Deliveries for Order #$orderId: Created $createdCount, Skipped $skippedCount, Failed $failedCount");
+        
+        if ($failedCount > 0) {
+            error_log("⚠️  Failed items for Order #$orderId: " . json_encode($failedItems));
+        }
     } catch (Exception $e) {
         error_log("❌ Exception in createDeliveryRecords: " . $e->getMessage());
         throw $e;

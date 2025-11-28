@@ -59,6 +59,40 @@ function handleSuccessfulPayment($data) {
     
     // Find payment record
     $payment = getPaymentByReference($reference);
+    
+    // FALLBACK: If payment record not found, try to extract order ID from reference and create it
+    if (!$payment) {
+        $orderId = extractOrderIdFromReference($reference);
+        if ($orderId) {
+            $db = getDb();
+            
+            // Check if order exists and is pending
+            $stmt = $db->prepare("SELECT id, status, final_amount FROM pending_orders WHERE id = ?");
+            $stmt->execute([$orderId]);
+            $order = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($order && $order['status'] === 'pending') {
+                // Create payment record on the fly
+                $stmt = $db->prepare("
+                    INSERT INTO payments (
+                        pending_order_id, payment_method, amount_requested, currency,
+                        paystack_reference, status, created_at
+                    ) VALUES (?, 'paystack', ?, 'NGN', ?, 'pending', datetime('now', '+1 hour'))
+                ");
+                $stmt->execute([$orderId, $order['final_amount'], $reference]);
+                $paymentId = $db->lastInsertId();
+                
+                error_log("🔧 WEBHOOK: Created fallback payment #$paymentId for Order #$orderId");
+                
+                // Fetch the newly created payment
+                $payment = getPaymentByReference($reference);
+            } elseif ($order && $order['status'] === 'paid') {
+                logPaymentEvent('order_already_paid', 'paystack', 'info', $orderId, null, null, $data);
+                return;
+            }
+        }
+    }
+    
     if (!$payment) {
         logPaymentEvent('payment_not_found', 'paystack', 'error', null, null, null, ['reference' => $reference]);
         return;
@@ -156,4 +190,15 @@ function handleFailedPayment($data) {
     ]);
     
     logPaymentEvent('payment_failed', 'paystack', 'failed', $payment['pending_order_id'], $payment['id'], null, $data);
+}
+
+/**
+ * Extract order ID from payment reference
+ * Reference format: ORDER-{orderId}-{timestamp}-{random}
+ */
+function extractOrderIdFromReference($reference) {
+    if (preg_match('/^ORDER-(\d+)-/', $reference, $matches)) {
+        return (int)$matches[1];
+    }
+    return null;
 }
