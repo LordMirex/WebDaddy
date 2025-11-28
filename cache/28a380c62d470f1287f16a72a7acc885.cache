@@ -1,20 +1,36 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+a:4:{s:7:"success";b:1;s:4:"html";s:61067:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="tools-category-filter" 
                     style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
                 <option value="" selected>
                     All Categories
                 </option>
+                                <option value="API" >
+                    API                </option>
                                 <option value="Analytics" >
                     Analytics                </option>
+                                <option value="Audio" >
+                    Audio                </option>
                                 <option value="Business" >
                     Business                </option>
+                                <option value="Design" >
+                    Design                </option>
                                 <option value="Development" >
                     Development                </option>
                                 <option value="Marketing" >
                     Marketing                </option>
                                 <option value="Media" >
                     Media                </option>
+                                <option value="Photography" >
+                    Photography                </option>
+                                <option value="Plugins" >
+                    Plugins                </option>
+                                <option value="Software" >
+                    Software                </option>
+                                <option value="Tools" >
+                    Tools                </option>
+                                <option value="Video" >
+                    Video                </option>
                             </select>
             <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -25,10 +41,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
         </div>
     </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px;">
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="1">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="37">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="eager"                         src="/assets/images/placeholder.jpg"
-                         alt="SEO Optimizer Pro"
+                         alt="Icon Library"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -36,17 +52,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">SEO Optimizer Pro</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Icon Library</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Marketing                        </span>
+                            Design                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Advanced SEO analysis and optimization tool</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦75,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦600.00</span>
                         </div>
-                        <button data-tool-id="1" 
+                        <button data-tool-id="37" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,10 +73,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="2">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="38">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="eager"                         src="/assets/images/placeholder.jpg"
-                         alt="Social Media Manager"
+                         alt="CMS Database"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -69,182 +84,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Social Media Manager</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Marketing                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">All-in-one social media management platform</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦120,000.00</span>
-                        </div>
-                        <button data-tool-id="2" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="3">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
-                         alt="Email Marketing Suite"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Email Marketing Suite</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Marketing                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Professional email marketing automation</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦95,000.00</span>
-                        </div>
-                        <button data-tool-id="3" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="4">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="CRM Enterprise"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">CRM Enterprise</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Business                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Complete customer relationship management</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦350,000.00</span>
-                        </div>
-                        <button data-tool-id="4" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="5">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Invoice Generator Pro"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Invoice Generator Pro</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Business                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Professional invoicing and billing system</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦65,000.00</span>
-                        </div>
-                        <button data-tool-id="5" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="6">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Project Manager Elite"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Project Manager Elite</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Business                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Advanced project management solution</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦180,000.00</span>
-                        </div>
-                        <button data-tool-id="6" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="7">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="E-Commerce Builder"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">E-Commerce Builder</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">CMS Database</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
                             Development                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Complete online store solution</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦450,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,000.00</span>
                         </div>
-                        <button data-tool-id="7" 
+                        <button data-tool-id="38" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,10 +105,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="8">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="39">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Landing Page Creator"
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="Email Template Kit"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -267,17 +116,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Landing Page Creator</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Email Template Kit</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Development                        </span>
+                            Marketing                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">High-converting landing page builder</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦85,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,200.00</span>
                         </div>
-                        <button data-tool-id="8" 
+                        <button data-tool-id="39" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,10 +137,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="9">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="40">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Video Editor Suite"
+                         alt="WordPress Plugin"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -300,17 +148,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Video Editor Suite</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">WordPress Plugin</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Media                        </span>
+                            Plugins                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Professional video editing software</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦220,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,800.00</span>
                         </div>
-                        <button data-tool-id="9" 
+                        <button data-tool-id="40" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,10 +169,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="10">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="41">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Graphic Design Toolkit"
+                         alt="SEO Tools Bundle"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -333,17 +180,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Graphic Design Toolkit</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">SEO Tools Bundle</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Media                        </span>
+                            Tools                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Complete graphic design solution</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦150,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦2,200.00</span>
                         </div>
-                        <button data-tool-id="10" 
+                        <button data-tool-id="41" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,7 +201,103 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="11">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="42">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Social Media Kit"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Social Media Kit</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Design                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦900.00</span>
+                        </div>
+                        <button data-tool-id="42" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="43">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Video Template Library"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Video Template Library</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Video                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦2,000.00</span>
+                        </div>
+                        <button data-tool-id="43" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="44">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Presentation Master"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Presentation Master</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Design                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,100.00</span>
+                        </div>
+                        <button data-tool-id="44" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="45">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="lazy"                         src="/assets/images/placeholder.jpg"
                          alt="Analytics Dashboard"
@@ -368,15 +310,14 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Analytics Dashboard</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Analytics                        </span>
+                            Development                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Real-time business analytics platform</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦280,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,500.00</span>
                         </div>
-                        <button data-tool-id="11" 
+                        <button data-tool-id="45" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,10 +329,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="12">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="46">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="HR Management System"
+                         alt="Payment Gateway"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -399,83 +340,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">HR Management System</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Business                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Complete human resource management</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦420,000.00</span>
-                        </div>
-                        <button data-tool-id="12" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="13">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Appointment Scheduler"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Appointment Scheduler</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Business                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Smart booking and scheduling system</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦55,000.00</span>
-                        </div>
-                        <button data-tool-id="13" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="14">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Content Management Pro"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Content Management Pro</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Payment Gateway</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
                             Development                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Advanced content management system</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦195,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦2,800.00</span>
                         </div>
-                        <button data-tool-id="14" 
+                        <button data-tool-id="46" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -487,10 +361,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="15">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="47">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Inventory Manager"
+                         alt="Customer Support Bot"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -498,50 +372,16 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Inventory Manager</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Business                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Smart inventory tracking system</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦130,000.00</span>
-                        </div>
-                        <button data-tool-id="15" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="16">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Chatbot Builder"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Chatbot Builder</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Customer Support Bot</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
                             Development                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">AI-powered chatbot creation platform</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦165,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,000.00</span>
                         </div>
-                        <button data-tool-id="16" 
+                        <button data-tool-id="47" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -553,10 +393,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                     </div>
                 </div>
             </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="17">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="48">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Webinar Platform"
+                         alt="Photography Preset Pack"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -564,50 +404,208 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Webinar Platform</h3>
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Photography Preset Pack</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Photography                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦700.00</span>
+                        </div>
+                        <button data-tool-id="48" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="49">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Audio Library"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Audio Library</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Audio                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,400.00</span>
+                        </div>
+                        <button data-tool-id="49" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="50">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Branding Guideline Kit"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Branding Guideline Kit</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Design                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,300.00</span>
+                        </div>
+                        <button data-tool-id="50" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="51">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Code Snippet Library"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Code Snippet Library</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Development                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦900.00</span>
+                        </div>
+                        <button data-tool-id="51" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="52">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Mobile App Template"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Mobile App Template</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Development                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,200.00</span>
+                        </div>
+                        <button data-tool-id="52" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="53">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Graphic Design Addon"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Graphic Design Addon</h3>
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
+                            Software                        </span>
+                                            </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,600.00</span>
+                        </div>
+                        <button data-tool-id="53" 
+                                class="tool-preview-btn"
+                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="54">
+                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Content Calendar"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                                        </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Content Calendar</h3>
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
                             Marketing                        </span>
                                             </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Professional webinar hosting solution</p>
                                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦320,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,100.00</span>
                         </div>
-                        <button data-tool-id="17" 
-                                class="tool-preview-btn"
-                                style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Preview
-                        </button>
-                    </div>
-                </div>
-            </div>
-                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="18">
-                <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
-                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
-                         alt="Form Builder Pro"
-                         width="1280" height="720"
-                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
-                         decoding="async">
-                                                        </div>
-                <div style="padding: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Form Builder Pro</h3>
-                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #064e3b; color: #86efac; white-space: nowrap;">
-                            Development                        </span>
-                                            </div>
-                                        <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Advanced online form creation tool</p>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦50,000.00</span>
-                        </div>
-                        <button data-tool-id="18" 
+                        <button data-tool-id="54" 
                                 class="tool-preview-btn"
                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                             <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -630,6 +628,9 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
                         <a href="?view=tools&page=2#products" 
                style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
                 2            </a>
+                        <a href="?view=tools&page=3#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
+                3            </a>
                         
                         <a href="?view=tools&page=2#products" 
                style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
@@ -642,6 +643,6 @@ a:4:{s:7:"success";b:1;s:4:"html";s:64171:"    <div style="margin-bottom: 12px; 
     </div>
     <div style="margin-top: 16px; text-align: center;">
         <p style="font-size: 14px; color: #d1d5db; margin: 0;">
-            Page 1 of 2        </p>
+            Page 1 of 4        </p>
     </div>
         ";s:4:"view";s:5:"tools";s:4:"page";i:1;}
