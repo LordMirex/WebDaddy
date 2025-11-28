@@ -222,12 +222,73 @@ try {
                 'recent_events' => $stats['recent_events']
             ]);
             break;
+        
+        case 'system_logs':
+            // Get all system logs from all sources
+            $limit = min((int)($_GET['limit'] ?? 50), 100);
+            $allLogs = [];
+            
+            // Activity logs
+            $stmt = $db->query("SELECT 'activity' as type, 'Admin Activity' as category, action as description, details, created_at FROM activity_logs ORDER BY created_at DESC LIMIT $limit");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $allLogs[] = $row;
+            }
+            
+            // Security logs
+            $stmt = $db->query("SELECT 'security' as type, 'Security' as category, event_type as description, CONCAT('IP: ', ip_address, ' | ', details) as details, created_at FROM security_logs ORDER BY created_at DESC LIMIT $limit");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $allLogs[] = $row;
+            }
+            
+            // Payment logs
+            $stmt = $db->query("SELECT 'payment' as type, 'Payments' as category, event as description, CONCAT('Amount: ', amount, ' | Status: ', status) as details, created_at FROM payment_logs ORDER BY created_at DESC LIMIT $limit");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $allLogs[] = $row;
+            }
+            
+            // Email events
+            $stmt = $db->query("SELECT 'email' as type, 'Emails' as category, email_type as description, CONCAT('To: ', recipient_email) as details, created_at FROM email_events ORDER BY created_at DESC LIMIT $limit");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $allLogs[] = $row;
+            }
+            
+            // Commission logs
+            $stmt = $db->query("SELECT 'commission' as type, 'Commission' as category, action as description, CONCAT('Amount: ', amount, ' | User: ', affiliate_id) as details, created_at FROM commission_log ORDER BY created_at DESC LIMIT $limit");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $allLogs[] = $row;
+            }
+            
+            // Sort by created_at descending
+            usort($allLogs, function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+            
+            // Get log counts
+            $activityCount = $db->query("SELECT COUNT(*) FROM activity_logs")->fetchColumn();
+            $securityCount = $db->query("SELECT COUNT(*) FROM security_logs")->fetchColumn();
+            $paymentCount = $db->query("SELECT COUNT(*) FROM payment_logs")->fetchColumn();
+            $emailCount = $db->query("SELECT COUNT(*) FROM email_events")->fetchColumn();
+            $commissionCount = $db->query("SELECT COUNT(*) FROM commission_log")->fetchColumn();
+            
+            echo json_encode([
+                'success' => true,
+                'counts' => [
+                    'activity' => (int)$activityCount,
+                    'security' => (int)$securityCount,
+                    'payment' => (int)$paymentCount,
+                    'email' => (int)$emailCount,
+                    'commission' => (int)$commissionCount
+                ],
+                'logs' => array_slice($allLogs, 0, $limit),
+                'total_displayed' => count($allLogs)
+            ]);
+            break;
             
         default:
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'error' => 'Invalid action. Available: health, errors, api_performance, cache_status'
+                'error' => 'Invalid action. Available: health, errors, api_performance, cache_status, webhook_security, system_logs'
             ]);
     }
     

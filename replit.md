@@ -1,168 +1,7 @@
 # WebDaddy Empire - Marketplace Platform
 
 ## Overview
-WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website templates, premium domains, and digital tools. It features a robust dual payment system (manual bank transfer and Paystack), an affiliate marketing program with a 30% commission, secure encrypted template credential delivery, and comprehensive admin management. The platform is designed for high reliability and data integrity, ensuring seamless operations for both customers and administrators.
-
-## Current Status
-✅ **ADMIN PANEL SYSTEM TASKS (Nov 28)**
-- Added System Tasks section to Admin Database page for running cron jobs manually
-- No CLI/cPanel cron jobs required - all tasks can be run from admin panel:
-  - Process Email Queue - sends pending emails
-  - Process Delivery Retries - retries failed deliveries
-  - Cleanup Security Logs - removes old logs and rate limits
-  - Generate Weekly Report - creates and emails analytics report
-- Added System Info panel showing pending emails, deliveries, and security logs
-
-✅ **PRODUCTION DATABASE CLEANUP (Nov 28)**
-- Cleared all test data for fresh production start
-- Final production data:
-  - Templates: 20 records (prices: NGN 150,000 - 2,000,000)
-  - Domains: 70 records (properly linked to templates)
-  - Tools: 20 records (prices: NGN 50,000 - 450,000)
-  - Settings: 7 records
-  - Admin user: ID 1
-- All auto-increment sequences correctly set (next IDs: templates=21, domains=71, tools=21)
-- Storage folders cleaned (bundles, files, images, videos)
-
-✅ **AFFILIATE INVITATION EMAIL SYSTEM - FIXED (Nov 28)**
-- Fixed missing affiliate invitation emails for new customers on first purchase
-- Emails now process via Admin Panel > Database > System Tasks button
-- Email queue tracks all invitation sends to prevent duplicates on repeat purchases
-
-✅ **WEBHOOK TIMING & DASHBOARD FIX (Nov 28)**
-- Fixed critical webhook timing issue where webhooks arrived BEFORE payment records existed:
-  - Created new `/api/create-payment-record.php` endpoint
-  - Payment record is now created BEFORE Paystack popup opens
-  - Webhooks can now find and process payments correctly
-- Updated checkout JavaScript to await payment record creation before opening Paystack popup
-- Payment verification now properly updates payment record status to 'completed'
-- Added `payment_completed` event logging for dashboard tracking
-- Webhook Security Dashboard now correctly shows successful payments count
-
-✅ **CHECKOUT EMAIL IMPROVEMENTS (Nov 28)**
-- Added spam folder warning on automatic payment success page:
-  - Prominent amber-colored notice box below "Payment Successful" message
-  - Instructs customers to check spam/junk folder for emails
-  - Asks customers to mark emails as "Not Spam" for future deliveries
-- Improved tool delivery emails - now sends INDIVIDUAL emails per ready tool:
-  - When ordering multiple tools (e.g., 5 tools), each ready tool gets its own dedicated email
-  - Sent right after the order confirmation email
-  - Each email includes tool name, file count, download links, and bundle option
-  - Shows progress indicator: "Tool 1 of 3", "Tool 2 of 3", etc.
-  - 0.5 second delay between emails to avoid rate limiting
-- Delivery status properly updated after each successful email
-- Email events tracked with product details and email numbering
-
-✅ **ENTERPRISE-GRADE WEBHOOK CALLBACK SECURITY (Nov 28)**
-- Implemented comprehensive security infrastructure in `includes/security.php`:
-  - IP whitelisting for Paystack IPs (configurable via `WEBHOOK_IP_WHITELIST_ENABLED`)
-  - Database-backed rate limiting (60 requests/minute per IP)
-  - Structured security event logging
-  - Throttled email alerts for suspicious activity (max 10/hour)
-- Updated webhook handler with security gate, HMAC verification, and transaction-based processing
-- Added real-time Webhook Security Dashboard in admin monitoring page:
-  - Today's webhooks count, blocked requests, payment success/fail rates
-  - Recent security events with IP tracking and severity indicators
-- Created payment reconciliation system:
-  - Compares payments, sales, and orders tables for discrepancies
-  - Visual reporting with severity badges in Reports page
-  - Detailed issue lists for amount mismatches and missing records
-- Cron jobs for delivery retries (exponential backoff) and security log cleanup
-- All configuration in `includes/config.php` (no environment variables)
-
-✅ **DOWNLOAD URL VS LOCAL FILE FIX (Nov 27)**
-- Fixed critical issue where local files were being redirected instead of downloaded
-- Changed detection logic from checking `file_type === 'link'` to checking if file_path is an actual URL (starts with http:// or https://)
-- Fixed database entry where local text file (id=14) was incorrectly marked as file_type='link'
-- File downloads now return HTTP 200 with correct content type
-- External link redirects return HTTP 302 to the correct URL
-- Both manual payments and Paystack payments correctly trigger automatic tool delivery emails
-
-✅ **CRITICAL DOWNLOAD BUG FIX - TIMEZONE INCONSISTENCY (Nov 27)**
-- Fixed timezone offset bug in download.php that was causing valid download tokens to appear expired
-- Line 57: Changed `datetime('now')` to `datetime('now', '+1 hour')` for Nigeria time consistency
-- Now matches the +1 hour offset used throughout the platform for all datetime checks
-- Download buttons now display correctly for tools with files on order confirmation page
-- External links now work properly with correct redirect handling
-- All download tokens are now properly validated with correct expiry checks
-
-✅ **AUTOMATED EMAIL NOTIFICATION FOR DELAYED TOOL DELIVERIES (Nov 27)**
-- When admin uploads files for tools that didn't have files at purchase time, emails are automatically sent to waiting customers
-- `processPendingToolDeliveries($toolId)` function finds all pending deliveries without download links
-- Generates fresh download tokens for each file, updates delivery status, and sends professional email with download links
-- Admin tool-files.php shows success message with count of customers notified
-- Integrates seamlessly with existing delivery pipeline including retry scheduling
-
-✅ **PRODUCTION-GRADE CHUNKED UPLOAD SYSTEM (Nov 27)**
-- Implemented intelligent chunked upload for files up to 2GB (optimized for 200MB+)
-- **20MB chunks** with **3 concurrent uploads** = maximum speed without server strain
-- Uses `stream_copy_to_stream()` for memory-efficient file reassembly
-- Atomic file operations with temp directory management prevent corruption
-- Independent chunk failure/retry (if one chunk fails, only that 20MB retries)
-- Admin tool upload UI shows file size and chunk breakdown upfront
-- API endpoint: `/api/upload-chunk.php` handles all chunking logic
-- Tested with multiple upload scenarios - system ready for production
-
-✅ **MIXED ORDER DELIVERY BUG FIX (Nov 27)**
-- Fixed critical bug where template delivery records were not being created for mixed orders (orders containing both tools AND templates)
-- Template Credentials & Delivery section now correctly displays for all mixed orders in admin order detail modal
-- `createDeliveryRecords` now uses per-item idempotency checking to only create missing delivery records
-- `markOrderPaid` relies on the new idempotency logic instead of all-or-nothing check
-- Backfilled 11 missing template delivery records for affected paid orders
-- All systems operational: template deliveries, tool deliveries, mixed orders verified
-
-✅ **COMPREHENSIVE SYSTEM AUDIT & FIXES COMPLETE (Nov 26)**
-- All financial pages display **"YOUR ACTUAL PROFIT"** with clear breakdown
-- Dashboard now includes Quick Analytics Access Hub (5-card navigation)
-- Analytics page fixed: loads at top instead of jumping to pagination
-- Database integrity verified: all orphan records removed, NULL values fixed
-- **TIMEZONE FIXED**: All 33 datetime queries now use `+1 hour` offset for Nigeria time
-- Affiliate commission popup removed from customer payment confirmation
-- Affiliates table now includes email column (synced from users table)
-- System cache cleared and logs reset for fresh start
-- All systems operational: deliveries, analytics, affiliates, email queue verified
-
-## Webhook Security Implementation - COMPLETE (Nov 28)
-
-**Status: Production-Ready** ✅
-
-The complete enterprise-grade webhook security system has been implemented:
-
-### Files Created/Modified:
-1. `includes/security.php` - IP whitelisting, rate limiting, HMAC verification, logging
-2. `api/paystack-webhook.php` - Security gate, transaction processing, idempotency
-3. `api/monitoring.php` - Webhook statistics endpoints
-4. `admin/monitoring.php` - Real-time security dashboard
-5. `admin/reports.php` - Payment reconciliation section
-6. `includes/finance_metrics.php` - Reconciliation functions
-7. `cron.php` - Updated with process-retries and cleanup-security jobs
-8. `WEBHOOK_SETUP_GUIDE.md` - Step-by-step configuration guide
-9. `CRON_SETUP.md` - Hosting-specific cron setup instructions
-10. `IMPLEMENTATION_COMPLETE.md` - Full implementation documentation
-
-### Features:
-- ✅ IP whitelisting (Paystack IPs only)
-- ✅ Rate limiting (60 requests/minute per IP)
-- ✅ HMAC signature verification
-- ✅ Security event logging with 30-day retention
-- ✅ Throttled email alerts (max 10/hour)
-- ✅ Webhook Security Dashboard (real-time metrics)
-- ✅ Payment reconciliation (discrepancy detection)
-- ✅ Automatic delivery retries (exponential backoff)
-- ✅ Cron job cleanup (rate limits, old logs)
-- ✅ Transaction-based payment processing
-- ✅ Idempotency checks (duplicate prevention)
-
-### To Go Live:
-1. Add webhook URL to Paystack dashboard: `https://your-domain.com/api/paystack-webhook.php`
-2. Set up cron jobs (every 5 minutes, hourly, weekly - see CRON_SETUP.md)
-3. Test with sample payment
-4. Monitor dashboard for security events
-
-### Documentation:
-- `WEBHOOK_SETUP_GUIDE.md` - How to configure webhooks in Paystack
-- `CRON_SETUP.md` - How to set up cron jobs on your hosting
-- `IMPLEMENTATION_COMPLETE.md` - Full technical documentation
+WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templates, premium domains, and digital tools. It features a dual payment system (manual bank transfer and Paystack), a 30% commission affiliate marketing program, secure encrypted template credential delivery, and comprehensive admin management. The platform emphasizes high reliability, data integrity, and seamless operations for customers and administrators, with a focus on comprehensive system monitoring and security.
 
 ## User Preferences
 - No mock data in production paths
@@ -181,30 +20,27 @@ The complete enterprise-grade webhook security system has been implemented:
 The platform features a clean, professional UI with consistent design elements. Admin dashboards provide real-time updates and clear visualizations for delivery statuses, commission tracking, and analytics.
 
 ### Technical Implementations
-- **File Upload:** Production-grade chunked upload system with 20MB chunks, 3-concurrent queue management, stream-based reassembly, and atomic temp directory operations. Handles files up to 2GB reliably.
-- **Template Delivery:** Implements AES-256-GCM encryption for credentials, a dynamic assignment workflow, and an admin delivery dashboard with overdue alerts.
-- **Tools Delivery:** Supports ZIP bundle downloads, configurable download link expiry (30 days), and admin regeneration of expired links with CSRF protection. Includes enhanced email notifications with file details.
+- **File Upload:** Production-grade chunked upload system with 20MB chunks, 3-concurrent queue management, stream-based reassembly, and atomic temp directory operations, handling files up to 2GB.
+- **Template Delivery:** Implements AES-256-GCM encryption for credentials, dynamic assignment, and an admin delivery dashboard with overdue alerts.
+- **Tools Delivery:** Supports ZIP bundle downloads, configurable download link expiry (30 days), and admin regeneration of expired links with CSRF protection, including enhanced email notifications with file details.
 - **Mixed Orders:** Handles partial deliveries for orders containing both immediate (tools) and pending (templates) items, with clear UI separation and automated email sequences.
-- **Affiliate System:** Features a 30% commission rate, with a unified commission processor for both Paystack and manual payments. The system ensures idempotency to prevent duplicate commission credits and uses the `sales` table as the single source of truth.
-- **Security:** CSRF token validation on all admin actions, secure token generation, file existence validation, and download limit enforcement.
+- **Affiliate System:** Features a 30% commission rate, with a unified commission processor for both Paystack and manual payments, ensuring idempotency and using the `sales` table as the single source of truth.
+- **Security:** Implements CSRF token validation on all admin actions, secure token generation, file existence validation, download limit enforcement, enterprise-grade webhook security (IP whitelisting, rate limiting, HMAC verification, security event logging, throttled email alerts), and a payment reconciliation system.
+- **Email System:** Automated email notifications for delayed tool deliveries, individual emails for multiple tools, and spam folder warnings for customers.
 
 ### Feature Specifications
 - **Order Management:** Enhanced filters for payment method, date range, and delivery status.
 - **Delivery Management:** Comprehensive admin dashboards for both template and tool deliveries, with tracking, retry mechanisms (exponential backoff), and email notifications.
-- **Analytics & Reporting:** Admin analytics dashboard with delivery KPIs, overdue alerts, and CSV export functionality for orders, deliveries, and affiliates.
-- **Commission Management:** Automated commission calculation and crediting, reconciliation tools to prevent data discrepancies, and an audit trail for all commission transactions.
+- **Analytics & Reporting:** Admin analytics dashboard with delivery KPIs, overdue alerts, CSV export functionality for orders, deliveries, and affiliates, and a real-time system logs dashboard.
+- **Commission Management:** Automated commission calculation and crediting, reconciliation tools, and an audit trail for all commission transactions.
 
 ### System Design Choices
-- **Database:** SQLite with a schema designed for robust tracking of orders, deliveries, downloads, and commissions.
-    - `download_tokens`: `is_bundle` flag.
-    - `bundle_downloads`: Stores ZIP bundle metadata.
-    - `deliveries`: `retry_count`, `next_retry_at` for delivery retries.
-    - `commission_log`: Audit trail for commission actions.
-    - `commission_withdrawals`: Tracks affiliate withdrawal requests.
-- **Configuration:** Key parameters like `DOWNLOAD_LINK_EXPIRY_DAYS`, `MAX_DOWNLOAD_ATTEMPTS`, `DELIVERY_RETRY_MAX_ATTEMPTS`, and `AFFILIATE_COMMISSION_RATE` are defined as constants.
-- **Data Integrity:** Employs safeguarding functions like `syncAffiliateCommissions()` and `reconcileAffiliateBalance()` to maintain consistency between cached affiliate data and the `sales` table, which acts as the immutable source of truth.
+- **Database:** SQLite with a schema designed for robust tracking of orders, deliveries, downloads, and commissions, including specific fields for bundle handling, delivery retries, and commission logging.
+- **Configuration:** Key parameters like `DOWNLOAD_LINK_EXPIRY_DAYS`, `MAX_DOWNLOAD_ATTEMPTS`, `DELIVERY_RETRY_MAX_ATTEMPTS`, and `AFFILIATE_COMMISSION_RATE` are defined as constants within `includes/config.php`.
+- **Data Integrity:** Employs safeguarding functions to maintain consistency between cached affiliate data and the `sales` table, which serves as the immutable source of truth.
+- **Timezone:** All datetime queries consistently use a `+1 hour` offset for Nigeria time.
 
 ## External Dependencies
-- **Paystack:** Integrated for automatic payment processing.
+- **Paystack:** Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension:** Required for generating tool bundles.
 - **Email Service:** Utilized for sending various notifications (delivery, overdue alerts, order summaries).
