@@ -270,6 +270,9 @@ async function loadMonitoringData() {
         if (errors.success) {
             updateErrorLogs(errors);
         }
+        
+        // Load system logs
+        loadSystemLogs();
     } catch (error) {
         console.error('Failed to load monitoring data:', error);
         document.getElementById('status-badge').innerHTML = '<span class="text-yellow-600">TIMEOUT</span>';
@@ -382,6 +385,67 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
+// Load system logs from all sources
+async function loadSystemLogs() {
+    try {
+        const res = await fetch('/api/monitoring.php?action=system_logs&limit=50', { signal: AbortSignal.timeout(5000) });
+        const data = await res.json();
+        
+        if (data.success) {
+            // Update log counts
+            document.getElementById('log-activity').textContent = data.counts.activity || 0;
+            document.getElementById('log-security').textContent = data.counts.security || 0;
+            document.getElementById('log-payment').textContent = data.counts.payment || 0;
+            document.getElementById('log-email').textContent = data.counts.email || 0;
+            document.getElementById('log-commission').textContent = data.counts.commission || 0;
+            
+            // Display unified logs
+            const container = document.getElementById('system-logs-container');
+            const logs = data.logs || [];
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8"><i class="bi bi-check-circle"></i> No system logs yet - system clean!</p>';
+                return;
+            }
+            
+            let html = '<div class="divide-y divide-gray-200">';
+            logs.forEach(log => {
+                let icon = 'bi-info-circle text-blue-600';
+                let bgClass = 'bg-blue-50 border-blue-200';
+                
+                if (log.type === 'security') {
+                    icon = 'bi-shield-exclamation text-red-600';
+                    bgClass = 'bg-red-50 border-red-200';
+                } else if (log.type === 'payment') {
+                    icon = 'bi-credit-card text-green-600';
+                    bgClass = 'bg-green-50 border-green-200';
+                } else if (log.type === 'email') {
+                    icon = 'bi-envelope text-purple-600';
+                    bgClass = 'bg-purple-50 border-purple-200';
+                } else if (log.type === 'commission') {
+                    icon = 'bi-percent text-amber-600';
+                    bgClass = 'bg-amber-50 border-amber-200';
+                }
+                
+                html += `<div class="flex items-start gap-3 p-3 ${bgClass} border-l-4">
+                    <i class="bi ${icon} mt-0.5 flex-shrink-0"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-semibold text-sm text-gray-900">${escapeHtml(log.description)}</div>
+                        <div class="text-xs text-gray-600 mt-1">${escapeHtml(log.details || '')}</div>
+                        <div class="text-xs text-gray-400 mt-1">${escapeHtml(log.created_at || '')}</div>
+                    </div>
+                    <span class="text-xs font-medium px-2 py-1 rounded bg-gray-100 text-gray-700 flex-shrink-0">${escapeHtml(log.type.toUpperCase())}</span>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+    } catch (error) {
+        console.error('Failed to load system logs:', error);
+        document.getElementById('system-logs-container').innerHTML = '<p class="text-center text-red-500 py-8"><i class="bi bi-exclamation-circle"></i> Error loading logs</p>';
+    }
+}
+
 // Load webhook security stats
 async function loadWebhookSecurityStats() {
     try {
@@ -428,8 +492,10 @@ async function loadWebhookSecurityStats() {
 // Load on page load
 loadMonitoringData();
 loadWebhookSecurityStats();
+loadSystemLogs();
 
 // Auto-refresh every 30 seconds
 setInterval(loadMonitoringData, 30000);
 setInterval(loadWebhookSecurityStats, 30000);
+setInterval(loadSystemLogs, 30000);
 </script>
