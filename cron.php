@@ -24,12 +24,13 @@ require_once __DIR__ . '/includes/report_generator.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/delivery.php';
 require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/email_queue.php';
 
 $command = $argv[1] ?? '';
 
 if (empty($command)) {
     echo "Usage: php cron.php [command]\n";
-    echo "Commands: weekly-report, optimize, process-retries, cleanup-security\n";
+    echo "Commands: process-email-queue, weekly-report, optimize, process-retries, cleanup-security\n";
     exit(1);
 }
 
@@ -42,6 +43,45 @@ if (!is_dir($backupDir)) {
 }
 
 switch ($command) {
+    
+    case 'process-email-queue':
+        echo "📧 Processing email queue...\n";
+        
+        try {
+            // Process all pending emails
+            $stmt = $db->query("
+                SELECT COUNT(*) as count FROM email_queue 
+                WHERE status = 'pending' AND attempts < 5
+            ");
+            $pending = $stmt->fetch(PDO::FETCH_ASSOC);
+            $pendingCount = $pending['count'] ?? 0;
+            
+            if ($pendingCount > 0) {
+                echo "Found $pendingCount pending emails. Processing...\n";
+                processEmailQueue();
+                
+                // Check results
+                $stmt = $db->query("
+                    SELECT status, COUNT(*) as count FROM email_queue 
+                    WHERE status IN ('sent', 'retry', 'failed')
+                    GROUP BY status
+                ");
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                foreach ($results as $row) {
+                    echo "  ✓ {$row['count']} emails {$row['status']}\n";
+                }
+                
+                echo "✅ Email queue processing complete!\n";
+            } else {
+                echo "✓ No pending emails to process\n";
+            }
+        } catch (Exception $e) {
+            error_log("Email queue processing failed: " . $e->getMessage());
+            echo "❌ Email queue processing failed: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+        break;
     
     case 'weekly-report':
         // Only run on Mondays
