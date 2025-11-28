@@ -804,6 +804,22 @@ if (!empty($filterDeliveryStatus)) {
 
 $sql .= " ORDER BY po.created_at DESC";
 
+// Pagination setup
+$page = max(1, (int)($_GET['page'] ?? 1));
+$perPage = 20;
+
+// Get total count for pagination
+$countSql = preg_replace('/SELECT .* FROM/is', 'SELECT COUNT(*) FROM', $sql);
+$countSql = preg_replace('/ORDER BY .*/is', '', $countSql);
+$countStmt = $db->prepare($countSql);
+$countStmt->execute($params);
+$totalOrders = $countStmt->fetchColumn();
+$totalPages = ceil($totalOrders / $perPage);
+
+// Add pagination to query
+$offset = ($page - 1) * $perPage;
+$sql .= " LIMIT $perPage OFFSET $offset";
+
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
