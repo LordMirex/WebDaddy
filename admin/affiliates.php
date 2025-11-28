@@ -743,6 +743,34 @@ require_once __DIR__ . '/includes/header.php';
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Pagination -->
+                <?php if ($totalPages > 1): ?>
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <nav class="flex items-center justify-center gap-2 flex-wrap">
+                        <?php if ($page > 1): ?>
+                        <a href="?page=<?php echo $page - 1; ?><?php echo $filterStatus !== '' ? '&status=' . urlencode($filterStatus) : ''; ?><?php echo $filterCode ? '&code=' . urlencode($filterCode) : ''; ?>" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                        <?php endif; ?>
+                        
+                        <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                        <a href="?page=<?php echo $i; ?><?php echo $filterStatus !== '' ? '&status=' . urlencode($filterStatus) : ''; ?><?php echo $filterCode ? '&code=' . urlencode($filterCode) : ''; ?>" class="px-4 py-2 border rounded-lg font-medium transition-colors <?php echo $i === $page ? 'bg-primary-600 border-primary-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
+                            <?php echo $i; ?>
+                        </a>
+                        <?php endfor; ?>
+                        
+                        <?php if ($page < $totalPages): ?>
+                        <a href="?page=<?php echo $page + 1; ?><?php echo $filterStatus !== '' ? '&status=' . urlencode($filterStatus) : ''; ?><?php echo $filterCode ? '&code=' . urlencode($filterCode) : ''; ?>" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <?php endif; ?>
+                    </nav>
+                    <div class="text-center mt-3 text-sm text-gray-600">
+                        Page <?php echo $page; ?> of <?php echo $totalPages; ?> (<?php echo $totalAffiliates; ?> total affiliates)
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

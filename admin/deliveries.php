@@ -61,7 +61,7 @@ $stmt->execute($params);
 $allDeliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $perPage = 15;
-$page = 1;
+$page = max(1, (int)($_GET['page'] ?? 1));
 $totalDeliveries = count($allDeliveries);
 $totalPages = ceil($totalDeliveries / $perPage);
 $offset = ($page - 1) * $perPage;
