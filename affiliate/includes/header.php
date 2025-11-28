@@ -34,9 +34,9 @@
         }
     </script>
 </head>
-<body class="bg-gray-50" x-data="{ sidebarOpen: false, userMenuOpen: false }">
+<body class="bg-gray-50 overflow-hidden" x-data="{ sidebarOpen: false, userMenuOpen: false }">
     <!-- Top Navigation Bar -->
-    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg sticky top-0 z-40">
+    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg fixed top-0 left-0 right-0 z-40 h-[61px]">
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
                 <!-- Mobile Menu Button & Logo -->
@@ -88,11 +88,11 @@
         </div>
     </nav>
 
-    <div class="flex min-h-screen">
+    <div class="flex h-screen pt-[61px]">
         <!-- Sidebar - Desktop: Always visible, Mobile: Slide-in drawer -->
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] lg:top-0 -translate-x-full">
+            class="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] -translate-x-full overflow-y-auto">
             
             <!-- Close button for mobile -->
             <div class="lg:hidden flex justify-end p-4">
@@ -160,5 +160,5 @@
         </div>
 
         <!-- Main Content Area -->
-        <main class="flex-1 lg:ml-0 overflow-x-hidden">
+        <main class="flex-1 lg:ml-64 overflow-y-auto overflow-x-hidden">
             <div class="p-4 md:p-6 lg:p-8">
