@@ -4,6 +4,20 @@
 WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website templates, premium domains, and digital tools. It features a robust dual payment system (manual bank transfer and Paystack), an affiliate marketing program with a 30% commission, secure encrypted template credential delivery, and comprehensive admin management. The platform is designed for high reliability and data integrity, ensuring seamless operations for both customers and administrators.
 
 ## Current Status
+✅ **CHECKOUT EMAIL IMPROVEMENTS (Nov 28)**
+- Added spam folder warning on automatic payment success page:
+  - Prominent amber-colored notice box below "Payment Successful" message
+  - Instructs customers to check spam/junk folder for emails
+  - Asks customers to mark emails as "Not Spam" for future deliveries
+- Improved tool delivery emails - now sends INDIVIDUAL emails per ready tool:
+  - When ordering multiple tools (e.g., 5 tools), each ready tool gets its own dedicated email
+  - Sent right after the order confirmation email
+  - Each email includes tool name, file count, download links, and bundle option
+  - Shows progress indicator: "Tool 1 of 3", "Tool 2 of 3", etc.
+  - 0.5 second delay between emails to avoid rate limiting
+- Delivery status properly updated after each successful email
+- Email events tracked with product details and email numbering
+
 ✅ **ENTERPRISE-GRADE WEBHOOK CALLBACK SECURITY (Nov 28)**
 - Implemented comprehensive security infrastructure in `includes/security.php`:
   - IP whitelisting for Paystack IPs (configurable via `WEBHOOK_IP_WHITELIST_ENABLED`)
