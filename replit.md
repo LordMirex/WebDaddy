@@ -4,6 +4,16 @@
 WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website templates, premium domains, and digital tools. It features a robust dual payment system (manual bank transfer and Paystack), an affiliate marketing program with a 30% commission, secure encrypted template credential delivery, and comprehensive admin management. The platform is designed for high reliability and data integrity, ensuring seamless operations for both customers and administrators.
 
 ## Current Status
+✅ **AFFILIATE INVITATION EMAIL SYSTEM - FIXED (Nov 28)**
+- Fixed missing affiliate invitation emails for new customers on first purchase:
+  - System was queuing emails but NOT sending them (no background processor)
+  - Added `process-email-queue` command to cron.php for reliable email delivery
+  - Emails now process automatically when cron job runs every 5 minutes
+  - Successfully tested - cron command processes pending emails and marks them sent
+- **Setup Required**: Add cron job on hosting: `php cron.php process-email-queue` (every 5 minutes)
+- New customers now receive affiliate program invitations with 30% commission offer
+- Email queue tracks all invitation sends to prevent duplicates on repeat purchases
+
 ✅ **WEBHOOK TIMING & DASHBOARD FIX (Nov 28)**
 - Fixed critical webhook timing issue where webhooks arrived BEFORE payment records existed:
   - Created new `/api/create-payment-record.php` endpoint
