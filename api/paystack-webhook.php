@@ -114,6 +114,11 @@ function handleSuccessfulPayment($data) {
         // Trigger delivery (outside transaction)
         createDeliveryRecords($payment['pending_order_id']);
         
+        // Send automatic tool delivery email with all tools ready for download
+        error_log("✅ WEBHOOK: Sending tool delivery emails");
+        sendAllToolDeliveryEmailsForOrder($payment['pending_order_id']);
+        error_log("✅ WEBHOOK: Tool delivery emails sent");
+        
         logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);
         
     } catch (Exception $e) {
