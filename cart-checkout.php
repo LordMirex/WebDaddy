@@ -1654,9 +1654,38 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         const paymentData = result.data;
                         console.log('💳 Opening Paystack payment for Order #' + paymentData.order_id);
                         
-                        setTimeout(() => {
+                        setTimeout(async () => {
                             // Generate UNIQUE reference for each attempt (prevents duplicate transaction errors)
                             const uniqueRef = 'ORDER-' + paymentData.order_id + '-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                            
+                            // CRITICAL: Create payment record BEFORE opening Paystack popup
+                            // This allows webhook to find the payment when it arrives
+                            try {
+                                if (msg) msg.textContent = 'Preparing payment...';
+                                const createPaymentResponse = await fetch('/api/create-payment-record.php', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({
+                                        order_id: paymentData.order_id,
+                                        reference: uniqueRef,
+                                        amount: paymentData.amount,
+                                        email: paymentData.customer_email
+                                    })
+                                });
+                                const paymentRecordResult = await createPaymentResponse.json();
+                                console.log('📝 Payment record created:', paymentRecordResult);
+                                
+                                if (paymentRecordResult.already_paid) {
+                                    window.location.href = '/cart-checkout.php?confirmed=' + paymentData.order_id;
+                                    return;
+                                }
+                            } catch (err) {
+                                console.error('Failed to create payment record:', err);
+                                // Continue anyway - webhook handling will still work through order lookup
+                            }
+                            
+                            if (msg) msg.textContent = 'Opening payment form...';
+                            
                             const handler = PaystackPop.setup({
                                 key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
                                 email: paymentData.customer_email,
@@ -1763,72 +1792,99 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
         }
         
         // Paystack Payment Handler (for confirmation page - manual payment page retry)
-        document.getElementById('paystack-payment-btn')?.addEventListener('click', function() {
+        document.getElementById('paystack-payment-btn')?.addEventListener('click', async function() {
             const btn = this;
             btn.disabled = true;
             btn.textContent = '⏳ Processing...';
             
             // Show loading overlay
             const overlay = document.getElementById('payment-processing-overlay');
+            const msg = document.getElementById('payment-processing-message');
             if (overlay) overlay.classList.add('show');
             
             // Generate UNIQUE reference for each retry attempt (prevents duplicate transaction errors)
             const uniqueRef = 'ORDER-<?php echo $confirmationData['order']['id'] ?? 0; ?>-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const orderId = <?php echo $confirmationData['order']['id'] ?? 0; ?>;
+            const amount = <?php echo (int)(($confirmationData['order']['final_amount'] ?? 0) * 100); ?>;
+            const email = '<?php echo htmlspecialchars($confirmationData['order']['customer_email'] ?? ''); ?>';
+            
+            // CRITICAL: Create payment record BEFORE opening Paystack popup
+            try {
+                if (msg) msg.textContent = 'Preparing payment...';
+                const createPaymentResponse = await fetch('/api/create-payment-record.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        reference: uniqueRef,
+                        amount: amount,
+                        email: email
+                    })
+                });
+                const paymentRecordResult = await createPaymentResponse.json();
+                console.log('📝 Payment record created for retry:', paymentRecordResult);
+                
+                if (paymentRecordResult.already_paid) {
+                    window.location.href = '/cart-checkout.php?confirmed=' + orderId;
+                    return;
+                }
+            } catch (err) {
+                console.error('Failed to create payment record:', err);
+            }
+            
+            if (msg) msg.textContent = 'Opening payment form...';
+            
             const handler = PaystackPop.setup({
                 key: '<?php echo PAYSTACK_PUBLIC_KEY; ?>',
-                email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email'] ?? ''); ?>',
-                amount: <?php echo (int)(($confirmationData['order']['final_amount'] ?? 0) * 100); ?>,
+                email: email,
+                amount: amount,
                 currency: 'NGN',
                 ref: uniqueRef,
                 onClose: function() {
                     console.log('Payment cancelled from retry button');
-                    // Mark payment as failed if not already paid
                     fetch('/api/payment-failed.php', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
-                            order_id: <?php echo $confirmationData['order']['id'] ?? 0; ?>,
+                            order_id: orderId,
                             reason: 'Payment cancelled by customer on retry'
                         })
                     })
                     .then(r => r.json())
                     .then(data => {
-                        // Refresh page to show cancelled state
-                        window.location.href = '/cart-checkout.php?confirmed=<?php echo $confirmationData['order']['id'] ?? 0; ?>';
+                        window.location.href = '/cart-checkout.php?confirmed=' + orderId;
                     })
                     .catch(err => {
                         console.error('Error:', err);
                         btn.disabled = false;
-                        btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                        btn.textContent = '💳 Retry Payment';
                         if (overlay) overlay.classList.remove('show');
                     });
                 },
                 callback: function(response) {
-                    // Verify payment on server (CORRECT Paystack callback)
                     fetch('/api/paystack-verify.php', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
                             reference: response.reference,
-                            order_id: <?php echo $confirmationData['order']['id'] ?? 0; ?>,
-                            customer_email: '<?php echo htmlspecialchars($confirmationData['order']['customer_email'] ?? ''); ?>'
+                            order_id: orderId,
+                            customer_email: email
                         })
                     }).then(r => r.json()).then(data => {
                         if (data.success) {
-                            const msg = document.getElementById('payment-processing-message');
                             if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
                             setTimeout(() => {
                                 window.location.href = '/cart-checkout.php?confirmed=' + data.order_id;
                             }, 1000);
                         } else {
                             btn.disabled = false;
-                            btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                            btn.textContent = '💳 Retry Payment';
                             if (overlay) overlay.classList.remove('show');
                             alert('Payment verification failed: ' + (data.message || 'Unknown error'));
                         }
                     }).catch(err => {
                         btn.disabled = false;
-                        btn.textContent = '💳 Pay <?php echo formatCurrency($confirmationData['order']['final_amount'] ?? 0); ?> with Card';
+                        btn.textContent = '💳 Retry Payment';
                         if (overlay) overlay.classList.remove('show');
                         alert('Error: ' + err.message);
                     });

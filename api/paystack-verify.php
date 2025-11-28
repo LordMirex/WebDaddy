@@ -108,6 +108,7 @@ try {
             // PAYMENT SUCCEEDED: Mark order as PAID
             error_log("✅ PAYSTACK VERIFY: Payment succeeded! Marking order as PAID");
             
+            // Update order status
             $stmt = $db->prepare("
                 UPDATE pending_orders 
                 SET status = 'paid', 
@@ -120,7 +121,28 @@ try {
             
             error_log("✅ PAYSTACK VERIFY: Update executed. Affected rows: " . $affectedRows);
             
+            // Update payment record status to completed
+            $amountPaid = isset($verification['data']['amount']) 
+                ? $verification['data']['amount'] / 100 
+                : $order['final_amount'];
+            
+            $stmt = $db->prepare("
+                UPDATE payments 
+                SET status = 'completed',
+                    amount_paid = ?,
+                    payment_verified_at = datetime('now', '+1 hour')
+                WHERE pending_order_id = ? AND status != 'completed'
+            ");
+            $stmt->execute([$amountPaid, $orderId]);
+            
             $db->commit();
+            
+            // Log payment completed event for dashboard tracking
+            logPaymentEvent('payment_completed', 'paystack', 'success', $orderId, null, null, [
+                'reference' => $reference,
+                'amount' => $order['final_amount'],
+                'customer_email' => $order['customer_email']
+            ]);
             
             error_log("✅ PAYSTACK VERIFY: Transaction committed");
             
