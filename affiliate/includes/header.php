@@ -88,11 +88,11 @@
         </div>
     </nav>
 
-    <div class="flex min-h-screen pt-[61px] lg:pt-0">
+    <div class="flex min-h-[100vh] pt-[61px] lg:pt-0">
         <!-- Sidebar - Desktop: Always visible, Mobile: Slide-in drawer -->
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] lg:top-0 -translate-x-full">
+            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] lg:top-auto h-[calc(100vh-61px)] lg:h-auto -translate-x-full overflow-y-auto">
             
             <!-- Close button for mobile -->
             <div class="lg:hidden flex justify-end p-4">
