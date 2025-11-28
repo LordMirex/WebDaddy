@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+a:4:{s:7:"success";b:1;s:4:"html";s:67662:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="templates-category-filter" 
                     style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
@@ -50,7 +50,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦550,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -87,7 +87,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦620,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -124,7 +124,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦480,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -161,7 +161,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦750,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -198,7 +198,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦890,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -235,7 +235,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦8,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,100,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -272,7 +272,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦950,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -309,7 +309,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦680,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -346,7 +346,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦850,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -383,7 +383,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,200,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -420,7 +420,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦980,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -457,7 +457,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,450,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -494,7 +494,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,650,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -531,7 +531,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦8,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,850,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -568,7 +568,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦2,000,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -605,7 +605,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦8,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,350,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -642,7 +642,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,500.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦150,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
@@ -679,7 +679,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:67612:"    <div style="margin-bottom: 12px; 
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,000.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦220,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="/template.php?slug=" 
