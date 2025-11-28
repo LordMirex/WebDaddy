@@ -182,6 +182,46 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- Comprehensive System Logs -->
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-clock-history text-blue-600"></i> All System Logs
+        </h5>
+        <p class="text-sm text-gray-600 mt-1">Complete audit trail of all platform activities</p>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div class="bg-blue-50 rounded-lg p-3 text-center border border-blue-200">
+                <div class="text-2xl font-bold text-blue-900" id="log-activity">0</div>
+                <div class="text-xs text-blue-700 mt-1">Activity</div>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-200">
+                <div class="text-2xl font-bold text-red-900" id="log-security">0</div>
+                <div class="text-xs text-red-700 mt-1">Security</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-200">
+                <div class="text-2xl font-bold text-green-900" id="log-payment">0</div>
+                <div class="text-xs text-green-700 mt-1">Payments</div>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-3 text-center border border-purple-200">
+                <div class="text-2xl font-bold text-purple-900" id="log-email">0</div>
+                <div class="text-xs text-purple-700 mt-1">Emails</div>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-200">
+                <div class="text-2xl font-bold text-amber-900" id="log-commission">0</div>
+                <div class="text-xs text-amber-700 mt-1">Commission</div>
+            </div>
+        </div>
+        
+        <div id="system-logs-container" class="max-h-96 overflow-y-auto border border-gray-200 rounded-lg">
+            <p class="text-gray-500 text-center py-8">
+                <i class="bi bi-hourglass-split animate-spin inline-block mr-2"></i> Loading system logs...
+            </p>
+        </div>
+    </div>
+</div>
+
 <!-- Error Logs -->
 <div class="bg-white rounded-xl shadow-md border border-gray-100">
     <div class="px-6 py-4 border-b border-gray-200">
