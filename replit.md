@@ -4,6 +4,20 @@
 WebDaddy Empire is a production-ready PHP/SQLite marketplace for selling website templates, premium domains, and digital tools. It features a robust dual payment system (manual bank transfer and Paystack), an affiliate marketing program with a 30% commission, secure encrypted template credential delivery, and comprehensive admin management. The platform is designed for high reliability and data integrity, ensuring seamless operations for both customers and administrators.
 
 ## Current Status
+✅ **PRODUCTION DATABASE CLEANUP (Nov 28)**
+- Cleared all test data for fresh production start:
+  - Tools and tool_files: Cleared (all uploaded files removed)
+  - Affiliates and commission data: Cleared
+  - Orders, payments, deliveries: Cleared
+  - All logs and tracking data: Cleared
+- Preserved essential data:
+  - Templates: 40 records
+  - Domains: 140 records
+  - Settings: 7 records
+  - Admin user: Renumbered to ID 1
+- All auto-increment sequences reset to start from 1
+- Storage folders cleaned (bundles, files, images, videos)
+
 ✅ **AFFILIATE INVITATION EMAIL SYSTEM - FIXED (Nov 28)**
 - Fixed missing affiliate invitation emails for new customers on first purchase:
   - System was queuing emails but NOT sending them (no background processor)
