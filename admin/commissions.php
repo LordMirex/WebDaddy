@@ -44,6 +44,17 @@ $pendingWithdrawals = $db->query("
     ORDER BY cw.requested_at DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 
+// Get recent payouts (paid withdrawals)
+$recentPayouts = $db->query("
+    SELECT cw.id, a.code, u.name, u.email, cw.amount, cw.paid_at, cw.requested_at
+    FROM withdrawal_requests cw
+    JOIN affiliates a ON cw.affiliate_id = a.id
+    JOIN users u ON a.user_id = u.id
+    WHERE cw.status = 'paid'
+    ORDER BY cw.paid_at DESC
+    LIMIT 20
+")->fetchAll(PDO::FETCH_ASSOC);
+
 // Get top earning affiliates from sales table
 $topEarners = $db->query("
     SELECT a.id, a.code, u.name, u.email,
@@ -67,6 +78,7 @@ $report = [
         'total_pending' => $totalPending
     ],
     'pending_withdrawals' => $pendingWithdrawals,
+    'recent_payouts' => $recentPayouts,
     'top_earners' => $topEarners
 ];
 
@@ -228,8 +240,8 @@ require_once __DIR__ . '/includes/header.php';
                 <?php foreach ($report['recent_payouts'] as $payout): ?>
                 <tr class="border-b border-gray-200 hover:bg-gray-50">
                     <td class="px-6 py-4 text-sm font-medium text-gray-900"><?php echo htmlspecialchars($payout['code']); ?></td>
-                    <td class="px-6 py-4 text-sm text-right text-gray-900 font-semibold">₦<?php echo number_format($payout['amount_requested'], 2); ?></td>
-                    <td class="px-6 py-4 text-sm text-gray-600"><?php echo date('M d, Y H:i', strtotime($payout['processed_at'])); ?></td>
+                    <td class="px-6 py-4 text-sm text-right text-gray-900 font-semibold">₦<?php echo number_format($payout['amount'], 2); ?></td>
+                    <td class="px-6 py-4 text-sm text-gray-600"><?php echo $payout['paid_at'] ? date('M d, Y H:i', strtotime($payout['paid_at'])) : date('M d, Y H:i', strtotime($payout['requested_at'])); ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
