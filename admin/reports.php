@@ -111,6 +111,9 @@ $query = "
 ";
 $salesByDay = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
 
+// Payment reconciliation data
+$reconciliation = getPaymentReconciliation($db);
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -612,5 +615,107 @@ new Chart(ctx, {
     }
 });
 </script>
+
+<!-- Payment Reconciliation Section -->
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mt-6">
+    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+            <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-check2-all text-primary-600"></i> Payment Reconciliation
+            </h5>
+            <p class="text-sm text-gray-600">Compare payments with sales records to detect discrepancies</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold 
+            <?php echo $reconciliation['status'] === 'ok' ? 'bg-green-100 text-green-800' : 
+                ($reconciliation['status'] === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'); ?>">
+            <?php echo strtoupper($reconciliation['status']); ?>
+        </span>
+    </div>
+    
+    <div class="p-6">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h6 class="text-xs font-semibold text-blue-600 uppercase mb-1">Payments Completed</h6>
+                <div class="text-xl font-bold text-blue-900"><?php echo number_format($reconciliation['summary']['payments_completed']['count']); ?></div>
+                <div class="text-sm text-blue-700"><?php echo formatCurrency($reconciliation['summary']['payments_completed']['total']); ?></div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h6 class="text-xs font-semibold text-green-600 uppercase mb-1">Sales Recorded</h6>
+                <div class="text-xl font-bold text-green-900"><?php echo number_format($reconciliation['summary']['sales_recorded']['count']); ?></div>
+                <div class="text-sm text-green-700"><?php echo formatCurrency($reconciliation['summary']['sales_recorded']['total']); ?></div>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                <h6 class="text-xs font-semibold text-purple-600 uppercase mb-1">Orders Paid</h6>
+                <div class="text-xl font-bold text-purple-900"><?php echo number_format($reconciliation['summary']['orders_paid']['count']); ?></div>
+                <div class="text-sm text-purple-700"><?php echo formatCurrency($reconciliation['summary']['orders_paid']['total']); ?></div>
+            </div>
+            <div class="<?php echo $reconciliation['summary']['difference'] > 0 ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'; ?> rounded-lg p-4 border">
+                <h6 class="text-xs font-semibold <?php echo $reconciliation['summary']['difference'] > 0 ? 'text-red-600' : 'text-gray-600'; ?> uppercase mb-1">Difference</h6>
+                <div class="text-xl font-bold <?php echo $reconciliation['summary']['difference'] > 0 ? 'text-red-900' : 'text-gray-900'; ?>"><?php echo formatCurrency($reconciliation['summary']['difference']); ?></div>
+                <div class="text-sm <?php echo $reconciliation['summary']['difference'] > 0 ? 'text-red-700' : 'text-gray-700'; ?>">Payment vs Sales</div>
+            </div>
+        </div>
+        
+        <!-- Issues Section -->
+        <?php if (!empty($reconciliation['issues'])): ?>
+        <div class="space-y-4">
+            <h6 class="font-bold text-gray-700">Detected Issues</h6>
+            <?php foreach ($reconciliation['issues'] as $issue): ?>
+            <div class="p-4 rounded-lg border-l-4 
+                <?php echo $issue['severity'] === 'error' ? 'bg-red-50 border-red-500' : 
+                    ($issue['severity'] === 'warning' ? 'bg-yellow-50 border-yellow-500' : 'bg-blue-50 border-blue-500'); ?>">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="bi <?php echo $issue['severity'] === 'error' ? 'bi-x-circle-fill text-red-600' : 
+                        ($issue['severity'] === 'warning' ? 'bi-exclamation-triangle-fill text-yellow-600' : 'bi-info-circle-fill text-blue-600'); ?>"></i>
+                    <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($issue['message']); ?></span>
+                </div>
+                <?php if (!empty($issue['items']) && count($issue['items']) <= 5): ?>
+                <div class="mt-2 text-sm text-gray-600">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="text-left text-gray-500">
+                                <th class="py-1">ID</th>
+                                <th class="py-1">Order ID</th>
+                                <th class="py-1">Amount</th>
+                                <th class="py-1">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach (array_slice($issue['items'], 0, 5) as $item): ?>
+                            <tr class="border-t border-gray-200">
+                                <td class="py-1"><?php echo $item['id'] ?? '-'; ?></td>
+                                <td class="py-1"><?php echo $item['pending_order_id'] ?? '-'; ?></td>
+                                <td class="py-1">
+                                    <?php 
+                                    if (isset($item['difference'])) {
+                                        echo formatCurrency($item['payment_amount']) . ' vs ' . formatCurrency($item['sale_amount']);
+                                    } else {
+                                        echo formatCurrency($item['amount_paid'] ?? 0);
+                                    }
+                                    ?>
+                                </td>
+                                <td class="py-1"><?php echo substr($item['created_at'] ?? '', 0, 10); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php elseif (!empty($issue['items'])): ?>
+                <div class="mt-2 text-sm text-gray-600">
+                    Showing first 5 of <?php echo count($issue['items']); ?> items. Check database for full list.
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+            <i class="bi bi-check-circle-fill text-green-600 text-2xl"></i>
+            <p class="text-green-700 font-semibold mt-2"><?php echo $reconciliation['message'] ?? 'All payments are properly reconciled'; ?></p>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

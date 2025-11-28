@@ -306,3 +306,176 @@ function buildDateFilter($period, $startDate = '', $endDate = '') {
     
     return ['filter' => $filter, 'params' => $params];
 }
+
+/**
+ * Get payment reconciliation report
+ * Compares payments table with sales table to identify discrepancies
+ * 
+ * @param PDO $db Database connection
+ * @return array Reconciliation report data
+ */
+function getPaymentReconciliation($db) {
+    $report = [
+        'status' => 'ok',
+        'issues' => [],
+        'summary' => []
+    ];
+    
+    // 1. Get total from payments table (completed payments)
+    $stmt = $db->query("
+        SELECT 
+            COUNT(*) as count,
+            COALESCE(SUM(amount_paid), 0) as total
+        FROM payments 
+        WHERE status = 'completed'
+    ");
+    $paymentsTotal = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // 2. Get total from sales table
+    $stmt = $db->query("
+        SELECT 
+            COUNT(*) as count,
+            COALESCE(SUM(amount_paid), 0) as total
+        FROM sales
+    ");
+    $salesTotal = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // 3. Get total from pending_orders (paid orders)
+    $stmt = $db->query("
+        SELECT 
+            COUNT(*) as count,
+            COALESCE(SUM(final_amount), 0) as total
+        FROM pending_orders 
+        WHERE status = 'paid'
+    ");
+    $ordersTotal = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // 4. Find payments without sales records
+    $stmt = $db->query("
+        SELECT p.id, p.pending_order_id, p.amount_paid, p.paystack_reference, p.created_at
+        FROM payments p
+        LEFT JOIN sales s ON s.pending_order_id = p.pending_order_id
+        WHERE p.status = 'completed' AND s.id IS NULL
+        LIMIT 20
+    ");
+    $paymentsWithoutSales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // 5. Find sales without payments
+    $stmt = $db->query("
+        SELECT s.id, s.pending_order_id, s.amount_paid, s.created_at
+        FROM sales s
+        LEFT JOIN payments p ON p.pending_order_id = s.pending_order_id
+        WHERE p.id IS NULL
+        LIMIT 20
+    ");
+    $salesWithoutPayments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // 6. Find amount mismatches
+    $stmt = $db->query("
+        SELECT 
+            p.id as payment_id,
+            s.id as sale_id,
+            p.pending_order_id,
+            p.amount_paid as payment_amount,
+            s.amount_paid as sale_amount,
+            ABS(p.amount_paid - s.amount_paid) as difference
+        FROM payments p
+        JOIN sales s ON s.pending_order_id = p.pending_order_id
+        WHERE p.status = 'completed' 
+        AND ABS(p.amount_paid - s.amount_paid) > 0.01
+        LIMIT 20
+    ");
+    $amountMismatches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Build summary
+    $report['summary'] = [
+        'payments_completed' => [
+            'count' => (int)$paymentsTotal['count'],
+            'total' => (float)$paymentsTotal['total']
+        ],
+        'sales_recorded' => [
+            'count' => (int)$salesTotal['count'],
+            'total' => (float)$salesTotal['total']
+        ],
+        'orders_paid' => [
+            'count' => (int)$ordersTotal['count'],
+            'total' => (float)$ordersTotal['total']
+        ],
+        'difference' => abs($paymentsTotal['total'] - $salesTotal['total'])
+    ];
+    
+    // Identify issues
+    if (count($paymentsWithoutSales) > 0) {
+        $report['issues'][] = [
+            'type' => 'payments_without_sales',
+            'severity' => 'warning',
+            'message' => count($paymentsWithoutSales) . ' completed payment(s) have no corresponding sales record',
+            'items' => $paymentsWithoutSales
+        ];
+        $report['status'] = 'warning';
+    }
+    
+    if (count($salesWithoutPayments) > 0) {
+        $report['issues'][] = [
+            'type' => 'sales_without_payments',
+            'severity' => 'info',
+            'message' => count($salesWithoutPayments) . ' sales record(s) have no matching payment (may be manual orders)',
+            'items' => $salesWithoutPayments
+        ];
+    }
+    
+    if (count($amountMismatches) > 0) {
+        $report['issues'][] = [
+            'type' => 'amount_mismatch',
+            'severity' => 'error',
+            'message' => count($amountMismatches) . ' record(s) have payment/sales amount mismatches',
+            'items' => $amountMismatches
+        ];
+        $report['status'] = 'error';
+    }
+    
+    if (empty($report['issues'])) {
+        $report['status'] = 'ok';
+        $report['message'] = 'All payments are properly reconciled with sales records';
+    }
+    
+    return $report;
+}
+
+/**
+ * Get webhook delivery statistics
+ * 
+ * @param PDO $db Database connection
+ * @return array Webhook statistics
+ */
+function getWebhookStats($db) {
+    // Total webhooks received
+    $stmt = $db->query("
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as successful,
+            SUM(CASE WHEN status = 'failed' OR status = 'error' THEN 1 ELSE 0 END) as failed
+        FROM payment_logs
+        WHERE event_type = 'webhook_received' 
+        AND created_at >= datetime('now', '-7 days', '+1 hour')
+    ");
+    $webhookStats = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Recent webhook events
+    $stmt = $db->query("
+        SELECT event_type, status, created_at, 
+               pending_order_id, response_data
+        FROM payment_logs
+        WHERE event_type LIKE 'webhook%' OR event_type LIKE 'payment%'
+        ORDER BY created_at DESC
+        LIMIT 10
+    ");
+    $recentEvents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    return [
+        'total_webhooks' => (int)($webhookStats['total'] ?? 0),
+        'successful' => (int)($webhookStats['successful'] ?? 0),
+        'failed' => (int)($webhookStats['failed'] ?? 0),
+        'recent_events' => $recentEvents
+    ];
+}

@@ -100,6 +100,11 @@ define('TEMP_FILE_LIFETIME', 86400);
 define('SESSION_LIFETIME', 3600);
 define('DISPLAY_ERRORS', false);
 
+// Webhook Security Settings
+define('DISABLE_IP_WHITELIST', true);  // Set to false in production to enable IP whitelisting
+define('WEBHOOK_RATE_LIMIT', 100);     // Max webhook requests per minute per IP
+define('FAILED_WEBHOOK_ALERT_THRESHOLD', 5); // Send alert after this many failures
+
 // Payment Settings
 define('PAYMENT_CURRENCY', 'NGN');
 define('DOWNLOAD_LINK_EXPIRY_DAYS', 30);

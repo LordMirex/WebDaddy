@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/security.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -52,6 +53,42 @@ require_once __DIR__ . '/includes/header.php';
         <h6 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Database Status</h6>
         <div id="db-status" class="text-lg font-bold text-gray-600 animate-pulse">-</div>
         <p id="db-indicator" class="text-xs text-gray-500 mt-2">-</p>
+    </div>
+</div>
+
+<!-- Webhook Security Dashboard -->
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h5 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-shield-lock-fill text-green-600"></i> Webhook Security Dashboard
+        </h5>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h6 class="text-xs font-semibold text-blue-600 uppercase mb-1">Today's Webhooks</h6>
+                <div id="webhook-count" class="text-2xl font-bold text-blue-900">-</div>
+            </div>
+            <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+                <h6 class="text-xs font-semibold text-red-600 uppercase mb-1">Blocked Requests</h6>
+                <div id="blocked-count" class="text-2xl font-bold text-red-900">-</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h6 class="text-xs font-semibold text-green-600 uppercase mb-1">Successful Payments</h6>
+                <div id="success-payments" class="text-2xl font-bold text-green-900">-</div>
+            </div>
+            <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                <h6 class="text-xs font-semibold text-yellow-600 uppercase mb-1">Failed Payments</h6>
+                <div id="failed-payments" class="text-2xl font-bold text-yellow-900">-</div>
+            </div>
+        </div>
+        
+        <h6 class="font-bold text-gray-700 mb-3">Recent Security Events</h6>
+        <div id="security-events" class="max-h-64 overflow-y-auto">
+            <p class="text-gray-500 text-center py-4">
+                <i class="bi bi-hourglass-split animate-spin inline-block mr-2"></i> Loading...
+            </p>
+        </div>
     </div>
 </div>
 
@@ -305,9 +342,54 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
+// Load webhook security stats
+async function loadWebhookSecurityStats() {
+    try {
+        const res = await fetch('/api/monitoring.php?action=webhook_security', { signal: AbortSignal.timeout(5000) });
+        const data = await res.json();
+        
+        if (data.success) {
+            document.getElementById('webhook-count').textContent = data.today_webhooks || 0;
+            document.getElementById('blocked-count').textContent = data.blocked_today || 0;
+            document.getElementById('success-payments').textContent = data.successful_payments || 0;
+            document.getElementById('failed-payments').textContent = data.failed_payments || 0;
+            
+            // Update security events
+            const container = document.getElementById('security-events');
+            const events = data.recent_events || [];
+            
+            if (events.length === 0) {
+                container.innerHTML = '<p class="text-center text-green-600 py-4"><i class="bi bi-shield-check"></i> No security incidents - system secure!</p>';
+            } else {
+                let html = '<div class="space-y-2">';
+                events.forEach(event => {
+                    const isBlocked = event.event_type.includes('blocked') || event.event_type.includes('invalid') || event.event_type.includes('exceeded');
+                    const bgClass = isBlocked ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200';
+                    const iconClass = isBlocked ? 'text-red-600 bi-shield-x' : 'text-blue-600 bi-info-circle';
+                    html += `<div class="flex items-start gap-3 p-3 rounded-lg border ${bgClass}">
+                        <i class="bi ${iconClass} mt-0.5"></i>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm text-gray-900">${escapeHtml(event.event_type.replace(/_/g, ' ').toUpperCase())}</div>
+                            <div class="text-xs text-gray-600">IP: ${escapeHtml(event.ip_address || 'Unknown')}</div>
+                            ${event.details ? `<div class="text-xs text-gray-500 mt-1">${escapeHtml(event.details)}</div>` : ''}
+                            <div class="text-xs text-gray-400 mt-1">${escapeHtml(event.created_at || '')}</div>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load webhook security stats:', error);
+    }
+}
+
 // Load on page load
 loadMonitoringData();
+loadWebhookSecurityStats();
 
 // Auto-refresh every 30 seconds
 setInterval(loadMonitoringData, 30000);
+setInterval(loadWebhookSecurityStats, 30000);
 </script>

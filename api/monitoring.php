@@ -10,6 +10,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/access_log.php';
+require_once __DIR__ . '/../includes/security.php';
 
 $startTime = microtime(true);
 $action = $_GET['action'] ?? 'health';
@@ -205,6 +206,20 @@ try {
                 'total_cache_size' => round($totalSize / 1024, 2) . 'KB',
                 'cache_directory' => $cacheDir,
                 'writable' => is_writable($cacheDir)
+            ]);
+            break;
+        
+        case 'webhook_security':
+            // Get webhook security statistics
+            $stats = getWebhookSecurityStats();
+            
+            echo json_encode([
+                'success' => true,
+                'today_webhooks' => $stats['today_webhooks'],
+                'blocked_today' => $stats['blocked_today'],
+                'successful_payments' => $stats['successful_payments'],
+                'failed_payments' => $stats['failed_payments'],
+                'recent_events' => $stats['recent_events']
             ]);
             break;
             

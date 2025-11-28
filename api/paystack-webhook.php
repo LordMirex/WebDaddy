@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/paystack.php';
 require_once __DIR__ . '/../includes/delivery.php';
+require_once __DIR__ . '/../includes/security.php';
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -13,12 +14,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Get raw POST body
 $input = @file_get_contents("php://input");
 
-// Verify Paystack signature
+// Get signature from header
 $signature = $_SERVER['HTTP_X_PAYSTACK_SIGNATURE'] ?? '';
 
-if ($signature !== hash_hmac('sha512', $input, PAYSTACK_SECRET_KEY)) {
+// SECURITY: Perform all security checks (IP whitelist, rate limit, signature)
+$securityCheck = performWebhookSecurityCheck($input, $signature);
+
+if (!$securityCheck['passed']) {
     http_response_code(401);
-    exit('Invalid signature');
+    logPaymentEvent('webhook_security_failed', 'paystack', 'blocked', null, null, null, [
+        'reason' => $securityCheck['reason'],
+        'ip' => getClientIP()
+    ]);
+    sendWebhookFailureAlert($securityCheck['reason']);
+    exit('Security check failed: ' . $securityCheck['reason']);
 }
 
 // Parse webhook data
@@ -124,6 +133,7 @@ function handleSuccessfulPayment($data) {
     } catch (Exception $e) {
         $db->rollBack();
         logPaymentEvent('payment_processing_failed', 'paystack', 'error', $payment['pending_order_id'], $payment['id'], null, ['error' => $e->getMessage(), 'data' => $data]);
+        sendWebhookFailureAlert('Payment processing failed: ' . $e->getMessage(), $data);
     }
 }
 

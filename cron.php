@@ -22,12 +22,14 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/report_generator.php';
 require_once __DIR__ . '/includes/mailer.php';
+require_once __DIR__ . '/includes/delivery.php';
+require_once __DIR__ . '/includes/security.php';
 
 $command = $argv[1] ?? '';
 
 if (empty($command)) {
     echo "Usage: php cron.php [command]\n";
-    echo "Commands: weekly-report, optimize\n";
+    echo "Commands: weekly-report, optimize, process-retries, cleanup-security\n";
     exit(1);
 }
 
@@ -140,6 +142,49 @@ HTML;
             
         } catch (PDOException $e) {
             echo "❌ Optimization failed: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+        break;
+    
+    case 'process-retries':
+        // Process failed delivery retries
+        echo "🔄 Processing delivery retries...\n";
+        
+        try {
+            $result = processDeliveryRetries();
+            echo "✅ Processed {$result['processed']} delivery retries\n";
+            if ($result['successful'] > 0) {
+                echo "   - Successful: {$result['successful']}\n";
+            }
+            if ($result['failed'] > 0) {
+                echo "   - Failed (will retry later): {$result['failed']}\n";
+            }
+        } catch (Exception $e) {
+            echo "❌ Retry processing failed: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+        break;
+    
+    case 'cleanup-security':
+        // Cleanup old security logs and rate limit entries
+        echo "🧹 Cleaning up security logs...\n";
+        
+        try {
+            // Clean rate limits older than 1 hour
+            $stmt = $db->prepare("DELETE FROM webhook_rate_limits WHERE request_time < ?");
+            $stmt->execute([time() - 3600]);
+            $rateDeleted = $stmt->rowCount();
+            
+            // Clean security logs older than 30 days
+            $stmt = $db->query("DELETE FROM security_logs WHERE created_at < datetime('now', '-30 days', '+1 hour')");
+            $logsDeleted = $stmt->rowCount();
+            
+            echo "✅ Cleanup complete:\n";
+            echo "   - Rate limit entries removed: $rateDeleted\n";
+            echo "   - Old security logs removed: $logsDeleted\n";
+            
+        } catch (Exception $e) {
+            echo "❌ Cleanup failed: " . $e->getMessage() . "\n";
             exit(1);
         }
         break;
