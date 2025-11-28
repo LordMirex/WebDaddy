@@ -172,12 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (is_dir($backupDir)) {
                 $backups = glob($backupDir . '/webdaddy_backup_*.db');
                 if (count($backups) > 5) {
-                    // Sort by modification time, oldest first
                     usort($backups, function($a, $b) {
                         return filemtime($a) - filemtime($b);
                     });
                     
-                    // Keep only the 5 most recent backups
                     $toDelete = array_slice($backups, 0, count($backups) - 5);
                     foreach ($toDelete as $file) {
                         if (unlink($file)) {
@@ -191,6 +189,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             logActivity('database_backup_cleanup', "Cleaned up {$deleted} old backups", getAdminId());
         } catch (Exception $e) {
             $errorMessage = "Backup cleanup failed: " . $e->getMessage();
+        }
+    }
+    
+    elseif ($action === 'cron_process_email_queue') {
+        require_once __DIR__ . '/../includes/email_queue.php';
+        try {
+            $stmt = $db->query("SELECT COUNT(*) as count FROM email_queue WHERE status = 'pending' AND attempts < 5");
+            $pending = $stmt->fetch(PDO::FETCH_ASSOC);
+            $pendingCount = $pending['count'] ?? 0;
+            
+            if ($pendingCount > 0) {
+                processEmailQueue();
+                $stmt = $db->query("SELECT status, COUNT(*) as count FROM email_queue GROUP BY status");
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $summary = [];
+                foreach ($results as $row) {
+                    $summary[] = "{$row['count']} {$row['status']}";
+                }
+                $successMessage = "Email queue processed! Found {$pendingCount} pending. Results: " . implode(', ', $summary);
+            } else {
+                $successMessage = "No pending emails to process.";
+            }
+            logActivity('cron_email_queue', "Processed email queue", getAdminId());
+        } catch (Exception $e) {
+            $errorMessage = "Email queue processing failed: " . $e->getMessage();
+        }
+    }
+    
+    elseif ($action === 'cron_process_retries') {
+        require_once __DIR__ . '/../includes/delivery.php';
+        try {
+            $result = processDeliveryRetries();
+            $successMessage = "Delivery retries processed! Processed: {$result['processed']}, Successful: {$result['successful']}, Failed: {$result['failed']}";
+            logActivity('cron_process_retries', "Processed {$result['processed']} delivery retries", getAdminId());
+        } catch (Exception $e) {
+            $errorMessage = "Delivery retry processing failed: " . $e->getMessage();
+        }
+    }
+    
+    elseif ($action === 'cron_cleanup_security') {
+        try {
+            $stmt = $db->prepare("DELETE FROM webhook_rate_limits WHERE request_time < ?");
+            $stmt->execute([time() - 3600]);
+            $rateDeleted = $stmt->rowCount();
+            
+            $stmt = $db->query("DELETE FROM security_logs WHERE created_at < datetime('now', '-30 days', '+1 hour')");
+            $logsDeleted = $stmt->rowCount();
+            
+            $successMessage = "Security cleanup complete! Rate limits removed: {$rateDeleted}, Old security logs removed: {$logsDeleted}";
+            logActivity('cron_cleanup_security', "Cleaned rate limits: {$rateDeleted}, logs: {$logsDeleted}", getAdminId());
+        } catch (Exception $e) {
+            $errorMessage = "Security cleanup failed: " . $e->getMessage();
+        }
+    }
+    
+    elseif ($action === 'cron_weekly_report') {
+        require_once __DIR__ . '/../includes/report_generator.php';
+        require_once __DIR__ . '/../mailer/PHPMailer.php';
+        require_once __DIR__ . '/../mailer/SMTP.php';
+        require_once __DIR__ . '/../mailer/Exception.php';
+        
+        try {
+            $report = ReportGenerator::generateWeeklyReport($db);
+            
+            if (isset($report['error'])) {
+                throw new Exception($report['error']);
+            }
+            
+            $zipPath = ReportGenerator::createReportZip($report, $dbPath);
+            
+            $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
+            $subject = "WebDaddy Empire - Weekly Report " . date('Y-m-d');
+            
+            $mailContent = "<h2>Weekly Report Summary</h2>
+                <p><strong>Period:</strong> {$report['period']}</p>
+                <h3>Financial</h3>
+                <ul>
+                    <li><strong>This Week's Profit:</strong> NGN {$report['profit_this_week']}</li>
+                    <li><strong>All-Time Profit:</strong> NGN {$report['profit_all_time']}</li>
+                </ul>
+                <h3>Traffic</h3>
+                <ul>
+                    <li><strong>Template Views (Week):</strong> {$report['template_views_week']}</li>
+                    <li><strong>Tool Views (Week):</strong> {$report['tool_views_week']}</li>
+                    <li><strong>Orders (Week):</strong> {$report['orders_this_week']}</li>
+                </ul>
+                <p><strong>Attached:</strong> Detailed report (HTML) + Database backup</p>";
+            
+            $emailBody = createEmailTemplate($subject, $mailContent, 'Admin');
+            
+            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = SMTP_HOST;
+            $mail->SMTPAuth = true;
+            $mail->Username = SMTP_USER;
+            $mail->Password = SMTP_PASS;
+            $mail->Port = SMTP_PORT;
+            $mail->SMTPSecure = SMTP_SECURE;
+            $mail->CharSet = 'UTF-8';
+            $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+            $mail->addAddress($adminEmail);
+            $mail->addAttachment($zipPath, 'WebDaddy_Report_' . date('Y-m-d') . '.zip');
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $emailBody;
+            $mail->send();
+            
+            unlink($zipPath);
+            
+            $successMessage = "Weekly report generated and sent to {$adminEmail}!";
+            logActivity('cron_weekly_report', "Generated and sent weekly report", getAdminId());
+        } catch (Exception $e) {
+            $errorMessage = "Weekly report generation failed: " . $e->getMessage();
         }
     }
 }
@@ -412,38 +523,61 @@ require_once __DIR__ . '/includes/header.php';
                 </button>
             </form>
             
-            <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-lg text-sm">
-                <div class="font-semibold mb-3 flex items-center gap-2">
-                    <i class="bi bi-info-circle"></i> Automated Weekly Analytics Report (cPanel Cron Jobs)
-                </div>
-                <div class="text-xs space-y-4">
-                    <div class="bg-blue-100 p-2 rounded text-xs text-blue-800 mb-2">
-                        <strong>✅ cPanel Username:</strong> <code>cbvemlot</code> | <strong>📧 Reports to:</strong> <code><?php echo defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com'; ?></code>
-                    </div>
-                    
-                    <div>
-                        <p class="font-semibold mb-2 text-blue-900">1️⃣ Weekly Analytics Report (Every Monday 3 AM)</p>
-                        <p class="mb-2 text-blue-800">Generates analytics + database backup, creates ZIP file, sends via email</p>
-                        <div class="bg-white p-3 rounded border-2 border-blue-300 font-mono text-blue-900 overflow-x-auto text-xs leading-relaxed" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('✅ Copied! Paste in cPanel → Cron Jobs');" style="cursor:pointer; background: #f0f9ff;" title="Click to copy">0 3 * * 1 cd /home/cbvemlot/public_html && php cron.php weekly-report</div>
-                        <p class="mt-2 text-blue-600"><i class="bi bi-mouse"></i> <strong>Click to copy</strong>, then paste in cPanel → Cron Jobs</p>
-                    </div>
-                    
-                    <div style="border-top: 1px solid #bfdbfe; padding-top: 12px;">
-                        <p class="font-semibold mb-2 text-blue-900">2️⃣ Database Optimization (Every Sunday 2 AM)</p>
-                        <p class="mb-2 text-blue-800">Cleans database: VACUUM removes deleted data, ANALYZE optimizes queries, OPTIMIZE rebuilds indexes</p>
-                        <div class="bg-white p-3 rounded border-2 border-blue-300 font-mono text-blue-900 overflow-x-auto text-xs leading-relaxed" onclick="navigator.clipboard.writeText(this.textContent.trim()); alert('✅ Copied! Paste in cPanel → Cron Jobs');" style="cursor:pointer; background: #f0f9ff;" title="Click to copy">0 2 * * 0 cd /home/cbvemlot/public_html && php cron.php optimize</div>
-                        <p class="mt-2 text-blue-600"><i class="bi bi-mouse"></i> <strong>Click to copy</strong>, then paste in cPanel → Cron Jobs</p>
-                    </div>
-                    
-                    <div class="bg-green-50 border-l-4 border-green-500 p-3 rounded mt-3">
-                        <p class="text-green-800 font-semibold mb-1">✅ System Status</p>
-                        <p class="text-green-700 text-xs">Cron system: <strong>ACTIVE</strong> | Email: <strong>CONFIGURED</strong> | Database: <strong>OPTIMIZED</strong></p>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-gear-wide-connected text-teal-600"></i> System Tasks (Run Manually)
+            </h5>
+            <p class="text-sm text-gray-500 mt-1">Execute cron jobs directly from here instead of command line</p>
+        </div>
+        <div class="p-6 space-y-3">
+            <form method="POST">
+                <button type="submit" name="action" value="cron_process_email_queue" class="w-full flex items-center justify-between px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="bi bi-envelope-arrow-up"></i> Process Email Queue
+                    </span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+            
+            <form method="POST">
+                <button type="submit" name="action" value="cron_process_retries" class="w-full flex items-center justify-between px-4 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="bi bi-arrow-repeat"></i> Process Delivery Retries
+                    </span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+            
+            <form method="POST">
+                <button type="submit" name="action" value="cron_cleanup_security" class="w-full flex items-center justify-between px-4 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="bi bi-shield-check"></i> Cleanup Security Logs
+                    </span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+            
+            <form method="POST" onsubmit="return confirm('Generate weekly report and send to admin email?');">
+                <button type="submit" name="action" value="cron_weekly_report" class="w-full flex items-center justify-between px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors">
+                    <span class="flex items-center gap-2">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Weekly Report
+                    </span>
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </form>
+            
+            <div class="bg-teal-50 border-l-4 border-teal-500 text-teal-800 p-3 rounded-lg text-sm">
+                <i class="bi bi-info-circle"></i> These tasks can be run anytime. No CLI/cPanel cron jobs needed.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
     <div class="bg-white rounded-xl shadow-md border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -472,7 +606,43 @@ require_once __DIR__ . '/includes/header.php';
             <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-3 rounded-lg text-sm">
                 <i class="bi bi-exclamation-triangle"></i> Cleanup actions are permanent and cannot be undone.
             </div>
-            
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md border border-gray-100">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-info-circle text-blue-600"></i> System Info
+            </h5>
+        </div>
+        <div class="p-6">
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Admin Email:</span>
+                    <span class="font-medium"><?php echo defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'Not set'; ?></span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Email Queue:</span>
+                    <span class="font-medium"><?php 
+                        $pendingEmails = $db->query("SELECT COUNT(*) FROM email_queue WHERE status = 'pending'")->fetchColumn();
+                        echo $pendingEmails . ' pending';
+                    ?></span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Pending Deliveries:</span>
+                    <span class="font-medium"><?php 
+                        $pendingDeliveries = $db->query("SELECT COUNT(*) FROM deliveries WHERE status = 'pending'")->fetchColumn();
+                        echo $pendingDeliveries . ' pending';
+                    ?></span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-gray-600">Security Logs:</span>
+                    <span class="font-medium"><?php 
+                        $securityLogs = $db->query("SELECT COUNT(*) FROM security_logs")->fetchColumn();
+                        echo $securityLogs . ' entries';
+                    ?></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
