@@ -22,21 +22,17 @@ args = "Server"
 name = "Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "php -d post_max_size=2100M -d upload_max_filesize=2048M -d memory_limit=512M -d max_execution_time=3600 -S 0.0.0.0:5000 router.php"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php -S 0.0.0.0:5000 router.php"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 33027
-externalPort = 5000
 
 [[ports]]
 localPort = 33493
@@ -53,6 +49,10 @@ externalPort = 8008
 [[ports]]
 localPort = 34927
 externalPort = 6800
+
+[[ports]]
+localPort = 36589
+externalPort = 5000
 
 [[ports]]
 localPort = 38915
