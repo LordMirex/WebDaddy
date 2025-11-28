@@ -1490,14 +1490,15 @@ function getDeliveryTimeline($orderId) {
 }
 
 /**
- * Send ALL tool delivery emails immediately after tools become available
+ * Send INDIVIDUAL tool delivery emails for each ready tool
  * Called automatically after createDeliveryRecords() when payment is confirmed
- * CRITICAL: This sends a single comprehensive email with all tools ready for download
+ * UPDATED: Sends separate emails for each ready tool instead of one combined email
+ * This ensures customers receive dedicated emails per tool that is ready for download
  */
 function sendAllToolDeliveryEmailsForOrder($orderId) {
     $db = getDb();
     
-    error_log("📧 SENDING TOOL DELIVERY EMAILS: Starting for Order #$orderId");
+    error_log("📧 SENDING INDIVIDUAL TOOL DELIVERY EMAILS: Starting for Order #$orderId");
     
     try {
         // Get order and customer info
@@ -1510,7 +1511,7 @@ function sendAllToolDeliveryEmailsForOrder($orderId) {
             return false;
         }
         
-        // Get ALL tool deliveries for this order
+        // Get ALL tool deliveries for this order that have files ready
         $toolsStmt = $db->prepare("
             SELECT d.id, d.product_id, d.product_name, d.delivery_link, d.delivery_note
             FROM deliveries d
@@ -1524,122 +1525,178 @@ function sendAllToolDeliveryEmailsForOrder($orderId) {
             return false;
         }
         
-        error_log("📧 TOOL DELIVERY EMAIL: Found " . count($toolDeliveries) . " tools ready for Order #$orderId");
-        
-        // Build comprehensive email with ALL tools
-        $subject = "🎉 Your Tools are Ready to Download - Order #" . $orderId;
-        
-        $body = '<div style="text-align: center; margin-bottom: 25px;">';
-        $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Your Tools are Ready!</h2>';
-        $body .= '<p style="color: #666; margin-top: 10px;">Order #' . $orderId . '</p>';
-        $body .= '</div>';
-        
-        $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
-        $body .= '<h3 style="margin: 0 0 10px 0;">✅ All ' . count($toolDeliveries) . ' Tool(s) Ready for Download</h3>';
-        $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Click the links below to download your tools instantly</p>';
-        $body .= '</div>';
-        
-        // List all tools with their files
-        $body .= '<div style="background-color: #f8fafc; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
-        $body .= '<h4 style="color: #1e3a8a; margin: 0 0 20px 0;">📦 Your Tools</h4>';
-        
-        $totalSize = 0;
-        $totalFiles = 0;
-        
+        // Filter to only tools that actually have download links (files are ready)
+        $readyTools = [];
         foreach ($toolDeliveries as $toolDelivery) {
             $downloadLinks = json_decode($toolDelivery['delivery_link'], true) ?? [];
-            
             if (!empty($downloadLinks)) {
-                $toolSize = 0;
-                foreach ($downloadLinks as $link) {
-                    $toolSize += $link['file_size'] ?? 0;
-                    $totalFiles++;
+                $toolDelivery['parsed_links'] = $downloadLinks;
+                $readyTools[] = $toolDelivery;
+            }
+        }
+        
+        if (empty($readyTools)) {
+            error_log("⚠️  TOOL DELIVERY EMAIL: No tools with download links ready for Order #$orderId");
+            return false;
+        }
+        
+        $totalTools = count($readyTools);
+        error_log("📧 TOOL DELIVERY EMAIL: Found $totalTools tools with files ready for Order #$orderId - sending individual emails");
+        
+        require_once __DIR__ . '/mailer.php';
+        
+        $successCount = 0;
+        $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+        $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+        
+        // Send INDIVIDUAL email for each ready tool
+        foreach ($readyTools as $index => $toolDelivery) {
+            $toolNumber = $index + 1;
+            $downloadLinks = $toolDelivery['parsed_links'];
+            $productName = $toolDelivery['product_name'];
+            
+            // Calculate tool size
+            $toolSize = 0;
+            foreach ($downloadLinks as $link) {
+                $toolSize += $link['file_size'] ?? 0;
+            }
+            $toolSizeFormatted = formatFileSize($toolSize);
+            $fileCount = count($downloadLinks);
+            
+            // Generate bundle URL if multiple files
+            $bundleUrl = null;
+            if ($fileCount > 1) {
+                require_once __DIR__ . '/tool_files.php';
+                $bundleResult = generateBundleDownloadToken($orderId, $toolDelivery['product_id']);
+                if ($bundleResult['success']) {
+                    $bundleUrl = $bundleResult['url'];
                 }
-                $totalSize += $toolSize;
+            }
+            
+            // Build individual email for this tool
+            $subject = "📥 Your " . $productName . " is Ready to Download! - Order #" . $orderId;
+            
+            $body = '<div style="text-align: center; margin-bottom: 25px;">';
+            $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Your Digital Product is Ready!</h2>';
+            $body .= '<p style="color: #666; margin-top: 10px;">Order #' . $orderId . ' • Tool ' . $toolNumber . ' of ' . $totalTools . '</p>';
+            $body .= '</div>';
+            
+            $body .= '<div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+            $body .= '<h3 style="margin: 0 0 10px 0;">🔧 ' . htmlspecialchars($productName) . '</h3>';
+            $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">' . $fileCount . ' file' . ($fileCount > 1 ? 's' : '') . ' • ' . $toolSizeFormatted . ' total</p>';
+            $body .= '</div>';
+            
+            // Bundle download option if multiple files
+            if ($bundleUrl && $fileCount > 1) {
+                $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+                $body .= '<h4 style="margin: 0 0 10px 0;">📦 Download Everything at Once</h4>';
+                $body .= '<p style="margin: 0 0 15px 0; font-size: 14px; opacity: 0.9;">Get all ' . $fileCount . ' files in a single ZIP bundle</p>';
+                $body .= '<a href="' . htmlspecialchars($bundleUrl) . '" style="background: white; color: #059669; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">📥 Download All (' . $toolSizeFormatted . ')</a>';
+                $body .= '</div>';
+            }
+            
+            // Individual download links
+            $body .= '<div style="background-color: #f8fafc; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
+            $body .= '<h4 style="color: #1e3a8a; margin: 0 0 20px 0;">📥 Individual Download Links</h4>';
+            
+            foreach ($downloadLinks as $link) {
+                $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+                $fileUrl = htmlspecialchars($link['url'] ?? '');
+                $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
+                $fileType = ucfirst(str_replace('_', ' ', $link['file_type'] ?? 'file'));
+                $isLink = ($link['file_type'] === 'link');
+                $isExternal = preg_match('/^https?:\/\//i', $link['file_path'] ?? '');
                 
-                $toolSizeFormatted = formatFileSize($toolSize);
+                $body .= '<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">';
+                $body .= '<div style="margin-bottom: 10px;">';
+                $body .= '<strong style="color: #1e3a8a; font-size: 15px;">' . ($isLink || $isExternal ? '🔗 ' : '📥 ') . $fileName . '</strong>';
+                $body .= '<div style="color: #666; font-size: 12px; margin-top: 4px;">' . $fileType . ($isLink || $isExternal ? ' • External URL' : ' • ' . $fileSize) . '</div>';
+                $body .= '</div>';
                 
-                $body .= '<div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #059669;">';
-                $body .= '<h5 style="color: #059669; margin: 0 0 12px 0; font-size: 16px;">🔧 ' . htmlspecialchars($toolDelivery['product_name']) . '</h5>';
-                $body .= '<p style="color: #666; font-size: 13px; margin: 0 0 12px 0;">' . count($downloadLinks) . ' file(s) • ' . $toolSizeFormatted . '</p>';
-                
-                // List individual files
-                foreach ($downloadLinks as $link) {
-                    $fileName = htmlspecialchars($link['name'] ?? 'Download');
-                    $fileUrl = htmlspecialchars($link['url'] ?? '');
-                    $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
-                    $isExternal = preg_match('/^https?:\/\//i', $link['file_path'] ?? '');
-                    
-                    if ($isExternal) {
-                        $body .= '<div style="margin-bottom: 8px; padding: 8px; background: #f0f9ff; border-radius: 6px;">';
-                        $body .= '<a href="' . $fileUrl . '" target="_blank" style="color: #0369a1; text-decoration: none; font-weight: 500;">🔗 ' . $fileName . ' (External Link)</a>';
-                        $body .= '</div>';
-                    } else {
-                        $body .= '<div style="margin-bottom: 8px; padding: 8px; background: #f0fdf4; border-radius: 6px;">';
-                        $body .= '<a href="' . $fileUrl . '" style="color: #059669; text-decoration: none; font-weight: 500;">📥 ' . $fileName . ' (' . $fileSize . ')</a>';
-                        $body .= '</div>';
-                    }
+                if ($isLink || $isExternal) {
+                    $body .= '<a href="' . $fileUrl . '" target="_blank" style="background: #059669; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px;">🔗 Visit Link</a>';
+                } else {
+                    $body .= '<a href="' . $fileUrl . '" style="background: #1e3a8a; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px;">📥 Download File</a>';
                 }
                 
                 $body .= '</div>';
             }
-        }
-        
-        $body .= '</div>';
-        
-        // Important info section
-        $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
-        $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
-        
-        $body .= '<div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">';
-        $body .= '<h4 style="color: #92400e; margin: 0 0 10px 0;">⏰ Important: Download Information</h4>';
-        $body .= '<p style="color: #92400e; margin: 0; line-height: 1.6;">';
-        $body .= '<strong>Total Size:</strong> ' . formatFileSize($totalSize) . '<br>';
-        $body .= '<strong>Files:</strong> ' . $totalFiles . ' file(s)<br>';
-        $body .= '<strong>Expiry:</strong> Links expire in ' . $expiryDays . ' days (on ' . date('F j, Y', strtotime("+{$expiryDays} days")) . ')<br>';
-        $body .= '<strong>Downloads:</strong> Each link allows up to ' . $maxDownloads . ' downloads';
-        $body .= '</p>';
-        $body .= '</div>';
-        
-        // Tips
-        $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
-        $body .= '<h4 style="color: #065f46; margin: 0 0 15px 0;">💡 Tips for Best Experience</h4>';
-        $body .= '<ul style="color: #065f46; margin: 0; padding-left: 20px; line-height: 1.8;">';
-        $body .= '<li>Use a stable internet connection for large downloads</li>';
-        $body .= '<li>Extract ZIP files after downloading to access contents</li>';
-        $body .= '<li>Save files to a secure location for future access</li>';
-        $body .= '<li>Keep these download links safe - you can retrieve them from your account</li>';
-        $body .= '</ul>';
-        $body .= '</div>';
-        
-        // Support section
-        $body .= '<div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px;">';
-        $body .= '<p style="color: #64748b; margin: 0 0 10px 0; font-size: 14px;">Need help? Contact us anytime:</p>';
-        if (defined('WHATSAPP_NUMBER')) {
-            $body .= '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER) . '" style="color: #1e3a8a; font-weight: bold; text-decoration: none;">💬 WhatsApp: ' . WHATSAPP_NUMBER . '</a>';
-        }
-        $body .= '</div>';
-        
-        // Send email
-        require_once __DIR__ . '/mailer.php';
-        $emailSent = sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
-        
-        if ($emailSent) {
-            error_log("✅ TOOL DELIVERY EMAIL: Successfully sent all " . count($toolDeliveries) . " tool(s) to " . $order['customer_email']);
             
-            // Update delivery status to show email was sent
-            foreach ($toolDeliveries as $toolDelivery) {
+            $body .= '</div>';
+            
+            // Expiry warning
+            $body .= '<div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">';
+            $body .= '<h4 style="color: #92400e; margin: 0 0 10px 0;">⏰ Important: Download Expiry</h4>';
+            $body .= '<p style="color: #92400e; margin: 0; line-height: 1.6;">';
+            $body .= 'Your download links will expire in <strong>' . $expiryDays . ' days</strong> (on ' . date('F j, Y', strtotime("+{$expiryDays} days")) . ').<br>';
+            $body .= 'Each link allows up to <strong>' . $maxDownloads . ' downloads</strong>. Save your files to a secure location after downloading.';
+            $body .= '</p>';
+            $body .= '</div>';
+            
+            // Tips
+            $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
+            $body .= '<h4 style="color: #065f46; margin: 0 0 15px 0;">💡 Tips for Best Experience</h4>';
+            $body .= '<ul style="color: #065f46; margin: 0; padding-left: 20px; line-height: 1.8;">';
+            $body .= '<li>Use a stable internet connection for large downloads</li>';
+            $body .= '<li>Extract ZIP files after downloading to access contents</li>';
+            $body .= '<li>Read any README or documentation files included</li>';
+            $body .= '<li>Keep a backup copy in cloud storage for safety</li>';
+            $body .= '</ul>';
+            $body .= '</div>';
+            
+            // Delivery note if any
+            if (!empty($toolDelivery['delivery_note'])) {
+                $body .= '<div style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #bae6fd;">';
+                $body .= '<h4 style="color: #0369a1; margin: 0 0 10px 0;">📝 Product Notes</h4>';
+                $body .= '<p style="color: #0369a1; margin: 0; line-height: 1.6;">' . htmlspecialchars($toolDelivery['delivery_note']) . '</p>';
+                $body .= '</div>';
+            }
+            
+            // Support section
+            $body .= '<div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px;">';
+            $body .= '<p style="color: #64748b; margin: 0 0 10px 0; font-size: 14px;">Need help? Contact us anytime:</p>';
+            if (defined('WHATSAPP_NUMBER')) {
+                $body .= '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER) . '" style="color: #1e3a8a; font-weight: bold; text-decoration: none;">💬 WhatsApp: ' . WHATSAPP_NUMBER . '</a>';
+            }
+            $body .= '</div>';
+            
+            // Send individual email for this tool
+            $emailSent = sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+            
+            if ($emailSent) {
+                $successCount++;
+                error_log("✅ TOOL DELIVERY EMAIL: Sent email $toolNumber/$totalTools for '" . $productName . "' to " . $order['customer_email']);
+                
+                // Update delivery status
                 $updateStmt = $db->prepare("
                     UPDATE deliveries SET email_sent_at = datetime('now', '+1 hour'), delivery_status = 'delivered'
                     WHERE id = ?
                 ");
                 $updateStmt->execute([$toolDelivery['id']]);
+                
+                // Record email event
+                recordEmailEvent($orderId, 'tool_delivery', [
+                    'email' => $order['customer_email'],
+                    'subject' => $subject,
+                    'sent' => true,
+                    'product_name' => $productName,
+                    'file_count' => $fileCount,
+                    'email_number' => $toolNumber,
+                    'total_emails' => $totalTools
+                ]);
+            } else {
+                error_log("❌ TOOL DELIVERY EMAIL: Failed to send email $toolNumber/$totalTools for '" . $productName . "'");
             }
-        } else {
-            error_log("❌ TOOL DELIVERY EMAIL: Failed to send email for Order #$orderId to " . $order['customer_email']);
+            
+            // Small delay between emails to avoid rate limiting
+            if ($index < count($readyTools) - 1) {
+                usleep(500000); // 0.5 second delay
+            }
         }
         
-        return $emailSent;
+        error_log("✅ TOOL DELIVERY EMAIL: Completed sending $successCount/$totalTools individual tool emails for Order #$orderId");
+        
+        return $successCount > 0;
         
     } catch (Exception $e) {
         error_log("❌ TOOL DELIVERY EMAIL: Exception for Order #$orderId: " . $e->getMessage());

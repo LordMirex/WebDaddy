@@ -950,6 +950,27 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         <p class="text-sm text-gray-400 mt-2">Order #<?php echo $confirmationData['order']['id']; ?></p>
                     </div>
                     
+                    <!-- SPAM FOLDER WARNING -->
+                    <div class="bg-amber-900/30 border border-amber-600/50 rounded-xl p-4 mb-6">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl flex-shrink-0">📧</span>
+                            <div>
+                                <h4 class="font-bold text-amber-300 mb-2">Important: Check Your Email</h4>
+                                <p class="text-amber-200/90 text-sm leading-relaxed mb-2">
+                                    We've sent confirmation and download emails to <strong class="text-amber-100"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong>
+                                </p>
+                                <div class="bg-amber-900/40 rounded-lg p-3 border border-amber-700/50">
+                                    <p class="text-amber-200 text-xs font-semibold mb-1">⚠️ Emails may land in your spam/junk folder!</p>
+                                    <ul class="text-amber-200/80 text-xs space-y-1 ml-3 list-disc">
+                                        <li>Check your <strong>Spam</strong> or <strong>Junk</strong> folder</li>
+                                        <li>If you find our email there, mark it as <strong>"Not Spam"</strong></li>
+                                        <li>This ensures you receive future messages properly</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- ORDER SUMMARY -->
                     <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 p-6">
                         <div class="space-y-4">
