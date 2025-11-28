@@ -35,7 +35,7 @@
     </script>
 </head>
 <body class="bg-gray-50" x-data="{ sidebarOpen: false, userMenuOpen: false }">
-    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg sticky top-0 z-40">
+    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg fixed top-0 left-0 right-0 z-50">
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">

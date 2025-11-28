@@ -36,7 +36,7 @@
 </head>
 <body class="bg-gray-50" x-data="{ sidebarOpen: false, userMenuOpen: false }">
     <!-- Top Navigation Bar -->
-    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg sticky top-0 z-40">
+    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg fixed top-0 left-0 right-0 z-50">
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
                 <!-- Mobile Menu Button & Logo -->
