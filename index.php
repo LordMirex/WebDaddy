@@ -561,7 +561,7 @@ if ($autoOpenTool) {
                 <p class="text-gray-300 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-primary-600 hover:text-primary-700">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-templates-grid>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-templates-grid>
                 <?php foreach ($templates as $template): ?>
                 <div class="group" 
                      data-template
@@ -741,7 +741,7 @@ if ($autoOpenTool) {
                 <p class="text-gray-300 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-primary-600 hover:text-primary-700">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <?php foreach ($tools as $tool): ?>
                 <div class="tool-card group bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
                      data-tool-id="<?php echo $tool['id']; ?>">
