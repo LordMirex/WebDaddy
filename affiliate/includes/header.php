@@ -88,7 +88,7 @@
         </div>
     </nav>
 
-    <div class="flex min-h-screen">
+    <div class="flex min-h-screen pt-[61px] lg:pt-0">
         <!-- Sidebar - Desktop: Always visible, Mobile: Slide-in drawer -->
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
