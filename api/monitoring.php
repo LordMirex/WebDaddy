@@ -241,7 +241,7 @@ try {
             }
             
             // Payment logs
-            $stmt = $db->query("SELECT 'payment' as type, 'Payments' as category, event as description, CONCAT('Amount: ', amount, ' | Status: ', status) as details, created_at FROM payment_logs ORDER BY created_at DESC LIMIT $limit");
+            $stmt = $db->query("SELECT 'payment' as type, 'Payments' as category, event_type as description, CONCAT('Amount: ', amount, ' | Status: ', status) as details, created_at FROM payment_logs ORDER BY created_at DESC LIMIT $limit");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $allLogs[] = $row;
             }
