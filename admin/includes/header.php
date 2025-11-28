@@ -35,7 +35,7 @@
     </script>
 </head>
 <body class="bg-gray-50" x-data="{ sidebarOpen: false, userMenuOpen: false }">
-    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg fixed top-0 left-0 right-0 z-50">
+    <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg sticky top-0 z-40">
         <div class="px-4 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
@@ -87,10 +87,10 @@
         </div>
     </nav>
 
-    <div class="flex min-h-[100vh] pt-[61px] lg:pt-0">
+    <div class="flex min-h-screen">
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] lg:top-auto h-[calc(100vh-61px)] lg:h-auto -translate-x-full overflow-y-auto">
+            class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] lg:top-0 -translate-x-full overflow-y-auto">
             
             <div class="lg:hidden flex justify-end p-4">
                 <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">
