@@ -556,10 +556,8 @@ require_once __DIR__ . '/includes/header.php';
                 </h6>
                 <div class="text-sm text-red-800 space-y-2">
                     <p><strong>❌ WRONG (will fail):</strong> Using a URL or just "php cron.php"</p>
-                    <p><strong>✅ CORRECT:</strong> Use the full PHP command path shown below</p>
-                    <p><strong>Step 1:</strong> Find your PHP version in cPanel → MultiPHP Manager</p>
-                    <p><strong>Step 2:</strong> Use the command that matches your PHP version (usually ea-php82 or ea-php83)</p>
-                    <p><strong>Step 3:</strong> Copy the FULL command exactly as shown below</p>
+                    <p><strong>✅ CORRECT:</strong> Copy the full command shown below</p>
+                    <p>Each command includes the schedule (e.g., <code>*/20 * * * *</code>) and the full PHP command path</p>
                 </div>
             </div>
             
@@ -568,7 +566,7 @@ require_once __DIR__ . '/includes/header.php';
                 <h6 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
                     <i class="bi bi-clock-history text-xl"></i> Required cPanel Cron Jobs
                 </h6>
-                <p class="text-sm text-blue-800 mb-4">Copy ENTIRE command to your cPanel Cron Jobs (replace "ea-php82" with your PHP version):</p>
+                <p class="text-sm text-blue-800 mb-4">Copy the complete command directly to your cPanel Cron Jobs:</p>
                 
                 <div class="space-y-3">
                     <!-- Process Pending Deliveries - Most Important -->
@@ -580,8 +578,7 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Every 20 min</span>
                         </div>
                         <p class="text-xs text-gray-600 mb-2">Schedule: <code>*/20 * * * *</code></p>
-                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php82 <?php echo realpath(__DIR__ . '/../cron.php'); ?> process-pending-deliveries</code>
-                        <p class="text-xs text-gray-500 mt-1">Replace "ea-php82" with your PHP version from MultiPHP Manager</p>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php81 /home/cbvemlot/public_html/cron.php process-pending-deliveries</code>
                         <p class="text-xs text-gray-600 mt-2">Auto-sends download emails when you upload tool files</p>
                     </div>
                     
@@ -594,7 +591,7 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded-full">Every 5 min</span>
                         </div>
                         <p class="text-xs text-gray-600 mb-2">Schedule: <code>*/5 * * * *</code></p>
-                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php82 <?php echo realpath(__DIR__ . '/../cron.php'); ?> process-email-queue</code>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php81 /home/cbvemlot/public_html/cron.php process-email-queue</code>
                         <p class="text-xs text-gray-600 mt-2">Sends queued emails reliably</p>
                     </div>
                     
@@ -607,7 +604,7 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded-full">Every 15 min</span>
                         </div>
                         <p class="text-xs text-gray-600 mb-2">Schedule: <code>*/15 * * * *</code></p>
-                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php82 <?php echo realpath(__DIR__ . '/../cron.php'); ?> process-retries</code>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php81 /home/cbvemlot/public_html/cron.php process-retries</code>
                         <p class="text-xs text-gray-600 mt-2">Retries failed delivery emails automatically</p>
                     </div>
                     
@@ -620,7 +617,7 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="text-xs bg-slate-100 text-slate-800 px-2 py-1 rounded-full">Every Hour</span>
                         </div>
                         <p class="text-xs text-gray-600 mb-2">Schedule: <code>0 * * * *</code></p>
-                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php82 <?php echo realpath(__DIR__ . '/../cron.php'); ?> cleanup-security</code>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php81 /home/cbvemlot/public_html/cron.php cleanup-security</code>
                         <p class="text-xs text-gray-600 mt-2">Cleans old rate limits and security logs</p>
                     </div>
                     
@@ -633,10 +630,10 @@ require_once __DIR__ . '/includes/header.php';
                             <span class="text-xs bg-violet-100 text-violet-800 px-2 py-1 rounded-full">Weekly</span>
                         </div>
                         <p class="text-xs text-gray-600 mb-2">Schedule 1 (Sunday 2 AM): <code>0 2 * * 0</code></p>
-                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php82 <?php echo realpath(__DIR__ . '/../cron.php'); ?> optimize</code>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php81 /home/cbvemlot/public_html/cron.php optimize</code>
                         <p class="text-xs text-gray-600 mt-2">Database optimization (Sunday 2 AM)</p>
                         <p class="text-xs text-gray-600 mt-3 mb-2">Schedule 2 (Monday 3 AM): <code>0 3 * * 1</code></p>
-                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php82 <?php echo realpath(__DIR__ . '/../cron.php'); ?> weekly-report</code>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto break-all">/usr/local/bin/ea-php81 /home/cbvemlot/public_html/cron.php weekly-report</code>
                         <p class="text-xs text-gray-600 mt-2">Weekly report (Monday 3 AM)</p>
                     </div>
                 </div>
