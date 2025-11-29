@@ -1,26 +1,24 @@
 #!/usr/bin/env php
 <?php
-/**
- * WebDaddy Empire - Automated Cron Jobs
- * 
- * CRITICAL DELIVERY JOBS (run frequently):
- * 1. process-pending-deliveries  - Every 20-30 min: Find pending tool deliveries with new files, send emails
- * 2. process-email-queue         - Every 5 min: Send queued emails
- * 3. process-retries             - Every 15 min: Retry failed deliveries
- * 
- * MAINTENANCE JOBS (run less frequently):
- * 4. cleanup-security            - Every hour: Clean old security logs
- * 5. optimize                    - Weekly (Sunday 2 AM): Database optimization
- * 6. weekly-report               - Weekly (Monday 3 AM): Generate analytics report
- * 
- * cPanel cron configuration example:
- *   */20 * * * * php /path/to/cron.php process-pending-deliveries  # Every 20 min
- *   */5 * * * * php /path/to/cron.php process-email-queue          # Every 5 min
- *   */15 * * * * php /path/to/cron.php process-retries             # Every 15 min
- *   0 * * * * php /path/to/cron.php cleanup-security               # Every hour
- *   0 2 * * 0 php /path/to/cron.php optimize                       # Sunday 2 AM
- *   0 3 * * 1 php /path/to/cron.php weekly-report                  # Monday 3 AM
- */
+// WebDaddy Empire - Automated Cron Jobs
+// 
+// CRITICAL DELIVERY JOBS (run frequently):
+// 1. process-pending-deliveries  - Every 20-30 min: Find pending tool deliveries with new files, send emails
+// 2. process-email-queue         - Every 5 min: Send queued emails
+// 3. process-retries             - Every 15 min: Retry failed deliveries
+// 
+// MAINTENANCE JOBS (run less frequently):
+// 4. cleanup-security            - Every hour: Clean old security logs
+// 5. optimize                    - Weekly (Sunday 2 AM): Database optimization
+// 6. weekly-report               - Weekly (Monday 3 AM): Generate analytics report
+// 
+// cPanel cron configuration (copy these to cPanel):
+// */20 * * * * php /path/to/cron.php process-pending-deliveries
+// */5 * * * * php /path/to/cron.php process-email-queue
+// */15 * * * * php /path/to/cron.php process-retries
+// 0 * * * * php /path/to/cron.php cleanup-security
+// 0 2 * * 0 php /path/to/cron.php optimize
+// 0 3 * * 1 php /path/to/cron.php weekly-report
 
 if (php_sapi_name() !== 'cli') {
     die('This script can only be run from command line');
