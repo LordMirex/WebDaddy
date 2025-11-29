@@ -1724,6 +1724,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                 </form>
             </div>
+            <?php endif; // Close templateItems check - Domain Assignment only for templates ?>
             
             <?php
             require_once __DIR__ . '/../includes/delivery.php';
@@ -2265,7 +2266,6 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 <?php endforeach; ?>
             </div>
             <?php 
-            endif;
             endif;
             ?>
             
