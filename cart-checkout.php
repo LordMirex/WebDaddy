@@ -1083,7 +1083,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <?php elseif ($toolsWithFilesCount > 0): ?>
                                 <span class="px-2 py-0.5 bg-yellow-600/20 text-yellow-400 text-xs font-semibold rounded">⏳ Partially ready</span>
                                 <?php else: ?>
-                                <span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs font-semibold rounded">📧 Files coming via email</span>
+                                <span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 text-xs font-semibold rounded">📧 Delivered via email & WhatsApp</span>
                                 <?php endif; ?>
                             </div>
                             <?php if ($allToolsReady): ?>
@@ -1093,7 +1093,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             <?php elseif ($toolsWithoutFilesCount > 0): ?>
                             <div class="text-xs text-blue-300 mb-3 p-3 bg-blue-900/20 rounded border border-blue-600/50">
-                                📧 <?php echo $toolsWithoutFilesCount; ?> tool(s) - files will be sent to your email when ready
+                                📧 <?php echo $toolsWithoutFilesCount; ?> tool(s) - files being sent via email & WhatsApp within 24 hours
                                 <?php if ($toolsWithFilesCount > 0): ?>
                                 <br/>✓ <?php echo $toolsWithFilesCount; ?> tool(s) - ready to download now
                                 <?php endif; ?>
@@ -1146,15 +1146,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     </div>
                                     <?php elseif (!$hasToolFilesUploaded): ?>
                                     <!-- Tool files not yet uploaded by admin -->
-                                    <div class="p-4 bg-yellow-900/20 border border-yellow-600/50 rounded-lg">
+                                    <div class="p-4 bg-blue-900/20 border border-blue-600/50 rounded-lg">
                                         <div class="flex items-start gap-3">
                                             <span class="text-xl">📧</span>
                                             <div>
-                                                <p class="text-yellow-300 font-semibold text-sm mb-1">Files Coming Soon!</p>
-                                                <p class="text-yellow-200/80 text-xs leading-relaxed">
-                                                    We're preparing your files for this tool. You'll receive a download email at 
-                                                    <strong class="text-yellow-100"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong> 
-                                                    as soon as the files are ready (usually within a few hours).
+                                                <p class="text-blue-300 font-semibold text-sm mb-1">Files on the Way!</p>
+                                                <p class="text-blue-200/80 text-xs leading-relaxed">
+                                                    Your tool files will be sent to your email at 
+                                                    <strong class="text-blue-100"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong> 
+                                                    and WhatsApp within 24 hours. We'll notify you as soon as they're available!
                                                 </p>
                                             </div>
                                         </div>
