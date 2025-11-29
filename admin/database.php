@@ -192,6 +192,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
+    elseif ($action === 'cron_process_pending_deliveries') {
+        require_once __DIR__ . '/../includes/delivery.php';
+        require_once __DIR__ . '/../includes/tool_files.php';
+        try {
+            $result = processAllPendingToolDeliveries();
+            $successMessage = "Pending deliveries processed! Tools scanned: {$result['tools_scanned']}, Pending found: {$result['pending_found']}, Emails sent: {$result['emails_sent']}, Update notifications: {$result['updates_sent']}";
+            if (!empty($result['errors'])) {
+                $successMessage .= " (Errors: " . count($result['errors']) . ")";
+            }
+            logActivity('cron_pending_deliveries', "Processed pending deliveries - Sent: {$result['emails_sent']}, Updates: {$result['updates_sent']}", getAdminId());
+        } catch (Exception $e) {
+            $errorMessage = "Pending deliveries processing failed: " . $e->getMessage();
+        }
+    }
+    
     elseif ($action === 'cron_process_email_queue') {
         require_once __DIR__ . '/../includes/email_queue.php';
         try {
@@ -529,49 +544,109 @@ require_once __DIR__ . '/includes/header.php';
     <div class="bg-white rounded-xl shadow-md border border-gray-100">
         <div class="px-6 py-4 border-b border-gray-200">
             <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <i class="bi bi-gear-wide-connected text-teal-600"></i> System Tasks (Run Manually)
+                <i class="bi bi-gear-wide-connected text-teal-600"></i> Automated Cron Jobs
             </h5>
-            <p class="text-sm text-gray-500 mt-1">Execute cron jobs directly from here instead of command line</p>
+            <p class="text-sm text-gray-500 mt-1">Set up these in cPanel for fully automated delivery system</p>
         </div>
-        <div class="p-6 space-y-3">
-            <form method="POST">
-                <button type="submit" name="action" value="cron_process_email_queue" class="w-full flex items-center justify-between px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors">
-                    <span class="flex items-center gap-2">
-                        <i class="bi bi-envelope-arrow-up"></i> Process Email Queue
-                    </span>
-                    <i class="bi bi-arrow-right"></i>
-                </button>
-            </form>
+        <div class="p-6 space-y-4">
+            <!-- Cron Setup Instructions -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+                <h6 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
+                    <i class="bi bi-clock-history text-xl"></i> Required cPanel Cron Jobs
+                </h6>
+                <p class="text-sm text-blue-800 mb-4">Copy these commands to your cPanel Cron Jobs for automated delivery:</p>
+                
+                <div class="space-y-3">
+                    <!-- Process Pending Deliveries - Most Important -->
+                    <div class="bg-white rounded-lg p-3 border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-green-700">
+                                <i class="bi bi-box-seam"></i> Process Pending Deliveries
+                            </span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Every 20 min</span>
+                        </div>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto">*/20 * * * * php <?php echo realpath(__DIR__ . '/../cron.php'); ?> process-pending-deliveries</code>
+                        <p class="text-xs text-gray-600 mt-2">Auto-sends download emails when you upload tool files</p>
+                    </div>
+                    
+                    <!-- Process Email Queue -->
+                    <div class="bg-white rounded-lg p-3 border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-teal-700">
+                                <i class="bi bi-envelope-arrow-up"></i> Process Email Queue
+                            </span>
+                            <span class="text-xs bg-teal-100 text-teal-800 px-2 py-1 rounded-full">Every 5 min</span>
+                        </div>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto">*/5 * * * * php <?php echo realpath(__DIR__ . '/../cron.php'); ?> process-email-queue</code>
+                        <p class="text-xs text-gray-600 mt-2">Sends queued emails reliably</p>
+                    </div>
+                    
+                    <!-- Process Retries -->
+                    <div class="bg-white rounded-lg p-3 border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-cyan-700">
+                                <i class="bi bi-arrow-repeat"></i> Process Delivery Retries
+                            </span>
+                            <span class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded-full">Every 15 min</span>
+                        </div>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto">*/15 * * * * php <?php echo realpath(__DIR__ . '/../cron.php'); ?> process-retries</code>
+                        <p class="text-xs text-gray-600 mt-2">Retries failed delivery emails automatically</p>
+                    </div>
+                    
+                    <!-- Cleanup Security -->
+                    <div class="bg-white rounded-lg p-3 border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-slate-700">
+                                <i class="bi bi-shield-check"></i> Security Cleanup
+                            </span>
+                            <span class="text-xs bg-slate-100 text-slate-800 px-2 py-1 rounded-full">Hourly</span>
+                        </div>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto">0 * * * * php <?php echo realpath(__DIR__ . '/../cron.php'); ?> cleanup-security</code>
+                        <p class="text-xs text-gray-600 mt-2">Cleans old rate limits and security logs</p>
+                    </div>
+                    
+                    <!-- Weekly Maintenance -->
+                    <div class="bg-white rounded-lg p-3 border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-violet-700">
+                                <i class="bi bi-calendar-week"></i> Weekly Maintenance
+                            </span>
+                            <span class="text-xs bg-violet-100 text-violet-800 px-2 py-1 rounded-full">Weekly</span>
+                        </div>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto">0 2 * * 0 php <?php echo realpath(__DIR__ . '/../cron.php'); ?> optimize</code>
+                        <code class="block text-xs bg-gray-100 p-2 rounded font-mono text-gray-700 overflow-x-auto mt-1">0 3 * * 1 php <?php echo realpath(__DIR__ . '/../cron.php'); ?> weekly-report</code>
+                        <p class="text-xs text-gray-600 mt-2">Database optimization (Sunday) + Weekly report (Monday)</p>
+                    </div>
+                </div>
+            </div>
             
-            <form method="POST">
-                <button type="submit" name="action" value="cron_process_retries" class="w-full flex items-center justify-between px-4 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors">
-                    <span class="flex items-center gap-2">
-                        <i class="bi bi-arrow-repeat"></i> Process Delivery Retries
-                    </span>
-                    <i class="bi bi-arrow-right"></i>
-                </button>
-            </form>
-            
-            <form method="POST">
-                <button type="submit" name="action" value="cron_cleanup_security" class="w-full flex items-center justify-between px-4 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors">
-                    <span class="flex items-center gap-2">
-                        <i class="bi bi-shield-check"></i> Cleanup Security Logs
-                    </span>
-                    <i class="bi bi-arrow-right"></i>
-                </button>
-            </form>
-            
-            <form method="POST" onsubmit="return confirm('Generate weekly report and send to admin email?');">
-                <button type="submit" name="action" value="cron_weekly_report" class="w-full flex items-center justify-between px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors">
-                    <span class="flex items-center gap-2">
-                        <i class="bi bi-file-earmark-bar-graph"></i> Generate Weekly Report
-                    </span>
-                    <i class="bi bi-arrow-right"></i>
-                </button>
-            </form>
-            
-            <div class="bg-teal-50 border-l-4 border-teal-500 text-teal-800 p-3 rounded-lg text-sm">
-                <i class="bi bi-info-circle"></i> These tasks can be run anytime. No CLI/cPanel cron jobs needed.
+            <!-- Manual Run Buttons (For Testing) -->
+            <div class="border-t border-gray-200 pt-4 mt-4">
+                <h6 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <i class="bi bi-play-circle"></i> Run Manually (For Testing)
+                </h6>
+                <div class="grid grid-cols-2 gap-2">
+                    <form method="POST">
+                        <button type="submit" name="action" value="cron_process_pending_deliveries" class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                            <i class="bi bi-box-seam"></i> Pending Deliveries
+                        </button>
+                    </form>
+                    <form method="POST">
+                        <button type="submit" name="action" value="cron_process_email_queue" class="w-full px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                            <i class="bi bi-envelope"></i> Email Queue
+                        </button>
+                    </form>
+                    <form method="POST">
+                        <button type="submit" name="action" value="cron_process_retries" class="w-full px-3 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                            <i class="bi bi-arrow-repeat"></i> Retries
+                        </button>
+                    </form>
+                    <form method="POST">
+                        <button type="submit" name="action" value="cron_cleanup_security" class="w-full px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                            <i class="bi bi-shield"></i> Cleanup
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

@@ -105,6 +105,11 @@ function createDeliveryRecords($orderId) {
 /**
  * Create tool delivery
  * Phase 3: Enhanced with retry mechanism and improved email
+ * 
+ * FIXED: Now sets correct status based on whether files exist:
+ * - 'pending' if no files yet (will be delivered via cron when files are uploaded)
+ * - 'ready' if files exist but email not sent yet
+ * - 'delivered' if files exist and email sent
  */
 function createToolDelivery($orderId, $item, $retryAttempt = 0) {
     $db = getDb();
@@ -123,18 +128,25 @@ function createToolDelivery($orderId, $item, $retryAttempt = 0) {
         }
     }
     
+    // FIXED: Set correct initial status based on file availability
+    $hasFiles = !empty($downloadLinks);
+    $initialStatus = $hasFiles ? 'ready' : 'pending';
+    
+    error_log("📦 createToolDelivery: Order #$orderId, Tool #{$item['product_id']}, Files: " . count($files) . ", Links: " . count($downloadLinks) . ", Status: $initialStatus");
+    
     $stmt = $db->prepare("
         INSERT INTO deliveries (
             pending_order_id, order_item_id, product_id, product_type, product_name,
             delivery_method, delivery_type, delivery_status, delivery_link, delivery_note,
             retry_count
-        ) VALUES (?, ?, ?, 'tool', ?, 'download', 'immediate', 'ready', ?, ?, ?)
+        ) VALUES (?, ?, ?, 'tool', ?, 'download', 'immediate', ?, ?, ?, ?)
     ");
     $stmt->execute([
         $orderId,
         $item['id'],
         $item['product_id'],
         $item['product_name'],
+        $initialStatus,
         json_encode($downloadLinks),
         $item['delivery_note'],
         $retryAttempt
@@ -1714,4 +1726,322 @@ function sendAllToolDeliveryEmailsForOrder($orderId) {
         error_log("❌ TOOL DELIVERY EMAIL: Exception for Order #$orderId: " . $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Process ALL pending tool deliveries across all tools
+ * This is the main cron job function that runs every 20-30 minutes
+ * 
+ * It does TWO things:
+ * 1. Finds pending deliveries where tool files now exist -> sends emails
+ * 2. Finds delivered tools that now have MORE files -> sends update notifications
+ */
+function processAllPendingToolDeliveries() {
+    $db = getDb();
+    require_once __DIR__ . '/tool_files.php';
+    
+    $result = [
+        'tools_scanned' => 0,
+        'pending_found' => 0,
+        'emails_sent' => 0,
+        'updates_sent' => 0,
+        'errors' => []
+    ];
+    
+    error_log("📦 CRON: Starting processAllPendingToolDeliveries");
+    
+    try {
+        // STEP 1: Get all tools that have at least one file uploaded
+        $toolsWithFiles = $db->query("
+            SELECT DISTINCT t.id, t.name, COUNT(tf.id) as file_count
+            FROM tools t
+            INNER JOIN tool_files tf ON t.id = tf.tool_id
+            WHERE t.active = 1 AND tf.file_name IS NOT NULL
+            GROUP BY t.id
+            ORDER BY t.id
+        ")->fetchAll(PDO::FETCH_ASSOC);
+        
+        $result['tools_scanned'] = count($toolsWithFiles);
+        error_log("📦 CRON: Found {$result['tools_scanned']} tools with files");
+        
+        foreach ($toolsWithFiles as $tool) {
+            $toolId = $tool['id'];
+            $toolName = $tool['name'];
+            $currentFileCount = $tool['file_count'];
+            
+            // STEP 2A: Find PENDING deliveries (no download links yet)
+            $pendingStmt = $db->prepare("
+                SELECT d.*, po.customer_email, po.customer_name
+                FROM deliveries d
+                JOIN pending_orders po ON d.pending_order_id = po.id
+                WHERE d.product_id = ? 
+                  AND d.product_type = 'tool'
+                  AND po.status = 'paid'
+                  AND (d.delivery_link IS NULL OR d.delivery_link = '' OR d.delivery_link = '[]')
+                ORDER BY d.created_at ASC
+            ");
+            $pendingStmt->execute([$toolId]);
+            $pendingDeliveries = $pendingStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (!empty($pendingDeliveries)) {
+                $result['pending_found'] += count($pendingDeliveries);
+                error_log("📦 CRON: Tool #$toolId ($toolName) has " . count($pendingDeliveries) . " pending deliveries");
+                
+                // Process each pending delivery
+                foreach ($pendingDeliveries as $delivery) {
+                    try {
+                        $sent = processAndSendToolDelivery($delivery, $toolId, false);
+                        if ($sent) {
+                            $result['emails_sent']++;
+                        }
+                    } catch (Exception $e) {
+                        $result['errors'][] = "Tool $toolId, Delivery {$delivery['id']}: " . $e->getMessage();
+                        error_log("❌ CRON: Error processing delivery {$delivery['id']}: " . $e->getMessage());
+                    }
+                }
+            }
+            
+            // STEP 2B: Find DELIVERED tools that now have MORE files (update notification)
+            // Get deliveries that were delivered and track how many files were in the original delivery
+            $deliveredStmt = $db->prepare("
+                SELECT d.*, po.customer_email, po.customer_name,
+                       d.delivery_link as existing_links
+                FROM deliveries d
+                JOIN pending_orders po ON d.pending_order_id = po.id
+                WHERE d.product_id = ? 
+                  AND d.product_type = 'tool'
+                  AND d.delivery_status = 'delivered'
+                  AND po.status = 'paid'
+                ORDER BY d.created_at ASC
+            ");
+            $deliveredStmt->execute([$toolId]);
+            $deliveredItems = $deliveredStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($deliveredItems as $delivery) {
+                // Count how many files were in the original delivery
+                $existingLinks = json_decode($delivery['existing_links'], true) ?? [];
+                $existingFileCount = count($existingLinks);
+                
+                // Check if there are MORE files now than when originally delivered
+                if ($currentFileCount > $existingFileCount) {
+                    error_log("📦 CRON: Tool #$toolId has new files! Was $existingFileCount, now $currentFileCount - notifying order #{$delivery['pending_order_id']}");
+                    
+                    try {
+                        $sent = processAndSendToolDelivery($delivery, $toolId, true);
+                        if ($sent) {
+                            $result['updates_sent']++;
+                        }
+                    } catch (Exception $e) {
+                        $result['errors'][] = "Tool $toolId update, Delivery {$delivery['id']}: " . $e->getMessage();
+                        error_log("❌ CRON: Error sending update for delivery {$delivery['id']}: " . $e->getMessage());
+                    }
+                }
+            }
+        }
+        
+        error_log("📦 CRON: Completed - Pending: {$result['pending_found']}, Emails: {$result['emails_sent']}, Updates: {$result['updates_sent']}");
+        
+    } catch (Exception $e) {
+        $result['errors'][] = "Main error: " . $e->getMessage();
+        error_log("❌ CRON: processAllPendingToolDeliveries failed: " . $e->getMessage());
+    }
+    
+    return $result;
+}
+
+/**
+ * Process a single tool delivery and send email
+ * Used by both pending delivery processing and update notifications
+ * 
+ * @param array $delivery The delivery record
+ * @param int $toolId The tool ID
+ * @param bool $isUpdate True if this is an update notification (new files added)
+ * @return bool True if email was sent successfully
+ */
+function processAndSendToolDelivery($delivery, $toolId, $isUpdate = false) {
+    $db = getDb();
+    require_once __DIR__ . '/tool_files.php';
+    
+    $orderId = $delivery['pending_order_id'];
+    
+    // Get all current files for this tool
+    $files = getToolFiles($toolId);
+    if (empty($files)) {
+        error_log("⚠️ processAndSendToolDelivery: No files found for tool $toolId");
+        return false;
+    }
+    
+    // Generate fresh download links for all files
+    $downloadLinks = [];
+    foreach ($files as $file) {
+        $link = generateDownloadLink($file['id'], $orderId);
+        if ($link) {
+            $downloadLinks[] = $link;
+        }
+    }
+    
+    if (empty($downloadLinks)) {
+        error_log("⚠️ processAndSendToolDelivery: No download links generated for tool $toolId, order $orderId");
+        return false;
+    }
+    
+    // Update delivery record with new links
+    $updateStmt = $db->prepare("
+        UPDATE deliveries SET 
+            delivery_link = ?,
+            delivery_status = 'ready'
+        WHERE id = ?
+    ");
+    $updateStmt->execute([json_encode($downloadLinks), $delivery['id']]);
+    
+    // Send email
+    $order = [
+        'customer_email' => $delivery['customer_email'],
+        'customer_name' => $delivery['customer_name']
+    ];
+    $item = [
+        'product_name' => $delivery['product_name'],
+        'delivery_note' => $delivery['delivery_note'],
+        'product_id' => $delivery['product_id']
+    ];
+    
+    // Choose email type based on whether this is a new delivery or update
+    if ($isUpdate) {
+        $emailSent = sendToolUpdateEmail($order, $item, $downloadLinks, $orderId);
+    } else {
+        $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId);
+    }
+    
+    if ($emailSent) {
+        // Update delivery status
+        $updateStmt = $db->prepare("
+            UPDATE deliveries SET 
+                delivery_status = 'delivered',
+                email_sent_at = datetime('now', '+1 hour'),
+                delivered_at = datetime('now', '+1 hour')
+            WHERE id = ?
+        ");
+        $updateStmt->execute([$delivery['id']]);
+        
+        // Record email event
+        recordEmailEvent($orderId, $isUpdate ? 'tool_update' : 'tool_delivery_delayed', [
+            'email' => $delivery['customer_email'],
+            'subject' => $isUpdate 
+                ? "New Files Added to {$delivery['product_name']}" 
+                : "Your {$delivery['product_name']} is Ready!",
+            'sent' => true,
+            'product_name' => $delivery['product_name'],
+            'file_count' => count($downloadLinks),
+            'is_update' => $isUpdate
+        ]);
+        
+        error_log("✅ processAndSendToolDelivery: Email sent to {$delivery['customer_email']} for order #$orderId" . ($isUpdate ? " (UPDATE)" : ""));
+        return true;
+    }
+    
+    error_log("❌ processAndSendToolDelivery: Email failed to {$delivery['customer_email']} for order #$orderId");
+    return false;
+}
+
+/**
+ * Send tool update notification email when new files are added
+ * Different from initial delivery email - emphasizes the update
+ */
+function sendToolUpdateEmail($order, $item, $downloadLinks, $orderId) {
+    $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+    $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+    
+    $subject = "🆕 New Files Added to {$item['product_name']}! - Order #{$orderId}";
+    
+    $totalSize = 0;
+    foreach ($downloadLinks as $link) {
+        $totalSize += $link['file_size'] ?? 0;
+    }
+    $totalSizeFormatted = formatFileSize($totalSize);
+    $fileCount = count($downloadLinks);
+    
+    // Bundle URL for multiple files
+    $bundleUrl = null;
+    if ($fileCount > 1 && isset($item['product_id'])) {
+        require_once __DIR__ . '/tool_files.php';
+        $bundleResult = generateBundleDownloadToken($orderId, $item['product_id']);
+        if ($bundleResult['success']) {
+            $bundleUrl = $bundleResult['url'];
+        }
+    }
+    
+    // Build update notification email
+    $body = '<div style="text-align: center; margin-bottom: 25px;">';
+    $body .= '<h2 style="color: #059669; margin: 0;">🆕 New Files Available!</h2>';
+    $body .= '<p style="color: #666; margin-top: 10px;">We\'ve added new files to your order</p>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+    $body .= '<h3 style="margin: 0 0 10px 0;">🔧 ' . htmlspecialchars($item['product_name']) . '</h3>';
+    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Order #' . $orderId . ' • ' . $fileCount . ' file' . ($fileCount > 1 ? 's' : '') . ' • ' . $totalSizeFormatted . ' total</p>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 2px solid #10b981;">';
+    $body .= '<p style="color: #065f46; margin: 0; font-size: 16px;">';
+    $body .= '<strong>Great news!</strong> Your tool has been updated with new files. ';
+    $body .= 'Below you\'ll find download links for <strong>all ' . $fileCount . ' files</strong> (including both old and new).';
+    $body .= '</p>';
+    $body .= '</div>';
+    
+    // Bundle download option
+    if ($bundleUrl && $fileCount > 1) {
+        $body .= '<div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+        $body .= '<h4 style="margin: 0 0 10px 0;">📦 Download All Files at Once</h4>';
+        $body .= '<p style="margin: 0 0 15px 0; font-size: 14px; opacity: 0.9;">Get all ' . $fileCount . ' files in a single ZIP bundle</p>';
+        $body .= '<a href="' . htmlspecialchars($bundleUrl) . '" style="background: white; color: #1e3a8a; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">📥 Download All (' . $totalSizeFormatted . ')</a>';
+        $body .= '</div>';
+    }
+    
+    // Individual download links
+    $body .= '<div style="background-color: #f8fafc; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
+    $body .= '<h4 style="color: #1e3a8a; margin: 0 0 20px 0;">📥 All Download Links</h4>';
+    
+    foreach ($downloadLinks as $link) {
+        $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+        $fileUrl = htmlspecialchars($link['url'] ?? '');
+        $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
+        $fileType = ucfirst(str_replace('_', ' ', $link['file_type'] ?? 'file'));
+        $isLink = ($link['file_type'] === 'link');
+        $isExternal = preg_match('/^https?:\/\//i', $link['file_path'] ?? '');
+        
+        $body .= '<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">';
+        $body .= '<div style="margin-bottom: 10px;">';
+        $body .= '<strong style="color: #1e3a8a; font-size: 15px;">' . ($isLink || $isExternal ? '🔗 ' : '📥 ') . $fileName . '</strong>';
+        $body .= '<div style="color: #666; font-size: 12px; margin-top: 4px;">' . $fileType . ($isLink || $isExternal ? ' • External URL' : ' • ' . $fileSize) . '</div>';
+        $body .= '</div>';
+        
+        if ($isLink || $isExternal) {
+            $body .= '<a href="' . $fileUrl . '" target="_blank" style="background: #059669; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px;">🔗 Visit Link</a>';
+        } else {
+            $body .= '<a href="' . $fileUrl . '" style="background: #1e3a8a; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px;">📥 Download File</a>';
+        }
+        
+        $body .= '</div>';
+    }
+    
+    $body .= '</div>';
+    
+    // Expiry warning
+    $body .= '<div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">';
+    $body .= '<h4 style="color: #92400e; margin: 0 0 10px 0;">⏰ Download Expiry</h4>';
+    $body .= '<p style="color: #92400e; margin: 0; line-height: 1.6;">';
+    $body .= 'These download links will expire in <strong>' . $expiryDays . ' days</strong>. Each link allows up to <strong>' . $maxDownloads . ' downloads</strong>.';
+    $body .= '</p>';
+    $body .= '</div>';
+    
+    // Support section
+    $body .= '<div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px;">';
+    $body .= '<p style="color: #64748b; margin: 0 0 10px 0; font-size: 14px;">Need help? Contact us anytime:</p>';
+    if (defined('WHATSAPP_NUMBER')) {
+        $body .= '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER) . '" style="color: #1e3a8a; font-weight: bold; text-decoration: none;">💬 WhatsApp: ' . WHATSAPP_NUMBER . '</a>';
+    }
+    $body .= '</div>';
+    
+    require_once __DIR__ . '/mailer.php';
+    return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
 }

@@ -1,14 +1,25 @@
 #!/usr/bin/env php
 <?php
 /**
- * WebDaddy Empire - Minimized Cron Job
- * Only two essential jobs:
- * 1. Weekly backup + analytics report (every Monday at 3 AM)
- * 2. Database optimization (every Sunday at 2 AM)
+ * WebDaddy Empire - Automated Cron Jobs
  * 
- * Usage:
- *   php cron.php weekly-report   - Generate and email weekly report + DB backup
- *   php cron.php optimize        - Optimize database
+ * CRITICAL DELIVERY JOBS (run frequently):
+ * 1. process-pending-deliveries  - Every 20-30 min: Find pending tool deliveries with new files, send emails
+ * 2. process-email-queue         - Every 5 min: Send queued emails
+ * 3. process-retries             - Every 15 min: Retry failed deliveries
+ * 
+ * MAINTENANCE JOBS (run less frequently):
+ * 4. cleanup-security            - Every hour: Clean old security logs
+ * 5. optimize                    - Weekly (Sunday 2 AM): Database optimization
+ * 6. weekly-report               - Weekly (Monday 3 AM): Generate analytics report
+ * 
+ * cPanel cron configuration example:
+ *   */20 * * * * php /path/to/cron.php process-pending-deliveries  # Every 20 min
+ *   */5 * * * * php /path/to/cron.php process-email-queue          # Every 5 min
+ *   */15 * * * * php /path/to/cron.php process-retries             # Every 15 min
+ *   0 * * * * php /path/to/cron.php cleanup-security               # Every hour
+ *   0 2 * * 0 php /path/to/cron.php optimize                       # Sunday 2 AM
+ *   0 3 * * 1 php /path/to/cron.php weekly-report                  # Monday 3 AM
  */
 
 if (php_sapi_name() !== 'cli') {
@@ -25,12 +36,20 @@ require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/delivery.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/email_queue.php';
+require_once __DIR__ . '/includes/tool_files.php';
 
 $command = $argv[1] ?? '';
 
 if (empty($command)) {
     echo "Usage: php cron.php [command]\n";
-    echo "Commands: process-email-queue, weekly-report, optimize, process-retries, cleanup-security\n";
+    echo "\nCritical Delivery Jobs (run frequently):\n";
+    echo "  process-pending-deliveries  - Find pending deliveries with new files, send emails\n";
+    echo "  process-email-queue         - Send all queued emails\n";
+    echo "  process-retries             - Retry failed deliveries\n";
+    echo "\nMaintenance Jobs:\n";
+    echo "  cleanup-security            - Clean old security logs\n";
+    echo "  optimize                    - Optimize database\n";
+    echo "  weekly-report               - Generate weekly analytics report\n";
     exit(1);
 }
 
@@ -43,6 +62,31 @@ if (!is_dir($backupDir)) {
 }
 
 switch ($command) {
+    
+    case 'process-pending-deliveries':
+        echo "📦 Processing pending tool deliveries...\n";
+        
+        try {
+            $result = processAllPendingToolDeliveries();
+            
+            echo "✅ Pending deliveries processed:\n";
+            echo "   - Tools scanned: {$result['tools_scanned']}\n";
+            echo "   - Pending deliveries found: {$result['pending_found']}\n";
+            echo "   - Emails sent: {$result['emails_sent']}\n";
+            echo "   - Update notifications: {$result['updates_sent']}\n";
+            
+            if (!empty($result['errors'])) {
+                echo "   - Errors: " . count($result['errors']) . "\n";
+                foreach ($result['errors'] as $error) {
+                    echo "     ⚠️  $error\n";
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Pending deliveries processing failed: " . $e->getMessage());
+            echo "❌ Pending deliveries processing failed: " . $e->getMessage() . "\n";
+            exit(1);
+        }
+        break;
     
     case 'process-email-queue':
         echo "📧 Processing email queue...\n";
@@ -231,7 +275,7 @@ HTML;
     
     default:
         echo "Unknown command: $command\n";
-        echo "Valid commands: weekly-report, optimize\n";
+        echo "Valid commands: process-pending-deliveries, process-email-queue, process-retries, cleanup-security, optimize, weekly-report\n";
         exit(1);
 }
 
