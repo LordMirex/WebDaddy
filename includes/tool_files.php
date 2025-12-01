@@ -566,15 +566,14 @@ function filterBestDownloadTokens($tokens) {
 /**
  * Get bundle download info by token
  * Phase 3.3: Retrieves bundle info for download processing
+ * FIXED: Query from bundle_tokens table directly (not the broken JOIN)
  */
 function getBundleByToken($token) {
     $db = getDb();
     
     $stmt = $db->prepare("
-        SELECT dt.*, bd.zip_path, bd.zip_name, bd.file_count, bd.tool_id
-        FROM download_tokens dt
-        JOIN bundle_downloads bd ON bd.token_id = dt.id
-        WHERE dt.token = ? AND dt.is_bundle = 1
+        SELECT * FROM bundle_tokens
+        WHERE token = ? AND expires_at > datetime('now', '+1 hour')
     ");
     $stmt->execute([$token]);
     return $stmt->fetch(PDO::FETCH_ASSOC);

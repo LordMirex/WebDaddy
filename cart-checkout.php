@@ -288,6 +288,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 error_log("✅ Order success email sent for Order #$orderId to: $customerEmail");
             }
             
+            // CRITICAL FIX: Generate download tokens IMMEDIATELY for all tools with files
+            // This ensures download links appear on confirmation page, not "Processing..." message
+            foreach ($cartItems as $item) {
+                if (($item['product_type'] ?? 'tool') === 'tool') {
+                    $toolId = $item['product_id'];
+                    $toolFiles = getToolFiles($toolId);
+                    if (!empty($toolFiles)) {
+                        foreach ($toolFiles as $file) {
+                            $existingToken = getDb()->prepare("SELECT id FROM download_tokens WHERE file_id = ? AND pending_order_id = ? LIMIT 1");
+                            $existingToken->execute([$file['id'], $orderId]);
+                            if (!$existingToken->fetch()) {
+                                $link = generateDownloadLink($file['id'], $orderId);
+                                if ($link) {
+                                    error_log("✅ Generated download token for Order #$orderId, File #{$file['id']} ({$file['file_name']})");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
             // Build product names list and determine order type for admin notification
             $productNamesList = [];
             $hasTemplates = false;
