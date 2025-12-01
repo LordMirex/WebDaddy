@@ -725,7 +725,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="flex justify-between py-2 border-b border-gray-100">
                     <span class="text-gray-600">Pending Deliveries:</span>
                     <span class="font-medium"><?php 
-                        $pendingDeliveries = $db->query("SELECT COUNT(*) FROM deliveries WHERE status = 'pending'")->fetchColumn();
+                        $pendingDeliveries = $db->query("SELECT COUNT(*) FROM deliveries WHERE delivery_status = 'pending'")->fetchColumn();
                         echo $pendingDeliveries . ' pending';
                     ?></span>
                 </div>

@@ -48,4 +48,6 @@ The platform features a clean, professional UI with consistent design elements. 
 ## Recent Fixes (December 1, 2025)
 - **CONCAT Function Error**: Fixed 4 instances in `api/monitoring.php` - replaced MySQL's CONCAT() with SQLite's || operator
 - **Foreign Key Constraint Error**: Fixed in `includes/functions.php` - added affiliate code validation to prevent insertion of invalid codes
-- **Delivery System**: Fully tested and verified working with 6 live deliveries, 8 orders, mixed order handling confirmed operational
+- **Dashboard Query Error**: Fixed `admin/database.php` line 728 - changed column name from `status` to `delivery_status` in deliveries query
+- **CRITICAL Email Delivery Issue FIXED**: Fixed `includes/delivery.php` lines 1779 & 1819 - changed order status filter from `'paid'` ONLY to `IN ('pending', 'paid')` so delivery system processes BOTH manual payment orders (pending) and verified Paystack orders (paid). This was preventing emails from being sent for manual payment orders.
+- **Delivery System**: Now fully functional - processes pending deliveries with emails for all payment types

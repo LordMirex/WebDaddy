@@ -1770,13 +1770,14 @@ function processAllPendingToolDeliveries() {
             $currentFileCount = $tool['file_count'];
             
             // STEP 2A: Find PENDING deliveries (no download links yet)
+            // FIXED: Include both 'pending' (manual orders) and 'paid' (verified Paystack orders)
             $pendingStmt = $db->prepare("
                 SELECT d.*, po.customer_email, po.customer_name
                 FROM deliveries d
                 JOIN pending_orders po ON d.pending_order_id = po.id
                 WHERE d.product_id = ? 
                   AND d.product_type = 'tool'
-                  AND po.status = 'paid'
+                  AND po.status IN ('pending', 'paid')
                   AND (d.delivery_link IS NULL OR d.delivery_link = '' OR d.delivery_link = '[]')
                 ORDER BY d.created_at ASC
             ");
@@ -1803,6 +1804,7 @@ function processAllPendingToolDeliveries() {
             
             // STEP 2B: Find DELIVERED tools that now have MORE files (update notification)
             // Get deliveries that were delivered and track how many files were in the original delivery
+            // FIXED: Include both 'pending' and 'paid' order statuses
             $deliveredStmt = $db->prepare("
                 SELECT d.*, po.customer_email, po.customer_name,
                        d.delivery_link as existing_links
@@ -1811,7 +1813,7 @@ function processAllPendingToolDeliveries() {
                 WHERE d.product_id = ? 
                   AND d.product_type = 'tool'
                   AND d.delivery_status = 'delivered'
-                  AND po.status = 'paid'
+                  AND po.status IN ('pending', 'paid')
                 ORDER BY d.created_at ASC
             ");
             $deliveredStmt->execute([$toolId]);
