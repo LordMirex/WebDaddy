@@ -25,10 +25,12 @@ function createDeliveryRecords($orderId) {
     
     try {
         // Get order items - ensure we get ALL items
+        // CRITICAL FIX: For tools, only include those marked upload_complete = 1
         $stmt = $db->prepare("
             SELECT oi.id, oi.product_id, oi.product_type, oi.quantity,
                    COALESCE(t.name, tl.name) as product_name,
-                   COALESCE(t.delivery_note, tl.delivery_note) as delivery_note
+                   COALESCE(t.delivery_note, tl.delivery_note) as delivery_note,
+                   COALESCE(tl.upload_complete, 1) as tool_upload_complete
             FROM order_items oi
             LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
             LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
@@ -61,6 +63,13 @@ function createDeliveryRecords($orderId) {
             // FIX: Skip if delivery already exists for this order item
             if (in_array($item['id'], $existingDeliveryItemIds)) {
                 error_log("⏭️  Skipping item {$item['id']} - delivery already exists");
+                $skippedCount++;
+                continue;
+            }
+            
+            // CRITICAL FIX: Skip tools that don't have upload_complete=1
+            if ($item['product_type'] === 'tool' && (empty($item['tool_upload_complete']) || $item['tool_upload_complete'] != 1)) {
+                error_log("⏭️  Skipping tool item {$item['id']} (Product #{$item['product_id']}) - NOT MARKED AS UPLOAD COMPLETE");
                 $skippedCount++;
                 continue;
             }

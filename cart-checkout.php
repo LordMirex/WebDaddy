@@ -275,6 +275,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
+            // CRITICAL FIX: Send order success email with affiliate invitation on order creation (not payment)
+            if (!empty($customerEmail)) {
+                $emailItems = [];
+                foreach ($cartItems as $item) {
+                    $emailItems[] = [
+                        'name' => $item['name'],
+                        'price' => $item['price_at_add']
+                    ];
+                }
+                sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $emailItems);
+                error_log("✅ Order success email sent for Order #$orderId to: $customerEmail");
+            }
+            
             // Build product names list and determine order type for admin notification
             $productNamesList = [];
             $hasTemplates = false;

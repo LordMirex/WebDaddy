@@ -198,17 +198,14 @@ try {
                 if (!empty($order['customer_email'])) {
                     error_log("✅ PAYSTACK VERIFY: Sending confirmation to customer: " . $order['customer_email']);
                     
-                    // SEND EMAIL IMMEDIATELY (don't queue - send now to customer)
-                    $confirmationSubject = '✅ Payment Confirmed - Your Order #' . $orderId . ' is Being Processed';
-                    $confirmationContent = '<h2 style="color:#16a34a;">Payment Confirmed!</h2>' .
-                        '<p>Your payment has been received and verified. Your order is being processed and will be delivered shortly.</p>' .
-                        '<p><strong>Order ID:</strong> #' . $orderId . '</p>' .
-                        '<p><strong>Products:</strong> ' . htmlspecialchars($productNames) . '</p>' .
-                        '<p style="color:#16a34a; font-weight:bold;"><strong>Amount Paid:</strong> ' . formatCurrency($order['final_amount']) . '</p>' .
-                        '<p>You will receive another email shortly with download links and delivery details.</p>';
-                    
-                    $confirmationEmail = createEmailTemplate($confirmationSubject, $confirmationContent, $order['customer_name']);
-                    $emailSent = sendEmail($order['customer_email'], $confirmationSubject, $confirmationEmail);
+                    // FIXED: Use new sendPaymentConfirmationEmail function
+                    $emailSent = sendPaymentConfirmationEmail(
+                        $order['customer_email'],
+                        $order['customer_name'],
+                        $orderId,
+                        $order['final_amount'],
+                        'paystack'
+                    );
                     
                     if ($emailSent) {
                         error_log("✅ PAYSTACK VERIFY: Confirmation email sent successfully to: " . $order['customer_email']);

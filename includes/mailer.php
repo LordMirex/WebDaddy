@@ -418,6 +418,102 @@ HTML;
  * @param string|null $affiliateCode Affiliate code if applicable
  * @param string $orderType Order type (template/tools/mixed)
  */
+/**
+ * Send payment confirmation email to customer
+ * NEW: Sent immediately after Paystack payment is verified
+ */
+function sendPaymentConfirmationEmail($customerEmail, $customerName, $orderId, $totalAmount, $paymentMethod = 'paystack') {
+    if (empty($customerEmail)) {
+        error_log("⚠️  Payment confirmation email: No email provided");
+        return false;
+    }
+    
+    $subject = "✅ Payment Confirmed - Order #{$orderId}";
+    
+    $body = '<div style="text-align: center; margin-bottom: 25px;">';
+    $body .= '<h2 style="color: #059669; margin: 0;">✅ Payment Confirmed!</h2>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
+    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Order #' . $orderId . '</p>';
+    $body .= '<h3 style="margin: 10px 0 0 0; font-size: 24px;">₦' . number_format($totalAmount, 2) . '</h3>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #059669;">';
+    $body .= '<h4 style="color: #065f46; margin: 0 0 10px 0;">✨ What\'s Next?</h4>';
+    $body .= '<p style="color: #065f46; margin: 0; line-height: 1.6;">';
+    $body .= 'Your payment has been processed successfully. You will receive your download links and product details shortly via email. Please check your spam folder if you don\'t see the delivery email within 5 minutes.';
+    $body .= '</p>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; border: 1px solid #bae6fd;">';
+    $body .= '<h4 style="color: #0369a1; margin: 0 0 10px 0;">📋 Transaction Details</h4>';
+    $body .= '<p style="color: #0369a1; margin: 0; line-height: 1.8;">';
+    $body .= '<strong>Order ID:</strong> #' . $orderId . '<br>';
+    $body .= '<strong>Amount:</strong> ₦' . number_format($totalAmount, 2) . '<br>';
+    $body .= '<strong>Payment Method:</strong> ' . ucfirst($paymentMethod) . '<br>';
+    $body .= '<strong>Date:</strong> ' . date('F j, Y \a\t g:i A');
+    $body .= '</p>';
+    $body .= '</div>';
+    
+    return sendEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName));
+}
+
+/**
+ * Send order success email with affiliate invitation for first-time users
+ * NEW: Sent after order items are added to cart/checkout
+ */
+function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderItems = [], $affiliateCode = null) {
+    if (empty($customerEmail)) {
+        error_log("⚠️  Order success email: No email provided");
+        return false;
+    }
+    
+    $subject = "🎉 Your Order #{$orderId} Received!";
+    
+    $body = '<div style="text-align: center; margin-bottom: 25px;">';
+    $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Order Received!</h2>';
+    $body .= '<p style="color: #666; margin-top: 10px;">Thank you for choosing WebDaddy Empire</p>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
+    $body .= '<h3 style="margin: 0 0 10px 0;">Order #' . $orderId . '</h3>';
+    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Placed on ' . date('F j, Y \a\t g:i A') . '</p>';
+    $body .= '</div>';
+    
+    if (!empty($orderItems)) {
+        $body .= '<div style="background-color: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
+        $body .= '<h4 style="color: #1e3a8a; margin: 0 0 15px 0;">📦 Order Items</h4>';
+        foreach ($orderItems as $item) {
+            $body .= '<div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #3b82f6;">';
+            $body .= '<strong style="color: #1e3a8a;">' . htmlspecialchars($item['name'] ?? 'Product') . '</strong>';
+            if (!empty($item['price'])) {
+                $body .= ' - <span style="color: #666;">₦' . number_format($item['price'], 2) . '</span>';
+            }
+            $body .= '</div>';
+        }
+        $body .= '</div>';
+    }
+    
+    // AFFILIATE INVITATION: Include for first-time users
+    $body .= '<div style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #78350f; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
+    $body .= '<h4 style="margin: 0 0 10px 0; color: #78350f;">💰 Earn Money as an Affiliate!</h4>';
+    $body .= '<p style="margin: 0 0 15px 0; line-height: 1.6;">';
+    $body .= 'Join our affiliate program and earn 30% commission on every sale you refer. Share your unique link with friends and start earning!';
+    $body .= '</p>';
+    $body .= '<a href="' . (defined('SITE_URL') ? SITE_URL : '') . '/affiliate-signup.php" style="background: #78350f; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px;">Become an Affiliate →</a>';
+    $body .= '</div>';
+    
+    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px;">';
+    $body .= '<h4 style="color: #065f46; margin: 0 0 10px 0;">✨ Next Steps</h4>';
+    $body .= '<p style="color: #065f46; margin: 0; line-height: 1.6;">';
+    $body .= 'Complete your payment to receive download links and access to your products. If you chose manual bank transfer, we\'ll notify you once payment is verified.';
+    $body .= '</p>';
+    $body .= '</div>';
+    
+    return sendEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName));
+}
+
 function sendNewOrderNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $affiliateCode = null, $orderType = 'template') {
     $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
     $subject = "New Order Received - Order #{$orderId}";
