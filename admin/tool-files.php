@@ -58,16 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
             $fileId = addToolLink($toolId, $externalLink, $description);
             error_log("✅ Link added successfully: Tool ID=$toolId, File ID=$fileId");
             
-            // Process pending deliveries and send emails to customers who were waiting for files
-            require_once __DIR__ . '/../includes/delivery.php';
-            $deliveryResult = processPendingToolDeliveries($toolId);
-            
+            // Note: Emails are NOT sent automatically anymore. 
+            // Admin must mark tool as "Upload Complete" in Tools page to trigger delivery emails.
             $success = 'Link added successfully!';
-            if ($deliveryResult['sent'] > 0) {
-                $success .= " {$deliveryResult['sent']} customer(s) have been notified with download links.";
-            }
             
-            header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1' . ($deliveryResult['sent'] > 0 ? '&emails_sent=' . $deliveryResult['sent'] : ''));
+            header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
             exit;
         }
         
@@ -92,16 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
         $fileId = uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
         error_log("✅ File uploaded successfully: Tool ID=$toolId, File ID=$fileId");
         
-        // Process pending deliveries and send emails to customers who were waiting for files
-        require_once __DIR__ . '/../includes/delivery.php';
-        $deliveryResult = processPendingToolDeliveries($toolId);
-        
+        // Note: Emails are NOT sent automatically anymore. 
+        // Admin must mark tool as "Upload Complete" in Tools page to trigger delivery emails.
         $success = 'File uploaded successfully!';
-        if ($deliveryResult['sent'] > 0) {
-            $success .= " {$deliveryResult['sent']} customer(s) have been notified with download links.";
-        }
         
-        header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1' . ($deliveryResult['sent'] > 0 ? '&emails_sent=' . $deliveryResult['sent'] : ''));
+        header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
         exit;
     } catch (Exception $e) {
         error_log("❌ Upload error: " . $e->getMessage());

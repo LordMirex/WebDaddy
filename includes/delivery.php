@@ -1751,12 +1751,13 @@ function processAllPendingToolDeliveries() {
     error_log("📦 CRON: Starting processAllPendingToolDeliveries");
     
     try {
-        // STEP 1: Get all tools that have at least one file uploaded
+        // STEP 1: Get all tools that have at least one file uploaded AND are marked as upload complete
+        // The upload_complete flag ensures we only send emails when admin is done uploading all files
         $toolsWithFiles = $db->query("
-            SELECT DISTINCT t.id, t.name, COUNT(tf.id) as file_count
+            SELECT DISTINCT t.id, t.name, t.upload_complete, COUNT(tf.id) as file_count
             FROM tools t
             INNER JOIN tool_files tf ON t.id = tf.tool_id
-            WHERE t.active = 1 AND tf.file_name IS NOT NULL
+            WHERE t.active = 1 AND tf.file_name IS NOT NULL AND t.upload_complete = 1
             GROUP BY t.id
             ORDER BY t.id
         ")->fetchAll(PDO::FETCH_ASSOC);

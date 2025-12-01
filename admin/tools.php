@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/url_utils.php';
 require_once __DIR__ . '/../includes/tools.php';
+require_once __DIR__ . '/../includes/tool_files.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -230,6 +231,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log('Stock adjustment error: ' . $e->getMessage());
             $errorMessage = 'Error adjusting stock: ' . $e->getMessage();
         }
+    } elseif ($action === 'toggle_upload_complete') {
+        $toolId = intval($_POST['tool_id']);
+        $uploadComplete = isset($_POST['upload_complete']) ? 1 : 0;
+        
+        try {
+            $stmt = $db->prepare("UPDATE tools SET upload_complete = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $stmt->execute([$uploadComplete, $toolId]);
+            
+            $tool = getToolById($toolId);
+            
+            if ($uploadComplete) {
+                require_once __DIR__ . '/../includes/delivery.php';
+                $deliveryResult = processPendingToolDeliveries($toolId);
+                
+                $successMessage = "Tool marked as complete!";
+                if ($deliveryResult['sent'] > 0) {
+                    $successMessage .= " {$deliveryResult['sent']} customer(s) notified with download links.";
+                }
+                logActivity('tool_upload_complete', "Tool files marked complete: {$tool['name']}, {$deliveryResult['sent']} emails sent", getAdminId());
+            } else {
+                $successMessage = "Tool marked as incomplete (uploads in progress).";
+                logActivity('tool_upload_incomplete', "Tool files marked incomplete: {$tool['name']}", getAdminId());
+            }
+        } catch (Exception $e) {
+            error_log('Toggle upload complete error: ' . $e->getMessage());
+            $errorMessage = 'Error updating upload status: ' . $e->getMessage();
+        }
+    } elseif ($action === 'upload_tool_file') {
+        $toolId = intval($_POST['tool_id']);
+        $fileType = sanitizeInput($_POST['file_type'] ?? 'attachment');
+        $description = sanitizeInput($_POST['file_description'] ?? '');
+        
+        try {
+            if ($_POST['upload_mode'] === 'link') {
+                $externalLink = sanitizeInput($_POST['external_link'] ?? '');
+                if (empty($externalLink)) {
+                    throw new Exception('Please provide a link URL');
+                }
+                if (!filter_var($externalLink, FILTER_VALIDATE_URL)) {
+                    throw new Exception('Invalid URL format');
+                }
+                addToolLink($toolId, $externalLink, $description);
+                $successMessage = 'Link added successfully!';
+            } else {
+                if (!isset($_FILES['tool_file']) || $_FILES['tool_file']['error'] !== UPLOAD_ERR_OK) {
+                    throw new Exception('File upload failed');
+                }
+                uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
+                $successMessage = 'File uploaded successfully!';
+            }
+            $tool = getToolById($toolId);
+            logActivity('tool_file_uploaded', "File added to tool: {$tool['name']}", getAdminId());
+            
+            header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files');
+            exit;
+        } catch (Exception $e) {
+            error_log('Tool file upload error: ' . $e->getMessage());
+            $errorMessage = 'Error uploading file: ' . $e->getMessage();
+        }
+    } elseif ($action === 'delete_tool_file') {
+        $fileId = intval($_POST['file_id']);
+        $toolId = intval($_POST['tool_id']);
+        
+        try {
+            $stmt = $db->prepare("SELECT * FROM tool_files WHERE id = ? AND tool_id = ?");
+            $stmt->execute([$fileId, $toolId]);
+            $file = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$file) {
+                throw new Exception('File not found');
+            }
+            
+            $filePath = __DIR__ . '/../' . $file['file_path'];
+            if (file_exists($filePath) && !preg_match('/^https?:\/\//i', $file['file_path'])) {
+                unlink($filePath);
+            }
+            
+            $stmt = $db->prepare("DELETE FROM tool_files WHERE id = ?");
+            $stmt->execute([$fileId]);
+            
+            $successMessage = 'File deleted successfully!';
+            $tool = getToolById($toolId);
+            logActivity('tool_file_deleted', "File removed from tool: {$tool['name']}", getAdminId());
+            
+            header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files');
+            exit;
+        } catch (Exception $e) {
+            error_log('Tool file delete error: ' . $e->getMessage());
+            $errorMessage = 'Error deleting file: ' . $e->getMessage();
+        }
     }
 }
 
@@ -382,6 +473,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Category</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Files Ready</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Stock</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
@@ -390,7 +482,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-gray-200">
                     <?php if (empty($tools)): ?>
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
                             <i class="bi bi-inbox text-4xl mb-2"></i>
                             <p>No tools found. Click "Add New Tool" to get started.</p>
                         </td>
@@ -432,6 +524,27 @@ require_once __DIR__ . '/includes/header.php';
                             </td>
                             <td class="px-6 py-4">
                                 <span class="font-semibold text-gray-900"><?php echo formatCurrency($tool['price']); ?></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <?php 
+                                $fileCount = $db->prepare("SELECT COUNT(*) FROM tool_files WHERE tool_id = ?");
+                                $fileCount->execute([$tool['id']]);
+                                $toolFileCount = $fileCount->fetchColumn();
+                                $uploadComplete = $tool['upload_complete'] ?? 0;
+                                ?>
+                                <?php if ($uploadComplete && $toolFileCount > 0): ?>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded flex items-center gap-1 w-fit">
+                                    <i class="bi bi-check-circle-fill"></i> <?php echo $toolFileCount; ?> file<?php echo $toolFileCount > 1 ? 's' : ''; ?>
+                                </span>
+                                <?php elseif ($toolFileCount > 0): ?>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded flex items-center gap-1 w-fit">
+                                    <i class="bi bi-hourglass-split"></i> <?php echo $toolFileCount; ?> uploading...
+                                </span>
+                                <?php else: ?>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded flex items-center gap-1 w-fit">
+                                    <i class="bi bi-dash-circle"></i> No files
+                                </span>
+                                <?php endif; ?>
                             </td>
                             <td class="px-6 py-4">
                                 <?php if ($tool['stock_unlimited'] == 1): ?>
@@ -880,6 +993,143 @@ require_once __DIR__ . '/includes/header.php';
                     </button>
                 </div>
             </form>
+            
+            <!-- File Management Section -->
+            <?php 
+            $editToolFiles = getToolFiles($editTool['id']);
+            $editUploadComplete = $editTool['upload_complete'] ?? 0;
+            ?>
+            <div class="border-t-4 border-purple-600">
+                <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-200">
+                    <h4 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <i class="bi bi-file-earmark-zip text-purple-600"></i> Downloadable Files
+                        <span class="ml-2 px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-semibold rounded"><?php echo count($editToolFiles); ?> file<?php echo count($editToolFiles) != 1 ? 's' : ''; ?></span>
+                    </h4>
+                    <p class="text-sm text-gray-600 mt-1">Upload files that customers will receive after purchase</p>
+                </div>
+                
+                <div class="p-6 space-y-5">
+                    <!-- Upload Complete Toggle -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4">
+                        <form method="POST" class="flex items-center justify-between flex-wrap gap-4">
+                            <input type="hidden" name="action" value="toggle_upload_complete">
+                            <input type="hidden" name="tool_id" value="<?php echo $editTool['id']; ?>">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center <?php echo $editUploadComplete ? 'bg-green-500' : 'bg-gray-300'; ?>">
+                                    <i class="bi <?php echo $editUploadComplete ? 'bi-check-lg text-white text-2xl' : 'bi-hourglass-split text-gray-600 text-xl'; ?>"></i>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-gray-900"><?php echo $editUploadComplete ? 'Files Ready for Delivery' : 'Upload In Progress'; ?></h5>
+                                    <p class="text-sm text-gray-600"><?php echo $editUploadComplete 
+                                        ? 'Customers waiting for files will receive download emails' 
+                                        : 'Mark complete when all files are uploaded'; ?></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="upload_complete" value="1" <?php echo $editUploadComplete ? 'checked' : ''; ?> class="sr-only peer" onchange="this.form.submit()">
+                                    <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                                    <span class="ml-3 text-sm font-semibold text-gray-700"><?php echo $editUploadComplete ? 'Complete' : 'In Progress'; ?></span>
+                                </label>
+                            </div>
+                        </form>
+                        <?php if (!$editUploadComplete && count($editToolFiles) > 0): ?>
+                        <p class="mt-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2">
+                            <i class="bi bi-info-circle mr-1"></i> <strong>Note:</strong> Customers won't receive download emails until you toggle this to "Complete"
+                        </p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Current Files List -->
+                    <?php if (!empty($editToolFiles)): ?>
+                    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                            <span class="font-semibold text-gray-700 text-sm">Current Files</span>
+                            <span class="text-xs text-gray-500"><?php echo count($editToolFiles); ?> file<?php echo count($editToolFiles) != 1 ? 's' : ''; ?></span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <?php foreach ($editToolFiles as $file): ?>
+                            <div class="px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <?php 
+                                    $isLink = preg_match('/^https?:\/\//i', $file['file_path']);
+                                    $fileIcon = $isLink ? 'bi-link-45deg text-blue-600' : 'bi-file-earmark-zip text-purple-600';
+                                    ?>
+                                    <i class="bi <?php echo $fileIcon; ?> text-xl flex-shrink-0"></i>
+                                    <div class="min-w-0">
+                                        <div class="font-medium text-gray-900 truncate"><?php echo htmlspecialchars($file['file_name']); ?></div>
+                                        <div class="text-xs text-gray-500">
+                                            <?php echo $isLink ? 'External Link' : number_format($file['file_size'] / 1024, 1) . ' KB'; ?>
+                                            <?php if ($file['description']): ?>
+                                             · <?php echo htmlspecialchars(substr($file['description'], 0, 30)); ?><?php echo strlen($file['description']) > 30 ? '...' : ''; ?>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <form method="POST" class="flex-shrink-0" onsubmit="return confirm('Delete this file?');">
+                                    <input type="hidden" name="action" value="delete_tool_file">
+                                    <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
+                                    <input type="hidden" name="tool_id" value="<?php echo $editTool['id']; ?>">
+                                    <button type="submit" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete file">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Add New File Form -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                        <h5 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="bi bi-cloud-upload text-purple-600"></i> Add New File
+                        </h5>
+                        <form method="POST" enctype="multipart/form-data" class="space-y-4" id="toolFileUploadForm">
+                            <input type="hidden" name="action" value="upload_tool_file">
+                            <input type="hidden" name="tool_id" value="<?php echo $editTool['id']; ?>">
+                            
+                            <div class="flex gap-2 mb-3">
+                                <button type="button" onclick="toggleToolFileMode('file')" id="tool-file-mode-file" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">Upload File</button>
+                                <button type="button" onclick="toggleToolFileMode('link')" id="tool-file-mode-link" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Add Link</button>
+                            </div>
+                            <input type="hidden" name="upload_mode" id="upload_mode" value="file">
+                            
+                            <div id="file-upload-section">
+                                <input type="file" name="tool_file" class="w-full px-3 py-2 bg-white border-2 border-dashed border-gray-300 rounded-lg text-sm cursor-pointer hover:border-purple-400 transition-colors">
+                                <p class="text-xs text-gray-500 mt-1">Max 50MB per file</p>
+                            </div>
+                            
+                            <div id="link-upload-section" style="display: none;">
+                                <input type="url" name="external_link" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm" placeholder="https://example.com/resource">
+                                <p class="text-xs text-gray-500 mt-1">Paste full URL to external resource</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">File Type</label>
+                                    <select name="file_type" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm">
+                                        <option value="zip_archive">ZIP Archive</option>
+                                        <option value="attachment">Attachment</option>
+                                        <option value="text_instructions">Instructions</option>
+                                        <option value="code">Code/Script</option>
+                                        <option value="access_key">Access Key</option>
+                                        <option value="link">External Link</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">Description</label>
+                                    <input type="text" name="file_description" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm" placeholder="Optional">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                                <i class="bi bi-cloud-upload"></i> Upload File
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <?php endif; ?>
@@ -1216,6 +1466,33 @@ document.addEventListener('DOMContentLoaded', function() {
         handleToolVideoTypeChange('edit');
     }
 });
+
+// Toggle between file upload and link mode for tool files
+function toggleToolFileMode(mode) {
+    const fileBtn = document.getElementById('tool-file-mode-file');
+    const linkBtn = document.getElementById('tool-file-mode-link');
+    const fileSection = document.getElementById('file-upload-section');
+    const linkSection = document.getElementById('link-upload-section');
+    const uploadModeInput = document.getElementById('upload_mode');
+    
+    if (mode === 'file') {
+        fileBtn.classList.add('bg-purple-600', 'text-white');
+        fileBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        linkBtn.classList.remove('bg-purple-600', 'text-white');
+        linkBtn.classList.add('bg-gray-200', 'text-gray-700');
+        fileSection.style.display = 'block';
+        linkSection.style.display = 'none';
+        uploadModeInput.value = 'file';
+    } else {
+        linkBtn.classList.add('bg-purple-600', 'text-white');
+        linkBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        fileBtn.classList.remove('bg-purple-600', 'text-white');
+        fileBtn.classList.add('bg-gray-200', 'text-gray-700');
+        linkSection.style.display = 'block';
+        fileSection.style.display = 'none';
+        uploadModeInput.value = 'link';
+    }
+}
 
 // Tool Video Upload Handler - Create
 document.getElementById('tool-video-file-input-create')?.addEventListener('change', async function(e) {
