@@ -50,6 +50,20 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Recent Changes (December 1, 2025)
 
+### Admin Tools Search (NEW!)
+- **AJAX Tool Search**: Fast dropdown search on admin tools page
+- **Positioning**: Search box at top with dropdown results showing below
+- **Features**: 
+  - 300ms debounce for performance
+  - Shows tool name, file count, upload status (✅ Ready / ⏳ Pending)  
+  - Pagination support in dropdown
+  - Click any result to edit that tool
+  - Close dropdown when clicking outside
+- **API**: `/api/admin-search-tools.php` handles search queries with pagination
+- **UX Improvement**: Admin can now quickly find tools to upload files without scrolling through full table
+
+### Previous Recent Changes (December 1, 2025)
+
 ### Admin UI Improvements
 - **Footer & Spacing Fix**: Added professional footer with branding and 8rem bottom padding to all admin pages
 - **Pagination Visibility**: Pagination and page numbers now clearly visible above footer - no more cut-off content

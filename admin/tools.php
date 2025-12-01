@@ -446,15 +446,15 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Search Bar -->
     <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div class="mb-6">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 Search Tools</label>
-            <input type="text" id="toolSearch" placeholder="Search by tool name or description..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-            <p class="text-xs text-gray-500 mt-1">Start typing to search instantly...</p>
+        <label class="block text-sm font-semibold text-gray-700 mb-3">🔍 Search Tools by Name</label>
+        <div class="relative">
+            <input type="text" id="toolSearch" placeholder="Type tool name to search..." autocomplete="off" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none transition-all">
+            <div id="searchDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-purple-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto" style="display:none;">
+                <div id="toolsList" class="divide-y"></div>
+                <div id="searchPagination" class="p-3 border-t bg-gray-50 flex justify-center gap-1 flex-wrap"></div>
+            </div>
         </div>
-        <div id="searchResults" style="display:none;">
-            <div id="toolsList" class="space-y-2"></div>
-            <div id="searchPagination" class="mt-4 flex justify-center gap-2"></div>
-        </div>
+        <p class="text-xs text-gray-500 mt-2">Type at least 2 characters to search...</p>
     </div>
 
     <!-- Filters -->
@@ -1857,12 +1857,15 @@ document.getElementById('toolFile').addEventListener('change', (e) => {
 
 // AJAX Tool Search
 let searchTimeout;
-document.getElementById('toolSearch').addEventListener('input', function(e) {
+const searchInput = document.getElementById('toolSearch');
+const searchDropdown = document.getElementById('searchDropdown');
+
+searchInput.addEventListener('input', function(e) {
     clearTimeout(searchTimeout);
     const query = e.target.value.trim();
     
     if (query.length < 2) {
-        document.getElementById('searchResults').style.display = 'none';
+        searchDropdown.style.display = 'none';
         return;
     }
     
@@ -1871,22 +1874,29 @@ document.getElementById('toolSearch').addEventListener('input', function(e) {
     }, 300);
 });
 
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#toolSearch') && !e.target.closest('#searchDropdown')) {
+        searchDropdown.style.display = 'none';
+    }
+});
+
 async function performToolSearch(query, page = 1) {
     try {
-        const response = await fetch(`/api/admin-search-tools.php?action=search&q=${encodeURIComponent(query)}&page=${page}`);
+        const response = await fetch(`/api/admin-search-tools.php?q=${encodeURIComponent(query)}&page=${page}`);
         const data = await response.json();
         
         if (!data.success) {
-            document.getElementById('toolsList').innerHTML = '<p class="text-red-600">Search error</p>';
+            document.getElementById('toolsList').innerHTML = '<div class="p-4 text-red-600 text-sm">❌ Search error</div>';
+            searchDropdown.style.display = 'block';
             return;
         }
         
-        const resultsDiv = document.getElementById('searchResults');
         const toolsList = document.getElementById('toolsList');
         
         if (data.tools.length === 0) {
-            toolsList.innerHTML = '<p class="text-gray-500">No tools found</p>';
-            resultsDiv.style.display = 'block';
+            toolsList.innerHTML = '<div class="p-4 text-gray-600 text-sm">No tools found</div>';
+            searchDropdown.style.display = 'block';
             document.getElementById('searchPagination').innerHTML = '';
             return;
         }
@@ -1894,15 +1904,12 @@ async function performToolSearch(query, page = 1) {
         // Build tools list
         let html = '';
         data.tools.forEach(tool => {
-            const uploadStatus = tool.upload_complete ? '✅' : '⏳';
+            const status = tool.upload_complete ? '✅ Ready' : '⏳ Pending';
             html += `
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors border border-gray-200" onclick="location.href='/admin/tools.php?edit=${tool.id}&tab=files'">
-                    <div>
-                        <p class="font-semibold text-gray-900">${tool.name}</p>
-                        <p class="text-xs text-gray-500">${tool.file_count} files • ${uploadStatus} ${tool.upload_complete ? 'Ready' : 'Pending'}</p>
-                    </div>
-                    <a href="/admin/tools.php?edit=${tool.id}&tab=files" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg">Upload Files</a>
-                </div>
+                <a href="/admin/tools.php?edit=${tool.id}" class="block p-3 hover:bg-purple-50 transition-colors">
+                    <div class="font-semibold text-gray-900 text-sm">${tool.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${tool.file_count} files • ${status}</div>
+                </a>
             `;
         });
         toolsList.innerHTML = html;
@@ -1912,17 +1919,18 @@ async function performToolSearch(query, page = 1) {
         if (data.totalPages > 1) {
             for (let i = 1; i <= data.totalPages; i++) {
                 if (i === page) {
-                    paginationHtml += `<span class="px-3 py-2 bg-purple-600 text-white rounded">${i}</span>`;
+                    paginationHtml += `<span class="px-2 py-1 bg-purple-600 text-white text-xs rounded font-bold">${i}</span>`;
                 } else {
-                    paginationHtml += `<button class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded" onclick="performToolSearch('${query}', ${i})">${i}</button>`;
+                    paginationHtml += `<button class="px-2 py-1 bg-gray-200 hover:bg-gray-300 text-xs rounded" onclick="performToolSearch('${query.replace(/'/g, "\\'")}', ${i}); return false;">${i}</button>`;
                 }
             }
         }
         document.getElementById('searchPagination').innerHTML = paginationHtml;
-        resultsDiv.style.display = 'block';
+        searchDropdown.style.display = 'block';
     } catch (error) {
         console.error('Search error:', error);
-        document.getElementById('toolsList').innerHTML = '<p class="text-red-600">Error performing search</p>';
+        document.getElementById('toolsList').innerHTML = '<div class="p-4 text-red-600 text-sm">❌ Connection error</div>';
+        searchDropdown.style.display = 'block';
     }
 }
 </script>
