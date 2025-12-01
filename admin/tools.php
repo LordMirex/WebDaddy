@@ -263,6 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileType = sanitizeInput($_POST['file_type'] ?? 'attachment');
         $description = sanitizeInput($_POST['file_description'] ?? '');
         
+        $uploadSuccess = false;
         try {
             if ($_POST['upload_mode'] === 'link') {
                 $externalLink = sanitizeInput($_POST['external_link'] ?? '');
@@ -274,18 +275,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 addToolLink($toolId, $externalLink, $description);
                 $successMessage = 'Link added successfully!';
+                $uploadSuccess = true;
             } else {
-                if (!isset($_FILES['tool_file']) || $_FILES['tool_file']['error'] !== UPLOAD_ERR_OK) {
-                    throw new Exception('File upload failed');
+                if (!isset($_FILES['tool_file'])) {
+                    throw new Exception('No file selected. Please choose a file to upload.');
+                }
+                if ($_FILES['tool_file']['error'] !== UPLOAD_ERR_OK) {
+                    $errorMap = [
+                        UPLOAD_ERR_INI_SIZE => 'File is too large (exceeds server limit)',
+                        UPLOAD_ERR_FORM_SIZE => 'File is too large (exceeds form limit)',
+                        UPLOAD_ERR_PARTIAL => 'File upload incomplete',
+                        UPLOAD_ERR_NO_FILE => 'No file selected',
+                        UPLOAD_ERR_NO_TMP_DIR => 'Server error: no temp directory',
+                        UPLOAD_ERR_CANT_WRITE => 'Server error: cannot write file'
+                    ];
+                    throw new Exception($errorMap[$_FILES['tool_file']['error']] ?? 'File upload failed');
                 }
                 uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
                 $successMessage = 'File uploaded successfully!';
+                $uploadSuccess = true;
             }
             $tool = getToolById($toolId);
             logActivity('tool_file_uploaded', "File added to tool: {$tool['name']}", getAdminId());
             
-            header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files');
-            exit;
+            if ($uploadSuccess) {
+                header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files&success=file_uploaded');
+                exit;
+            }
         } catch (Exception $e) {
             error_log('Tool file upload error: ' . $e->getMessage());
             $errorMessage = 'Error uploading file: ' . $e->getMessage();
@@ -1085,6 +1101,13 @@ require_once __DIR__ . '/includes/header.php';
                         <h5 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                             <i class="bi bi-cloud-upload text-purple-600"></i> Add New File
                         </h5>
+                        <?php if (isset($_GET['success']) && $_GET['success'] === 'file_uploaded'): ?>
+                        <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="text-sm text-green-800 flex items-center gap-2">
+                                <i class="bi bi-check-circle-fill"></i> File uploaded successfully!
+                            </p>
+                        </div>
+                        <?php endif; ?>
                         <form method="POST" enctype="multipart/form-data" class="space-y-4" id="toolFileUploadForm">
                             <input type="hidden" name="action" value="upload_tool_file">
                             <input type="hidden" name="tool_id" value="<?php echo $editTool['id']; ?>">
@@ -1107,23 +1130,23 @@ require_once __DIR__ . '/includes/header.php';
                             
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-700 mb-1">File Type</label>
-                                    <select name="file_type" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm">
-                                        <option value="zip_archive">ZIP Archive</option>
-                                        <option value="attachment">Attachment</option>
-                                        <option value="text_instructions">Instructions</option>
-                                        <option value="code">Code/Script</option>
-                                        <option value="access_key">Access Key</option>
-                                        <option value="link">External Link</option>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">📁 File Type</label>
+                                    <select name="file_type" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                        <option value="zip_archive">📦 ZIP Archive</option>
+                                        <option value="attachment">📎 Attachment</option>
+                                        <option value="text_instructions">📝 Instructions</option>
+                                        <option value="code">💻 Code/Script</option>
+                                        <option value="access_key">🔑 Access Key</option>
+                                        <option value="link">🔗 External Link</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-gray-700 mb-1">Description</label>
-                                    <input type="text" name="file_description" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm" placeholder="Optional">
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">📝 Description</label>
+                                    <input type="text" name="file_description" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Optional (max 100 chars)">
                                 </div>
                             </div>
                             
-                            <button type="submit" class="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <button type="submit" class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md">
                                 <i class="bi bi-cloud-upload"></i> Upload File
                             </button>
                         </form>
