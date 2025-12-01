@@ -1510,6 +1510,11 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                             <span class="px-3 py-1 <?php echo $color; ?> rounded-full text-xs font-semibold">
                                 <?php echo ucfirst($viewOrder['status']); ?>
                             </span>
+                            <?php if ($viewOrder['status'] === 'pending'): ?>
+                            <button type="button" onclick="document.getElementById('quickMarkPaidForm').classList.remove('hidden'); document.getElementById('quickMarkPaidOverlay').classList.remove('hidden'); return false;" class="ml-auto inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-full transition-colors">
+                                <i class="bi bi-check-circle mr-1"></i> Mark Paid Now
+                            </button>
+                            <?php endif; ?>
                         </p>
                         <p class="text-gray-700"><span class="font-semibold">Date:</span> <?php echo date('M d, Y H:i', strtotime($viewOrder['created_at'])); ?></p>
                         <?php if (!empty($viewOrder['affiliate_code'])): ?>
@@ -2652,6 +2657,65 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
     </div>
 </div>
 <?php endif; ?>
+<?php endif; ?>
+
+<!-- Quick Mark Paid Modal -->
+<?php if ($viewOrder && $viewOrder['status'] === 'pending'): ?>
+<div id="quickMarkPaidOverlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-[60] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-check-circle text-green-600"></i> Quick Payment Confirmation
+            </h3>
+        </div>
+        <div id="quickMarkPaidForm" class="hidden p-6">
+            <form method="POST" id="quickPaymentForm">
+                <input type="hidden" name="action" value="mark_paid">
+                <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                
+                <div class="mb-4">
+                    <p class="text-gray-700 mb-3">
+                        <span class="font-semibold">Order #<?php echo $viewOrder['id']; ?></span><br>
+                        <span class="text-gray-600 text-sm">Amount: <?php 
+                        $finalPayableAmount = computeFinalAmount($viewOrder, $viewOrderItems);
+                        echo formatCurrency($finalPayableAmount); 
+                        ?></span>
+                    </p>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="bi bi-sticky mr-1"></i> Payment Notes (Optional)
+                    </label>
+                    <textarea name="payment_notes" rows="2" placeholder="e.g., Received bank transfer..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"></textarea>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="button" onclick="document.getElementById('quickMarkPaidForm').classList.add('hidden'); document.getElementById('quickMarkPaidOverlay').classList.add('hidden');" class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
+                        <i class="bi bi-check-circle mr-1"></i> Confirm Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <button type="button" onclick="document.getElementById('quickMarkPaidForm').classList.add('hidden'); document.getElementById('quickMarkPaidOverlay').classList.add('hidden');" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('quickMarkPaidOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        document.getElementById('quickMarkPaidForm').classList.add('hidden');
+        document.getElementById('quickMarkPaidOverlay').classList.add('hidden');
+    }
+});
+</script>
 <?php endif; ?>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

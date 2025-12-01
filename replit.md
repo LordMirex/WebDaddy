@@ -50,7 +50,7 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Recent Changes (December 1, 2025) - ALL DOWNLOAD BUGS FIXED ✅
 
-### LATEST FIXES (December 1, 2025 - Session 2)
+### LATEST FIXES (December 1, 2025 - Session 2-3)
 1. **Late File Upload Handling** - Dynamic token generation for files uploaded after payment confirmation
    - **cart-checkout.php** (Lines 1145-1158): Confirmation page now auto-generates download tokens if files exist but tokens don't
    - Handles timing issue where tool files are uploaded AFTER customer pays
@@ -59,6 +59,11 @@ The platform features a clean, professional UI with consistent design elements. 
    - **admin/orders.php** (Lines 2279-2342): Creates missing delivery records when viewing paid orders
    - Automatically generates download tokens and delivery records if tool has `upload_complete=1`
    - Tool-only and template-only orders now properly show delivery details section
+3. **Quick Mark as Paid Button** - Immediate payment confirmation UI for manual orders
+   - **admin/orders.php** (Lines 1517-1519): Added "Mark Paid Now" button visible at top of order modal
+   - **admin/orders.php** (Lines 2665-2722): Quick payment confirmation modal with instant marking
+   - For manual (bank transfer) payment orders, admin can now confirm payment without scrolling
+   - Supports optional payment notes for record-keeping
 
 ### ALL CRITICAL BUGS NOW FIXED ✅
 1. **Upload Complete Check** - Delivery system respects `upload_complete=1` flag
