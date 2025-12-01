@@ -444,6 +444,19 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     <?php endif; ?>
 
+    <!-- Search Bar -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">🔍 Search Tools</label>
+            <input type="text" id="toolSearch" placeholder="Search by tool name or description..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <p class="text-xs text-gray-500 mt-1">Start typing to search instantly...</p>
+        </div>
+        <div id="searchResults" style="display:none;">
+            <div id="toolsList" class="space-y-2"></div>
+            <div id="searchPagination" class="mt-4 flex justify-center gap-2"></div>
+        </div>
+    </div>
+
     <!-- Filters -->
     <div class="bg-white rounded-xl shadow-md p-6 mb-6">
         <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1841,6 +1854,77 @@ document.getElementById('toolFile').addEventListener('change', (e) => {
         }
     }
 });
+
+// AJAX Tool Search
+let searchTimeout;
+document.getElementById('toolSearch').addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length < 2) {
+        document.getElementById('searchResults').style.display = 'none';
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        performToolSearch(query, 1);
+    }, 300);
+});
+
+async function performToolSearch(query, page = 1) {
+    try {
+        const response = await fetch(`/api/admin-search-tools.php?action=search&q=${encodeURIComponent(query)}&page=${page}`);
+        const data = await response.json();
+        
+        if (!data.success) {
+            document.getElementById('toolsList').innerHTML = '<p class="text-red-600">Search error</p>';
+            return;
+        }
+        
+        const resultsDiv = document.getElementById('searchResults');
+        const toolsList = document.getElementById('toolsList');
+        
+        if (data.tools.length === 0) {
+            toolsList.innerHTML = '<p class="text-gray-500">No tools found</p>';
+            resultsDiv.style.display = 'block';
+            document.getElementById('searchPagination').innerHTML = '';
+            return;
+        }
+        
+        // Build tools list
+        let html = '';
+        data.tools.forEach(tool => {
+            const uploadStatus = tool.upload_complete ? '✅' : '⏳';
+            html += `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-purple-50 cursor-pointer transition-colors border border-gray-200" onclick="location.href='/admin/tools.php?edit=${tool.id}&tab=files'">
+                    <div>
+                        <p class="font-semibold text-gray-900">${tool.name}</p>
+                        <p class="text-xs text-gray-500">${tool.file_count} files • ${uploadStatus} ${tool.upload_complete ? 'Ready' : 'Pending'}</p>
+                    </div>
+                    <a href="/admin/tools.php?edit=${tool.id}&tab=files" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg">Upload Files</a>
+                </div>
+            `;
+        });
+        toolsList.innerHTML = html;
+        
+        // Build pagination
+        let paginationHtml = '';
+        if (data.totalPages > 1) {
+            for (let i = 1; i <= data.totalPages; i++) {
+                if (i === page) {
+                    paginationHtml += `<span class="px-3 py-2 bg-purple-600 text-white rounded">${i}</span>`;
+                } else {
+                    paginationHtml += `<button class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded" onclick="performToolSearch('${query}', ${i})">${i}</button>`;
+                }
+            }
+        }
+        document.getElementById('searchPagination').innerHTML = paginationHtml;
+        resultsDiv.style.display = 'block';
+    } catch (error) {
+        console.error('Search error:', error);
+        document.getElementById('toolsList').innerHTML = '<p class="text-red-600">Error performing search</p>';
+    }
+}
 </script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
