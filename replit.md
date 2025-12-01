@@ -50,6 +50,16 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Recent Changes (December 1, 2025) - ALL DOWNLOAD BUGS FIXED ✅
 
+### LATEST FIXES (December 1, 2025 - Session 2)
+1. **Late File Upload Handling** - Dynamic token generation for files uploaded after payment confirmation
+   - **cart-checkout.php** (Lines 1145-1158): Confirmation page now auto-generates download tokens if files exist but tokens don't
+   - Handles timing issue where tool files are uploaded AFTER customer pays
+   - Added `download` attribute to file links for proper browser download behavior
+2. **Admin Delivery Details Fix** - On-demand reconciliation for tool-only orders
+   - **admin/orders.php** (Lines 2279-2342): Creates missing delivery records when viewing paid orders
+   - Automatically generates download tokens and delivery records if tool has `upload_complete=1`
+   - Tool-only and template-only orders now properly show delivery details section
+
 ### ALL CRITICAL BUGS NOW FIXED ✅
 1. **Upload Complete Check** - Delivery system respects `upload_complete=1` flag
 2. **Payment Confirmation Email** - Customers receive after Paystack verification
@@ -57,6 +67,7 @@ The platform features a clean, professional UI with consistent design elements. 
 4. **Bundle ZIP Downloads** - NOW FIXED - `getBundleByToken()` properly queries bundle_tokens table
 5. **Individual File Downloads** - NOW FIXED - Download tokens generated immediately on order creation
 6. **Download Links & Buttons** - NOW FULLY FUNCTIONAL with 30-day expiry and 10-download limit
+7. **Late Upload Recovery** - Downloads work even when files uploaded after payment confirmed
 
 ### Code Changes Summary (December 1 - Final)
 - **includes/tool_files.php** (Line 570-583): Fixed `getBundleByToken()` function
