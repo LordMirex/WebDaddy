@@ -227,4 +227,4 @@
         </div>
 
         <main class="flex-1 lg:ml-64 overflow-y-auto overflow-x-hidden">
-            <div class="p-4 md:p-6 lg:p-8">
+            <div class="p-4 md:p-6 lg:p-8 pb-32">
