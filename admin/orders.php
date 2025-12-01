@@ -2273,6 +2273,71 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             require_once __DIR__ . '/../includes/tool_files.php';
             $toolDeliveries = array_filter($orderDeliveries ?? [], function($d) { return $d['product_type'] === 'tool'; });
             
+            // DYNAMIC FIX: Create missing delivery records for tool-only orders
+            // This handles cases where files were uploaded after payment was confirmed
+            if ($viewOrder['status'] === 'paid' && empty($toolDeliveries) && !empty($viewOrderItems)) {
+                $toolItemsWithoutDelivery = [];
+                foreach ($viewOrderItems as $item) {
+                    if ($item['product_type'] === 'tool') {
+                        // Check if this tool item has a delivery record
+                        $hasDelivery = false;
+                        foreach ($orderDeliveries as $d) {
+                            if ($d['order_item_id'] == $item['id']) {
+                                $hasDelivery = true;
+                                break;
+                            }
+                        }
+                        if (!$hasDelivery) {
+                            $toolItemsWithoutDelivery[] = $item;
+                        }
+                    }
+                }
+                
+                // Create delivery records for missing tools
+                if (!empty($toolItemsWithoutDelivery)) {
+                    foreach ($toolItemsWithoutDelivery as $toolItem) {
+                        // Get tool info
+                        $toolStmt = $db->prepare("SELECT id, name, upload_complete FROM tools WHERE id = ?");
+                        $toolStmt->execute([$toolItem['product_id']]);
+                        $toolInfo = $toolStmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($toolInfo && $toolInfo['upload_complete']) {
+                            // Get tool files and generate download links
+                            $files = getToolFiles($toolItem['product_id']);
+                            $downloadLinks = [];
+                            foreach ($files as $file) {
+                                $link = generateDownloadLink($file['id'], $viewOrder['id']);
+                                if ($link) {
+                                    $downloadLinks[] = $link;
+                                }
+                            }
+                            
+                            // Create delivery record
+                            $deliveryStatus = !empty($downloadLinks) ? 'ready' : 'pending';
+                            $createDeliveryStmt = $db->prepare("
+                                INSERT INTO deliveries (
+                                    pending_order_id, order_item_id, product_id, product_type, product_name,
+                                    delivery_method, delivery_type, delivery_status, delivery_link, retry_count
+                                ) VALUES (?, ?, ?, 'tool', ?, 'download', 'immediate', ?, ?, 0)
+                            ");
+                            $createDeliveryStmt->execute([
+                                $viewOrder['id'],
+                                $toolItem['id'],
+                                $toolItem['product_id'],
+                                $toolInfo['name'] ?? 'Tool',
+                                $deliveryStatus,
+                                json_encode($downloadLinks)
+                            ]);
+                            error_log("✅ Admin: Created missing delivery record for Order #{$viewOrder['id']}, Tool #{$toolItem['product_id']}");
+                        }
+                    }
+                    
+                    // Refresh delivery data
+                    $orderDeliveries = getDeliveryStatus($viewOrder['id']);
+                    $toolDeliveries = array_filter($orderDeliveries, function($d) { return $d['product_type'] === 'tool'; });
+                }
+            }
+            
             if (!empty($toolDeliveries)):
             ?>
             <div class="mb-6">

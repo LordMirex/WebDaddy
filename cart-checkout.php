@@ -1137,8 +1137,22 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 $toolFiles = getToolFiles($item['product_id']);
                                 $downloadTokens = getDownloadTokens($confirmationData['order']['id'], $item['product_id']);
                                 $filteredTokens = filterBestDownloadTokens($downloadTokens);
-                                $hasFiles = !empty($filteredTokens);
                                 $hasToolFilesUploaded = !empty($toolFiles);
+                                
+                                // DYNAMIC FIX: If tool files exist but no tokens yet, generate them now
+                                if ($hasToolFilesUploaded && empty($filteredTokens)) {
+                                    foreach ($toolFiles as $file) {
+                                        $link = generateDownloadLink($file['id'], $confirmationData['order']['id']);
+                                        if ($link) {
+                                            error_log("✅ Dynamic: Generated download token for Order #{$confirmationData['order']['id']}, File #{$file['id']}");
+                                        }
+                                    }
+                                    // Re-fetch tokens after generation
+                                    $downloadTokens = getDownloadTokens($confirmationData['order']['id'], $item['product_id']);
+                                    $filteredTokens = filterBestDownloadTokens($downloadTokens);
+                                }
+                                
+                                $hasFiles = !empty($filteredTokens);
                             ?>
                             <div class="pb-4 border-b border-gray-700 last:border-0 mb-4">
                                 <div class="flex-1">
@@ -1167,8 +1181,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             </a>
                                             <?php else: ?>
                                             <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>"
-                                               class="flex-1 text-sm text-green-400 hover:text-green-300 underline flex items-center gap-2 min-w-0"
-                                               onclick="this.classList.add('opacity-50'); this.querySelector('.download-icon').innerHTML = '⏳';">
+                                               download
+                                               class="flex-1 text-sm text-green-400 hover:text-green-300 underline flex items-center gap-2 min-w-0 cursor-pointer"
+                                               onclick="event.stopPropagation(); this.classList.add('opacity-50'); var icon = this.querySelector('.download-icon'); if(icon) icon.innerHTML = '⏳'; return true;">
                                                 <span class="download-icon flex-shrink-0">📥</span>
                                                 <span class="truncate"><?php echo htmlspecialchars($token['file_name']); ?></span>
                                                 <span class="text-gray-500 text-xs flex-shrink-0">(<?php echo formatFileSize($token['file_size']); ?>)</span>
