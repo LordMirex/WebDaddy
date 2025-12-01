@@ -50,7 +50,7 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Recent Changes (December 1, 2025) - ALL DOWNLOAD BUGS FIXED ✅
 
-### LATEST FIXES (December 1, 2025 - Session 2-3)
+### LATEST FIXES (December 1, 2025 - Session 2-4) ✅ COMPLETE EMAIL & PAYMENT FLOW
 1. **Late File Upload Handling** - Dynamic token generation for files uploaded after payment confirmation
    - **cart-checkout.php** (Lines 1145-1158): Confirmation page now auto-generates download tokens if files exist but tokens don't
    - Handles timing issue where tool files are uploaded AFTER customer pays
@@ -64,6 +64,15 @@ The platform features a clean, professional UI with consistent design elements. 
    - **admin/orders.php** (Lines 2665-2722): Quick payment confirmation modal with instant marking
    - For manual (bank transfer) payment orders, admin can now confirm payment without scrolling
    - Supports optional payment notes for record-keeping
+4. **Manual Payment Email Flow** - Correct email sequencing
+   - **cart-checkout.php** (Lines 283-295): NO "Order Received" email for manual payment orders
+   - Only automatic payment orders receive order success email on creation
+   - Payment confirmation email automatically sent when admin marks order as paid
+   - includes/functions.php (Line 609): sendEnhancedPaymentConfirmationEmail() called in markOrderPaid()
+
+### Email Flow Behavior
+- **Automatic (Paystack)**: Order Received → Customer pays → Payment Confirmed email
+- **Manual (Bank Transfer)**: Order created (no email) → Admin confirms paid → Payment Confirmed email sent immediately
 
 ### ALL CRITICAL BUGS NOW FIXED ✅
 1. **Upload Complete Check** - Delivery system respects `upload_complete=1` flag

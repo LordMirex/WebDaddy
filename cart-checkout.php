@@ -275,8 +275,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
-            // CRITICAL FIX: Send order success email with affiliate invitation on order creation (not payment)
-            if (!empty($customerEmail)) {
+            // CRITICAL FIX: Send order success email ONLY for automatic payments
+            // For manual payments: Customer waits for admin confirmation, then gets payment confirmed email
+            if (!empty($customerEmail) && $paymentMethod === 'automatic') {
                 $emailItems = [];
                 foreach ($cartItems as $item) {
                     $emailItems[] = [
@@ -286,6 +287,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 }
                 sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $emailItems);
                 error_log("✅ Order success email sent for Order #$orderId to: $customerEmail");
+            } else if (!empty($customerEmail) && $paymentMethod === 'manual') {
+                error_log("📌 Manual payment order #$orderId created. Customer will receive payment confirmation email when admin confirms payment.");
             }
             
             // CRITICAL FIX: Generate download tokens IMMEDIATELY for all tools with files
