@@ -44,3 +44,8 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Paystack:** Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension:** Required for generating tool bundles.
 - **Email Service:** Utilized for sending various notifications (delivery, overdue alerts, order summaries).
+
+## Recent Fixes (December 1, 2025)
+- **CONCAT Function Error**: Fixed 4 instances in `api/monitoring.php` - replaced MySQL's CONCAT() with SQLite's || operator
+- **Foreign Key Constraint Error**: Fixed in `includes/functions.php` - added affiliate code validation to prevent insertion of invalid codes
+- **Delivery System**: Fully tested and verified working with 6 live deliveries, 8 orders, mixed order handling confirmed operational

@@ -301,6 +301,18 @@ function createOrderWithItems($orderData, $items = [])
             $orderType = 'tool';
         }
         
+        // FIXED: Validate affiliate code exists before inserting (foreign key constraint)
+        $affiliateCode = $orderData['affiliate_code'] ?? null;
+        if (!empty($affiliateCode)) {
+            $affiliateCheck = $db->prepare("SELECT id FROM affiliates WHERE UPPER(code) = UPPER(?) LIMIT 1");
+            $affiliateCheck->execute([$affiliateCode]);
+            if (!$affiliateCheck->fetch()) {
+                // Affiliate code doesn't exist - set to NULL instead of failing
+                error_log("⚠️  Invalid affiliate code ignored: $affiliateCode");
+                $affiliateCode = null;
+            }
+        }
+        
         $stmt = $db->prepare("
             INSERT INTO pending_orders 
             (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
@@ -323,7 +335,7 @@ function createOrderWithItems($orderData, $items = [])
             $orderData['customer_phone'],
             $orderData['business_name'] ?? null,
             $orderData['custom_fields'] ?? null,
-            $orderData['affiliate_code'] ?? null,
+            $affiliateCode,
             $orderData['session_id'] ?? session_id(),
             $orderData['message_text'] ?? null,
             $orderData['ip_address'] ?? ($_SERVER['REMOTE_ADDR'] ?? ''),

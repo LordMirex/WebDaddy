@@ -235,25 +235,25 @@ try {
             }
             
             // Security logs
-            $stmt = $db->query("SELECT 'security' as type, 'Security' as category, event_type as description, CONCAT('IP: ', ip_address, ' | ', details) as details, created_at FROM security_logs ORDER BY created_at DESC LIMIT $limit");
+            $stmt = $db->query("SELECT 'security' as type, 'Security' as category, event_type as description, ('IP: ' || ip_address || ' | ' || details) as details, created_at FROM security_logs ORDER BY created_at DESC LIMIT $limit");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $allLogs[] = $row;
             }
             
             // Payment logs
-            $stmt = $db->query("SELECT 'payment' as type, 'Payments' as category, event_type as description, CONCAT('Amount: ', amount, ' | Status: ', status) as details, created_at FROM payment_logs ORDER BY created_at DESC LIMIT $limit");
+            $stmt = $db->query("SELECT 'payment' as type, 'Payments' as category, event_type as description, ('Amount: ' || amount || ' | Status: ' || status) as details, created_at FROM payment_logs ORDER BY created_at DESC LIMIT $limit");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $allLogs[] = $row;
             }
             
             // Email events
-            $stmt = $db->query("SELECT 'email' as type, 'Emails' as category, event_type as description, CONCAT('To: ', recipient_email) as details, created_at FROM email_events ORDER BY created_at DESC LIMIT $limit");
+            $stmt = $db->query("SELECT 'email' as type, 'Emails' as category, event_type as description, ('To: ' || recipient_email) as details, created_at FROM email_events ORDER BY created_at DESC LIMIT $limit");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $allLogs[] = $row;
             }
             
             // Commission logs
-            $stmt = $db->query("SELECT 'commission' as type, 'Commission' as category, action as description, CONCAT('Amount: ', amount, ' | User: ', affiliate_id) as details, created_at FROM commission_log ORDER BY created_at DESC LIMIT $limit");
+            $stmt = $db->query("SELECT 'commission' as type, 'Commission' as category, action as description, ('Amount: ' || amount || ' | User: ' || affiliate_id) as details, created_at FROM commission_log ORDER BY created_at DESC LIMIT $limit");
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $allLogs[] = $row;
             }
