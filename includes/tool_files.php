@@ -35,6 +35,68 @@ function getToolFiles($toolId) {
 }
 
 /**
+ * Check if a tool file has been delivered to any orders
+ * Used to prevent deletion of files that customers have already received
+ * 
+ * @param int $fileId The tool file ID to check
+ * @return array ['is_protected' => bool, 'delivered_count' => int, 'message' => string]
+ */
+function isFileDeliveredToOrders($fileId) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        SELECT COUNT(DISTINCT dt.pending_order_id) as delivered_count
+        FROM download_tokens dt
+        INNER JOIN pending_orders po ON dt.pending_order_id = po.id
+        WHERE dt.file_id = ? 
+        AND po.status IN ('paid', 'completed')
+    ");
+    $stmt->execute([$fileId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $deliveredCount = (int)($result['delivered_count'] ?? 0);
+    
+    if ($deliveredCount > 0) {
+        return [
+            'is_protected' => true,
+            'delivered_count' => $deliveredCount,
+            'message' => "This file has been delivered to {$deliveredCount} customer(s). Deletion would break their download links. Archive instead or contact support."
+        ];
+    }
+    
+    return [
+        'is_protected' => false,
+        'delivered_count' => 0,
+        'message' => ''
+    ];
+}
+
+/**
+ * Check if a tool file can be safely deleted
+ * Returns true if file has no active deliveries, false otherwise
+ * 
+ * @param int $fileId The tool file ID to check
+ * @param bool $forceDelete If true, allows deletion even if delivered (admin override)
+ * @return array ['can_delete' => bool, 'reason' => string]
+ */
+function canDeleteToolFile($fileId, $forceDelete = false) {
+    if ($forceDelete) {
+        return ['can_delete' => true, 'reason' => 'Admin force delete enabled'];
+    }
+    
+    $deliveryCheck = isFileDeliveredToOrders($fileId);
+    
+    if ($deliveryCheck['is_protected']) {
+        return [
+            'can_delete' => false, 
+            'reason' => $deliveryCheck['message']
+        ];
+    }
+    
+    return ['can_delete' => true, 'reason' => ''];
+}
+
+/**
  * Add external link for a tool
  * Stores the URL in file_path column with file_type='link'
  */

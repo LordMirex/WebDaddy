@@ -327,6 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'delete_tool_file') {
         $fileId = intval($_POST['file_id']);
         $toolId = intval($_POST['tool_id']);
+        $forceDelete = isset($_POST['force_delete']) && $_POST['force_delete'] === '1';
         
         try {
             // CSRF protection
@@ -342,6 +343,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('File not found or does not belong to this tool');
             }
             
+            // ORDER COMPLETION LOCKING: Check if file has been delivered to customers
+            require_once __DIR__ . '/../includes/tool_files.php';
+            $deleteCheck = canDeleteToolFile($fileId, $forceDelete);
+            if (!$deleteCheck['can_delete']) {
+                throw new Exception($deleteCheck['reason']);
+            }
+            
             $filePath = __DIR__ . '/../' . $file['file_path'];
             if (file_exists($filePath) && !preg_match('/^https?:\/\//i', $file['file_path'])) {
                 unlink($filePath);
@@ -350,9 +358,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare("DELETE FROM tool_files WHERE id = ?");
             $stmt->execute([$fileId]);
             
+            // Also clean up any download tokens for this file
+            $stmt = $db->prepare("DELETE FROM download_tokens WHERE file_id = ?");
+            $stmt->execute([$fileId]);
+            
             $successMessage = 'File deleted successfully!';
             $tool = getToolById($toolId);
-            logActivity('tool_file_deleted', "File removed from tool: {$tool['name']}", getAdminId());
+            logActivity('tool_file_deleted', "File removed from tool: {$tool['name']}" . ($forceDelete ? ' (force delete)' : ''), getAdminId());
             
             header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files');
             exit;
