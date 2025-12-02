@@ -70,9 +70,18 @@ The platform features a clean, professional UI with consistent design elements. 
    - Payment confirmation email automatically sent when admin marks order as paid
    - includes/functions.php (Line 609): sendEnhancedPaymentConfirmationEmail() called in markOrderPaid()
 
-### Email Flow Behavior
-- **Automatic (Paystack)**: Order Received → Customer pays → Payment Confirmed email
-- **Manual (Bank Transfer)**: Order created (no email) → Admin confirms paid → Payment Confirmed email sent immediately
+### Email Flow Behavior (UPDATED December 2, 2025)
+- **Automatic (Paystack)**: Order created (NO email) → Customer pays → Payment Confirmed email ONLY after Paystack verification
+- **Manual (Bank Transfer)**: Order created (NO email) → Admin confirms paid → Payment Confirmed email sent immediately
+- **NO "Order Received" email for any payment type** - Customers only receive "Payment Confirmed" email after payment is verified
+
+### December 2, 2025 - Email & Statistics Fixes
+1. **Removed "Order Received" Email** - No longer sends "🎉 Your Order #X Received!" email for automatic payments
+   - **cart-checkout.php** (Lines 281-287): Removed sendOrderSuccessEmail call for automatic payments
+   - Customer now only receives "Payment Confirmed" email AFTER Paystack verification
+2. **Fixed Missing Sales Record** - Order #2 was paid but had no sales record (caused stats to show zero)
+   - Manually created sales record for Order #2 to restore accurate statistics
+   - Commission processor (processOrderCommission) was verified working correctly
 
 ### ALL CRITICAL BUGS NOW FIXED ✅
 1. **Upload Complete Check** - Delivery system respects `upload_complete=1` flag
