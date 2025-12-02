@@ -198,14 +198,19 @@ try {
                 if (!empty($order['customer_email'])) {
                     error_log("✅ PAYSTACK VERIFY: Sending confirmation to customer: " . $order['customer_email']);
                     
-                    // FIXED: Use new sendPaymentConfirmationEmail function
-                    $emailSent = sendPaymentConfirmationEmail(
-                        $order['customer_email'],
-                        $order['customer_name'],
-                        $orderId,
-                        $order['final_amount'],
-                        'paystack'
-                    );
+                    // Get order items for better email content
+                    $orderItemsStmt = $db->prepare("
+                        SELECT oi.*, t.name as template_name, tl.name as tool_name
+                        FROM order_items oi
+                        LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+                        LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+                        WHERE oi.pending_order_id = ?
+                    ");
+                    $orderItemsStmt->execute([$orderId]);
+                    $orderItems = $orderItemsStmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Use enhanced email with proper product list
+                    $emailSent = sendEnhancedPaymentConfirmationEmail($order, $orderItems);
                     
                     if ($emailSent) {
                         error_log("PAYSTACK VERIFY: Confirmation email sent successfully to: " . $order['customer_email']);
@@ -214,6 +219,41 @@ try {
                     }
                 } else {
                     error_log("PAYSTACK VERIFY: No customer email found for Order #$orderId");
+                }
+                
+                // CRITICAL FIX: Send commission email to affiliate for automatic payments
+                if ($commissionResult['success'] && $commissionResult['commission_amount'] > 0) {
+                    error_log("✅ PAYSTACK VERIFY: Sending commission notification to affiliate");
+                    $affiliateId = $commissionResult['affiliate_id'] ?? null;
+                    
+                    if ($affiliateId) {
+                        $affiliateStmt = $db->prepare("
+                            SELECT a.*, u.name as user_name, u.email as user_email 
+                            FROM affiliates a 
+                            JOIN users u ON a.user_id = u.id 
+                            WHERE a.id = ?
+                        ");
+                        $affiliateStmt->execute([$affiliateId]);
+                        $affiliate = $affiliateStmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($affiliate && !empty($affiliate['user_email'])) {
+                            $affiliateSent = sendCommissionEarnedEmail(
+                                $affiliate['user_name'],
+                                $affiliate['user_email'],
+                                $orderId,
+                                $commissionResult['commission_amount'],
+                                $productNames
+                            );
+                            
+                            if ($affiliateSent) {
+                                error_log("✅ PAYSTACK VERIFY: Commission email sent to affiliate: " . $affiliate['user_email']);
+                            } else {
+                                error_log("⚠️  PAYSTACK VERIFY: Failed to send commission email to affiliate: " . $affiliate['user_email']);
+                            }
+                        } else {
+                            error_log("⚠️  PAYSTACK VERIFY: Affiliate not found or no email for affiliate ID: $affiliateId");
+                        }
+                    }
                 }
                 
                 error_log("✅ PAYSTACK VERIFY: Email delivery complete");

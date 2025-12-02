@@ -1199,7 +1199,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             </a>
                                             <?php else: ?>
                                             <a href="<?php echo SITE_URL . '/download.php?token=' . htmlspecialchars($token['token']); ?>"
-                                               download
+                                               target="_blank"
+                                               rel="noopener noreferrer"
                                                class="flex-1 text-sm text-green-400 hover:text-green-300 underline flex items-center gap-2 min-w-0 cursor-pointer"
                                                onclick="event.stopPropagation(); this.classList.add('opacity-50'); var icon = this.querySelector('.download-icon'); if(icon) icon.innerHTML = '⏳'; return true;">
                                                 <span class="download-icon flex-shrink-0">📥</span>

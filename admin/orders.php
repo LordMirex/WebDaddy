@@ -1653,8 +1653,8 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             <?php endif; ?>
             
             <?php 
-            // Only show Domain Assignment section for non-pending orders with templates
-            if ($viewOrder['status'] !== 'pending'): 
+            // Only show Domain Assignment section for PAID orders with templates (not pending, failed, cancelled)
+            if ($viewOrder['status'] === 'paid'): 
                 $templateItems = [];
                 if (!empty($viewOrderItems)) {
                     foreach ($viewOrderItems as $item) {

@@ -89,6 +89,7 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $whatsapp = defined('WHATSAPP_NUMBER') ? WHATSAPP_NUMBER : '+2349132672126';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
+    $supportEmail = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'support@webdaddy.online';
     
     $esc_subject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
     $esc_name = htmlspecialchars($recipientName, ENT_QUOTES, 'UTF-8');
@@ -132,7 +133,8 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
                             <!-- Footer -->
                             <p style="margin: 15px 0; font-size: 13px; color: #666666;">
                                 <strong>Need help?</strong><br>
-                                Contact us on WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color: #1e3a8a; text-decoration: none; font-weight: bold;">{$whatsapp}</a>
+                                Email: <a href="mailto:{$supportEmail}" style="color: #1e3a8a; text-decoration: none; font-weight: bold;">{$supportEmail}</a><br>
+                                WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color: #1e3a8a; text-decoration: none; font-weight: bold;">{$whatsapp}</a>
                             </p>
                             
                             <p style="margin: 15px 0 0 0; font-size: 13px; color: #666666;">
@@ -220,13 +222,12 @@ function sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName =
     
     $subject = "Payment Confirmed - Order #{$orderId}";
     
-    // Simple product list
-    $productListHtml = '';
+    // Build product list with commas (not separate lines)
+    $productNames = [];
     foreach ($context['items'] as $item) {
-        $formattedTotal = formatCurrency($item['final_amount']);
-        $itemName = htmlspecialchars($item['name']);
-        $productListHtml .= '<p style="margin: 5px 0; color: #374151;"><strong>Products:</strong> ' . $itemName . '</p>';
+        $productNames[] = htmlspecialchars($item['name']);
     }
+    $productListHtml = '<p style="margin: 5px 0; color: #374151;"><strong>Products:</strong> ' . implode(', ', $productNames) . '</p>';
     
     $formattedTotal = formatCurrency($context['total_amount']);
     

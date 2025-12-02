@@ -376,11 +376,26 @@ function generateToolZipBundle($orderId, $toolId) {
     }
     
     $addedFiles = 0;
+    $externalLinks = [];
+    
     foreach ($files as $file) {
-        $filePath = __DIR__ . '/../' . $file['file_path'];
-        if (file_exists($filePath)) {
-            $zip->addFile($filePath, $file['file_name']);
-            $addedFiles++;
+        // Check if this is an external link (URL) vs a local file
+        $isExternalUrl = preg_match('/^https?:\/\//i', $file['file_path']);
+        
+        if ($isExternalUrl) {
+            // Collect external links for the README
+            $externalLinks[] = [
+                'name' => $file['file_name'] ?? $file['file_description'] ?? 'External Link',
+                'url' => $file['file_path'],
+                'description' => $file['file_description'] ?? ''
+            ];
+        } else {
+            // Add local file to ZIP
+            $filePath = __DIR__ . '/../' . $file['file_path'];
+            if (file_exists($filePath)) {
+                $zip->addFile($filePath, $file['file_name']);
+                $addedFiles++;
+            }
         }
     }
     
@@ -390,23 +405,48 @@ function generateToolZipBundle($orderId, $toolId) {
     $readmeContent .= "Order #: " . $orderId . "\n";
     $readmeContent .= "Customer: " . ($order['customer_name'] ?? 'N/A') . "\n";
     $readmeContent .= "Downloaded: " . date('Y-m-d H:i:s') . "\n\n";
-    $readmeContent .= "Included Files:\n";
-    $readmeContent .= "---------------\n";
-    foreach ($files as $file) {
-        $readmeContent .= "- " . $file['file_name'] . " (" . formatFileSize($file['file_size']) . ")\n";
-        if (!empty($file['file_description'])) {
-            $readmeContent .= "  " . $file['file_description'] . "\n";
+    
+    // List included files
+    if ($addedFiles > 0) {
+        $readmeContent .= "Included Files:\n";
+        $readmeContent .= "---------------\n";
+        foreach ($files as $file) {
+            $isExternalUrl = preg_match('/^https?:\/\//i', $file['file_path']);
+            if (!$isExternalUrl) {
+                $readmeContent .= "- " . $file['file_name'] . " (" . formatFileSize($file['file_size']) . ")\n";
+                if (!empty($file['file_description'])) {
+                    $readmeContent .= "  " . $file['file_description'] . "\n";
+                }
+            }
+        }
+        $readmeContent .= "\n";
+    }
+    
+    // List external links
+    if (!empty($externalLinks)) {
+        $readmeContent .= "External Download Links:\n";
+        $readmeContent .= "------------------------\n";
+        $readmeContent .= "The following resources are available via external links.\n";
+        $readmeContent .= "Please open these URLs in your browser to access them:\n\n";
+        foreach ($externalLinks as $link) {
+            $readmeContent .= "- " . $link['name'] . "\n";
+            $readmeContent .= "  URL: " . $link['url'] . "\n";
+            if (!empty($link['description'])) {
+                $readmeContent .= "  Description: " . $link['description'] . "\n";
+            }
+            $readmeContent .= "\n";
         }
     }
-    $readmeContent .= "\n";
-    $readmeContent .= "Support: " . (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'support@webdaddyempire.com') . "\n";
-    $readmeContent .= "Website: " . (defined('SITE_URL') ? SITE_URL : 'https://webdaddyempire.com') . "\n";
+    
+    $readmeContent .= "Support: " . (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'support@webdaddy.online') . "\n";
+    $readmeContent .= "Website: " . (defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online') . "\n";
     $readmeContent .= "\nThank you for your purchase!\n";
     
     $zip->addFromString('README.txt', $readmeContent);
     $zip->close();
     
-    if ($addedFiles === 0) {
+    // Allow ZIP creation even if only external links exist (no local files)
+    if ($addedFiles === 0 && empty($externalLinks)) {
         unlink($zipPath);
         return ['success' => false, 'message' => 'No files could be added to the ZIP'];
     }

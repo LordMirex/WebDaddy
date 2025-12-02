@@ -90,11 +90,24 @@ $stmt = $db->prepare($query);
 $stmt->execute($params);
 $recentSalesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Map pending_orders discount to sales records
+// Map pending_orders discount to sales records - get actual discount from order
 $recentSales = [];
 foreach ($recentSalesRaw as $sale) {
-    $sale['sale_discount'] = 0;
-    $sale['sale_original'] = $sale['amount_paid'];
+    // Use actual discount from sales table if available, otherwise calculate from order
+    if (empty($sale['sale_discount']) || $sale['sale_discount'] == 0) {
+        // Try to get discount from the pending_order
+        $orderDiscount = $db->prepare("SELECT discount_amount, original_price FROM pending_orders WHERE id = ?");
+        $orderDiscount->execute([$sale['pending_order_id']]);
+        $orderData = $orderDiscount->fetch(PDO::FETCH_ASSOC);
+        
+        if ($orderData) {
+            $sale['sale_discount'] = floatval($orderData['discount_amount'] ?? 0);
+            $sale['sale_original'] = floatval($orderData['original_price'] ?? $sale['amount_paid'] ?? 0);
+        } else {
+            $sale['sale_discount'] = 0;
+            $sale['sale_original'] = $sale['amount_paid'];
+        }
+    }
     $recentSales[] = $sale;
 }
 
@@ -366,17 +379,42 @@ require_once __DIR__ . '/includes/header.php';
                     <tr class="border-b-2 border-gray-300">
                         <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Sale ID</th>
                         <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
-                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Template</th>
-                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Original</th>
-                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Discount</th>
-                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Final</th>
-                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Commission</th>
-                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm">Platform</th>
-                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Date</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Type</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Products</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm whitespace-nowrap">Original</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm whitespace-nowrap">Discount</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm whitespace-nowrap">Final</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm whitespace-nowrap">Commission</th>
+                        <th class="text-right py-3 px-2 font-semibold text-gray-700 text-sm whitespace-nowrap">Platform</th>
+                        <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm whitespace-nowrap">Date</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <?php foreach ($recentSales as $sale): ?>
+                    <?php foreach ($recentSales as $sale): 
+                        // Determine order type badge
+                        $orderType = $sale['order_type'] ?? 'template';
+                        $typeColors = [
+                            'template' => 'bg-green-100 text-green-800',
+                            'tool' => 'bg-blue-100 text-blue-800',
+                            'tools' => 'bg-blue-100 text-blue-800',
+                            'mixed' => 'bg-purple-100 text-purple-800'
+                        ];
+                        $typeIcons = [
+                            'template' => 'palette',
+                            'tool' => 'tools',
+                            'tools' => 'tools',
+                            'mixed' => 'box'
+                        ];
+                        $typeColor = $typeColors[$orderType] ?? 'bg-gray-100 text-gray-800';
+                        $typeIcon = $typeIcons[$orderType] ?? 'box';
+                        $typeLabel = ucfirst($orderType === 'tools' ? 'tool' : $orderType);
+                        
+                        // Get product name(s)
+                        $productName = $sale['template_name'] ?? $sale['tool_name'] ?? 'N/A';
+                        if ($sale['item_count'] > 1) {
+                            $productName .= ' (+' . ($sale['item_count'] - 1) . ' more)';
+                        }
+                    ?>
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $sale['id']; ?></td>
                         <td class="py-3 px-2">
@@ -386,24 +424,29 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="text-xs text-blue-600 font-medium mt-1">via <?php echo htmlspecialchars($sale['affiliate_code']); ?></div>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2 text-gray-700"><?php echo htmlspecialchars($sale['template_name']); ?></td>
-                        <td class="py-3 px-2 text-right text-gray-600"><?php echo formatCurrency($sale['sale_original']); ?></td>
-                        <td class="py-3 px-2 text-right">
+                        <td class="py-3 px-2">
+                            <span class="inline-flex items-center px-2 py-0.5 <?php echo $typeColor; ?> rounded-full text-xs font-semibold">
+                                <i class="bi bi-<?php echo $typeIcon; ?> mr-1"></i><?php echo $typeLabel; ?>
+                            </span>
+                        </td>
+                        <td class="py-3 px-2 text-gray-700 text-sm"><?php echo htmlspecialchars($productName); ?></td>
+                        <td class="py-3 px-2 text-right text-gray-600 whitespace-nowrap"><?php echo formatCurrency($sale['sale_original']); ?></td>
+                        <td class="py-3 px-2 text-right whitespace-nowrap">
                             <?php if ($sale['sale_discount'] > 0): ?>
                             <span class="text-orange-600 font-medium">-<?php echo formatCurrency($sale['sale_discount']); ?></span>
                             <?php else: ?>
                             <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2 text-right font-bold text-gray-900"><?php echo formatCurrency($sale['sale_final']); ?></td>
-                        <td class="py-3 px-2 text-right">
+                        <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap"><?php echo formatCurrency($sale['sale_final']); ?></td>
+                        <td class="py-3 px-2 text-right whitespace-nowrap">
                             <?php if ($sale['commission_amount'] > 0): ?>
                             <span class="text-purple-600 font-medium">-<?php echo formatCurrency($sale['commission_amount']); ?></span>
                             <?php else: ?>
                             <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2 text-right font-bold text-blue-600"><?php echo formatCurrency($sale['platform_revenue']); ?></td>
+                        <td class="py-3 px-2 text-right font-bold text-blue-600 whitespace-nowrap"><?php echo formatCurrency($sale['platform_revenue']); ?></td>
                         <td class="py-3 px-2 text-gray-700 text-sm whitespace-nowrap"><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
                     </tr>
                     <?php endforeach; ?>
