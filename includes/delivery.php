@@ -205,7 +205,7 @@ function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
     $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
     $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
     
-    $subject = "📥 Your {$item['product_name']} is Ready to Download! - Order #{$orderId}";
+    $subject = "Your {$item['product_name']} is Ready - Order #{$orderId}";
     
     $totalSize = 0;
     foreach ($downloadLinks as $link) {
@@ -223,83 +223,40 @@ function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
         }
     }
     
-    $body = '<div style="text-align: center; margin-bottom: 25px;">';
-    $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Your Digital Product is Ready!</h2>';
-    $body .= '<p style="color: #666; margin-top: 10px;">Order #' . $orderId . '</p>';
-    $body .= '</div>';
+    $body = '<h2 style="color: #1e3a8a; margin: 0 0 15px 0;">Your Digital Product is Ready!</h2>';
+    $body .= '<p style="color: #374151; margin: 0 0 20px 0;">Order #' . $orderId . '</p>';
     
-    $body .= '<div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
-    $body .= '<h3 style="margin: 0 0 10px 0;">' . htmlspecialchars($item['product_name']) . '</h3>';
-    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">' . $fileCount . ' file' . ($fileCount > 1 ? 's' : '') . ' • ' . $totalSizeFormatted . ' total</p>';
-    $body .= '</div>';
+    $body .= '<p style="color: #374151; margin: 0 0 10px 0;"><strong>Product:</strong> ' . htmlspecialchars($item['product_name']) . '</p>';
+    $body .= '<p style="color: #374151; margin: 0 0 20px 0;">' . $fileCount . ' file' . ($fileCount > 1 ? 's' : '') . ' - ' . $totalSizeFormatted . ' total</p>';
     
     if ($bundleUrl && $fileCount > 1) {
-        $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
-        $body .= '<h4 style="margin: 0 0 10px 0;">📦 Download Everything at Once</h4>';
-        $body .= '<p style="margin: 0 0 15px 0; font-size: 14px; opacity: 0.9;">Get all ' . $fileCount . ' files in a single ZIP bundle</p>';
-        $body .= '<a href="' . htmlspecialchars($bundleUrl) . '" style="background: white; color: #059669; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">📥 Download All (' . $totalSizeFormatted . ')</a>';
-        $body .= '</div>';
+        $body .= '<p style="margin: 15px 0;"><a href="' . htmlspecialchars($bundleUrl) . '" style="background: #059669; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Download All Files (ZIP)</a></p>';
     }
     
-    $body .= '<div style="background-color: #f8fafc; padding: 25px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
-    $body .= '<h4 style="color: #1e3a8a; margin: 0 0 20px 0;">📥 Individual Download Links</h4>';
+    $body .= '<h3 style="color: #1e3a8a; margin: 25px 0 15px 0; font-size: 16px;">Download Links:</h3>';
     
     foreach ($downloadLinks as $index => $link) {
         $fileName = htmlspecialchars($link['name'] ?? 'Download File');
         $fileUrl = htmlspecialchars($link['url'] ?? '');
         $fileSize = $link['file_size_formatted'] ?? formatFileSize($link['file_size'] ?? 0);
-        $fileType = ucfirst(str_replace('_', ' ', $link['file_type'] ?? 'file'));
-        $expiryFormatted = $link['expires_formatted'] ?? date('F j, Y', strtotime("+{$expiryDays} days"));
         $isLink = ($link['file_type'] === 'link');
         
-        $body .= '<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">';
-        $body .= '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">';
-        $body .= '<div style="margin-bottom: 10px;">';
-        $body .= '<strong style="color: #1e3a8a; font-size: 15px;">' . ($isLink ? '🔗 ' : '📥 ') . $fileName . '</strong>';
-        $body .= '<div style="color: #666; font-size: 12px; margin-top: 4px;">' . $fileType . ($isLink ? ' • External URL' : ' • ' . $fileSize) . '</div>';
-        $body .= '</div>';
-        $body .= '</div>';
-        
-        if ($isLink) {
-            $body .= '<a href="' . $fileUrl . '" target="_blank" style="background: #059669; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px; margin-top: 5px;">🔗 Visit Link (opens in new tab)</a>';
-        } else {
-            $body .= '<a href="' . $fileUrl . '" style="background: #1e3a8a; color: white; padding: 10px 25px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px; margin-top: 5px;">📥 Download File</a>';
-        }
-        
-        $body .= '</div>';
+        $body .= '<p style="color: #374151; margin: 10px 0;">';
+        $body .= '<strong>' . $fileName . '</strong>' . ($isLink ? '' : ' (' . $fileSize . ')') . '<br>';
+        $body .= '<a href="' . $fileUrl . '"' . ($isLink ? ' target="_blank"' : '') . ' style="color: #1e3a8a;">' . ($isLink ? 'Open Link' : 'Download') . '</a>';
+        $body .= '</p>';
     }
     
-    $body .= '</div>';
-    
-    $body .= '<div style="background-color: #fef3c7; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #f59e0b;">';
-    $body .= '<h4 style="color: #92400e; margin: 0 0 10px 0;">⏰ Important: Download Expiry</h4>';
-    $body .= '<p style="color: #92400e; margin: 0; line-height: 1.6;">';
-    $body .= 'Your download links will expire in <strong>' . $expiryDays . ' days</strong> (on ' . date('F j, Y', strtotime("+{$expiryDays} days")) . ').<br>';
-    $body .= 'Each link allows up to <strong>' . $maxDownloads . ' downloads</strong>. Save your files to a secure location after downloading.';
+    $body .= '<p style="color: #b45309; margin: 25px 0 10px 0; font-weight: bold;">Download Expiry:</p>';
+    $body .= '<p style="color: #374151; margin: 0 0 20px 0;">';
+    $body .= 'Links expire in ' . $expiryDays . ' days (' . date('F j, Y', strtotime("+{$expiryDays} days")) . '). ';
+    $body .= 'Max ' . $maxDownloads . ' downloads per link.';
     $body .= '</p>';
-    $body .= '</div>';
-    
-    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
-    $body .= '<h4 style="color: #065f46; margin: 0 0 15px 0;">💡 Tips for Best Experience</h4>';
-    $body .= '<ul style="color: #065f46; margin: 0; padding-left: 20px; line-height: 1.8;">';
-    $body .= '<li>Use a stable internet connection for large downloads</li>';
-    $body .= '<li>Extract ZIP files after downloading to access contents</li>';
-    $body .= '<li>Read any README or documentation files included</li>';
-    $body .= '<li>Keep a backup copy in cloud storage for safety</li>';
-    $body .= '</ul>';
-    $body .= '</div>';
     
     if (!empty($item['delivery_note'])) {
-        $body .= '<div style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #bae6fd;">';
-        $body .= '<h4 style="color: #0369a1; margin: 0 0 10px 0;">📝 Product Notes</h4>';
-        $body .= '<p style="color: #0369a1; margin: 0; line-height: 1.6;">' . htmlspecialchars($item['delivery_note']) . '</p>';
-        $body .= '</div>';
+        $body .= '<p style="color: #1e3a8a; margin: 20px 0 5px 0; font-weight: bold;">Product Notes:</p>';
+        $body .= '<p style="color: #374151; margin: 0;">' . htmlspecialchars($item['delivery_note']) . '</p>';
     }
-    
-    $body .= '<div style="text-align: center; margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 10px;">';
-    $body .= '<p style="color: #64748b; margin: 0 0 10px 0; font-size: 14px;">Need help? Contact us anytime:</p>';
-    $body .= '<a href="https://wa.me/' . preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER) . '" style="color: #1e3a8a; font-weight: bold; text-decoration: none;">💬 WhatsApp: ' . WHATSAPP_NUMBER . '</a>';
-    $body .= '</div>';
     
     require_once __DIR__ . '/mailer.php';
     return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));

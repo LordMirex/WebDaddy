@@ -102,32 +102,28 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$esc_subject}</title>
-    <style type="text/css">
-        /* Prevent Gmail from displaying unwanted promotions/warnings */
-        img { max-width: 100%; height: auto; display: block; }
-        table { border-collapse: collapse; width: 100%; }
-        td { vertical-align: top; }
-    </style>
 </head>
-<body style="margin:0; padding:0; background-color:#f9f9f9; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;">
-    <table width="100%" cellpadding="0" cellspacing="0">
+<body style="margin:0; padding:0; background-color:#f5f5f5; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;">
         <tr>
-            <td align="center" style="padding: 20px;">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 4px;">
-                    <!-- Header -->
+            <td style="padding: 20px;">
+                <!-- Header -->
+                <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
-                        <td style="background-color: #1e3a8a; padding: 20px; text-align: center; border-radius: 4px 4px 0 0;">
+                        <td style="background-color: #1e3a8a; padding: 20px; text-align: center;">
                             <h1 style="margin: 0; font-size: 24px; color: #ffffff; font-weight: bold;">{$esc_siteName}</h1>
                             <p style="margin: 5px 0 0 0; font-size: 13px; color: #e0e7ff;">Professional Website Templates &amp; Domains</p>
                         </td>
                     </tr>
-                    
-                    <!-- Content -->
+                </table>
+                
+                <!-- Content -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
                     <tr>
-                        <td style="padding: 30px 25px;">
-                            <p style="margin: 0 0 15px 0; font-size: 14px;">Hello {$esc_name},</p>
+                        <td style="padding: 25px 20px; color: #333333;">
+                            <p style="margin: 0 0 20px 0; font-size: 14px; color: #333333;">Hello {$esc_name},</p>
                             
-                            <div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #1e3a8a;">
+                            <div style="margin: 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #1e3a8a;">
                                 {$content}
                             </div>
                             
@@ -143,19 +139,6 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
                                 Best regards,<br>
                                 <strong>The {$esc_siteName} Team</strong><br>
                                 <a href="{$esc_siteUrl}" style="color: #1e3a8a; text-decoration: none;">{$esc_siteUrl}</a>
-                            </p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer Section -->
-                    <tr>
-                        <td style="background-color: #f8f9fa; padding: 15px 25px; font-size: 11px; color: #999999; text-align: center; border-radius: 0 0 4px 4px;">
-                            <p style="margin: 0;">
-                                &copy; 2025 {$esc_siteName}. All rights reserved.
-                            </p>
-                            <p style="margin: 5px 0 0 0;">
-                                <a href="{$esc_siteUrl}/privacy" style="color: #1e3a8a; text-decoration: none; margin-right: 10px;">Privacy Policy</a>
-                                <a href="{$esc_siteUrl}/terms" style="color: #1e3a8a; text-decoration: none;">Terms of Service</a>
                             </p>
                         </td>
                     </tr>
@@ -428,40 +411,27 @@ function sendPaymentConfirmationEmail($customerEmail, $customerName, $orderId, $
         return false;
     }
     
-    $subject = "✅ Payment Confirmed - Order #{$orderId}";
+    $subject = "Payment Confirmed - Order #{$orderId}";
     
-    $body = '<div style="text-align: center; margin-bottom: 25px;">';
-    $body .= '<h2 style="color: #059669; margin: 0;">✅ Payment Confirmed!</h2>';
-    $body .= '</div>';
+    $body = '<h2 style="color: #059669; margin: 0 0 20px 0;">Payment Confirmed!</h2>';
     
-    $body .= '<div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">';
-    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Order #' . $orderId . '</p>';
-    $body .= '<h3 style="margin: 10px 0 0 0; font-size: 24px;">₦' . number_format($totalAmount, 2) . '</h3>';
-    $body .= '</div>';
-    
-    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #059669;">';
-    $body .= '<h4 style="color: #065f46; margin: 0 0 10px 0;">✨ What\'s Next?</h4>';
-    $body .= '<p style="color: #065f46; margin: 0; line-height: 1.6;">';
-    $body .= 'Your payment has been processed successfully. You will receive your download links and product details shortly via email. Please check your spam folder if you don\'t see the delivery email within 5 minutes.';
+    $body .= '<p style="color: #374151; margin: 0 0 15px 0; line-height: 1.6;">';
+    $body .= 'Your payment has been received and verified. Your order is being processed and will be delivered shortly.';
     $body .= '</p>';
-    $body .= '</div>';
     
-    $body .= '<div style="background-color: #f0f9ff; padding: 20px; border-radius: 10px; border: 1px solid #bae6fd;">';
-    $body .= '<h4 style="color: #0369a1; margin: 0 0 10px 0;">📋 Transaction Details</h4>';
-    $body .= '<p style="color: #0369a1; margin: 0; line-height: 1.8;">';
-    $body .= '<strong>Order ID:</strong> #' . $orderId . '<br>';
-    $body .= '<strong>Amount:</strong> ₦' . number_format($totalAmount, 2) . '<br>';
-    $body .= '<strong>Payment Method:</strong> ' . ucfirst($paymentMethod) . '<br>';
-    $body .= '<strong>Date:</strong> ' . date('F j, Y \a\t g:i A');
+    $body .= '<p style="color: #374151; margin: 0 0 10px 0;"><strong>Order ID:</strong> #' . $orderId . '</p>';
+    $body .= '<p style="color: #059669; margin: 0 0 15px 0; font-size: 18px;"><strong>Amount Paid:</strong> ₦' . number_format($totalAmount, 2) . '</p>';
+    
+    $body .= '<p style="color: #374151; margin: 0; line-height: 1.6;">';
+    $body .= 'You will receive another email shortly with download links and delivery details.';
     $body .= '</p>';
-    $body .= '</div>';
     
     return sendEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName));
 }
 
 /**
- * Send order success email with affiliate invitation for first-time users
- * NEW: Sent after order items are added to cart/checkout
+ * Send order success email - simple confirmation
+ * Used for manual payment orders
  */
 function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderItems = [], $affiliateCode = null) {
     if (empty($customerEmail)) {
@@ -469,47 +439,29 @@ function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderIt
         return false;
     }
     
-    $subject = "🎉 Your Order #{$orderId} Received!";
+    $subject = "Order #{$orderId} Received";
     
-    $body = '<div style="text-align: center; margin-bottom: 25px;">';
-    $body .= '<h2 style="color: #1e3a8a; margin: 0;">🎉 Order Received!</h2>';
-    $body .= '<p style="color: #666; margin-top: 10px;">Thank you for choosing WebDaddy Empire</p>';
-    $body .= '</div>';
+    $body = '<h2 style="color: #1e3a8a; margin: 0 0 20px 0;">Order Received!</h2>';
+    $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Thank you for your order.</p>';
     
-    $body .= '<div style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
-    $body .= '<h3 style="margin: 0 0 10px 0;">Order #' . $orderId . '</h3>';
-    $body .= '<p style="margin: 0; font-size: 14px; opacity: 0.9;">Placed on ' . date('F j, Y \a\t g:i A') . '</p>';
-    $body .= '</div>';
+    $body .= '<p style="color: #374151; margin: 0 0 10px 0;"><strong>Order ID:</strong> #' . $orderId . '</p>';
+    $body .= '<p style="color: #374151; margin: 0 0 20px 0;"><strong>Date:</strong> ' . date('F j, Y \a\t g:i A') . '</p>';
     
     if (!empty($orderItems)) {
-        $body .= '<div style="background-color: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 1px solid #e2e8f0;">';
-        $body .= '<h4 style="color: #1e3a8a; margin: 0 0 15px 0;">📦 Order Items</h4>';
+        $body .= '<p style="color: #1e3a8a; margin: 20px 0 10px 0; font-weight: bold;">Order Items:</p>';
         foreach ($orderItems as $item) {
-            $body .= '<div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #3b82f6;">';
-            $body .= '<strong style="color: #1e3a8a;">' . htmlspecialchars($item['name'] ?? 'Product') . '</strong>';
+            $body .= '<p style="color: #374151; margin: 5px 0;">';
+            $body .= htmlspecialchars($item['name'] ?? 'Product');
             if (!empty($item['price'])) {
-                $body .= ' - <span style="color: #666;">₦' . number_format($item['price'], 2) . '</span>';
+                $body .= ' - ₦' . number_format($item['price'], 2);
             }
-            $body .= '</div>';
+            $body .= '</p>';
         }
-        $body .= '</div>';
     }
     
-    // AFFILIATE INVITATION: Include for first-time users
-    $body .= '<div style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #78350f; padding: 20px; border-radius: 10px; margin-bottom: 25px;">';
-    $body .= '<h4 style="margin: 0 0 10px 0; color: #78350f;">💰 Earn Money as an Affiliate!</h4>';
-    $body .= '<p style="margin: 0 0 15px 0; line-height: 1.6;">';
-    $body .= 'Join our affiliate program and earn 30% commission on every sale you refer. Share your unique link with friends and start earning!';
+    $body .= '<p style="color: #374151; margin: 25px 0 0 0; line-height: 1.6;">';
+    $body .= 'Complete your payment to receive your download links and product access. We will notify you once payment is verified.';
     $body .= '</p>';
-    $body .= '<a href="' . (defined('SITE_URL') ? SITE_URL : '') . '/affiliate-signup.php" style="background: #78350f; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 14px;">Become an Affiliate →</a>';
-    $body .= '</div>';
-    
-    $body .= '<div style="background-color: #ecfdf5; padding: 20px; border-radius: 10px;">';
-    $body .= '<h4 style="color: #065f46; margin: 0 0 10px 0;">✨ Next Steps</h4>';
-    $body .= '<p style="color: #065f46; margin: 0; line-height: 1.6;">';
-    $body .= 'Complete your payment to receive download links and access to your products. If you chose manual bank transfer, we\'ll notify you once payment is verified.';
-    $body .= '</p>';
-    $body .= '</div>';
     
     return sendEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName));
 }
