@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/paystack.php';
 require_once __DIR__ . '/../includes/delivery.php';
 require_once __DIR__ . '/../includes/security.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -162,6 +163,38 @@ function handleSuccessfulPayment($data) {
         
         // Process commission and create sales record for revenue tracking
         processOrderCommission($payment['pending_order_id']);
+        
+        // Send admin notification email for automatic payment
+        try {
+            $order = getOrderById($payment['pending_order_id']);
+            if ($order) {
+                $orderItems = getOrderItems($payment['pending_order_id']);
+                $productNames = [];
+                if (!empty($orderItems)) {
+                    foreach ($orderItems as $item) {
+                        $name = $item['product_type'] === 'template' ? $item['template_name'] : $item['tool_name'];
+                        $productNames[] = $name;
+                    }
+                } elseif (!empty($order['template_name'])) {
+                    $productNames[] = $order['template_name'];
+                } elseif (!empty($order['tool_name'])) {
+                    $productNames[] = $order['tool_name'];
+                }
+                
+                sendPaymentSuccessNotificationToAdmin(
+                    $payment['pending_order_id'],
+                    $order['customer_name'],
+                    $order['customer_phone'],
+                    implode(', ', $productNames),
+                    formatCurrency($order['final_amount'] ?? $data['amount'] / 100),
+                    $order['affiliate_code'] ?? null,
+                    $order['order_type'] ?? 'template'
+                );
+                error_log("✅ WEBHOOK: Admin payment notification sent for Order #{$payment['pending_order_id']}");
+            }
+        } catch (Exception $emailEx) {
+            error_log("⚠️  WEBHOOK: Failed to send admin notification email: " . $emailEx->getMessage());
+        }
         
         logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);
         

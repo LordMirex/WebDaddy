@@ -1345,6 +1345,51 @@ require_once __DIR__ . '/includes/header.php';
                             ?>
                         </div>
                         
+                        <?php 
+                        // Show delivery status for paid orders
+                        if ($order['status'] === 'paid'):
+                            require_once __DIR__ . '/../includes/delivery.php';
+                            $deliveries = getDeliveryStatus($order['id']);
+                            $totalDeliveries = count($deliveries);
+                            $deliveredCount = 0;
+                            $pendingCount = 0;
+                            
+                            foreach ($deliveries as $del) {
+                                // Only count as delivered if email was actually sent
+                                if (in_array($del['delivery_status'], ['delivered', 'sent'])) {
+                                    $deliveredCount++;
+                                } else {
+                                    $pendingCount++;
+                                }
+                            }
+                            
+                            // Determine overall status
+                            if ($totalDeliveries === 0) {
+                                $deliveryLabel = 'Pending Setup';
+                                $deliveryColor = 'bg-yellow-100 text-yellow-800';
+                                $deliveryIcon = 'hourglass-split';
+                            } elseif ($deliveredCount === $totalDeliveries) {
+                                $deliveryLabel = 'Delivered';
+                                $deliveryColor = 'bg-green-100 text-green-800';
+                                $deliveryIcon = 'check-circle-fill';
+                            } elseif ($deliveredCount > 0) {
+                                $deliveryLabel = $deliveredCount . '/' . $totalDeliveries . ' Delivered';
+                                $deliveryColor = 'bg-blue-100 text-blue-800';
+                                $deliveryIcon = 'clock-history';
+                            } else {
+                                $deliveryLabel = 'Preparing';
+                                $deliveryColor = 'bg-orange-100 text-orange-800';
+                                $deliveryIcon = 'box-seam';
+                            }
+                        ?>
+                        <div class="pt-2">
+                            <div class="text-sm font-semibold text-gray-700 mb-1">Delivery</div>
+                            <span class="inline-flex items-center px-2 py-1 <?php echo $deliveryColor; ?> rounded-full text-xs font-semibold">
+                                <i class="bi bi-<?php echo $deliveryIcon; ?> mr-1"></i><?php echo $deliveryLabel; ?>
+                            </span>
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="flex justify-between items-center pt-2 border-t border-gray-200">
                             <div>
                                 <div class="text-sm font-semibold text-gray-700">Total</div>
