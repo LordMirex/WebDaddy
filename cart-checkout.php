@@ -275,18 +275,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
-            // CRITICAL FIX: Send order success email ONLY for automatic payments
-            // For manual payments: Customer waits for admin confirmation, then gets payment confirmed email
-            if (!empty($customerEmail) && $paymentMethod === 'automatic') {
-                $emailItems = [];
-                foreach ($cartItems as $item) {
-                    $emailItems[] = [
-                        'name' => $item['name'],
-                        'price' => $item['price_at_add']
-                    ];
-                }
-                sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $emailItems);
-                error_log("✅ Order success email sent for Order #$orderId to: $customerEmail");
+            // NO "Order Received" email for automatic payments - customer only receives "Payment Confirmed" email AFTER payment is verified
+            // For manual payments: Customer receives "Payment Confirmed" email when admin marks as paid
+            if ($paymentMethod === 'automatic') {
+                error_log("📌 Automatic payment order #$orderId created. Customer will receive payment confirmation email AFTER Paystack verification.");
             } else if (!empty($customerEmail) && $paymentMethod === 'manual') {
                 error_log("📌 Manual payment order #$orderId created. Customer will receive payment confirmation email when admin confirms payment.");
             }
