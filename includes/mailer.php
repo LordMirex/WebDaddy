@@ -202,7 +202,7 @@ function buildOrderEmailContext($order, $orderItems) {
 
 /**
  * Send enhanced payment confirmation email for all order types
- * Handles templates, tools, and mixed orders with appropriate fulfillment instructions
+ * Simple, clean format - won't trigger spam filters
  * @param array $order Order header data
  * @param array $orderItems Array of order items
  * @param string|null $domainName Domain name for template orders
@@ -220,107 +220,28 @@ function sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName =
     
     $subject = "Payment Confirmed - Order #{$orderId}";
     
+    // Simple product list
     $productListHtml = '';
     foreach ($context['items'] as $item) {
-        $formattedUnitPrice = formatCurrency($item['unit_price']);
         $formattedTotal = formatCurrency($item['final_amount']);
-        $badgeColor = htmlspecialchars($item['badge_color']);
-        $badgeText = htmlspecialchars($item['badge_text']);
         $itemName = htmlspecialchars($item['name']);
-        $quantity = (int)$item['quantity'];
-        
-        $productListHtml .= <<<HTML
-<tr style="border-bottom:1px solid #e5e7eb;">
-    <td style="padding:12px 8px;">
-        <div style="display:flex; align-items:center; gap:8px;">
-            <span style="background:{$badgeColor}; color:#fff; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; white-space:nowrap;">{$badgeText}</span>
-            <span style="color:#374151; font-size:14px;">{$itemName}</span>
-        </div>
-    </td>
-    <td style="padding:12px 8px; text-align:center; color:#6b7280; font-size:14px;">{$quantity}</td>
-    <td style="padding:12px 8px; text-align:right; color:#374151; font-size:14px; font-weight:600;">{$formattedTotal}</td>
-</tr>
-HTML;
-    }
-    
-    $fulfillmentHtml = '';
-    
-    if ($context['has_templates'] && $domainName) {
-        $escapedDomain = htmlspecialchars($domainName);
-        $credentialsHtml = '';
-        if ($credentials) {
-            $username = htmlspecialchars($credentials['username'] ?? '');
-            $password = htmlspecialchars($credentials['password'] ?? '');
-            $credentialsHtml = <<<HTML
-<p style="margin:5px 0; color:#374151;"><strong>Username:</strong> {$username}</p>
-<p style="margin:5px 0; color:#374151;"><strong>Password:</strong> {$password}</p>
-HTML;
-        }
-        
-        $fulfillmentHtml .= <<<HTML
-<div style="background:#dbeafe; border-left:3px solid #3b82f6; padding:15px; border-radius:4px; margin:15px 0;">
-    <h3 style="color:#1e40af; margin:0 0 10px 0; font-size:16px;">🎨 Template Access</h3>
-    <p style="margin:5px 0; color:#374151;"><strong>Domain:</strong> {$escapedDomain}</p>
-    {$credentialsHtml}
-    <p style="margin:10px 0 0 0; color:#374151; font-size:13px;">Your template is now live and ready to use!</p>
-</div>
-HTML;
-    }
-    
-    if ($context['has_tools']) {
-        $fulfillmentHtml .= <<<HTML
-<div style="background:#f3e8ff; border-left:3px solid #8b5cf6; padding:15px; border-radius:4px; margin:15px 0;">
-    <h3 style="color:#6b21a8; margin:0 0 10px 0; font-size:16px;">🔧 Tool Access</h3>
-    <p style="margin:0; color:#374151; font-size:13px;">Your digital tools are ready! You will receive access details via WhatsApp or email shortly.</p>
-</div>
-HTML;
-    }
-    
-    $totalsHtml = '';
-    if ($context['has_discount']) {
-        $formattedOriginal = formatCurrency($context['original_amount']);
-        $formattedDiscount = formatCurrency($context['discount_amount']);
-        $totalsHtml = <<<HTML
-<p style="margin:5px 0; color:#6b7280;">Subtotal: {$formattedOriginal}</p>
-<p style="margin:5px 0; color:#10b981;">Affiliate Discount (20%): -{$formattedDiscount}</p>
-HTML;
+        $productListHtml .= '<p style="margin: 5px 0; color: #374151;"><strong>Products:</strong> ' . $itemName . '</p>';
     }
     
     $formattedTotal = formatCurrency($context['total_amount']);
     
-    $content = <<<HTML
-<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">🎉 Payment Confirmed!</h2>
-<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
-    Great news! Your payment has been confirmed and your order is now being processed.
-</p>
-
-<div style="background:#ffffff; padding:0; border-radius:6px; margin:15px 0; overflow:hidden; border:1px solid #e5e7eb;">
-    <table style="width:100%; border-collapse:collapse;">
-        <thead>
-            <tr style="background:#f9fafb; border-bottom:2px solid #e5e7eb;">
-                <th style="padding:10px 8px; text-align:left; color:#6b7280; font-size:12px; font-weight:600; text-transform:uppercase;">Product</th>
-                <th style="padding:10px 8px; text-align:center; color:#6b7280; font-size:12px; font-weight:600; text-transform:uppercase;">Qty</th>
-                <th style="padding:10px 8px; text-align:right; color:#6b7280; font-size:12px; font-weight:600; text-transform:uppercase;">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            {$productListHtml}
-        </tbody>
-    </table>
-</div>
-
-<div style="background:#f9fafb; padding:15px; border-radius:6px; margin:15px 0;">
-    <p style="margin:5px 0; color:#374151;"><strong>Order ID:</strong> #{$orderId}</p>
-    {$totalsHtml}
-    <p style="margin:5px 0; color:#374151; font-weight:700;">Total Paid: {$formattedTotal}</p>
-</div>
-
-{$fulfillmentHtml}
-
-<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
-    Thank you for your purchase! If you have any questions, please don't hesitate to contact us.
-</p>
-HTML;
+    $content = '<h2 style="color: #10b981; margin: 0 0 15px 0;">Payment Confirmed!</h2>';
+    $content .= '<p style="color: #374151; line-height: 1.6; margin: 0 0 15px 0;">';
+    $content .= 'Your payment has been received and verified. Your order is being processed and will be delivered shortly.';
+    $content .= '</p>';
+    
+    $content .= '<p style="margin: 5px 0; color: #374151;"><strong>Order ID:</strong> #' . $orderId . '</p>';
+    $content .= $productListHtml;
+    $content .= '<p style="margin: 5px 0; color: #ea580c;"><strong>Amount Paid:</strong> ' . $formattedTotal . '</p>';
+    
+    $content .= '<p style="color: #374151; line-height: 1.6; margin: 15px 0 0 0;">';
+    $content .= 'You will receive another email shortly with download links and delivery details.';
+    $content .= '</p>';
     
     $emailBody = createEmailTemplate($subject, $content, $customerName);
     return sendEmail($order['customer_email'], $subject, $emailBody);
@@ -403,24 +324,24 @@ HTML;
  */
 /**
  * Send payment confirmation email to customer
- * NEW: Sent immediately after Paystack payment is verified
+ * Simple, clean format that won't trigger spam filters
  */
 function sendPaymentConfirmationEmail($customerEmail, $customerName, $orderId, $totalAmount, $paymentMethod = 'paystack') {
     if (empty($customerEmail)) {
-        error_log("⚠️  Payment confirmation email: No email provided");
+        error_log("Payment confirmation email: No email provided");
         return false;
     }
     
     $subject = "Payment Confirmed - Order #{$orderId}";
     
-    $body = '<h2 style="color: #059669; margin: 0 0 20px 0;">Payment Confirmed!</h2>';
+    $body = '<h2 style="color: #10b981; margin: 0 0 15px 0;">Payment Confirmed!</h2>';
     
     $body .= '<p style="color: #374151; margin: 0 0 15px 0; line-height: 1.6;">';
     $body .= 'Your payment has been received and verified. Your order is being processed and will be delivered shortly.';
     $body .= '</p>';
     
     $body .= '<p style="color: #374151; margin: 0 0 10px 0;"><strong>Order ID:</strong> #' . $orderId . '</p>';
-    $body .= '<p style="color: #059669; margin: 0 0 15px 0; font-size: 18px;"><strong>Amount Paid:</strong> ₦' . number_format($totalAmount, 2) . '</p>';
+    $body .= '<p style="color: #ea580c; margin: 0 0 15px 0;"><strong>Amount Paid:</strong> ₦' . number_format($totalAmount, 2) . '</p>';
     
     $body .= '<p style="color: #374151; margin: 0; line-height: 1.6;">';
     $body .= 'You will receive another email shortly with download links and delivery details.';
@@ -435,7 +356,7 @@ function sendPaymentConfirmationEmail($customerEmail, $customerName, $orderId, $
  */
 function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderItems = [], $affiliateCode = null) {
     if (empty($customerEmail)) {
-        error_log("⚠️  Order success email: No email provided");
+        error_log("Order success email: No email provided");
         return false;
     }
     
@@ -476,15 +397,15 @@ function sendNewOrderNotificationToAdmin($orderId, $customerName, $customerPhone
     }
     
     $orderTypeLabels = [
-        'template' => '🎨 Template Order',
-        'tool' => '🔧 Tool Order',
-        'tools' => '🔧 Tool Order',
-        'mixed' => '📦 Mixed Order'
+        'template' => 'Template Order',
+        'tool' => 'Tool Order',
+        'tools' => 'Tool Order',
+        'mixed' => 'Mixed Order'
     ];
-    $orderTypeLabel = $orderTypeLabels[$orderType] ?? '📦 Order';
+    $orderTypeLabel = $orderTypeLabels[$orderType] ?? 'Order';
     
     $content = <<<HTML
-<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">📦 New Order Received</h2>
+<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">New Order Received</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     A new {$orderTypeLabel} has been placed on your website.
 </p>
@@ -515,7 +436,7 @@ function sendAffiliateWelcomeEmail($affiliateName, $affiliateEmail, $affiliateCo
     $discountRate = (CUSTOMER_DISCOUNT_RATE * 100) . '%';
     
     $content = <<<HTML
-<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">🎉 Welcome to Our Affiliate Program!</h2>
+<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">Welcome to Our Affiliate Program!</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     Congratulations! Your affiliate account has been successfully created. You can now start earning commissions.
 </p>
@@ -532,7 +453,7 @@ function sendAffiliateWelcomeEmail($affiliateName, $affiliateEmail, $affiliateCo
     </p>
 </div>
 <div style="background:#fef3c7; border-left:3px solid #f59e0b; padding:12px; border-radius:4px; margin:15px 0;">
-    <p style="margin:0; color:#92400e; font-size:13px;"><strong>⚠️ Important:</strong> This email may land in your spam/junk folder. Please check your spam folder and mark this as "Not Spam" to ensure you receive future updates about your earnings and withdrawals.</p>
+    <p style="margin:0; color:#92400e; font-size:13px;"><strong>Important:</strong> This email may land in your spam/junk folder. Please check your spam folder and mark this as "Not Spam" to ensure you receive future updates about your earnings and withdrawals.</p>
 </div>
 <p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
     Share your referral link with potential customers. When they purchase through your link, you'll earn {$commissionRate} commission and they'll get a {$discountRate} discount!
@@ -556,7 +477,7 @@ function sendCommissionEarnedEmail($affiliateName, $affiliateEmail, $orderId, $c
     $subject = "Commission Earned - ₦{$formattedAmount}";
     
     $content = <<<HTML
-<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">💰 You've Earned a Commission!</h2>
+<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">You've Earned a Commission!</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     Great news! You've earned a commission from a successful sale.
 </p>
@@ -582,7 +503,7 @@ function sendWithdrawalRequestToAdmin($affiliateName, $affiliateEmail, $amount, 
     $subject = "Withdrawal Request - ₦{$amount}";
     
     $content = <<<HTML
-<h2 style="color:#f59e0b; margin:0 0 15px 0; font-size:22px;">💳 New Withdrawal Request</h2>
+<h2 style="color:#f59e0b; margin:0 0 15px 0; font-size:22px;">New Withdrawal Request</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     An affiliate has requested a withdrawal.
 </p>
@@ -608,7 +529,7 @@ function sendWithdrawalApprovedEmail($affiliateName, $affiliateEmail, $amount, $
     $subject = "Withdrawal Approved - ₦{$amount}";
     
     $content = <<<HTML
-<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">✅ Withdrawal Approved!</h2>
+<h2 style="color:#10b981; margin:0 0 15px 0; font-size:22px;">Withdrawal Approved!</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     Good news! Your withdrawal request has been approved and is being processed.
 </p>
@@ -807,7 +728,7 @@ function createAffiliateEmailTemplate($subject, $content, $affiliateName = 'Valu
             <div style="margin-top:30px; padding-top:25px; border-top:2px solid #e5e7eb;">
                 <div style="background:#fffbeb; border-left:4px solid #d4af37; padding:15px; border-radius:6px; margin-bottom:20px;">
                     <p style="margin:0; color:#92400e; font-size:14px; line-height:1.6;">
-                        <strong style="color:#78350f;">💡 Quick Tip:</strong> Share your affiliate link with potential customers to earn commissions. Log in to your dashboard to access your unique referral link and track your earnings.
+                        <strong style="color:#78350f;">Quick Tip:</strong> Share your affiliate link with potential customers to earn commissions. Log in to your dashboard to access your unique referral link and track your earnings.
                     </p>
                 </div>
                 
@@ -844,7 +765,7 @@ function sendSupportTicketReplyEmail($affiliateName, $affiliateEmail, $ticketId,
     $escSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
     
     $content = <<<HTML
-<h2 style="color:#3b82f6; margin:0 0 15px 0; font-size:20px;">💬 New Reply to Your Support Ticket</h2>
+<h2 style="color:#3b82f6; margin:0 0 15px 0; font-size:20px;">New Reply to Your Support Ticket</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     Our support team has replied to your ticket.
 </p>
@@ -873,7 +794,7 @@ function sendSupportTicketClosedEmail($affiliateName, $affiliateEmail, $ticketId
     $escSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
     
     $content = <<<HTML
-<h2 style="color:#10b981; margin:0 0 15px 0; font-size:20px;">✅ Support Ticket Closed</h2>
+<h2 style="color:#10b981; margin:0 0 15px 0; font-size:20px;">Support Ticket Closed</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     Your support ticket has been resolved and marked as closed.
 </p>
@@ -905,7 +826,7 @@ function sendNewSupportTicketNotificationToAdmin($ticketId, $affiliateName, $tic
     $priorityLabel = ucfirst($priority) . ' Priority';
     
     $content = <<<HTML
-<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">🎫 New Support Ticket Received</h2>
+<h2 style="color:#1e3a8a; margin:0 0 15px 0; font-size:22px;">New Support Ticket Received</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     An affiliate has submitted a new support ticket.
 </p>
@@ -1054,7 +975,7 @@ function sendAnnouncementEmails($announcementId, $title, $message, $type, $affil
  */
 function sendPaymentSuccessNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $affiliateCode = null, $orderType = 'template') {
     $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
-    $subject = "✅ Payment Received - Order #{$orderId}";
+    $subject = "Payment Received - Order #{$orderId}";
     
     $affiliateInfo = '';
     if ($affiliateCode) {
@@ -1062,15 +983,15 @@ function sendPaymentSuccessNotificationToAdmin($orderId, $customerName, $custome
     }
     
     $orderTypeLabels = [
-        'template' => '🎨 Template Order',
-        'tool' => '🔧 Tool Order',
-        'tools' => '🔧 Tool Order',
-        'mixed' => '📦 Mixed Order'
+        'template' => 'Template Order',
+        'tool' => 'Tool Order',
+        'tools' => 'Tool Order',
+        'mixed' => 'Mixed Order'
     ];
-    $orderTypeLabel = $orderTypeLabels[$orderType] ?? '📦 Order';
+    $orderTypeLabel = $orderTypeLabels[$orderType] ?? 'Order';
     
     $content = <<<HTML
-<h2 style="color:#16a34a; margin:0 0 15px 0; font-size:22px;">✅ Payment Confirmed</h2>
+<h2 style="color:#16a34a; margin:0 0 15px 0; font-size:22px;">Payment Confirmed</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     Payment has been successfully received for the {$orderTypeLabel}.
 </p>
@@ -1079,7 +1000,7 @@ function sendPaymentSuccessNotificationToAdmin($orderId, $customerName, $custome
     <p style="margin:5px 0; color:#374151;"><strong>Customer:</strong> {$customerName}</p>
     <p style="margin:5px 0; color:#374151;"><strong>Phone:</strong> {$customerPhone}</p>
     <p style="margin:5px 0; color:#374151;"><strong>Products:</strong> {$productNames}</p>
-    <p style="margin:5px 0; color:#16a34a; font-weight:bold;"><strong>Amount:</strong> {$price} ✅</p>
+    <p style="margin:5px 0; color:#16a34a; font-weight:bold;"><strong>Amount:</strong> {$price}</p>
     {$affiliateInfo}
     <p style="margin:10px 0 0 0; color:#16a34a; font-weight:bold;"><strong>Status:</strong> PAID</p>
 </div>
@@ -1097,7 +1018,7 @@ HTML;
  */
 function sendPaymentFailureNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $failureReason = '', $affiliateCode = null, $orderType = 'template') {
     $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
-    $subject = "❌ Payment Failed - Order #{$orderId}";
+    $subject = "Payment Failed - Order #{$orderId}";
     
     $affiliateInfo = '';
     if ($affiliateCode) {
@@ -1110,15 +1031,15 @@ function sendPaymentFailureNotificationToAdmin($orderId, $customerName, $custome
     }
     
     $orderTypeLabels = [
-        'template' => '🎨 Template Order',
-        'tool' => '🔧 Tool Order',
-        'tools' => '🔧 Tool Order',
-        'mixed' => '📦 Mixed Order'
+        'template' => 'Template Order',
+        'tool' => 'Tool Order',
+        'tools' => 'Tool Order',
+        'mixed' => 'Mixed Order'
     ];
-    $orderTypeLabel = $orderTypeLabels[$orderType] ?? '📦 Order';
+    $orderTypeLabel = $orderTypeLabels[$orderType] ?? 'Order';
     
     $content = <<<HTML
-<h2 style="color:#dc2626; margin:0 0 15px 0; font-size:22px;">❌ Payment Failed</h2>
+<h2 style="color:#dc2626; margin:0 0 15px 0; font-size:22px;">Payment Failed</h2>
 <p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
     A payment attempt for the {$orderTypeLabel} has failed.
 </p>

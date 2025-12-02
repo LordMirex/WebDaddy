@@ -208,20 +208,12 @@ try {
                     );
                     
                     if ($emailSent) {
-                        error_log("✅ PAYSTACK VERIFY: Confirmation email sent successfully to: " . $order['customer_email']);
+                        error_log("PAYSTACK VERIFY: Confirmation email sent successfully to: " . $order['customer_email']);
                     } else {
-                        error_log("❌ PAYSTACK VERIFY: Failed to send confirmation email to: " . $order['customer_email']);
-                    }
-                    
-                    // Queue affiliate invitation if applicable
-                    if (empty($order['affiliate_code']) && !isEmailAffiliate($order['customer_email'])) {
-                        if (!hasAffiliateInvitationBeenSent($order['customer_email'])) {
-                            sendAffiliateOpportunityEmail($order['customer_name'], $order['customer_email']);
-                            error_log("✅ PAYSTACK VERIFY: Affiliate invitation email sent");
-                        }
+                        error_log("PAYSTACK VERIFY: Failed to send confirmation email to: " . $order['customer_email']);
                     }
                 } else {
-                    error_log("❌ PAYSTACK VERIFY: No customer email found for Order #$orderId");
+                    error_log("PAYSTACK VERIFY: No customer email found for Order #$orderId");
                 }
                 
                 error_log("✅ PAYSTACK VERIFY: Email delivery complete");
