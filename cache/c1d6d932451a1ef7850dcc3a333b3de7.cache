@@ -1,0 +1,770 @@
+a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+        <div style="position: relative;">
+            <select id="templates-category-filter" 
+                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
+                <option value="" selected>
+                    All Categories
+                </option>
+                                <option value="Agency" >
+                    Agency                </option>
+                                <option value="Automotive" >
+                    Automotive                </option>
+                                <option value="Beauty" >
+                    Beauty                </option>
+                                <option value="Blog" >
+                    Blog                </option>
+                                <option value="Business" >
+                    Business                </option>
+                                <option value="Construction" >
+                    Construction                </option>
+                                <option value="Consulting" >
+                    Consulting                </option>
+                                <option value="Design" >
+                    Design                </option>
+                                <option value="E-Commerce" >
+                    E-Commerce                </option>
+                                <option value="E-commerce" >
+                    E-commerce                </option>
+                                <option value="Education" >
+                    Education                </option>
+                                <option value="Events" >
+                    Events                </option>
+                                <option value="Fashion" >
+                    Fashion                </option>
+                                <option value="Finance" >
+                    Finance                </option>
+                                <option value="Fitness" >
+                    Fitness                </option>
+                                <option value="Food" >
+                    Food                </option>
+                                <option value="Healthcare" >
+                    Healthcare                </option>
+                                <option value="Insurance" >
+                    Insurance                </option>
+                                <option value="Legal" >
+                    Legal                </option>
+                                <option value="Marketing" >
+                    Marketing                </option>
+                                <option value="Photography" >
+                    Photography                </option>
+                                <option value="Portfolio" >
+                    Portfolio                </option>
+                                <option value="Real Estate" >
+                    Real Estate                </option>
+                                <option value="Restaurant" >
+                    Restaurant                </option>
+                                <option value="SaaS" >
+                    SaaS                </option>
+                                <option value="Saas" >
+                    Saas                </option>
+                                <option value="Sports" >
+                    Sports                </option>
+                                <option value="Tech" >
+                    Tech                </option>
+                                <option value="Travel" >
+                    Travel                </option>
+                            </select>
+            <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <svg style="width: 20px; height: 20px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+    </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px;">
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="Modern Business"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Modern Business</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Business                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,000.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(21, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="E-Commerce Shop"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">E-Commerce Shop</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            E-commerce                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦8,000.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(22, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="eager"                         src="/assets/images/placeholder.jpg"
+                         alt="Blog Platform"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Blog Platform</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Blog                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,000.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(23, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Portfolio Gallery"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Portfolio Gallery</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Portfolio                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,000.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(24, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="SaaS Landing"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">SaaS Landing</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            SaaS                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,000.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(25, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Restaurant Site"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Restaurant Site</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Food                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,500.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(26, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Real Estate"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Real Estate</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Real Estate                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,000.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(27, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Medical Clinic"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Medical Clinic</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Healthcare                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,500.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(28, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Education Hub"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Education Hub</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Education                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,500.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(29, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Tech Startup"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Tech Startup</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Tech                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,800.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(30, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Travel Agency"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Travel Agency</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Travel                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,200.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(31, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Fitness Studio"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Fitness Studio</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Fitness                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,800.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(32, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Fashion Shop"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Fashion Shop</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Fashion                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,200.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(33, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Photography Pro"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Photography Pro</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Photography                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,500.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(34, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Legal Services"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Legal Services</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Legal                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,800.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(35, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Auto Dealer"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Auto Dealer</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Automotive                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,200.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(36, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Beauty Salon"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Beauty Salon</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Beauty                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,300.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(37, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                        <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
+                <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
+                    <img loading="lazy"                         src="/assets/images/placeholder.jpg"
+                         alt="Event Manager"
+                         width="1280" height="720"
+                         style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
+                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         decoding="async">
+                                    </div>
+                <div style="padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Event Manager</h3>
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
+                            Events                        </span>
+                    </div>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"></p>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,900.00</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="/template.php?slug=" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
+                                Details
+                            </a>
+                            <button onclick="addTemplateToCart(38, '', this)" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                    </div>
+        
+            <div style="margin-top: 48px; display: flex; justify-content: center;">
+        <nav style="display: flex; align-items: center; gap: 8px;">
+                        
+                        <a href="?view=templates&page=1#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #2563eb; color: white; border-color: #2563eb;">
+                1            </a>
+                        <a href="?view=templates&page=2#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
+                2            </a>
+                        <a href="?view=templates&page=3#products" 
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
+                3            </a>
+                        
+                        <a href="?view=templates&page=2#products" 
+               style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
+                Next
+                <svg style="width: 16px; height: 16px; margin-left: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+                    </nav>
+    </div>
+    <div style="margin-top: 16px; text-align: center;">
+        <p style="font-size: 14px; color: #d1d5db; margin: 0;">
+            Page 1 of 3        </p>
+    </div>
+        ";s:4:"view";s:9:"templates";s:4:"page";i:1;}
