@@ -562,30 +562,39 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         
         // UNIFIED COMMISSION PROCESSOR: Process commission via new function (works for both manual and paystack)
         
-        // FIX: Create payment record for manual payments to ensure reconciliation works
-        // This mirrors what automatic payments do in api/create-payment-record.php
-        $existingPayment = $db->prepare("SELECT id FROM payments WHERE pending_order_id = ?");
+        // FIX: Create or update payment record for manual payments to ensure reconciliation works
+        // This mirrors what automatic payments do in api/paystack-verify.php (UPDATED: improved idempotency)
+        $existingPayment = $db->prepare("SELECT id, status FROM payments WHERE pending_order_id = ? LIMIT 1");
         $existingPayment->execute([$orderId]);
-        if (!$existingPayment->fetch()) {
-            // No payment record exists - create one for manual payment
+        $paymentRow = $existingPayment->fetch();
+        
+        if (!$paymentRow) {
+            // No payment record exists - create one for manual payment with all fields
             $paymentStmt = $db->prepare("
                 INSERT INTO payments (
                     pending_order_id, payment_method, amount_requested, amount_paid,
-                    currency, status, payment_verified_at, created_at
-                ) VALUES (?, 'manual', ?, ?, 'NGN', 'completed', datetime('now', '+1 hour'), datetime('now', '+1 hour'))
+                    currency, status, payment_verified_at, manual_verified_by, manual_verified_at,
+                    payment_note, created_at
+                ) VALUES (?, 'manual', ?, ?, 'NGN', 'completed', datetime('now', '+1 hour'), ?, datetime('now', '+1 hour'), ?, datetime('now', '+1 hour'))
             ");
-            $paymentStmt->execute([$orderId, $amountPaid, $amountPaid]);
+            $paymentStmt->execute([$orderId, $finalAmount, $amountPaid, $adminId, $paymentNotes ?: 'Manual payment verified by admin']);
             error_log("✅ MARK ORDER PAID: Created payment record for manual order #$orderId");
-        } else {
-            // Update existing payment record status
+        } elseif ($paymentRow['status'] !== 'completed') {
+            // Payment record exists but not completed - update it
             $updatePayment = $db->prepare("
                 UPDATE payments SET 
                     status = 'completed',
                     amount_paid = ?,
-                    payment_verified_at = datetime('now', '+1 hour')
+                    payment_verified_at = datetime('now', '+1 hour'),
+                    manual_verified_by = ?,
+                    manual_verified_at = datetime('now', '+1 hour'),
+                    payment_note = COALESCE(payment_note, ?) || ' [Verified by admin]'
                 WHERE pending_order_id = ? AND status != 'completed'
             ");
-            $updatePayment->execute([$amountPaid, $orderId]);
+            $updatePayment->execute([$amountPaid, $adminId, $paymentNotes ?: '', $orderId]);
+            error_log("✅ MARK ORDER PAID: Updated existing payment record for order #$orderId");
+        } else {
+            error_log("✅ MARK ORDER PAID: Payment record already completed for order #$orderId - no action needed");
         }
         
         $db->commit();
