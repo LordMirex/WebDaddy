@@ -561,6 +561,33 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
         }
         
         // UNIFIED COMMISSION PROCESSOR: Process commission via new function (works for both manual and paystack)
+        
+        // FIX: Create payment record for manual payments to ensure reconciliation works
+        // This mirrors what automatic payments do in api/create-payment-record.php
+        $existingPayment = $db->prepare("SELECT id FROM payments WHERE pending_order_id = ?");
+        $existingPayment->execute([$orderId]);
+        if (!$existingPayment->fetch()) {
+            // No payment record exists - create one for manual payment
+            $paymentStmt = $db->prepare("
+                INSERT INTO payments (
+                    pending_order_id, payment_method, amount_requested, amount_paid,
+                    currency, status, payment_verified_at, created_at
+                ) VALUES (?, 'manual', ?, ?, 'NGN', 'completed', datetime('now', '+1 hour'), datetime('now', '+1 hour'))
+            ");
+            $paymentStmt->execute([$orderId, $amountPaid, $amountPaid]);
+            error_log("✅ MARK ORDER PAID: Created payment record for manual order #$orderId");
+        } else {
+            // Update existing payment record status
+            $updatePayment = $db->prepare("
+                UPDATE payments SET 
+                    status = 'completed',
+                    amount_paid = ?,
+                    payment_verified_at = datetime('now', '+1 hour')
+                WHERE pending_order_id = ? AND status != 'completed'
+            ");
+            $updatePayment->execute([$amountPaid, $orderId]);
+        }
+        
         $db->commit();
         
         error_log("✅ MARK ORDER PAID: Order #$orderId marked as paid");
