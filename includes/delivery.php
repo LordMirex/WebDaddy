@@ -127,19 +127,28 @@ function createToolDelivery($orderId, $item, $retryAttempt = 0) {
     $stmt->execute([$orderId]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
     
+    // CRITICAL FIX: Check if tool is marked as upload_complete before generating download links
+    $stmt = $db->prepare("SELECT upload_complete FROM tools WHERE id = ?");
+    $stmt->execute([$item['product_id']]);
+    $toolStatus = $stmt->fetch(PDO::FETCH_ASSOC);
+    $isToolComplete = ($toolStatus && !empty($toolStatus['upload_complete']));
+    
     $files = getToolFiles($item['product_id']);
     
     $downloadLinks = [];
-    foreach ($files as $file) {
-        $link = generateDownloadLink($file['id'], $orderId);
-        if ($link) {
-            $downloadLinks[] = $link;
+    // Only generate download links if the tool is marked as complete
+    if ($isToolComplete) {
+        foreach ($files as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $downloadLinks[] = $link;
+            }
         }
     }
     
-    // FIXED: Set correct initial status based on file availability
+    // FIXED: Set correct initial status based on file availability AND tool completion status
     $hasFiles = !empty($downloadLinks);
-    $initialStatus = $hasFiles ? 'ready' : 'pending';
+    $initialStatus = ($isToolComplete && $hasFiles) ? 'ready' : 'pending';
     
     error_log("📦 createToolDelivery: Order #$orderId, Tool #{$item['product_id']}, Files: " . count($files) . ", Links: " . count($downloadLinks) . ", Status: $initialStatus");
     

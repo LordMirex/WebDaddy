@@ -100,14 +100,57 @@ if (!file_exists($filePath)) {
     exit;
 }
 
-header('Content-Type: ' . $mimeType);
-header('Content-Disposition: attachment; filename="' . $fileName . '"');
-header('Content-Length: ' . filesize($filePath));
-header('Cache-Control: no-cache, must-revalidate');
+// Clear any previous output
+if (ob_get_level()) {
+    ob_end_clean();
+}
+
+// Sanitize filename for Content-Disposition header
+$safeFileName = preg_replace('/[^\x20-\x7E]/', '', $fileName);
+$safeFileName = str_replace(['"', '\\'], '', $safeFileName);
+if (empty($safeFileName)) {
+    $safeFileName = 'download';
+}
+
+// Get file size
+$fileSize = filesize($filePath);
+
+// Set security headers to prevent browser warnings
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+
+// Set proper content type - use application/octet-stream for binary files
+$contentType = $mimeType ?: 'application/octet-stream';
+header('Content-Type: ' . $contentType);
+
+// RFC 5987 encoded filename for non-ASCII support
+$encodedFileName = rawurlencode($fileName);
+header('Content-Disposition: attachment; filename="' . $safeFileName . '"; filename*=UTF-8\'\'' . $encodedFileName);
+
+// Set content length
+header('Content-Length: ' . $fileSize);
+
+// Disable caching
+header('Cache-Control: private, no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-readfile($filePath);
+// Allow download in iframes
+header('Content-Transfer-Encoding: binary');
+header('Accept-Ranges: bytes');
+
+// Send file to browser
+if ($fileSize > 0) {
+    $handle = fopen($filePath, 'rb');
+    if ($handle !== false) {
+        while (!feof($handle)) {
+            echo fread($handle, 8192);
+            flush();
+        }
+        fclose($handle);
+    }
+}
 exit;
 
 function showErrorPage($title, $message) {

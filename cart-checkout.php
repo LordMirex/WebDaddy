@@ -283,23 +283,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
                 error_log("📌 Manual payment order #$orderId created. Customer will receive payment confirmation email when admin confirms payment.");
             }
             
-            // CRITICAL FIX: Generate download tokens IMMEDIATELY for all tools with files
-            // This ensures download links appear on confirmation page, not "Processing..." message
+            // CRITICAL FIX: Generate download tokens ONLY for tools marked as upload_complete
+            // This ensures download links only appear when the tool is ready for delivery
             foreach ($cartItems as $item) {
                 if (($item['product_type'] ?? 'tool') === 'tool') {
                     $toolId = $item['product_id'];
-                    $toolFiles = getToolFiles($toolId);
-                    if (!empty($toolFiles)) {
-                        foreach ($toolFiles as $file) {
-                            $existingToken = getDb()->prepare("SELECT id FROM download_tokens WHERE file_id = ? AND pending_order_id = ? LIMIT 1");
-                            $existingToken->execute([$file['id'], $orderId]);
-                            if (!$existingToken->fetch()) {
-                                $link = generateDownloadLink($file['id'], $orderId);
-                                if ($link) {
-                                    error_log("✅ Generated download token for Order #$orderId, File #{$file['id']} ({$file['file_name']})");
+                    
+                    // Check if tool is marked as upload_complete before generating tokens
+                    $checkTool = getToolById($toolId);
+                    $isToolComplete = ($checkTool && !empty($checkTool['upload_complete']));
+                    
+                    if ($isToolComplete) {
+                        $toolFiles = getToolFiles($toolId);
+                        if (!empty($toolFiles)) {
+                            foreach ($toolFiles as $file) {
+                                $existingToken = getDb()->prepare("SELECT id FROM download_tokens WHERE file_id = ? AND pending_order_id = ? LIMIT 1");
+                                $existingToken->execute([$file['id'], $orderId]);
+                                if (!$existingToken->fetch()) {
+                                    $link = generateDownloadLink($file['id'], $orderId);
+                                    if ($link) {
+                                        error_log("✅ Generated download token for Order #$orderId, File #{$file['id']} ({$file['file_name']})");
+                                    }
                                 }
                             }
                         }
+                    } else {
+                        error_log("⏳ Tool #$toolId not marked as complete - tokens will be generated when marked upload_complete");
                     }
                 }
             }
@@ -1089,19 +1098,28 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         if (!empty($tools)): 
                         ?>
                         <?php 
-                        // Check if all tools have files ready for download
+                        // Check if all tools have files ready for download AND are marked as upload_complete
                         $toolsWithFilesCount = 0;
                         $toolsWithoutFilesCount = 0;
                         foreach ($tools as $checkItem) {
-                            $checkTokens = getDownloadTokens($confirmationData['order']['id'], $checkItem['product_id']);
-                            $checkFiltered = filterBestDownloadTokens($checkTokens);
-                            if (!empty($checkFiltered)) {
-                                $toolsWithFilesCount++;
+                            // CRITICAL FIX: Check upload_complete status first - only show if tool is marked complete
+                            $checkTool = getToolById($checkItem['product_id']);
+                            $isUploadComplete = ($checkTool && !empty($checkTool['upload_complete']));
+                            
+                            if ($isUploadComplete) {
+                                $checkTokens = getDownloadTokens($confirmationData['order']['id'], $checkItem['product_id']);
+                                $checkFiltered = filterBestDownloadTokens($checkTokens);
+                                if (!empty($checkFiltered)) {
+                                    $toolsWithFilesCount++;
+                                } else {
+                                    $toolsWithoutFilesCount++;
+                                }
                             } else {
+                                // Tool not marked as complete - count as pending
                                 $toolsWithoutFilesCount++;
                             }
                         }
-                        $allToolsReady = ($toolsWithoutFilesCount === 0);
+                        $allToolsReady = ($toolsWithoutFilesCount === 0 && $toolsWithFilesCount > 0);
                         ?>
                         <div class="mb-6 block">
                             <div class="flex items-center gap-2 mb-3 flex-wrap">
@@ -1129,13 +1147,17 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
                             <?php endif; ?>
                             <?php foreach ($tools as $item): 
+                                // CRITICAL FIX: Check if tool is marked as upload_complete
+                                $toolInfo = getToolById($item['product_id']);
+                                $isToolUploadComplete = ($toolInfo && !empty($toolInfo['upload_complete']));
+                                
                                 $toolFiles = getToolFiles($item['product_id']);
                                 $downloadTokens = getDownloadTokens($confirmationData['order']['id'], $item['product_id']);
                                 $filteredTokens = filterBestDownloadTokens($downloadTokens);
                                 $hasToolFilesUploaded = !empty($toolFiles);
                                 
-                                // DYNAMIC FIX: If tool files exist but no tokens yet, generate them now
-                                if ($hasToolFilesUploaded && empty($filteredTokens)) {
+                                // DYNAMIC FIX: Only generate tokens if tool is marked complete
+                                if ($isToolUploadComplete && $hasToolFilesUploaded && empty($filteredTokens)) {
                                     foreach ($toolFiles as $file) {
                                         $link = generateDownloadLink($file['id'], $confirmationData['order']['id']);
                                         if ($link) {
@@ -1147,7 +1169,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     $filteredTokens = filterBestDownloadTokens($downloadTokens);
                                 }
                                 
-                                $hasFiles = !empty($filteredTokens);
+                                // CRITICAL: Only show files if tool is marked as upload_complete
+                                $hasFiles = $isToolUploadComplete && !empty($filteredTokens);
                             ?>
                             <div class="pb-4 border-b border-gray-700 last:border-0 mb-4">
                                 <div class="flex-1">
@@ -1188,8 +1211,23 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
+                                    <?php elseif (!$isToolUploadComplete): ?>
+                                    <!-- Tool not marked as complete by admin - files being prepared -->
+                                    <div class="p-4 bg-amber-900/20 border border-amber-600/50 rounded-lg">
+                                        <div class="flex items-start gap-3">
+                                            <span class="text-xl">⏳</span>
+                                            <div>
+                                                <p class="text-amber-300 font-semibold text-sm mb-1">Files Being Prepared</p>
+                                                <p class="text-amber-200/80 text-xs leading-relaxed">
+                                                    Your files are currently being prepared and will be sent to your email at 
+                                                    <strong class="text-amber-100"><?php echo htmlspecialchars($confirmationData['order']['customer_email']); ?></strong> 
+                                                    as soon as they're ready. We'll notify you immediately!
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <?php elseif (!$hasToolFilesUploaded): ?>
-                                    <!-- Tool files not yet uploaded by admin -->
+                                    <!-- Tool marked complete but no files yet -->
                                     <div class="p-4 bg-blue-900/20 border border-blue-600/50 rounded-lg">
                                         <div class="flex items-start gap-3">
                                             <span class="text-xl">📧</span>
