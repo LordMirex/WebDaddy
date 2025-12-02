@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/paystack.php';
 require_once __DIR__ . '/../includes/delivery.php';
 require_once __DIR__ . '/../includes/security.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -158,6 +159,9 @@ function handleSuccessfulPayment($data) {
         // Emails are sent automatically within createToolDelivery() if files exist
         // If files don't exist yet, processPendingToolDeliveries() will send them when admin uploads files
         createDeliveryRecords($payment['pending_order_id']);
+        
+        // Process commission and create sales record for revenue tracking
+        processOrderCommission($payment['pending_order_id']);
         
         logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);
         
