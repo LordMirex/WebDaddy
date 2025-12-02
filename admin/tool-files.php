@@ -58,9 +58,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
             $fileId = addToolLink($toolId, $externalLink, $description);
             error_log("✅ Link added successfully: Tool ID=$toolId, File ID=$fileId");
             
-            // Note: Emails are NOT sent automatically anymore. 
-            // Admin must mark tool as "Upload Complete" in Tools page to trigger delivery emails.
-            $success = 'Link added successfully!';
+            // Check if tool is already marked as complete - if so, send update emails
+            $stmt = $db->prepare("SELECT upload_complete FROM tools WHERE id = ?");
+            $stmt->execute([$toolId]);
+            $toolStatus = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($toolStatus && !empty($toolStatus['upload_complete'])) {
+                require_once __DIR__ . '/../includes/delivery.php';
+                $updateResult = sendToolUpdateEmails($toolId);
+                if ($updateResult['sent'] > 0) {
+                    $success = "Link added! Update emails sent to {$updateResult['sent']} customers.";
+                    logActivity('tool_link_update', "New link added to completed tool (Tool ID: $toolId), {$updateResult['sent']} update emails sent", getAdminId());
+                } else {
+                    $success = 'Link added successfully!';
+                }
+            } else {
+                $success = 'Link added successfully!';
+            }
             
             header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
             exit;
@@ -87,9 +101,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_file'])) {
         $fileId = uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
         error_log("✅ File uploaded successfully: Tool ID=$toolId, File ID=$fileId");
         
-        // Note: Emails are NOT sent automatically anymore. 
-        // Admin must mark tool as "Upload Complete" in Tools page to trigger delivery emails.
-        $success = 'File uploaded successfully!';
+        // Check if tool is already marked as complete - if so, send update emails
+        $stmt = $db->prepare("SELECT upload_complete FROM tools WHERE id = ?");
+        $stmt->execute([$toolId]);
+        $toolStatus = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($toolStatus && !empty($toolStatus['upload_complete'])) {
+            require_once __DIR__ . '/../includes/delivery.php';
+            $updateResult = sendToolUpdateEmails($toolId);
+            if ($updateResult['sent'] > 0) {
+                $success = "File uploaded! Update emails sent to {$updateResult['sent']} customers.";
+                logActivity('tool_file_update', "New file added to completed tool (Tool ID: $toolId), {$updateResult['sent']} update emails sent", getAdminId());
+            } else {
+                $success = 'File uploaded successfully!';
+            }
+        } else {
+            $success = 'File uploaded successfully!';
+        }
         
         header('Location: /admin/tool-files.php?tool_id=' . $toolId . '&success=1');
         exit;

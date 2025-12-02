@@ -67,12 +67,10 @@ function createDeliveryRecords($orderId) {
                 continue;
             }
             
-            // CRITICAL FIX: Skip tools that don't have upload_complete=1
-            if ($item['product_type'] === 'tool' && (empty($item['tool_upload_complete']) || $item['tool_upload_complete'] != 1)) {
-                error_log("⏭️  Skipping tool item {$item['id']} (Product #{$item['product_id']}) - NOT MARKED AS UPLOAD COMPLETE");
-                $skippedCount++;
-                continue;
-            }
+            // NOTE: Always create delivery records for tools (even incomplete ones)
+            // The upload_complete check is done in createToolDelivery() to control whether
+            // download links are generated and emails are sent
+            // This ensures processPendingToolDeliveries() can find these records later
             
             error_log("📦 Processing item: ID={$item['id']}, Type={$item['product_type']}, ProductID={$item['product_id']}");
             
@@ -526,6 +524,118 @@ function processPendingToolDeliveries($toolId) {
         'message' => "Processed $processed deliveries, sent $sent emails",
         'processed' => $processed, 
         'sent' => $sent
+    ];
+}
+
+/**
+ * Send update emails when new files are added to a tool that's already marked complete
+ * This finds all DELIVERED orders for this tool and sends update emails with all current files
+ * 
+ * @param int $toolId The tool ID
+ * @return array Result with success status and counts
+ */
+function sendToolUpdateEmails($toolId) {
+    $db = getDb();
+    require_once __DIR__ . '/tool_files.php';
+    
+    // Get tool info
+    $stmt = $db->prepare("SELECT id, name, upload_complete FROM tools WHERE id = ?");
+    $stmt->execute([$toolId]);
+    $tool = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$tool) {
+        return ['success' => false, 'message' => 'Tool not found', 'sent' => 0];
+    }
+    
+    // Only send updates for tools marked as complete
+    if (empty($tool['upload_complete'])) {
+        return ['success' => false, 'message' => 'Tool not marked as complete', 'sent' => 0];
+    }
+    
+    // Get all current files for this tool
+    $files = getToolFiles($toolId);
+    if (empty($files)) {
+        return ['success' => false, 'message' => 'No files found for tool', 'sent' => 0];
+    }
+    
+    // Find all DELIVERED orders for this tool (already received initial delivery)
+    $stmt = $db->prepare("
+        SELECT d.*, po.customer_email, po.customer_name
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.product_id = ? 
+          AND d.product_type = 'tool'
+          AND d.delivery_status = 'delivered'
+          AND po.status = 'paid'
+        ORDER BY d.delivered_at DESC
+    ");
+    $stmt->execute([$toolId]);
+    $deliveredOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    error_log("📧 sendToolUpdateEmails: Found " . count($deliveredOrders) . " delivered orders for tool $toolId ({$tool['name']})");
+    
+    $sent = 0;
+    
+    foreach ($deliveredOrders as $delivery) {
+        $orderId = $delivery['pending_order_id'];
+        
+        // Generate fresh download links for ALL current files
+        $downloadLinks = [];
+        foreach ($files as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $downloadLinks[] = $link;
+            }
+        }
+        
+        if (empty($downloadLinks)) {
+            continue;
+        }
+        
+        // Update delivery record with new links
+        $updateStmt = $db->prepare("
+            UPDATE deliveries SET 
+                delivery_link = ?
+            WHERE id = ?
+        ");
+        $updateStmt->execute([json_encode($downloadLinks), $delivery['id']]);
+        
+        // Send update email
+        $order = [
+            'customer_email' => $delivery['customer_email'],
+            'customer_name' => $delivery['customer_name']
+        ];
+        $item = [
+            'product_name' => $delivery['product_name'],
+            'delivery_note' => $delivery['delivery_note'],
+            'product_id' => $delivery['product_id']
+        ];
+        
+        $emailSent = sendToolUpdateEmail($order, $item, $downloadLinks, $orderId);
+        
+        if ($emailSent) {
+            $sent++;
+            
+            // Record email event
+            recordEmailEvent($orderId, 'tool_update', [
+                'email' => $delivery['customer_email'],
+                'subject' => "New Files Added - {$delivery['product_name']}",
+                'sent' => true,
+                'product_name' => $delivery['product_name'],
+                'file_count' => count($downloadLinks)
+            ]);
+            
+            error_log("✅ sendToolUpdateEmails: Update email sent to {$delivery['customer_email']} for order #$orderId");
+        }
+    }
+    
+    error_log("📧 sendToolUpdateEmails: Completed - Sent $sent update emails for tool $toolId");
+    
+    return [
+        'success' => true,
+        'message' => "Sent $sent update emails",
+        'sent' => $sent,
+        'total_orders' => count($deliveredOrders)
     ];
 }
 
