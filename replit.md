@@ -75,6 +75,24 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Manual (Bank Transfer)**: Order created (NO email) → Admin confirms paid → Payment Confirmed email sent immediately
 - **NO "Order Received" email for any payment type** - Customers only receive "Payment Confirmed" email after payment is verified
 
+### December 2, 2025 - Email Template Simplification (SPAM PREVENTION)
+All customer-facing emails simplified to prevent Gmail spam filtering:
+- **Removed all emojis** from email subjects and body content
+- **Removed decorative styling** (gradients, colored panels, complex tables)
+- **Plain HTML format** - Simple paragraphs with essential information only
+- **Affiliate invitation removed** from payment confirmation emails
+- **Critical info preserved**: Order IDs, product names, download links, explicit expiry dates
+
+Affected email functions (includes/mailer.php & includes/delivery.php):
+- sendPaymentConfirmationEmail - simplified heading, removed emojis
+- sendEnhancedPaymentConfirmationEmail - plain order summary
+- sendTemplateDeliveryEmail - clean format with credentials
+- sendTemplateDeliveryEmailWithCredentials - simple credential delivery
+- sendAllToolDeliveryEmailsForOrder - plain download links with expiry dates
+- sendMixedOrderDeliverySummaryEmail - simple status list
+- sendToolUpdateEmail - clean file update notification
+- Admin/affiliate emails - removed emojis from subjects
+
 ### December 2, 2025 - Email & Statistics Fixes
 1. **Removed "Order Received" Email** - No longer sends "🎉 Your Order #X Received!" email for automatic payments
    - **cart-checkout.php** (Lines 281-287): Removed sendOrderSuccessEmail call for automatic payments
