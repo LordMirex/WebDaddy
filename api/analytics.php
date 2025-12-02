@@ -49,7 +49,7 @@ try {
                 }
                 
                 $stmt = $db->prepare("
-                    INSERT INTO page_interactions (session_id, page_url, action_type, action_target, template_id)
+                    INSERT INTO page_interactions (session_id, page_url, action_type, action_target, tool_id)
                     VALUES (?, ?, 'click', 'tool', ?)
                 ");
                 $stmt->execute([
