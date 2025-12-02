@@ -264,7 +264,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = sanitizeInput($_POST['file_description'] ?? '');
         
         try {
-            if ($_POST['upload_mode'] === 'link') {
+            // CSRF protection
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                throw new Exception('Security validation failed. Please refresh and try again.');
+            }
+            
+            $isLink = ($_POST['upload_mode'] ?? '') === 'link';
+            
+            if ($isLink) {
                 $externalLink = sanitizeInput($_POST['external_link'] ?? '');
                 if (empty($externalLink)) {
                     throw new Exception('Please provide a link URL');
@@ -293,8 +300,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 uploadToolFile($toolId, $_FILES['tool_file'], $fileType, $description);
                 $successMessage = 'File uploaded successfully!';
             }
+            
             $tool = getToolById($toolId);
-            logActivity('tool_file_uploaded', "File added to tool: {$tool['name']}", getAdminId());
+            
+            // CRITICAL FIX: Send update emails if tool is already marked as complete
+            // This notifies customers who already received the tool about new files
+            if (!empty($tool['upload_complete'])) {
+                require_once __DIR__ . '/../includes/delivery.php';
+                $updateResult = sendToolUpdateEmails($toolId);
+                if ($updateResult['sent'] > 0) {
+                    $successMessage = ($isLink ? 'Link' : 'File') . " added! Update emails sent to {$updateResult['sent']} customer(s).";
+                    logActivity('tool_file_update', "New " . ($isLink ? 'link' : 'file') . " added to completed tool (Tool ID: $toolId), {$updateResult['sent']} update emails sent", getAdminId());
+                } else {
+                    logActivity('tool_file_uploaded', ($isLink ? 'Link' : 'File') . " added to tool: {$tool['name']}", getAdminId());
+                }
+            } else {
+                logActivity('tool_file_uploaded', ($isLink ? 'Link' : 'File') . " added to tool: {$tool['name']}", getAdminId());
+            }
+            
             header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files&success=1');
             exit;
         } catch (Exception $e) {
@@ -306,12 +329,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $toolId = intval($_POST['tool_id']);
         
         try {
+            // CSRF protection
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                throw new Exception('Security validation failed. Please refresh and try again.');
+            }
+            
             $stmt = $db->prepare("SELECT * FROM tool_files WHERE id = ? AND tool_id = ?");
             $stmt->execute([$fileId, $toolId]);
             $file = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$file) {
-                throw new Exception('File not found');
+                throw new Exception('File not found or does not belong to this tool');
             }
             
             $filePath = __DIR__ . '/../' . $file['file_path'];
@@ -1119,6 +1147,7 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endif; ?>
                         <form id="uploadForm" class="space-y-5">
                             <input type="hidden" name="tool_id" value="<?php echo $editTool['id']; ?>">
+                            <input type="hidden" name="csrf_token" id="csrfToken" value="<?php echo getCsrfToken(); ?>">
                             
                             <!-- File Input (hidden when External Link selected) -->
                             <div id="fileInputDiv">
@@ -1795,6 +1824,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             return;
         }
         
+        const csrfToken = document.getElementById('csrfToken').value;
         const formData = new FormData();
         formData.append('action', 'upload_tool_file');
         formData.append('tool_id', toolId);
@@ -1802,6 +1832,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         formData.append('description', description);
         formData.append('external_link', externalLink);
         formData.append('upload_mode', 'link');
+        formData.append('csrf_token', csrfToken);
         
         statusDiv.innerHTML = '<div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-700 rounded-lg animate-pulse">🔄 Adding link...</div>';
         
