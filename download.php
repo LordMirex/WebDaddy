@@ -154,7 +154,7 @@ if ($fileSize > 0) {
 exit;
 
 function showErrorPage($title, $message) {
-    $supportEmail = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'support@webdaddyempire.com';
+    $supportEmail = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'admin@webdaddy.online';
     $siteUrl = defined('SITE_URL') ? SITE_URL : '';
     
     echo '<!DOCTYPE html>

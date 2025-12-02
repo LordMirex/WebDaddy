@@ -84,6 +84,7 @@ if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
 }
 define('SITE_URL', $siteUrl);
 define('SITE_NAME', 'WebDaddy Empire');
+define('SUPPORT_EMAIL', 'admin@webdaddy.online');
 
 // Upload Settings
 define('UPLOAD_DIR', __DIR__ . '/../uploads');

@@ -438,7 +438,7 @@ function generateToolZipBundle($orderId, $toolId) {
         }
     }
     
-    $readmeContent .= "Support: " . (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'support@webdaddy.online') . "\n";
+    $readmeContent .= "Support: " . (defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'admin@webdaddy.online') . "\n";
     $readmeContent .= "Website: " . (defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online') . "\n";
     $readmeContent .= "\nThank you for your purchase!\n";
     
