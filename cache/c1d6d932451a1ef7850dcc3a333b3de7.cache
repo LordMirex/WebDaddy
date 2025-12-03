@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+a:4:{s:7:"success";b:1;s:4:"html";s:70299:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="templates-category-filter" 
                     style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
@@ -95,7 +95,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -132,7 +132,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦8,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -169,7 +169,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -206,7 +206,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -243,7 +243,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -280,7 +280,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -317,7 +317,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -354,7 +354,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -391,7 +391,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -428,7 +428,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,800.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -465,7 +465,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,200.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -502,7 +502,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,800.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -539,7 +539,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,200.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -576,7 +576,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -613,7 +613,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,800.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -650,7 +650,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,200.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -687,7 +687,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,300.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -724,7 +724,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,900.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=&aff=HUSTLE" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -744,17 +744,17 @@ a:4:{s:7:"success";b:1;s:4:"html";s:70057:"    <div style="margin-bottom: 12px; 
             <div style="margin-top: 48px; display: flex; justify-content: center;">
         <nav style="display: flex; align-items: center; gap: 8px;">
                         
-                        <a href="?view=templates&page=1#products" 
+                        <a href="?view=templates&page=1&aff=HUSTLE#products" 
                style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #2563eb; color: white; border-color: #2563eb;">
                 1            </a>
-                        <a href="?view=templates&page=2#products" 
+                        <a href="?view=templates&page=2&aff=HUSTLE#products" 
                style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
                 2            </a>
-                        <a href="?view=templates&page=3#products" 
+                        <a href="?view=templates&page=3&aff=HUSTLE#products" 
                style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 500; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1f2937; color: #d1d5db;">
                 3            </a>
                         
-                        <a href="?view=templates&page=2#products" 
+                        <a href="?view=templates&page=2&aff=HUSTLE#products" 
                style="display: inline-flex; align-items: center; padding: 8px 16px; font-size: 14px; font-weight: 500; color: #d1d5db; background: #1f2937; border: 1px solid #4b5563; border-radius: 8px; cursor: pointer; text-decoration: none; transition: background 0.2s;">
                 Next
                 <svg style="width: 16px; height: 16px; margin-left: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
