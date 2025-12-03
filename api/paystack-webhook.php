@@ -162,9 +162,10 @@ function handleSuccessfulPayment($data) {
         createDeliveryRecords($payment['pending_order_id']);
         
         // Process commission and create sales record for revenue tracking
+        // This also sends affiliate commission notification emails
         processOrderCommission($payment['pending_order_id']);
         
-        // Send admin notification email for automatic payment
+        // Send notification emails for automatic payment
         try {
             $order = getOrderById($payment['pending_order_id']);
             if ($order) {
@@ -181,6 +182,17 @@ function handleSuccessfulPayment($data) {
                     $productNames[] = $order['tool_name'];
                 }
                 
+                // CRITICAL FIX: Send payment confirmation email to CUSTOMER (was missing!)
+                if (!empty($order['customer_email'])) {
+                    $customerEmailSent = sendEnhancedPaymentConfirmationEmail($order, $orderItems);
+                    if ($customerEmailSent) {
+                        error_log("✅ WEBHOOK: Customer payment confirmation sent to {$order['customer_email']} for Order #{$payment['pending_order_id']}");
+                    } else {
+                        error_log("⚠️  WEBHOOK: Failed to send customer payment confirmation for Order #{$payment['pending_order_id']}");
+                    }
+                }
+                
+                // Send admin notification email
                 sendPaymentSuccessNotificationToAdmin(
                     $payment['pending_order_id'],
                     $order['customer_name'],
@@ -193,7 +205,7 @@ function handleSuccessfulPayment($data) {
                 error_log("✅ WEBHOOK: Admin payment notification sent for Order #{$payment['pending_order_id']}");
             }
         } catch (Exception $emailEx) {
-            error_log("⚠️  WEBHOOK: Failed to send admin notification email: " . $emailEx->getMessage());
+            error_log("⚠️  WEBHOOK: Failed to send notification emails: " . $emailEx->getMessage());
         }
         
         logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);

@@ -916,6 +916,7 @@ function incrementAffiliateClick($code)
 /**
  * UNIFIED COMMISSION PROCESSOR: Called for both Paystack and Manual payments
  * Ensures commissions are calculated and credited identically regardless of payment method
+ * Also sends affiliate commission notification emails
  */
 function processOrderCommission($orderId)
 {
@@ -945,6 +946,7 @@ function processOrderCommission($orderId)
         
         $commissionAmount = 0;
         $affiliateId = null;
+        $affiliateData = null;
         
         // Calculate commission only if affiliate code exists
         if (!empty($order['affiliate_code'])) {
@@ -956,6 +958,7 @@ function processOrderCommission($orderId)
                 $commissionRate = $affiliate['custom_commission_rate'] ?? AFFILIATE_COMMISSION_RATE;
                 $commissionAmount = $commissionBase * $commissionRate;
                 $affiliateId = $affiliate['id'];
+                $affiliateData = $affiliate;
                 
                 // Update affiliate balance
                 $updateStmt = $db->prepare("
@@ -992,6 +995,49 @@ function processOrderCommission($orderId)
         // SAFEGUARD: Sync affiliate commission totals with sales table to prevent discrepancies
         if ($affiliateId) {
             syncAffiliateCommissions($affiliateId);
+        }
+        
+        // CRITICAL FIX: Send commission earned email to affiliate (was missing!)
+        if ($affiliateData && $commissionAmount > 0) {
+            try {
+                $affiliateName = $affiliateData['name'] ?? 'Affiliate';
+                $affiliateEmail = $affiliateData['email'] ?? null;
+                
+                if (!empty($affiliateEmail)) {
+                    // Get order items to build product list for email
+                    $orderItems = getOrderItems($orderId);
+                    $productNames = [];
+                    
+                    if (!empty($orderItems)) {
+                        foreach ($orderItems as $item) {
+                            $name = $item['product_type'] === 'template' ? ($item['template_name'] ?? 'Template') : ($item['tool_name'] ?? 'Tool');
+                            if (!empty($name)) {
+                                $productNames[] = htmlspecialchars($name);
+                            }
+                        }
+                    }
+                    
+                    $productList = !empty($productNames) ? implode(', ', $productNames) : 'Product(s)';
+                    
+                    $emailSent = sendCommissionEarnedEmail(
+                        $affiliateName,
+                        $affiliateEmail,
+                        $orderId,
+                        $commissionAmount,
+                        $productList
+                    );
+                    
+                    if ($emailSent) {
+                        error_log("✅ COMMISSION PROCESSOR: Commission email sent to affiliate {$affiliateEmail} for Order #$orderId");
+                    } else {
+                        error_log("⚠️  COMMISSION PROCESSOR: Failed to send commission email to {$affiliateEmail}");
+                    }
+                } else {
+                    error_log("⚠️  COMMISSION PROCESSOR: Affiliate #$affiliateId has no email address");
+                }
+            } catch (Exception $emailEx) {
+                error_log("⚠️  COMMISSION PROCESSOR: Email error: " . $emailEx->getMessage());
+            }
         }
         
         error_log("✅ COMMISSION PROCESSOR: Sales record created for Order #$orderId. Commission: ₦" . number_format($commissionAmount, 2));

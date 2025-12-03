@@ -29,7 +29,7 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Affiliate System**: Implements a 30% commission rate with a unified, idempotent commission processor using the `sales` table as the single source of truth.
 - **Security**: Includes CSRF token validation, secure token generation, file existence validation, download limit enforcement, enterprise-grade webhook security (IP whitelisting, rate limiting, HMAC verification), and a payment reconciliation system.
 - **Order Completion Locking**: Files that have been delivered to customers (in paid/completed orders) are protected from accidental deletion. The system checks for existing download tokens before allowing file removal. Admins can use force delete for exceptional cases with proper logging.
-- **Email System**: Automated email notifications for various events (delayed tool deliveries, updates, spam warnings for customers), with simplified, plain HTML templates to prevent spam filtering. Support email configured as admin@webdaddy.online.
+- **Email System**: Enhanced email notifications for various events (payment confirmations, affiliate commissions, delayed tool deliveries, updates). Features professional HTML templates with modern design, preheader text for inbox previews, and proper meta tags for email client compatibility. Includes a priority-based email queue system for bulk sending, aggressive processing mode for high volumes, and automatic schema migration. Support email configured as admin@webdaddy.online.
 
 ### Feature Specifications
 - **Order Management**: Enhanced filters for payment method, date range, and delivery status.

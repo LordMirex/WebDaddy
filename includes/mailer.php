@@ -79,7 +79,8 @@ function sendEmail($email, $subject, $message) {
 }
 
 /**
- * Create email template wrapper
+ * Create professional email template wrapper
+ * Enhanced for better deliverability and professional appearance
  * @param string $subject Email subject
  * @param string $content Main email content (HTML)
  * @param string $recipientName Recipient's name
@@ -90,60 +91,102 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     $whatsapp = defined('WHATSAPP_NUMBER') ? WHATSAPP_NUMBER : '+2349132672126';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
     $supportEmail = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'admin@webdaddy.online';
+    $currentYear = date('Y');
     
     $esc_subject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
     $esc_name = htmlspecialchars($recipientName, ENT_QUOTES, 'UTF-8');
     $esc_siteName = htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8');
     $esc_siteUrl = htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8');
+    $cleanWhatsapp = preg_replace('/[^0-9]/', '', $whatsapp);
     
     return <<<HTML
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+    <meta name="x-apple-disable-message-reformatting">
     <title>{$esc_subject}</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
 </head>
-<body style="margin:0; padding:0; background-color:#f5f5f5; font-family: Arial, Helvetica, sans-serif; font-size: 14px; line-height: 1.6; color: #333333;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;">
+<body style="margin:0; padding:0; background-color:#f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.65; color: #374151; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+    <!-- Preheader text (hidden but visible in inbox preview) -->
+    <div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">
+        {$esc_subject} - Thank you for choosing {$esc_siteName}
+    </div>
+    
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f6f9;">
         <tr>
-            <td style="padding: 20px;">
-                <!-- Header -->
-                <table width="100%" cellpadding="0" cellspacing="0">
+            <td align="center" style="padding: 30px 15px;">
+                <!-- Main Container -->
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%;">
+                    
+                    <!-- Header with Logo/Brand -->
                     <tr>
-                        <td style="background-color: #1e3a8a; padding: 20px; text-align: center;">
-                            <h1 style="margin: 0; font-size: 24px; color: #ffffff; font-weight: bold;">{$esc_siteName}</h1>
-                            <p style="margin: 5px 0 0 0; font-size: 13px; color: #e0e7ff;">Professional Website Templates &amp; Domains</p>
+                        <td style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); background-color: #1e3a8a; padding: 30px 40px; text-align: center; border-radius: 12px 12px 0 0;">
+                            <h1 style="margin: 0; font-size: 28px; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">{$esc_siteName}</h1>
+                            <p style="margin: 8px 0 0 0; font-size: 14px; color: #bfdbfe; font-weight: 400;">Professional Website Templates &amp; Digital Tools</p>
                         </td>
                     </tr>
-                </table>
-                
-                <!-- Content -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff;">
+                    
+                    <!-- Main Content Area -->
                     <tr>
-                        <td style="padding: 25px 20px; color: #333333;">
-                            <p style="margin: 0 0 20px 0; font-size: 14px; color: #333333;">Hello {$esc_name},</p>
+                        <td style="background-color: #ffffff; padding: 40px 40px 30px 40px;">
+                            <p style="margin: 0 0 25px 0; font-size: 16px; color: #374151;">Hello <strong style="color: #1e3a8a;">{$esc_name}</strong>,</p>
                             
-                            <div style="margin: 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #1e3a8a;">
+                            <div style="margin: 0; padding: 25px; background-color: #f8fafc; border-radius: 10px; border-left: 4px solid #3b82f6;">
                                 {$content}
                             </div>
-                            
-                            <hr style="margin: 25px 0; border: none; border-top: 1px solid #e0e0e0;">
-                            
-                            <!-- Footer -->
-                            <p style="margin: 15px 0; font-size: 13px; color: #666666;">
-                                <strong>Need help?</strong><br>
-                                Email: <a href="mailto:{$supportEmail}" style="color: #1e3a8a; text-decoration: none; font-weight: bold;">{$supportEmail}</a><br>
-                                WhatsApp: <a href="https://wa.me/{$whatsapp}" style="color: #1e3a8a; text-decoration: none; font-weight: bold;">{$whatsapp}</a>
-                            </p>
-                            
-                            <p style="margin: 15px 0 0 0; font-size: 13px; color: #666666;">
+                        </td>
+                    </tr>
+                    
+                    <!-- Support Section -->
+                    <tr>
+                        <td style="background-color: #ffffff; padding: 0 40px 30px 40px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #eff6ff; border-radius: 10px; padding: 25px;">
+                                <tr>
+                                    <td style="padding: 25px;">
+                                        <p style="margin: 0 0 15px 0; font-size: 16px; color: #1e40af; font-weight: 600;">Need Help?</p>
+                                        <p style="margin: 0 0 10px 0; font-size: 14px; color: #374151;">
+                                            <span style="display: inline-block; width: 20px;">&#9993;</span>
+                                            <a href="mailto:{$supportEmail}" style="color: #1e3a8a; text-decoration: none; font-weight: 500;">{$supportEmail}</a>
+                                        </p>
+                                        <p style="margin: 0; font-size: 14px; color: #374151;">
+                                            <span style="display: inline-block; width: 20px;">&#128172;</span>
+                                            <a href="https://wa.me/{$cleanWhatsapp}" style="color: #1e3a8a; text-decoration: none; font-weight: 500;">WhatsApp Support</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #1e293b; padding: 30px 40px; border-radius: 0 0 12px 12px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 14px; color: #94a3b8;">
                                 Best regards,<br>
-                                <strong>The {$esc_siteName} Team</strong><br>
-                                <a href="{$esc_siteUrl}" style="color: #1e3a8a; text-decoration: none;">{$esc_siteUrl}</a>
+                                <strong style="color: #ffffff;">The {$esc_siteName} Team</strong>
+                            </p>
+                            <p style="margin: 0 0 15px 0;">
+                                <a href="{$esc_siteUrl}" style="color: #60a5fa; text-decoration: none; font-size: 14px;">{$esc_siteUrl}</a>
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #64748b;">
+                                &copy; {$currentYear} {$esc_siteName}. All rights reserved.
                             </p>
                         </td>
                     </tr>
+                    
                 </table>
             </td>
         </tr>
