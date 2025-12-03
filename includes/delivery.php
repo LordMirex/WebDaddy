@@ -529,7 +529,8 @@ function processPendingToolDeliveries($toolId) {
 
 /**
  * Send update emails when new files are added to a tool that's already marked complete
- * This finds all DELIVERED orders for this tool and sends update emails with all current files
+ * FIXED: Only sends emails for NEW files that haven't been delivered yet (prevents duplicates)
+ * Uses download_tokens table to track which files have already been sent to each order
  * 
  * @param int $toolId The tool ID
  * @return array Result with success status and counts
@@ -558,6 +559,9 @@ function sendToolUpdateEmails($toolId) {
         return ['success' => false, 'message' => 'No files found for tool', 'sent' => 0];
     }
     
+    // Get file IDs for this tool
+    $allFileIds = array_column($files, 'id');
+    
     // Find all DELIVERED orders for this tool (already received initial delivery)
     $stmt = $db->prepare("
         SELECT d.*, po.customer_email, po.customer_name
@@ -575,32 +579,58 @@ function sendToolUpdateEmails($toolId) {
     error_log("📧 sendToolUpdateEmails: Found " . count($deliveredOrders) . " delivered orders for tool $toolId ({$tool['name']})");
     
     $sent = 0;
+    $skipped = 0;
     
     foreach ($deliveredOrders as $delivery) {
         $orderId = $delivery['pending_order_id'];
         
-        // Generate fresh download links for ALL current files
-        $downloadLinks = [];
-        foreach ($files as $file) {
-            $link = generateDownloadLink($file['id'], $orderId);
-            if ($link) {
-                $downloadLinks[] = $link;
-            }
-        }
+        // CRITICAL FIX: Check which files have ALREADY been sent to this order
+        // This prevents duplicate emails when new files are added
+        $existingTokensStmt = $db->prepare("
+            SELECT file_id FROM download_tokens 
+            WHERE pending_order_id = ?
+        ");
+        $existingTokensStmt->execute([$orderId]);
+        $alreadySentFileIds = $existingTokensStmt->fetchAll(PDO::FETCH_COLUMN);
         
-        if (empty($downloadLinks)) {
+        // Find NEW files that haven't been sent to this order yet
+        $newFileIds = array_diff($allFileIds, $alreadySentFileIds);
+        
+        if (empty($newFileIds)) {
+            // All files already delivered to this order - skip
+            $skipped++;
+            error_log("⏭️  sendToolUpdateEmails: Order #$orderId already has all files - skipping");
             continue;
         }
         
-        // Update delivery record with new links
+        // Generate download links ONLY for NEW files
+        $newDownloadLinks = [];
+        foreach ($files as $file) {
+            if (in_array($file['id'], $newFileIds)) {
+                $link = generateDownloadLink($file['id'], $orderId);
+                if ($link) {
+                    $newDownloadLinks[] = $link;
+                }
+            }
+        }
+        
+        if (empty($newDownloadLinks)) {
+            continue;
+        }
+        
+        // Get existing links from delivery record and merge with new ones
+        $existingLinks = json_decode($delivery['delivery_link'], true) ?? [];
+        $allLinks = array_merge($existingLinks, $newDownloadLinks);
+        
+        // Update delivery record with ALL links (existing + new)
         $updateStmt = $db->prepare("
             UPDATE deliveries SET 
                 delivery_link = ?
             WHERE id = ?
         ");
-        $updateStmt->execute([json_encode($downloadLinks), $delivery['id']]);
+        $updateStmt->execute([json_encode($allLinks), $delivery['id']]);
         
-        // Send update email
+        // Send update email with ONLY the NEW files
         $order = [
             'customer_email' => $delivery['customer_email'],
             'customer_name' => $delivery['customer_name']
@@ -611,30 +641,33 @@ function sendToolUpdateEmails($toolId) {
             'product_id' => $delivery['product_id']
         ];
         
-        $emailSent = sendToolUpdateEmail($order, $item, $downloadLinks, $orderId);
+        // Pass only new download links to the email function
+        $emailSent = sendToolUpdateEmail($order, $item, $newDownloadLinks, $orderId);
         
         if ($emailSent) {
             $sent++;
             
-            // Record email event
+            // Record email event with count of NEW files only
             recordEmailEvent($orderId, 'tool_update', [
                 'email' => $delivery['customer_email'],
                 'subject' => "New Files Added - {$delivery['product_name']}",
                 'sent' => true,
                 'product_name' => $delivery['product_name'],
-                'file_count' => count($downloadLinks)
+                'new_file_count' => count($newDownloadLinks),
+                'total_file_count' => count($allLinks)
             ]);
             
-            error_log("✅ sendToolUpdateEmails: Update email sent to {$delivery['customer_email']} for order #$orderId");
+            error_log("✅ sendToolUpdateEmails: Update email sent to {$delivery['customer_email']} for order #$orderId with " . count($newDownloadLinks) . " new files");
         }
     }
     
-    error_log("📧 sendToolUpdateEmails: Completed - Sent $sent update emails for tool $toolId");
+    error_log("📧 sendToolUpdateEmails: Completed - Sent $sent update emails, Skipped $skipped (no new files) for tool $toolId");
     
     return [
         'success' => true,
-        'message' => "Sent $sent update emails",
+        'message' => "Sent $sent update emails" . ($skipped > 0 ? " (skipped $skipped - already have all files)" : ""),
         'sent' => $sent,
+        'skipped' => $skipped,
         'total_orders' => count($deliveredOrders)
     ];
 }

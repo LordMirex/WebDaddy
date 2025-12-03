@@ -156,14 +156,8 @@ function handleSuccessfulPayment($data) {
         // Commit transaction before delivery
         $db->commit();
         
-        // Trigger delivery (outside transaction)
-        // Emails are sent automatically within createToolDelivery() if files exist
-        // If files don't exist yet, processPendingToolDeliveries() will send them when admin uploads files
-        createDeliveryRecords($payment['pending_order_id']);
-        
-        // Process commission and create sales record for revenue tracking
-        // This also sends affiliate commission notification emails
-        processOrderCommission($payment['pending_order_id']);
+        // CRITICAL FIX: Send emails in CORRECT order - Confirmation FIRST, then tool delivery
+        // This ensures customers receive order confirmation before product files
         
         // Send notification emails for automatic payment
         try {
@@ -182,7 +176,7 @@ function handleSuccessfulPayment($data) {
                     $productNames[] = $order['tool_name'];
                 }
                 
-                // CRITICAL FIX: Send payment confirmation email to CUSTOMER (was missing!)
+                // Step 1: Send payment confirmation email to CUSTOMER FIRST
                 if (!empty($order['customer_email'])) {
                     $customerEmailSent = sendEnhancedPaymentConfirmationEmail($order, $orderItems);
                     if ($customerEmailSent) {
@@ -192,7 +186,7 @@ function handleSuccessfulPayment($data) {
                     }
                 }
                 
-                // Send admin notification email
+                // Step 2: Send admin notification email
                 sendPaymentSuccessNotificationToAdmin(
                     $payment['pending_order_id'],
                     $order['customer_name'],
@@ -207,6 +201,15 @@ function handleSuccessfulPayment($data) {
         } catch (Exception $emailEx) {
             error_log("⚠️  WEBHOOK: Failed to send notification emails: " . $emailEx->getMessage());
         }
+        
+        // Step 3: Create delivery records and send tool delivery emails AFTER confirmation
+        // Emails are sent automatically within createToolDelivery() if files exist
+        // If files don't exist yet, processPendingToolDeliveries() will send them when admin uploads files
+        createDeliveryRecords($payment['pending_order_id']);
+        
+        // Process commission and create sales record for revenue tracking
+        // This also sends affiliate commission notification emails
+        processOrderCommission($payment['pending_order_id']);
         
         logPaymentEvent('payment_completed', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $data);
         

@@ -97,6 +97,102 @@ function canDeleteToolFile($fileId, $forceDelete = false) {
 }
 
 /**
+ * Check if a tool has any completed orders (used for order completion locking)
+ * When a tool has completed orders, file modifications require confirmation
+ * ENHANCED: Also checks download_tokens to catch cases where deliveries are pending but customers have access
+ * 
+ * @param int $toolId The tool ID to check
+ * @return array ['has_completed_orders' => bool, 'order_count' => int, 'message' => string]
+ */
+function hasCompletedOrders($toolId) {
+    $db = getDb();
+    
+    // Check deliveries marked as delivered
+    $stmt = $db->prepare("
+        SELECT COUNT(DISTINCT d.pending_order_id) as order_count
+        FROM deliveries d
+        INNER JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.product_id = ? 
+        AND d.product_type = 'tool'
+        AND d.delivery_status = 'delivered'
+        AND po.status IN ('paid', 'completed')
+    ");
+    $stmt->execute([$toolId]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $deliveredCount = (int)($result['order_count'] ?? 0);
+    
+    // Also check for ANY download tokens - customers may have received links even if delivery not marked 'delivered'
+    $tokenStmt = $db->prepare("
+        SELECT COUNT(DISTINCT dt.pending_order_id) as token_count
+        FROM download_tokens dt
+        INNER JOIN tool_files tf ON dt.file_id = tf.id
+        INNER JOIN pending_orders po ON dt.pending_order_id = po.id
+        WHERE tf.tool_id = ? 
+        AND po.status IN ('paid', 'completed')
+    ");
+    $tokenStmt->execute([$toolId]);
+    $tokenResult = $tokenStmt->fetch(PDO::FETCH_ASSOC);
+    $tokenCount = (int)($tokenResult['token_count'] ?? 0);
+    
+    // Use the higher of the two counts
+    $orderCount = max($deliveredCount, $tokenCount);
+    
+    if ($orderCount > 0) {
+        return [
+            'has_completed_orders' => true,
+            'order_count' => $orderCount,
+            'message' => "This tool has {$orderCount} order(s) with active download access. File changes require unmarking the tool first."
+        ];
+    }
+    
+    return [
+        'has_completed_orders' => false,
+        'order_count' => 0,
+        'message' => ''
+    ];
+}
+
+/**
+ * Check if file modifications are allowed for a tool
+ * If tool has completed orders and is marked as complete, changes are locked
+ * 
+ * @param int $toolId The tool ID
+ * @return array ['allowed' => bool, 'reason' => string, 'requires_unmark' => bool]
+ */
+function canModifyToolFiles($toolId) {
+    $db = getDb();
+    
+    // Check if tool is marked as upload_complete
+    $stmt = $db->prepare("SELECT upload_complete, name FROM tools WHERE id = ?");
+    $stmt->execute([$toolId]);
+    $tool = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$tool) {
+        return ['allowed' => false, 'reason' => 'Tool not found', 'requires_unmark' => false];
+    }
+    
+    // If tool is NOT marked as complete, modifications are allowed
+    if (empty($tool['upload_complete'])) {
+        return ['allowed' => true, 'reason' => '', 'requires_unmark' => false];
+    }
+    
+    // Tool is marked as complete - check if there are completed orders
+    $orderCheck = hasCompletedOrders($toolId);
+    
+    if ($orderCheck['has_completed_orders']) {
+        return [
+            'allowed' => false,
+            'reason' => "This tool ({$tool['name']}) has {$orderCheck['order_count']} completed order(s) and is marked as complete. Unmark the tool (toggle 'Files Ready') before making changes to prevent breaking customer downloads.",
+            'requires_unmark' => true,
+            'order_count' => $orderCheck['order_count']
+        ];
+    }
+    
+    // No completed orders, allow modifications
+    return ['allowed' => true, 'reason' => '', 'requires_unmark' => false];
+}
+
+/**
  * Add external link for a tool
  * Stores the URL in file_path column with file_type='link'
  */

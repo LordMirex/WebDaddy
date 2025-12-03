@@ -90,24 +90,86 @@ $stmt = $db->prepare($query);
 $stmt->execute($params);
 $recentSalesRaw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Map pending_orders discount to sales records - get actual discount from order
+// Batch fetch all data for efficiency (avoiding N+1 queries)
+$orderIds = array_column($recentSalesRaw, 'pending_order_id');
+$orderProductNames = [];
+$orderDiscounts = [];
+
+if (!empty($orderIds)) {
+    $placeholders = implode(',', array_fill(0, count($orderIds), '?'));
+    
+    // Batch fetch product names from order_items
+    $itemsQuery = $db->prepare("
+        SELECT 
+            oi.pending_order_id,
+            oi.product_type,
+            COALESCE(t.name, tool.name, oi.product_name, 'Unknown Product') as product_name,
+            ROW_NUMBER() OVER (PARTITION BY oi.pending_order_id ORDER BY oi.id ASC) as rn
+        FROM order_items oi
+        LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+        LEFT JOIN tools tool ON oi.product_type = 'tool' AND oi.product_id = tool.id
+        WHERE oi.pending_order_id IN ($placeholders)
+    ");
+    $itemsQuery->execute($orderIds);
+    $allItems = $itemsQuery->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Group items by order ID and get first item name for each
+    foreach ($allItems as $item) {
+        $orderId = $item['pending_order_id'];
+        if (!isset($orderProductNames[$orderId]) || $item['rn'] == 1) {
+            $orderProductNames[$orderId] = [
+                'product_type' => $item['product_type'],
+                'product_name' => $item['product_name']
+            ];
+        }
+    }
+    
+    // Batch fetch discounts from pending_orders (avoiding N+1 queries)
+    $discountQuery = $db->prepare("
+        SELECT id, discount_amount, original_price
+        FROM pending_orders
+        WHERE id IN ($placeholders)
+    ");
+    $discountQuery->execute($orderIds);
+    $discountRows = $discountQuery->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($discountRows as $row) {
+        $orderDiscounts[$row['id']] = [
+            'discount_amount' => floatval($row['discount_amount'] ?? 0),
+            'original_price' => floatval($row['original_price'] ?? 0)
+        ];
+    }
+}
+
+// Process sales with batch-fetched data
 $recentSales = [];
 foreach ($recentSalesRaw as $sale) {
-    // Use actual discount from sales table if available, otherwise calculate from order
+    $orderId = $sale['pending_order_id'];
+    
+    // Use batch-fetched discount data
     if (empty($sale['sale_discount']) || $sale['sale_discount'] == 0) {
-        // Try to get discount from the pending_order
-        $orderDiscount = $db->prepare("SELECT discount_amount, original_price FROM pending_orders WHERE id = ?");
-        $orderDiscount->execute([$sale['pending_order_id']]);
-        $orderData = $orderDiscount->fetch(PDO::FETCH_ASSOC);
-        
-        if ($orderData) {
-            $sale['sale_discount'] = floatval($orderData['discount_amount'] ?? 0);
-            $sale['sale_original'] = floatval($orderData['original_price'] ?? $sale['amount_paid'] ?? 0);
+        if (isset($orderDiscounts[$orderId])) {
+            $sale['sale_discount'] = $orderDiscounts[$orderId]['discount_amount'];
+            $sale['sale_original'] = $orderDiscounts[$orderId]['original_price'] ?: ($sale['amount_paid'] ?? 0);
         } else {
             $sale['sale_discount'] = 0;
             $sale['sale_original'] = $sale['amount_paid'];
         }
     }
+    
+    // Use batch-fetched product names for accurate display
+    if (empty($sale['template_name']) && empty($sale['tool_name'])) {
+        if (isset($orderProductNames[$orderId])) {
+            $productInfo = $orderProductNames[$orderId];
+            if ($productInfo['product_type'] === 'template') {
+                $sale['template_name'] = $productInfo['product_name'];
+            } else {
+                $sale['tool_name'] = $productInfo['product_name'];
+            }
+        } else {
+            $sale['tool_name'] = 'Unknown Product';
+        }
+    }
+    
     $recentSales[] = $sale;
 }
 

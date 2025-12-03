@@ -269,6 +269,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Security validation failed. Please refresh and try again.');
             }
             
+            // ORDER COMPLETION LOCKING: Check if modifications are allowed
+            $modifyCheck = canModifyToolFiles($toolId);
+            if (!$modifyCheck['allowed']) {
+                throw new Exception($modifyCheck['reason']);
+            }
+            
             $isLink = ($_POST['upload_mode'] ?? '') === 'link';
             
             if ($isLink) {
@@ -343,8 +349,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('File not found or does not belong to this tool');
             }
             
-            // ORDER COMPLETION LOCKING: Check if file has been delivered to customers
+            // ORDER COMPLETION LOCKING: Check if tool-level modifications are allowed
             require_once __DIR__ . '/../includes/tool_files.php';
+            if (!$forceDelete) {
+                $modifyCheck = canModifyToolFiles($toolId);
+                if (!$modifyCheck['allowed']) {
+                    throw new Exception($modifyCheck['reason']);
+                }
+            }
+            
+            // Check if individual file has been delivered
             $deleteCheck = canDeleteToolFile($fileId, $forceDelete);
             if (!$deleteCheck['can_delete']) {
                 throw new Exception($deleteCheck['reason']);

@@ -155,34 +155,6 @@ try {
                 error_log("⚠️  PAYSTACK VERIFY: Commission processing warning - " . $commissionResult['message']);
             }
             
-            // Create delivery records
-            error_log("✅ PAYSTACK VERIFY: Creating delivery records");
-            try {
-                createDeliveryRecords($orderId);
-                error_log("✅ PAYSTACK VERIFY: Delivery records created successfully");
-                
-                // Send automatic tool delivery email with all tools ready for download
-                error_log("✅ PAYSTACK VERIFY: Sending tool delivery emails");
-                sendAllToolDeliveryEmailsForOrder($orderId);
-                error_log("✅ PAYSTACK VERIFY: Tool delivery emails sent");
-            } catch (Exception $deliveryError) {
-                error_log("❌ PAYSTACK VERIFY: Error creating delivery records: " . $deliveryError->getMessage());
-                // Don't fail the entire payment - just log it
-                // Delivery can be created manually or retried later
-            }
-            
-            // Send admin notification about successful payment with CORRECT order ID
-            error_log("✅ PAYSTACK VERIFY: Sending admin notification for Order #$orderId");
-            sendPaymentSuccessNotificationToAdmin(
-                $orderId,
-                $order['customer_name'],
-                $order['customer_phone'],
-                $productNames,
-                formatCurrency($order['final_amount']),
-                $order['affiliate_code'],
-                $orderType
-            );
-            
             // SECURITY: Double-check order status is still 'paid' before sending confirmation emails
             $statusCheck = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
             $statusCheck->execute([$orderId]);
@@ -191,10 +163,11 @@ try {
             error_log("✅ PAYSTACK VERIFY: Final status check - Order #$orderId status: " . ($statusCheckResult['status'] ?? 'UNKNOWN'));
             
             if ($statusCheckResult && $statusCheckResult['status'] === 'paid') {
-                // Queue customer confirmation and affiliate emails - PROCESS IMMEDIATELY
-                error_log("✅ PAYSTACK VERIFY: Queueing confirmation emails");
+                // CRITICAL FIX: Send CONFIRMATION email FIRST, then tool delivery emails
+                // This ensures customers receive order confirmation before product files
+                error_log("✅ PAYSTACK VERIFY: Sending confirmation emails FIRST");
                 
-                // Queue payment confirmation email to customer
+                // Step 1: Send payment confirmation email to customer FIRST
                 if (!empty($order['customer_email'])) {
                     error_log("✅ PAYSTACK VERIFY: Sending confirmation to customer: " . $order['customer_email']);
                     
@@ -221,7 +194,35 @@ try {
                     error_log("PAYSTACK VERIFY: No customer email found for Order #$orderId");
                 }
                 
-                // CRITICAL FIX: Send commission email to affiliate for automatic payments
+                // Step 2: Send admin notification
+                error_log("✅ PAYSTACK VERIFY: Sending admin notification for Order #$orderId");
+                sendPaymentSuccessNotificationToAdmin(
+                    $orderId,
+                    $order['customer_name'],
+                    $order['customer_phone'],
+                    $productNames,
+                    formatCurrency($order['final_amount']),
+                    $order['affiliate_code'],
+                    $orderType
+                );
+                
+                // Step 3: Create delivery records and send tool delivery emails AFTER confirmation
+                error_log("✅ PAYSTACK VERIFY: Creating delivery records");
+                try {
+                    createDeliveryRecords($orderId);
+                    error_log("✅ PAYSTACK VERIFY: Delivery records created successfully");
+                    
+                    // Send automatic tool delivery email with all tools ready for download
+                    error_log("✅ PAYSTACK VERIFY: Sending tool delivery emails AFTER confirmation");
+                    sendAllToolDeliveryEmailsForOrder($orderId);
+                    error_log("✅ PAYSTACK VERIFY: Tool delivery emails sent");
+                } catch (Exception $deliveryError) {
+                    error_log("❌ PAYSTACK VERIFY: Error creating delivery records: " . $deliveryError->getMessage());
+                    // Don't fail the entire payment - just log it
+                    // Delivery can be created manually or retried later
+                }
+                
+                // Step 4: Send commission email to affiliate for automatic payments
                 if ($commissionResult['success'] && $commissionResult['commission_amount'] > 0) {
                     error_log("✅ PAYSTACK VERIFY: Sending commission notification to affiliate");
                     $affiliateId = $commissionResult['affiliate_id'] ?? null;
@@ -257,6 +258,7 @@ try {
                 }
                 
                 error_log("✅ PAYSTACK VERIFY: Email delivery complete");
+                
             } else {
                 error_log("❌ PAYSTACK VERIFY: SECURITY: Order #$orderId status is NOT 'paid' (status: " . ($statusCheckResult['status'] ?? 'UNKNOWN') . ") - NO CONFIRMATION EMAILS SENT");
             }
