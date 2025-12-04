@@ -124,76 +124,117 @@ try {
         }
         
         $db = getDb();
+        if (!$db) {
+            error_log("CRITICAL: getDb() returned null/false for tool $toolId upload");
+            throw new Exception('Database connection failed');
+        }
+        
         $relPath = 'uploads/tools/files/' . $uniqueName;
         
-        // Check for existing file with same name for this tool
-        $dupCheck = $db->prepare("SELECT id, file_path FROM tool_files WHERE tool_id = ? AND file_name = ?");
-        $dupCheck->execute([$toolId, $fileName]);
-        $existingFile = $dupCheck->fetch(PDO::FETCH_ASSOC);
+        error_log("DB INSERT: Starting database operation for tool_id=$toolId, file_name=$fileName");
         
-        if ($existingFile) {
-            // File with same name exists - REPLACE it (version update workflow)
-            // Log the deletion for version control email tracking
-            $logStmt = $db->prepare("
-                INSERT INTO tool_file_deletion_log (tool_id, file_id, file_name, file_type, deleted_at, deleted_by)
-                VALUES (?, ?, ?, 'attachment', datetime('now', '+1 hour'), 'system_replace')
-            ");
-            $logStmt->execute([$toolId, $existingFile['id'], $fileName]);
+        try {
+            $db->beginTransaction();
             
-            // Delete the old file from disk
-            $oldFilePath = __DIR__ . '/../' . $existingFile['file_path'];
-            if (file_exists($oldFilePath)) {
-                @unlink($oldFilePath);
+            $dupCheck = $db->prepare("SELECT id, file_path FROM tool_files WHERE tool_id = ? AND file_name = ?");
+            if (!$dupCheck) {
+                throw new Exception('Failed to prepare duplicate check query');
+            }
+            $dupCheck->execute([$toolId, $fileName]);
+            $existingFile = $dupCheck->fetch(PDO::FETCH_ASSOC);
+            
+            error_log("DB INSERT: Duplicate check result for '$fileName': " . ($existingFile ? "Found ID {$existingFile['id']}" : "Not found"));
+            
+            if ($existingFile) {
+                $logStmt = $db->prepare("
+                    INSERT INTO tool_file_deletion_log (tool_id, file_id, file_name, file_type, deleted_at, deleted_by)
+                    VALUES (?, ?, ?, 'attachment', datetime('now', '+1 hour'), 'system_replace')
+                ");
+                if (!$logStmt->execute([$toolId, $existingFile['id'], $fileName])) {
+                    error_log("DB INSERT: Failed to log deletion for file ID {$existingFile['id']}");
+                }
+                
+                $oldFilePath = __DIR__ . '/../' . $existingFile['file_path'];
+                if (file_exists($oldFilePath)) {
+                    @unlink($oldFilePath);
+                    error_log("DB INSERT: Deleted old file: $oldFilePath");
+                }
+                
+                $updateStmt = $db->prepare("
+                    UPDATE tool_files 
+                    SET file_path = ?, file_size = ?, mime_type = ?, updated_at = datetime('now', '+1 hour')
+                    WHERE id = ?
+                ");
+                if (!$updateStmt->execute([$relPath, $fileSize, $mimeType, $existingFile['id']])) {
+                    throw new Exception('Failed to update existing file record');
+                }
+                
+                $db->commit();
+                error_log("DB INSERT: File replaced successfully - $fileName (ID: {$existingFile['id']}) for tool $toolId");
+                
+                echo json_encode([
+                    'success' => true, 
+                    'completed' => true,
+                    'replaced' => true,
+                    'message' => "File '$fileName' has been updated with the new version.",
+                    'fileId' => $existingFile['id'],
+                    'fileName' => $fileName,
+                    'fileSize' => $fileSize
+                ]);
+                exit;
             }
             
-            // Update existing record with new file info
-            $updateStmt = $db->prepare("
-                UPDATE tool_files 
-                SET file_path = ?, file_size = ?, mime_type = ?, updated_at = datetime('now', '+1 hour')
-                WHERE id = ?
+            $stmt = $db->prepare("
+                INSERT INTO tool_files 
+                (tool_id, file_name, file_path, file_type, file_description, file_size, mime_type, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'))
             ");
-            $updateStmt->execute([$relPath, $fileSize, $mimeType, $existingFile['id']]);
+            if (!$stmt) {
+                throw new Exception('Failed to prepare INSERT statement');
+            }
             
-            error_log("File replaced: $fileName (ID: {$existingFile['id']}) for tool $toolId - old version logged for version control");
+            $insertResult = $stmt->execute([
+                $toolId,
+                $fileName,
+                $relPath,
+                'attachment',
+                '',
+                $fileSize,
+                $mimeType
+            ]);
+            
+            if (!$insertResult) {
+                $errorInfo = $stmt->errorInfo();
+                error_log("DB INSERT: INSERT failed - " . json_encode($errorInfo));
+                throw new Exception('Failed to insert file record: ' . ($errorInfo[2] ?? 'Unknown error'));
+            }
+            
+            $newFileId = $db->lastInsertId();
+            error_log("DB INSERT: New file inserted with ID $newFileId for tool $toolId");
+            
+            $updateToolStmt = $db->prepare("UPDATE tools SET total_files = (SELECT COUNT(*) FROM tool_files WHERE tool_id = ?), updated_at = datetime('now', '+1 hour') WHERE id = ?");
+            $updateToolStmt->execute([$toolId, $toolId]);
+            
+            $db->commit();
+            error_log("DB INSERT: Transaction committed successfully - $fileName ($fileSize bytes) for tool $toolId, new ID: $newFileId");
             
             echo json_encode([
                 'success' => true, 
                 'completed' => true,
-                'replaced' => true,
-                'message' => "File '$fileName' has been updated with the new version.",
-                'fileId' => $existingFile['id'],
                 'fileName' => $fileName,
-                'fileSize' => $fileSize
+                'fileSize' => $fileSize,
+                'filePath' => $relPath,
+                'fileId' => $newFileId
             ]);
-            exit;
+            
+        } catch (Exception $dbError) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log("DB INSERT ERROR: " . $dbError->getMessage() . " for tool $toolId, file $fileName");
+            @unlink($finalFile);
+            throw $dbError;
         }
-        
-        $stmt = $db->prepare("
-            INSERT INTO tool_files 
-            (tool_id, file_name, file_path, file_type, file_description, file_size, mime_type, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'))
-        ");
-        $stmt->execute([
-            $toolId,
-            $fileName,
-            $relPath,
-            'attachment',
-            '',
-            $fileSize,
-            $mimeType
-        ]);
-        
-        $db->exec("UPDATE tools SET total_files = (SELECT COUNT(*) FROM tool_files WHERE tool_id = $toolId), updated_at = datetime('now', '+1 hour') WHERE id = $toolId");
-        
-        error_log("Chunked upload complete: $fileName ($fileSize bytes) for tool $toolId");
-        
-        echo json_encode([
-            'success' => true, 
-            'completed' => true,
-            'fileName' => $fileName,
-            'fileSize' => $fileSize,
-            'filePath' => $relPath
-        ]);
     } else {
         echo json_encode([
             'success' => true, 
