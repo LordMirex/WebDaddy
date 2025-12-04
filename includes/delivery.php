@@ -1206,6 +1206,186 @@ function sendMixedOrderDeliverySummaryEmail($orderId) {
 }
 
 /**
+ * Send universal order delivery update email
+ * Works for ALL order types (tools-only, templates-only, mixed)
+ * Shows what has been delivered, what is pending, and completion status
+ * 
+ * @param int $orderId The order ID
+ * @param string $trigger What triggered this update (e.g., 'tool_delivered', 'template_delivered', 'initial')
+ * @return array Result with success status and message
+ */
+function sendOrderDeliveryUpdateEmail($orderId, $trigger = 'delivery_update') {
+    $db = getDb();
+    
+    error_log("📧 DELIVERY UPDATE EMAIL: Starting for Order #$orderId (trigger: $trigger)");
+    
+    // Get order details
+    $stmt = $db->prepare("SELECT * FROM pending_orders WHERE id = ?");
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$order || empty($order['customer_email'])) {
+        error_log("❌ DELIVERY UPDATE EMAIL: Order not found or no email for Order #$orderId");
+        return ['success' => false, 'message' => 'Order not found or no email'];
+    }
+    
+    // Get delivery stats
+    $stats = getOrderDeliveryStats($orderId);
+    
+    if ($stats['total_items'] === 0) {
+        error_log("⚠️  DELIVERY UPDATE EMAIL: No delivery items for Order #$orderId");
+        return ['success' => false, 'message' => 'No delivery items found'];
+    }
+    
+    // Get all deliveries
+    $stmt = $db->prepare("SELECT * FROM deliveries WHERE pending_order_id = ? ORDER BY product_type ASC, id ASC");
+    $stmt->execute([$orderId]);
+    $deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Determine if order is fully delivered
+    $isFullyDelivered = $stats['is_fully_delivered'];
+    
+    // Build email subject based on status
+    if ($isFullyDelivered) {
+        $subject = "Order #{$orderId} - Delivery Complete!";
+    } else {
+        $subject = "Order #{$orderId} - Delivery Update";
+    }
+    
+    // Build email body
+    if ($isFullyDelivered) {
+        // FULLY DELIVERED - Celebration email!
+        $body = '<div style="text-align: center; padding: 20px 0;">';
+        $body .= '<h2 style="color: #10b981; margin: 0 0 15px 0; font-size: 28px;">Order Delivery Complete!</h2>';
+        $body .= '<p style="color: #374151; font-size: 16px; margin: 0 0 20px 0;">All items in your order have been successfully delivered.</p>';
+        $body .= '</div>';
+        
+        $body .= '<div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 8px; padding: 20px; margin: 20px 0;">';
+        $body .= '<p style="color: #065f46; margin: 0 0 10px 0; font-weight: bold; font-size: 16px;">Order #' . $orderId . ' - 100% Delivered</p>';
+        $body .= '<p style="color: #047857; margin: 0;">' . $stats['total_items'] . ' item(s) delivered successfully</p>';
+        $body .= '</div>';
+    } else {
+        // PARTIAL DELIVERY - Progress update
+        $body = '<h2 style="color: #1e3a8a; margin: 0 0 15px 0;">Order Delivery Update</h2>';
+        $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Here is the latest update on your order delivery status.</p>';
+        
+        // Progress bar section
+        $progressPercent = $stats['delivery_percentage'];
+        $body .= '<div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin: 15px 0;">';
+        $body .= '<p style="color: #374151; margin: 0 0 10px 0;"><strong>Delivery Progress:</strong> ' . $stats['delivered_items'] . ' of ' . $stats['total_items'] . ' items delivered</p>';
+        $body .= '<div style="background: #e5e7eb; height: 20px; border-radius: 10px; overflow: hidden;">';
+        $body .= '<div style="background: linear-gradient(90deg, #10b981, #34d399); width: ' . $progressPercent . '%; height: 100%; border-radius: 10px;"></div>';
+        $body .= '</div>';
+        $body .= '<p style="color: #6b7280; margin: 10px 0 0 0; font-size: 14px;">' . $progressPercent . '% Complete</p>';
+        $body .= '</div>';
+    }
+    
+    // Tools Section - Show what tools have been delivered
+    $toolDeliveries = array_filter($deliveries, function($d) { return $d['product_type'] === 'tool'; });
+    if (!empty($toolDeliveries)) {
+        $body .= '<div style="margin: 20px 0; padding: 15px; background: #f0f9ff; border-radius: 8px;">';
+        $body .= '<p style="color: #1e40af; margin: 0 0 10px 0; font-weight: bold;">Digital Tools</p>';
+        
+        foreach ($toolDeliveries as $td) {
+            $isDelivered = in_array($td['delivery_status'], ['delivered', 'ready', 'sent']);
+            $statusIcon = $isDelivered ? '✅' : '⏳';
+            $statusText = $isDelivered ? 'Delivered' : 'Preparing';
+            $statusColor = $isDelivered ? '#10b981' : '#f59e0b';
+            
+            $body .= '<p style="color: #374151; margin: 5px 0;">';
+            $body .= $statusIcon . ' ' . htmlspecialchars($td['product_name']);
+            $body .= ' <span style="color: ' . $statusColor . '; font-size: 13px;">(' . $statusText . ')</span>';
+            $body .= '</p>';
+        }
+        
+        // Summary for tools
+        $toolsDelivered = $stats['tools']['delivered'];
+        $toolsTotal = $stats['tools']['total'];
+        if ($toolsDelivered === $toolsTotal && $toolsTotal > 0) {
+            $body .= '<p style="color: #059669; margin: 10px 0 0 0; font-weight: bold;">All tools delivered! Check your email for download links.</p>';
+        } elseif ($stats['tools']['pending'] > 0) {
+            $body .= '<p style="color: #d97706; margin: 10px 0 0 0; font-size: 13px;">Remaining tools will be sent once ready.</p>';
+        }
+        $body .= '</div>';
+    }
+    
+    // Templates Section - Show what templates have been delivered
+    $templateDeliveries = array_filter($deliveries, function($d) { return $d['product_type'] === 'template'; });
+    if (!empty($templateDeliveries)) {
+        $body .= '<div style="margin: 20px 0; padding: 15px; background: #faf5ff; border-radius: 8px;">';
+        $body .= '<p style="color: #7e22ce; margin: 0 0 10px 0; font-weight: bold;">Website Templates</p>';
+        
+        foreach ($templateDeliveries as $td) {
+            $isDelivered = $td['delivery_status'] === 'delivered';
+            
+            if ($isDelivered) {
+                $statusIcon = '✅';
+                $statusText = 'Delivered';
+                $statusColor = '#10b981';
+            } elseif (!empty($td['hosted_domain'])) {
+                $statusIcon = '🔧';
+                $statusText = 'Setting Up';
+                $statusColor = '#8b5cf6';
+            } else {
+                $statusIcon = '⏳';
+                $statusText = 'Preparing';
+                $statusColor = '#f59e0b';
+            }
+            
+            $body .= '<p style="color: #374151; margin: 5px 0;">';
+            $body .= $statusIcon . ' ' . htmlspecialchars($td['product_name']);
+            $body .= ' <span style="color: ' . $statusColor . '; font-size: 13px;">(' . $statusText . ')</span>';
+            $body .= '</p>';
+        }
+        
+        // Summary for templates
+        $templatesDelivered = $stats['templates']['delivered'];
+        $templatesTotal = $stats['templates']['total'];
+        if ($templatesDelivered === $templatesTotal && $templatesTotal > 0) {
+            $body .= '<p style="color: #059669; margin: 10px 0 0 0; font-weight: bold;">All templates delivered! Check your email for login credentials.</p>';
+        } elseif ($stats['templates']['pending'] > 0) {
+            $body .= '<p style="color: #7c3aed; margin: 10px 0 0 0; font-size: 13px;">Your templates are being set up with premium hosting. You\'ll receive login credentials once ready (usually within 24-48 hours).</p>';
+        }
+        $body .= '</div>';
+    }
+    
+    // Closing message based on delivery status
+    if ($isFullyDelivered) {
+        $body .= '<div style="text-align: center; margin: 25px 0; padding: 20px; background: #f0fdf4; border-radius: 8px;">';
+        $body .= '<p style="color: #166534; margin: 0 0 10px 0; font-size: 16px;">Thank you for your purchase!</p>';
+        $body .= '<p style="color: #374151; margin: 0;">We hope you enjoy your products. Need help? Just reply to this email or contact us on WhatsApp.</p>';
+        $body .= '</div>';
+    } else {
+        $body .= '<p style="color: #374151; margin: 20px 0 0 0;">We\'ll send you another update when more items are delivered. If you have any questions, contact us on WhatsApp.</p>';
+    }
+    
+    require_once __DIR__ . '/mailer.php';
+    $emailBody = createEmailTemplate($subject, $body, $order['customer_name']);
+    $result = sendEmail($order['customer_email'], $subject, $emailBody);
+    
+    // Record email event
+    recordEmailEvent($orderId, $isFullyDelivered ? 'delivery_complete' : 'delivery_update', [
+        'email' => $order['customer_email'],
+        'subject' => $subject,
+        'sent' => $result,
+        'trigger' => $trigger,
+        'delivered_items' => $stats['delivered_items'],
+        'total_items' => $stats['total_items'],
+        'is_complete' => $isFullyDelivered
+    ]);
+    
+    error_log("📧 DELIVERY UPDATE EMAIL: " . ($result ? 'Sent' : 'Failed') . " for Order #$orderId (complete: " . ($isFullyDelivered ? 'yes' : 'no') . ")");
+    
+    return [
+        'success' => $result,
+        'message' => $result 
+            ? ($isFullyDelivered ? 'Delivery complete email sent' : 'Delivery update email sent') 
+            : 'Failed to send email',
+        'is_complete' => $isFullyDelivered
+    ];
+}
+
+/**
  * Record email sent event for delivery timeline
  * Phase 5.4: Track email events for order timeline
  */
