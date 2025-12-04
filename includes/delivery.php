@@ -2316,9 +2316,9 @@ function sendToolVersionUpdateEmails($toolId) {
             }
         }
         
-        // Check for removed files from the deletion log (more accurate with proper file names)
+        // Check for removed/modified files from the deletion log (more accurate with proper file names)
         $removedStmt = $db->prepare("
-            SELECT file_id, file_name, file_type, deleted_at 
+            SELECT file_id, file_name, file_type, deleted_at, deleted_by 
             FROM tool_file_deletion_log 
             WHERE tool_id = ? 
             AND deleted_at > (
@@ -2331,30 +2331,58 @@ function sendToolVersionUpdateEmails($toolId) {
         $removedStmt->execute([$toolId, $delivery['id']]);
         $deletedFiles = $removedStmt->fetchAll(PDO::FETCH_ASSOC);
         
+        $modifiedFiles = [];
         if (!empty($deletedFiles)) {
             $removedFiles = [];
             foreach ($deletedFiles as $deleted) {
-                $removedFiles[] = [
-                    'id' => $deleted['file_id'], 
-                    'name' => $deleted['file_name'],
-                    'type' => $deleted['file_type']
-                ];
+                // Check if file still exists (replaced) or was truly deleted
+                if (isset($currentFilesById[$deleted['file_id']]) || $deleted['deleted_by'] === 'system_replace') {
+                    // File was replaced - it's modified, not removed
+                    // Check if file exists in current files
+                    if (isset($currentFilesById[$deleted['file_id']])) {
+                        $modifiedFiles[] = [
+                            'id' => $deleted['file_id'], 
+                            'name' => $deleted['file_name'],
+                            'type' => $deleted['file_type']
+                        ];
+                        // Move from existing to modified (if it was in existing)
+                        $existingFiles = array_filter($existingFiles, function($f) use ($deleted) {
+                            return $f['id'] != $deleted['file_id'];
+                        });
+                    }
+                } else {
+                    // File was truly deleted
+                    $removedFiles[] = [
+                        'id' => $deleted['file_id'], 
+                        'name' => $deleted['file_name'],
+                        'type' => $deleted['file_type']
+                    ];
+                }
             }
         }
         
-        // Skip if there are no changes (no added, no removed files)
-        if (empty($addedFiles) && empty($removedFiles)) {
+        // Skip if there are no changes (no added, no modified, no removed files)
+        if (empty($addedFiles) && empty($modifiedFiles) && empty($removedFiles)) {
             $skipped++;
             error_log("⏭️  sendToolVersionUpdateEmails: Order #$orderId - no changes to notify");
             continue;
         }
         
-        // Generate download links for new files only
+        // Generate download links for new files
         $newDownloadLinks = [];
         foreach ($addedFiles as $file) {
             $link = generateDownloadLink($file['id'], $orderId);
             if ($link) {
                 $newDownloadLinks[] = $link;
+            }
+        }
+        
+        // Generate download links for modified files (new version)
+        $modifiedDownloadLinks = [];
+        foreach ($modifiedFiles as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $modifiedDownloadLinks[] = $link;
             }
         }
         
@@ -2374,7 +2402,7 @@ function sendToolVersionUpdateEmails($toolId) {
         ");
         $updateStmt->execute([json_encode($allDownloadLinks), $delivery['id']]);
         
-        // Build version control email
+        // Build version control email with added, modified, existing, and removed sections
         $emailContent = buildVersionControlEmail(
             $tool,
             $orderId,
@@ -2382,7 +2410,9 @@ function sendToolVersionUpdateEmails($toolId) {
             $addedFiles,
             $existingFiles,
             $removedFiles,
-            $newDownloadLinks
+            $newDownloadLinks,
+            $modifiedFiles,
+            $modifiedDownloadLinks
         );
         
         if ($useQueue) {

@@ -126,6 +126,48 @@ try {
         $db = getDb();
         $relPath = 'uploads/tools/files/' . $uniqueName;
         
+        // Check for existing file with same name for this tool
+        $dupCheck = $db->prepare("SELECT id, file_path FROM tool_files WHERE tool_id = ? AND file_name = ?");
+        $dupCheck->execute([$toolId, $fileName]);
+        $existingFile = $dupCheck->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existingFile) {
+            // File with same name exists - REPLACE it (version update workflow)
+            // Log the deletion for version control email tracking
+            $logStmt = $db->prepare("
+                INSERT INTO tool_file_deletion_log (tool_id, file_id, file_name, file_type, deleted_at, deleted_by)
+                VALUES (?, ?, ?, 'attachment', datetime('now', '+1 hour'), 'system_replace')
+            ");
+            $logStmt->execute([$toolId, $existingFile['id'], $fileName]);
+            
+            // Delete the old file from disk
+            $oldFilePath = __DIR__ . '/../' . $existingFile['file_path'];
+            if (file_exists($oldFilePath)) {
+                @unlink($oldFilePath);
+            }
+            
+            // Update existing record with new file info
+            $updateStmt = $db->prepare("
+                UPDATE tool_files 
+                SET file_path = ?, file_size = ?, mime_type = ?, updated_at = datetime('now', '+1 hour')
+                WHERE id = ?
+            ");
+            $updateStmt->execute([$relPath, $fileSize, $mimeType, $existingFile['id']]);
+            
+            error_log("File replaced: $fileName (ID: {$existingFile['id']}) for tool $toolId - old version logged for version control");
+            
+            echo json_encode([
+                'success' => true, 
+                'completed' => true,
+                'replaced' => true,
+                'message' => "File '$fileName' has been updated with the new version.",
+                'fileId' => $existingFile['id'],
+                'fileName' => $fileName,
+                'fileSize' => $fileSize
+            ]);
+            exit;
+        }
+        
         $stmt = $db->prepare("
             INSERT INTO tool_files 
             (tool_id, file_name, file_path, file_type, file_description, file_size, mime_type, created_at) 

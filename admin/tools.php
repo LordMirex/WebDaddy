@@ -1842,6 +1842,13 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
             if (response.completed) {
                 progressBar.style.width = '100%';
                 progressPercent.textContent = '100%';
+                
+                if (response.replaced) {
+                    statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">🔄 ' + (response.message || 'File has been updated with the new version.') + ' Reloading...</div>';
+                    setTimeout(() => window.location.reload(), 1500);
+                    return;
+                }
+                
                 statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
                 setTimeout(() => window.location.reload(), 1500);
                 return;
