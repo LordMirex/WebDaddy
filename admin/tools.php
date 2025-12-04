@@ -243,13 +243,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($uploadComplete) {
                 require_once __DIR__ . '/../includes/delivery.php';
-                $deliveryResult = processPendingToolDeliveries($toolId);
                 
+                $pendingResult = processPendingToolDeliveries($toolId);
+                $pendingEmails = $pendingResult['sent'] ?? 0;
+                
+                $updateResult = sendToolVersionUpdateEmails($toolId);
+                $updateEmails = $updateResult['sent'] ?? 0;
+                
+                $totalEmails = $pendingEmails + $updateEmails;
                 $successMessage = "Tool marked as complete!";
-                if ($deliveryResult['sent'] > 0) {
-                    $successMessage .= " {$deliveryResult['sent']} customer(s) notified with download links.";
+                
+                if ($totalEmails > 0) {
+                    $parts = [];
+                    if ($pendingEmails > 0) {
+                        $parts[] = "{$pendingEmails} new customer(s) notified";
+                    }
+                    if ($updateEmails > 0) {
+                        $parts[] = "{$updateEmails} existing customer(s) received update notifications";
+                    }
+                    $successMessage .= " " . implode(', ', $parts) . ".";
                 }
-                logActivity('tool_upload_complete', "Tool files marked complete: {$tool['name']}, {$deliveryResult['sent']} emails sent", getAdminId());
+                
+                logActivity('tool_upload_complete', "Tool files marked complete: {$tool['name']}, {$pendingEmails} pending + {$updateEmails} update emails sent", getAdminId());
             } else {
                 $successMessage = "Tool marked as incomplete (uploads in progress).";
                 logActivity('tool_upload_incomplete', "Tool files marked incomplete: {$tool['name']}", getAdminId());
@@ -1138,8 +1153,8 @@ require_once __DIR__ . '/includes/header.php';
                                         <div class="font-medium text-gray-900 truncate"><?php echo htmlspecialchars($file['file_name']); ?></div>
                                         <div class="text-xs text-gray-500">
                                             <?php echo $isLink ? 'External Link' : number_format($file['file_size'] / 1024, 1) . ' KB'; ?>
-                                            <?php if ($file['description']): ?>
-                                             · <?php echo htmlspecialchars(substr($file['description'], 0, 30)); ?><?php echo strlen($file['description']) > 30 ? '...' : ''; ?>
+                                            <?php if (!empty($file['file_description'])): ?>
+                                             · <?php echo htmlspecialchars(substr($file['file_description'], 0, 30)); ?><?php echo strlen($file['file_description']) > 30 ? '...' : ''; ?>
                                             <?php endif; ?>
                                         </div>
                                     </div>
