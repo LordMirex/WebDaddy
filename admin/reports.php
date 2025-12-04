@@ -103,7 +103,7 @@ if (!empty($orderIds)) {
         SELECT 
             oi.pending_order_id,
             oi.product_type,
-            COALESCE(t.name, tool.name, oi.product_name, 'Unknown Product') as product_name,
+            COALESCE(t.name, tool.name, 'Unknown Product') as product_name,
             ROW_NUMBER() OVER (PARTITION BY oi.pending_order_id ORDER BY oi.id ASC) as rn
         FROM order_items oi
         LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
