@@ -2215,3 +2215,335 @@ function sendToolUpdateEmail($order, $item, $downloadLinks, $orderId) {
     require_once __DIR__ . '/mailer.php';
     return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
 }
+
+/**
+ * Send comprehensive version control update emails when tool is re-marked as complete
+ * This is for EXISTING customers who have already received the tool (delivered status)
+ * Shows what files were added, what they already have, and what was removed
+ * Uses email queue for batch processing to prevent system crashes
+ * 
+ * @param int $toolId The tool ID
+ * @return array Result with success status and counts
+ */
+function sendToolVersionUpdateEmails($toolId) {
+    $db = getDb();
+    require_once __DIR__ . '/tool_files.php';
+    require_once __DIR__ . '/email_queue.php';
+    
+    error_log("📧 sendToolVersionUpdateEmails: Starting for tool $toolId");
+    
+    // Get tool info
+    $stmt = $db->prepare("SELECT id, name, upload_complete FROM tools WHERE id = ?");
+    $stmt->execute([$toolId]);
+    $tool = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$tool) {
+        error_log("❌ sendToolVersionUpdateEmails: Tool not found: $toolId");
+        return ['success' => false, 'message' => 'Tool not found', 'sent' => 0, 'queued' => 0];
+    }
+    
+    // Only send updates for tools marked as complete
+    if (empty($tool['upload_complete'])) {
+        return ['success' => false, 'message' => 'Tool not marked as complete', 'sent' => 0, 'queued' => 0];
+    }
+    
+    // Get all current files for this tool
+    $currentFiles = getToolFiles($toolId);
+    $currentFileIds = array_column($currentFiles, 'id');
+    $currentFilesById = [];
+    foreach ($currentFiles as $file) {
+        $currentFilesById[$file['id']] = $file;
+    }
+    
+    // Find all DELIVERED orders for this tool (existing customers who already received it)
+    $stmt = $db->prepare("
+        SELECT d.*, po.customer_email, po.customer_name, po.id as order_id
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.product_id = ? 
+          AND d.product_type = 'tool'
+          AND d.delivery_status = 'delivered'
+          AND po.status = 'paid'
+        ORDER BY d.delivered_at DESC
+    ");
+    $stmt->execute([$toolId]);
+    $deliveredOrders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    error_log("📧 sendToolVersionUpdateEmails: Found " . count($deliveredOrders) . " delivered orders for tool $toolId ({$tool['name']})");
+    
+    if (empty($deliveredOrders)) {
+        return ['success' => true, 'message' => 'No existing customers to notify', 'sent' => 0, 'queued' => 0];
+    }
+    
+    $sent = 0;
+    $queued = 0;
+    $skipped = 0;
+    $useQueue = count($deliveredOrders) > 10; // Use queue for more than 10 recipients
+    
+    foreach ($deliveredOrders as $delivery) {
+        $orderId = $delivery['pending_order_id'];
+        
+        // Get all file_ids that have download tokens issued for this order
+        $tokenStmt = $db->prepare("
+            SELECT dt.file_id, tf.file_name
+            FROM download_tokens dt
+            LEFT JOIN tool_files tf ON dt.file_id = tf.id
+            WHERE dt.pending_order_id = ?
+        ");
+        $tokenStmt->execute([$orderId]);
+        $tokenRecords = $tokenStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $previouslyIssuedFileIds = [];
+        $removedFiles = [];
+        
+        foreach ($tokenRecords as $token) {
+            $previouslyIssuedFileIds[] = $token['file_id'];
+            // Check if file was removed (token exists but file doesn't)
+            if ($token['file_name'] === null && !isset($currentFilesById[$token['file_id']])) {
+                $removedFiles[] = ['id' => $token['file_id'], 'name' => 'Removed file #' . $token['file_id']];
+            }
+        }
+        
+        // Categorize files: Added (new), Existing (already have), Removed (deleted)
+        $addedFiles = [];
+        $existingFiles = [];
+        
+        foreach ($currentFiles as $file) {
+            if (in_array($file['id'], $previouslyIssuedFileIds)) {
+                $existingFiles[] = $file;
+            } else {
+                $addedFiles[] = $file;
+            }
+        }
+        
+        // Check for removed files more accurately from token history
+        $removedStmt = $db->prepare("
+            SELECT DISTINCT dt.file_id 
+            FROM download_tokens dt
+            WHERE dt.pending_order_id = ?
+            AND dt.file_id NOT IN (SELECT id FROM tool_files WHERE tool_id = ?)
+        ");
+        $removedStmt->execute([$orderId, $toolId]);
+        $removedFileIds = $removedStmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (!empty($removedFileIds)) {
+            $removedFiles = [];
+            foreach ($removedFileIds as $removedId) {
+                $removedFiles[] = ['id' => $removedId, 'name' => 'File #' . $removedId . ' (removed)'];
+            }
+        }
+        
+        // Skip if there are no changes (no added, no removed files)
+        if (empty($addedFiles) && empty($removedFiles)) {
+            $skipped++;
+            error_log("⏭️  sendToolVersionUpdateEmails: Order #$orderId - no changes to notify");
+            continue;
+        }
+        
+        // Generate download links for new files only
+        $newDownloadLinks = [];
+        foreach ($addedFiles as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $newDownloadLinks[] = $link;
+            }
+        }
+        
+        // Update delivery record with all current links
+        $allDownloadLinks = [];
+        foreach ($currentFiles as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $allDownloadLinks[] = $link;
+            }
+        }
+        
+        $updateStmt = $db->prepare("
+            UPDATE deliveries SET 
+                delivery_link = ?
+            WHERE id = ?
+        ");
+        $updateStmt->execute([json_encode($allDownloadLinks), $delivery['id']]);
+        
+        // Build version control email
+        $emailContent = buildVersionControlEmail(
+            $tool,
+            $orderId,
+            $delivery['customer_name'],
+            $addedFiles,
+            $existingFiles,
+            $removedFiles,
+            $newDownloadLinks
+        );
+        
+        if ($useQueue) {
+            // Queue email for batch processing
+            $queueId = queueEmail(
+                $delivery['customer_email'],
+                'tool_version_update',
+                $emailContent['subject'],
+                strip_tags($emailContent['body']),
+                $emailContent['html'],
+                $orderId,
+                $delivery['id'],
+                'normal'
+            );
+            
+            if ($queueId) {
+                $queued++;
+                error_log("📬 sendToolVersionUpdateEmails: Queued email for {$delivery['customer_email']} (Order #$orderId)");
+            }
+        } else {
+            // Send immediately for small batches
+            require_once __DIR__ . '/mailer.php';
+            $emailSent = sendEmail(
+                $delivery['customer_email'],
+                $emailContent['subject'],
+                $emailContent['html']
+            );
+            
+            if ($emailSent) {
+                $sent++;
+                
+                // Record email event
+                recordEmailEvent($orderId, 'tool_version_update', [
+                    'email' => $delivery['customer_email'],
+                    'subject' => $emailContent['subject'],
+                    'sent' => true,
+                    'product_name' => $tool['name'],
+                    'added_files' => count($addedFiles),
+                    'existing_files' => count($existingFiles),
+                    'removed_files' => count($removedFiles)
+                ]);
+                
+                error_log("✅ sendToolVersionUpdateEmails: Email sent to {$delivery['customer_email']} for order #$orderId");
+            }
+        }
+    }
+    
+    // Process queue if we used it
+    if ($useQueue && $queued > 0) {
+        error_log("📧 sendToolVersionUpdateEmails: Processing email queue ($queued emails)...");
+        $queueResult = processEmailQueue(50); // Process up to 50 at a time
+        $sent = $queueResult['sent'] ?? 0;
+        error_log("📧 sendToolVersionUpdateEmails: Queue processed - Sent: $sent");
+    }
+    
+    $totalCustomers = count($deliveredOrders);
+    error_log("📧 sendToolVersionUpdateEmails: Completed - Sent: $sent, Queued: $queued, Skipped: $skipped / $totalCustomers total");
+    
+    return [
+        'success' => true,
+        'message' => $useQueue 
+            ? "Queued $queued update emails for $totalCustomers existing customers" . ($skipped > 0 ? " (skipped $skipped - no changes)" : "")
+            : "Sent $sent update emails" . ($skipped > 0 ? " (skipped $skipped - no changes)" : ""),
+        'sent' => $sent,
+        'queued' => $queued,
+        'skipped' => $skipped,
+        'total_customers' => $totalCustomers
+    ];
+}
+
+/**
+ * Build version control email content with added/existing/removed file sections
+ * Different format for existing customers showing what changed
+ * 
+ * @param array $tool Tool information
+ * @param int $orderId Order ID
+ * @param string $customerName Customer name
+ * @param array $addedFiles New files added
+ * @param array $existingFiles Files they already have
+ * @param array $removedFiles Files that were removed
+ * @param array $newDownloadLinks Download links for new files only
+ * @return array ['subject' => string, 'body' => string, 'html' => string]
+ */
+function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks) {
+    $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+    $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+    
+    $hasAdded = !empty($addedFiles);
+    $hasRemoved = !empty($removedFiles);
+    
+    // Determine subject based on changes
+    if ($hasAdded && $hasRemoved) {
+        $subject = "Product Update: Files Added & Removed - {$tool['name']} - Order #{$orderId}";
+    } elseif ($hasAdded) {
+        $subject = "New Files Added - {$tool['name']} - Order #{$orderId}";
+    } elseif ($hasRemoved) {
+        $subject = "Product Update: Files Changed - {$tool['name']} - Order #{$orderId}";
+    } else {
+        $subject = "Product Update - {$tool['name']} - Order #{$orderId}";
+    }
+    
+    // Build HTML body
+    $body = '<h2 style="color: #7c3aed; margin: 0 0 15px 0;">Product Update Notification</h2>';
+    $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Your product <strong>' . htmlspecialchars($tool['name']) . '</strong> has been updated.</p>';
+    $body .= '<p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px;"><strong>Order ID:</strong> #' . $orderId . '</p>';
+    
+    // ADDED FILES section (green)
+    if ($hasAdded) {
+        $body .= '<div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #059669; margin: 0 0 12px 0; font-size: 16px;">New Files Added (' . count($addedFiles) . ')</h3>';
+        
+        foreach ($newDownloadLinks as $link) {
+            $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+            $fileUrl = htmlspecialchars($link['url'] ?? '');
+            $isLink = ($link['file_type'] === 'link');
+            
+            $body .= '<p style="color: #374151; margin: 8px 0;">';
+            $body .= '<span style="color: #10b981; font-weight: bold;">+ </span>' . $fileName . ' - ';
+            $body .= '<a href="' . $fileUrl . '"' . ($isLink ? ' target="_blank"' : '') . ' style="color: #1e3a8a; text-decoration: underline;">' . ($isLink ? 'Open Link' : 'Download') . '</a>';
+            $body .= '</p>';
+        }
+        $body .= '</div>';
+    }
+    
+    // EXISTING FILES section (blue)
+    if (!empty($existingFiles)) {
+        $body .= '<div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #2563eb; margin: 0 0 12px 0; font-size: 16px;">Files You Already Have (' . count($existingFiles) . ')</h3>';
+        
+        foreach ($existingFiles as $file) {
+            $fileName = htmlspecialchars($file['file_name'] ?? 'Unknown File');
+            $body .= '<p style="color: #374151; margin: 5px 0;">';
+            $body .= '<span style="color: #3b82f6;">&#10003; </span>' . $fileName;
+            $body .= '</p>';
+        }
+        $body .= '<p style="color: #6b7280; font-size: 12px; margin: 10px 0 0 0;">No action needed - these files remain available in your original delivery.</p>';
+        $body .= '</div>';
+    }
+    
+    // REMOVED FILES section (red)
+    if ($hasRemoved) {
+        $body .= '<div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #dc2626; margin: 0 0 12px 0; font-size: 16px;">Files Removed (' . count($removedFiles) . ')</h3>';
+        
+        foreach ($removedFiles as $file) {
+            $fileName = htmlspecialchars($file['name'] ?? 'Unknown File');
+            $body .= '<p style="color: #374151; margin: 5px 0;">';
+            $body .= '<span style="color: #ef4444;">&#10005; </span><s style="color: #9ca3af;">' . $fileName . '</s>';
+            $body .= '</p>';
+        }
+        $body .= '<p style="color: #6b7280; font-size: 12px; margin: 10px 0 0 0;">These files are no longer available for this product.</p>';
+        $body .= '</div>';
+    }
+    
+    // Summary
+    $totalCurrent = count($existingFiles) + count($addedFiles);
+    $body .= '<div style="background: #f3f4f6; padding: 15px; margin: 20px 0; border-radius: 8px;">';
+    $body .= '<p style="color: #374151; margin: 0;"><strong>Summary:</strong> You now have access to <strong>' . $totalCurrent . ' file' . ($totalCurrent != 1 ? 's' : '') . '</strong> for this product.</p>';
+    $body .= '</div>';
+    
+    // Expiry note
+    $expiryDate = date('F j, Y', strtotime("+{$expiryDays} days"));
+    $body .= '<p style="color: #6b7280; font-size: 13px; margin: 15px 0 0 0;">New download links expire on ' . $expiryDate . ' (' . $expiryDays . ' days). Max ' . $maxDownloads . ' downloads per link.</p>';
+    
+    require_once __DIR__ . '/mailer.php';
+    $htmlEmail = createEmailTemplate($subject, $body, $customerName);
+    
+    return [
+        'subject' => $subject,
+        'body' => $body,
+        'html' => $htmlEmail
+    ];
+}
