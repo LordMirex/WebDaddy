@@ -373,6 +373,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Cannot delete files when tool is marked as complete. Unmark the tool first to make changes.');
             }
             
+            // Log file deletion for version control tracking (before deleting)
+            $logStmt = $db->prepare("
+                INSERT INTO tool_file_deletion_log 
+                (tool_id, file_id, file_name, file_type, file_description, deleted_by)
+                VALUES (?, ?, ?, ?, ?, 'admin')
+            ");
+            $logStmt->execute([
+                $toolId,
+                $fileId,
+                $file['file_name'],
+                $file['file_type'] ?? 'unknown',
+                $file['file_description'] ?? ''
+            ]);
+            
             // Delete the file from disk (if it's a local file, not an external link)
             $filePath = __DIR__ . '/../' . $file['file_path'];
             if (file_exists($filePath) && !preg_match('/^https?:\/\//i', $file['file_path'])) {

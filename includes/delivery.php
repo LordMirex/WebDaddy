@@ -2316,20 +2316,29 @@ function sendToolVersionUpdateEmails($toolId) {
             }
         }
         
-        // Check for removed files more accurately from token history
+        // Check for removed files from the deletion log (more accurate with proper file names)
         $removedStmt = $db->prepare("
-            SELECT DISTINCT dt.file_id 
-            FROM download_tokens dt
-            WHERE dt.pending_order_id = ?
-            AND dt.file_id NOT IN (SELECT id FROM tool_files WHERE tool_id = ?)
+            SELECT file_id, file_name, file_type, deleted_at 
+            FROM tool_file_deletion_log 
+            WHERE tool_id = ? 
+            AND deleted_at > (
+                SELECT COALESCE(MAX(delivered_at), created_at) 
+                FROM deliveries 
+                WHERE id = ?
+            )
+            ORDER BY deleted_at DESC
         ");
-        $removedStmt->execute([$orderId, $toolId]);
-        $removedFileIds = $removedStmt->fetchAll(PDO::FETCH_COLUMN);
+        $removedStmt->execute([$toolId, $delivery['id']]);
+        $deletedFiles = $removedStmt->fetchAll(PDO::FETCH_ASSOC);
         
-        if (!empty($removedFileIds)) {
+        if (!empty($deletedFiles)) {
             $removedFiles = [];
-            foreach ($removedFileIds as $removedId) {
-                $removedFiles[] = ['id' => $removedId, 'name' => 'File #' . $removedId . ' (removed)'];
+            foreach ($deletedFiles as $deleted) {
+                $removedFiles[] = [
+                    'id' => $deleted['file_id'], 
+                    'name' => $deleted['file_name'],
+                    'type' => $deleted['file_type']
+                ];
             }
         }
         
