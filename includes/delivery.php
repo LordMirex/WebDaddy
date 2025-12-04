@@ -2484,7 +2484,7 @@ function sendToolVersionUpdateEmails($toolId) {
 }
 
 /**
- * Build version control email content with added/existing/removed file sections
+ * Build version control email content with added/existing/removed/modified file sections
  * Different format for existing customers showing what changed
  * 
  * @param array $tool Tool information
@@ -2494,20 +2494,27 @@ function sendToolVersionUpdateEmails($toolId) {
  * @param array $existingFiles Files they already have
  * @param array $removedFiles Files that were removed
  * @param array $newDownloadLinks Download links for new files only
+ * @param array $modifiedFiles Files that were updated/replaced
+ * @param array $modifiedDownloadLinks Download links for modified files
  * @return array ['subject' => string, 'body' => string, 'html' => string]
  */
-function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks) {
+function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks, $modifiedFiles = [], $modifiedDownloadLinks = []) {
     $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
     $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
     
     $hasAdded = !empty($addedFiles);
     $hasRemoved = !empty($removedFiles);
+    $hasModified = !empty($modifiedFiles);
     
     // Determine subject based on changes
-    if ($hasAdded && $hasRemoved) {
+    if ($hasAdded && $hasModified) {
+        $subject = "Product Update: New & Updated Files - {$tool['name']} - Order #{$orderId}";
+    } elseif ($hasAdded && $hasRemoved) {
         $subject = "Product Update: Files Added & Removed - {$tool['name']} - Order #{$orderId}";
     } elseif ($hasAdded) {
         $subject = "New Files Added - {$tool['name']} - Order #{$orderId}";
+    } elseif ($hasModified) {
+        $subject = "Files Updated - {$tool['name']} - Order #{$orderId}";
     } elseif ($hasRemoved) {
         $subject = "Product Update: Files Changed - {$tool['name']} - Order #{$orderId}";
     } else {
@@ -2532,6 +2539,25 @@ function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $
             $body .= '<p style="color: #374151; margin: 8px 0;">';
             $body .= '<span style="color: #10b981; font-weight: bold;">+ </span>' . $fileName . ' - ';
             $body .= '<a href="' . $fileUrl . '"' . ($isLink ? ' target="_blank"' : '') . ' style="color: #1e3a8a; text-decoration: underline;">' . ($isLink ? 'Open Link' : 'Download') . '</a>';
+            $body .= '</p>';
+        }
+        $body .= '</div>';
+    }
+    
+    // MODIFIED FILES section (orange/amber)
+    if ($hasModified) {
+        $body .= '<div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #d97706; margin: 0 0 12px 0; font-size: 16px;">Updated Files (' . count($modifiedFiles) . ')</h3>';
+        $body .= '<p style="color: #6b7280; font-size: 12px; margin: 0 0 10px 0;">These files have been updated with new versions.</p>';
+        
+        foreach ($modifiedDownloadLinks as $link) {
+            $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+            $fileUrl = htmlspecialchars($link['url'] ?? '');
+            $isLink = ($link['file_type'] ?? '') === 'link';
+            
+            $body .= '<p style="color: #374151; margin: 8px 0;">';
+            $body .= '<span style="color: #f59e0b; font-weight: bold;">&#8635; </span>' . $fileName . ' - ';
+            $body .= '<a href="' . $fileUrl . '"' . ($isLink ? ' target="_blank"' : '') . ' style="color: #1e3a8a; text-decoration: underline;">' . ($isLink ? 'Open Link' : 'Download New Version') . '</a>';
             $body .= '</p>';
         }
         $body .= '</div>';
@@ -2568,9 +2594,15 @@ function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $
     }
     
     // Summary
-    $totalCurrent = count($existingFiles) + count($addedFiles);
+    $totalCurrent = count($existingFiles) + count($addedFiles) + count($modifiedFiles);
     $body .= '<div style="background: #f3f4f6; padding: 15px; margin: 20px 0; border-radius: 8px;">';
     $body .= '<p style="color: #374151; margin: 0;"><strong>Summary:</strong> You now have access to <strong>' . $totalCurrent . ' file' . ($totalCurrent != 1 ? 's' : '') . '</strong> for this product.</p>';
+    if ($hasAdded || $hasModified) {
+        $changes = [];
+        if ($hasAdded) $changes[] = count($addedFiles) . ' new';
+        if ($hasModified) $changes[] = count($modifiedFiles) . ' updated';
+        $body .= '<p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 0;">Changes: ' . implode(', ', $changes) . '</p>';
+    }
     $body .= '</div>';
     
     // Expiry note
