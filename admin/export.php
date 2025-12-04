@@ -189,10 +189,10 @@ if ($exportType) {
         ]);
         
         $stmt = $db->prepare("
-            SELECT dt.*, tl.name as tool_name, tf.filename
+            SELECT dt.*, tf.file_name, tf.tool_id, tl.name as tool_name
             FROM download_tokens dt
-            JOIN tools tl ON dt.tool_id = tl.id
-            JOIN tool_files tf ON dt.tool_file_id = tf.id
+            JOIN tool_files tf ON dt.file_id = tf.id
+            JOIN tools tl ON tf.tool_id = tl.id
             WHERE dt.created_at BETWEEN ? AND ?
             ORDER BY dt.created_at DESC
         ");
@@ -200,19 +200,27 @@ if ($exportType) {
         $tokens = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         foreach ($tokens as $t) {
-            $status = strtotime($t['expires_at']) < time() ? 'Expired' : 
-                      (($t['download_count'] >= $t['max_downloads']) ? 'Max Downloads' : 'Active');
+            $expiresAt = $t['expires_at'] ?? '';
+            $downloadCount = intval($t['download_count'] ?? 0);
+            $maxDownloads = intval($t['max_downloads'] ?? 5);
+            
+            $status = 'Active';
+            if ($expiresAt && strtotime($expiresAt) < time()) {
+                $status = 'Expired';
+            } elseif ($downloadCount >= $maxDownloads) {
+                $status = 'Max Downloads';
+            }
             
             fputcsv($output, [
-                $t['id'],
-                $t['order_id'],
-                $t['tool_id'],
-                $t['tool_name'],
-                $t['filename'],
-                $t['download_count'],
-                $t['max_downloads'],
-                $t['created_at'],
-                $t['expires_at'],
+                $t['id'] ?? '',
+                $t['pending_order_id'] ?? '',
+                $t['tool_id'] ?? '',
+                $t['tool_name'] ?? 'Unknown',
+                $t['file_name'] ?? 'Unknown',
+                $downloadCount,
+                $maxDownloads,
+                $t['created_at'] ?? '',
+                $expiresAt,
                 $status
             ]);
         }

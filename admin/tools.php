@@ -1075,6 +1075,9 @@ require_once __DIR__ . '/includes/header.php';
             <?php 
             $editToolFiles = getToolFiles($editTool['id']);
             $editUploadComplete = $editTool['upload_complete'] ?? 0;
+            require_once __DIR__ . '/../includes/tool_files.php';
+            $modifyCheck = canModifyToolFiles($editTool['id']);
+            $canModify = $modifyCheck['allowed'];
             ?>
             <div class="border-t-4 border-purple-600">
                 <div class="px-6 py-4 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-200">
@@ -1158,6 +1161,21 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endif; ?>
                     
                     <!-- Add New File Form -->
+                    <?php if (!$canModify): ?>
+                    <!-- LOCKED: Uploads blocked for tools with completed orders -->
+                    <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-amber-400 flex-shrink-0">
+                                <i class="bi bi-lock-fill text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-gray-900 mb-2">Uploads Locked</h5>
+                                <p class="text-sm text-gray-600 mb-3"><?php echo htmlspecialchars($modifyCheck['reason']); ?></p>
+                                <p class="text-xs text-gray-500">To add new files: First toggle "Files Ready for Delivery" to OFF above, upload the files, then toggle it back ON to notify customers.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php else: ?>
                     <div class="bg-white border border-gray-200 rounded-xl p-6">
                         <h5 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="bi bi-cloud-upload text-purple-600"></i> Upload New File
@@ -1240,6 +1258,7 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </form>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

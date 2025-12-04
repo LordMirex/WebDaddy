@@ -1563,6 +1563,8 @@ function getDeliveryTimeline($orderId) {
  * Called automatically after createDeliveryRecords() when payment is confirmed
  * UPDATED: Sends separate emails for each ready tool instead of one combined email
  * This ensures customers receive dedicated emails per tool that is ready for download
+ * 
+ * IDEMPOTENCY: Now checks email_sent_at to avoid sending duplicate emails for the same tool
  */
 function sendAllToolDeliveryEmailsForOrder($orderId) {
     $db = getDb();
@@ -1580,17 +1582,21 @@ function sendAllToolDeliveryEmailsForOrder($orderId) {
             return false;
         }
         
-        // Get ALL tool deliveries for this order that have files ready
+        // Get ALL tool deliveries for this order that have files ready AND haven't been emailed yet
+        // IDEMPOTENCY: Only get deliveries where email_sent_at IS NULL (not yet emailed)
         $toolsStmt = $db->prepare("
-            SELECT d.id, d.product_id, d.product_name, d.delivery_link, d.delivery_note
+            SELECT d.id, d.product_id, d.product_name, d.delivery_link, d.delivery_note, d.email_sent_at
             FROM deliveries d
-            WHERE d.pending_order_id = ? AND d.product_type = 'tool' AND d.delivery_status IN ('ready', 'delivered')
+            WHERE d.pending_order_id = ? 
+              AND d.product_type = 'tool' 
+              AND d.delivery_status IN ('ready', 'delivered')
+              AND d.email_sent_at IS NULL
         ");
         $toolsStmt->execute([$orderId]);
         $toolDeliveries = $toolsStmt->fetchAll(PDO::FETCH_ASSOC);
         
         if (empty($toolDeliveries)) {
-            error_log("⚠️  TOOL DELIVERY EMAIL: No ready tool deliveries found for Order #$orderId");
+            error_log("⚠️  TOOL DELIVERY EMAIL: No pending tool deliveries for Order #$orderId (already sent or not ready)");
             return false;
         }
         

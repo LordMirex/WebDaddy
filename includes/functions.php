@@ -613,27 +613,8 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             $commissionAmount = 0;
         }
         
-        // Create delivery records for automatic tool delivery and template tracking (Phase 3)
-        // IDEMPOTENCY: createDeliveryRecords now handles its own idempotency - checks for existing deliveries
-        // and only creates MISSING ones. This fixes the mixed order bug where templates were skipped.
-        // ERROR HANDLING: Track failures for admin visibility but don't block payment confirmation
-        $deliveryError = null;
-        try {
-            require_once __DIR__ . '/delivery.php';
-            // Always call - function now internally checks for missing deliveries
-            createDeliveryRecords($orderId);
-            
-            // Send automatic tool delivery email with all tools ready for download
-            error_log("✅ MARK ORDER PAID: Sending tool delivery emails");
-            sendAllToolDeliveryEmailsForOrder($orderId);
-            error_log("✅ MARK ORDER PAID: Tool delivery emails sent");
-        } catch (Exception $e) {
-            $deliveryError = $e->getMessage();
-            error_log("Failed to create delivery records for order #{$orderId}: " . $deliveryError);
-            // Don't throw - payment is already confirmed, admin can manually retry delivery creation
-        }
-        
-        // Send enhanced payment confirmation email to customer
+        // STEP 1: Send payment confirmation email FIRST (before tool delivery)
+        // This ensures the customer sees confirmation email before individual tool emails
         if (!empty($order['customer_email'])) {
             // Get domain name for template orders
             $domainName = !empty($order['domain_name']) ? $order['domain_name'] : null;
@@ -653,13 +634,32 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
                 ]);
             }
             
-            // For mixed orders, send delivery summary email explaining what happens next
-            if ($order['order_type'] === 'mixed' && function_exists('sendMixedOrderDeliverySummaryEmail')) {
-                sendMixedOrderDeliverySummaryEmail($orderId);
-            }
+            error_log("✅ MARK ORDER PAID: Confirmation email sent to customer");
+        }
+        
+        // STEP 2: Create delivery records for automatic tool delivery and template tracking (Phase 3)
+        // IDEMPOTENCY: createDeliveryRecords now handles its own idempotency - checks for existing deliveries
+        // and only creates MISSING ones. This fixes the mixed order bug where templates were skipped.
+        // ERROR HANDLING: Track failures for admin visibility but don't block payment confirmation
+        $deliveryError = null;
+        try {
+            require_once __DIR__ . '/delivery.php';
+            // Always call - function now internally checks for missing deliveries
+            createDeliveryRecords($orderId);
             
-            // NOTE: Affiliate opportunity email is sent IMMEDIATELY when order is created (PENDING)
-            // See cart-checkout.php for the actual send - this prevents duplicate emails
+            // STEP 3: Send automatic tool delivery emails AFTER confirmation email
+            error_log("✅ MARK ORDER PAID: Sending tool delivery emails");
+            sendAllToolDeliveryEmailsForOrder($orderId);
+            error_log("✅ MARK ORDER PAID: Tool delivery emails sent");
+        } catch (Exception $e) {
+            $deliveryError = $e->getMessage();
+            error_log("Failed to create delivery records for order #{$orderId}: " . $deliveryError);
+            // Don't throw - payment is already confirmed, admin can manually retry delivery creation
+        }
+        
+        // For mixed orders, send delivery summary email explaining what happens next
+        if (!empty($order['customer_email']) && $order['order_type'] === 'mixed' && function_exists('sendMixedOrderDeliverySummaryEmail')) {
+            sendMixedOrderDeliverySummaryEmail($orderId);
         }
         
         // Send commission earned email to affiliate
