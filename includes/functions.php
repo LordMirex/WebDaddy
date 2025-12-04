@@ -657,11 +657,25 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             // Don't throw - payment is already confirmed, admin can manually retry delivery creation
         }
         
-        // NOTE: Removed old sendMixedOrderDeliverySummaryEmail which sent duplicate plain-style emails.
-        // The styled delivery status updates are handled automatically by:
-        // 1. sendAllToolDeliveryEmailsForOrder() - sends individual tool delivery emails with styled format
-        // 2. sendOrderDeliveryUpdateEmail() - called when delivery status actually changes (admin marks delivered)
-        // This prevents duplicate emails on payment confirmation and keeps emails unified in style.
+        // UNIFIED EMAIL: Send styled delivery status email for orders with pending template items
+        // This replaces the old sendMixedOrderDeliverySummaryEmail which sent plain-style duplicate emails
+        // Only send if there are delivery records and pending template items to track
+        if (!empty($order['customer_email']) && function_exists('sendOrderDeliveryUpdateEmail')) {
+            try {
+                $stats = getOrderDeliveryStats($orderId);
+                // Only send delivery update if we have delivery records and pending templates
+                // Tools are delivered immediately via sendAllToolDeliveryEmailsForOrder above
+                if ($stats && $stats['total_items'] > 0 && $stats['templates']['pending'] > 0) {
+                    error_log("✅ MARK ORDER PAID: Sending delivery status email for Order #$orderId with {$stats['templates']['pending']} pending templates");
+                    sendOrderDeliveryUpdateEmail($orderId, 'initial_order_confirmation');
+                } else {
+                    error_log("✅ MARK ORDER PAID: No pending templates for Order #$orderId, skipping delivery update email");
+                }
+            } catch (Exception $e) {
+                error_log("⚠️  MARK ORDER PAID: Failed to send delivery update email: " . $e->getMessage());
+                // Don't throw - non-critical, customer still gets confirmation and tool delivery emails
+            }
+        }
         
         // Send commission earned email to affiliate
         if ($affiliateId && $affiliate) {
