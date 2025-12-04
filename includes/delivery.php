@@ -892,6 +892,13 @@ function deliverTemplateWithCredentials($deliveryId) {
     // Update order delivery status after template delivery
     updateOrderDeliveryStatus($delivery['pending_order_id']);
     
+    // Send delivery update email AFTER template is delivered
+    // This shows the customer their overall order progress and notifies them if order is complete
+    if ($emailSent) {
+        error_log("📧 TEMPLATE DELIVERY: Sending delivery update email for Order #{$delivery['pending_order_id']}");
+        sendOrderDeliveryUpdateEmail($delivery['pending_order_id'], 'template_delivered');
+    }
+    
     if (!$emailSent) {
         return ['success' => true, 'message' => 'Template marked as delivered but email sending failed. Please retry email manually.'];
     }
@@ -1883,6 +1890,13 @@ function sendAllToolDeliveryEmailsForOrder($orderId) {
         
         error_log("✅ TOOL DELIVERY EMAIL: Completed sending $successCount/$totalTools individual tool emails for Order #$orderId");
         
+        // Send delivery update email AFTER tool emails are sent
+        // This shows the customer their overall order progress
+        if ($successCount > 0) {
+            error_log("📧 TOOL DELIVERY EMAIL: Sending delivery update email for Order #$orderId");
+            sendOrderDeliveryUpdateEmail($orderId, 'tool_delivered');
+        }
+        
         return $successCount > 0;
         
     } catch (Exception $e) {
@@ -2100,6 +2114,11 @@ function processAndSendToolDelivery($delivery, $toolId, $isUpdate = false) {
             'file_count' => count($downloadLinks),
             'is_update' => $isUpdate
         ]);
+        
+        // Send delivery update email to show overall order progress
+        // This notifies customers of what's delivered vs pending, and if order is complete
+        error_log("📧 processAndSendToolDelivery: Sending delivery update email for Order #$orderId");
+        sendOrderDeliveryUpdateEmail($orderId, $isUpdate ? 'tool_update' : 'tool_delivered_delayed');
         
         error_log("✅ processAndSendToolDelivery: Email sent to {$delivery['customer_email']} for order #$orderId" . ($isUpdate ? " (UPDATE)" : ""));
         return true;
