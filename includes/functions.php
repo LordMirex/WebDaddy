@@ -657,10 +657,11 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             // Don't throw - payment is already confirmed, admin can manually retry delivery creation
         }
         
-        // For mixed orders, send delivery summary email explaining what happens next
-        if (!empty($order['customer_email']) && $order['order_type'] === 'mixed' && function_exists('sendMixedOrderDeliverySummaryEmail')) {
-            sendMixedOrderDeliverySummaryEmail($orderId);
-        }
+        // NOTE: Removed old sendMixedOrderDeliverySummaryEmail which sent duplicate plain-style emails.
+        // The styled delivery status updates are handled automatically by:
+        // 1. sendAllToolDeliveryEmailsForOrder() - sends individual tool delivery emails with styled format
+        // 2. sendOrderDeliveryUpdateEmail() - called when delivery status actually changes (admin marks delivered)
+        // This prevents duplicate emails on payment confirmation and keeps emails unified in style.
         
         // Send commission earned email to affiliate
         if ($affiliateId && $affiliate) {

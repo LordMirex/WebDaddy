@@ -471,11 +471,26 @@ require_once __DIR__ . '/includes/header.php';
                         $typeIcon = $typeIcons[$orderType] ?? 'box';
                         $typeLabel = ucfirst($orderType === 'tools' ? 'tool' : $orderType);
                         
-                        // Get product name(s)
-                        $productName = $sale['template_name'] ?? $sale['tool_name'] ?? 'N/A';
-                        if ($sale['item_count'] > 1) {
-                            $productName .= ' (+' . ($sale['item_count'] - 1) . ' more)';
+                        // Get product name(s) - check for non-empty values (not just null)
+                        $productName = 'Unknown Product';
+                        if (!empty($sale['template_name']) && trim($sale['template_name']) !== '') {
+                            $productName = $sale['template_name'];
+                        } elseif (!empty($sale['tool_name']) && trim($sale['tool_name']) !== '') {
+                            $productName = $sale['tool_name'];
                         }
+                        
+                        // Add indicator for multi-item orders
+                        $itemCount = intval($sale['item_count'] ?? 0);
+                        if ($itemCount > 1) {
+                            $productName .= ' (+' . ($itemCount - 1) . ' more)';
+                        }
+                        
+                        // Ensure numeric values for financial columns (prevent NaN)
+                        $saleOriginal = floatval($sale['sale_original'] ?? 0);
+                        $saleDiscount = floatval($sale['sale_discount'] ?? 0);
+                        $saleFinal = floatval($sale['sale_final'] ?? $sale['amount_paid'] ?? 0);
+                        $commissionAmount = floatval($sale['commission_amount'] ?? 0);
+                        $platformRevenue = $saleFinal - $commissionAmount;
                     ?>
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $sale['id']; ?></td>
@@ -492,23 +507,23 @@ require_once __DIR__ . '/includes/header.php';
                             </span>
                         </td>
                         <td class="py-3 px-2 text-gray-700 text-sm"><?php echo htmlspecialchars($productName); ?></td>
-                        <td class="py-3 px-2 text-right text-gray-600 whitespace-nowrap"><?php echo formatCurrency($sale['sale_original']); ?></td>
+                        <td class="py-3 px-2 text-right text-gray-600 whitespace-nowrap"><?php echo formatCurrency($saleOriginal); ?></td>
                         <td class="py-3 px-2 text-right whitespace-nowrap">
-                            <?php if ($sale['sale_discount'] > 0): ?>
-                            <span class="text-orange-600 font-medium">-<?php echo formatCurrency($sale['sale_discount']); ?></span>
+                            <?php if ($saleDiscount > 0): ?>
+                            <span class="text-orange-600 font-medium">-<?php echo formatCurrency($saleDiscount); ?></span>
                             <?php else: ?>
                             <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap"><?php echo formatCurrency($sale['sale_final']); ?></td>
+                        <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap"><?php echo formatCurrency($saleFinal); ?></td>
                         <td class="py-3 px-2 text-right whitespace-nowrap">
-                            <?php if ($sale['commission_amount'] > 0): ?>
-                            <span class="text-purple-600 font-medium">-<?php echo formatCurrency($sale['commission_amount']); ?></span>
+                            <?php if ($commissionAmount > 0): ?>
+                            <span class="text-purple-600 font-medium">-<?php echo formatCurrency($commissionAmount); ?></span>
                             <?php else: ?>
                             <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-2 text-right font-bold text-blue-600 whitespace-nowrap"><?php echo formatCurrency($sale['platform_revenue']); ?></td>
+                        <td class="py-3 px-2 text-right font-bold text-blue-600 whitespace-nowrap"><?php echo formatCurrency($platformRevenue); ?></td>
                         <td class="py-3 px-2 text-gray-700 text-sm whitespace-nowrap"><?php echo date('M d, Y', strtotime($sale['created_at'])); ?></td>
                     </tr>
                     <?php endforeach; ?>

@@ -228,7 +228,7 @@ if ($exportType) {
         logActivity('export_downloads', "Exported download analytics from $startDate to $endDate", getAdminId());
         
     } elseif ($exportType === 'financial_summary') {
-        fputcsv($output, ['Metric', 'Value']);
+        fputcsv($output, ['Metric', 'Value (NGN)']);
         
         $stmt = $db->prepare("
             SELECT 
@@ -245,15 +245,23 @@ if ($exportType) {
         $stmt->execute([$startDateTime, $endDateTime]);
         $summary = $stmt->fetch(PDO::FETCH_ASSOC);
         
+        // Round to 2 decimal places to avoid floating-point precision artifacts
+        $totalRevenue = round(floatval($summary['total_revenue'] ?? 0), 2);
+        $totalCommissions = round(floatval($summary['total_commissions'] ?? 0), 2);
+        $templateRevenue = round(floatval($summary['template_revenue'] ?? 0), 2);
+        $toolRevenue = round(floatval($summary['tool_revenue'] ?? 0), 2);
+        $mixedRevenue = round(floatval($summary['mixed_revenue'] ?? 0), 2);
+        $netRevenue = round($totalRevenue - $totalCommissions, 2);
+        
         fputcsv($output, ['Report Period', "$startDate to $endDate"]);
-        fputcsv($output, ['Total Orders', $summary['total_orders']]);
-        fputcsv($output, ['Paid Orders', $summary['paid_orders']]);
-        fputcsv($output, ['Total Revenue', formatCurrency($summary['total_revenue'])]);
-        fputcsv($output, ['Template Revenue', formatCurrency($summary['template_revenue'])]);
-        fputcsv($output, ['Tool Revenue', formatCurrency($summary['tool_revenue'])]);
-        fputcsv($output, ['Mixed Order Revenue', formatCurrency($summary['mixed_revenue'])]);
-        fputcsv($output, ['Total Affiliate Commissions', formatCurrency($summary['total_commissions'])]);
-        fputcsv($output, ['Net Revenue (After Commissions)', formatCurrency($summary['total_revenue'] - $summary['total_commissions'])]);
+        fputcsv($output, ['Total Orders', $summary['total_orders'] ?? 0]);
+        fputcsv($output, ['Paid Orders', $summary['paid_orders'] ?? 0]);
+        fputcsv($output, ['Total Revenue', $totalRevenue]);
+        fputcsv($output, ['Template Revenue', $templateRevenue]);
+        fputcsv($output, ['Tool Revenue', $toolRevenue]);
+        fputcsv($output, ['Mixed Order Revenue', $mixedRevenue]);
+        fputcsv($output, ['Total Affiliate Commissions', $totalCommissions]);
+        fputcsv($output, ['Net Revenue (After Commissions)', $netRevenue]);
         
         logActivity('export_financial_summary', "Exported financial summary from $startDate to $endDate", getAdminId());
     }
