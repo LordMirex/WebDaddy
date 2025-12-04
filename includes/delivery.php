@@ -1236,8 +1236,39 @@ function sendOrderDeliveryUpdateEmail($orderId, $trigger = 'delivery_update') {
         return ['success' => false, 'message' => 'Order not found or no email'];
     }
     
-    // Get delivery stats
+    // Get delivery stats FIRST to use for idempotency check
     $stats = getOrderDeliveryStats($orderId);
+    
+    // IDEMPOTENCY CHECK: Only send update email if delivery state actually changed
+    // Check if we already sent an update email with the same delivery state
+    $currentState = $stats['delivered_items'] . '/' . $stats['total_items'] . '-' . ($stats['is_fully_delivered'] ? 'complete' : 'partial');
+    
+    $lastUpdateStmt = $db->prepare("
+        SELECT details FROM email_events 
+        WHERE pending_order_id = ? AND event_type IN ('delivery_update', 'delivery_complete')
+        ORDER BY created_at DESC LIMIT 1
+    ");
+    $lastUpdateStmt->execute([$orderId]);
+    $lastUpdate = $lastUpdateStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($lastUpdate) {
+        $lastData = json_decode($lastUpdate['details'], true) ?? [];
+        $lastState = $lastData['delivery_state'] ?? '';
+        $lastSent = $lastData['sent'] ?? false;
+        
+        // Only skip if the previous email was successfully sent with the same state
+        // If previous attempt failed (sent=false), allow retry
+        if ($lastState === $currentState && $lastSent === true) {
+            error_log("⏭️ DELIVERY UPDATE EMAIL: Skipping - no state change for Order #$orderId (state: $currentState)");
+            return ['success' => true, 'message' => 'Skipped - no state change', 'skipped' => true];
+        }
+        
+        if ($lastState === $currentState && !$lastSent) {
+            error_log("📧 DELIVERY UPDATE EMAIL: Retrying failed email for Order #$orderId (state: $currentState)");
+        }
+    }
+    
+    error_log("📧 DELIVERY UPDATE EMAIL: State changed to $currentState for Order #$orderId - sending email");
     
     if ($stats['total_items'] === 0) {
         error_log("⚠️  DELIVERY UPDATE EMAIL: No delivery items for Order #$orderId");
@@ -1370,7 +1401,7 @@ function sendOrderDeliveryUpdateEmail($orderId, $trigger = 'delivery_update') {
     $emailBody = createEmailTemplate($subject, $body, $order['customer_name']);
     $result = sendEmail($order['customer_email'], $subject, $emailBody);
     
-    // Record email event
+    // Record email event with delivery_state for idempotency check
     recordEmailEvent($orderId, $isFullyDelivered ? 'delivery_complete' : 'delivery_update', [
         'email' => $order['customer_email'],
         'subject' => $subject,
@@ -1378,7 +1409,8 @@ function sendOrderDeliveryUpdateEmail($orderId, $trigger = 'delivery_update') {
         'trigger' => $trigger,
         'delivered_items' => $stats['delivered_items'],
         'total_items' => $stats['total_items'],
-        'is_complete' => $isFullyDelivered
+        'is_complete' => $isFullyDelivered,
+        'delivery_state' => $currentState
     ]);
     
     error_log("📧 DELIVERY UPDATE EMAIL: " . ($result ? 'Sent' : 'Failed') . " for Order #$orderId (complete: " . ($isFullyDelivered ? 'yes' : 'no') . ")");
