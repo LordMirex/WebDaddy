@@ -170,36 +170,12 @@ function createToolDelivery($orderId, $item, $retryAttempt = 0) {
     
     $deliveryId = $db->lastInsertId();
     
-    if ($order && $order['customer_email'] && !empty($downloadLinks)) {
-        $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId);
-        
-        // Phase 5.4: Record email event for timeline
-        recordEmailEvent($orderId, 'tool_delivery', [
-            'email' => $order['customer_email'],
-            'subject' => "Your {$item['product_name']} is Ready to Download! - Order #{$orderId}",
-            'sent' => $emailSent,
-            'product_name' => $item['product_name'],
-            'file_count' => count($downloadLinks)
-        ]);
-        
-        if (!$emailSent && $retryAttempt < DELIVERY_RETRY_MAX_ATTEMPTS) {
-            scheduleDeliveryRetry($deliveryId, 'tool', $retryAttempt + 1);
-        }
-        
-        $stmt = $db->prepare("
-            UPDATE deliveries SET 
-                delivery_status = ?,
-                email_sent_at = CASE WHEN ? = 1 THEN datetime('now', '+1 hour') ELSE email_sent_at END,
-                delivered_at = CASE WHEN ? = 1 THEN datetime('now', '+1 hour') ELSE delivered_at END
-            WHERE id = ?
-        ");
-        $stmt->execute([
-            $emailSent ? 'delivered' : 'pending',
-            $emailSent ? 1 : 0,
-            $emailSent ? 1 : 0,
-            $deliveryId
-        ]);
-    }
+    // NOTE: Tool delivery emails are NOT sent here to prevent duplicates
+    // All tool delivery emails are sent centrally via sendAllToolDeliveryEmailsForOrder()
+    // which is called AFTER createDeliveryRecords() completes (in markOrderPaid and paystack-verify)
+    // This ensures: 1) Confirmation email sent first, 2) No duplicate tool emails
+    
+    error_log("📦 createToolDelivery: Created delivery #$deliveryId for Order #$orderId, Tool #{$item['product_id']} (email will be sent via sendAllToolDeliveryEmailsForOrder)");
     
     return $deliveryId;
 }
