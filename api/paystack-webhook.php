@@ -152,8 +152,17 @@ function handleSuccessfulPayment($data) {
             WHERE id = ? AND status = 'pending'
         ");
         $stmt->execute([$payment['pending_order_id']]);
+        $affectedRows = $stmt->rowCount();
         
-        // Commit transaction before delivery
+        // IDEMPOTENCY: If 0 rows affected, order was already processed by verify endpoint
+        if ($affectedRows === 0) {
+            $db->rollBack();
+            error_log("✅ WEBHOOK: Order #{$payment['pending_order_id']} already processed (0 affected rows). Skipping to avoid duplicates.");
+            logPaymentEvent('order_already_processed', 'paystack', 'info', $payment['pending_order_id'], $payment['id'], null, $data);
+            return;
+        }
+        
+        // Commit transaction
         $db->commit();
         
         // CRITICAL FIX: Send emails in CORRECT order - Confirmation FIRST, then tool delivery
@@ -202,10 +211,12 @@ function handleSuccessfulPayment($data) {
             error_log("⚠️  WEBHOOK: Failed to send notification emails: " . $emailEx->getMessage());
         }
         
-        // Step 3: Create delivery records and send tool delivery emails AFTER confirmation
-        // Emails are sent automatically within createToolDelivery() if files exist
-        // If files don't exist yet, processPendingToolDeliveries() will send them when admin uploads files
+        // Step 3: Create delivery records
         createDeliveryRecords($payment['pending_order_id']);
+        
+        // Step 4: Send tool delivery emails AFTER confirmation (if files are ready)
+        // FIXED: This was missing - now matches paystack-verify.php behavior
+        sendAllToolDeliveryEmailsForOrder($payment['pending_order_id']);
         
         // Process commission and create sales record for revenue tracking
         // This also sends affiliate commission notification emails

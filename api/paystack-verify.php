@@ -121,6 +121,18 @@ try {
             
             error_log("✅ PAYSTACK VERIFY: Update executed. Affected rows: " . $affectedRows);
             
+            // IDEMPOTENCY: If 0 rows affected, order was already processed (by webhook or another verify call)
+            if ($affectedRows === 0) {
+                $db->rollBack();
+                error_log("✅ PAYSTACK VERIFY: Order #$orderId already processed (0 affected rows). Skipping to avoid duplicates.");
+                echo json_encode([
+                    'success' => true,
+                    'order_id' => $orderId,
+                    'message' => 'Payment already processed'
+                ]);
+                exit;
+            }
+            
             // Update payment record status to completed
             $amountPaid = isset($verification['data']['amount']) 
                 ? $verification['data']['amount'] / 100 

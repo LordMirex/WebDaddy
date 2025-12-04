@@ -349,36 +349,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('File not found or does not belong to this tool');
             }
             
-            // ORDER COMPLETION LOCKING: Check if tool-level modifications are allowed
-            require_once __DIR__ . '/../includes/tool_files.php';
-            if (!$forceDelete) {
-                $modifyCheck = canModifyToolFiles($toolId);
-                if (!$modifyCheck['allowed']) {
-                    throw new Exception($modifyCheck['reason']);
-                }
+            // Check if tool is marked as complete - if complete, block deletion
+            $toolStmt = $db->prepare("SELECT upload_complete, name FROM tools WHERE id = ?");
+            $toolStmt->execute([$toolId]);
+            $toolData = $toolStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($toolData && $toolData['upload_complete'] && !$forceDelete) {
+                throw new Exception('Cannot delete files when tool is marked as complete. Unmark the tool first to make changes.');
             }
             
-            // Check if individual file has been delivered
-            $deleteCheck = canDeleteToolFile($fileId, $forceDelete);
-            if (!$deleteCheck['can_delete']) {
-                throw new Exception($deleteCheck['reason']);
-            }
-            
+            // Delete the file from disk (if it's a local file, not an external link)
             $filePath = __DIR__ . '/../' . $file['file_path'];
             if (file_exists($filePath) && !preg_match('/^https?:\/\//i', $file['file_path'])) {
                 unlink($filePath);
             }
             
+            // Delete from database
             $stmt = $db->prepare("DELETE FROM tool_files WHERE id = ?");
             $stmt->execute([$fileId]);
             
-            // Also clean up any download tokens for this file
+            // Clean up any download tokens for this file
             $stmt = $db->prepare("DELETE FROM download_tokens WHERE file_id = ?");
             $stmt->execute([$fileId]);
             
+            // Update tool file count
+            $db->exec("UPDATE tools SET total_files = (SELECT COUNT(*) FROM tool_files WHERE tool_id = $toolId) WHERE id = $toolId");
+            
             $successMessage = 'File deleted successfully!';
-            $tool = getToolById($toolId);
-            logActivity('tool_file_deleted', "File removed from tool: {$tool['name']}" . ($forceDelete ? ' (force delete)' : ''), getAdminId());
+            logActivity('tool_file_deleted', "File removed from tool: {$toolData['name']}" . ($forceDelete ? ' (force delete)' : ''), getAdminId());
             
             header('Location: /admin/tools.php?edit=' . $toolId . '&tab=files');
             exit;
@@ -1146,14 +1144,21 @@ require_once __DIR__ . '/includes/header.php';
                                         </div>
                                     </div>
                                 </div>
-                                <form method="POST" class="flex-shrink-0" onsubmit="return confirm('Delete this file?');">
+                                <?php if (!$editUploadComplete): ?>
+                                <form method="POST" class="flex-shrink-0" onsubmit="return confirm('Delete this file? This action cannot be undone.');">
                                     <input type="hidden" name="action" value="delete_tool_file">
                                     <input type="hidden" name="file_id" value="<?php echo $file['id']; ?>">
                                     <input type="hidden" name="tool_id" value="<?php echo $editTool['id']; ?>">
+                                    <?php echo csrfTokenField(); ?>
                                     <button type="submit" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete file">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
+                                <?php else: ?>
+                                <span class="p-2 text-gray-400 cursor-not-allowed" title="Unmark as complete to delete">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <?php endif; ?>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -1161,8 +1166,22 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endif; ?>
                     
                     <!-- Add New File Form -->
-                    <?php if (!$canModify): ?>
-                    <!-- LOCKED: Uploads blocked for tools with completed orders -->
+                    <?php if ($editUploadComplete): ?>
+                    <!-- LOCKED: Tool is marked as complete - no uploads allowed -->
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-green-500 flex-shrink-0">
+                                <i class="bi bi-check-lg text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-gray-900 mb-2">Files Ready for Delivery</h5>
+                                <p class="text-sm text-gray-600 mb-3">This tool is marked as complete. Uploads and deletions are locked.</p>
+                                <p class="text-xs text-gray-500">To make changes: Toggle "Files Ready for Delivery" to OFF above, make your changes, then toggle it back ON. Customers will receive update notifications.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php elseif (!$canModify): ?>
+                    <!-- LOCKED: Has completed orders - extra warning -->
                     <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center bg-amber-400 flex-shrink-0">
@@ -1688,58 +1707,65 @@ document.getElementById('tool-video-file-input-create')?.addEventListener('chang
     }
 });
 
-// ADVANCED FILE UPLOAD SYSTEM - Chunked Upload with Queue Management
-const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB chunks - proven stable
-const MAX_CONCURRENT = 6; // 6 concurrent uploads = 3x faster than before
-const UPLOAD_ID = 'upload_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+// ADVANCED FILE UPLOAD SYSTEM - Chunked Upload with Sequential Processing
+const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks - more reliable
+const MAX_RETRIES = 3;
+const CHUNK_TIMEOUT = 60000; // 60 seconds per chunk
 
-class UploadQueue {
-    constructor(maxConcurrent) {
-        this.maxConcurrent = maxConcurrent;
-        this.running = 0;
-        this.queue = [];
-        this.results = [];
-        this.allTasksAdded = false;
-    }
-    
-    async add(task) {
-        return new Promise((resolve) => {
-            this.queue.push({ task, resolve });
-            this.process();
-        });
-    }
-    
-    async waitAll() {
-        this.allTasksAdded = true;
-        return new Promise((resolve) => {
-            const checkDone = () => {
-                if (this.queue.length === 0 && this.running === 0) {
-                    resolve();
-                } else {
-                    setTimeout(checkDone, 50);
+function generateUploadId() {
+    return 'upload_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+async function uploadChunkWithRetry(formData, retries = 0) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.timeout = CHUNK_TIMEOUT;
+        
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                try {
+                    resolve(JSON.parse(xhr.responseText));
+                } catch (e) {
+                    reject(new Error('Invalid JSON response'));
                 }
-            };
-            checkDone();
-        });
-    }
-    
-    async process() {
-        while (this.running < this.maxConcurrent && this.queue.length > 0) {
-            this.running++;
-            const { task, resolve } = this.queue.shift();
-            
-            try {
-                const result = await task();
-                this.results.push(result);
-                resolve(result);
-            } catch (err) {
-                resolve({ error: err.message });
+            } else {
+                const errorMsg = xhr.responseText || `HTTP ${xhr.status}`;
+                if (retries < MAX_RETRIES) {
+                    console.log(`Retry ${retries + 1}/${MAX_RETRIES} for chunk`);
+                    setTimeout(() => {
+                        uploadChunkWithRetry(formData, retries + 1).then(resolve).catch(reject);
+                    }, 1000 * (retries + 1));
+                } else {
+                    reject(new Error(`Server error: ${errorMsg}`));
+                }
             }
-            
-            this.running--;
-            this.process();
-        }
-    }
+        });
+        
+        xhr.addEventListener('error', () => {
+            if (retries < MAX_RETRIES) {
+                console.log(`Retry ${retries + 1}/${MAX_RETRIES} after network error`);
+                setTimeout(() => {
+                    uploadChunkWithRetry(formData, retries + 1).then(resolve).catch(reject);
+                }, 1000 * (retries + 1));
+            } else {
+                reject(new Error('Network error after retries'));
+            }
+        });
+        
+        xhr.addEventListener('timeout', () => {
+            if (retries < MAX_RETRIES) {
+                console.log(`Retry ${retries + 1}/${MAX_RETRIES} after timeout`);
+                setTimeout(() => {
+                    uploadChunkWithRetry(formData, retries + 1).then(resolve).catch(reject);
+                }, 1000 * (retries + 1));
+            } else {
+                reject(new Error('Upload timeout after retries'));
+            }
+        });
+        
+        xhr.open('POST', '/api/upload-chunk.php');
+        xhr.send(formData);
+    });
 }
 
 async function uploadFileInChunks(file, toolId, fileType, description) {
@@ -1754,93 +1780,50 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
     document.getElementById('fileName').textContent = file.name;
     
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-    const queue = new UploadQueue(MAX_CONCURRENT);
-    let uploadedChunks = 0;
-    let startedChunks = 0;
+    const uploadId = generateUploadId();
     
-    // Queue all chunks for upload
+    statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Starting upload: ' + totalChunks + ' chunks...</div>';
+    
+    // Process chunks sequentially for reliability
     for (let i = 0; i < totalChunks; i++) {
-        const chunkIndex = i;
-        queue.add(async () => {
-            const start = chunkIndex * CHUNK_SIZE;
-            const end = Math.min(start + CHUNK_SIZE, file.size);
-            const chunk = file.slice(start, end);
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        
+        const formData = new FormData();
+        formData.append('chunk', chunk);
+        formData.append('upload_id', uploadId);
+        formData.append('chunk_index', i);
+        formData.append('total_chunks', totalChunks);
+        formData.append('tool_id', toolId);
+        formData.append('file_name', file.name);
+        
+        const percent = Math.round(((i + 1) / totalChunks) * 100);
+        progressBar.style.width = percent + '%';
+        progressPercent.textContent = percent + '%';
+        statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg animate-pulse">⬆️ Uploading chunk ' + (i + 1) + ' of ' + totalChunks + '...</div>';
+        
+        try {
+            const response = await uploadChunkWithRetry(formData);
             
-            return new Promise((resolve, reject) => {
-                const formData = new FormData();
-                formData.append('chunk', chunk);
-                formData.append('upload_id', UPLOAD_ID);
-                formData.append('chunk_index', chunkIndex);
-                formData.append('total_chunks', totalChunks);
-                formData.append('tool_id', toolId);
-                formData.append('file_name', file.name);
-                
-                // IMMEDIATE: Show this chunk is starting to upload
-                startedChunks++;
-                const startPercent = Math.round((startedChunks / totalChunks) * 100);
-                progressBar.style.width = Math.max(startPercent, 5) + '%';
-                progressPercent.textContent = Math.max(startPercent, 5) + '%';
-                statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Sending chunk ' + startedChunks + ' of ' + totalChunks + '...</div>';
-                
-                const xhr = new XMLHttpRequest();
-                
-                xhr.addEventListener('load', () => {
-                    if (xhr.status === 200) {
-                        try {
-                            const response = JSON.parse(xhr.responseText);
-                            uploadedChunks++;
-                            
-                            const percent = Math.round((uploadedChunks / totalChunks) * 100);
-                            progressBar.style.width = percent + '%';
-                            progressPercent.textContent = percent + '%';
-                            
-                            // Show real-time status for each chunk
-                            statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Uploading: ' + uploadedChunks + ' of ' + totalChunks + ' chunks complete</div>';
-                            
-                            if (response.completed) {
-                                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
-                                progressBar.style.width = '100%';
-                                progressPercent.textContent = '100%';
-                                setTimeout(() => window.location.reload(), 1500);
-                            }
-                            
-                            resolve(response);
-                        } catch (e) {
-                            reject(new Error('Invalid response: ' + xhr.responseText));
-                        }
-                    } else {
-                        reject(new Error('Server error (' + xhr.status + '): ' + xhr.responseText));
-                    }
-                });
-                
-                xhr.addEventListener('error', () => {
-                    statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Network error - check connection</div>';
-                    reject(new Error('Network error'));
-                });
-                
-                xhr.addEventListener('abort', () => {
-                    statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload cancelled</div>';
-                    reject(new Error('Upload cancelled'));
-                });
-                
-                xhr.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        // Show sending progress for this chunk
-                        const chunkPercent = Math.round((e.loaded / e.total) * 100);
-                        if (chunkPercent > 0 && chunkPercent < 100) {
-                            statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⬆️ Uploading chunk ' + (chunkIndex + 1) + ' of ' + totalChunks + ' (' + chunkPercent + '%)</div>';
-                        }
-                    }
-                });
-                
-                xhr.open('POST', '/api/upload-chunk.php');
-                xhr.send(formData);
-            });
-        });
+            if (response.error) {
+                throw new Error(response.error);
+            }
+            
+            if (response.completed) {
+                progressBar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
+                setTimeout(() => window.location.reload(), 1500);
+                return;
+            }
+        } catch (error) {
+            statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload failed at chunk ' + (i + 1) + ': ' + error.message + '</div>';
+            btn.disabled = false;
+            progressDiv.classList.add('hidden');
+            throw error;
+        }
     }
-    
-    // Wait for all chunks to complete
-    await queue.waitAll();
 }
 
 // Show/hide file or link input based on file type selection
@@ -1924,8 +1907,8 @@ document.getElementById('toolFile').addEventListener('change', (e) => {
             e.target.value = '';
         } else {
             const chunks = Math.ceil(file.size / CHUNK_SIZE);
-            const displaySize = sizeMB > 1024 ? (sizeInGB).toFixed(2) + 'GB' : Math.round(sizeMB) + 'MB';
-            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⚡ ' + displaySize + ' file → ' + chunks + ' chunks (20MB each) + 6 concurrent = 3x faster!</div>';
+            const displaySize = sizeMB > 1024 ? (sizeInGB).toFixed(2) + 'GB' : sizeMB.toFixed(1) + 'MB';
+            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⚡ Ready to upload: ' + displaySize + ' (' + chunks + ' chunk' + (chunks > 1 ? 's' : '') + ')</div>';
         }
     }
 });
