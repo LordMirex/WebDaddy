@@ -46,6 +46,32 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Data Integrity**: Safeguarding functions maintain consistency between cached affiliate data and the `sales` table.
 - **Timezone**: All datetime queries consistently use a `+1 hour` offset for Nigeria time.
 
+## Recent Changes (December 2025)
+
+### Payment Verification Recovery System
+- **New API `/api/check-payment-status.php`**: Allows frontend to check if a payment was already processed by the webhook during network issues.
+- **Robust PaymentManager (assets/js/paystack-payment.js)**: Complete rewrite with:
+  - Session storage backup for pending payments (survives page reloads)
+  - Automatic retry logic (3 attempts with exponential backoff)
+  - Recovery modal with "Retry Verification", "Check Payment Status", and "View Order Status" options
+  - Proper cleanup of pending payment data on success
+
+### Database Cleanup
+- All test data cleared safely while preserving core system data
+- Templates: 45 items preserved
+- Tools: 59 items preserved (reset to upload_complete=0)
+- Domains: 27 items preserved (reset to available status)
+- Settings and admin accounts preserved
+
+### Cron System Review
+All cron jobs confirmed as necessary and properly implemented:
+- `process-pending-deliveries`: Every 20 min - Sends delivery emails for completed tools
+- `process-email-queue`: Every 5 min - Sends queued emails
+- `process-retries`: Every 15 min - Retries failed deliveries
+- `cleanup-security`: Hourly - Cleans old security logs
+- `optimize`: Weekly (Sunday 2 AM) - Database optimization
+- `weekly-report`: Weekly (Monday 3 AM) - Analytics report
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
