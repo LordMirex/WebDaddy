@@ -1,0 +1,70 @@
+THE delivery update email make sure that anytume for a order either delivered or anything, once a tool files is updated or modified the customers should receive mail
+
+The tool section in orders.php is not working it only goes to a 500 error page everything and nothing is done 
+Search
+Miracle 
+Order Type
+
+Templates Only
+Status
+
+Paid
+Template
+
+All Templates
+ Filter
+
+Payment Method
+
+Manual Payment
+Delivery Status
+
+All Deliveries
+From Date
+
+05/12/2025
+To Date
+
+12/12/2025
+
+
+
+
+I want all these to be filterable properly  
+
+
+
+Another thing is the the bulk order approval or paid is not working and it's like is duplicate so remove one of them so I can Mark multiple files and select multiple and on paid on paid order then I can bulk approve and bulk cancel them.
+
+
+
+I still observe another issue is is that on others or manual orders the the mother that the small mother that pops up when I click Mark paid this is what is showing and I'm not seeing any option to cancel the transaction so they start to go to field I'm just seeing only approved 
+
+(Quick Payment Confirmation
+Order #53
+Amount: ₦750,000.00
+
+ Payment Notes (Optional)
+e.g., Received bank transfer...
+Cancel
+ Confirm Payment
+Close
+)
+
+
+
+
+On the modal for paid orders, that has the delivery message you can see here look at the structure sometimes the admin might not add a delivery message when he wants to mark the other as paid or has canceled so make sure that that delivery orders they say edit lies at the right if there are needs added some text some delivery details I should be able to just touch on the edit icon and edit it then when I'm done there will be a good button we submit it so it's just like a separate form from the other mother and I want to be able to do use use it for both paid and field of any status of orders this is because I need others that doesn't have delivery message before I can just see a edit sign close close to the delivery writing there so even when there was not a delivery message there should be like a pen icon to make sure the admin can add it or edit the delivery message every time and that is that and those itself 
+Total Amount: ₦750,000.00
+
+(Status:
+Paid
+
+Date: Dec 05, 2025 15:25
+
+Payment Notes
+Twgwhheh
+
+)
+
+Make the search and filter in admin/tools.php work because right now its rubbish, you should look at the templates search and fuilter to replicate from there bedause it works perfectly, i mean replicate how the seacrch and filter logic and ui is on admin template page to the tools page
