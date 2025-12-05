@@ -1699,130 +1699,96 @@ function toggleToolFileMode(mode) {
     }
 }
 
-// Tool Video Upload Handler - Create
-document.getElementById('tool-video-file-input-create')?.addEventListener('change', async function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+// Video upload handler function - reusable for both create and edit forms
+function initVideoUploadHandler(formType) {
+    const fileInput = document.getElementById('tool-video-file-input-' + formType);
+    if (!fileInput) return;
     
-    const progressDiv = document.getElementById('tool-video-upload-progress-create');
-    const progressBar = document.getElementById('tool-video-progress-bar-create');
-    const progressText = document.getElementById('tool-video-progress-percentage-create');
-    const checkIcon = document.getElementById('tool-video-upload-check-create');
-    const urlInput = document.getElementById('tool-video-uploaded-url-create');
+    // Remove any existing listeners by cloning the element
+    const newInput = fileInput.cloneNode(true);
+    fileInput.parentNode.replaceChild(newInput, fileInput);
     
-    progressDiv.style.display = 'block';
-    progressBar.style.width = '0%';
-    progressText.textContent = '0%';
-    checkIcon.style.display = 'none';
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_type', 'video');
-    formData.append('category', 'tools');
-    
-    try {
-        const xhr = new XMLHttpRequest();
+    newInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
         
-        xhr.upload.addEventListener('progress', function(e) {
-            if (e.lengthComputable) {
-                const percentComplete = Math.round((e.loaded / e.total) * 100);
-                progressBar.style.width = percentComplete + '%';
-                progressText.textContent = percentComplete + '%';
-            }
-        });
+        const progressDiv = document.getElementById('tool-video-upload-progress-' + formType);
+        const progressBar = document.getElementById('tool-video-progress-bar-' + formType);
+        const progressText = document.getElementById('tool-video-progress-percentage-' + formType);
+        const checkIcon = document.getElementById('tool-video-upload-check-' + formType);
+        const urlInput = document.getElementById('tool-video-uploaded-url-' + formType);
         
-        xhr.addEventListener('load', function() {
-            if (xhr.status === 200) {
-                const result = JSON.parse(xhr.responseText);
-                if (result.success) {
-                    urlInput.value = result.url;
-                    checkIcon.style.display = 'inline';
-                    console.log('Video uploaded successfully:', result.url);
+        if (!progressDiv || !progressBar || !progressText || !urlInput) {
+            console.error('Video upload elements not found for form type:', formType);
+            alert('Video upload error: UI elements not found. Please refresh and try again.');
+            return;
+        }
+        
+        progressDiv.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+        if (checkIcon) checkIcon.style.display = 'none';
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_type', 'video');
+        formData.append('category', 'tools');
+        
+        try {
+            const xhr = new XMLHttpRequest();
+            
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = percentComplete + '%';
+                    progressText.textContent = percentComplete + '%';
+                }
+            });
+            
+            xhr.addEventListener('load', function() {
+                if (xhr.status === 200) {
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.success) {
+                            urlInput.value = result.url;
+                            if (checkIcon) checkIcon.style.display = 'inline';
+                            console.log('Video uploaded successfully (' + formType + '):', result.url);
+                        } else {
+                            alert('Video upload failed: ' + (result.error || 'Unknown error'));
+                            progressDiv.style.display = 'none';
+                        }
+                    } catch (parseError) {
+                        console.error('Failed to parse upload response:', parseError);
+                        alert('Video upload failed: Invalid server response');
+                        progressDiv.style.display = 'none';
+                    }
                 } else {
-                    alert('Video upload failed: ' + (result.error || 'Unknown error'));
+                    alert('Video upload failed (HTTP ' + xhr.status + ')');
                     progressDiv.style.display = 'none';
                 }
-            } else {
-                alert('Video upload failed');
+            });
+            
+            xhr.addEventListener('error', function() {
+                alert('Video upload failed - network error');
                 progressDiv.style.display = 'none';
-            }
-        });
-        
-        xhr.addEventListener('error', function() {
-            alert('Video upload failed');
+            });
+            
+            xhr.open('POST', '/api/upload.php');
+            xhr.send(formData);
+        } catch (error) {
+            console.error('Video upload error (' + formType + '):', error);
+            alert('Failed to upload video: ' + error.message);
             progressDiv.style.display = 'none';
-        });
-        
-        xhr.open('POST', '/api/upload.php');
-        xhr.send(formData);
-    } catch (error) {
-        console.error('Video upload error:', error);
-        alert('Failed to upload video: ' + error.message);
-        progressDiv.style.display = 'none';
-    }
-});
+        }
+    });
+}
 
-// Video upload handler for EDIT form (must be added separately as form loads dynamically)
-document.getElementById('tool-video-file-input-edit')?.addEventListener('change', async function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const progressDiv = document.getElementById('tool-video-upload-progress-edit');
-    const progressBar = document.getElementById('tool-video-progress-bar-edit');
-    const progressText = document.getElementById('tool-video-progress-percentage-edit');
-    const checkIcon = document.getElementById('tool-video-upload-check-edit');
-    const urlInput = document.getElementById('tool-video-uploaded-url-edit');
-    
-    progressDiv.style.display = 'block';
-    progressBar.style.width = '0%';
-    progressText.textContent = '0%';
-    checkIcon.style.display = 'none';
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_type', 'video');
-    formData.append('category', 'tools');
-    
-    try {
-        const xhr = new XMLHttpRequest();
-        
-        xhr.upload.addEventListener('progress', function(e) {
-            if (e.lengthComputable) {
-                const percentComplete = Math.round((e.loaded / e.total) * 100);
-                progressBar.style.width = percentComplete + '%';
-                progressText.textContent = percentComplete + '%';
-            }
-        });
-        
-        xhr.addEventListener('load', function() {
-            if (xhr.status === 200) {
-                const result = JSON.parse(xhr.responseText);
-                if (result.success) {
-                    urlInput.value = result.url;
-                    checkIcon.style.display = 'inline';
-                    console.log('Video uploaded successfully (edit):', result.url);
-                } else {
-                    alert('Video upload failed: ' + (result.error || 'Unknown error'));
-                    progressDiv.style.display = 'none';
-                }
-            } else {
-                alert('Video upload failed');
-                progressDiv.style.display = 'none';
-            }
-        });
-        
-        xhr.addEventListener('error', function() {
-            alert('Video upload failed');
-            progressDiv.style.display = 'none';
-        });
-        
-        xhr.open('POST', '/api/upload.php');
-        xhr.send(formData);
-    } catch (error) {
-        console.error('Video upload error (edit):', error);
-        alert('Failed to upload video: ' + error.message);
-        progressDiv.style.display = 'none';
-    }
+// Initialize video upload handlers on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize for create form
+    initVideoUploadHandler('create');
+    // Initialize for edit form (if present)
+    initVideoUploadHandler('edit');
 });
 
 // ADVANCED FILE UPLOAD SYSTEM - Chunked Upload with Sequential Processing
@@ -1934,12 +1900,20 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
                 
                 if (response.replaced) {
                     statusDiv.innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">🔄 ' + (response.message || 'File has been updated with the new version.') + ' Reloading...</div>';
-                    setTimeout(() => window.location.reload(), 1500);
+                    // Increased delay and cache-bust to ensure database commit is visible
+                    setTimeout(() => {
+                        const cacheBust = '?t=' + Date.now() + '&edit=' + toolId + '&tab=files';
+                        window.location.href = window.location.pathname + cacheBust;
+                    }, 2000);
                     return;
                 }
                 
                 statusDiv.innerHTML = '<div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 rounded-lg">✅ File uploaded successfully! Reloading...</div>';
-                setTimeout(() => window.location.reload(), 1500);
+                // Increased delay and cache-bust to ensure database commit is visible
+                setTimeout(() => {
+                    const cacheBust = '?t=' + Date.now() + '&edit=' + toolId + '&tab=files';
+                    window.location.href = window.location.pathname + cacheBust;
+                }, 2000);
                 return;
             }
         } catch (error) {

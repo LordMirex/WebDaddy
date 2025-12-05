@@ -286,17 +286,23 @@ function performWebhookSecurityCheck($input, $signature) {
 
 /**
  * Get webhook security stats for dashboard
+ * FIXED: Use consistent timezone handling - compare timestamps directly
+ * Records are stored with datetime('now', '+1 hour') for Nigeria time
  */
 function getWebhookSecurityStats() {
     $db = getDb();
     
     try {
-        // Total webhook requests today (using SQLite timezone offset to match stored timestamps)
+        // Get start of today in Nigeria time (UTC+1)
+        // This ensures we capture all records from today regardless of server timezone
+        $todayStart = "datetime('now', '+1 hour', 'start of day')";
+        
+        // Total webhook requests today
         $stmt = $db->query("
             SELECT COUNT(*) as count 
             FROM payment_logs 
             WHERE event_type = 'webhook_received' 
-            AND DATE(created_at) >= DATE('now', '+1 hour')
+            AND created_at >= $todayStart
         ");
         $todayWebhooks = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
@@ -305,7 +311,7 @@ function getWebhookSecurityStats() {
             SELECT COUNT(*) as count 
             FROM security_logs 
             WHERE event_type IN ('ip_blocked', 'rate_limit_exceeded', 'signature_invalid')
-            AND DATE(created_at) >= DATE('now', '+1 hour')
+            AND created_at >= $todayStart
         ");
         $blockedToday = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
@@ -314,7 +320,7 @@ function getWebhookSecurityStats() {
             SELECT COUNT(*) as count 
             FROM payment_logs 
             WHERE event_type = 'payment_completed' 
-            AND DATE(created_at) >= DATE('now', '+1 hour')
+            AND created_at >= $todayStart
         ");
         $successfulPayments = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
@@ -323,7 +329,7 @@ function getWebhookSecurityStats() {
             SELECT COUNT(*) as count 
             FROM payment_logs 
             WHERE event_type = 'payment_failed' 
-            AND DATE(created_at) >= DATE('now', '+1 hour')
+            AND created_at >= $todayStart
         ");
         $failedPayments = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         

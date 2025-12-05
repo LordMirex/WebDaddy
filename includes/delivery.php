@@ -227,8 +227,12 @@ function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
     $body .= 'Links expire in ' . $expiryDays . ' days. Max ' . $maxDownloads . ' downloads per link.';
     $body .= '</p>';
     
+    // Delivery Instructions section (if provided)
     if (!empty($item['delivery_note'])) {
-        $body .= '<p style="color: #374151; margin: 15px 0 0 0;"><strong>Notes:</strong> ' . htmlspecialchars($item['delivery_note']) . '</p>';
+        $body .= '<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #92400e; margin: 0 0 12px 0; font-size: 16px;"><span style="margin-right: 8px;">📋</span>Delivery Instructions</h3>';
+        $body .= '<p style="color: #374151; margin: 0; white-space: pre-wrap;">' . htmlspecialchars($item['delivery_note']) . '</p>';
+        $body .= '</div>';
     }
     
     require_once __DIR__ . '/mailer.php';
@@ -389,22 +393,23 @@ function resendToolDeliveryEmail($deliveryId) {
 function processPendingToolDeliveries($toolId) {
     $db = getDb();
     require_once __DIR__ . '/tool_files.php';
+    require_once __DIR__ . '/email_queue.php';
     
-    // Get tool info
-    $stmt = $db->prepare("SELECT id, name FROM tools WHERE id = ?");
+    // Get tool info including delivery instructions
+    $stmt = $db->prepare("SELECT id, name, delivery_instructions FROM tools WHERE id = ?");
     $stmt->execute([$toolId]);
     $tool = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$tool) {
         error_log("❌ processPendingToolDeliveries: Tool not found: $toolId");
-        return ['success' => false, 'message' => 'Tool not found', 'processed' => 0, 'sent' => 0];
+        return ['success' => false, 'message' => 'Tool not found', 'processed' => 0, 'sent' => 0, 'queued' => 0];
     }
     
     // Get tool files
     $files = getToolFiles($toolId);
     if (empty($files)) {
         error_log("❌ processPendingToolDeliveries: No files found for tool $toolId");
-        return ['success' => false, 'message' => 'No files found for tool', 'processed' => 0, 'sent' => 0];
+        return ['success' => false, 'message' => 'No files found for tool', 'processed' => 0, 'sent' => 0, 'queued' => 0];
     }
     
     // Find pending deliveries for this tool that don't have download links yet
@@ -424,9 +429,15 @@ function processPendingToolDeliveries($toolId) {
     
     error_log("📧 processPendingToolDeliveries: Found " . count($pendingDeliveries) . " pending deliveries for tool $toolId ({$tool['name']})");
     
+    if (empty($pendingDeliveries)) {
+        return ['success' => true, 'message' => 'No pending deliveries', 'processed' => 0, 'sent' => 0, 'queued' => 0];
+    }
+    
     $processed = 0;
+    $queued = 0;
     $sent = 0;
     
+    // Always use queuing for faster response
     foreach ($pendingDeliveries as $delivery) {
         $processed++;
         $orderId = $delivery['pending_order_id'];
@@ -445,7 +456,7 @@ function processPendingToolDeliveries($toolId) {
             continue;
         }
         
-        // Update delivery with download links
+        // Update delivery with download links - mark as ready (will be marked delivered when email is actually sent)
         $updateStmt = $db->prepare("
             UPDATE deliveries SET 
                 delivery_link = ?,
@@ -454,10 +465,10 @@ function processPendingToolDeliveries($toolId) {
         ");
         $updateStmt->execute([json_encode($downloadLinks), $delivery['id']]);
         
-        // Send email to customer
+        // Build email content for queuing
         $item = [
             'product_name' => $delivery['product_name'],
-            'delivery_note' => $delivery['delivery_note'],
+            'delivery_note' => $tool['delivery_instructions'] ?? $delivery['delivery_note'],
             'product_id' => $delivery['product_id']
         ];
         $order = [
@@ -465,42 +476,110 @@ function processPendingToolDeliveries($toolId) {
             'customer_name' => $delivery['customer_name']
         ];
         
-        $emailSent = sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId);
+        // Build email HTML for queuing
+        $emailContent = buildToolDeliveryEmailContent($order, $item, $downloadLinks, $orderId);
         
-        if ($emailSent) {
-            $sent++;
-            $updateStmt = $db->prepare("
-                UPDATE deliveries SET 
-                    delivery_status = 'delivered',
-                    email_sent_at = datetime('now', '+1 hour'),
-                    delivered_at = datetime('now', '+1 hour')
-                WHERE id = ?
-            ");
-            $updateStmt->execute([$delivery['id']]);
-            
-            // Record email event
-            recordEmailEvent($orderId, 'tool_delivery_delayed', [
-                'email' => $delivery['customer_email'],
-                'subject' => "Your {$delivery['product_name']} is Ready to Download!",
-                'sent' => true,
-                'product_name' => $delivery['product_name'],
-                'file_count' => count($downloadLinks),
-                'delayed_delivery' => true
-            ]);
-            
-            error_log("✅ processPendingToolDeliveries: Email sent to {$delivery['customer_email']} for order #$orderId");
-        } else {
-            error_log("❌ processPendingToolDeliveries: Email failed to {$delivery['customer_email']} for order #$orderId");
+        // Queue email for background processing
+        $queueId = queueEmail(
+            $delivery['customer_email'],
+            'tool_delivery',
+            $emailContent['subject'],
+            strip_tags($emailContent['body']),
+            $emailContent['html'],
+            $orderId,
+            $delivery['id'],
+            'high'
+        );
+        
+        if ($queueId) {
+            $queued++;
+            error_log("📬 processPendingToolDeliveries: Queued email for {$delivery['customer_email']} (Order #$orderId)");
         }
     }
     
-    error_log("📧 processPendingToolDeliveries: Completed - Processed: $processed, Emails Sent: $sent");
+    // Process queued emails immediately in background for high-priority deliveries
+    if ($queued > 0) {
+        $queueResult = processEmailQueue(min($queued, 50), true);
+        $sent = $queueResult['sent'] ?? 0;
+        
+        // Update delivery status for successfully sent emails
+        if ($sent > 0) {
+            $db->exec("
+                UPDATE deliveries 
+                SET delivery_status = 'delivered',
+                    email_sent_at = datetime('now', '+1 hour'),
+                    delivered_at = datetime('now', '+1 hour')
+                WHERE id IN (
+                    SELECT delivery_id FROM email_queue 
+                    WHERE status = 'sent' 
+                    AND email_type = 'tool_delivery'
+                    AND delivery_id IS NOT NULL
+                )
+            ");
+        }
+    }
+    
+    error_log("📧 processPendingToolDeliveries: Completed - Processed: $processed, Queued: $queued, Sent: $sent");
     
     return [
         'success' => true, 
-        'message' => "Processed $processed deliveries, sent $sent emails",
+        'message' => "Processed $processed deliveries, queued $queued emails, sent $sent immediately",
         'processed' => $processed, 
-        'sent' => $sent
+        'sent' => $sent,
+        'queued' => $queued
+    ];
+}
+
+/**
+ * Build tool delivery email content for queuing (internal helper)
+ * Returns array with subject, body, and html
+ */
+function buildToolDeliveryEmailContent($order, $item, $downloadLinks, $orderId) {
+    $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+    $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+    
+    $subject = "Your {$item['product_name']} is Ready! - Order #{$orderId}";
+    
+    $body = '<h2 style="color: #7c3aed; margin: 0 0 15px 0;">Your Tool is Ready to Download!</h2>';
+    $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Great news! Your tool is now available for download.</p>';
+    $body .= '<p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px;">';
+    $body .= '<strong>📦 Product:</strong> ' . htmlspecialchars($item['product_name']) . '<br>';
+    $body .= '<strong>📋 Order ID:</strong> #' . $orderId . '</p>';
+    
+    $body .= '<div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+    $body .= '<h3 style="color: #059669; margin: 0 0 12px 0; font-size: 16px;">📥 Your Download Links</h3>';
+    
+    foreach ($downloadLinks as $link) {
+        $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+        $fileUrl = htmlspecialchars($link['url'] ?? '');
+        $isLink = ($link['file_type'] ?? '') === 'link';
+        
+        $body .= '<p style="color: #374151; margin: 8px 0;">';
+        $body .= $fileName . ' - ';
+        $body .= '<a href="' . $fileUrl . '"' . ($isLink ? ' target="_blank"' : '') . ' style="color: #1e3a8a;">' . ($isLink ? 'Open Link' : 'Download') . '</a>';
+        $body .= '</p>';
+    }
+    $body .= '</div>';
+    
+    $body .= '<p style="color: #374151; margin: 15px 0 0 0;">';
+    $body .= 'Links expire in ' . $expiryDays . ' days. Max ' . $maxDownloads . ' downloads per link.';
+    $body .= '</p>';
+    
+    // Delivery Instructions section (if provided)
+    if (!empty($item['delivery_note'])) {
+        $body .= '<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #92400e; margin: 0 0 12px 0; font-size: 16px;"><span style="margin-right: 8px;">📋</span>Delivery Instructions</h3>';
+        $body .= '<p style="color: #374151; margin: 0; white-space: pre-wrap;">' . htmlspecialchars($item['delivery_note']) . '</p>';
+        $body .= '</div>';
+    }
+    
+    require_once __DIR__ . '/mailer.php';
+    $htmlEmail = createEmailTemplate($subject, $body, $order['customer_name']);
+    
+    return [
+        'subject' => $subject,
+        'body' => $body,
+        'html' => $htmlEmail
     ];
 }
 
@@ -2233,8 +2312,8 @@ function sendToolVersionUpdateEmails($toolId) {
     
     error_log("📧 sendToolVersionUpdateEmails: Starting for tool $toolId");
     
-    // Get tool info
-    $stmt = $db->prepare("SELECT id, name, upload_complete FROM tools WHERE id = ?");
+    // Get tool info including delivery instructions
+    $stmt = $db->prepare("SELECT id, name, upload_complete, delivery_instructions FROM tools WHERE id = ?");
     $stmt->execute([$toolId]);
     $tool = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -2276,10 +2355,8 @@ function sendToolVersionUpdateEmails($toolId) {
         return ['success' => true, 'message' => 'No existing customers to notify', 'sent' => 0, 'queued' => 0];
     }
     
-    $sent = 0;
     $queued = 0;
     $skipped = 0;
-    $useQueue = count($deliveredOrders) > 10; // Use queue for more than 10 recipients
     
     foreach ($deliveredOrders as $delivery) {
         $orderId = $delivery['pending_order_id'];
@@ -2413,7 +2490,7 @@ function sendToolVersionUpdateEmails($toolId) {
         $updateStmt->execute([json_encode($allDownloadLinks), $delivery['id']]);
         
         // Build version control email with added, modified, existing, and removed sections
-        // Now includes download links for ALL files (including existing)
+        // Now includes download links for ALL files (including existing) and delivery instructions
         $emailContent = buildVersionControlEmail(
             $tool,
             $orderId,
@@ -2424,71 +2501,39 @@ function sendToolVersionUpdateEmails($toolId) {
             $newDownloadLinks,
             $modifiedFiles,
             $modifiedDownloadLinks,
-            $existingDownloadLinks
+            $existingDownloadLinks,
+            $tool['delivery_instructions'] ?? ''
         );
         
-        if ($useQueue) {
-            // Queue email for batch processing
-            $queueId = queueEmail(
-                $delivery['customer_email'],
-                'tool_version_update',
-                $emailContent['subject'],
-                strip_tags($emailContent['body']),
-                $emailContent['html'],
-                $orderId,
-                $delivery['id'],
-                'normal'
-            );
-            
-            if ($queueId) {
-                $queued++;
-                error_log("📬 sendToolVersionUpdateEmails: Queued email for {$delivery['customer_email']} (Order #$orderId)");
-            }
-        } else {
-            // Send immediately for small batches
-            require_once __DIR__ . '/mailer.php';
-            $emailSent = sendEmail(
-                $delivery['customer_email'],
-                $emailContent['subject'],
-                $emailContent['html']
-            );
-            
-            if ($emailSent) {
-                $sent++;
-                
-                // Record email event
-                recordEmailEvent($orderId, 'tool_version_update', [
-                    'email' => $delivery['customer_email'],
-                    'subject' => $emailContent['subject'],
-                    'sent' => true,
-                    'product_name' => $tool['name'],
-                    'added_files' => count($addedFiles),
-                    'existing_files' => count($existingFiles),
-                    'removed_files' => count($removedFiles)
-                ]);
-                
-                error_log("✅ sendToolVersionUpdateEmails: Email sent to {$delivery['customer_email']} for order #$orderId");
-            }
+        // Queue email for background processing (faster complete button response)
+        $queueId = queueEmail(
+            $delivery['customer_email'],
+            'tool_version_update',
+            $emailContent['subject'],
+            strip_tags($emailContent['body']),
+            $emailContent['html'],
+            $orderId,
+            $delivery['id'],
+            'normal'
+        );
+        
+        if ($queueId) {
+            $queued++;
+            error_log("📬 sendToolVersionUpdateEmails: Queued email for {$delivery['customer_email']} (Order #$orderId)");
         }
     }
     
-    // Process queue if we used it
-    if ($useQueue && $queued > 0) {
-        error_log("📧 sendToolVersionUpdateEmails: Processing email queue ($queued emails)...");
-        $queueResult = processEmailQueue(50); // Process up to 50 at a time
-        $sent = $queueResult['sent'] ?? 0;
-        error_log("📧 sendToolVersionUpdateEmails: Queue processed - Sent: $sent");
-    }
-    
+    // Don't process queue immediately - let background processor handle it for faster response
+    // The email processor cron/background task will send these emails
     $totalCustomers = count($deliveredOrders);
-    error_log("📧 sendToolVersionUpdateEmails: Completed - Sent: $sent, Queued: $queued, Skipped: $skipped / $totalCustomers total");
+    error_log("📧 sendToolVersionUpdateEmails: Completed - Queued: $queued, Skipped: $skipped / $totalCustomers total (background processing)");
     
     return [
         'success' => true,
-        'message' => $useQueue 
-            ? "Queued $queued update emails for $totalCustomers existing customers" . ($skipped > 0 ? " (skipped $skipped - no changes)" : "")
-            : "Sent $sent update emails" . ($skipped > 0 ? " (skipped $skipped - no changes)" : ""),
-        'sent' => $sent,
+        'message' => $queued > 0
+            ? "Queued $queued update emails for background delivery" . ($skipped > 0 ? " (skipped $skipped - no changes)" : "")
+            : ($skipped > 0 ? "No new updates to send (skipped $skipped customers with no changes)" : "No customers to notify"),
+        'sent' => 0,
         'queued' => $queued,
         'skipped' => $skipped,
         'total_customers' => $totalCustomers
@@ -2510,9 +2555,10 @@ function sendToolVersionUpdateEmails($toolId) {
  * @param array $modifiedFiles Files that were updated/replaced
  * @param array $modifiedDownloadLinks Download links for modified files
  * @param array $existingDownloadLinks Download links for existing files (so they can re-download)
+ * @param string $deliveryInstructions Delivery instructions from admin
  * @return array ['subject' => string, 'body' => string, 'html' => string]
  */
-function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks, $modifiedFiles = [], $modifiedDownloadLinks = [], $existingDownloadLinks = []) {
+function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks, $modifiedFiles = [], $modifiedDownloadLinks = [], $existingDownloadLinks = [], $deliveryInstructions = '') {
     $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
     $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
     
@@ -2632,6 +2678,14 @@ function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $
         $body .= '<p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 0;">Changes: ' . implode(', ', $changes) . '</p>';
     }
     $body .= '</div>';
+    
+    // Delivery Instructions section (if provided)
+    if (!empty($deliveryInstructions)) {
+        $body .= '<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 15px 0; border-radius: 4px;">';
+        $body .= '<h3 style="color: #92400e; margin: 0 0 12px 0; font-size: 16px;"><span style="margin-right: 8px;">📋</span>Delivery Instructions</h3>';
+        $body .= '<p style="color: #374151; margin: 0; white-space: pre-wrap;">' . htmlspecialchars($deliveryInstructions) . '</p>';
+        $body .= '</div>';
+    }
     
     // Expiry note
     $expiryDate = date('F j, Y', strtotime("+{$expiryDays} days"));
