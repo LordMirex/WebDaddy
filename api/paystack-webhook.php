@@ -234,13 +234,83 @@ function handleSuccessfulPayment($data) {
 function handleFailedPayment($data) {
     $reference = $data['reference'];
     
+    // Find payment record
     $payment = getPaymentByReference($reference);
+    
+    // FALLBACK: If payment record not found, try to extract order ID from reference and create it
     if (!$payment) {
+        $orderId = extractOrderIdFromReference($reference);
+        
+        if ($orderId) {
+            $db = getDb();
+            
+            // Check if order exists
+            $stmt = $db->prepare("SELECT id, status, final_amount FROM pending_orders WHERE id = ?");
+            $stmt->execute([$orderId]);
+            $order = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($order) {
+                // Don't process if already paid or failed
+                if ($order['status'] === 'paid') {
+                    logPaymentEvent('order_already_paid', 'paystack', 'info', $orderId, null, null, $data);
+                    return;
+                }
+                
+                if ($order['status'] === 'failed') {
+                    logPaymentEvent('order_already_failed', 'paystack', 'info', $orderId, null, null, $data);
+                    return;
+                }
+                
+                // Create payment record on the fly with status='failed'
+                $stmt = $db->prepare("
+                    INSERT INTO payments (
+                        pending_order_id, payment_method, amount_requested, currency,
+                        paystack_reference, status, paystack_response, created_at
+                    ) VALUES (?, 'paystack', ?, 'NGN', ?, 'failed', ?, datetime('now', '+1 hour'))
+                ");
+                $stmt->execute([
+                    $orderId, 
+                    $order['final_amount'], 
+                    $reference,
+                    json_encode($data)
+                ]);
+                $paymentId = $db->lastInsertId();
+                
+                error_log("🔧 WEBHOOK: Created fallback FAILED payment #$paymentId for Order #$orderId");
+                
+                // Update order status to failed
+                $stmt = $db->prepare("
+                    UPDATE pending_orders 
+                    SET status = 'failed',
+                        updated_at = datetime('now', '+1 hour')
+                    WHERE id = ? AND status = 'pending'
+                ");
+                $stmt->execute([$orderId]);
+                $affectedRows = $stmt->rowCount();
+                
+                if ($affectedRows > 0) {
+                    error_log("❌ WEBHOOK: Order #$orderId marked as failed");
+                }
+                
+                // Log the payment failure event
+                logPaymentEvent('payment_failed', 'paystack', 'failed', $orderId, $paymentId, null, $data);
+                return;
+            }
+        }
+        
+        // If we still can't find/create a payment, log the orphan failed payment
+        error_log("⚠️ WEBHOOK: Failed payment received but no matching order found. Reference: $reference");
+        logPaymentEvent('payment_failed_orphan', 'paystack', 'failed', null, null, null, [
+            'reference' => $reference,
+            'reason' => 'No matching order found',
+            'data' => $data
+        ]);
         return;
     }
     
     $db = getDb();
     
+    // Update existing payment record
     $stmt = $db->prepare("
         UPDATE payments 
         SET status = 'failed',
@@ -251,6 +321,20 @@ function handleFailedPayment($data) {
         json_encode($data),
         $payment['id']
     ]);
+    
+    // Also update order status to failed
+    $stmt = $db->prepare("
+        UPDATE pending_orders 
+        SET status = 'failed',
+            updated_at = datetime('now', '+1 hour')
+        WHERE id = ? AND status = 'pending'
+    ");
+    $stmt->execute([$payment['pending_order_id']]);
+    $affectedRows = $stmt->rowCount();
+    
+    if ($affectedRows > 0) {
+        error_log("❌ WEBHOOK: Order #{$payment['pending_order_id']} marked as failed (existing payment)");
+    }
     
     logPaymentEvent('payment_failed', 'paystack', 'failed', $payment['pending_order_id'], $payment['id'], null, $data);
 }
