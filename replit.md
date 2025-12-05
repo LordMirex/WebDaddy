@@ -48,6 +48,16 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Recent Changes (December 2025)
 
+### Webhook Failed Payment Handling Fix
+- **handleFailedPayment() in paystack-webhook.php**: Complete rewrite to properly record failed payments:
+  - Added fallback logic to create payment records if none exists (mirrors handleSuccessfulPayment behavior)
+  - Extracts order ID from reference using extractOrderIdFromReference()
+  - Creates payment record with status='failed' and Paystack response data
+  - Updates pending_orders status to 'failed'
+  - Always logs via logPaymentEvent('payment_failed', ...) for monitoring visibility
+  - Orphan failed payments (no matching order) are logged with 'payment_failed_orphan' event type
+  - Added detailed error_log messages for debugging
+
 ### Payment Verification Recovery System
 - **New API `/api/check-payment-status.php`**: Allows frontend to check if a payment was already processed by the webhook during network issues.
 - **Robust PaymentManager (assets/js/paystack-payment.js)**: Complete rewrite with:
