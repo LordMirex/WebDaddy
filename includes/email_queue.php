@@ -327,6 +327,31 @@ function processEmailQueue($batchSize = 25, $aggressive = false) {
                 ");
                 $updateStmt->execute([$email['id']]);
                 $stats['sent']++;
+                
+                // Update delivery status for tool_delivery emails
+                // This handles both immediate and cron-based processing
+                if ($email['email_type'] === 'tool_delivery' && !empty($email['delivery_id'])) {
+                    $deliveryUpdateStmt = $db->prepare("
+                        UPDATE deliveries 
+                        SET delivery_status = 'delivered',
+                            email_sent_at = datetime('now', '+1 hour'),
+                            delivered_at = datetime('now', '+1 hour')
+                        WHERE id = ? AND delivery_status = 'ready'
+                    ");
+                    $deliveryUpdateStmt->execute([$email['delivery_id']]);
+                    
+                    // Record email event if order ID is present
+                    if (!empty($email['pending_order_id'])) {
+                        require_once __DIR__ . '/delivery.php';
+                        recordEmailEvent($email['pending_order_id'], 'tool_delivery', [
+                            'email' => $email['recipient_email'],
+                            'subject' => $email['subject'],
+                            'sent' => true,
+                            'via_queue' => true
+                        ]);
+                    }
+                }
+                
                 error_log("✅ EMAIL QUEUE: Sent to {$email['recipient_email']} (Type: {$email['email_type']})");
             } else {
                 throw new Exception('Email send returned false');

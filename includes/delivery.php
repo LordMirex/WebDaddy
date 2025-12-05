@@ -480,6 +480,7 @@ function processPendingToolDeliveries($toolId) {
         $emailContent = buildToolDeliveryEmailContent($order, $item, $downloadLinks, $orderId);
         
         // Queue email for background processing
+        // Delivery status remains 'ready' until email is actually sent by processEmailQueue
         $queueId = queueEmail(
             $delivery['customer_email'],
             'tool_delivery',
@@ -493,30 +494,18 @@ function processPendingToolDeliveries($toolId) {
         
         if ($queueId) {
             $queued++;
-            error_log("📬 processPendingToolDeliveries: Queued email for {$delivery['customer_email']} (Order #$orderId)");
+            error_log("📬 processPendingToolDeliveries: Queued email for {$delivery['customer_email']} (Order #$orderId, Queue ID: $queueId)");
+        } else {
+            error_log("❌ processPendingToolDeliveries: Failed to queue email for {$delivery['customer_email']} (Order #$orderId)");
         }
     }
     
-    // Process queued emails immediately in background for high-priority deliveries
+    // Process queued emails immediately for high-priority deliveries
+    // Delivery status updates and email event logging are now handled
+    // in processEmailQueue() for both immediate and cron-based processing
     if ($queued > 0) {
         $queueResult = processEmailQueue(min($queued, 50), true);
         $sent = $queueResult['sent'] ?? 0;
-        
-        // Update delivery status for successfully sent emails
-        if ($sent > 0) {
-            $db->exec("
-                UPDATE deliveries 
-                SET delivery_status = 'delivered',
-                    email_sent_at = datetime('now', '+1 hour'),
-                    delivered_at = datetime('now', '+1 hour')
-                WHERE id IN (
-                    SELECT delivery_id FROM email_queue 
-                    WHERE status = 'sent' 
-                    AND email_type = 'tool_delivery'
-                    AND delivery_id IS NOT NULL
-                )
-            ");
-        }
     }
     
     error_log("📧 processPendingToolDeliveries: Completed - Processed: $processed, Queued: $queued, Sent: $sent");
