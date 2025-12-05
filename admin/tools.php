@@ -236,35 +236,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $uploadComplete = isset($_POST['upload_complete']) ? 1 : 0;
         
         try {
+            require_once __DIR__ . '/../includes/tool_files.php';
+            require_once __DIR__ . '/../includes/delivery.php';
+            require_once __DIR__ . '/../includes/email_queue.php';
+            
+            $tool = getToolById($toolId);
+            if (!$tool) {
+                throw new Exception('Tool not found.');
+            }
+            
+            // VALIDATION: Cannot mark complete if no files exist
+            $toolFiles = getToolFiles($toolId);
+            if ($uploadComplete && empty($toolFiles)) {
+                throw new Exception('Cannot mark tool as complete without any files. Please upload at least one file or add a link first.');
+            }
+            
             $stmt = $db->prepare("UPDATE tools SET upload_complete = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
             $stmt->execute([$uploadComplete, $toolId]);
             
-            $tool = getToolById($toolId);
-            
             if ($uploadComplete) {
-                require_once __DIR__ . '/../includes/delivery.php';
-                
+                // Process pending deliveries (new customers waiting for files)
                 $pendingResult = processPendingToolDeliveries($toolId);
                 $pendingEmails = $pendingResult['sent'] ?? 0;
+                $pendingQueued = $pendingResult['queued'] ?? 0;
                 
+                // Send update emails to existing customers (uses queue for large batches)
                 $updateResult = sendToolVersionUpdateEmails($toolId);
                 $updateEmails = $updateResult['sent'] ?? 0;
+                $updateQueued = $updateResult['queued'] ?? 0;
+                $skippedNoChanges = $updateResult['skipped'] ?? 0;
                 
-                $totalEmails = $pendingEmails + $updateEmails;
+                $totalSent = $pendingEmails + $updateEmails;
+                $totalQueued = $pendingQueued + $updateQueued;
                 $successMessage = "Tool marked as complete!";
                 
-                if ($totalEmails > 0) {
-                    $parts = [];
-                    if ($pendingEmails > 0) {
-                        $parts[] = "{$pendingEmails} new customer(s) notified";
-                    }
-                    if ($updateEmails > 0) {
-                        $parts[] = "{$updateEmails} existing customer(s) received update notifications";
-                    }
+                $parts = [];
+                if ($pendingEmails > 0 || $pendingQueued > 0) {
+                    $pendingCount = $pendingEmails + $pendingQueued;
+                    $parts[] = "{$pendingCount} new customer(s) notified";
+                }
+                if ($updateEmails > 0 || $updateQueued > 0) {
+                    $updateCount = $updateEmails + $updateQueued;
+                    $parts[] = "{$updateCount} existing customer(s) received update notifications";
+                }
+                if ($skippedNoChanges > 0) {
+                    $parts[] = "{$skippedNoChanges} customer(s) skipped (no file changes)";
+                }
+                if (!empty($parts)) {
                     $successMessage .= " " . implode(', ', $parts) . ".";
                 }
+                if ($totalQueued > 0) {
+                    $successMessage .= " Emails are being processed in the background.";
+                }
                 
-                logActivity('tool_upload_complete', "Tool files marked complete: {$tool['name']}, {$pendingEmails} pending + {$updateEmails} update emails sent", getAdminId());
+                logActivity('tool_upload_complete', "Tool files marked complete: {$tool['name']}, {$pendingEmails} pending + {$updateEmails} update emails sent, {$skippedNoChanges} skipped", getAdminId());
             } else {
                 $successMessage = "Tool marked as incomplete (uploads in progress).";
                 logActivity('tool_upload_incomplete', "Tool files marked incomplete: {$tool['name']}", getAdminId());
@@ -784,9 +809,9 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Features (JSON)</label>
-                        <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder='["Feature 1", "Feature 2"]'></textarea>
-                        <small class="text-gray-500 text-xs">JSON array format</small>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Features</label>
+                        <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder="Feature 1, Feature 2, Feature 3"></textarea>
+                        <small class="text-gray-500 text-xs">Enter features separated by commas</small>
                     </div>
                     
                     <!-- Product Banner Image -->
@@ -972,8 +997,9 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Features (JSON)</label>
-                        <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"><?php echo htmlspecialchars($editTool['features'] ?? ''); ?></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Features</label>
+                        <textarea name="features" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm" placeholder="Feature 1, Feature 2, Feature 3"><?php echo htmlspecialchars($editTool['features'] ?? ''); ?></textarea>
+                        <small class="text-gray-500 text-xs">Enter features separated by commas</small>
                     </div>
                     
                     <!-- Product Banner Image -->
@@ -1736,6 +1762,69 @@ document.getElementById('tool-video-file-input-create')?.addEventListener('chang
     }
 });
 
+// Video upload handler for EDIT form (must be added separately as form loads dynamically)
+document.getElementById('tool-video-file-input-edit')?.addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const progressDiv = document.getElementById('tool-video-upload-progress-edit');
+    const progressBar = document.getElementById('tool-video-progress-bar-edit');
+    const progressText = document.getElementById('tool-video-progress-percentage-edit');
+    const checkIcon = document.getElementById('tool-video-upload-check-edit');
+    const urlInput = document.getElementById('tool-video-uploaded-url-edit');
+    
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    checkIcon.style.display = 'none';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_type', 'video');
+    formData.append('category', 'tools');
+    
+    try {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressText.textContent = percentComplete + '%';
+            }
+        });
+        
+        xhr.addEventListener('load', function() {
+            if (xhr.status === 200) {
+                const result = JSON.parse(xhr.responseText);
+                if (result.success) {
+                    urlInput.value = result.url;
+                    checkIcon.style.display = 'inline';
+                    console.log('Video uploaded successfully (edit):', result.url);
+                } else {
+                    alert('Video upload failed: ' + (result.error || 'Unknown error'));
+                    progressDiv.style.display = 'none';
+                }
+            } else {
+                alert('Video upload failed');
+                progressDiv.style.display = 'none';
+            }
+        });
+        
+        xhr.addEventListener('error', function() {
+            alert('Video upload failed');
+            progressDiv.style.display = 'none';
+        });
+        
+        xhr.open('POST', '/api/upload.php');
+        xhr.send(formData);
+    } catch (error) {
+        console.error('Video upload error (edit):', error);
+        alert('Failed to upload video: ' + error.message);
+        progressDiv.style.display = 'none';
+    }
+});
+
 // ADVANCED FILE UPLOAD SYSTEM - Chunked Upload with Sequential Processing
 const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB chunks - more reliable
 const MAX_RETRIES = 3;
@@ -1875,8 +1964,10 @@ document.getElementById('fileType').addEventListener('change', (e) => {
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const form = document.getElementById('uploadForm');
     const fileType = document.getElementById('fileType').value;
-    const toolId = document.querySelector('input[name="tool_id"]').value;
+    // FIX: Use form-scoped selector to get correct tool_id from upload form (not other forms)
+    const toolId = form.querySelector('input[name="tool_id"]').value;
     const description = document.getElementById('description').value;
     const statusDiv = document.getElementById('uploadStatus');
     

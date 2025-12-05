@@ -26,10 +26,11 @@ function createDeliveryRecords($orderId) {
     try {
         // Get order items - ensure we get ALL items
         // CRITICAL FIX: For tools, only include those marked upload_complete = 1
+        // NOTE: Tools use delivery_instructions field, templates use delivery_note
         $stmt = $db->prepare("
             SELECT oi.id, oi.product_id, oi.product_type, oi.quantity,
                    COALESCE(t.name, tl.name) as product_name,
-                   COALESCE(t.delivery_note, tl.delivery_note) as delivery_note,
+                   COALESCE(t.delivery_note, tl.delivery_instructions) as delivery_note,
                    COALESCE(tl.upload_complete, 1) as tool_upload_complete
             FROM order_items oi
             LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
@@ -2386,6 +2387,15 @@ function sendToolVersionUpdateEmails($toolId) {
             }
         }
         
+        // Generate download links for EXISTING files (so customers can re-download everything)
+        $existingDownloadLinks = [];
+        foreach ($existingFiles as $file) {
+            $link = generateDownloadLink($file['id'], $orderId);
+            if ($link) {
+                $existingDownloadLinks[] = $link;
+            }
+        }
+        
         // Update delivery record with all current links
         $allDownloadLinks = [];
         foreach ($currentFiles as $file) {
@@ -2403,6 +2413,7 @@ function sendToolVersionUpdateEmails($toolId) {
         $updateStmt->execute([json_encode($allDownloadLinks), $delivery['id']]);
         
         // Build version control email with added, modified, existing, and removed sections
+        // Now includes download links for ALL files (including existing)
         $emailContent = buildVersionControlEmail(
             $tool,
             $orderId,
@@ -2412,7 +2423,8 @@ function sendToolVersionUpdateEmails($toolId) {
             $removedFiles,
             $newDownloadLinks,
             $modifiedFiles,
-            $modifiedDownloadLinks
+            $modifiedDownloadLinks,
+            $existingDownloadLinks
         );
         
         if ($useQueue) {
@@ -2486,6 +2498,7 @@ function sendToolVersionUpdateEmails($toolId) {
 /**
  * Build version control email content with added/existing/removed/modified file sections
  * Different format for existing customers showing what changed
+ * Now includes download links for ALL files (including existing files)
  * 
  * @param array $tool Tool information
  * @param int $orderId Order ID
@@ -2496,9 +2509,10 @@ function sendToolVersionUpdateEmails($toolId) {
  * @param array $newDownloadLinks Download links for new files only
  * @param array $modifiedFiles Files that were updated/replaced
  * @param array $modifiedDownloadLinks Download links for modified files
+ * @param array $existingDownloadLinks Download links for existing files (so they can re-download)
  * @return array ['subject' => string, 'body' => string, 'html' => string]
  */
-function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks, $modifiedFiles = [], $modifiedDownloadLinks = []) {
+function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $existingFiles, $removedFiles, $newDownloadLinks, $modifiedFiles = [], $modifiedDownloadLinks = [], $existingDownloadLinks = []) {
     $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
     $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
     
@@ -2563,18 +2577,32 @@ function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $
         $body .= '</div>';
     }
     
-    // EXISTING FILES section (blue)
+    // EXISTING FILES section (blue) - NOW WITH DOWNLOAD LINKS
     if (!empty($existingFiles)) {
         $body .= '<div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 15px 0; border-radius: 4px;">';
-        $body .= '<h3 style="color: #2563eb; margin: 0 0 12px 0; font-size: 16px;">Files You Already Have (' . count($existingFiles) . ')</h3>';
+        $body .= '<h3 style="color: #2563eb; margin: 0 0 12px 0; font-size: 16px;">Your Complete File Collection (' . count($existingFiles) . ')</h3>';
+        $body .= '<p style="color: #6b7280; font-size: 12px; margin: 0 0 10px 0;">All your files are available for download below.</p>';
         
-        foreach ($existingFiles as $file) {
-            $fileName = htmlspecialchars($file['file_name'] ?? 'Unknown File');
-            $body .= '<p style="color: #374151; margin: 5px 0;">';
-            $body .= '<span style="color: #3b82f6;">&#10003; </span>' . $fileName;
-            $body .= '</p>';
+        // Use download links if available, otherwise just show file names
+        if (!empty($existingDownloadLinks)) {
+            foreach ($existingDownloadLinks as $link) {
+                $fileName = htmlspecialchars($link['name'] ?? 'Download File');
+                $fileUrl = htmlspecialchars($link['url'] ?? '');
+                $isLink = ($link['file_type'] ?? '') === 'link';
+                
+                $body .= '<p style="color: #374151; margin: 8px 0;">';
+                $body .= '<span style="color: #3b82f6;">&#10003; </span>' . $fileName . ' - ';
+                $body .= '<a href="' . $fileUrl . '"' . ($isLink ? ' target="_blank"' : '') . ' style="color: #1e3a8a; text-decoration: underline;">' . ($isLink ? 'Open Link' : 'Download') . '</a>';
+                $body .= '</p>';
+            }
+        } else {
+            foreach ($existingFiles as $file) {
+                $fileName = htmlspecialchars($file['file_name'] ?? 'Unknown File');
+                $body .= '<p style="color: #374151; margin: 5px 0;">';
+                $body .= '<span style="color: #3b82f6;">&#10003; </span>' . $fileName;
+                $body .= '</p>';
+            }
         }
-        $body .= '<p style="color: #6b7280; font-size: 12px; margin: 10px 0 0 0;">No action needed - these files remain available in your original delivery.</p>';
         $body .= '</div>';
     }
     

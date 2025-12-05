@@ -291,46 +291,40 @@ function getWebhookSecurityStats() {
     $db = getDb();
     
     try {
-        $today = date('Y-m-d');
-        
-        // Total webhook requests today
-        $stmt = $db->prepare("
+        // Total webhook requests today (using SQLite timezone offset to match stored timestamps)
+        $stmt = $db->query("
             SELECT COUNT(*) as count 
             FROM payment_logs 
             WHERE event_type = 'webhook_received' 
-            AND DATE(created_at) >= ?
+            AND DATE(created_at) >= DATE('now', '+1 hour')
         ");
-        $stmt->execute([$today]);
         $todayWebhooks = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
         // Blocked requests today
-        $stmt = $db->prepare("
+        $stmt = $db->query("
             SELECT COUNT(*) as count 
             FROM security_logs 
             WHERE event_type IN ('ip_blocked', 'rate_limit_exceeded', 'signature_invalid')
-            AND DATE(created_at) >= ?
+            AND DATE(created_at) >= DATE('now', '+1 hour')
         ");
-        $stmt->execute([$today]);
         $blockedToday = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
         // Successful payments today
-        $stmt = $db->prepare("
+        $stmt = $db->query("
             SELECT COUNT(*) as count 
             FROM payment_logs 
             WHERE event_type = 'payment_completed' 
-            AND DATE(created_at) >= ?
+            AND DATE(created_at) >= DATE('now', '+1 hour')
         ");
-        $stmt->execute([$today]);
         $successfulPayments = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
         // Failed payments today
-        $stmt = $db->prepare("
+        $stmt = $db->query("
             SELECT COUNT(*) as count 
             FROM payment_logs 
             WHERE event_type = 'payment_failed' 
-            AND DATE(created_at) >= ?
+            AND DATE(created_at) >= DATE('now', '+1 hour')
         ");
-        $stmt->execute([$today]);
         $failedPayments = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
         
         // Recent security events
