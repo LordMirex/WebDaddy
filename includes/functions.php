@@ -677,46 +677,19 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             }
         }
         
-        // Send commission earned email to affiliate
-        if ($affiliateId && $affiliate) {
-            $affiliateUser = getUserById($affiliate['user_id']);
-            if ($affiliateUser && !empty($affiliateUser['email'])) {
-                // Build detailed product names list from order items
-                if (!empty($orderItems)) {
-                    $productNames = [];
-                    foreach ($orderItems as $item) {
-                        // Try template_name/tool_name first, then fallback to metadata, then generic
-                        $name = null;
-                        if (!empty($item['template_name'])) {
-                            $name = $item['template_name'];
-                        } elseif (!empty($item['tool_name'])) {
-                            $name = $item['tool_name'];
-                        } elseif (!empty($item['metadata_json'])) {
-                            $metadata = json_decode($item['metadata_json'], true);
-                            if (is_array($metadata)) {
-                                $name = $metadata['name'] ?? null;
-                            }
-                        }
-                        $name = $name ?? 'Product';
-                        
-                        $qty = $item['quantity'];
-                        $productNames[] = $qty > 1 ? "{$name} (×{$qty})" : $name;
-                    }
-                    $productName = implode(', ', $productNames);
-                } else {
-                    // Fallback for legacy orders
-                    $template = getTemplateById($order['template_id']);
-                    $productName = $template['name'] ?? 'Product';
-                }
-                
-                sendCommissionEarnedEmail(
-                    $affiliateUser['name'],
-                    $affiliateUser['email'],
-                    $orderId,
-                    $commissionAmount,
-                    $productName
-                );
+        // NOTE: Commission email is already sent by processOrderCommission() above - no duplicate needed
+        
+        // Process any pending emails in queue (affiliate invitations, etc.)
+        // This ensures queued emails are sent immediately after payment confirmation
+        try {
+            require_once __DIR__ . '/email_queue.php';
+            $queueResult = processEmailQueue(10, true); // Aggressive mode for immediate processing
+            if ($queueResult['sent'] > 0) {
+                error_log("✅ MARK ORDER PAID: Processed {$queueResult['sent']} queued emails for Order #$orderId");
             }
+        } catch (Exception $e) {
+            error_log("⚠️  MARK ORDER PAID: Email queue processing error: " . $e->getMessage());
+            // Don't throw - non-critical, emails will be processed by cron
         }
         
         // Return success with delivery status information
