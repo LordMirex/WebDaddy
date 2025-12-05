@@ -66,11 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
         } elseif ($action === 'mark_paid') {
-            $orderId = intval($_POST['order_id']);
-            $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
-            
-            if ($orderId <= 0) {
-                $errorMessage = 'Invalid order ID.';
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                $orderId = intval($_POST['order_id']);
+                $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
+                
+                if ($orderId <= 0) {
+                    $errorMessage = 'Invalid order ID.';
             } else {
                 $order = getOrderById($orderId);
                 if (!$order) {
@@ -542,6 +545,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } elseif ($action === 'update_tool_delivery_notes') {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                $deliveryId = intval($_POST['delivery_id'] ?? 0);
+                $orderId = intval($_POST['order_id'] ?? 0);
+                $adminNotes = sanitizeInput($_POST['admin_notes'] ?? '');
+                
+                if ($deliveryId <= 0) {
+                    $errorMessage = 'Invalid delivery ID.';
+                } else {
+                    try {
+                        $stmt = $db->prepare("UPDATE deliveries SET admin_notes = ? WHERE id = ?");
+                        $stmt->execute([$adminNotes, $deliveryId]);
+                        
+                        $successMessage = 'Delivery notes updated successfully!';
+                        logActivity('tool_delivery_notes_updated', "Updated delivery notes for delivery #$deliveryId", getAdminId());
+                        
+                        if ($orderId > 0) {
+                            header("Location: /admin/orders.php?view=" . $orderId . "&success=" . urlencode($successMessage));
+                            exit;
+                        }
+                    } catch (Exception $e) {
+                        error_log('Tool delivery notes update error: ' . $e->getMessage());
+                        $errorMessage = 'Error updating delivery notes.';
+                    }
+                }
+            }
         } elseif ($action === 'save_template_credentials') {
             if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
                 $errorMessage = 'Security verification failed. Please refresh and try again.';
@@ -809,7 +840,8 @@ $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 20;
 
 // Get total count for pagination
-$countSql = preg_replace('/SELECT .* FROM/is', 'SELECT COUNT(*) FROM', $sql);
+// Use non-greedy regex to only replace the first SELECT...FROM, preserving subqueries
+$countSql = preg_replace('/^SELECT\s.*?\sFROM\s/is', 'SELECT COUNT(*) FROM ', $sql);
 $countSql = preg_replace('/ORDER BY .*/is', '', $countSql);
 $countStmt = $db->prepare($countSql);
 $countStmt->execute($params);
@@ -2499,6 +2531,45 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                     <?php endif; ?>
                     
+                    <!-- Editable Delivery Notes Section -->
+                    <div class="mb-4 bg-gray-50 rounded-lg p-4" x-data="{ editingNotes: false }">
+                        <div class="flex items-center justify-between mb-2">
+                            <h5 class="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                                <i class="bi bi-sticky text-primary-600 mr-1"></i> Delivery Notes
+                            </h5>
+                            <button type="button" @click="editingNotes = !editingNotes" class="px-2 py-1 text-xs text-primary-600 hover:text-primary-800 hover:bg-primary-100 rounded transition-colors">
+                                <i class="bi" :class="editingNotes ? 'bi-x-lg' : 'bi-pencil'"></i>
+                                <span x-text="editingNotes ? 'Cancel' : 'Edit'"></span>
+                            </button>
+                        </div>
+                        
+                        <!-- View Mode -->
+                        <div x-show="!editingNotes">
+                            <?php if (!empty($delivery['admin_notes'])): ?>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap"><?php echo htmlspecialchars($delivery['admin_notes']); ?></p>
+                            <?php else: ?>
+                            <p class="text-sm text-gray-400 italic">No delivery notes added yet. Click Edit to add notes.</p>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Edit Mode -->
+                        <form method="POST" x-show="editingNotes" x-cloak>
+                            <input type="hidden" name="action" value="update_tool_delivery_notes">
+                            <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
+                            <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                            <textarea name="admin_notes" rows="3" placeholder="Add special instructions or notes for this delivery..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm mb-2"><?php echo htmlspecialchars($delivery['admin_notes'] ?? ''); ?></textarea>
+                            <div class="flex gap-2">
+                                <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors">
+                                    <i class="bi bi-check-lg mr-1"></i> Save Notes
+                                </button>
+                                <button type="button" @click="editingNotes = false" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold rounded-lg transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
                     <div class="flex gap-3">
                         <form method="POST" class="inline">
                             <input type="hidden" name="action" value="resend_tool_email">
@@ -2737,13 +2808,23 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 
                 <div class="flex gap-3">
                     <button type="button" onclick="document.getElementById('quickMarkPaidForm').classList.add('hidden'); document.getElementById('quickMarkPaidOverlay').classList.add('hidden');" class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors">
-                        Cancel
+                        Close
                     </button>
                     <button type="submit" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors">
                         <i class="bi bi-check-circle mr-1"></i> Confirm Payment
                     </button>
                 </div>
             </form>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <form method="POST" onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+                    <input type="hidden" name="action" value="cancel_order">
+                    <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                    <button type="submit" class="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <i class="bi bi-x-circle"></i> Cancel This Order
+                    </button>
+                </form>
+            </div>
         </div>
         <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
             <button type="button" onclick="document.getElementById('quickMarkPaidForm').classList.add('hidden'); document.getElementById('quickMarkPaidOverlay').classList.add('hidden');" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">

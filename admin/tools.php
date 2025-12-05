@@ -442,12 +442,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get filter parameters
+$searchTerm = $_GET['search'] ?? '';
 $filterCategory = $_GET['category'] ?? '';
 $filterStatus = $_GET['status'] ?? 'active';
 
 // Get all tools (including out-of-stock) for admin view
 // Use $inStockOnly = false to show ALL tools regardless of stock
 $allTools = getTools(false, $filterCategory ? $filterCategory : null, null, null, false);
+
+// Apply search filter
+if (!empty($searchTerm)) {
+    $searchLower = strtolower($searchTerm);
+    $allTools = array_filter($allTools, function($t) use ($searchLower) {
+        return (
+            stripos($t['name'] ?? '', $searchLower) !== false ||
+            stripos($t['slug'] ?? '', $searchLower) !== false ||
+            stripos($t['description'] ?? '', $searchLower) !== false ||
+            stripos($t['short_description'] ?? '', $searchLower) !== false ||
+            stripos($t['category'] ?? '', $searchLower) !== false
+        );
+    });
+}
 
 // Apply status filter
 if ($filterStatus === 'active') {
@@ -551,44 +566,43 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                <select name="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <option value="">All Categories</option>
-                    <?php foreach ($categories as $cat): ?>
-                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $filterCategory === $cat ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($cat); ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <option value="all" <?php echo $filterStatus === 'all' ? 'selected' : ''; ?>>All</option>
-                    <option value="active" <?php echo $filterStatus === 'active' ? 'selected' : ''; ?>>Active</option>
-                    <option value="inactive" <?php echo $filterStatus === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-colors">
-                    <i class="bi bi-funnel mr-2"></i> Apply Filters
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Search Bar -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-        <label class="block text-sm font-semibold text-gray-700 mb-3">🔍 Quick Search Tools</label>
-        <div class="relative">
-            <input type="text" id="toolSearch" placeholder="Search by tool name..." autocomplete="off" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none transition-all">
-            <div id="searchDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-purple-500 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto" style="display:none;">
-                <div id="toolsList"></div>
-                <div id="searchPagination" class="p-3 border-t bg-gray-50 flex justify-center gap-1 flex-wrap"></div>
-            </div>
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+        <div class="p-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                    <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="search" value="<?php echo htmlspecialchars($searchTerm); ?>" placeholder="Search tools by name, description...">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                    <select name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        <option value="">All Categories</option>
+                        <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo $filterCategory === $cat ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($cat); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        <option value="all" <?php echo $filterStatus === 'all' ? 'selected' : ''; ?>>All</option>
+                        <option value="active" <?php echo $filterStatus === 'active' ? 'selected' : ''; ?>>Active</option>
+                        <option value="inactive" <?php echo $filterStatus === 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-search mr-2"></i> Filter
+                    </button>
+                    <?php if (!empty($searchTerm) || !empty($filterCategory) || $filterStatus !== 'active'): ?>
+                    <a href="?" class="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors" title="Clear Filters">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -730,19 +744,19 @@ require_once __DIR__ . '/includes/header.php';
         <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
             <nav class="flex items-center justify-center gap-2 flex-wrap">
                 <?php if ($page > 1): ?>
-                <a href="?page=<?php echo $page - 1; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?><?php echo $filterStatus ? '&status=' . urlencode($filterStatus) : ''; ?>" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                <a href="?page=<?php echo $page - 1; ?><?php echo $searchTerm ? '&search=' . urlencode($searchTerm) : ''; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?><?php echo $filterStatus ? '&status=' . urlencode($filterStatus) : ''; ?>" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                     <i class="bi bi-chevron-left"></i> Previous
                 </a>
                 <?php endif; ?>
                 
                 <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
-                <a href="?page=<?php echo $i; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?><?php echo $filterStatus ? '&status=' . urlencode($filterStatus) : ''; ?>" class="px-4 py-2 border rounded-lg font-medium transition-colors <?php echo $i === $page ? 'bg-purple-600 border-purple-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
+                <a href="?page=<?php echo $i; ?><?php echo $searchTerm ? '&search=' . urlencode($searchTerm) : ''; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?><?php echo $filterStatus ? '&status=' . urlencode($filterStatus) : ''; ?>" class="px-4 py-2 border rounded-lg font-medium transition-colors <?php echo $i === $page ? 'bg-purple-600 border-purple-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
                     <?php echo $i; ?>
                 </a>
                 <?php endfor; ?>
                 
                 <?php if ($page < $totalPages): ?>
-                <a href="?page=<?php echo $page + 1; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?><?php echo $filterStatus ? '&status=' . urlencode($filterStatus) : ''; ?>" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                <a href="?page=<?php echo $page + 1; ?><?php echo $searchTerm ? '&search=' . urlencode($searchTerm) : ''; ?><?php echo $filterCategory ? '&category=' . urlencode($filterCategory) : ''; ?><?php echo $filterStatus ? '&status=' . urlencode($filterStatus) : ''; ?>" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                     Next <i class="bi bi-chevron-right"></i>
                 </a>
                 <?php endif; ?>
