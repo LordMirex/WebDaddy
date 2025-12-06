@@ -788,7 +788,10 @@ $params = [];
 if (!empty($searchTerm)) {
     $sql .= " AND (po.customer_name LIKE ? OR po.customer_email LIKE ? OR po.customer_phone LIKE ? OR po.business_name LIKE ? 
               OR t.name LIKE ? OR tool.name LIKE ?
-              OR EXISTS (SELECT 1 FROM order_items oi WHERE oi.pending_order_id = po.id AND (oi.template_name LIKE ? OR oi.tool_name LIKE ?)))";
+              OR EXISTS (SELECT 1 FROM order_items oi 
+                         LEFT JOIN templates templ ON oi.product_type = 'template' AND oi.product_id = templ.id
+                         LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+                         WHERE oi.pending_order_id = po.id AND (templ.name LIKE ? OR tl.name LIKE ?)))";
     $searchPattern = '%' . $searchTerm . '%';
     $params[] = $searchPattern;
     $params[] = $searchPattern;
@@ -876,7 +879,10 @@ $countSql = "SELECT COUNT(*) FROM pending_orders po
 if (!empty($searchTerm)) {
     $countSql .= " AND (po.customer_name LIKE ? OR po.customer_email LIKE ? OR po.customer_phone LIKE ? OR po.business_name LIKE ? 
               OR t.name LIKE ? OR tool.name LIKE ?
-              OR EXISTS (SELECT 1 FROM order_items oi WHERE oi.pending_order_id = po.id AND (oi.template_name LIKE ? OR oi.tool_name LIKE ?)))";
+              OR EXISTS (SELECT 1 FROM order_items oi 
+                         LEFT JOIN templates templ ON oi.product_type = 'template' AND oi.product_id = templ.id
+                         LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
+                         WHERE oi.pending_order_id = po.id AND (templ.name LIKE ? OR tl.name LIKE ?)))";
 }
 
 if (!empty($filterStatus)) {
