@@ -654,6 +654,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        } elseif ($action === 'update_payment_notes') {
+            if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+                $errorMessage = 'Security verification failed. Please refresh and try again.';
+            } else {
+                $orderId = intval($_POST['order_id'] ?? 0);
+                $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
+                
+                if ($orderId <= 0) {
+                    $errorMessage = 'Invalid order ID.';
+                } else {
+                    try {
+                        $stmt = $db->prepare("UPDATE pending_orders SET payment_notes = ? WHERE id = ?");
+                        $stmt->execute([$paymentNotes, $orderId]);
+                        
+                        $successMessage = 'Payment notes updated successfully!';
+                        logActivity('payment_notes_updated', "Updated payment notes for Order #$orderId", getAdminId());
+                        
+                        header("Location: /admin/orders.php?view=" . $orderId . "&success=" . urlencode($successMessage));
+                        exit;
+                    } catch (Exception $e) {
+                        error_log('Payment notes update error: ' . $e->getMessage());
+                        $errorMessage = 'Error updating payment notes.';
+                    }
+                }
+            }
         }
     }
 }
@@ -1602,16 +1627,46 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                 </div>
             </div>
             
-            <?php if (!empty($viewOrder['payment_notes'])): ?>
-            <div class="mb-6">
+            <div class="mb-6" x-data="{ editingNotes: false }">
                 <h6 class="text-gray-500 font-semibold mb-2 text-sm uppercase flex items-center gap-2">
-                    <i class="bi bi-sticky text-primary-600"></i> Payment Notes
+                    <i class="bi bi-sticky text-primary-600"></i> Delivery / Payment Notes
+                    <button type="button" @click="editingNotes = !editingNotes" class="ml-auto text-primary-600 hover:text-primary-800 transition-colors" title="Edit notes">
+                        <i class="bi" :class="editingNotes ? 'bi-x-circle' : 'bi-pencil-square'"></i>
+                    </button>
                 </h6>
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                
+                <!-- Display Mode -->
+                <div x-show="!editingNotes" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                    <?php if (!empty($viewOrder['payment_notes'])): ?>
                     <p class="text-sm text-gray-800 whitespace-pre-wrap"><?php echo htmlspecialchars($viewOrder['payment_notes']); ?></p>
+                    <?php else: ?>
+                    <p class="text-sm text-gray-400 italic">No notes added yet. Click the edit icon to add notes.</p>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Edit Mode -->
+                <div x-show="editingNotes" x-transition class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+                    <form method="POST" class="space-y-3">
+                        <input type="hidden" name="action" value="update_payment_notes">
+                        <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Edit Delivery / Payment Notes</label>
+                            <textarea name="payment_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm" placeholder="Add delivery details, payment confirmation, tracking info, etc..."><?php echo htmlspecialchars($viewOrder['payment_notes'] ?? ''); ?></textarea>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors text-sm">
+                                <i class="bi bi-check-lg mr-1"></i> Save Notes
+                            </button>
+                            <button type="button" @click="editingNotes = false" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition-colors text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <?php endif; ?>
             
             <?php if (!empty($viewOrderItems)): ?>
             <div class="mb-6">
@@ -2789,6 +2844,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
             <form method="POST" id="quickPaymentForm">
                 <input type="hidden" name="action" value="mark_paid">
                 <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
                 
                 <div class="mb-4">
                     <p class="text-gray-700 mb-3">
