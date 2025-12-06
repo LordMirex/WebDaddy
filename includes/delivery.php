@@ -2023,8 +2023,12 @@ function processAllPendingToolDeliveries() {
         'pending_found' => 0,
         'emails_sent' => 0,
         'updates_sent' => 0,
-        'errors' => []
+        'errors' => [],
+        'summary_emails_sent' => 0
     ];
+    
+    // Track order IDs that received tool deliveries - we'll send ONE summary per order at the end
+    $ordersWithDeliveries = [];   // orderId => 'new_delivery' or 'update'
     
     error_log("📦 CRON: Starting processAllPendingToolDeliveries");
     
@@ -2073,6 +2077,8 @@ function processAllPendingToolDeliveries() {
                         $sent = processAndSendToolDelivery($delivery, $toolId, false);
                         if ($sent) {
                             $result['emails_sent']++;
+                            // Track this order for summary email (new delivery takes precedence over update)
+                            $ordersWithDeliveries[$delivery['pending_order_id']] = 'new_delivery';
                         }
                     } catch (Exception $e) {
                         $result['errors'][] = "Tool $toolId, Delivery {$delivery['id']}: " . $e->getMessage();
@@ -2111,6 +2117,10 @@ function processAllPendingToolDeliveries() {
                         $sent = processAndSendToolDelivery($delivery, $toolId, true);
                         if ($sent) {
                             $result['updates_sent']++;
+                            // Track this order for summary email (only if not already tracked as new_delivery)
+                            if (!isset($ordersWithDeliveries[$delivery['pending_order_id']])) {
+                                $ordersWithDeliveries[$delivery['pending_order_id']] = 'update';
+                            }
                         }
                     } catch (Exception $e) {
                         $result['errors'][] = "Tool $toolId update, Delivery {$delivery['id']}: " . $e->getMessage();
@@ -2120,7 +2130,29 @@ function processAllPendingToolDeliveries() {
             }
         }
         
-        error_log("📦 CRON: Completed - Pending: {$result['pending_found']}, Emails: {$result['emails_sent']}, Updates: {$result['updates_sent']}");
+        error_log("📦 CRON: Completed tool processing - Pending: {$result['pending_found']}, Emails: {$result['emails_sent']}, Updates: {$result['updates_sent']}");
+        
+        // STEP 3: Send ONE summary email per order that received deliveries
+        // This prevents email flooding when multiple tools are processed for the same order
+        if (!empty($ordersWithDeliveries)) {
+            error_log("📧 CRON: Sending batched summary emails for " . count($ordersWithDeliveries) . " orders");
+            
+            foreach ($ordersWithDeliveries as $orderId => $deliveryType) {
+                try {
+                    $emailType = ($deliveryType === 'update') ? 'tool_update' : 'tool_delivered_delayed';
+                    error_log("📧 CRON: Sending ONE summary email for Order #$orderId (type: $emailType)");
+                    sendOrderDeliveryUpdateEmail($orderId, $emailType);
+                    $result['summary_emails_sent']++;
+                } catch (Exception $e) {
+                    $result['errors'][] = "Summary email for Order #$orderId: " . $e->getMessage();
+                    error_log("❌ CRON: Error sending summary email for Order #$orderId: " . $e->getMessage());
+                }
+            }
+            
+            error_log("📧 CRON: Sent {$result['summary_emails_sent']} summary emails");
+        }
+        
+        error_log("📦 CRON: Fully completed - Tools: {$result['emails_sent']}, Updates: {$result['updates_sent']}, Summaries: {$result['summary_emails_sent']}");
         
     } catch (Exception $e) {
         $result['errors'][] = "Main error: " . $e->getMessage();
@@ -2216,10 +2248,9 @@ function processAndSendToolDelivery($delivery, $toolId, $isUpdate = false) {
             'is_update' => $isUpdate
         ]);
         
-        // Send delivery update email to show overall order progress
-        // This notifies customers of what's delivered vs pending, and if order is complete
-        error_log("📧 processAndSendToolDelivery: Sending delivery update email for Order #$orderId");
-        sendOrderDeliveryUpdateEmail($orderId, $isUpdate ? 'tool_update' : 'tool_delivered_delayed');
+        // NOTE: Summary email (sendOrderDeliveryUpdateEmail) is NOT sent here to prevent email flooding
+        // When processing multiple tools for the same order, the caller (processAllPendingToolDeliveries)
+        // is responsible for sending ONE summary email per order AFTER all tools are processed
         
         error_log("✅ processAndSendToolDelivery: Email sent to {$delivery['customer_email']} for order #$orderId" . ($isUpdate ? " (UPDATE)" : ""));
         return true;
@@ -2345,7 +2376,6 @@ function sendToolVersionUpdateEmails($toolId) {
     }
     
     $queued = 0;
-    $skipped = 0;
     
     foreach ($deliveredOrders as $delivery) {
         $orderId = $delivery['pending_order_id'];
@@ -2428,11 +2458,11 @@ function sendToolVersionUpdateEmails($toolId) {
             }
         }
         
-        // Skip if there are no changes (no added, no modified, no removed files)
-        if (empty($addedFiles) && empty($modifiedFiles) && empty($removedFiles)) {
-            $skipped++;
-            error_log("⏭️  sendToolVersionUpdateEmails: Order #$orderId - no changes to notify");
-            continue;
+        // NOTE: We always send emails to ALL customers when tool is re-marked as complete
+        // Even if no files changed, customers get an email with their available downloads
+        $noChanges = empty($addedFiles) && empty($modifiedFiles) && empty($removedFiles);
+        if ($noChanges) {
+            error_log("📧 sendToolVersionUpdateEmails: Order #$orderId - no file changes, sending availability notification");
         }
         
         // Generate download links for new files
@@ -2515,16 +2545,15 @@ function sendToolVersionUpdateEmails($toolId) {
     // Don't process queue immediately - let background processor handle it for faster response
     // The email processor cron/background task will send these emails
     $totalCustomers = count($deliveredOrders);
-    error_log("📧 sendToolVersionUpdateEmails: Completed - Queued: $queued, Skipped: $skipped / $totalCustomers total (background processing)");
+    error_log("📧 sendToolVersionUpdateEmails: Completed - Queued: $queued / $totalCustomers total customers (background processing)");
     
     return [
         'success' => true,
         'message' => $queued > 0
-            ? "Queued $queued update emails for background delivery" . ($skipped > 0 ? " (skipped $skipped - no changes)" : "")
-            : ($skipped > 0 ? "No new updates to send (skipped $skipped customers with no changes)" : "No customers to notify"),
+            ? "Queued $queued notification emails for all customers"
+            : "No customers to notify",
         'sent' => 0,
         'queued' => $queued,
-        'skipped' => $skipped,
         'total_customers' => $totalCustomers
     ];
 }
@@ -2567,12 +2596,18 @@ function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $
     } elseif ($hasRemoved) {
         $subject = "Product Update: Files Changed - {$tool['name']} - Order #{$orderId}";
     } else {
-        $subject = "Product Update - {$tool['name']} - Order #{$orderId}";
+        $subject = "Product Files Available - {$tool['name']} - Order #{$orderId}";
     }
     
-    // Build HTML body
-    $body = '<h2 style="color: #7c3aed; margin: 0 0 15px 0;">Product Update Notification</h2>';
-    $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Your product <strong>' . htmlspecialchars($tool['name']) . '</strong> has been updated.</p>';
+    // Build HTML body - differentiate between actual updates and availability notifications
+    $hasChanges = $hasAdded || $hasModified || $hasRemoved;
+    if ($hasChanges) {
+        $body = '<h2 style="color: #7c3aed; margin: 0 0 15px 0;">Product Update Notification</h2>';
+        $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Your product <strong>' . htmlspecialchars($tool['name']) . '</strong> has been updated.</p>';
+    } else {
+        $body = '<h2 style="color: #7c3aed; margin: 0 0 15px 0;">Your Files Are Available</h2>';
+        $body .= '<p style="color: #374151; margin: 0 0 15px 0;">Your product <strong>' . htmlspecialchars($tool['name']) . '</strong> is ready for download.</p>';
+    }
     $body .= '<p style="color: #6b7280; margin: 0 0 20px 0; font-size: 14px;"><strong>Order ID:</strong> #' . $orderId . '</p>';
     
     // ADDED FILES section (green)
