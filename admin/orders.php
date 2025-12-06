@@ -865,10 +865,75 @@ $sql .= " ORDER BY po.created_at DESC";
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 20;
 
-// Get total count for pagination
-// Use non-greedy regex to only replace the first SELECT...FROM, preserving subqueries
-$countSql = preg_replace('/^SELECT\s.*?\sFROM\s/is', 'SELECT COUNT(*) FROM ', $sql);
-$countSql = preg_replace('/ORDER BY .*/is', '', $countSql);
+// Get total count for pagination - build count query from scratch to avoid regex issues with subqueries
+$countSql = "SELECT COUNT(*) FROM pending_orders po
+        LEFT JOIN templates t ON po.template_id = t.id
+        LEFT JOIN tools tool ON po.tool_id = tool.id
+        LEFT JOIN domains d ON po.chosen_domain_id = d.id
+        WHERE 1=1";
+
+// Re-apply all the same filters for the count query
+if (!empty($searchTerm)) {
+    $countSql .= " AND (po.customer_name LIKE ? OR po.customer_email LIKE ? OR po.customer_phone LIKE ? OR po.business_name LIKE ? 
+              OR t.name LIKE ? OR tool.name LIKE ?
+              OR EXISTS (SELECT 1 FROM order_items oi WHERE oi.pending_order_id = po.id AND (oi.template_name LIKE ? OR oi.tool_name LIKE ?)))";
+}
+
+if (!empty($filterStatus)) {
+    $countSql .= " AND po.status = ?";
+}
+
+if (!empty($filterTemplate)) {
+    $countSql .= " AND po.template_id = ?";
+}
+
+if (!empty($filterOrderType)) {
+    if ($filterOrderType === 'templates_only') {
+        $countSql .= " AND (
+                    (EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template')
+                     AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool'))
+                    OR (po.template_id IS NOT NULL AND po.tool_id IS NULL 
+                        AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id))
+                  )";
+    } elseif ($filterOrderType === 'tools_only') {
+        $countSql .= " AND (
+                    (EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool')
+                     AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template'))
+                    OR (po.tool_id IS NOT NULL AND po.template_id IS NULL 
+                        AND NOT EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id))
+                  )";
+    } elseif ($filterOrderType === 'mixed') {
+        $countSql .= " AND EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'template')
+                  AND EXISTS (SELECT 1 FROM order_items WHERE pending_order_id = po.id AND product_type = 'tool')";
+    }
+}
+
+if (!empty($filterPaymentMethod)) {
+    if ($filterPaymentMethod === 'manual') {
+        $countSql .= " AND EXISTS (SELECT 1 FROM sales WHERE pending_order_id = po.id AND payment_method = 'manual')";
+    } elseif ($filterPaymentMethod === 'automatic') {
+        $countSql .= " AND EXISTS (SELECT 1 FROM sales WHERE pending_order_id = po.id AND payment_method != 'manual')";
+    }
+}
+
+if (!empty($filterDateFrom)) {
+    $countSql .= " AND date(po.created_at) >= ?";
+}
+
+if (!empty($filterDateTo)) {
+    $countSql .= " AND date(po.created_at) <= ?";
+}
+
+if (!empty($filterDeliveryStatus)) {
+    if ($filterDeliveryStatus === 'delivered') {
+        $countSql .= " AND EXISTS (SELECT 1 FROM deliveries WHERE pending_order_id = po.id AND delivery_status = 'delivered')";
+    } elseif ($filterDeliveryStatus === 'pending_delivery') {
+        $countSql .= " AND EXISTS (SELECT 1 FROM deliveries WHERE pending_order_id = po.id AND delivery_status IN ('pending', 'in_progress', 'ready'))";
+    } elseif ($filterDeliveryStatus === 'no_delivery') {
+        $countSql .= " AND NOT EXISTS (SELECT 1 FROM deliveries WHERE pending_order_id = po.id)";
+    }
+}
+
 $countStmt = $db->prepare($countSql);
 $countStmt->execute($params);
 $totalOrders = $countStmt->fetchColumn();
