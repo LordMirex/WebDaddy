@@ -298,8 +298,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $affiliateUser = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 // Send appropriate email based on status
+                // Only send approval email when actually marked as PAID (not just approved)
                 if ($affiliateUser && !empty($affiliateUser['email'])) {
-                    if ($withdrawalStatus === 'paid' || $withdrawalStatus === 'approved') {
+                    if ($withdrawalStatus === 'paid') {
                         sendWithdrawalApprovedEmail(
                             $affiliateUser['name'],
                             $affiliateUser['email'],
@@ -867,7 +868,7 @@ require_once __DIR__ . '/includes/header.php';
                                              x-transition:leave-start="opacity-100 transform scale-100"
                                              x-transition:leave-end="opacity-0 transform scale-95"
                                              class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-                                            <form method="POST">
+                                            <form method="POST" x-data="{ selectedStatus: '' }" x-ref="withdrawalForm">
                                                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                                                     <h3 class="text-2xl font-bold text-gray-900">Process Withdrawal #<?php echo $wr['id']; ?></h3>
                                                     <button type="button" @click="processWithdrawalId = null" class="text-gray-400 hover:text-gray-600 text-2xl">
@@ -878,22 +879,54 @@ require_once __DIR__ . '/includes/header.php';
                                                     <input type="hidden" name="action" value="process_withdrawal">
                                                     <input type="hidden" name="request_id" value="<?php echo $wr['id']; ?>">
                                                     
+                                                    <!-- Withdrawal Details -->
+                                                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                                        <div class="flex justify-between items-center">
+                                                            <span class="text-gray-600">Amount:</span>
+                                                            <span class="font-bold text-lg text-green-600"><?php echo formatCurrency($wr['amount']); ?></span>
+                                                        </div>
+                                                        <div class="flex justify-between items-center mt-2">
+                                                            <span class="text-gray-600">Affiliate:</span>
+                                                            <span class="font-medium"><?php echo htmlspecialchars($wr['affiliate_name'] ?? 'N/A'); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status <span class="text-red-600">*</span></label>
-                                                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="withdrawal_status" required>
-                                                            <option value="approved">Approve</option>
-                                                            <option value="paid">Mark as Paid</option>
-                                                            <option value="rejected">Reject</option>
+                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Action <span class="text-red-600">*</span></label>
+                                                        <select x-model="selectedStatus" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="withdrawal_status" required>
+                                                            <option value="">-- Select Action --</option>
+                                                            <option value="paid">Mark as Paid (Send payment confirmation to affiliate)</option>
+                                                            <option value="rejected">Reject (Return funds to pending balance)</option>
                                                         </select>
+                                                        <p class="text-xs text-gray-500 mt-1" x-show="selectedStatus === 'paid'">
+                                                            <i class="bi bi-info-circle"></i> This will mark the withdrawal as completed and notify the affiliate.
+                                                        </p>
+                                                        <p class="text-xs text-red-500 mt-1" x-show="selectedStatus === 'rejected'">
+                                                            <i class="bi bi-exclamation-triangle"></i> This will return the funds to the affiliate's pending balance.
+                                                        </p>
                                                     </div>
                                                     <div>
-                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Admin Notes</label>
-                                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="admin_notes" rows="3"></textarea>
+                                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Admin Notes <span x-show="selectedStatus === 'rejected'" class="text-red-600">*</span></label>
+                                                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="admin_notes" rows="3" :required="selectedStatus === 'rejected'" placeholder="Required for rejections..."></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
                                                     <button type="button" @click="processWithdrawalId = null" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">Cancel</button>
-                                                    <button type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg transition-colors">Submit</button>
+                                                    <button type="button" 
+                                                            :disabled="!selectedStatus" 
+                                                            @click="
+                                                                let action = selectedStatus === 'paid' ? 'mark this withdrawal as PAID' : 'REJECT this withdrawal';
+                                                                let warning = selectedStatus === 'paid' 
+                                                                    ? 'The affiliate will be notified via email.' 
+                                                                    : 'The funds will be returned to the affiliate\'s pending balance.';
+                                                                if (confirm('Are you sure you want to ' + action + '?\n\n' + warning)) {
+                                                                    $refs.withdrawalForm.submit();
+                                                                }
+                                                            "
+                                                            :class="selectedStatus === 'paid' ? 'bg-green-600 hover:bg-green-700' : selectedStatus === 'rejected' ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-600 hover:bg-primary-700'"
+                                                            class="px-6 py-3 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        <span x-text="selectedStatus === 'paid' ? 'Mark as Paid' : selectedStatus === 'rejected' ? 'Reject Withdrawal' : 'Select Action'"></span>
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>

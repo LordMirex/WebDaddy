@@ -246,6 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $successCount = 0;
             $failCount = 0;
             $deliveryFailures = []; // Track orders with delivery creation failures
+            $failureReasons = []; // Track specific failure reasons for admin feedback
             
             foreach ($orderIds as $orderId) {
                 $orderId = intval($orderId);
@@ -258,80 +259,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         FROM pending_orders po
                         LEFT JOIN templates t ON po.template_id = t.id
                         LEFT JOIN tools tool ON po.tool_id = tool.id
-                        WHERE po.id = ? AND po.status = 'pending'
+                        WHERE po.id = ?
                     ");
                     $stmt->execute([$orderId]);
                     $order = $stmt->fetch(PDO::FETCH_ASSOC);
                     
-                    if ($order) {
-                        // Priority order for calculating payable amount:
-                        // 1. Use final_amount if set (most accurate)
-                        // 2. Use original_price if set
-                        // 3. Calculate from order_items
-                        // 4. Fall back to template_price or tool_price for legacy orders
-                        $payableAmount = $order['final_amount'] ?? $order['original_price'] ?? 0;
+                    if (!$order) {
+                        $failCount++;
+                        $failureReasons[] = "Order #{$orderId}: Not found";
+                        continue;
+                    }
+                    
+                    // Check if order is already paid or not pending
+                    if ($order['status'] !== 'pending') {
+                        $failCount++;
+                        $failureReasons[] = "Order #{$orderId}: Already " . $order['status'];
+                        continue;
+                    }
+                    
+                    // Priority order for calculating payable amount:
+                    // 1. Use final_amount if set (most accurate)
+                    // 2. Use original_price if set
+                    // 3. Calculate from order_items
+                    // 4. Fall back to template_price or tool_price for legacy orders
+                    $payableAmount = $order['final_amount'] ?? $order['original_price'] ?? 0;
+                    
+                    if ($payableAmount == 0) {
+                        // Try to get from order_items
+                        $itemsStmt = $db->prepare("SELECT SUM(final_amount) as total FROM order_items WHERE pending_order_id = ?");
+                        $itemsStmt->execute([$orderId]);
+                        $itemsTotal = $itemsStmt->fetchColumn();
                         
-                        if ($payableAmount == 0) {
-                            // Try to get from order_items
-                            $itemsStmt = $db->prepare("SELECT SUM(final_amount) as total FROM order_items WHERE pending_order_id = ?");
-                            $itemsStmt->execute([$orderId]);
-                            $itemsTotal = $itemsStmt->fetchColumn();
-                            
-                            if ($itemsTotal > 0) {
-                                $payableAmount = $itemsTotal;
-                            } else {
-                                // Last resort: use template or tool price for legacy orders
-                                $basePrice = $order['template_price'] ?? $order['tool_price'] ?? 0;
-                                if ($basePrice > 0) {
-                                    // Apply affiliate discount if applicable
-                                    if (!empty($order['affiliate_code'])) {
-                                        $discountRate = CUSTOMER_DISCOUNT_RATE;
-                                        $payableAmount = $basePrice * (1 - $discountRate);
-                                    } else {
-                                        $payableAmount = $basePrice;
-                                    }
+                        if ($itemsTotal > 0) {
+                            $payableAmount = $itemsTotal;
+                        } else {
+                            // Last resort: use template or tool price for legacy orders
+                            $basePrice = $order['template_price'] ?? $order['tool_price'] ?? 0;
+                            if ($basePrice > 0) {
+                                // Apply affiliate discount if applicable
+                                if (!empty($order['affiliate_code'])) {
+                                    $discountRate = CUSTOMER_DISCOUNT_RATE;
+                                    $payableAmount = $basePrice * (1 - $discountRate);
+                                } else {
+                                    $payableAmount = $basePrice;
                                 }
                             }
                         }
-                        
-                        if ($payableAmount > 0) {
-                            $result = markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed');
-                            if ($result['success']) {
-                                $successCount++;
-                                // Track delivery errors in bulk processing for UI feedback
-                                if (!empty($result['delivery_error'])) {
-                                    $deliveryFailures[] = $orderId;
-                                    error_log("Order #{$orderId} delivery creation failed during bulk processing: " . $result['delivery_error']);
-                                }
-                            } else {
-                                $failCount++;
-                                error_log("Bulk payment failed for order #{$orderId}: " . ($result['message'] ?? 'Unknown error'));
-                            }
-                        } else {
-                            $failCount++;
-                            error_log("Bulk payment failed for order #{$orderId}: payableAmount = {$payableAmount}");
+                    }
+                    
+                    if ($payableAmount <= 0) {
+                        $failCount++;
+                        $failureReasons[] = "Order #{$orderId}: No price data found";
+                        error_log("Bulk payment failed for order #{$orderId}: payableAmount = {$payableAmount}");
+                        continue;
+                    }
+                    
+                    $result = markOrderPaid($orderId, getAdminId(), $payableAmount, 'Bulk processed');
+                    if ($result['success']) {
+                        $successCount++;
+                        // Track delivery errors in bulk processing for UI feedback
+                        if (!empty($result['delivery_error'])) {
+                            $deliveryFailures[] = $orderId;
+                            error_log("Order #{$orderId} delivery creation failed during bulk processing: " . $result['delivery_error']);
                         }
                     } else {
                         $failCount++;
+                        $failureReasons[] = "Order #{$orderId}: " . ($result['message'] ?? 'Unknown error');
+                        error_log("Bulk payment failed for order #{$orderId}: " . ($result['message'] ?? 'Unknown error'));
                     }
                 }
             }
             
             if ($successCount > 0) {
-                $successMessage = "Successfully marked {$successCount} order(s) as paid";
-                if ($failCount > 0) {
-                    $successMessage .= ". {$failCount} failed.";
+                $successMessage = "Successfully marked {$successCount} order(s) as paid.";
+                
+                // Show specific failure reasons if any failed
+                if ($failCount > 0 && !empty($failureReasons)) {
+                    $errorMessage = "{$failCount} order(s) failed: " . implode('; ', $failureReasons);
                 }
                 
                 // Alert admin about delivery failures in bulk processing
                 if (!empty($deliveryFailures)) {
                     $failedOrdersList = implode(', #', $deliveryFailures);
-                    $errorMessage = "⚠️ WARNING: Delivery creation failed for " . count($deliveryFailures) . " order(s): #" . $failedOrdersList . ". Please retry delivery creation individually for each order.";
+                    $deliveryWarning = "⚠️ Delivery creation failed for order(s): #" . $failedOrdersList . ". Please retry individually.";
+                    $errorMessage = !empty($errorMessage) ? $errorMessage . ' ' . $deliveryWarning : $deliveryWarning;
                 }
                 
                 logActivity('bulk_orders_processed', "Bulk processed {$successCount} orders", getAdminId());
             } else {
-                $errorMessage = 'No orders were processed.';
+                // All orders failed - show detailed reasons
+                if (!empty($failureReasons)) {
+                    $errorMessage = 'No orders were processed. Reasons: ' . implode('; ', $failureReasons);
+                } else {
+                    $errorMessage = 'No orders were processed. Please select pending orders only.';
+                }
             }
         } elseif ($action === 'bulk_cancel') {
             $orderIds = $_POST['order_ids'] ?? [];
