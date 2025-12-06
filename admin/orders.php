@@ -130,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
+        }
         } elseif ($action === 'update_order_domains') {
             $orderId = intval($_POST['order_id']);
             $paymentNotes = sanitizeInput($_POST['payment_notes'] ?? '');
