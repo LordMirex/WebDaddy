@@ -1573,6 +1573,44 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
+// FIX: Get unique order IDs from checked checkboxes (prevents duplicate counting from desktop+mobile views)
+function getUniqueCheckedOrderIds() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    const uniqueIds = new Set();
+    checked.forEach(cb => uniqueIds.add(cb.value));
+    return Array.from(uniqueIds);
+}
+
+// FIX: Submit form with unique order IDs only
+function submitBulkAction(action) {
+    const uniqueIds = getUniqueCheckedOrderIds();
+    if (uniqueIds.length === 0) return;
+    
+    const form = document.getElementById('bulkActionsForm');
+    
+    // Remove all existing order_ids[] inputs and add only unique ones
+    form.querySelectorAll('input[name="order_ids[]"]').forEach(input => {
+        if (input.type === 'hidden') input.remove();
+    });
+    
+    // Uncheck all checkboxes so they don't submit
+    document.querySelectorAll('.order-checkbox').forEach(cb => {
+        cb.name = '';
+    });
+    
+    // Add hidden inputs for unique IDs only
+    uniqueIds.forEach(id => {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'order_ids[]';
+        hiddenInput.value = id;
+        form.appendChild(hiddenInput);
+    });
+    
+    document.getElementById('bulkAction').value = action;
+    form.submit();
+}
+
 // Select All functionality (Desktop)
 document.getElementById('selectAll').addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('.order-checkbox');
@@ -1593,13 +1631,14 @@ document.querySelectorAll('.order-checkbox').forEach(cb => {
 });
 
 function toggleBulkButtons() {
-    const checked = document.querySelectorAll('.order-checkbox:checked');
+    // FIX: Count unique order IDs, not total checkboxes (desktop+mobile have duplicates)
+    const uniqueCount = getUniqueCheckedOrderIds().length;
     const markPaidBtn = document.getElementById('bulkMarkPaidBtn');
     const cancelBtn = document.getElementById('bulkCancelBtn');
     const markPaidBtnMobile = document.getElementById('bulkMarkPaidBtnMobile');
     const cancelBtnMobile = document.getElementById('bulkCancelBtnMobile');
     
-    if (checked.length > 0) {
+    if (uniqueCount > 0) {
         markPaidBtn.disabled = false;
         cancelBtn.disabled = false;
         if (markPaidBtnMobile) markPaidBtnMobile.disabled = false;
@@ -1614,37 +1653,33 @@ function toggleBulkButtons() {
 
 // Bulk Mark Paid (Desktop)
 document.getElementById('bulkMarkPaidBtn').addEventListener('click', function() {
-    const checked = document.querySelectorAll('.order-checkbox:checked');
-    if (checked.length > 0 && confirm(`Mark ${checked.length} order(s) as paid?`)) {
-        document.getElementById('bulkAction').value = 'bulk_mark_paid';
-        document.getElementById('bulkActionsForm').submit();
+    const uniqueCount = getUniqueCheckedOrderIds().length;
+    if (uniqueCount > 0 && confirm(`Mark ${uniqueCount} order(s) as paid?`)) {
+        submitBulkAction('bulk_mark_paid');
     }
 });
 
 // Bulk Cancel (Desktop)
 document.getElementById('bulkCancelBtn').addEventListener('click', function() {
-    const checked = document.querySelectorAll('.order-checkbox:checked');
-    if (checked.length > 0 && confirm(`Cancel ${checked.length} order(s)? This cannot be undone.`)) {
-        document.getElementById('bulkAction').value = 'bulk_cancel';
-        document.getElementById('bulkActionsForm').submit();
+    const uniqueCount = getUniqueCheckedOrderIds().length;
+    if (uniqueCount > 0 && confirm(`Cancel ${uniqueCount} order(s)? This cannot be undone.`)) {
+        submitBulkAction('bulk_cancel');
     }
 });
 
 // Bulk Mark Paid (Mobile)
 document.getElementById('bulkMarkPaidBtnMobile')?.addEventListener('click', function() {
-    const checked = document.querySelectorAll('.order-checkbox:checked');
-    if (checked.length > 0 && confirm(`Mark ${checked.length} order(s) as paid?`)) {
-        document.getElementById('bulkAction').value = 'bulk_mark_paid';
-        document.getElementById('bulkActionsForm').submit();
+    const uniqueCount = getUniqueCheckedOrderIds().length;
+    if (uniqueCount > 0 && confirm(`Mark ${uniqueCount} order(s) as paid?`)) {
+        submitBulkAction('bulk_mark_paid');
     }
 });
 
 // Bulk Cancel (Mobile)
 document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', function() {
-    const checked = document.querySelectorAll('.order-checkbox:checked');
-    if (checked.length > 0 && confirm(`Cancel ${checked.length} order(s)? This cannot be undone.`)) {
-        document.getElementById('bulkAction').value = 'bulk_cancel';
-        document.getElementById('bulkActionsForm').submit();
+    const uniqueCount = getUniqueCheckedOrderIds().length;
+    if (uniqueCount > 0 && confirm(`Cancel ${uniqueCount} order(s)? This cannot be undone.`)) {
+        submitBulkAction('bulk_cancel');
     }
 });
 </script>

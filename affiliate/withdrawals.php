@@ -29,9 +29,17 @@ $stmtPaid = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_paid FROM wit
 $stmtPaid->execute([$affiliateId]);
 $paidData = $stmtPaid->fetch(PDO::FETCH_ASSOC);
 
+// FIX: Get all in-progress withdrawal requests (anything not paid or rejected) to subtract from available balance
+// This covers 'pending' and any future intermediate statuses like 'processing' or 'approved'
+$stmtInProgress = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_in_progress FROM withdrawal_requests WHERE affiliate_id = ? AND status NOT IN ('paid', 'rejected')");
+$stmtInProgress->execute([$affiliateId]);
+$inProgressData = $stmtInProgress->fetch(PDO::FETCH_ASSOC);
+
 $affiliateInfo['commission_earned'] = (float)$commissionData['total_earned'];
 $affiliateInfo['commission_paid'] = (float)$paidData['total_paid'];
-$affiliateInfo['commission_pending'] = $affiliateInfo['commission_earned'] - $affiliateInfo['commission_paid'];
+$affiliateInfo['withdrawal_in_progress'] = (float)$inProgressData['total_in_progress'];
+// FIX: Available balance = Total Earned - Paid - In-Progress Withdrawals (prevents double withdrawal)
+$affiliateInfo['commission_pending'] = $affiliateInfo['commission_earned'] - $affiliateInfo['commission_paid'] - $affiliateInfo['withdrawal_in_progress'];
 
 $error = '';
 $success = '';

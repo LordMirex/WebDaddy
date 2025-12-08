@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $active = isset($_POST['active']) ? 1 : 0;
             $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
-            $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 3) ? $priorityOrder : null;
+            $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 10) ? $priorityOrder : null;
             
             if (empty($name) || empty($slug)) {
                 $errorMessage = 'Template name and slug are required.';
@@ -499,14 +499,21 @@ require_once __DIR__ . '/includes/header.php';
                             <small class="text-gray-500 text-xs mt-1 block">Enter the URL of a live website for interactive preview (shown in iframe)</small>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 3 Featured)</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 10 Featured)</label>
                             <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
                                 <option value="">None (Regular Listing)</option>
                                 <option value="1" <?php echo ($editTemplate && $editTemplate['priority_order'] == 1) ? 'selected' : ''; ?>>⭐ #1 - Top Priority</option>
-                                <option value="2" <?php echo ($editTemplate && $editTemplate['priority_order'] == 2) ? 'selected' : ''; ?>>⭐⭐ #2 - Second Priority</option>
-                                <option value="3" <?php echo ($editTemplate && $editTemplate['priority_order'] == 3) ? 'selected' : ''; ?>>⭐⭐⭐ #3 - Third Priority</option>
+                                <option value="2" <?php echo ($editTemplate && $editTemplate['priority_order'] == 2) ? 'selected' : ''; ?>>#2 - Second Priority</option>
+                                <option value="3" <?php echo ($editTemplate && $editTemplate['priority_order'] == 3) ? 'selected' : ''; ?>>#3 - Third Priority</option>
+                                <option value="4" <?php echo ($editTemplate && $editTemplate['priority_order'] == 4) ? 'selected' : ''; ?>>#4 - Fourth Priority</option>
+                                <option value="5" <?php echo ($editTemplate && $editTemplate['priority_order'] == 5) ? 'selected' : ''; ?>>#5 - Fifth Priority</option>
+                                <option value="6" <?php echo ($editTemplate && $editTemplate['priority_order'] == 6) ? 'selected' : ''; ?>>#6 - Sixth Priority</option>
+                                <option value="7" <?php echo ($editTemplate && $editTemplate['priority_order'] == 7) ? 'selected' : ''; ?>>#7 - Seventh Priority</option>
+                                <option value="8" <?php echo ($editTemplate && $editTemplate['priority_order'] == 8) ? 'selected' : ''; ?>>#8 - Eighth Priority</option>
+                                <option value="9" <?php echo ($editTemplate && $editTemplate['priority_order'] == 9) ? 'selected' : ''; ?>>#9 - Ninth Priority</option>
+                                <option value="10" <?php echo ($editTemplate && $editTemplate['priority_order'] == 10) ? 'selected' : ''; ?>>#10 - Tenth Priority</option>
                             </select>
-                            <small class="text-gray-500 text-xs mt-1 block">Select to feature this template in the top 3 displayed first</small>
+                            <small class="text-gray-500 text-xs mt-1 block">Select to feature this template in the top 10 displayed first</small>
                         </div>
                         <div class="md:col-span-2">
                             <label class="flex items-center gap-2 cursor-pointer">

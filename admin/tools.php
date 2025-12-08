@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $lowStockThreshold = intval($_POST['low_stock_threshold'] ?? 5);
         $active = isset($_POST['active']) ? 1 : 0;
         $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
-        $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 3) ? $priorityOrder : null;
+        $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 10) ? $priorityOrder : null;
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $lowStockThreshold = intval($_POST['low_stock_threshold'] ?? 5);
         $active = isset($_POST['active']) ? 1 : 0;
         $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
-        $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 3) ? $priorityOrder : null;
+        $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 10) ? $priorityOrder : null;
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
@@ -924,14 +924,21 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <!-- Priority & Status -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 3 Featured)</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 10 Featured)</label>
                         <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                             <option value="">None (Regular Listing)</option>
                             <option value="1">⭐ #1 - Top Priority</option>
-                            <option value="2">⭐⭐ #2 - Second Priority</option>
-                            <option value="3">⭐⭐⭐ #3 - Third Priority</option>
+                            <option value="2">#2 - Second Priority</option>
+                            <option value="3">#3 - Third Priority</option>
+                            <option value="4">#4 - Fourth Priority</option>
+                            <option value="5">#5 - Fifth Priority</option>
+                            <option value="6">#6 - Sixth Priority</option>
+                            <option value="7">#7 - Seventh Priority</option>
+                            <option value="8">#8 - Eighth Priority</option>
+                            <option value="9">#9 - Ninth Priority</option>
+                            <option value="10">#10 - Tenth Priority</option>
                         </select>
-                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 3 displayed first</small>
+                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 10 displayed first</small>
                     </div>
 
                     <div>
@@ -1110,14 +1117,21 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 3 Featured)</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 10 Featured)</label>
                         <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                             <option value="">None (Regular Listing)</option>
                             <option value="1" <?php echo ($editTool && $editTool['priority_order'] == 1) ? 'selected' : ''; ?>>⭐ #1 - Top Priority</option>
-                            <option value="2" <?php echo ($editTool && $editTool['priority_order'] == 2) ? 'selected' : ''; ?>>⭐⭐ #2 - Second Priority</option>
-                            <option value="3" <?php echo ($editTool && $editTool['priority_order'] == 3) ? 'selected' : ''; ?>>⭐⭐⭐ #3 - Third Priority</option>
+                            <option value="2" <?php echo ($editTool && $editTool['priority_order'] == 2) ? 'selected' : ''; ?>>#2 - Second Priority</option>
+                            <option value="3" <?php echo ($editTool && $editTool['priority_order'] == 3) ? 'selected' : ''; ?>>#3 - Third Priority</option>
+                            <option value="4" <?php echo ($editTool && $editTool['priority_order'] == 4) ? 'selected' : ''; ?>>#4 - Fourth Priority</option>
+                            <option value="5" <?php echo ($editTool && $editTool['priority_order'] == 5) ? 'selected' : ''; ?>>#5 - Fifth Priority</option>
+                            <option value="6" <?php echo ($editTool && $editTool['priority_order'] == 6) ? 'selected' : ''; ?>>#6 - Sixth Priority</option>
+                            <option value="7" <?php echo ($editTool && $editTool['priority_order'] == 7) ? 'selected' : ''; ?>>#7 - Seventh Priority</option>
+                            <option value="8" <?php echo ($editTool && $editTool['priority_order'] == 8) ? 'selected' : ''; ?>>#8 - Eighth Priority</option>
+                            <option value="9" <?php echo ($editTool && $editTool['priority_order'] == 9) ? 'selected' : ''; ?>>#9 - Ninth Priority</option>
+                            <option value="10" <?php echo ($editTool && $editTool['priority_order'] == 10) ? 'selected' : ''; ?>>#10 - Tenth Priority</option>
                         </select>
-                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 3 displayed first</small>
+                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 10 displayed first</small>
                     </div>
 
                     <div>
