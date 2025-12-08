@@ -96,6 +96,16 @@ All cron jobs confirmed as necessary and properly implemented:
 ### Priority Featured Products Enhancement
 - Expanded from "Top 3" to "Top 10" for both tools and templates
 - Validation logic and dropdown options updated to accept positions 1-10
+- **Priority Column in Admin Listings**: Both templates and tools admin tables now display the assigned priority slot with visual star badges
+- **Duplicate Prevention UI**: Priority dropdowns show which slots are already taken (with product name) and disable selection, preventing accidental duplicate assignments
+
+### Order Cancellation Fix
+- Removed invalid update to non-existent `order_items.status` column in `cancelOrder()` function
+- Cancellations now properly tracked via `pending_orders.status` column only
+
+### Withdrawal Balance Refresh Fix
+- After successful withdrawal request, the affiliate dashboard now properly refreshes all balance components
+- Re-fetches total earned, total paid, and in-progress withdrawals to display accurate available balance
 
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
