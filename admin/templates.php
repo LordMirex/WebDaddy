@@ -192,6 +192,17 @@ $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $categories = $db->query("SELECT DISTINCT category FROM templates WHERE category IS NOT NULL AND category != '' ORDER BY category")->fetchAll(PDO::FETCH_COLUMN);
 
+// Fetch all used priorities for templates (excluding current template if editing)
+$usedTemplatePriorities = [];
+$priorityQuery = "SELECT id, priority_order, name FROM templates WHERE priority_order IS NOT NULL AND priority_order > 0";
+$priorityStmt = $db->query($priorityQuery);
+while ($row = $priorityStmt->fetch(PDO::FETCH_ASSOC)) {
+    $usedTemplatePriorities[$row['priority_order']] = [
+        'id' => $row['id'],
+        'name' => $row['name']
+    ];
+}
+
 $editTemplate = null;
 if (isset($_GET['edit'])) {
     $editTemplate = getTemplateById(intval($_GET['edit']));
@@ -281,6 +292,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Slug</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Category</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Price</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Priority</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Status</th>
                         <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Actions</th>
                     </tr>
@@ -288,7 +300,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-gray-200">
                     <?php if (empty($templates)): ?>
                     <tr>
-                        <td colspan="7" class="text-center py-12">
+                        <td colspan="8" class="text-center py-12">
                             <i class="bi bi-inbox text-6xl text-gray-300"></i>
                             <p class="text-gray-500 mt-4">No templates found</p>
                         </td>
@@ -308,6 +320,15 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                         <td class="py-3 px-4 text-gray-700"><?php echo htmlspecialchars($template['category'] ?? '-'); ?></td>
                         <td class="py-3 px-4 font-bold text-gray-900"><?php echo formatCurrency($template['price']); ?></td>
+                        <td class="py-3 px-4">
+                            <?php if (!empty($template['priority_order']) && $template['priority_order'] > 0): ?>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                                <i class="bi bi-star-fill"></i> #<?php echo $template['priority_order']; ?>
+                            </span>
+                            <?php else: ?>
+                            <span class="text-gray-400 text-xs">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td class="py-3 px-4">
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="action" value="toggle_active">
@@ -502,18 +523,32 @@ require_once __DIR__ . '/includes/header.php';
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 10 Featured)</label>
                             <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
                                 <option value="">None (Regular Listing)</option>
-                                <option value="1" <?php echo ($editTemplate && $editTemplate['priority_order'] == 1) ? 'selected' : ''; ?>>⭐ #1 - Top Priority</option>
-                                <option value="2" <?php echo ($editTemplate && $editTemplate['priority_order'] == 2) ? 'selected' : ''; ?>>#2 - Second Priority</option>
-                                <option value="3" <?php echo ($editTemplate && $editTemplate['priority_order'] == 3) ? 'selected' : ''; ?>>#3 - Third Priority</option>
-                                <option value="4" <?php echo ($editTemplate && $editTemplate['priority_order'] == 4) ? 'selected' : ''; ?>>#4 - Fourth Priority</option>
-                                <option value="5" <?php echo ($editTemplate && $editTemplate['priority_order'] == 5) ? 'selected' : ''; ?>>#5 - Fifth Priority</option>
-                                <option value="6" <?php echo ($editTemplate && $editTemplate['priority_order'] == 6) ? 'selected' : ''; ?>>#6 - Sixth Priority</option>
-                                <option value="7" <?php echo ($editTemplate && $editTemplate['priority_order'] == 7) ? 'selected' : ''; ?>>#7 - Seventh Priority</option>
-                                <option value="8" <?php echo ($editTemplate && $editTemplate['priority_order'] == 8) ? 'selected' : ''; ?>>#8 - Eighth Priority</option>
-                                <option value="9" <?php echo ($editTemplate && $editTemplate['priority_order'] == 9) ? 'selected' : ''; ?>>#9 - Ninth Priority</option>
-                                <option value="10" <?php echo ($editTemplate && $editTemplate['priority_order'] == 10) ? 'selected' : ''; ?>>#10 - Tenth Priority</option>
+                                <?php
+                                $priorityLabels = [
+                                    1 => '⭐ #1 - Top Priority',
+                                    2 => '#2 - Second Priority',
+                                    3 => '#3 - Third Priority',
+                                    4 => '#4 - Fourth Priority',
+                                    5 => '#5 - Fifth Priority',
+                                    6 => '#6 - Sixth Priority',
+                                    7 => '#7 - Seventh Priority',
+                                    8 => '#8 - Eighth Priority',
+                                    9 => '#9 - Ninth Priority',
+                                    10 => '#10 - Tenth Priority'
+                                ];
+                                foreach ($priorityLabels as $num => $label):
+                                    $isSelected = ($editTemplate && $editTemplate['priority_order'] == $num);
+                                    $isUsed = isset($usedTemplatePriorities[$num]);
+                                    $usedByCurrentItem = $isUsed && $editTemplate && $usedTemplatePriorities[$num]['id'] == $editTemplate['id'];
+                                    $isDisabled = $isUsed && !$usedByCurrentItem;
+                                    $usedByName = $isUsed && !$usedByCurrentItem ? ' (Used by: ' . htmlspecialchars(substr($usedTemplatePriorities[$num]['name'], 0, 20)) . ')' : '';
+                                ?>
+                                <option value="<?php echo $num; ?>" <?php echo $isSelected ? 'selected' : ''; ?> <?php echo $isDisabled ? 'disabled' : ''; ?>>
+                                    <?php echo $label . $usedByName; ?>
+                                </option>
+                                <?php endforeach; ?>
                             </select>
-                            <small class="text-gray-500 text-xs mt-1 block">Select to feature this template in the top 10 displayed first</small>
+                            <small class="text-gray-500 text-xs mt-1 block">Select to feature this template in the top 10 displayed first. Disabled options are already in use by other templates.</small>
                         </div>
                         <div class="md:col-span-2">
                             <label class="flex items-center gap-2 cursor-pointer">

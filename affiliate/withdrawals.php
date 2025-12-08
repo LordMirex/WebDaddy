@@ -137,8 +137,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['request_withdrawal']
                     );
                 }
                 
-                // ✅ FIX: Refresh affiliate info to show updated balance
-                $affiliateInfo = getAffiliateInfo();
+                // ✅ FIX: Recalculate balance properly including the new pending withdrawal
+                // Re-fetch all the calculations (same logic as at the top of the page)
+                $stmtCommissionRefresh = $db->prepare("SELECT COALESCE(SUM(commission_amount), 0) as total_earned FROM sales WHERE affiliate_id = ?");
+                $stmtCommissionRefresh->execute([$affiliateId]);
+                $commissionDataRefresh = $stmtCommissionRefresh->fetch(PDO::FETCH_ASSOC);
+                
+                $stmtPaidRefresh = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_paid FROM withdrawal_requests WHERE affiliate_id = ? AND status = 'paid'");
+                $stmtPaidRefresh->execute([$affiliateId]);
+                $paidDataRefresh = $stmtPaidRefresh->fetch(PDO::FETCH_ASSOC);
+                
+                $stmtInProgressRefresh = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_in_progress FROM withdrawal_requests WHERE affiliate_id = ? AND status NOT IN ('paid', 'rejected')");
+                $stmtInProgressRefresh->execute([$affiliateId]);
+                $inProgressDataRefresh = $stmtInProgressRefresh->fetch(PDO::FETCH_ASSOC);
+                
+                $affiliateInfo['commission_earned'] = (float)$commissionDataRefresh['total_earned'];
+                $affiliateInfo['commission_paid'] = (float)$paidDataRefresh['total_paid'];
+                $affiliateInfo['withdrawal_in_progress'] = (float)$inProgressDataRefresh['total_in_progress'];
+                $affiliateInfo['commission_pending'] = $affiliateInfo['commission_earned'] - $affiliateInfo['commission_paid'] - $affiliateInfo['withdrawal_in_progress'];
                 
                 $success = 'Withdrawal request submitted successfully! Reference: WD#' . $withdrawalId . '. We will process it within 24-48 hours. Your new available balance is: ' . formatCurrency($affiliateInfo['commission_pending']);
             }

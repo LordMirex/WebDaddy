@@ -1914,9 +1914,8 @@ function cancelOrder($orderId, $reason = '', $adminId = null)
             throw new Exception('Failed to update order status');
         }
         
-        $itemsStmt = $db->prepare("UPDATE order_items SET status = 'cancelled' WHERE pending_order_id = ?");
-        $itemsStmt->execute([$orderId]);
-        $itemsAffected = $itemsStmt->rowCount();
+        // Note: order_items table doesn't have a status column - cancellation is tracked via pending_orders.status
+        // We just need to release domains and restore stock for cancelled orders
         
         $domainStmt = $db->prepare("
             UPDATE domains 

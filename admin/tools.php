@@ -488,6 +488,16 @@ $totalPages = ceil($totalTools / $perPage);
 $offset = ($page - 1) * $perPage;
 $tools = array_slice($tools, $offset, $perPage);
 
+// Fetch all used priorities for tools (excluding current tool if editing)
+$usedToolPriorities = [];
+$priorityQuery = $db->query("SELECT id, priority_order, name FROM tools WHERE priority_order IS NOT NULL AND priority_order > 0");
+while ($row = $priorityQuery->fetch(PDO::FETCH_ASSOC)) {
+    $usedToolPriorities[$row['priority_order']] = [
+        'id' => $row['id'],
+        'name' => $row['name']
+    ];
+}
+
 // Get tool for editing
 $editTool = null;
 if (isset($_GET['edit'])) {
@@ -616,6 +626,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Category</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Priority</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Files Ready</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Stock</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
@@ -625,7 +636,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-gray-200">
                     <?php if (empty($tools)): ?>
                     <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
                             <i class="bi bi-inbox text-4xl mb-2"></i>
                             <p>No tools found. Click "Add New Tool" to get started.</p>
                         </td>
@@ -667,6 +678,15 @@ require_once __DIR__ . '/includes/header.php';
                             </td>
                             <td class="px-6 py-4">
                                 <span class="font-semibold text-gray-900"><?php echo formatCurrency($tool['price']); ?></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <?php if (!empty($tool['priority_order']) && $tool['priority_order'] > 0): ?>
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                                    <i class="bi bi-star-fill"></i> #<?php echo $tool['priority_order']; ?>
+                                </span>
+                                <?php else: ?>
+                                <span class="text-gray-400 text-xs">-</span>
+                                <?php endif; ?>
                             </td>
                             <td class="px-6 py-4">
                                 <?php 
@@ -927,18 +947,29 @@ require_once __DIR__ . '/includes/header.php';
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 10 Featured)</label>
                         <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                             <option value="">None (Regular Listing)</option>
-                            <option value="1">⭐ #1 - Top Priority</option>
-                            <option value="2">#2 - Second Priority</option>
-                            <option value="3">#3 - Third Priority</option>
-                            <option value="4">#4 - Fourth Priority</option>
-                            <option value="5">#5 - Fifth Priority</option>
-                            <option value="6">#6 - Sixth Priority</option>
-                            <option value="7">#7 - Seventh Priority</option>
-                            <option value="8">#8 - Eighth Priority</option>
-                            <option value="9">#9 - Ninth Priority</option>
-                            <option value="10">#10 - Tenth Priority</option>
+                            <?php
+                            $createPriorityLabels = [
+                                1 => '⭐ #1 - Top Priority',
+                                2 => '#2 - Second Priority',
+                                3 => '#3 - Third Priority',
+                                4 => '#4 - Fourth Priority',
+                                5 => '#5 - Fifth Priority',
+                                6 => '#6 - Sixth Priority',
+                                7 => '#7 - Seventh Priority',
+                                8 => '#8 - Eighth Priority',
+                                9 => '#9 - Ninth Priority',
+                                10 => '#10 - Tenth Priority'
+                            ];
+                            foreach ($createPriorityLabels as $num => $label):
+                                $isUsed = isset($usedToolPriorities[$num]);
+                                $usedByName = $isUsed ? ' (Used by: ' . htmlspecialchars(substr($usedToolPriorities[$num]['name'], 0, 20)) . ')' : '';
+                            ?>
+                            <option value="<?php echo $num; ?>" <?php echo $isUsed ? 'disabled' : ''; ?>>
+                                <?php echo $label . $usedByName; ?>
+                            </option>
+                            <?php endforeach; ?>
                         </select>
-                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 10 displayed first</small>
+                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 10 displayed first. Disabled options are already in use.</small>
                     </div>
 
                     <div>
@@ -1120,18 +1151,32 @@ require_once __DIR__ . '/includes/header.php';
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Priority (Top 10 Featured)</label>
                         <select name="priority_order" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                             <option value="">None (Regular Listing)</option>
-                            <option value="1" <?php echo ($editTool && $editTool['priority_order'] == 1) ? 'selected' : ''; ?>>⭐ #1 - Top Priority</option>
-                            <option value="2" <?php echo ($editTool && $editTool['priority_order'] == 2) ? 'selected' : ''; ?>>#2 - Second Priority</option>
-                            <option value="3" <?php echo ($editTool && $editTool['priority_order'] == 3) ? 'selected' : ''; ?>>#3 - Third Priority</option>
-                            <option value="4" <?php echo ($editTool && $editTool['priority_order'] == 4) ? 'selected' : ''; ?>>#4 - Fourth Priority</option>
-                            <option value="5" <?php echo ($editTool && $editTool['priority_order'] == 5) ? 'selected' : ''; ?>>#5 - Fifth Priority</option>
-                            <option value="6" <?php echo ($editTool && $editTool['priority_order'] == 6) ? 'selected' : ''; ?>>#6 - Sixth Priority</option>
-                            <option value="7" <?php echo ($editTool && $editTool['priority_order'] == 7) ? 'selected' : ''; ?>>#7 - Seventh Priority</option>
-                            <option value="8" <?php echo ($editTool && $editTool['priority_order'] == 8) ? 'selected' : ''; ?>>#8 - Eighth Priority</option>
-                            <option value="9" <?php echo ($editTool && $editTool['priority_order'] == 9) ? 'selected' : ''; ?>>#9 - Ninth Priority</option>
-                            <option value="10" <?php echo ($editTool && $editTool['priority_order'] == 10) ? 'selected' : ''; ?>>#10 - Tenth Priority</option>
+                            <?php
+                            $editPriorityLabels = [
+                                1 => '⭐ #1 - Top Priority',
+                                2 => '#2 - Second Priority',
+                                3 => '#3 - Third Priority',
+                                4 => '#4 - Fourth Priority',
+                                5 => '#5 - Fifth Priority',
+                                6 => '#6 - Sixth Priority',
+                                7 => '#7 - Seventh Priority',
+                                8 => '#8 - Eighth Priority',
+                                9 => '#9 - Ninth Priority',
+                                10 => '#10 - Tenth Priority'
+                            ];
+                            foreach ($editPriorityLabels as $num => $label):
+                                $isSelected = ($editTool && $editTool['priority_order'] == $num);
+                                $isUsed = isset($usedToolPriorities[$num]);
+                                $usedByCurrentItem = $isUsed && $editTool && $usedToolPriorities[$num]['id'] == $editTool['id'];
+                                $isDisabled = $isUsed && !$usedByCurrentItem;
+                                $usedByName = $isUsed && !$usedByCurrentItem ? ' (Used by: ' . htmlspecialchars(substr($usedToolPriorities[$num]['name'], 0, 20)) . ')' : '';
+                            ?>
+                            <option value="<?php echo $num; ?>" <?php echo $isSelected ? 'selected' : ''; ?> <?php echo $isDisabled ? 'disabled' : ''; ?>>
+                                <?php echo $label . $usedByName; ?>
+                            </option>
+                            <?php endforeach; ?>
                         </select>
-                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 10 displayed first</small>
+                        <small class="text-gray-500 text-xs mt-1 block">Select to feature this tool in the top 10 displayed first. Disabled options are already in use.</small>
                     </div>
 
                     <div>
