@@ -575,14 +575,33 @@ if ($autoOpenTool) {
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                  onerror="this.src='/assets/images/placeholder.jpg'">
                             <?php 
-                            $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
+                            $mediaType = $template['media_type'] ?? 'banner';
+                            $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']) || !empty($template['preview_youtube']);
+                            $isYoutube = ($mediaType === 'youtube' && !empty($template['preview_youtube']));
+                            $isVideo = ($mediaType === 'video' && !empty($template['demo_video_url']));
+                            $isDemoUrl = ($mediaType === 'demo_url' && !empty($template['demo_url']));
+                            
                             if ($hasDemo):
-                                $demoUrl = !empty($template['demo_video_url']) ? $template['demo_video_url'] : $template['demo_url'];
-                                $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $demoUrl);
-                                $isVideo = $hasVideoExtension;
                             ?>
-                            <?php if ($isVideo): ?>
-                            <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            <?php if ($isYoutube): ?>
+                            <button onclick="event.stopPropagation(); openYoutubeModal('<?php echo htmlspecialchars($template['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                    class="absolute top-2 right-2 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M23.5 6.2c-.3-1-1-1.8-2-2.1C19.8 3.5 12 3.5 12 3.5s-7.8 0-9.5.5c-1 .3-1.7 1.1-2 2.1C0 7.9 0 12 0 12s0 4.1.5 5.8c.3 1 1 1.8 2 2.1 1.7.6 9.5.6 9.5.6s7.8 0 9.5-.5c1-.3 1.7-1.1 2-2.1.5-1.7.5-5.8.5-5.8s0-4.1-.5-5.9zM9.5 15.5v-7l6.4 3.5-6.4 3.5z"/>
+                                </svg>
+                                YouTube
+                            </button>
+                            <button onclick="openYoutubeModal('<?php echo htmlspecialchars($template['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                    class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M23.5 6.2c-.3-1-1-1.8-2-2.1C19.8 3.5 12 3.5 12 3.5s-7.8 0-9.5.5c-1 .3-1.7 1.1-2 2.1C0 7.9 0 12 0 12s0 4.1.5 5.8c.3 1 1 1.8 2 2.1 1.7.6 9.5.6 9.5.6s7.8 0 9.5-.5c1-.3 1.7-1.1 2-2.1.5-1.7.5-5.8.5-5.8s0-4.1-.5-5.9zM9.5 15.5v-7l6.4 3.5-6.4 3.5z"/>
+                                    </svg>
+                                    Watch Demo
+                                </span>
+                            </button>
+                            <?php elseif ($isVideo): ?>
+                            <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
@@ -590,16 +609,9 @@ if ($autoOpenTool) {
                                 </svg>
                                 Video
                             </button>
-                            <?php else: ?>
-                            <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
-                                Preview
-                            </button>
-                            <?php endif; ?>
-                            <?php if ($isVideo): ?>
-                            <button onclick="openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            <button onclick="openVideoModal('<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     data-video-trigger
-                                    data-video-url="<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>"
+                                    data-video-url="<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>"
                                     data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>"
                                     class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
@@ -610,8 +622,12 @@ if ($autoOpenTool) {
                                     Watch Demo
                                 </span>
                             </button>
-                            <?php else: ?>
-                            <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
+                            <?php elseif ($isDemoUrl): ?>
+                            <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                Preview
+                            </button>
+                            <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
                                     class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -750,7 +766,18 @@ if ($autoOpenTool) {
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                              onerror="this.src='/assets/images/placeholder.jpg'">
-                        <?php if (!empty($tool['demo_video_url'])): ?>
+                        <?php 
+                        $toolMediaType = $tool['media_type'] ?? 'banner';
+                        if ($toolMediaType === 'youtube' && !empty($tool['preview_youtube'])): 
+                        ?>
+                        <button onclick="openYoutubeModal('<?php echo htmlspecialchars($tool['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
+                                class="absolute top-2 left-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.5 6.2c-.3-1-1-1.8-2-2.1C19.8 3.5 12 3.5 12 3.5s-7.8 0-9.5.5c-1 .3-1.7 1.1-2 2.1C0 7.9 0 12 0 12s0 4.1.5 5.8c.3 1 1 1.8 2 2.1 1.7.6 9.5.6 9.5.6s7.8 0 9.5-.5c1-.3 1.7-1.1 2-2.1.5-1.7.5-5.8.5-5.8s0-4.1-.5-5.9zM9.5 15.5v-7l6.4 3.5-6.4 3.5z"/>
+                            </svg>
+                            YouTube
+                        </button>
+                        <?php elseif ($toolMediaType === 'video' && !empty($tool['demo_video_url'])): ?>
                         <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
                                 class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">

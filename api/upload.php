@@ -4,17 +4,41 @@
  * Handles AJAX file upload requests from admin panel
  */
 
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/db.php';
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../admin/includes/auth.php';
-require_once __DIR__ . '/../includes/upload_handler.php';
-require_once __DIR__ . '/../includes/thumbnail_generator.php';
-require_once __DIR__ . '/../includes/utilities.php';
+// Start output buffering to catch any stray output
+ob_start();
 
-// Set JSON response header
+// Suppress all error display - we'll handle them ourselves
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Set JSON response header first
 header('Content-Type: application/json');
+
+// Clean any buffered output before our includes
+ob_clean();
+
+try {
+    require_once __DIR__ . '/../includes/config.php';
+    require_once __DIR__ . '/../includes/db.php';
+    require_once __DIR__ . '/../includes/session.php';
+    require_once __DIR__ . '/../includes/functions.php';
+    require_once __DIR__ . '/../admin/includes/auth.php';
+    require_once __DIR__ . '/../includes/upload_handler.php';
+    require_once __DIR__ . '/../includes/thumbnail_generator.php';
+    require_once __DIR__ . '/../includes/utilities.php';
+} catch (Throwable $e) {
+    // Clear any buffered output
+    ob_end_clean();
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Server initialization error: ' . $e->getMessage()
+    ]);
+    exit;
+}
+
+// Clear any output from includes
+ob_clean();
 
 // Start session
 startSecureSession();
@@ -139,6 +163,9 @@ try {
     error_log('Upload API Error: ' . $e->getMessage());
     error_log('Upload API Stack Trace: ' . $e->getTraceAsString());
     
+    // Clear any buffered output
+    ob_end_clean();
+    
     http_response_code(400);
     echo json_encode([
         'success' => false,
@@ -148,4 +175,21 @@ try {
             'line' => $e->getLine()
         ]
     ]);
+} catch (Throwable $e) {
+    // Catch any other errors (including fatal errors in PHP 7+)
+    error_log('Upload API Fatal Error: ' . $e->getMessage());
+    
+    // Clear any buffered output
+    ob_end_clean();
+    
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'error' => 'Server error: ' . $e->getMessage()
+    ]);
+}
+
+// Clean up output buffer at end
+if (ob_get_level() > 0) {
+    ob_end_flush();
 }

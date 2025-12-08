@@ -216,10 +216,45 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
             <div class="lg:col-span-2">
                 <div class="mb-8">
+                    <?php 
+                    $mediaType = $tool['media_type'] ?? 'banner';
+                    $hasVideoPreview = ($mediaType === 'video' && !empty($tool['demo_video_url']));
+                    $hasYoutubePreview = ($mediaType === 'youtube' && !empty($tool['preview_youtube']));
+                    $hasDemoUrlPreview = ($mediaType === 'demo_url' && !empty($tool['demo_url']));
+                    ?>
+                    
+                    <?php if ($hasVideoPreview || $hasYoutubePreview || $hasDemoUrlPreview): ?>
+                    <div class="relative cursor-pointer group video-preview-container" 
+                         onclick="<?php 
+                             if ($hasYoutubePreview) {
+                                 echo "openYoutubeModal('" . htmlspecialchars($tool['preview_youtube'], ENT_QUOTES) . "', '" . htmlspecialchars($tool['name'], ENT_QUOTES) . "')";
+                             } elseif ($hasVideoPreview) {
+                                 echo "openVideoModal('" . htmlspecialchars($tool['demo_video_url'], ENT_QUOTES) . "', '" . htmlspecialchars($tool['name'], ENT_QUOTES) . "')";
+                             } else {
+                                 echo "openDemoModal('" . htmlspecialchars($tool['demo_url'], ENT_QUOTES) . "', '" . htmlspecialchars($tool['name'], ENT_QUOTES) . "')";
+                             }
+                         ?>">
+                        <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
+                             alt="<?php echo htmlspecialchars($tool['name']); ?>" 
+                             class="w-full rounded-xl shadow-2xl"
+                             onerror="this.src='/assets/images/placeholder.jpg'">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all rounded-xl">
+                            <div class="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                                <svg class="w-10 h-10 text-purple-600 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-lg text-sm font-medium">
+                            <?php echo $hasYoutubePreview ? 'Watch on YouTube' : ($hasVideoPreview ? 'Watch Preview' : 'View Demo'); ?>
+                        </div>
+                    </div>
+                    <?php else: ?>
                     <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($tool['name']); ?>" 
                          class="w-full rounded-xl shadow-2xl"
                          onerror="this.src='/assets/images/placeholder.jpg'">
+                    <?php endif; ?>
                 </div>
 
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 p-6 sm:p-8 mb-8">
@@ -310,5 +345,22 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
             </div>
         </div>
     </div>
+
+    <div id="video-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/90" onclick="closeVideoModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="relative w-full max-w-5xl bg-black rounded-xl overflow-hidden shadow-2xl">
+                <button onclick="closeVideoModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 z-10">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                <div id="video-modal-content" class="aspect-video bg-black">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/video-modal.js"></script>
 </body>
 </html>

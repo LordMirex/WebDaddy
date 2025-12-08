@@ -46,6 +46,74 @@ function truncateText($text, $length = 50)
     return substr($text, 0, $length) . '...';
 }
 
+/**
+ * Extract YouTube video ID from various URL formats or raw ID
+ * Supports: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/embed/ID, or just ID
+ * 
+ * @param string $input YouTube URL or video ID
+ * @return string|null Video ID or null if invalid
+ */
+function extractYoutubeVideoId($input)
+{
+    if (empty($input)) {
+        return null;
+    }
+    
+    $input = trim($input);
+    
+    // If it's already just a video ID (11 chars, alphanumeric + dash/underscore)
+    if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $input)) {
+        return $input;
+    }
+    
+    // Try to extract from URL patterns
+    $patterns = [
+        '/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/',
+        '/^https?:\/\/(?:www\.)?youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/',
+    ];
+    
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $input, $matches)) {
+            return $matches[1];
+        }
+    }
+    
+    return null;
+}
+
+/**
+ * Build YouTube embed URL with optimal parameters
+ * 
+ * @param string $videoId YouTube video ID
+ * @param bool $autoplay Whether to autoplay
+ * @return string Full embed URL
+ */
+function buildYoutubeEmbedUrl($videoId, $autoplay = true)
+{
+    if (empty($videoId)) {
+        return '';
+    }
+    
+    $params = [
+        'mute' => 1,
+        'loop' => 1,
+        'playlist' => $videoId,
+        'controls' => 1,
+        'modestbranding' => 1,
+        'rel' => 0,
+        'showinfo' => 0,
+        'iv_load_policy' => 3,
+        'playsinline' => 1,
+        'start' => 0
+    ];
+    
+    if ($autoplay) {
+        $params['autoplay'] = 1;
+    }
+    
+    return 'https://www.youtube-nocookie.com/embed/' . $videoId . '?' . http_build_query($params);
+}
+
 function getRelativeTime($datetime)
 {
     $timestamp = strtotime($datetime);

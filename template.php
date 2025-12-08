@@ -285,32 +285,59 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                 // Determine media type - use media_type column or fallback to legacy detection
                 $mediaType = $template['media_type'] ?? 'banner'; // Default to banner if not set
                 $mediaUrl = null;
+                $youtubeId = null;
                 
                 if ($mediaType === 'demo_url' && !empty($template['demo_url'])) {
                     $mediaUrl = $template['demo_url'];
                 } elseif ($mediaType === 'video' && !empty($template['demo_video_url'])) {
                     $mediaUrl = $template['demo_video_url'];
+                } elseif ($mediaType === 'youtube' && !empty($template['preview_youtube'])) {
+                    $youtubeId = $template['preview_youtube'];
                 }
                 
-                // Only show preview section if media type is demo_url or video
-                if (($mediaType === 'demo_url' || $mediaType === 'video') && $mediaUrl): 
+                // Only show preview section if media type is demo_url, video, or youtube
+                if (($mediaType === 'demo_url' && $mediaUrl) || ($mediaType === 'video' && $mediaUrl) || ($mediaType === 'youtube' && $youtubeId)): 
                 ?>
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-8 overflow-hidden">
                     <div class="bg-gray-900 border-b border-gray-700 p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                         <h5 class="text-lg font-bold text-white flex items-center">
+                            <?php if ($mediaType === 'youtube'): ?>
+                            <svg class="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.5 6.2c-.3-1-1-1.8-2-2.1C19.8 3.5 12 3.5 12 3.5s-7.8 0-9.5.5c-1 .3-1.7 1.1-2 2.1C0 7.9 0 12 0 12s0 4.1.5 5.8c.3 1 1 1.8 2 2.1 1.7.6 9.5.6 9.5.6s7.8 0 9.5-.5c1-.3 1.7-1.1 2-2.1.5-1.7.5-5.8.5-5.8s0-4.1-.5-5.9zM9.5 15.5v-7l6.4 3.5-6.4 3.5z"/>
+                            </svg>
+                            YouTube Demo
+                            <?php elseif ($mediaType === 'video'): ?>
                             <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <?php if ($mediaType === 'video'): ?>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                <?php else: ?>
+                            </svg>
+                            Demo Video
+                            <?php else: ?>
+                            <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                <?php endif; ?>
                             </svg>
-                            <?php echo $mediaType === 'video' ? 'Demo Video' : 'Live Preview'; ?>
+                            Live Preview
+                            <?php endif; ?>
                         </h5>
                         <div class="flex gap-2">
-                            <?php if ($mediaType === 'video'): ?>
+                            <?php if ($mediaType === 'youtube'): ?>
+                                <button onclick="openYoutubeModal('<?php echo htmlspecialchars($youtubeId, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M23.5 6.2c-.3-1-1-1.8-2-2.1C19.8 3.5 12 3.5 12 3.5s-7.8 0-9.5.5c-1 .3-1.7 1.1-2 2.1C0 7.9 0 12 0 12s0 4.1.5 5.8c.3 1 1 1.8 2 2.1 1.7.6 9.5.6 9.5.6s7.8 0 9.5-.5c1-.3 1.7-1.1 2-2.1.5-1.7.5-5.8.5-5.8s0-4.1-.5-5.9zM9.5 15.5v-7l6.4 3.5-6.4 3.5z"/>
+                                    </svg>
+                                    Watch Demo
+                                </button>
+                                <a href="https://youtube.com/watch?v=<?php echo htmlspecialchars($youtubeId); ?>" 
+                                   target="_blank" 
+                                   class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                    Open on YouTube
+                                </a>
+                            <?php elseif ($mediaType === 'video'): ?>
                                 <button onclick="openVideoModal('<?php echo htmlspecialchars($mediaUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors"
                                         data-video-trigger
@@ -322,15 +349,24 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                                     </svg>
                                     Watch Demo
                                 </button>
+                                <a href="<?php echo htmlspecialchars($mediaUrl); ?>" 
+                                   target="_blank" 
+                                   class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                    Open in New Tab
+                                </a>
+                            <?php else: ?>
+                                <a href="<?php echo htmlspecialchars($mediaUrl); ?>" 
+                                   target="_blank" 
+                                   class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                    Open in New Tab
+                                </a>
                             <?php endif; ?>
-                            <a href="<?php echo htmlspecialchars($mediaUrl); ?>" 
-                               target="_blank" 
-                               class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                </svg>
-                                <?php echo $mediaType === 'video' ? 'Open in New Tab' : 'Open in New Tab'; ?>
-                            </a>
                         </div>
                     </div>
                     <?php if ($mediaType === 'demo_url'): ?>
@@ -338,6 +374,15 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                         <iframe src="<?php echo htmlspecialchars($mediaUrl); ?>" 
                                 class="w-full h-full border-0"
                                 loading="lazy">
+                        </iframe>
+                    </div>
+                    <?php elseif ($mediaType === 'youtube'): ?>
+                    <div class="aspect-video">
+                        <iframe src="https://www.youtube-nocookie.com/embed/<?php echo htmlspecialchars($youtubeId); ?>?rel=0&modestbranding=1" 
+                                class="w-full h-full border-0"
+                                loading="lazy"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
                         </iframe>
                     </div>
                     <?php endif; ?>

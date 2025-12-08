@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
         $demoUrl = null;
         $demoVideoUrl = null;
+        $previewYoutube = null;
         $mediaType = 'banner';
         
         if ($videoType === 'demo_url') {
@@ -48,6 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
             $demoVideoUrl = UrlUtils::normalizeUploadUrl($uploadedVideoUrl);
             $mediaType = 'video';
+        } elseif ($videoType === 'youtube') {
+            $youtubeInput = sanitizeInput($_POST['youtube_url_input'] ?? '');
+            $previewYoutube = extractYoutubeVideoId($youtubeInput);
+            $mediaType = 'youtube';
         }
         
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
@@ -62,6 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errorMessage = 'Name and price are required.';
         } elseif (empty($thumbnailUrl)) {
             $errorMessage = 'Product banner image is required.';
+        } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
+            $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
         } else {
             try {
                 $slug = generateToolSlug($name);
@@ -80,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'media_type' => $mediaType,
                     'demo_url' => $demoUrl,
                     'demo_video_url' => $demoVideoUrl,
+                    'preview_youtube' => $previewYoutube,
                     'delivery_instructions' => $deliveryInstructions,
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
@@ -118,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
         $demoUrl = null;
         $demoVideoUrl = null;
+        $previewYoutube = null;
         $mediaType = 'banner';
         
         if ($videoType === 'demo_url') {
@@ -127,6 +136,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
             $demoVideoUrl = UrlUtils::normalizeUploadUrl($uploadedVideoUrl);
             $mediaType = 'video';
+        } elseif ($videoType === 'youtube') {
+            $youtubeInput = sanitizeInput($_POST['youtube_url_input'] ?? '');
+            $previewYoutube = extractYoutubeVideoId($youtubeInput);
+            $mediaType = 'youtube';
         }
         
         $deliveryInstructions = trim($_POST['delivery_instructions'] ?? '');
@@ -141,6 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errorMessage = 'Name and price are required.';
         } elseif (empty($thumbnailUrl)) {
             $errorMessage = 'Product banner image is required.';
+        } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
+            $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
         } else {
             try {
                 $slug = generateToolSlug($name, $toolId);
@@ -159,6 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'media_type' => $mediaType,
                     'demo_url' => $demoUrl,
                     'demo_video_url' => $demoVideoUrl,
+                    'preview_youtube' => $previewYoutube,
                     'delivery_instructions' => $deliveryInstructions,
                     'stock_unlimited' => $stockUnlimited,
                     'stock_quantity' => $stockQuantity,
@@ -870,7 +886,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
                         <p class="text-xs text-gray-500 mb-3">Add a video preview or demo link for customers to see your tool in action.</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                             <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-none-label-create">
                                 <input type="radio" name="video_type" value="none" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600" checked>
                                 <span class="font-medium text-sm">🚫 None</span>
@@ -878,6 +894,10 @@ require_once __DIR__ . '/includes/header.php';
                             <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-video-label-create">
                                 <input type="radio" name="video_type" value="video" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600">
                                 <span class="font-medium text-sm">🎥 Video</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-youtube-label-create">
+                                <input type="radio" name="video_type" value="youtube" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600">
+                                <span class="font-medium text-sm">📺 YouTube</span>
                             </label>
                             <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-demo-url-label-create">
                                 <input type="radio" name="video_type" value="demo_url" onchange="handleToolVideoTypeChange('create')" class="w-4 h-4 text-purple-600">
@@ -903,7 +923,13 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </div>
                         <input type="hidden" name="demo_video_uploaded_url" id="tool-video-uploaded-url-create" value="">
-                        <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
+                        <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 500MB)</small>
+                    </div>
+                    
+                    <div id="tool-youtube-section-create" class="md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">YouTube Video URL or ID</label>
+                        <input type="text" name="youtube_url_input" id="tool-youtube-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="https://youtube.com/watch?v=... or just the video ID">
+                        <small class="text-gray-500 text-xs mt-1 block">Paste any YouTube URL or video ID. Unlisted videos work too! (Fastest loading option)</small>
                     </div>
                     
                     <div id="tool-demo-url-section-create" class="md:col-span-2" style="display: none;">
@@ -1076,17 +1102,21 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
                         <p class="text-xs text-gray-500 mb-3">Add a video preview or demo link for customers to see your tool in action.</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                             <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-none-label-edit">
-                                <input type="radio" name="video_type" value="none" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo (!$editTool || (!$editTool['demo_url'] && !$editTool['demo_video_url'])) ? 'checked' : ''; ?>>
+                                <input type="radio" name="video_type" value="none" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo (!$editTool || ($editTool['media_type'] ?? 'banner') === 'banner') ? 'checked' : ''; ?>>
                                 <span class="font-medium text-sm">🚫 None</span>
                             </label>
                             <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-video-label-edit">
-                                <input type="radio" name="video_type" value="video" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && $editTool['demo_video_url']) ? 'checked' : ''; ?>>
+                                <input type="radio" name="video_type" value="video" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && ($editTool['media_type'] ?? '') === 'video') ? 'checked' : ''; ?>>
                                 <span class="font-medium text-sm">🎥 Video</span>
                             </label>
+                            <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-youtube-label-edit">
+                                <input type="radio" name="video_type" value="youtube" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && ($editTool['media_type'] ?? '') === 'youtube') ? 'checked' : ''; ?>>
+                                <span class="font-medium text-sm">📺 YouTube</span>
+                            </label>
                             <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-purple-400" id="tool-video-type-demo-url-label-edit">
-                                <input type="radio" name="video_type" value="demo_url" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && $editTool['demo_url']) ? 'checked' : ''; ?>>
+                                <input type="radio" name="video_type" value="demo_url" onchange="handleToolVideoTypeChange('edit')" class="w-4 h-4 text-purple-600" <?php echo ($editTool && ($editTool['media_type'] ?? '') === 'demo_url') ? 'checked' : ''; ?>>
                                 <span class="font-medium text-sm">🌐 Demo URL</span>
                             </label>
                         </div>
@@ -1109,7 +1139,13 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </div>
                         <input type="hidden" name="demo_video_uploaded_url" id="tool-video-uploaded-url-edit" value="<?php echo htmlspecialchars($editTool['demo_video_url'] ?? ''); ?>">
-                        <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
+                        <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 500MB)</small>
+                    </div>
+                    
+                    <div id="tool-youtube-section-edit" class="md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">YouTube Video URL or ID</label>
+                        <input type="text" name="youtube_url_input" id="tool-youtube-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTool['preview_youtube'] ?? ''); ?>" placeholder="https://youtube.com/watch?v=... or just the video ID">
+                        <small class="text-gray-500 text-xs mt-1 block">Paste any YouTube URL or video ID. Unlisted videos work too! (Fastest loading option)</small>
                     </div>
                     
                     <div id="tool-demo-url-section-edit" class="md:col-span-2" style="display: none;">
@@ -1699,6 +1735,7 @@ if (editForm) {
 function handleToolVideoTypeChange(formType) {
     const noneLabel = document.getElementById(`tool-video-type-none-label-${formType}`);
     const videoLabel = document.getElementById(`tool-video-type-video-label-${formType}`);
+    const youtubeLabel = document.getElementById(`tool-video-type-youtube-label-${formType}`);
     const demoUrlLabel = document.getElementById(`tool-video-type-demo-url-label-${formType}`);
     
     if (!noneLabel || !videoLabel || !demoUrlLabel) {
@@ -1708,23 +1745,29 @@ function handleToolVideoTypeChange(formType) {
     
     const noneRadio = noneLabel.querySelector('input[type="radio"]');
     const videoRadio = videoLabel.querySelector('input[type="radio"]');
+    const youtubeRadio = youtubeLabel ? youtubeLabel.querySelector('input[type="radio"]') : null;
     const demoUrlRadio = demoUrlLabel.querySelector('input[type="radio"]');
     
     let selectedType = 'none';
     if (videoRadio && videoRadio.checked) {
         selectedType = 'video';
+    } else if (youtubeRadio && youtubeRadio.checked) {
+        selectedType = 'youtube';
     } else if (demoUrlRadio && demoUrlRadio.checked) {
         selectedType = 'demo_url';
     }
     
     const demoUrlSection = document.getElementById(`tool-demo-url-section-${formType}`);
     const videoUploadSection = document.getElementById(`tool-video-upload-section-${formType}`);
+    const youtubeSection = document.getElementById(`tool-youtube-section-${formType}`);
     
     demoUrlSection.style.display = 'none';
     videoUploadSection.style.display = 'none';
+    if (youtubeSection) youtubeSection.style.display = 'none';
     
     noneLabel.classList.remove('border-purple-600', 'bg-purple-50');
     videoLabel.classList.remove('border-purple-600', 'bg-purple-50');
+    if (youtubeLabel) youtubeLabel.classList.remove('border-purple-600', 'bg-purple-50');
     demoUrlLabel.classList.remove('border-purple-600', 'bg-purple-50');
     
     if (selectedType === 'demo_url') {
@@ -1733,6 +1776,9 @@ function handleToolVideoTypeChange(formType) {
     } else if (selectedType === 'video') {
         videoUploadSection.style.display = 'block';
         videoLabel.classList.add('border-purple-600', 'bg-purple-50');
+    } else if (selectedType === 'youtube') {
+        if (youtubeSection) youtubeSection.style.display = 'block';
+        if (youtubeLabel) youtubeLabel.classList.add('border-purple-600', 'bg-purple-50');
     } else {
         noneLabel.classList.add('border-purple-600', 'bg-purple-50');
     }

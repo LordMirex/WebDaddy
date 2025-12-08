@@ -625,6 +625,220 @@ window.closeVideoModal = function() {
     }
 };
 
+// YouTube Modal Class - Premium YouTube video preview with same UX as video modal
+class YouTubeModal {
+    constructor() {
+        this.modal = null;
+        this.iframe = null;
+        this.isOpen = false;
+        this.overlayTimeout = null;
+        this.instructionInterval = null;
+        this.loadingInstructions = [
+            { title: "Please be patient...", text: "YouTube video is loading" },
+            { title: "Almost there!", text: "Connecting to YouTube" },
+            { title: "Tip: Click to pause/play", text: "Interactive controls available" },
+            { title: "Tip: Click speaker icon", text: "Unmute to hear audio" },
+            { title: "Loading complete!", text: "Starting playback..." }
+        ];
+        this.currentInstructionIndex = 0;
+        this.init();
+    }
+
+    init() {
+        this.createModal();
+        this.attachEvents();
+    }
+
+    createModal() {
+        const modalHTML = `
+            <div id="youtubeModal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="youtubeModalTitle">
+                <div class="flex items-center justify-center min-h-screen px-4 py-8">
+                    <div class="fixed inset-0 bg-black transition-opacity duration-300" 
+                         style="opacity: 0.95;" 
+                         data-youtube-backdrop></div>
+                    
+                    <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
+                         style="max-width: 95vw; max-height: 90vh; min-height: 60vh; display: flex; flex-direction: column; width: 90vw;"
+                         data-youtube-container>
+                        
+                        <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-gray-900/90 backdrop-blur-sm rounded-t-xl border-b border-gray-700">
+                            <h5 id="youtubeModalTitle" class="text-base sm:text-lg font-bold text-white truncate pr-4">Video Preview</h5>
+                            <button data-close-youtube-modal 
+                                    class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-gray-800"
+                                    aria-label="Close YouTube modal">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; aspect-ratio: 16/9;">
+                            <div data-youtube-loader class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black z-30">
+                                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-red-500 mb-6"></div>
+                                <div data-loading-instruction class="text-white text-center px-6 transition-opacity duration-500">
+                                    <p class="text-lg sm:text-xl font-semibold mb-2">Please be patient...</p>
+                                    <p class="text-sm sm:text-base text-gray-300">YouTube video is loading</p>
+                                </div>
+                            </div>
+                            
+                            <iframe id="youtubeModalFrame" 
+                                   class="w-full h-full border-0"
+                                   style="position: relative; z-index: 1;"
+                                   loading="lazy"
+                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                   allowfullscreen>
+                            </iframe>
+                            
+                            <div data-youtube-error class="hidden absolute inset-0 flex items-center justify-center bg-gray-900 text-white p-6">
+                                <div class="text-center max-w-md">
+                                    <svg class="w-16 h-16 mx-auto mb-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <h3 class="text-xl font-bold mb-2">Video Unavailable</h3>
+                                    <p class="text-gray-400">Unable to load YouTube video. Please try again later.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        
+        this.modal = document.getElementById('youtubeModal');
+        this.iframe = document.getElementById('youtubeModalFrame');
+        this.loader = this.modal.querySelector('[data-youtube-loader]');
+        this.errorContainer = this.modal.querySelector('[data-youtube-error]');
+    }
+
+    attachEvents() {
+        this.modal.querySelector('[data-close-youtube-modal]').addEventListener('click', () => this.close());
+        this.modal.querySelector('[data-youtube-backdrop]').addEventListener('click', () => this.close());
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+                this.close();
+            }
+        });
+    }
+
+    open(videoId, title = 'Video Preview') {
+        if (!videoId) {
+            console.error('YouTubeModal: No video ID provided');
+            return;
+        }
+        
+        console.log('Opening YouTube modal:', videoId, title);
+        
+        this.modal.querySelector('#youtubeModalTitle').textContent = title;
+        
+        this.loader.style.display = 'flex';
+        this.errorContainer.classList.add('hidden');
+        
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&start=0`;
+        this.iframe.src = embedUrl;
+        
+        this.modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        this.isOpen = true;
+        
+        this.startInstructionRotation();
+        
+        this.overlayTimeout = setTimeout(() => {
+            this.loader.style.display = 'none';
+            this.clearInstructionInterval();
+        }, 5000);
+    }
+    
+    startInstructionRotation() {
+        this.currentInstructionIndex = 0;
+        const instructionDiv = this.loader.querySelector('[data-loading-instruction]');
+        
+        this.instructionInterval = setInterval(() => {
+            this.currentInstructionIndex++;
+            if (this.currentInstructionIndex >= this.loadingInstructions.length) {
+                this.currentInstructionIndex = 0;
+            }
+            
+            const instruction = this.loadingInstructions[this.currentInstructionIndex];
+            instructionDiv.style.opacity = '0';
+            
+            setTimeout(() => {
+                instructionDiv.innerHTML = `
+                    <p class="text-lg sm:text-xl font-semibold mb-2">${instruction.title}</p>
+                    <p class="text-sm sm:text-base text-gray-300">${instruction.text}</p>
+                `;
+                instructionDiv.style.opacity = '1';
+            }, 300);
+        }, 2000);
+    }
+    
+    clearInstructionInterval() {
+        if (this.instructionInterval) {
+            clearInterval(this.instructionInterval);
+            this.instructionInterval = null;
+        }
+    }
+
+    close() {
+        this.modal.classList.add('hidden');
+        this.iframe.src = '';
+        document.body.style.overflow = '';
+        this.isOpen = false;
+        
+        if (this.overlayTimeout) {
+            clearTimeout(this.overlayTimeout);
+            this.overlayTimeout = null;
+        }
+        
+        this.clearInstructionInterval();
+        console.log('YouTube modal closed');
+    }
+}
+
+// Initialize YouTube modal
+function initYoutubeModal() {
+    if (!window.youtubeModal) {
+        window.youtubeModal = new YouTubeModal();
+        console.log('YouTubeModal initialized');
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initYoutubeModal);
+} else {
+    initYoutubeModal();
+}
+
+// Global function for opening YouTube modal
+window.openYoutubeModal = function(videoIdOrUrl, title) {
+    if (!window.youtubeModal) {
+        initYoutubeModal();
+    }
+    
+    let videoId = videoIdOrUrl;
+    if (videoIdOrUrl && videoIdOrUrl.includes('youtube') || videoIdOrUrl.includes('youtu.be')) {
+        const match = videoIdOrUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+        if (match) {
+            videoId = match[1];
+        }
+    }
+    
+    if (window.youtubeModal && videoId) {
+        window.youtubeModal.open(videoId, title);
+    } else {
+        console.error('YouTubeModal: Invalid video ID');
+    }
+};
+
+// Global function for closing YouTube modal
+window.closeYoutubeModal = function() {
+    if (window.youtubeModal) {
+        window.youtubeModal.close();
+    }
+};
+
 class DemoModal {
     constructor() {
         this.modal = null;

@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
             $demoUrl = null;
             $demoVideoUrl = null;
+            $previewYoutube = null;
             $mediaType = 'banner';
             
             if ($videoType === 'demo_url') {
@@ -45,6 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $uploadedVideoUrl = sanitizeInput($_POST['demo_video_uploaded_url'] ?? '');
                 $demoVideoUrl = UrlUtils::normalizeUploadUrl($uploadedVideoUrl);
                 $mediaType = 'video';
+            } elseif ($videoType === 'youtube') {
+                $youtubeInput = sanitizeInput($_POST['youtube_url_input'] ?? '');
+                $previewYoutube = extractYoutubeVideoId($youtubeInput);
+                $mediaType = 'youtube';
             }
             
             $active = isset($_POST['active']) ? 1 : 0;
@@ -53,17 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if (empty($name) || empty($slug)) {
                 $errorMessage = 'Template name and slug are required.';
+            } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
+                $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
             } else {
                 try {
                     if ($action === 'add') {
                         $stmt = $db->prepare("
-                            INSERT INTO templates (name, slug, price, category, description, features, seo_keywords, media_type, demo_url, demo_video_url, thumbnail_url, active, priority_order)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO templates (name, slug, price, category, description, features, seo_keywords, media_type, demo_url, demo_video_url, preview_youtube, thumbnail_url, active, priority_order)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $seoKeywords, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $seoKeywords, $mediaType, $demoUrl, $demoVideoUrl, $previewYoutube, $thumbnailUrl, $active, $priorityOrder]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -75,13 +82,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $id = intval($_POST['id']);
                         $stmt = $db->prepare("
                             UPDATE templates 
-                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, seo_keywords = ?, media_type = ?, demo_url = ?, demo_video_url = ?, thumbnail_url = ?, active = ?, priority_order = ?
+                            SET name = ?, slug = ?, price = ?, category = ?, description = ?, features = ?, seo_keywords = ?, media_type = ?, demo_url = ?, demo_video_url = ?, preview_youtube = ?, thumbnail_url = ?, active = ?, priority_order = ?
                             WHERE id = ?
                         ");
                         if ($stmt === false) {
                             throw new PDOException('Failed to prepare statement');
                         }
-                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $seoKeywords, $mediaType, $demoUrl, $demoVideoUrl, $thumbnailUrl, $active, $priorityOrder, $id]);
+                        $result = $stmt->execute([$name, $slug, $price, $category, $description, $features, $seoKeywords, $mediaType, $demoUrl, $demoVideoUrl, $previewYoutube, $thumbnailUrl, $active, $priorityOrder, $id]);
                         if ($result === false) {
                             throw new PDOException('Failed to execute statement');
                         }
@@ -478,17 +485,21 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Preview/Demo (Optional)</label>
                             <p class="text-xs text-gray-500 mb-3">Add a video preview or demo website link for customers to see your template in action.</p>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-none-label">
-                                    <input type="radio" name="video_type" value="none" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo (!$editTemplate || (!$editTemplate['demo_url'] && !$editTemplate['demo_video_url'])) ? 'checked' : ''; ?>>
+                                    <input type="radio" name="video_type" value="none" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo (!$editTemplate || ($editTemplate['media_type'] ?? 'banner') === 'banner') ? 'checked' : ''; ?>>
                                     <span class="font-medium text-sm">🚫 None</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-video-label">
-                                    <input type="radio" name="video_type" value="video" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['demo_video_url']) ? 'checked' : ''; ?>>
+                                    <input type="radio" name="video_type" value="video" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && ($editTemplate['media_type'] ?? '') === 'video') ? 'checked' : ''; ?>>
                                     <span class="font-medium text-sm">🎥 Video</span>
                                 </label>
+                                <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-youtube-label">
+                                    <input type="radio" name="video_type" value="youtube" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && ($editTemplate['media_type'] ?? '') === 'youtube') ? 'checked' : ''; ?>>
+                                    <span class="font-medium text-sm">📺 YouTube</span>
+                                </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-demo-url-label">
-                                    <input type="radio" name="video_type" value="demo_url" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && $editTemplate['demo_url']) ? 'checked' : ''; ?>>
+                                    <input type="radio" name="video_type" value="demo_url" onchange="handleVideoTypeChange()" class="w-4 h-4 text-primary-600" <?php echo ($editTemplate && ($editTemplate['media_type'] ?? '') === 'demo_url') ? 'checked' : ''; ?>>
                                     <span class="font-medium text-sm">🌐 Demo URL</span>
                                 </label>
                             </div>
@@ -511,7 +522,13 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                             </div>
                             <input type="hidden" name="demo_video_uploaded_url" id="video-uploaded-url" value="<?php echo htmlspecialchars($editTemplate['demo_video_url'] ?? ''); ?>">
-                            <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 100MB)</small>
+                            <small class="text-gray-500 text-xs mt-1 block">Upload demo video (MP4, WebM recommended, max 500MB)</small>
+                        </div>
+                        
+                        <div id="youtube-section" class="md:col-span-2" style="display: none;">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">YouTube Video URL or ID</label>
+                            <input type="text" name="youtube_url_input" id="youtube-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['preview_youtube'] ?? ''); ?>" placeholder="https://youtube.com/watch?v=... or just the video ID">
+                            <small class="text-gray-500 text-xs mt-1 block">Paste any YouTube URL or video ID. Unlisted videos work too! (Fastest loading option)</small>
                         </div>
                         
                         <div id="demo-url-section" class="md:col-span-2" style="display: none;">
@@ -582,16 +599,20 @@ function handleVideoTypeChange() {
     
     const demoUrlSection = document.getElementById('demo-url-section');
     const videoUploadSection = document.getElementById('video-upload-section');
+    const youtubeSection = document.getElementById('youtube-section');
     
     const noneLabel = document.getElementById('video-type-none-label');
     const videoLabel = document.getElementById('video-type-video-label');
+    const youtubeLabel = document.getElementById('video-type-youtube-label');
     const demoUrlLabel = document.getElementById('video-type-demo-url-label');
     
     demoUrlSection.style.display = 'none';
     videoUploadSection.style.display = 'none';
+    youtubeSection.style.display = 'none';
     
     noneLabel.classList.remove('border-primary-600', 'bg-primary-50');
     videoLabel.classList.remove('border-primary-600', 'bg-primary-50');
+    youtubeLabel.classList.remove('border-primary-600', 'bg-primary-50');
     demoUrlLabel.classList.remove('border-primary-600', 'bg-primary-50');
     
     if (selectedType === 'demo_url') {
@@ -600,10 +621,18 @@ function handleVideoTypeChange() {
     } else if (selectedType === 'video') {
         videoUploadSection.style.display = 'block';
         videoLabel.classList.add('border-primary-600', 'bg-primary-50');
+    } else if (selectedType === 'youtube') {
+        youtubeSection.style.display = 'block';
+        youtubeLabel.classList.add('border-primary-600', 'bg-primary-50');
     } else {
         noneLabel.classList.add('border-primary-600', 'bg-primary-50');
     }
 }
+
+// Initialize video type on page load
+document.addEventListener('DOMContentLoaded', function() {
+    handleVideoTypeChange();
+});
 
 function toggleBannerMode(mode) {
     const urlMode = document.getElementById('banner-url-mode');
@@ -652,9 +681,9 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
         return;
     }
     
-    const maxSize = 100 * 1024 * 1024;
+    const maxSize = 500 * 1024 * 1024;
     if (file.size > maxSize) {
-        alert('Video file is too large. Maximum size is 100MB.');
+        alert('Video file is too large. Maximum size is 500MB.');
         e.target.value = '';
         return;
     }
