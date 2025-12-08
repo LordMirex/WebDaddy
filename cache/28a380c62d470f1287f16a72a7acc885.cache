@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:63339:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
+a:4:{s:7:"success";b:1;s:4:"html";s:61818:"    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
         <div style="position: relative;">
             <select id="tools-category-filter" 
                     style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
@@ -53,13 +53,6 @@ a:4:{s:7:"success";b:1;s:4:"html";s:63339:"    <div style="margin-bottom: 12px; 
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
                          decoding="async">
-                                        <button onclick="openVideoModal('/uploads/tools/videos/video_1764891730_c979a445_a84f5f133c6d0918035c7e4838b61283_1759454117429.mp4', 'Full Body Video call')"
-                            style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
-                        <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        Watch Video
-                    </button>
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
@@ -93,13 +86,6 @@ a:4:{s:7:"success";b:1;s:4:"html";s:63339:"    <div style="margin-bottom: 12px; 
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
                          decoding="async">
-                                        <button onclick="openVideoModal('/uploads/tools/videos/video_1764946695_2ebf129d_bec3e2aaab448f2891e8b0f62fa3a42d_1759453744280.mp4', 'Priority (Top 3 Featured)')"
-                            style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
-                        <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        Watch Video
-                    </button>
                                                         </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">

@@ -657,34 +657,31 @@ class YouTubeModal {
                          style="opacity: 0.95;" 
                          data-youtube-backdrop></div>
                     
-                    <div class="relative bg-black rounded-xl shadow-2xl transform transition-all duration-300"
-                         style="max-width: 95vw; max-height: 90vh; min-height: 60vh; display: flex; flex-direction: column; width: 90vw;"
+                    <div class="relative bg-black rounded-2xl shadow-2xl transform transition-all duration-300"
+                         style="max-width: min(480px, 95vw); max-height: 90vh; display: flex; flex-direction: column; width: 95vw; margin: auto;"
                          data-youtube-container>
                         
-                        <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-gray-900/90 backdrop-blur-sm rounded-t-xl border-b border-gray-700">
-                            <h5 id="youtubeModalTitle" class="text-base sm:text-lg font-bold text-white truncate pr-4">Video Preview</h5>
+                        <div class="flex items-center justify-between px-4 py-2 bg-gray-900/95 backdrop-blur-sm rounded-t-2xl">
+                            <h5 id="youtubeModalTitle" class="text-sm font-semibold text-white truncate pr-4">Preview</h5>
                             <button data-close-youtube-modal 
-                                    class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-gray-800"
-                                    aria-label="Close YouTube modal">
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-800"
+                                    aria-label="Close">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
                         
-                        <div class="relative bg-black rounded-b-xl overflow-hidden" style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; aspect-ratio: 16/9;">
+                        <div class="relative bg-black rounded-b-2xl overflow-hidden" style="display: flex; align-items: center; justify-content: center;">
                             <div data-youtube-loader class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black z-30">
-                                <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-600 border-t-red-500 mb-6"></div>
-                                <div data-loading-instruction class="text-white text-center px-6 transition-opacity duration-500">
-                                    <p class="text-lg sm:text-xl font-semibold mb-2">Please be patient...</p>
-                                    <p class="text-sm sm:text-base text-gray-300">YouTube video is loading</p>
-                                </div>
+                                <div class="animate-spin rounded-full h-10 w-10 border-3 border-gray-600 border-t-primary-500 mb-3"></div>
+                                <p data-loading-instruction class="text-sm text-gray-300">Loading...</p>
                             </div>
                             
                             <iframe id="youtubeModalFrame" 
-                                   class="w-full h-full border-0"
-                                   style="position: relative; z-index: 1;"
-                                   loading="lazy"
+                                   class="w-full border-0 rounded-b-2xl"
+                                   style="position: relative; z-index: 1; aspect-ratio: 9/16; min-height: 60vh; max-height: 80vh;"
+                                   loading="eager"
                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                    allowfullscreen>
                             </iframe>
@@ -748,30 +745,11 @@ class YouTubeModal {
         this.overlayTimeout = setTimeout(() => {
             this.loader.style.display = 'none';
             this.clearInstructionInterval();
-        }, 5000);
+        }, 1500);
     }
     
     startInstructionRotation() {
-        this.currentInstructionIndex = 0;
-        const instructionDiv = this.loader.querySelector('[data-loading-instruction]');
-        
-        this.instructionInterval = setInterval(() => {
-            this.currentInstructionIndex++;
-            if (this.currentInstructionIndex >= this.loadingInstructions.length) {
-                this.currentInstructionIndex = 0;
-            }
-            
-            const instruction = this.loadingInstructions[this.currentInstructionIndex];
-            instructionDiv.style.opacity = '0';
-            
-            setTimeout(() => {
-                instructionDiv.innerHTML = `
-                    <p class="text-lg sm:text-xl font-semibold mb-2">${instruction.title}</p>
-                    <p class="text-sm sm:text-base text-gray-300">${instruction.text}</p>
-                `;
-                instructionDiv.style.opacity = '1';
-            }, 300);
-        }, 2000);
+        // Simplified - no rotation needed with fast loading
     }
     
     clearInstructionInterval() {

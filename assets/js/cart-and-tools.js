@@ -212,42 +212,27 @@ document.addEventListener('DOMContentLoaded', function() {
                                          alt="${escapeHtml(template.name)}"
                                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                          onerror="this.src='/assets/images/placeholder.jpg'">
-                                    ${hasDemo ? (isVideo ? `
-                                    <button onclick="event.stopPropagation(); openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')"
-                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
-                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    ${hasDemo ? `
+                                    <button onclick="event.stopPropagation(); ${isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
+                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10 flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
-                                        Video
-                                    </button>
-                                    <button onclick="openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')"
-                                            data-video-trigger
-                                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
-                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            Watch Demo
-                                        </span>
-                                    </button>
-                                    ` : `
-                                    <button onclick="event.stopPropagation(); openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')"
-                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
                                         Preview
                                     </button>
-                                    <button onclick="openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')" 
+                                    <button onclick="${isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
+                                            ${isVideo ? 'data-video-trigger' : ''}
                                             class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
                                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
-                                            Click to Preview
+                                            Preview
                                         </span>
                                     </button>
-                                    `) : ''}
+                                    ` : ''}
                                 </div>
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
@@ -306,11 +291,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasVideo ? `
                                 <button onclick="openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapeJsString(tool.name)}')"
-                                        class="absolute top-2 left-2 px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
-                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M8 5v14l11-7z"/>
+                                        class="absolute top-2 left-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
-                                    Watch Video
+                                    Preview
                                 </button>
                                 ` : ''}
                                 ${isLowStock ? `
@@ -676,26 +662,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                             </div>
                             
-                            ${tool.demo_video_url ? `
+                            ${tool.demo_video_url || tool.preview_youtube || tool.demo_url ? `
                             <div class="mb-4 sm:mb-6">
-                                <div class="bg-gray-900 border border-gray-700 rounded-lg sm:rounded-xl overflow-hidden">
-                                    <div class="bg-gray-800 border-b border-gray-700 p-3 sm:p-4 flex justify-between items-center">
-                                        <h4 class="text-base sm:text-lg font-bold text-white flex items-center">
-                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            Demo Video
-                                        </h4>
-                                        <button onclick="openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapedNameForJs}')"
-                                                class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
-                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z"/>
-                                            </svg>
-                                            Watch Now
-                                        </button>
-                                    </div>
-                                </div>
+                                <button onclick="${tool.preview_youtube ? `openYoutubeModal('${escapeJsString(tool.preview_youtube)}', '${escapedNameForJs}')` : tool.demo_video_url ? `openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapedNameForJs}')` : `openDemoFullscreen('${escapeJsString(tool.demo_url)}', '${escapedNameForJs}')`}"
+                                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors shadow-md">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    Preview
+                                </button>
                             </div>
                             ` : ''}
                             
