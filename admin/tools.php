@@ -1732,6 +1732,8 @@ if (editForm) {
 }
 
 // Tool Video Type Handler
+let toolVideoTypeInitialized = { create: false, edit: false };
+
 function handleToolVideoTypeChange(formType) {
     const noneLabel = document.getElementById(`tool-video-type-none-label-${formType}`);
     const videoLabel = document.getElementById(`tool-video-type-video-label-${formType}`);
@@ -1770,18 +1772,43 @@ function handleToolVideoTypeChange(formType) {
     if (youtubeLabel) youtubeLabel.classList.remove('border-purple-600', 'bg-purple-50');
     demoUrlLabel.classList.remove('border-purple-600', 'bg-purple-50');
     
+    // Only clear fields when user actively switches types (not on initial page load)
+    const videoUrlField = document.getElementById(`tool-video-uploaded-url-${formType}`);
+    const youtubeUrlField = document.getElementById(`tool-youtube-url-input-${formType}`);
+    const demoUrlField = document.getElementById(`tool-demo-url-input-${formType}`);
+    const shouldClear = toolVideoTypeInitialized[formType];
+    
     if (selectedType === 'demo_url') {
         demoUrlSection.style.display = 'block';
         demoUrlLabel.classList.add('border-purple-600', 'bg-purple-50');
+        if (shouldClear) {
+            if (videoUrlField) videoUrlField.value = '';
+            if (youtubeUrlField) youtubeUrlField.value = '';
+        }
     } else if (selectedType === 'video') {
         videoUploadSection.style.display = 'block';
         videoLabel.classList.add('border-purple-600', 'bg-purple-50');
+        if (shouldClear) {
+            if (youtubeUrlField) youtubeUrlField.value = '';
+            if (demoUrlField) demoUrlField.value = '';
+        }
     } else if (selectedType === 'youtube') {
         if (youtubeSection) youtubeSection.style.display = 'block';
         if (youtubeLabel) youtubeLabel.classList.add('border-purple-600', 'bg-purple-50');
+        if (shouldClear) {
+            if (videoUrlField) videoUrlField.value = '';
+            if (demoUrlField) demoUrlField.value = '';
+        }
     } else {
         noneLabel.classList.add('border-purple-600', 'bg-purple-50');
+        if (shouldClear) {
+            if (videoUrlField) videoUrlField.value = '';
+            if (youtubeUrlField) youtubeUrlField.value = '';
+            if (demoUrlField) demoUrlField.value = '';
+        }
     }
+    
+    toolVideoTypeInitialized[formType] = true;
 }
 
 // Initialize video type on page load for edit form

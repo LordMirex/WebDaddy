@@ -594,6 +594,8 @@ require_once __DIR__ . '/includes/header.php';
 let bannerCropper = null;
 let videoUploadInProgress = false;
 
+let videoTypeInitialized = false;
+
 function handleVideoTypeChange() {
     const selectedType = document.querySelector('input[name="video_type"]:checked').value;
     
@@ -615,18 +617,42 @@ function handleVideoTypeChange() {
     youtubeLabel.classList.remove('border-primary-600', 'bg-primary-50');
     demoUrlLabel.classList.remove('border-primary-600', 'bg-primary-50');
     
+    // Get field references for clearing (only clear when user switches, not on initial load)
+    const videoUrlField = document.getElementById('video-uploaded-url');
+    const youtubeUrlField = document.getElementById('youtube-url-input');
+    const demoUrlField = document.getElementById('demo-url-input');
+    
     if (selectedType === 'demo_url') {
         demoUrlSection.style.display = 'block';
         demoUrlLabel.classList.add('border-primary-600', 'bg-primary-50');
+        if (videoTypeInitialized) {
+            if (videoUrlField) videoUrlField.value = '';
+            if (youtubeUrlField) youtubeUrlField.value = '';
+        }
     } else if (selectedType === 'video') {
         videoUploadSection.style.display = 'block';
         videoLabel.classList.add('border-primary-600', 'bg-primary-50');
+        if (videoTypeInitialized) {
+            if (youtubeUrlField) youtubeUrlField.value = '';
+            if (demoUrlField) demoUrlField.value = '';
+        }
     } else if (selectedType === 'youtube') {
         youtubeSection.style.display = 'block';
         youtubeLabel.classList.add('border-primary-600', 'bg-primary-50');
+        if (videoTypeInitialized) {
+            if (videoUrlField) videoUrlField.value = '';
+            if (demoUrlField) demoUrlField.value = '';
+        }
     } else {
         noneLabel.classList.add('border-primary-600', 'bg-primary-50');
+        if (videoTypeInitialized) {
+            if (videoUrlField) videoUrlField.value = '';
+            if (youtubeUrlField) youtubeUrlField.value = '';
+            if (demoUrlField) demoUrlField.value = '';
+        }
     }
+    
+    videoTypeInitialized = true;
 }
 
 // Initialize video type on page load
