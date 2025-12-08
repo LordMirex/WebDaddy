@@ -358,6 +358,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderIds = $_POST['order_ids'] ?? [];
             $successCount = 0;
             $failCount = 0;
+            $failReasons = [];
+            
+            // Debug: Write to file since error_log may not be captured
+            $debugInfo = "BULK_CANCEL at " . date('Y-m-d H:i:s') . "\n";
+            $debugInfo .= "POST data: " . print_r($_POST, true) . "\n";
+            $debugInfo .= "order_ids: " . print_r($orderIds, true) . "\n";
+            file_put_contents('/tmp/bulk_cancel_debug.log', $debugInfo, FILE_APPEND);
             
             foreach ($orderIds as $orderId) {
                 $orderId = intval($orderId);
@@ -367,6 +374,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $successCount++;
                     } else {
                         $failCount++;
+                        $failReasons[] = "Order #$orderId: " . ($result['message'] ?? 'Unknown error');
+                        error_log("BULK_CANCEL: Failed to cancel order #$orderId - " . ($result['message'] ?? 'Unknown error'));
                     }
                 }
             }
@@ -377,7 +386,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $successMessage .= " {$failCount} failed.";
                 }
             } else {
-                $errorMessage = 'No orders were cancelled.';
+                if (!empty($failReasons)) {
+                    $errorMessage = 'No orders were cancelled. ' . implode('; ', $failReasons);
+                } elseif (empty($orderIds)) {
+                    $errorMessage = 'No orders were cancelled. No order IDs were received - please select orders first.';
+                } else {
+                    $errorMessage = 'No orders were cancelled.';
+                }
             }
         } elseif ($action === 'save_template_credentials') {
             if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
@@ -1584,18 +1599,25 @@ function getUniqueCheckedOrderIds() {
 // FIX: Submit form with unique order IDs only
 function submitBulkAction(action) {
     const uniqueIds = getUniqueCheckedOrderIds();
-    if (uniqueIds.length === 0) return;
+    console.log('submitBulkAction called with action:', action);
+    console.log('Unique IDs found:', uniqueIds);
+    
+    if (uniqueIds.length === 0) {
+        console.log('No unique IDs, returning early');
+        return;
+    }
     
     const form = document.getElementById('bulkActionsForm');
+    console.log('Form found:', form);
     
-    // Remove all existing order_ids[] inputs and add only unique ones
-    form.querySelectorAll('input[name="order_ids[]"]').forEach(input => {
-        if (input.type === 'hidden') input.remove();
+    // Remove all existing hidden order_ids[] inputs
+    form.querySelectorAll('input[type="hidden"][name="order_ids[]"]').forEach(input => {
+        input.remove();
     });
     
-    // Uncheck all checkboxes so they don't submit
+    // Disable checkboxes so they don't submit (but keep them in DOM)
     document.querySelectorAll('.order-checkbox').forEach(cb => {
-        cb.name = '';
+        cb.disabled = true;
     });
     
     // Add hidden inputs for unique IDs only
@@ -1605,9 +1627,19 @@ function submitBulkAction(action) {
         hiddenInput.name = 'order_ids[]';
         hiddenInput.value = id;
         form.appendChild(hiddenInput);
+        console.log('Added hidden input for order ID:', id);
     });
     
     document.getElementById('bulkAction').value = action;
+    console.log('Submitting form with action:', action);
+    
+    // Log all form data before submitting
+    const formData = new FormData(form);
+    console.log('Form data entries:');
+    for (let [key, value] of formData.entries()) {
+        console.log('  ', key, '=', value);
+    }
+    
     form.submit();
 }
 
