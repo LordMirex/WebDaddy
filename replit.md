@@ -82,6 +82,21 @@ All cron jobs confirmed as necessary and properly implemented:
 - `optimize`: Weekly (Sunday 2 AM) - Database optimization
 - `weekly-report`: Weekly (Monday 3 AM) - Analytics report
 
+### Affiliate Withdrawal Balance Fix (December 2025)
+- **Critical Bug Fix**: Available balance now correctly subtracts all in-progress withdrawals (any status NOT IN 'paid', 'rejected')
+- Prevents affiliates from requesting duplicate withdrawals for the same funds
+- Future-proof design covers potential new intermediate statuses like 'processing' or 'approved'
+
+### Admin Orders Bulk Actions Fix
+- **JavaScript Deduplication**: Fixed double-counting of orders in bulk actions
+- Both desktop and mobile views had checkboxes with same name causing duplicates
+- Now uses Set-based deduplication to submit only unique order IDs
+- Added `cancellation_reason` column to `pending_orders` table for order cancellation
+
+### Priority Featured Products Enhancement
+- Expanded from "Top 3" to "Top 10" for both tools and templates
+- Validation logic and dropdown options updated to accept positions 1-10
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
