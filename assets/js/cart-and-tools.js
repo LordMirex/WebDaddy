@@ -198,11 +198,14 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTemplates(templates) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
                     ${templates.map(template => {
-                        const hasDemo = template.demo_url || template.demo_video_url;
-                        const demoUrl = template.demo_video_url || template.demo_url;
-                        const isVideo = demoUrl && /\.(mp4|webm|mov|avi)$/i.test(demoUrl);
+                        const mediaType = template.media_type || 'banner';
+                        const isYoutube = mediaType === 'youtube' && template.preview_youtube;
+                        const isVideo = mediaType === 'video' && template.demo_video_url;
+                        const isDemoUrl = mediaType === 'demo_url' && template.demo_url;
+                        const hasDemo = isYoutube || isVideo || isDemoUrl;
+                        const demoUrl = template.preview_youtube || template.demo_video_url || template.demo_url;
                         
                         return `
                         <div class="group">
@@ -213,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                          onerror="this.src='/assets/images/placeholder.jpg'">
                                     ${hasDemo ? `
-                                    <button onclick="event.stopPropagation(); ${isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
+                                    <button onclick="event.stopPropagation(); ${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
                                             class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10 flex items-center gap-1">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -221,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </svg>
                                         Preview
                                     </button>
-                                    <button onclick="${isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
+                                    <button onclick="${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
                                             ${isVideo ? 'data-video-trigger' : ''}
                                             class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
@@ -248,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <span class="text-base font-bold text-primary-600">${formatCurrency(template.price)}</span>
                                         </div>
                                         <div class="flex gap-2">
-                                            <a href="/${template.slug}${affiliateCode ? '?aff=' + affiliateCode : ''}" 
+                                            <a href="/template.php?slug=${escapeHtml(template.slug)}${affiliateCode ? '&aff=' + affiliateCode : ''}" 
                                                data-template-id="${template.id}"
                                                class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-600 text-xs font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors whitespace-nowrap">
                                                 Details
@@ -275,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTools(tools) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6">
                     ${tools.map(tool => {
                         const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
                         const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;

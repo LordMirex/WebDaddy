@@ -43,10 +43,10 @@ try {
             exit;
         }
         
-        // Return recent items when no search term (minimal fields for fast response)
+        // Return recent items when no search term (all fields needed for preview buttons & URLs)
         if ($searchType === 'template' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, price, thumbnail_url, demo_url 
+                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug 
                 FROM templates 
                 WHERE active = 1 
                 ORDER BY created_at DESC
@@ -84,7 +84,7 @@ try {
         // Search templates
         if ($searchType === 'template' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, price, thumbnail_url, demo_url 
+                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug 
                 FROM templates 
                 WHERE active = 1 
                 AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
