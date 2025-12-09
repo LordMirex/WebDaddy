@@ -1907,7 +1907,8 @@ function initVideoUploadHandler(formType) {
                         }
                     } catch (parseError) {
                         console.error('Failed to parse upload response:', parseError);
-                        alert('Video upload failed: Invalid server response');
+                        console.error('Server response was:', xhr.responseText.substring(0, 500));
+                        alert('Video upload failed: Invalid server response. Check console for details.');
                         progressDiv.style.display = 'none';
                     }
                 } else {
@@ -1922,6 +1923,7 @@ function initVideoUploadHandler(formType) {
             });
             
             xhr.open('POST', '/api/upload.php');
+            xhr.withCredentials = true;
             xhr.send(formData);
         } catch (error) {
             console.error('Video upload error (' + formType + '):', error);

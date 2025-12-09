@@ -862,6 +862,7 @@ document.getElementById('video-file-input')?.addEventListener('change', async fu
         });
         
         xhr.open('POST', '/api/upload.php');
+        xhr.withCredentials = true;
         xhr.send(formData);
         
     } catch (error) {

@@ -75,7 +75,7 @@ if ($action === 'load_view') {
         $page = max(1, min($page, $totalPages));
         $offset = ($page - 1) * $perPage;
         
-        $stmt = $db->prepare("SELECT id, name, category, price, thumbnail_url, demo_url, priority_order, created_at FROM templates $sqlWhere ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC LIMIT ? OFFSET ?");
+        $stmt = $db->prepare("SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, priority_order, created_at FROM templates $sqlWhere ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC LIMIT ? OFFSET ?");
         $params[] = $perPage;
         $params[] = $offset;
         $stmt->execute($params);
