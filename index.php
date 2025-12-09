@@ -895,7 +895,7 @@ if ($autoOpenTool) {
         </div>
         
         <div class="carousel-wrapper mx-auto px-4" style="max-width: 1200px;">
-            <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; scroll-behavior: auto; -webkit-overflow-scrolling: touch; padding: 20px 0;">
+            <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow: hidden; scroll-behavior: auto; -webkit-overflow-scrolling: touch;">
                 <!-- Items will be cloned by JavaScript for infinite scroll -->
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
                     <div class="bg-gray-800 rounded-xl shadow-md p-8 border border-gray-700 h-full flex flex-col">
