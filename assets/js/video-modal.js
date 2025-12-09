@@ -290,7 +290,7 @@ class VideoModal {
         this.video.style.display = 'block';
         this.updateLoadingInstruction();
         
-        // Rotate instructions every 1 second for 5 seconds
+        // Rotate instructions every 400ms for faster visual feedback
         this.instructionInterval = setInterval(() => {
             this.currentInstructionIndex++;
             if (this.currentInstructionIndex < this.loadingInstructions.length) {
@@ -299,7 +299,7 @@ class VideoModal {
                 clearInterval(this.instructionInterval);
                 this.instructionInterval = null;
             }
-        }, 1000);
+        }, 400);
         
         // Check if video is already preloaded
         let preloadedVideo = null;
@@ -336,7 +336,7 @@ class VideoModal {
             this.video.load();
         }
         
-        // After 5 seconds: force hide loader and start playback or show play button
+        // After 2 seconds: force hide loader and start playback or show play button (optimized)
         this.autoplayTimeout = setTimeout(() => {
             if (this.instructionInterval) {
                 clearInterval(this.instructionInterval);
@@ -344,7 +344,7 @@ class VideoModal {
             }
             
             if (this.isOpen) {
-                console.log('VideoModal: 5-second loading complete');
+                console.log('VideoModal: 2-second loading complete - optimized');
                 this.loader.style.display = 'none';
                 
                 // Try to play if not already playing
@@ -356,7 +356,7 @@ class VideoModal {
                     this.playOverlay.style.display = 'flex';
                 }
             }
-        }, 5000);
+        }, 2000);
         
         // Track analytics
         if (typeof trackEvent === 'function') {
