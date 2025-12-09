@@ -638,6 +638,7 @@ require_once __DIR__ . '/includes/header.php';
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50 border-b-2 border-gray-200">
+                        <th class="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">ID</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tool</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Category</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Type</th>
@@ -652,7 +653,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-gray-200">
                     <?php if (empty($tools)): ?>
                     <tr>
-                        <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="10" class="px-6 py-12 text-center text-gray-500">
                             <i class="bi bi-inbox text-4xl mb-2"></i>
                             <p>No tools found. Click "Add New Tool" to get started.</p>
                         </td>
@@ -660,6 +661,7 @@ require_once __DIR__ . '/includes/header.php';
                     <?php else: ?>
                         <?php foreach ($tools as $tool): ?>
                         <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-4 font-bold text-gray-900">#<?php echo $tool['id']; ?></td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
                                     <?php if (!empty($tool['thumbnail_url']) && trim($tool['thumbnail_url'])): ?>

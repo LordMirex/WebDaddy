@@ -317,10 +317,21 @@ require_once __DIR__ . '/includes/header.php';
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-4 font-bold text-gray-900">#<?php echo $template['id']; ?></td>
                         <td class="py-3 px-4">
-                            <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($template['name']); ?></div>
-                            <?php if (!empty($template['thumbnail_url'])): ?>
-                            <div class="text-xs text-gray-500 mt-1"><i class="bi bi-image"></i> Has thumbnail</div>
-                            <?php endif; ?>
+                            <div class="flex items-center gap-3">
+                                <?php if (!empty($template['thumbnail_url']) && trim($template['thumbnail_url'])): ?>
+                                <img src="<?php echo htmlspecialchars($template['thumbnail_url']); ?>" alt="<?php echo htmlspecialchars($template['name']); ?>" class="w-16 h-16 object-cover rounded-lg shadow-sm flex-shrink-0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                <div class="w-16 h-16 bg-primary-100 rounded-lg flex items-center justify-center shadow-sm hidden flex-shrink-0" style="display:none;">
+                                    <i class="bi bi-grid text-primary-600 text-2xl"></i>
+                                </div>
+                                <?php else: ?>
+                                <div class="w-16 h-16 bg-primary-100 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
+                                    <i class="bi bi-grid text-primary-600 text-2xl"></i>
+                                </div>
+                                <?php endif; ?>
+                                <div>
+                                    <div class="text-gray-900 font-medium"><?php echo htmlspecialchars($template['name']); ?></div>
+                                </div>
+                            </div>
                         </td>
                         <td class="py-3 px-4">
                             <code class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs"><?php echo htmlspecialchars($template['slug']); ?></code>

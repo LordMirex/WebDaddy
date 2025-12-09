@@ -734,18 +734,22 @@ class YouTubeModal {
         this.errorContainer.classList.add('hidden');
         
         const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&start=0`;
-        this.iframe.src = embedUrl;
         
         this.modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         this.isOpen = true;
         
-        this.startInstructionRotation();
+        this.iframe.src = embedUrl;
+        
+        this.iframe.onload = () => {
+            this.loader.style.display = 'none';
+            this.clearInstructionInterval();
+        };
         
         this.overlayTimeout = setTimeout(() => {
             this.loader.style.display = 'none';
             this.clearInstructionInterval();
-        }, 1500);
+        }, 800);
     }
     
     startInstructionRotation() {
