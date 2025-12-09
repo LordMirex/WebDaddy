@@ -733,7 +733,7 @@ class YouTubeModal {
         this.loader.style.display = 'flex';
         this.errorContainer.classList.add('hidden');
         
-        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&start=0`;
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1&start=0&enablejsapi=1`;
         
         this.modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
@@ -749,7 +749,7 @@ class YouTubeModal {
         this.overlayTimeout = setTimeout(() => {
             this.loader.style.display = 'none';
             this.clearInstructionInterval();
-        }, 800);
+        }, 500);
     }
     
     startInstructionRotation() {

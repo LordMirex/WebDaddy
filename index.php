@@ -522,15 +522,15 @@ if ($autoOpenTool) {
                     </div>
 
                     <!-- Category Filter for Templates -->
-                    <?php if ($currentView === 'templates' && !empty($templateCategories)): ?>
                     <div class="w-full lg:w-64">
                         <div class="relative">
-                            <select id="templates-category-filter" 
+                            <select id="category-filter" 
                                     class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-600 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-gray-800 text-white font-medium cursor-pointer">
-                                <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
-                                    All Categories
-                                </option>
-                                <?php foreach ($templateCategories as $cat): ?>
+                                <option value="">All Categories</option>
+                                <?php 
+                                $categories = $currentView === 'templates' ? $templateCategories : $toolCategories;
+                                foreach ($categories as $cat): 
+                                ?>
                                 <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($cat); ?>
                                 </option>
@@ -544,7 +544,6 @@ if ($autoOpenTool) {
                             </svg>
                         </div>
                     </div>
-                    <?php endif; ?>
                 </div>
             </div>
 
@@ -561,7 +560,7 @@ if ($autoOpenTool) {
                 <p class="text-gray-300 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-primary-600 hover:text-primary-700">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-templates-grid>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-templates-grid>
                 <?php foreach ($templates as $template): ?>
                 <div class="group" 
                      data-template
@@ -653,7 +652,7 @@ if ($autoOpenTool) {
                                     <?php echo htmlspecialchars($template['category']); ?>
                                 </span>
                             </div>
-                            <p class="text-gray-300 text-xs mb-3 line-clamp-2"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                            <p class="text-gray-300 text-xs mb-3 line-clamp-2 min-h-[32px]"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
                             <div class="flex items-center justify-between pt-3 border-t border-gray-700">
                                 <div class="flex flex-col">
                                     <span class="text-xs text-gray-400 uppercase tracking-wide">Price</span>
@@ -729,31 +728,6 @@ if ($autoOpenTool) {
             
             <?php else: ?>
             <!-- TOOLS VIEW -->
-            <?php if (!empty($toolCategories)): ?>
-            <!-- Category Filter -->
-            <div class="mb-6 max-w-4xl mx-auto">
-                <div class="relative">
-                    <select id="tools-category-filter" 
-                            class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-600 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-gray-800 text-white font-medium cursor-pointer">
-                        <option value="" <?php echo !isset($_GET['category']) ? 'selected' : ''; ?>>
-                            All Categories
-                        </option>
-                        <?php foreach ($toolCategories as $cat): ?>
-                        <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cat); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                    <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </div>
-            </div>
-            <?php endif; ?>
-            
             <?php if (empty($tools)): ?>
             <div class="bg-gray-800 border border-gray-700 rounded-2xl p-12 text-center">
                 <svg class="w-16 h-16 mx-auto text-blue-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -813,9 +787,7 @@ if ($autoOpenTool) {
                             </span>
                             <?php endif; ?>
                         </div>
-                        <?php if (!empty($tool['short_description'])): ?>
-                        <p class="text-gray-300 text-xs mb-3 line-clamp-2"><?php echo htmlspecialchars($tool['short_description']); ?></p>
-                        <?php endif; ?>
+                        <p class="text-gray-300 text-xs mb-3 line-clamp-2 min-h-[32px]"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
                         <div class="flex items-center justify-between pt-3 border-t border-gray-700">
                             <div class="flex flex-col">
                                 <span class="text-xs text-gray-400 uppercase tracking-wide">Price</span>

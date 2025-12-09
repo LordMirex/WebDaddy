@@ -143,31 +143,6 @@ if ($action === 'load_view') {
 }
 
 function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $currentCategory, $affiliateCode) {
-    // Category filter for templates
-    if (!empty($templateCategories)): ?>
-    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
-        <div style="position: relative;">
-            <select id="templates-category-filter" 
-                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
-                <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
-                    All Categories
-                </option>
-                <?php foreach ($templateCategories as $cat): ?>
-                <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo ($currentCategory === $cat) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($cat); ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-            <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-            <svg style="width: 20px; height: 20px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </div>
-    </div>
-    <?php endif;
-    
     if (empty($templates)): ?>
         <div style="background: #1f2937; border: 1px solid #374151; border-radius: 16px; padding: 48px; text-align: center;">
             <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +152,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
             <p style="color: #d1d5db; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10" data-templates-grid>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
             <?php foreach ($templates as $idx => $template): ?>
             <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
@@ -189,51 +164,40 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                          onerror="this.src='/assets/images/placeholder.jpg'"
                          decoding="async">
                     <?php 
-                    $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']);
+                    $mediaType = $template['media_type'] ?? 'banner';
+                    $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']) || !empty($template['preview_youtube']);
+                    $isYoutube = ($mediaType === 'youtube' && !empty($template['preview_youtube']));
+                    $isVideo = ($mediaType === 'video' && !empty($template['demo_video_url']));
+                    $isDemoUrl = ($mediaType === 'demo_url' && !empty($template['demo_url']));
+                    
                     if ($hasDemo):
-                        $demoUrl = !empty($template['demo_video_url']) ? $template['demo_video_url'] : $template['demo_url'];
-                        $hasVideoExtension = preg_match('/\.(mp4|webm|mov|avi)$/i', $demoUrl);
-                        $isVideo = $hasVideoExtension;
                     ?>
-                    <?php if ($isVideo): ?>
-                    <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                    <?php if ($isYoutube): ?>
+                    <button onclick="event.stopPropagation(); openYoutubeModal('<?php echo htmlspecialchars($template['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                             style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; z-index: 10; transition: background 0.2s;">
                         <svg style="width: 16px; height: 16px; display: inline; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
-                        Video
-                    </button>
-                    <?php else: ?>
-                    <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                            style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; z-index: 10; transition: background 0.2s;">
                         Preview
                     </button>
-                    <?php endif; ?>
-                    <?php if ($isVideo): ?>
-                    <button onclick="openVideoModal('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                            data-video-trigger
-                            data-video-url="<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>"
-                            data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>"
-                            style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; border: none; cursor: pointer; padding: 0;">
-                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: #1f2937; color: #ffffff; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Watch Demo
-                        </span>
+                    <?php elseif ($isVideo): ?>
+                    <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; z-index: 10; transition: background 0.2s;">
+                        <svg style="width: 16px; height: 16px; display: inline; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Preview
                     </button>
-                    <?php else: ?>
-                    <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($demoUrl, ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
-                            style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s; border: none; cursor: pointer; padding: 0;">
-                        <span style="display: inline-flex; align-items: center; padding: 12px 16px; background: #1f2937; color: #ffffff; border-radius: 8px; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <svg style="width: 20px; height: 20px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            Click to Preview
-                        </span>
+                    <?php elseif ($isDemoUrl): ?>
+                    <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
+                            style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: 600; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; cursor: pointer; z-index: 10; transition: background 0.2s;">
+                        <svg style="width: 16px; height: 16px; display: inline; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Preview
                     </button>
                     <?php endif; ?>
                     <?php endif; ?>
@@ -245,7 +209,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                             <?php echo htmlspecialchars($template['category']); ?>
                         </span>
                     </div>
-                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; min-height: 32px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
@@ -275,31 +239,6 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
 }
 
 function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $currentCategory, $affiliateCode) {
-    // Category filter for tools
-    if (!empty($toolCategories)): ?>
-    <div style="margin-bottom: 12px; max-width: 36rem; margin-left: auto; margin-right: auto;">
-        <div style="position: relative;">
-            <select id="tools-category-filter" 
-                    style="width: 100%; padding: 12px 16px 12px 44px; border: 2px solid #4b5563; border-radius: 8px; appearance: none; background: #1f2937; color: #ffffff; font-weight: 500; cursor: pointer; font-size: 14px;">
-                <option value="" <?php echo empty($currentCategory) ? 'selected' : ''; ?>>
-                    All Categories
-                </option>
-                <?php foreach ($toolCategories as $cat): ?>
-                <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo ($currentCategory === $cat) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($cat); ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-            <svg style="width: 20px; height: 20px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-            <svg style="width: 20px; height: 20px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </div>
-    </div>
-    <?php endif;
-    
     if (empty($tools)): ?>
         <div style="background: #1f2937; border: 1px solid #374151; border-radius: 16px; padding: 48px; text-align: center;">
             <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #60a5fa;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,13 +259,26 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
                          decoding="async">
-                    <?php if (!empty($tool['demo_video_url'])): ?>
-                    <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
-                            style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
-                        <svg style="width: 14px; height: 14px;" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
+                    <?php 
+                    $toolMediaType = $tool['media_type'] ?? 'banner';
+                    if ($toolMediaType === 'youtube' && !empty($tool['preview_youtube'])): 
+                    ?>
+                    <button onclick="openYoutubeModal('<?php echo htmlspecialchars($tool['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
+                            style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
-                        Watch Video
+                        Preview
+                    </button>
+                    <?php elseif ($toolMediaType === 'video' && !empty($tool['demo_video_url'])): ?>
+                    <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
+                            style="position: absolute; top: 8px; left: 8px; padding: 8px 12px; background: #2563eb; color: white; font-size: 12px; font-weight: bold; border-radius: 20px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Preview
                     </button>
                     <?php endif; ?>
                     <?php if ($tool['stock_unlimited'] == 0 && $tool['stock_quantity'] <= $tool['low_stock_threshold'] && $tool['stock_quantity'] > 0): ?>
@@ -348,9 +300,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                         </span>
                         <?php endif; ?>
                     </div>
-                    <?php if (!empty($tool['short_description'])): ?>
-                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
-                    <?php endif; ?>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; min-height: 32px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>

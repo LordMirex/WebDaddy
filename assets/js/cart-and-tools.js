@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTemplates(templates) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     ${templates.map(template => {
                         const hasDemo = template.demo_url || template.demo_video_url;
                         const demoUrl = template.demo_video_url || template.demo_url;
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTools(tools) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     ${tools.map(tool => {
                         const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
                         const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
@@ -529,8 +529,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function setupCategoryDropdown() {
+        const categoryDropdown = document.getElementById('category-filter');
         const toolsDropdown = document.getElementById('tools-category-filter');
         const templatesDropdown = document.getElementById('templates-category-filter');
+        
+        if (categoryDropdown) {
+            const newDropdown = categoryDropdown.cloneNode(true);
+            categoryDropdown.parentNode.replaceChild(newDropdown, categoryDropdown);
+            newDropdown.addEventListener('change', function(e) {
+                const category = e.target.value;
+                switchView(currentView, 1, category);
+            });
+        }
         
         if (toolsDropdown) {
             const newToolsDropdown = toolsDropdown.cloneNode(true);
