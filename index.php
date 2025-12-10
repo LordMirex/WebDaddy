@@ -471,15 +471,23 @@ if ($autoOpenTool) {
     <header class="relative bg-navy text-white min-h-[auto] sm:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
         <!-- Golden X Stripes Background Decoration - Same for Desktop & Mobile -->
         <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1280 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <!-- Forward slash lines (/) -->
-            <line x1="600" y1="0" x2="800" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
-            <line x1="300" y1="0" x2="500" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
-            <line x1="900" y1="0" x2="1100" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <defs>
+                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#B8960F;stop-opacity:0" />
+                    <stop offset="30%" style="stop-color:#D4AF37;stop-opacity:0.7" />
+                    <stop offset="50%" style="stop-color:#F4E8C1;stop-opacity:0.8" />
+                    <stop offset="70%" style="stop-color:#D4AF37;stop-opacity:0.7" />
+                    <stop offset="100%" style="stop-color:#B8960F;stop-opacity:0" />
+                </linearGradient>
+            </defs>
             
-            <!-- Backslash lines (\) -->
-            <line x1="800" y1="0" x2="600" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
-            <line x1="1100" y1="0" x2="900" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
-            <line x1="500" y1="0" x2="300" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <!-- Forward slash lines (/) - Thick bold stripes -->
+            <line x1="400" y1="-200" x2="800" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
+            <line x1="700" y1="-200" x2="1100" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
+            
+            <!-- Backslash lines (\) - Thick bold stripes -->
+            <line x1="800" y1="-200" x2="400" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
+            <line x1="1100" y1="-200" x2="700" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
         </svg>
         
         <!-- Main Content Area -->
