@@ -359,33 +359,33 @@ if ($autoOpenTool) {
             100% { opacity: 0; transform: rotate(360deg) scale(0.3); filter: blur(10px); }
         }
         
-        /* FAST SLIDE DOWN - 0.4 seconds */
+        /* SLOW SLIDE DOWN - 1.2 seconds */
         @keyframes appearSlideFast {
             0% { opacity: 0; transform: translateY(-50px); filter: blur(10px); }
             100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
         }
         
-        /* SLOW PULSE EXPAND - 1.1 seconds */
+        /* SLOW PULSE EXPAND - 2.2 seconds */
         @keyframes appearPulseSlow {
             0% { opacity: 0; transform: scale(0.2); filter: blur(10px); text-shadow: 0 0 0px #D4AF37; }
             40% { opacity: 0.8; transform: scale(1.25); text-shadow: 0 0 30px #D4AF37, 0 0 20px #D4AF37; }
             100% { opacity: 1; transform: scale(1); filter: blur(0px); }
         }
         
-        /* SUPER FAST FLIP - 0.35 seconds */
+        /* SLOW FLIP - 1.0 seconds */
         @keyframes appearFlipFast {
             0% { opacity: 0; transform: perspective(800px) rotateY(90deg); filter: blur(8px); }
             100% { opacity: 1; transform: perspective(800px) rotateY(0deg); filter: blur(0px); }
         }
         
-        /* MEDIUM SPLIT REVEAL - 0.8 seconds */
+        /* MEDIUM SPLIT REVEAL - 2.0 seconds */
         @keyframes appearRevealSplit {
             0% { opacity: 0; clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%); filter: blur(10px); }
             50% { opacity: 0.7; text-shadow: 0 0 25px #D4AF37; }
             100% { opacity: 1; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); filter: blur(0px); }
         }
         
-        /* VERY SLOW RISE WITH SHIMMER - 1.3 seconds */
+        /* VERY SLOW RISE WITH SHIMMER - 2.8 seconds */
         @keyframes appearRiseSlow {
             0% { opacity: 0; transform: translateY(50px) scaleY(0.3); filter: blur(12px); text-shadow: 0 0 0px #D4AF37; }
             30% { opacity: 0.6; text-shadow: 0 0 25px #D4AF37; }
@@ -401,11 +401,11 @@ if ($autoOpenTool) {
         .anim-melt { animation: dissolveMeltSlow 1.4s ease-in forwards; }
         .anim-twirl { animation: dissolveTwirl 0.7s ease-in forwards; }
         
-        .anim-in-slide { animation: appearSlideFast 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .anim-in-pulse { animation: appearPulseSlow 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .anim-in-flip { animation: appearFlipFast 0.35s ease-out forwards; }
-        .anim-in-reveal { animation: appearRevealSplit 0.8s ease-out forwards; }
-        .anim-in-rise { animation: appearRiseSlow 1.3s ease-out forwards; }
+        .anim-in-slide { animation: appearSlideFast 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-in-pulse { animation: appearPulseSlow 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-in-flip { animation: appearFlipFast 1.0s ease-out forwards; }
+        .anim-in-reveal { animation: appearRevealSplit 2.0s ease-out forwards; }
+        .anim-in-rise { animation: appearRiseSlow 2.8s ease-out forwards; }
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
