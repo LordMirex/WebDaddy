@@ -312,9 +312,9 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-300 hover:text-gold font-medium transition-colors">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-300 hover:text-gold font-medium transition-colors">Tools</a>
-                    <a href="#faq" class="text-gray-300 hover:text-gold font-medium transition-colors">FAQ</a>
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="<?php echo $currentView === 'templates' ? 'text-gold border-b-2 border-gold' : 'text-gray-300 hover:text-gold'; ?> font-medium transition-colors py-1">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="<?php echo $currentView === 'tools' ? 'text-gold border-b-2 border-gold' : 'text-gray-300 hover:text-gold'; ?> font-medium transition-colors py-1">Tools</a>
+                    <a href="#faq" class="text-gray-300 hover:text-gold font-medium transition-colors py-1">FAQ</a>
                     <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300 hover:text-gold font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -350,8 +350,8 @@ if ($autoOpenTool) {
         </div>
         <div x-show="open" @click.away="open = false" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
             <div class="px-4 pt-2 pb-4 space-y-2">
-                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">Templates</a>
-                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">Tools</a>
+                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg <?php echo $currentView === 'templates' ? 'text-gold bg-navy-light border-l-2 border-gold' : 'text-gray-300 hover:bg-navy-light hover:text-gold'; ?> font-medium transition-colors">Templates</a>
+                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-navy-light border-l-2 border-gold' : 'text-gray-300 hover:bg-navy-light hover:text-gold'; ?> font-medium transition-colors">Tools</a>
                 <a href="#faq" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">FAQ</a>
                 <a href="/affiliate/register.php" class="block px-3 py-2 rounded-lg text-navy bg-gold hover:bg-gold-500 font-semibold text-center transition-colors">Become an Affiliate</a>
             </div>
@@ -359,7 +359,7 @@ if ($autoOpenTool) {
     </nav>
 
     <!-- Hero Section - Full 100vh with Stats -->
-    <header class="relative bg-navy text-white h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
+    <header class="relative bg-navy text-white min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
         <!-- Golden X Stripes Background Decoration - Both Desktop & Mobile -->
         <div class="absolute inset-0 pointer-events-none overflow-hidden">
             <!-- Top Left X Stripe -->
@@ -390,8 +390,8 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Main Content Area -->
-        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12 items-center w-full">
+        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-12 items-center w-full">
                 <!-- Left Side (60%) -->
                 <div class="lg:col-span-3">
                     <h1 class="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-extrabold mb-3 lg:mb-6 leading-tight">
@@ -418,43 +418,102 @@ if ($autoOpenTool) {
                     </div>
                 </div>
                 
-                <!-- Right Side (40%) - Animated Website Mockup Slideshow -->
+                <!-- Right Side (40%) - Animated Website Mockup Slideshow with Portfolio Images -->
                 <div class="lg:col-span-2 hidden lg:block" x-data="{ 
                     currentSlide: 0,
                     slides: [
-                        { title: 'E-Commerce Store', subtitle: 'Modern Shopping Experience', color: 'from-gold/20 to-navy' },
-                        { title: 'Portfolio Site', subtitle: 'Showcase Your Work', color: 'from-purple-900/30 to-navy' },
-                        { title: 'Restaurant Menu', subtitle: 'Delicious Design', color: 'from-orange-900/30 to-navy' },
-                        { title: 'Business Landing', subtitle: 'Professional Presence', color: 'from-green-900/30 to-navy' }
+                        { image: '/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg', title: 'Jasper AI' },
+                        { image: '/attached_assets/673cef5e85d139561a882612_673cef539f14468937589302_viralcuts_1765359813240.jpeg', title: 'Viralcuts' },
+                        { image: '/attached_assets/673cf391555dd04aeb064892_673cf0e346300e72c673bd83_webflow_1765359813293.jpeg', title: 'Webflow' },
+                        { image: '/attached_assets/6722ae41694d5b50ae789bf1_64ac9276557ed29aaabd9b80_intercom-bl_1765359813696.jpeg', title: 'Intercom' },
+                        { image: '/attached_assets/673cef5e85d139561a882618_673cef03d1e3baecff16211b_glide-apps_1765359813790.jpeg', title: 'Glide Apps' },
+                        { image: '/attached_assets/6722ae41694d5b50ae789bc6_64ac8f36557ed29aaabb4b64_notion_1765359813867.jpeg', title: 'Notion' },
+                        { image: '/attached_assets/6722ae41694d5b50ae789bb6_64ac8ead557ed29aaabaf6ec_runway_1765359814004.jpeg', title: 'Runway' }
                     ],
                     init() {
-                        setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides.length }, 3000)
+                        setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides.length }, 4000)
                     }
                 }">
-                    <div class="relative">
-                        <div class="bg-navy-light rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
-                            <div class="bg-navy-light px-3 py-2 border-b border-gray-700 flex items-center gap-2">
-                                <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                    <div class="relative group">
+                        <!-- Shiny glow effect behind the laptop -->
+                        <div class="absolute -inset-4 bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
+                        <div class="absolute -inset-2 bg-gradient-to-br from-gold/10 via-transparent to-gold/10 rounded-xl opacity-50"></div>
+                        
+                        <div class="relative bg-navy-light rounded-xl border border-gold/30 shadow-2xl shadow-gold/10 overflow-hidden">
+                            <!-- Safari-style browser header -->
+                            <div class="bg-gradient-to-b from-gray-800 to-navy-light px-3 py-2 border-b border-gray-700 flex items-center gap-2">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-sm shadow-yellow-500/50"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500/50"></div>
                                 <div class="flex-1 ml-3">
-                                    <div class="bg-navy rounded-lg px-2 py-0.5 text-xs text-gray-400 max-w-xs" x-text="'yourwebsite.com'"></div>
+                                    <div class="bg-navy/80 backdrop-blur rounded-lg px-3 py-1 text-xs text-gray-400 max-w-xs flex items-center gap-2">
+                                        <svg class="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                        <span x-text="slides[currentSlide].title.toLowerCase().replace(/\s+/g, '') + '.com'"></span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="aspect-[16/10] relative overflow-hidden">
+                            <div class="aspect-[16/10] relative overflow-hidden bg-navy">
                                 <template x-for="(slide, index) in slides" :key="index">
-                                    <div class="absolute inset-0 flex flex-col items-center justify-center p-6 transition-all duration-700"
-                                         :class="[`bg-gradient-to-br ${slide.color}`, currentSlide === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full']">
-                                        <div class="w-full max-w-xs space-y-3 text-center">
-                                            <div class="h-5 bg-gold/30 rounded-lg w-3/4 mx-auto"></div>
-                                            <h3 class="text-lg font-bold text-white" x-text="slide.title"></h3>
-                                            <p class="text-xs text-gray-400" x-text="slide.subtitle"></p>
-                                            <div class="grid grid-cols-2 gap-2 mt-3">
-                                                <div class="h-12 bg-navy-light/50 rounded-lg border border-gray-700/50"></div>
-                                                <div class="h-12 bg-navy-light/50 rounded-lg border border-gray-700/50"></div>
-                                            </div>
-                                            <div class="h-7 bg-gold rounded-lg w-1/2 mx-auto mt-2"></div>
-                                        </div>
+                                    <div class="absolute inset-0 transition-all duration-700 ease-in-out"
+                                         :class="currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'">
+                                        <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover object-top">
+                                    </div>
+                                </template>
+                            </div>
+                            <!-- Slide Indicators with improved styling -->
+                            <div class="flex justify-center gap-2 py-2.5 bg-gradient-to-t from-navy-light to-navy-light/90 border-t border-gray-700/50">
+                                <template x-for="(slide, index) in slides" :key="index">
+                                    <button @click="currentSlide = index" 
+                                            class="h-2 rounded-full transition-all duration-300 focus:outline-none"
+                                            :class="currentSlide === index ? 'bg-gold w-6 shadow-sm shadow-gold/50' : 'bg-gray-600 w-2 hover:bg-gold/50'"></button>
+                                </template>
+                            </div>
+                        </div>
+                        <!-- Enhanced glow effects -->
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-2xl animate-pulse"></div>
+                        <div class="absolute -top-4 -left-4 w-28 h-28 bg-gold/10 rounded-full blur-3xl"></div>
+                        <div class="absolute top-1/2 -right-6 w-16 h-32 bg-gold/15 rounded-full blur-xl transform -translate-y-1/2"></div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Laptop Mockup Slider - Shows on mobile only -->
+                <div class="lg:hidden mt-6" x-data="{ 
+                    currentSlide: 0,
+                    slides: [
+                        { image: '/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg', title: 'Jasper AI' },
+                        { image: '/attached_assets/673cef5e85d139561a882612_673cef539f14468937589302_viralcuts_1765359813240.jpeg', title: 'Viralcuts' },
+                        { image: '/attached_assets/673cf391555dd04aeb064892_673cf0e346300e72c673bd83_webflow_1765359813293.jpeg', title: 'Webflow' },
+                        { image: '/attached_assets/6722ae41694d5b50ae789bf1_64ac9276557ed29aaabd9b80_intercom-bl_1765359813696.jpeg', title: 'Intercom' },
+                        { image: '/attached_assets/673cef5e85d139561a882618_673cef03d1e3baecff16211b_glide-apps_1765359813790.jpeg', title: 'Glide Apps' },
+                        { image: '/attached_assets/6722ae41694d5b50ae789bc6_64ac8f36557ed29aaabb4b64_notion_1765359813867.jpeg', title: 'Notion' },
+                        { image: '/attached_assets/6722ae41694d5b50ae789bb6_64ac8ead557ed29aaabaf6ec_runway_1765359814004.jpeg', title: 'Runway' }
+                    ],
+                    init() {
+                        setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides.length }, 4000)
+                    }
+                }">
+                    <div class="relative mx-auto max-w-sm">
+                        <!-- Shiny glow effect -->
+                        <div class="absolute -inset-2 bg-gradient-to-r from-gold/15 via-gold/5 to-gold/15 rounded-xl blur-lg opacity-70"></div>
+                        
+                        <div class="relative bg-navy-light rounded-lg border border-gold/20 shadow-xl shadow-gold/5 overflow-hidden">
+                            <!-- Safari-style browser header -->
+                            <div class="bg-gradient-to-b from-gray-800 to-navy-light px-2 py-1.5 border-b border-gray-700 flex items-center gap-1.5">
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <div class="flex-1 ml-2">
+                                    <div class="bg-navy/80 rounded px-2 py-0.5 text-[10px] text-gray-400 flex items-center gap-1">
+                                        <svg class="w-2.5 h-2.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                        <span x-text="slides[currentSlide].title.toLowerCase().replace(/\s+/g, '') + '.com'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="aspect-[16/10] relative overflow-hidden bg-navy">
+                                <template x-for="(slide, index) in slides" :key="index">
+                                    <div class="absolute inset-0 transition-all duration-700"
+                                         :class="currentSlide === index ? 'opacity-100' : 'opacity-0'">
+                                        <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover object-top">
                                     </div>
                                 </template>
                             </div>
@@ -462,54 +521,52 @@ if ($autoOpenTool) {
                             <div class="flex justify-center gap-1.5 py-2 bg-navy-light border-t border-gray-700/50">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <button @click="currentSlide = index" 
-                                            class="w-2 h-2 rounded-full transition-all"
-                                            :class="currentSlide === index ? 'bg-gold w-4' : 'bg-gray-600 hover:bg-gray-500'"></button>
+                                            class="h-1.5 rounded-full transition-all duration-300"
+                                            :class="currentSlide === index ? 'bg-gold w-4' : 'bg-gray-600 w-1.5 hover:bg-gold/50'"></button>
                                 </template>
                             </div>
                         </div>
-                        <div class="absolute -bottom-3 -right-3 w-20 h-20 bg-gold/10 rounded-full blur-2xl"></div>
-                        <div class="absolute -top-3 -left-3 w-24 h-24 bg-gold/5 rounded-full blur-3xl"></div>
                     </div>
                 </div>
             </div>
         </div>
         
         <!-- Stats Bar - Inside Hero for 100vh -->
-        <div class="relative py-3 lg:py-5 bg-navy/50 backdrop-blur-sm">
+        <div class="relative py-2 lg:py-4 bg-navy/50 backdrop-blur-sm">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-2 lg:py-4 px-3 lg:px-8">
+                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-1.5 lg:py-3 px-2 lg:px-6">
                     <div class="grid grid-cols-3 gap-1 lg:gap-4 text-center">
-                        <div class="flex items-center justify-center gap-1.5 lg:gap-3">
-                            <div class="w-7 h-7 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center justify-center gap-1 lg:gap-3">
+                            <div class="w-6 h-6 lg:w-9 lg:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3 h-3 lg:w-4 lg:h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-xs sm:text-sm lg:text-xl font-bold text-white">500+</div>
-                                <div class="text-[9px] lg:text-xs text-gray-400">Websites</div>
+                                <div class="text-[10px] sm:text-xs lg:text-lg font-bold text-white">500+</div>
+                                <div class="text-[8px] lg:text-xs text-gray-400">Websites</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-1.5 lg:gap-3 border-x border-gray-700/50">
-                            <div class="w-7 h-7 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center justify-center gap-1 lg:gap-3 border-x border-gray-700/50">
+                            <div class="w-6 h-6 lg:w-9 lg:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3 h-3 lg:w-4 lg:h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-xs sm:text-sm lg:text-xl font-bold text-white">10k+</div>
-                                <div class="text-[9px] lg:text-xs text-gray-400">Users</div>
+                                <div class="text-[10px] sm:text-xs lg:text-lg font-bold text-white">10k+</div>
+                                <div class="text-[8px] lg:text-xs text-gray-400">Users</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-1.5 lg:gap-3">
-                            <div class="w-7 h-7 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 lg:w-5 lg:h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="flex items-center justify-center gap-1 lg:gap-3">
+                            <div class="w-6 h-6 lg:w-9 lg:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3 h-3 lg:w-4 lg:h-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-xs sm:text-sm lg:text-xl font-bold text-white">4.9/5</div>
-                                <div class="text-[9px] lg:text-xs text-gray-400">Rating</div>
+                                <div class="text-[10px] sm:text-xs lg:text-lg font-bold text-white">4.9/5</div>
+                                <div class="text-[8px] lg:text-xs text-gray-400">Rating</div>
                             </div>
                         </div>
                     </div>
@@ -621,7 +678,7 @@ if ($autoOpenTool) {
                         <div class="relative">
                             <select id="category-filter" 
                                     class="w-full px-4 py-3 pl-4 pr-10 bg-navy-light border border-gray-700 rounded-lg text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
-                                <option value="">Filter</option>
+                                <option value="">Category</option>
                                 <?php 
                                 $categories = $currentView === 'templates' ? $templateCategories : $toolCategories;
                                 foreach ($categories as $cat): 
@@ -780,6 +837,16 @@ if ($autoOpenTool) {
                     if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
                     ?>
                     
+                    <?php if ($page > 1): ?>
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
+                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Prev
+                    </a>
+                    <?php endif; ?>
+                    
                     <?php
                     $start = max(1, $page - 2);
                     $end = min($totalPages, $page + 2);
@@ -787,14 +854,14 @@ if ($autoOpenTool) {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-gold text-navy' : 'bg-navy-light text-gray-300 border border-gray-700 hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-gold text-navy font-bold shadow-md shadow-gold/20' : 'bg-navy-light text-gray-300 border border-gray-600 hover:bg-gold/20 hover:text-gold hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 bg-navy-light border border-gray-700 rounded-lg hover:border-gold/50 hover:text-white transition-all">
+                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -900,20 +967,30 @@ if ($autoOpenTool) {
                     if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
                     ?>
                     
+                    <?php if ($page > 1): ?>
+                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
+                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Prev
+                    </a>
+                    <?php endif; ?>
+                    
                     <?php
                     $start = max(1, $page - 2);
                     $end = min($totalPages, $page + 2);
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-gold text-navy' : 'bg-navy-light text-gray-300 border border-gray-700 hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-gold text-navy font-bold shadow-md shadow-gold/20' : 'bg-navy-light text-gray-300 border border-gray-600 hover:bg-gold/20 hover:text-gold hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 bg-navy-light border border-gray-700 rounded-lg hover:border-gold/50 hover:text-white transition-all">
+                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
