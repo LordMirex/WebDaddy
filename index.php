@@ -471,29 +471,29 @@ if ($autoOpenTool) {
     <header class="relative bg-navy text-white min-h-[auto] sm:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
         <!-- Golden X Stripes Background Decoration - Both Desktop & Mobile -->
         <div class="absolute inset-0 pointer-events-none overflow-hidden">
-            <!-- Top Left X Stripe -->
-            <div class="absolute -top-20 -left-20 w-[400px] h-[2px] bg-gradient-to-r from-transparent via-gold/30 to-transparent transform rotate-45 origin-center"></div>
-            <div class="absolute -top-10 -left-32 w-[500px] h-[2px] bg-gradient-to-r from-transparent via-gold/20 to-transparent transform rotate-45 origin-center"></div>
-            <!-- Top Right X Stripe -->
-            <div class="absolute -top-20 -right-20 w-[400px] h-[2px] bg-gradient-to-r from-transparent via-gold/30 to-transparent transform -rotate-45 origin-center"></div>
-            <div class="absolute -top-10 -right-32 w-[500px] h-[2px] bg-gradient-to-r from-transparent via-gold/20 to-transparent transform -rotate-45 origin-center"></div>
-            <!-- Desktop Only - Additional Decorative Stripes -->
+            <!-- Desktop Only - Clean Diagonal X Lines -->
             <div class="hidden lg:block">
-                <div class="absolute top-0 right-0 w-[600px] h-[600px]">
-                    <div class="absolute top-0 right-0 w-[3px] h-[500px] bg-gradient-to-b from-gold/40 via-gold/20 to-transparent transform rotate-[30deg] origin-top-right"></div>
-                    <div class="absolute top-10 right-10 w-[3px] h-[450px] bg-gradient-to-b from-gold/30 via-gold/15 to-transparent transform rotate-[30deg] origin-top-right"></div>
-                    <div class="absolute top-20 right-20 w-[2px] h-[400px] bg-gradient-to-b from-gold/20 via-gold/10 to-transparent transform rotate-[30deg] origin-top-right"></div>
-                </div>
-                <div class="absolute bottom-0 right-0 w-[600px] h-[600px]">
-                    <div class="absolute bottom-0 right-0 w-[3px] h-[500px] bg-gradient-to-t from-gold/40 via-gold/20 to-transparent transform -rotate-[30deg] origin-bottom-right"></div>
-                    <div class="absolute bottom-10 right-10 w-[3px] h-[450px] bg-gradient-to-t from-gold/30 via-gold/15 to-transparent transform -rotate-[30deg] origin-bottom-right"></div>
-                    <div class="absolute bottom-20 right-20 w-[2px] h-[400px] bg-gradient-to-t from-gold/20 via-gold/10 to-transparent transform -rotate-[30deg] origin-bottom-right"></div>
-                </div>
+                <!-- Top Left to Bottom Right diagonal lines (/) -->
+                <div class="absolute top-1/4 right-1/3 w-[800px] h-[4px] bg-gradient-to-r from-transparent via-gold to-transparent transform -rotate-[45deg] origin-center opacity-35"></div>
+                <div class="absolute top-1/3 right-1/4 w-[900px] h-[3px] bg-gradient-to-r from-transparent via-gold/70 to-transparent transform -rotate-[45deg] origin-center opacity-30"></div>
+                <div class="absolute top-1/2 right-0 w-[1000px] h-[3px] bg-gradient-to-r from-transparent via-gold/50 to-transparent transform -rotate-[45deg] origin-center opacity-25"></div>
+                
+                <!-- Top Right to Bottom Left diagonal lines (\) -->
+                <div class="absolute top-1/4 right-0 w-[800px] h-[4px] bg-gradient-to-r from-transparent via-gold to-transparent transform rotate-[45deg] origin-center opacity-35"></div>
+                <div class="absolute top-1/3 right-1/12 w-[900px] h-[3px] bg-gradient-to-r from-transparent via-gold/70 to-transparent transform rotate-[45deg] origin-center opacity-30"></div>
+                <div class="absolute top-1/2 right-1/4 w-[1000px] h-[3px] bg-gradient-to-r from-transparent via-gold/50 to-transparent transform rotate-[45deg] origin-center opacity-25"></div>
             </div>
-            <!-- Mobile X Pattern -->
+            <!-- Mobile X Pattern - Cleaner and more visible -->
             <div class="lg:hidden">
-                <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-[0.06]" viewBox="0 0 200 200" fill="none">
-                    <path d="M20 20L180 180M180 20L20 180" stroke="#D4AF37" stroke-width="8" stroke-linecap="round"/>
+                <svg class="absolute top-0 right-0 w-full h-full opacity-[0.12]" viewBox="0 0 400 800" fill="none" preserveAspectRatio="none">
+                    <!-- Forward slash lines (/) -->
+                    <line x1="150" y1="0" x2="250" y2="800" stroke="#D4AF37" stroke-width="3"/>
+                    <line x1="50" y1="0" x2="150" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
+                    <line x1="250" y1="0" x2="350" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
+                    <!-- Backslash lines (\) -->
+                    <line x1="250" y1="0" x2="150" y2="800" stroke="#D4AF37" stroke-width="3"/>
+                    <line x1="350" y1="0" x2="250" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
+                    <line x1="150" y1="0" x2="50" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
                 </svg>
             </div>
         </div>
@@ -543,11 +543,11 @@ if ($autoOpenTool) {
                     }
                 }">
                     <div class="relative group">
-                        <!-- Shiny glow effect behind the laptop -->
-                        <div class="absolute -inset-4 bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
-                        <div class="absolute -inset-2 bg-gradient-to-br from-gold/10 via-transparent to-gold/10 rounded-xl opacity-50"></div>
+                        <!-- Subtle glow effect behind the laptop -->
+                        <div class="absolute -inset-4 bg-gradient-to-r from-gold/8 via-gold/4 to-gold/8 rounded-2xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
+                        <div class="absolute -inset-2 bg-gradient-to-br from-gold/5 via-transparent to-gold/5 rounded-xl opacity-30"></div>
                         
-                        <div class="relative bg-navy-light rounded-xl border border-gold/30 shadow-2xl shadow-gold/10 overflow-hidden">
+                        <div class="relative bg-navy-light rounded-xl border border-gold/25 shadow-2xl shadow-gold/5 overflow-hidden">
                             <!-- Safari-style browser header -->
                             <div class="bg-gradient-to-b from-gray-800 to-navy-light px-3 py-2 border-b border-gray-700 flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></div>
@@ -577,10 +577,10 @@ if ($autoOpenTool) {
                                 </template>
                             </div>
                         </div>
-                        <!-- Enhanced glow effects -->
-                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gold/20 rounded-full blur-2xl animate-pulse"></div>
-                        <div class="absolute -top-4 -left-4 w-28 h-28 bg-gold/10 rounded-full blur-3xl"></div>
-                        <div class="absolute top-1/2 -right-6 w-16 h-32 bg-gold/15 rounded-full blur-xl transform -translate-y-1/2"></div>
+                        <!-- Subtle glow effects -->
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gold/8 rounded-full blur-2xl animate-pulse opacity-60"></div>
+                        <div class="absolute -top-4 -left-4 w-28 h-28 bg-gold/5 rounded-full blur-3xl opacity-40"></div>
+                        <div class="absolute top-1/2 -right-6 w-16 h-32 bg-gold/6 rounded-full blur-xl transform -translate-y-1/2 opacity-50"></div>
                     </div>
                 </div>
                 
@@ -601,10 +601,10 @@ if ($autoOpenTool) {
                     }
                 }">
                     <div class="relative mx-auto max-w-sm">
-                        <!-- Shiny glow effect -->
-                        <div class="absolute -inset-2 bg-gradient-to-r from-gold/15 via-gold/5 to-gold/15 rounded-xl blur-lg opacity-70"></div>
+                        <!-- Subtle glow effect -->
+                        <div class="absolute -inset-2 bg-gradient-to-r from-gold/8 via-gold/3 to-gold/8 rounded-xl blur-lg opacity-50"></div>
                         
-                        <div class="relative bg-navy-light rounded-lg border border-gold/20 shadow-xl shadow-gold/5 overflow-hidden">
+                        <div class="relative bg-navy-light rounded-lg border border-gold/20 shadow-lg shadow-gold/3 overflow-hidden">
                             <!-- Safari-style browser header -->
                             <div class="bg-gradient-to-b from-gray-800 to-navy-light px-2 py-1.5 border-b border-gray-700 flex items-center gap-1.5">
                                 <div class="w-2 h-2 rounded-full bg-red-500"></div>
