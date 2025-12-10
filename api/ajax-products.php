@@ -307,7 +307,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/tool.php?slug=<?php echo htmlspecialchars($tool['slug'] ?? $tool['id'], ENT_QUOTES); ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
+                            <a href="/tool.php?slug=<?php echo htmlspecialchars(!empty($tool['slug']) ? $tool['slug'] : $tool['id'], ENT_QUOTES); ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>

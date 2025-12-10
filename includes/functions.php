@@ -249,12 +249,17 @@ function getTemplateUrl($template, $affiliateCode = null)
 {
     if (is_array($template)) {
         $slug = $template['slug'] ?? '';
+        $id = $template['id'] ?? '';
     } else {
         $slug = $template;
+        $id = '';
     }
     
+    // Use slug if available, otherwise fallback to ID
+    $identifier = !empty($slug) ? $slug : $id;
+    
     // Direct link to template.php with slug parameter (works in both development and production)
-    $url = '/template.php?slug=' . urlencode($slug);
+    $url = '/template.php?slug=' . urlencode($identifier);
     
     if ($affiliateCode) {
         $url .= '&aff=' . urlencode($affiliateCode);

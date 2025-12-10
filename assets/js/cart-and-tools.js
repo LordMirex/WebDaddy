@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             <span class="text-base font-bold text-primary-600">${formatCurrency(template.price)}</span>
                                         </div>
                                         <div class="flex gap-2">
-                                            <a href="/template.php?slug=${escapeHtml(template.slug)}${affiliateCode ? '&aff=' + affiliateCode : ''}" 
+                                            <a href="/template.php?slug=${template.slug ? escapeHtml(template.slug) : template.id}${affiliateCode ? '&aff=' + affiliateCode : ''}" 
                                                data-template-id="${template.id}"
                                                class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-600 text-xs font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors whitespace-nowrap">
                                                 Details
