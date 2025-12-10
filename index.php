@@ -248,29 +248,29 @@ if ($autoOpenTool) {
                 extend: {
                     colors: {
                         primary: {
-                            50: '#F9F5E8',
-                            100: '#F0EAD6',
-                            200: '#E6D5A8',
-                            300: '#DCC070',
-                            400: '#D4A574',
-                            500: '#C89450',
-                            600: '#B8843F',
-                            700: '#9E7235',
-                            800: '#84612D',
-                            900: '#6B5025',
+                            50: '#FDF9ED',
+                            100: '#FAF0D4',
+                            200: '#F5E1A8',
+                            300: '#EFCF72',
+                            400: '#E8BB45',
+                            500: '#D4AF37',
+                            600: '#B8942E',
+                            700: '#9A7B26',
+                            800: '#7D6320',
+                            900: '#604B18',
                         },
                         gold: {
-                            DEFAULT: '#D4A574',
-                            50: '#F9F5E8',
-                            100: '#F0EAD6',
-                            200: '#E6D5A8',
-                            300: '#DCC070',
-                            400: '#D4A574',
-                            500: '#C89450',
-                            600: '#B8843F',
-                            700: '#9E7235',
-                            800: '#84612D',
-                            900: '#6B5025',
+                            DEFAULT: '#D4AF37',
+                            50: '#FDF9ED',
+                            100: '#FAF0D4',
+                            200: '#F5E1A8',
+                            300: '#EFCF72',
+                            400: '#E8BB45',
+                            500: '#D4AF37',
+                            600: '#B8942E',
+                            700: '#9A7B26',
+                            800: '#7D6320',
+                            900: '#604B18',
                         },
                         navy: {
                             DEFAULT: '#0f172a',
@@ -286,23 +286,24 @@ if ($autoOpenTool) {
     </script>
     <style>
         .btn-gold-shine {
-            background: linear-gradient(135deg, #E8C97A 0%, #D4A574 40%, #C89450 100%);
-            box-shadow: 0 4px 15px rgba(212,165,116,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%);
+            box-shadow: 0 4px 15px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.15);
         }
         .btn-gold-shine:hover {
-            background: linear-gradient(135deg, #EFD48A 0%, #DDB27A 40%, #D09E5A 100%);
-            box-shadow: 0 6px 20px rgba(212,165,116,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+            background: linear-gradient(135deg, #FADE7A 0%, #E8BB45 50%, #D4AF37 100%);
+            box-shadow: 0 6px 25px rgba(212,175,55,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: translateY(-1px);
         }
         .gold-text-shine {
-            background: linear-gradient(135deg, #E8C97A 0%, #D4A574 50%, #E8C97A 100%);
+            background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #F5D669 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         .border-gold-shine {
-            border-color: #D4A574;
-            box-shadow: 0 0 10px rgba(212,165,116,0.2);
+            border-color: #D4AF37;
+            box-shadow: 0 0 15px rgba(212,175,55,0.25);
         }
     </style>
     <script src="/assets/js/forms.js" defer></script>
@@ -408,7 +409,7 @@ if ($autoOpenTool) {
             <!-- Mobile X Pattern -->
             <div class="lg:hidden">
                 <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-[0.06]" viewBox="0 0 200 200" fill="none">
-                    <path d="M20 20L180 180M180 20L20 180" stroke="#c9a962" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M20 20L180 180M180 20L20 180" stroke="#D4AF37" stroke-width="8" stroke-linecap="round"/>
                 </svg>
             </div>
         </div>

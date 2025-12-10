@@ -107,8 +107,20 @@ All cron jobs confirmed as necessary and properly implemented:
 - After successful withdrawal request, the affiliate dashboard now properly refreshes all balance components
 - Re-fetches total earned, total paid, and in-progress withdrawals to display accurate available balance
 
+### Vibrant Luxury Gold Color Upgrade (December 2025)
+- **Gold Palette Overhaul**: Replaced muted brownish-gold (#D4A574) with vibrant luxury gold (#D4AF37)
+- **New Gold Color Scale**: 
+  - 50: #FDF9ED (lightest cream)
+  - 100-300: #FAF0D4 → #EFCF72 (light golds)
+  - 400-500: #E8BB45 → #D4AF37 (primary vibrant gold)
+  - 600-900: #B8942E → #604B18 (darker golds)
+- **Button Gradients**: Updated btn-gold-shine with vibrant gradient (#F5D669 → #D4AF37 → #B8942E)
+- **Enhanced Shadows**: Gold button shadows now use rgba(212,175,55,0.35) for better glow effect
+- **AJAX Products**: api/ajax-products.php updated with matching vibrant gold theme
+- **Cache Cleared**: Old cached content removed to ensure new colors display immediately
+
 ### Index.php Navy/Gold Redesign (December 2025)
-- **Color Scheme**: Complete redesign with navy (#0f172a) primary background and gold (#c9a962) accents
+- **Color Scheme**: Complete redesign with navy (#0f172a) primary background and gold (#D4AF37) accents
 - **FAQ Section**: Updated to navy-dark background with gold arrow icons and navy-light card backgrounds
 - **Footer**: Gold "Become an Affiliate" button, 5 social media icons (Facebook, Twitter, Instagram, LinkedIn, YouTube), rounded pill-style buttons
 - **AJAX Products**: api/ajax-products.php updated with matching gold/navy theme for dynamically loaded products

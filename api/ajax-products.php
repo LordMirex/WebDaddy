@@ -145,7 +145,7 @@ if ($action === 'load_view') {
 function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $currentCategory, $affiliateCode) {
     if (empty($templates)): ?>
         <div style="background: #1e293b; border: 1px solid rgba(55,65,81,0.5); border-radius: 16px; padding: 48px; text-align: center;">
-            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #D4A574;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <h4 style="font-size: 20px; font-weight: bold; color: #ffffff; margin-bottom: 8px;">No templates available</h4>
@@ -205,7 +205,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($template['name']); ?></h3>
-                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: rgba(212,165,116,0.25); color: #D4A574; white-space: nowrap;">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
                             <?php echo htmlspecialchars($template['category']); ?>
                         </span>
                     </div>
@@ -213,7 +213,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid rgba(55,65,81,0.5);">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #D4A574;"><?php echo formatCurrency($template['price']); ?></span>
+                            <span style="font-size: 18px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($template['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
@@ -221,7 +221,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                                 Details
                             </a>
                             <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '', this)" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border: none; font-size: 12px; font-weight: 600; border-radius: 8px; color: #0f172a; background: linear-gradient(135deg, #E8C97A 0%, #D4A574 50%, #C89450 100%); box-shadow: 0 2px 6px rgba(212,165,116,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border: none; font-size: 12px; font-weight: 600; border-radius: 8px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
@@ -241,7 +241,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
 function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $currentCategory, $affiliateCode) {
     if (empty($tools)): ?>
         <div style="background: #1e293b; border: 1px solid rgba(55,65,81,0.5); border-radius: 16px; padding: 48px; text-align: center;">
-            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #D4A574;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #D4AF37;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <h4 style="font-size: 20px; font-weight: bold; color: #ffffff; margin-bottom: 8px;">No tools available</h4>
@@ -295,7 +295,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <h3 style="font-size: 14px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;"><?php echo htmlspecialchars($tool['name']); ?></h3>
                         <?php if (!empty($tool['category'])): ?>
-                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; background: rgba(212,165,116,0.25); color: #D4A574; white-space: nowrap;">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
                             <?php echo htmlspecialchars($tool['category']); ?>
                         </span>
                         <?php endif; ?>
@@ -304,7 +304,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid rgba(55,65,81,0.5);">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #D4A574;"><?php echo formatCurrency($tool['price']); ?></span>
+                            <span style="font-size: 18px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button data-tool-id="<?php echo $tool['id']; ?>" 
@@ -313,7 +313,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                                 Details
                             </button>
                             <button onclick="addToolToCart(<?php echo $tool['id']; ?>, '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>', this)" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border: none; font-size: 12px; font-weight: 600; border-radius: 8px; color: #0f172a; background: linear-gradient(135deg, #E8C97A 0%, #D4A574 50%, #C89450 100%); box-shadow: 0 2px 6px rgba(212,165,116,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border: none; font-size: 12px; font-weight: 600; border-radius: 8px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
@@ -342,7 +342,7 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
             for ($i = $start; $i <= $end; $i++):
             ?>
             <a href="?view=<?php echo $view; ?>&page=<?php echo $i; ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 700; border: 1px solid rgba(55,65,81,0.5); border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: linear-gradient(135deg, #E8C97A 0%, #D4A574 50%, #C89450 100%); color: #0f172a; border-color: #D4A574; box-shadow: 0 2px 4px rgba(212,165,116,0.3);' : 'background: #1e293b; color: #d1d5db;'; ?>">
+               style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 700; border: 1px solid rgba(55,65,81,0.5); border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; <?php echo $i === $page ? 'background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); color: #0f172a; border-color: #D4AF37; box-shadow: 0 2px 6px rgba(212,175,55,0.4);' : 'background: #1e293b; color: #d1d5db;'; ?>">
                 <?php echo $i; ?>
             </a>
             <?php endfor; ?>
