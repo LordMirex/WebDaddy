@@ -314,72 +314,98 @@ if ($autoOpenTool) {
             vertical-align: baseline;
         }
         
-        /* Word-level dissolve animations */
-        @keyframes dissolveEvaporate {
-            0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
-            50% { opacity: 0.5; text-shadow: 0 0 10px #D4AF37; }
-            100% { opacity: 0; transform: translateY(-25px) scale(0.8); filter: blur(8px); }
+        /* SLOW EVAPORATE UP - 1.2 seconds */
+        @keyframes dissolveEvaporateSlow {
+            0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); text-shadow: 0 0 0px #D4AF37; }
+            30% { opacity: 0.7; text-shadow: 0 0 15px #D4AF37; }
+            70% { opacity: 0.2; transform: translateY(-40px) scale(0.6); filter: blur(6px); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.1); filter: blur(15px); }
         }
         
-        @keyframes dissolveWipeRight {
-            0% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
-            50% { opacity: 0.5; text-shadow: 0 0 8px #D4AF37; }
-            100% { opacity: 0; clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); }
+        /* SUPER FAST WIPE - 0.35 seconds */
+        @keyframes dissolveWipeFast {
+            0% { opacity: 1; transform: translateX(0); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            100% { opacity: 0; transform: translateX(100px); clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); }
         }
         
-        @keyframes dissolveFade {
-            0% { opacity: 1; filter: brightness(1); }
-            50% { opacity: 0.5; filter: brightness(1.3); text-shadow: 0 0 15px #D4AF37; }
-            100% { opacity: 0; filter: brightness(0.3); }
+        /* VERY SLOW FADE GLOW - 1.6 seconds */
+        @keyframes dissolveFadeSlow {
+            0% { opacity: 1; filter: brightness(1) blur(0px); text-shadow: 0 0 0px #D4AF37; }
+            20% { text-shadow: 0 0 25px #D4AF37, 0 0 15px #D4AF37; }
+            50% { opacity: 0.4; filter: brightness(1.8) blur(3px); text-shadow: 0 0 40px #D4AF37, 0 0 25px #D4AF37; }
+            80% { opacity: 0.1; filter: brightness(0.3) blur(12px); text-shadow: 0 0 5px #D4AF37; }
+            100% { opacity: 0; filter: brightness(0) blur(20px); text-shadow: 0 0 0px #D4AF37; }
         }
         
-        @keyframes dissolveScatter {
-            0% { opacity: 1; transform: scale(1); filter: blur(0px); }
-            50% { opacity: 0.3; transform: scale(1.1); text-shadow: 0 0 12px #D4AF37; }
-            100% { opacity: 0; transform: scale(0.4) rotate(-15deg); filter: blur(10px); }
+        /* FAST DIAGONAL SCATTER - 0.45 seconds */
+        @keyframes dissolveScatterFast {
+            0% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0px); }
+            40% { opacity: 0.4; transform: scale(1.2) rotate(20deg); text-shadow: 0 0 20px #D4AF37; }
+            100% { opacity: 0; transform: translate(40px, -40px) scale(0.2) rotate(-45deg); filter: blur(12px); }
         }
         
-        @keyframes dissolveMelt {
-            0% { opacity: 1; transform: translateY(0) skewY(0deg); }
-            50% { opacity: 0.5; text-shadow: 0 0 8px #D4AF37; }
-            100% { opacity: 0; transform: translateY(20px) skewY(10deg); filter: blur(5px); }
+        /* VERY SLOW DRIP DOWN - 1.4 seconds */
+        @keyframes dissolveMeltSlow {
+            0% { opacity: 1; transform: translateY(0) skewY(0deg) scaleY(1); filter: blur(0px); }
+            25% { opacity: 0.8; text-shadow: 0 0 15px #D4AF37; }
+            60% { opacity: 0.3; transform: translateY(30px) skewY(8deg) scaleY(0.4); filter: blur(6px); }
+            100% { opacity: 0; transform: translateY(60px) skewY(15deg) scaleY(0.1); filter: blur(10px); }
         }
         
-        @keyframes appearEvaporate {
-            0% { opacity: 0; transform: translateY(-25px) scale(0.8); filter: blur(8px); }
-            50% { opacity: 0.7; text-shadow: 0 0 20px #D4AF37; }
-            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+        /* MEDIUM TWIRL - 0.7 seconds */
+        @keyframes dissolveTwirl {
+            0% { opacity: 1; transform: rotate(0deg) scale(1); filter: blur(0px); }
+            50% { opacity: 0.5; transform: rotate(180deg) scale(1.1); text-shadow: 0 0 20px #D4AF37; }
+            100% { opacity: 0; transform: rotate(360deg) scale(0.3); filter: blur(10px); }
         }
         
-        @keyframes appearReveal {
-            0% { opacity: 0; clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%); }
-            50% { opacity: 0.7; text-shadow: 0 0 20px #D4AF37; }
-            100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+        /* FAST SLIDE DOWN - 0.4 seconds */
+        @keyframes appearSlideFast {
+            0% { opacity: 0; transform: translateY(-50px); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
         }
         
-        @keyframes appearLiquid {
-            0% { opacity: 0; transform: translateY(20px) skewY(10deg); filter: blur(5px); }
-            50% { opacity: 0.7; text-shadow: 0 0 20px #D4AF37; }
-            100% { opacity: 1; transform: translateY(0) skewY(0deg); filter: blur(0px); }
-        }
-        
-        @keyframes appearPulse {
-            0% { opacity: 0; transform: scale(0.5); filter: blur(5px); }
-            50% { opacity: 0.8; transform: scale(1.15); text-shadow: 0 0 25px #D4AF37; }
+        /* SLOW PULSE EXPAND - 1.1 seconds */
+        @keyframes appearPulseSlow {
+            0% { opacity: 0; transform: scale(0.2); filter: blur(10px); text-shadow: 0 0 0px #D4AF37; }
+            40% { opacity: 0.8; transform: scale(1.25); text-shadow: 0 0 30px #D4AF37, 0 0 20px #D4AF37; }
             100% { opacity: 1; transform: scale(1); filter: blur(0px); }
         }
         
-        /* Animation classes */
-        .anim-evaporate { animation: dissolveEvaporate 0.7s ease-out forwards; }
-        .anim-wipe { animation: dissolveWipeRight 0.6s ease-in forwards; }
-        .anim-fade { animation: dissolveFade 0.8s ease-out forwards; }
-        .anim-scatter { animation: dissolveScatter 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-        .anim-melt { animation: dissolveMelt 0.6s ease-in forwards; }
+        /* SUPER FAST FLIP - 0.35 seconds */
+        @keyframes appearFlipFast {
+            0% { opacity: 0; transform: perspective(800px) rotateY(90deg); filter: blur(8px); }
+            100% { opacity: 1; transform: perspective(800px) rotateY(0deg); filter: blur(0px); }
+        }
         
-        .anim-in-evaporate { animation: appearEvaporate 0.7s ease-out forwards; }
-        .anim-in-reveal { animation: appearReveal 0.6s ease-out forwards; }
-        .anim-in-liquid { animation: appearLiquid 0.6s ease-out forwards; }
-        .anim-in-pulse { animation: appearPulse 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        /* MEDIUM SPLIT REVEAL - 0.8 seconds */
+        @keyframes appearRevealSplit {
+            0% { opacity: 0; clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%); filter: blur(10px); }
+            50% { opacity: 0.7; text-shadow: 0 0 25px #D4AF37; }
+            100% { opacity: 1; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); filter: blur(0px); }
+        }
+        
+        /* VERY SLOW RISE WITH SHIMMER - 1.3 seconds */
+        @keyframes appearRiseSlow {
+            0% { opacity: 0; transform: translateY(50px) scaleY(0.3); filter: blur(12px); text-shadow: 0 0 0px #D4AF37; }
+            30% { opacity: 0.6; text-shadow: 0 0 25px #D4AF37; }
+            70% { opacity: 1; transform: translateY(0) scaleY(1); text-shadow: 0 0 15px #D4AF37; }
+            100% { opacity: 1; transform: translateY(0) scaleY(1); filter: blur(0px); }
+        }
+        
+        /* Animation classes - ALL DIFFERENT SPEEDS */
+        .anim-evaporate { animation: dissolveEvaporateSlow 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .anim-wipe { animation: dissolveWipeFast 0.35s linear forwards; }
+        .anim-fade { animation: dissolveFadeSlow 1.6s ease-out forwards; }
+        .anim-scatter { animation: dissolveScatterFast 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-melt { animation: dissolveMeltSlow 1.4s ease-in forwards; }
+        .anim-twirl { animation: dissolveTwirl 0.7s ease-in forwards; }
+        
+        .anim-in-slide { animation: appearSlideFast 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-in-pulse { animation: appearPulseSlow 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-in-flip { animation: appearFlipFast 0.35s ease-out forwards; }
+        .anim-in-reveal { animation: appearRevealSplit 0.8s ease-out forwards; }
+        .anim-in-rise { animation: appearRiseSlow 1.3s ease-out forwards; }
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -1407,47 +1433,41 @@ if ($autoOpenTool) {
             }
         });
 
-        // Professional word animations with varied dissolve and appearance effects
+        // Professional word animations - EACH TRANSITION IS COMPLETELY DIFFERENT
         const wordElement = document.getElementById('animatedWord');
         if (wordElement) {
             const words = ['Confidence', 'Growth', 'Impact', 'Excellence', 'Success', 'Mastery'];
-            const outAnimations = ['anim-evaporate', 'anim-wipe', 'anim-fade', 'anim-scatter', 'anim-melt'];
-            const inAnimations = ['anim-in-evaporate', 'anim-in-reveal', 'anim-in-liquid', 'anim-in-pulse'];
+            // SIX different exit animations
+            const outAnimations = ['anim-evaporate', 'anim-wipe', 'anim-fade', 'anim-scatter', 'anim-melt', 'anim-twirl'];
+            // FIVE different entrance animations
+            const inAnimations = ['anim-in-slide', 'anim-in-pulse', 'anim-in-flip', 'anim-in-reveal', 'anim-in-rise'];
             
             let currentIndex = 0;
-            let usedOutAnims = [];
-            let usedInAnims = [];
-            
-            function getNextAnimation(usedList, fullList) {
-                if (usedList.length === fullList.length) {
-                    usedList = [];
-                }
-                let anim;
-                do {
-                    anim = fullList[Math.floor(Math.random() * fullList.length)];
-                } while (usedList.includes(anim));
-                usedList.push(anim);
-                return anim;
-            }
             
             function animateWordChange() {
                 const nextIndex = (currentIndex + 1) % words.length;
                 const nextWord = words[nextIndex];
-                const outAnim = getNextAnimation(usedOutAnims, outAnimations);
                 
-                // Dissolve current word
+                // Pick a RANDOM exit animation (guaranteed variety)
+                const outAnim = outAnimations[Math.floor(Math.random() * outAnimations.length)];
+                const exitTime = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue('--anim-exit-time') || '1200');
+                
                 wordElement.classList.add(outAnim);
                 
                 setTimeout(() => {
                     wordElement.textContent = nextWord;
+                    // Remove ALL animation classes
                     wordElement.classList.remove(...outAnimations);
                     
-                    const inAnim = getNextAnimation(usedInAnims, inAnimations);
+                    // Pick a RANDOM entrance animation
+                    const inAnim = inAnimations[Math.floor(Math.random() * inAnimations.length)];
                     wordElement.classList.add(inAnim);
                     
                     currentIndex = nextIndex;
-                    setTimeout(animateWordChange, 3500);
-                }, 700);
+                    
+                    // Schedule next transition
+                    setTimeout(animateWordChange, 3000);
+                }, 1200);
             }
             
             wordElement.textContent = words[0];
