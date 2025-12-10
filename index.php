@@ -312,8 +312,8 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="pb-2 border-b-2 font-medium transition-colors <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="pb-2 border-b-2 font-medium transition-colors <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>">Tools</a>
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="pb-1 border-b-2 font-medium transition-all bg-transparent <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="pb-1 border-b-2 font-medium transition-all bg-transparent <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>">Tools</a>
                     <a href="#faq" class="text-gray-300 hover:text-gold font-medium transition-colors py-1">FAQ</a>
                     <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300 hover:text-gold font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -632,13 +632,13 @@ if ($autoOpenTool) {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- View Toggle Tabs with Gold Underline -->
             <div class="flex justify-center mb-6 sm:mb-8">
-                <div class="inline-flex gap-4 sm:gap-8" role="group">
+                <div class="inline-flex gap-6 sm:gap-12" role="group">
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="pb-2 sm:pb-3 text-sm sm:text-lg font-semibold transition-colors border-b-2 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-400 border-transparent hover:text-gray-200'; ?>">
+                       class="pb-1 text-sm sm:text-base font-semibold transition-all whitespace-nowrap border-b-2 bg-transparent <?php echo $currentView === 'templates' ? 'text-white border-gold' : 'text-gray-400 border-transparent hover:text-gray-300'; ?>">
                         Website Templates
                     </a>
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="pb-2 sm:pb-3 text-sm sm:text-lg font-semibold transition-colors border-b-2 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-400 border-transparent hover:text-gray-200'; ?>">
+                       class="pb-1 text-sm sm:text-base font-semibold transition-all whitespace-nowrap border-b-2 bg-transparent <?php echo $currentView === 'tools' ? 'text-white border-gold' : 'text-gray-400 border-transparent hover:text-gray-300'; ?>">
                         Working Tools
                     </a>
                 </div>
