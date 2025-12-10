@@ -245,16 +245,16 @@ if ($autoOpenTool) {
                 extend: {
                     colors: {
                         primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                            50: '#fdf9ef',
+                            100: '#f9f0d9',
+                            200: '#f2ddb0',
+                            300: '#e9c67d',
+                            400: '#c9a962',
+                            500: '#b8923f',
+                            600: '#c9a962',
+                            700: '#a47a33',
+                            800: '#88602c',
+                            900: '#704f29',
                         },
                         gold: {
                             DEFAULT: '#c9a962',
@@ -359,7 +359,7 @@ if ($autoOpenTool) {
     </nav>
 
     <!-- Hero Section - Full 100vh with Stats -->
-    <header class="relative bg-navy text-white min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+    <header class="relative bg-navy text-white h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
         <!-- Golden X Stripes Background Decoration - Both Desktop & Mobile -->
         <div class="absolute inset-0 pointer-events-none overflow-hidden">
             <!-- Top Left X Stripe -->
@@ -390,26 +390,26 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Main Content Area -->
-        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center w-full">
+        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-12 items-center w-full">
                 <!-- Left Side (60%) -->
                 <div class="lg:col-span-3">
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-4 lg:mb-6 leading-tight">
+                    <h1 class="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-extrabold mb-3 lg:mb-6 leading-tight">
                         Build Your Digital Presence with <span class="text-gold">Confidence.</span>
                     </h1>
-                    <p class="text-base sm:text-lg lg:text-xl text-gray-400 mb-6 lg:mb-8 max-w-xl">
+                    <p class="text-sm sm:text-base lg:text-xl text-gray-400 mb-4 lg:mb-8 max-w-xl">
                         Premium website templates and powerful digital tools designed for growing businesses. Launch faster, scale smarter.
                     </p>
                     
                     <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-3 lg:gap-4">
-                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
+                    <div class="flex flex-col sm:flex-row gap-2 lg:gap-4">
+                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-5 lg:px-8 py-2.5 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
                             <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                             </svg>
                             Browse Templates
                         </a>
-                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
+                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-5 lg:px-8 py-2.5 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
                             <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                             </svg>
@@ -418,8 +418,19 @@ if ($autoOpenTool) {
                     </div>
                 </div>
                 
-                <!-- Right Side (40%) - Website Mockup -->
-                <div class="lg:col-span-2 hidden lg:block">
+                <!-- Right Side (40%) - Animated Website Mockup Slideshow -->
+                <div class="lg:col-span-2 hidden lg:block" x-data="{ 
+                    currentSlide: 0,
+                    slides: [
+                        { title: 'E-Commerce Store', subtitle: 'Modern Shopping Experience', color: 'from-gold/20 to-navy' },
+                        { title: 'Portfolio Site', subtitle: 'Showcase Your Work', color: 'from-purple-900/30 to-navy' },
+                        { title: 'Restaurant Menu', subtitle: 'Delicious Design', color: 'from-orange-900/30 to-navy' },
+                        { title: 'Business Landing', subtitle: 'Professional Presence', color: 'from-green-900/30 to-navy' }
+                    ],
+                    init() {
+                        setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides.length }, 3000)
+                    }
+                }">
                     <div class="relative">
                         <div class="bg-navy-light rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
                             <div class="bg-navy-light px-3 py-2 border-b border-gray-700 flex items-center gap-2">
@@ -427,20 +438,33 @@ if ($autoOpenTool) {
                                 <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
                                 <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                                 <div class="flex-1 ml-3">
-                                    <div class="bg-navy rounded-lg px-2 py-0.5 text-xs text-gray-400 max-w-xs">yourwebsite.com</div>
+                                    <div class="bg-navy rounded-lg px-2 py-0.5 text-xs text-gray-400 max-w-xs" x-text="'yourwebsite.com'"></div>
                                 </div>
                             </div>
-                            <div class="aspect-[16/10] bg-gradient-to-br from-navy-light to-navy p-4 flex flex-col items-center justify-center">
-                                <div class="w-full max-w-xs space-y-3">
-                                    <div class="h-6 bg-gold/20 rounded-lg w-3/4 mx-auto"></div>
-                                    <div class="h-3 bg-gray-700 rounded w-full"></div>
-                                    <div class="h-3 bg-gray-700 rounded w-5/6"></div>
-                                    <div class="grid grid-cols-2 gap-2 mt-4">
-                                        <div class="h-16 bg-navy-light rounded-lg border border-gray-700"></div>
-                                        <div class="h-16 bg-navy-light rounded-lg border border-gray-700"></div>
+                            <div class="aspect-[16/10] relative overflow-hidden">
+                                <template x-for="(slide, index) in slides" :key="index">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center p-6 transition-all duration-700"
+                                         :class="[`bg-gradient-to-br ${slide.color}`, currentSlide === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full']">
+                                        <div class="w-full max-w-xs space-y-3 text-center">
+                                            <div class="h-5 bg-gold/30 rounded-lg w-3/4 mx-auto"></div>
+                                            <h3 class="text-lg font-bold text-white" x-text="slide.title"></h3>
+                                            <p class="text-xs text-gray-400" x-text="slide.subtitle"></p>
+                                            <div class="grid grid-cols-2 gap-2 mt-3">
+                                                <div class="h-12 bg-navy-light/50 rounded-lg border border-gray-700/50"></div>
+                                                <div class="h-12 bg-navy-light/50 rounded-lg border border-gray-700/50"></div>
+                                            </div>
+                                            <div class="h-7 bg-gold rounded-lg w-1/2 mx-auto mt-2"></div>
+                                        </div>
                                     </div>
-                                    <div class="h-8 bg-gold rounded-lg w-1/2 mx-auto mt-3"></div>
-                                </div>
+                                </template>
+                            </div>
+                            <!-- Slide Indicators -->
+                            <div class="flex justify-center gap-1.5 py-2 bg-navy-light border-t border-gray-700/50">
+                                <template x-for="(slide, index) in slides" :key="index">
+                                    <button @click="currentSlide = index" 
+                                            class="w-2 h-2 rounded-full transition-all"
+                                            :class="currentSlide === index ? 'bg-gold w-4' : 'bg-gray-600 hover:bg-gray-500'"></button>
+                                </template>
                             </div>
                         </div>
                         <div class="absolute -bottom-3 -right-3 w-20 h-20 bg-gold/10 rounded-full blur-2xl"></div>
@@ -451,41 +475,41 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Stats Bar - Inside Hero for 100vh -->
-        <div class="relative py-4 lg:py-6 bg-navy/50 backdrop-blur-sm">
+        <div class="relative py-3 lg:py-5 bg-navy/50 backdrop-blur-sm">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-3 lg:py-4 px-4 lg:px-8">
-                    <div class="grid grid-cols-3 gap-2 lg:gap-4 text-center">
-                        <div class="flex items-center justify-center gap-2 lg:gap-3">
-                            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-2 lg:py-4 px-3 lg:px-8">
+                    <div class="grid grid-cols-3 gap-1 lg:gap-4 text-center">
+                        <div class="flex items-center justify-center gap-1.5 lg:gap-3">
+                            <div class="w-7 h-7 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-sm sm:text-base lg:text-xl font-bold text-white">500+</div>
-                                <div class="text-[10px] lg:text-xs text-gray-400 whitespace-nowrap">Websites Launched</div>
+                                <div class="text-xs sm:text-sm lg:text-xl font-bold text-white">500+</div>
+                                <div class="text-[9px] lg:text-xs text-gray-400">Websites</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-2 lg:gap-3 border-x border-gray-700/50">
-                            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center justify-center gap-1.5 lg:gap-3 border-x border-gray-700/50">
+                            <div class="w-7 h-7 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-sm sm:text-base lg:text-xl font-bold text-white">10k+</div>
-                                <div class="text-[10px] lg:text-xs text-gray-400 whitespace-nowrap">Active Users</div>
+                                <div class="text-xs sm:text-sm lg:text-xl font-bold text-white">10k+</div>
+                                <div class="text-[9px] lg:text-xs text-gray-400">Users</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-2 lg:gap-3">
-                            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="flex items-center justify-center gap-1.5 lg:gap-3">
+                            <div class="w-7 h-7 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 lg:w-5 lg:h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-sm sm:text-base lg:text-xl font-bold text-white">4.9/5</div>
-                                <div class="text-[10px] lg:text-xs text-gray-400 whitespace-nowrap">Customer Rating</div>
+                                <div class="text-xs sm:text-sm lg:text-xl font-bold text-white">4.9/5</div>
+                                <div class="text-[9px] lg:text-xs text-gray-400">Rating</div>
                             </div>
                         </div>
                     </div>

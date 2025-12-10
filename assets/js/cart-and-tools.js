@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (results.length === 0) {
                 contentArea.innerHTML = `
                     <div class="bg-gray-800 border border-gray-700 rounded-2xl p-12 text-center">
-                        <svg class="w-16 h-16 mx-auto text-blue-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-16 h-16 mx-auto text-gold mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <h4 class="text-xl font-bold text-white mb-2">No results found</h4>
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="text-base font-bold text-white flex-1 pr-2">${escapeHtml(template.name)}</h3>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white shrink-0">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
                                             ${escapeHtml(template.category || '')}
                                         </span>
                                     </div>
@@ -784,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     Delivery
                                 </h4>
                                 <p class="text-sm sm:text-base text-gray-100 bg-gray-800 p-3 rounded-lg border border-gray-700">
-                                    <span class="font-semibold text-blue-900">Estimated delivery:</span> ${escapedDeliveryTime}
+                                    <span class="font-semibold text-gold">Estimated delivery:</span> ${escapedDeliveryTime}
                                 </p>
                             </div>
                             ` : ''}
@@ -1120,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-0.5">
                         <h4 class="font-medium text-sm text-white truncate">${escapeHtml(item.name)}</h4>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded ${isTemplate ? 'bg-blue-900 text-blue-100' : 'bg-green-900 text-green-100'}">${isTemplate ? 'Template' : 'Tool'}</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded ${isTemplate ? 'bg-gold/20 text-gold' : 'bg-green-900 text-green-100'}">${isTemplate ? 'Template' : 'Tool'}</span>
                     </div>
                     <p class="text-xs text-gray-300">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity} = <span class="font-semibold text-white">${formatCurrency((item.price_at_add || item.price) * item.quantity)}</span></p>
                 </div>
