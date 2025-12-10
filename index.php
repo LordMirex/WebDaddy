@@ -471,23 +471,15 @@ if ($autoOpenTool) {
     <header class="relative bg-navy text-white min-h-[auto] sm:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
         <!-- Golden X Stripes Background Decoration - Same for Desktop & Mobile -->
         <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1280 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#B8960F;stop-opacity:0" />
-                    <stop offset="30%" style="stop-color:#D4AF37;stop-opacity:0.7" />
-                    <stop offset="50%" style="stop-color:#F4E8C1;stop-opacity:0.8" />
-                    <stop offset="70%" style="stop-color:#D4AF37;stop-opacity:0.7" />
-                    <stop offset="100%" style="stop-color:#B8960F;stop-opacity:0" />
-                </linearGradient>
-            </defs>
+            <!-- Forward slash lines (/) -->
+            <line x1="600" y1="0" x2="800" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
+            <line x1="300" y1="0" x2="500" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <line x1="900" y1="0" x2="1100" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
             
-            <!-- Forward slash lines (/) - Thick bold stripes -->
-            <line x1="400" y1="-200" x2="800" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
-            <line x1="700" y1="-200" x2="1100" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
-            
-            <!-- Backslash lines (\) - Thick bold stripes -->
-            <line x1="800" y1="-200" x2="400" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
-            <line x1="1100" y1="-200" x2="700" y2="1000" stroke="url(#goldGradient)" stroke-width="80" stroke-linecap="round" opacity="0.75"/>
+            <!-- Backslash lines (\) -->
+            <line x1="800" y1="0" x2="600" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
+            <line x1="1100" y1="0" x2="900" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <line x1="500" y1="0" x2="300" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
         </svg>
         
         <!-- Main Content Area -->
@@ -502,14 +494,14 @@ if ($autoOpenTool) {
                 </p>
                 
                 <!-- Desktop CTA Buttons - Hidden on mobile -->
-                <div class="hidden lg:flex flex-col gap-2 sm:gap-3 lg:gap-4">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-navy transition-all">
+                <div class="hidden lg:flex flex-row gap-3 lg:gap-4">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-navy transition-all whitespace-nowrap flex-1">
                         <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
                         Browse Templates
                     </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all">
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all whitespace-nowrap flex-1">
                         <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
