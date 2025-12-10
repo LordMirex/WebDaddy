@@ -309,80 +309,77 @@ if ($autoOpenTool) {
         /* Animated word swapping styles */
         .animate-word-swap {
             display: inline-block;
-            min-width: 160px;
+            min-width: 140px;
             position: relative;
-            letter-spacing: 0.02em;
+            vertical-align: baseline;
         }
         
-        /* Letter-by-letter animations */
-        @keyframes evaporateUp {
-            0% { opacity: 1; transform: translateY(0) scaleY(1); }
-            100% { opacity: 0; transform: translateY(-30px) scaleY(0.5); }
+        /* Word-level dissolve animations */
+        @keyframes dissolveEvaporate {
+            0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+            50% { opacity: 0.5; text-shadow: 0 0 10px #D4AF37; }
+            100% { opacity: 0; transform: translateY(-25px) scale(0.8); filter: blur(8px); }
         }
         
-        @keyframes wipeLeft {
+        @keyframes dissolveWipeRight {
             0% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            50% { opacity: 0.5; text-shadow: 0 0 8px #D4AF37; }
             100% { opacity: 0; clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); }
         }
         
-        @keyframes wipeDiagonal {
-            0% { opacity: 1; transform: translateX(0) translateY(0) skewX(0deg); }
-            100% { opacity: 0; transform: translateX(20px) translateY(-20px) skewX(20deg); }
+        @keyframes dissolveFade {
+            0% { opacity: 1; filter: brightness(1); }
+            50% { opacity: 0.5; filter: brightness(1.3); text-shadow: 0 0 15px #D4AF37; }
+            100% { opacity: 0; filter: brightness(0.3); }
         }
         
-        @keyframes fadeRotate {
-            0% { opacity: 1; transform: rotateZ(0deg) scale(1); }
-            100% { opacity: 0; transform: rotateZ(45deg) scale(0.3); }
+        @keyframes dissolveScatter {
+            0% { opacity: 1; transform: scale(1); filter: blur(0px); }
+            50% { opacity: 0.3; transform: scale(1.1); text-shadow: 0 0 12px #D4AF37; }
+            100% { opacity: 0; transform: scale(0.4) rotate(-15deg); filter: blur(10px); }
         }
         
-        @keyframes sparkleDisappear {
-            0% { opacity: 1; transform: scale(1); text-shadow: 0 0 0px #D4AF37; }
-            50% { text-shadow: 0 0 10px #D4AF37; }
-            100% { opacity: 0; transform: scale(0); text-shadow: 0 0 0px #D4AF37; }
+        @keyframes dissolveMelt {
+            0% { opacity: 1; transform: translateY(0) skewY(0deg); }
+            50% { opacity: 0.5; text-shadow: 0 0 8px #D4AF37; }
+            100% { opacity: 0; transform: translateY(20px) skewY(10deg); filter: blur(5px); }
         }
         
-        @keyframes appearSlideDown {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
+        @keyframes appearEvaporate {
+            0% { opacity: 0; transform: translateY(-25px) scale(0.8); filter: blur(8px); }
+            50% { opacity: 0.7; text-shadow: 0 0 20px #D4AF37; }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
         }
         
-        @keyframes appearBounce {
-            0% { opacity: 0; transform: scale(0.5); }
-            60% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 1; transform: scale(1); }
+        @keyframes appearReveal {
+            0% { opacity: 0; clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%); }
+            50% { opacity: 0.7; text-shadow: 0 0 20px #D4AF37; }
+            100% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         }
         
-        @keyframes appearFlip {
-            0% { opacity: 0; transform: rotateY(90deg); }
-            100% { opacity: 1; transform: rotateY(0deg); }
+        @keyframes appearLiquid {
+            0% { opacity: 0; transform: translateY(20px) skewY(10deg); filter: blur(5px); }
+            50% { opacity: 0.7; text-shadow: 0 0 20px #D4AF37; }
+            100% { opacity: 1; transform: translateY(0) skewY(0deg); filter: blur(0px); }
         }
         
-        @keyframes appearSparkle {
-            0% { opacity: 0; transform: scale(0); text-shadow: 0 0 0px #D4AF37; }
-            50% { text-shadow: 0 0 15px #D4AF37; }
-            100% { opacity: 1; transform: scale(1); text-shadow: 0 0 5px #D4AF37; }
+        @keyframes appearPulse {
+            0% { opacity: 0; transform: scale(0.5); filter: blur(5px); }
+            50% { opacity: 0.8; transform: scale(1.15); text-shadow: 0 0 25px #D4AF37; }
+            100% { opacity: 1; transform: scale(1); filter: blur(0px); }
         }
         
-        .letter-evaporate { animation: evaporateUp 0.5s ease-in forwards; }
-        .letter-wipe { animation: wipeLeft 0.4s ease-in forwards; }
-        .letter-diagonal { animation: wipeDiagonal 0.6s ease-in forwards; }
-        .letter-rotate { animation: fadeRotate 0.5s ease-out forwards; }
-        .letter-sparkle-out { animation: sparkleDisappear 0.6s ease-out forwards; }
+        /* Animation classes */
+        .anim-evaporate { animation: dissolveEvaporate 0.7s ease-out forwards; }
+        .anim-wipe { animation: dissolveWipeRight 0.6s ease-in forwards; }
+        .anim-fade { animation: dissolveFade 0.8s ease-out forwards; }
+        .anim-scatter { animation: dissolveScatter 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .anim-melt { animation: dissolveMelt 0.6s ease-in forwards; }
         
-        .letter-slide-in { animation: appearSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .letter-bounce-in { animation: appearBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .letter-flip-in { animation: appearFlip 0.5s ease-out forwards; }
-        .letter-sparkle-in { animation: appearSparkle 0.6s ease-out forwards; }
-        
-        .word-container {
-            display: inline-block;
-            position: relative;
-        }
-        
-        .letter {
-            display: inline-block;
-            min-width: 1ch;
-        }
+        .anim-in-evaporate { animation: appearEvaporate 0.7s ease-out forwards; }
+        .anim-in-reveal { animation: appearReveal 0.6s ease-out forwards; }
+        .anim-in-liquid { animation: appearLiquid 0.6s ease-out forwards; }
+        .anim-in-pulse { animation: appearPulse 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -1410,67 +1407,50 @@ if ($autoOpenTool) {
             }
         });
 
-        // Animated word swapping with letter-by-letter effects
+        // Professional word animations with varied dissolve and appearance effects
         const wordElement = document.getElementById('animatedWord');
         if (wordElement) {
             const words = ['Confidence', 'Growth', 'Impact', 'Excellence', 'Success', 'Mastery'];
+            const outAnimations = ['anim-evaporate', 'anim-wipe', 'anim-fade', 'anim-scatter', 'anim-melt'];
+            const inAnimations = ['anim-in-evaporate', 'anim-in-reveal', 'anim-in-liquid', 'anim-in-pulse'];
+            
             let currentIndex = 0;
+            let usedOutAnims = [];
+            let usedInAnims = [];
             
-            const outAnimations = ['evaporate', 'wipe', 'diagonal', 'rotate', 'sparkle-out'];
-            const inAnimations = ['slide-in', 'bounce-in', 'flip-in', 'sparkle-in'];
-            
-            function getRandomAnimation(animArray) {
-                return animArray[Math.floor(Math.random() * animArray.length)];
+            function getNextAnimation(usedList, fullList) {
+                if (usedList.length === fullList.length) {
+                    usedList = [];
+                }
+                let anim;
+                do {
+                    anim = fullList[Math.floor(Math.random() * fullList.length)];
+                } while (usedList.includes(anim));
+                usedList.push(anim);
+                return anim;
             }
             
             function animateWordChange() {
-                const currentWord = words[currentIndex];
                 const nextIndex = (currentIndex + 1) % words.length;
                 const nextWord = words[nextIndex];
+                const outAnim = getNextAnimation(usedOutAnims, outAnimations);
                 
-                // Animate out - each letter disappears with different animation
-                const letters = Array.from(wordElement.children || []);
-                let animationDelay = 0;
+                // Dissolve current word
+                wordElement.classList.add(outAnim);
                 
-                // Clear word and rebuild with letter spans if needed
-                if (wordElement.children.length === 0) {
-                    wordElement.innerHTML = currentWord.split('').map(letter => 
-                        `<span class="letter">${letter}</span>`
-                    ).join('');
-                }
-                
-                const letterElements = Array.from(wordElement.querySelectorAll('.letter'));
-                
-                letterElements.forEach((el, index) => {
-                    const outAnim = getRandomAnimation(outAnimations);
-                    el.style.animationDelay = (index * 0.08) + 's';
-                    el.classList.add('letter-' + outAnim);
-                });
-                
-                // After letters disappear, show new word
                 setTimeout(() => {
-                    wordElement.innerHTML = nextWord.split('').map(letter => 
-                        `<span class="letter" style="opacity: 0;">${letter}</span>`
-                    ).join('');
+                    wordElement.textContent = nextWord;
+                    wordElement.classList.remove(...outAnimations);
                     
-                    // Animate in - each letter appears with different animation
-                    const newLetters = Array.from(wordElement.querySelectorAll('.letter'));
-                    newLetters.forEach((el, index) => {
-                        const inAnim = getRandomAnimation(inAnimations);
-                        el.style.animationDelay = (index * 0.1) + 's';
-                        el.classList.add('letter-' + inAnim);
-                    });
+                    const inAnim = getNextAnimation(usedInAnims, inAnimations);
+                    wordElement.classList.add(inAnim);
                     
                     currentIndex = nextIndex;
                     setTimeout(animateWordChange, 3500);
-                }, 600);
+                }, 700);
             }
             
-            // Initial setup - show first word with letters
-            wordElement.innerHTML = words[0].split('').map(letter => 
-                `<span class="letter">${letter}</span>`
-            ).join('');
-            
+            wordElement.textContent = words[0];
             setTimeout(animateWordChange, 2000);
         }
     </script>
