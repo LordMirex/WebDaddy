@@ -402,14 +402,14 @@ if ($autoOpenTool) {
                     </p>
                     
                     <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4">
-                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-5 lg:px-8 py-2.5 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
+                    <div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
+                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
                             <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                             </svg>
                             Browse Templates
                         </a>
-                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-5 lg:px-8 py-2.5 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
+                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
                             <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                             </svg>
@@ -631,15 +631,14 @@ if ($autoOpenTool) {
     <section class="py-12 bg-navy-dark" id="products">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- View Toggle Tabs with Gold Underline -->
-            <div class="flex justify-center mb-8">
-                <div class="inline-flex" role="group">
+            <div class="flex justify-center mb-6 sm:mb-8">
+                <div class="inline-flex gap-4 sm:gap-8" role="group">
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="pb-3 px-1 text-lg font-semibold transition-all whitespace-nowrap border-b-2 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-400 border-transparent hover:text-gray-300'; ?>">
+                       class="pb-2 sm:pb-3 text-sm sm:text-lg font-semibold transition-colors border-b-2 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-400 border-transparent hover:text-gray-200'; ?>">
                         Website Templates
                     </a>
-                    <div class="mx-4"></div>
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="pb-3 px-1 text-lg font-semibold transition-all whitespace-nowrap border-b-2 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-400 border-transparent hover:text-gray-300'; ?>">
+                       class="pb-2 sm:pb-3 text-sm sm:text-lg font-semibold transition-colors border-b-2 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-400 border-transparent hover:text-gray-200'; ?>">
                         Working Tools
                     </a>
                 </div>
