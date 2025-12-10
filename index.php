@@ -178,6 +178,9 @@ if ($autoOpenTool) {
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?php echo $pageUrl; ?>">
     
+    <!-- Preload first mockup image for faster initial load -->
+    <link rel="preload" as="image" href="/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg" fetchpriority="high">
+    
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="<?php echo $ogType; ?>">
     <meta property="og:title" content="<?php echo $pageTitle; ?>">
@@ -455,7 +458,7 @@ if ($autoOpenTool) {
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700 ease-in-out"
                                          :class="currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'">
-                                        <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover object-top">
+                                        <img :src="slide.image" :alt="slide.title" :loading="index === 0 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" class="w-full h-full object-cover object-top">
                                     </div>
                                 </template>
                             </div>
@@ -512,7 +515,7 @@ if ($autoOpenTool) {
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700"
                                          :class="currentSlide === index ? 'opacity-100' : 'opacity-0'">
-                                        <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover object-top">
+                                        <img :src="slide.image" :alt="slide.title" :loading="index === 0 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" class="w-full h-full object-cover object-top">
                                     </div>
                                 </template>
                             </div>
