@@ -284,6 +284,27 @@ if ($autoOpenTool) {
         }
         document.documentElement.classList.add('dark');
     </script>
+    <style>
+        .btn-gold-shine {
+            background: linear-gradient(135deg, #E8C97A 0%, #D4A574 40%, #C89450 100%);
+            box-shadow: 0 4px 15px rgba(212,165,116,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .btn-gold-shine:hover {
+            background: linear-gradient(135deg, #EFD48A 0%, #DDB27A 40%, #D09E5A 100%);
+            box-shadow: 0 6px 20px rgba(212,165,116,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+        .gold-text-shine {
+            background: linear-gradient(135deg, #E8C97A 0%, #D4A574 50%, #E8C97A 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .border-gold-shine {
+            border-color: #D4A574;
+            box-shadow: 0 0 10px rgba(212,165,116,0.2);
+        }
+    </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <script src="/assets/js/lazy-load.js" defer></script>
@@ -329,7 +350,7 @@ if ($autoOpenTool) {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                         </svg>
                     </a>
-                    <a href="/affiliate/register.php" class="inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors shadow-lg">
+                    <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy transition-all">
                         Become an Affiliate
                     </a>
                 </div>
@@ -356,7 +377,7 @@ if ($autoOpenTool) {
                 <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg <?php echo $currentView === 'templates' ? 'text-gold bg-navy-light border-l-2 border-gold' : 'text-gray-300 hover:bg-navy-light hover:text-gold'; ?> font-medium transition-colors">Templates</a>
                 <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-navy-light border-l-2 border-gold' : 'text-gray-300 hover:bg-navy-light hover:text-gold'; ?> font-medium transition-colors">Tools</a>
                 <a href="#faq" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">FAQ</a>
-                <a href="/affiliate/register.php" class="block px-3 py-2 rounded-lg text-navy bg-gold hover:bg-gold-500 font-semibold text-center transition-colors">Become an Affiliate</a>
+                <a href="/affiliate/register.php" class="btn-gold-shine block px-3 py-2 rounded-lg text-navy font-semibold text-center transition-all">Become an Affiliate</a>
             </div>
         </div>
     </nav>
@@ -405,13 +426,13 @@ if ($autoOpenTool) {
                 
                 <!-- Desktop CTA Buttons - Hidden on mobile -->
                 <div class="hidden lg:flex flex-col gap-2 sm:gap-3 lg:gap-4">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-navy transition-all">
                         <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
                         Browse Templates
                     </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 lg:px-8 py-2 sm:py-2.5 lg:py-4 text-xs sm:text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all">
                         <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
@@ -533,7 +554,7 @@ if ($autoOpenTool) {
             
             <!-- Mobile CTA Buttons - Below Mockup on Mobile -->
             <div class="lg:hidden w-full order-3 flex flex-col gap-2 sm:gap-3">
-                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
+                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-lg text-navy transition-all">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                     </svg>
@@ -623,7 +644,7 @@ if ($autoOpenTool) {
         <!-- WhatsApp Icon Button (40px) -->
         <a :href="'https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>?text=' + encodeURIComponent(getContextualMessage())" 
            target="_blank"
-           class="flex items-center gap-2 bg-gold hover:bg-yellow-500 rounded-r-full shadow-lg hover:shadow-xl transition-all duration-300 pl-3 pr-3 py-2"
+           class="btn-gold-shine flex items-center gap-2 rounded-r-full transition-all duration-300 pl-3 pr-3 py-2"
            aria-label="Chat on WhatsApp">
             <!-- Icon -->
             <svg class="w-10 h-10 text-navy-dark" fill="currentColor" viewBox="0 0 24 24">
