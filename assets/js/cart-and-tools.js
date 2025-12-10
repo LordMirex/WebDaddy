@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         setupAJAXTabs();
         setupToolPopup();
-        setupFloatingCart();
         setupCartDrawer();
         updateCartBadge();
         setupSearch();
@@ -882,27 +881,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.open(twitterUrl, '_blank', 'width=600,height=400');
     };
     
-    // Floating Cart Button (Fixed Position)
-    function setupFloatingCart() {
-        const existingCart = document.getElementById('floating-cart');
-        if (existingCart) return;
-        
-        const floatingCart = document.createElement('div');
-        floatingCart.id = 'floating-cart';
-        floatingCart.className = 'fixed top-20 right-4 z-40';
-        floatingCart.innerHTML = `
-            <div class="relative">
-                <button onclick="toggleCartDrawer()" class="relative bg-primary-600 hover:bg-primary-700 text-white rounded-full p-3 shadow-xl transition-all hover:scale-105">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                    </svg>
-                    <span id="floating-cart-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-gray-800 text-xs">0</span>
-                </button>
-            </div>
-        `;
-        
-        document.body.appendChild(floatingCart);
-    }
     
     // Cart Drawer
     function setupCartDrawer() {
@@ -1063,7 +1041,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update all cart badges
                 updateBadgeElement('cart-count', count);
                 updateBadgeElement('cart-count-mobile', count);
-                updateBadgeElement('floating-cart-count', count);
             }
         } catch (error) {
             console.error('Failed to update cart badge:', error);
