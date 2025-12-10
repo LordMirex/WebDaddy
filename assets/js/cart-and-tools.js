@@ -548,12 +548,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const categoryDropdown = document.getElementById('category-filter');
         
         if (categoryDropdown) {
+            // Update dropdown value to match current category from URL/state
+            if (currentCategory) {
+                categoryDropdown.value = currentCategory;
+            } else {
+                categoryDropdown.value = '';
+            }
+            
             const newDropdown = categoryDropdown.cloneNode(true);
             categoryDropdown.parentNode.replaceChild(newDropdown, categoryDropdown);
             newDropdown.addEventListener('change', function(e) {
                 const category = e.target.value;
                 switchView(currentView, 1, category);
             });
+            
+            // Update the new dropdown to show current category
+            if (currentCategory) {
+                newDropdown.value = currentCategory;
+            }
         }
     }
     

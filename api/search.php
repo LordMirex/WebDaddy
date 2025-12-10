@@ -46,10 +46,10 @@ try {
         // Return recent items when no search term (all fields needed for preview buttons & URLs)
         if ($searchType === 'template' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug 
+                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug, priority_order, created_at 
                 FROM templates 
                 WHERE active = 1 
-                ORDER BY created_at DESC
+                ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC
                 LIMIT 9
             ");
             $stmt->execute();
@@ -64,11 +64,11 @@ try {
         
         if ($searchType === 'tool' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, price, thumbnail_url, demo_url 
+                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug, short_description, priority_order, created_at, stock_unlimited, stock_quantity, low_stock_threshold 
                 FROM tools 
                 WHERE active = 1 
                 AND (stock_unlimited = 1 OR stock_quantity > 0)
-                ORDER BY created_at DESC
+                ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC
                 LIMIT 9
             ");
             $stmt->execute();
@@ -84,11 +84,11 @@ try {
         // Search templates
         if ($searchType === 'template' || $searchType === 'all') {
             $stmt = $db->prepare("
-                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug 
+                SELECT id, name, category, price, thumbnail_url, demo_url, demo_video_url, preview_youtube, media_type, description, slug, priority_order, created_at 
                 FROM templates 
                 WHERE active = 1 
                 AND (name LIKE ? OR category LIKE ? OR description LIKE ?)
-                ORDER BY name ASC
+                ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC
                 LIMIT 20
             ");
             

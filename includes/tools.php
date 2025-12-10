@@ -167,12 +167,7 @@ function searchTools($query, $limit = 20) {
                 OR description LIKE ?
             )
             ORDER BY 
-                CASE 
-                    WHEN name LIKE ? THEN 1
-                    WHEN category LIKE ? THEN 2
-                    WHEN short_description LIKE ? THEN 3
-                    ELSE 4
-                END,
+                CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END,
                 created_at DESC
             LIMIT ?";
     
