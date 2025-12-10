@@ -385,18 +385,18 @@ if ($autoOpenTool) {
                 </div>
                 
                 <!-- Success Metrics -->
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 max-w-3xl mx-auto py-6 sm:py-8">
-                    <div class="py-4 px-3 sm:px-4">
-                        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3">500+</div>
-                        <div class="text-sm sm:text-base text-white/80 font-medium">Websites Launched</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
+                    <div>
+                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">500+</div>
+                        <div class="text-xs sm:text-sm text-white/75">Websites Launched</div>
                     </div>
-                    <div class="py-4 px-3 sm:px-4 border-t sm:border-t-0 sm:border-l border-gray-700">
-                        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3">98%</div>
-                        <div class="text-sm sm:text-base text-white/80 font-medium">Happy Customers</div>
+                    <div>
+                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">98%</div>
+                        <div class="text-xs sm:text-sm text-white/75">Happy Customers</div>
                     </div>
-                    <div class="py-4 px-3 sm:px-4 border-t sm:border-t-0 sm:border-l border-gray-700">
-                        <div class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3">24hrs</div>
-                        <div class="text-sm sm:text-base text-white/80 font-medium">Average Setup</div>
+                    <div>
+                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">24hrs</div>
+                        <div class="text-xs sm:text-sm text-white/75">Average Setup</div>
                     </div>
                 </div>
             </div>

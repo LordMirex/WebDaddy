@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:68831:"        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
+a:4:{s:7:"success";b:1;s:4:"html";s:69052:"        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
                         <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
                     <img loading="eager"                         src="/uploads/templates/images/image_1764945785_b56be720_thumbnail.jpg"
@@ -29,7 +29,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:68831:"        <div class="grid grid-cols-1 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,000,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=fuck-you" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -66,7 +66,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:68831:"        <div class="grid grid-cols-1 
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦400,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=modern-business" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -104,7 +104,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦10,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=gggtt" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -149,7 +149,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦50,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=Dfg" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -186,7 +186,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,200.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=travel-agency" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -223,7 +223,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦8,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=e-commerce-shop" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -260,7 +260,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦3,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=blog-platform" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -297,7 +297,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=portfolio-gallery" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -334,7 +334,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=saas-landing" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -371,7 +371,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=restaurant-site" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -408,7 +408,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=real-estate" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -445,7 +445,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=medical-clinic" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -482,7 +482,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=education-hub" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -519,7 +519,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦5,800.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=tech-startup" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -556,7 +556,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,800.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=fitness-studio" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -593,7 +593,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,200.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=fashion-shop" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -630,7 +630,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦4,500.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=photography-pro" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -667,7 +667,7 @@ Client-rendered content (when searchi...</p>
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,800.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=legal-services" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>

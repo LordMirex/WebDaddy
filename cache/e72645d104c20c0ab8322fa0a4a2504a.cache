@@ -1,8 +1,8 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:3711:"        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
+a:4:{s:7:"success";b:1;s:4:"html";s:3746:"        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
                         <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
                     <img loading="eager"                         src="/assets/images/placeholder.jpg"
-                         alt="Auto Dealer"
+                         alt="Construction Company"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                          onerror="this.src='/assets/images/placeholder.jpg'"
@@ -10,22 +10,22 @@ a:4:{s:7:"success";b:1;s:4:"html";s:3711:"        <div class="grid grid-cols-1 m
                                     </div>
                 <div style="padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Auto Dealer</h3>
+                        <h3 style="font-size: 16px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 8px;">Construction Company</h3>
                         <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 500; background: #1e3a8a; color: #93c5fd; white-space: nowrap;">
-                            Automotive                        </span>
+                            Construction                        </span>
                     </div>
-                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; min-height: 32px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Automobile dealership platform</p>
+                    <p style="color: #d1d5db; font-size: 12px; margin-bottom: 12px; min-height: 32px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Construction and contracting website</p>
                     <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #374151;">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em;">Price</span>
-                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦7,200.00</span>
+                            <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦6,900.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=auto-dealer" 
+                            <a href="/template.php?slug=construction-company" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
-                            <button onclick="addTemplateToCart(36, '', this)" 
+                            <button onclick="addTemplateToCart(45, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
                                 <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>

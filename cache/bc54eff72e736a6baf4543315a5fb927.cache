@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:4765:"        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-10" data-tools-grid>
+a:4:{s:7:"success";b:1;s:4:"html";s:5360:"        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-10" data-tools-grid>
                         <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;" data-tool-id="61">
                 <div style="position: relative; overflow: hidden; height: 160px; background: #111827;">
                     <img loading="eager"                         src="/uploads/tools/images/image_1765316383_a590b533_thumbnail.jpg"
@@ -29,10 +29,15 @@ a:4:{s:7:"success";b:1;s:4:"html";s:4765:"        <div class="grid grid-cols-1 m
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦500,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/tool.php?slug=tttttttt" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
-                                Details
-                            </a>
+                            <button data-tool-id="61" 
+                                    class="tool-preview-btn"
+                                    style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border: 2px solid #2563eb; font-size: 12px; font-weight: 600; border-radius: 8px; color: #2563eb; background: #1f2937; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                <svg style="width: 14px; height: 14px; margin-right: 6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                Preview
+                            </button>
                             <button onclick="addToolToCart(61, 'Tttttttt', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 12px; font-weight: 500; border-radius: 6px; color: white; background: #2563eb; cursor: pointer; white-space: nowrap; transition: background 0.2s;">
                                 <svg style="width: 14px; height: 14px; margin-right: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
