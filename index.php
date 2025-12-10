@@ -311,62 +311,77 @@ if ($autoOpenTool) {
             display: inline-block;
             min-width: 160px;
             position: relative;
+            letter-spacing: 0.02em;
         }
         
-        @keyframes typing {
-            from { width: 0; opacity: 1; }
-            to { width: 100%; opacity: 1; }
+        /* Letter-by-letter animations */
+        @keyframes evaporateUp {
+            0% { opacity: 1; transform: translateY(0) scaleY(1); }
+            100% { opacity: 0; transform: translateY(-30px) scaleY(0.5); }
         }
         
-        @keyframes erasing {
-            from { width: 100%; opacity: 1; }
-            to { width: 0; opacity: 1; }
+        @keyframes wipeLeft {
+            0% { opacity: 1; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            100% { opacity: 0; clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); }
         }
         
-        @keyframes slideInRight {
-            from { transform: translateX(20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        @keyframes wipeDiagonal {
+            0% { opacity: 1; transform: translateX(0) translateY(0) skewX(0deg); }
+            100% { opacity: 0; transform: translateX(20px) translateY(-20px) skewX(20deg); }
         }
         
-        @keyframes slideOutLeft {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(-20px); opacity: 0; }
+        @keyframes fadeRotate {
+            0% { opacity: 1; transform: rotateZ(0deg) scale(1); }
+            100% { opacity: 0; transform: rotateZ(45deg) scale(0.3); }
         }
         
-        @keyframes splash {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+        @keyframes sparkleDisappear {
+            0% { opacity: 1; transform: scale(1); text-shadow: 0 0 0px #D4AF37; }
+            50% { text-shadow: 0 0 10px #D4AF37; }
+            100% { opacity: 0; transform: scale(0); text-shadow: 0 0 0px #D4AF37; }
         }
         
-        @keyframes blink {
-            0%, 49%, 100% { opacity: 1; }
-            50%, 99% { opacity: 0.3; }
+        @keyframes appearSlideDown {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         
-        .word-animation-typing {
-            animation: typing 0.6s steps(20, end) forwards;
-            border-right: 3px solid #D4AF37;
-            overflow: hidden;
-            white-space: nowrap;
+        @keyframes appearBounce {
+            0% { opacity: 0; transform: scale(0.5); }
+            60% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
         }
         
-        .word-animation-erase {
-            animation: erasing 0.4s steps(20, end) forwards;
-            overflow: hidden;
-            white-space: nowrap;
+        @keyframes appearFlip {
+            0% { opacity: 0; transform: rotateY(90deg); }
+            100% { opacity: 1; transform: rotateY(0deg); }
         }
         
-        .word-animation-slide {
-            animation: slideInRight 0.5s ease-out forwards;
+        @keyframes appearSparkle {
+            0% { opacity: 0; transform: scale(0); text-shadow: 0 0 0px #D4AF37; }
+            50% { text-shadow: 0 0 15px #D4AF37; }
+            100% { opacity: 1; transform: scale(1); text-shadow: 0 0 5px #D4AF37; }
         }
         
-        .word-animation-slide-out {
-            animation: slideOutLeft 0.4s ease-in forwards;
+        .letter-evaporate { animation: evaporateUp 0.5s ease-in forwards; }
+        .letter-wipe { animation: wipeLeft 0.4s ease-in forwards; }
+        .letter-diagonal { animation: wipeDiagonal 0.6s ease-in forwards; }
+        .letter-rotate { animation: fadeRotate 0.5s ease-out forwards; }
+        .letter-sparkle-out { animation: sparkleDisappear 0.6s ease-out forwards; }
+        
+        .letter-slide-in { animation: appearSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .letter-bounce-in { animation: appearBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .letter-flip-in { animation: appearFlip 0.5s ease-out forwards; }
+        .letter-sparkle-in { animation: appearSparkle 0.6s ease-out forwards; }
+        
+        .word-container {
+            display: inline-block;
+            position: relative;
         }
         
-        .word-animation-splash {
-            animation: splash 0.4s ease-out forwards;
+        .letter {
+            display: inline-block;
+            min-width: 1ch;
         }
     </style>
     <script src="/assets/js/forms.js" defer></script>
@@ -1395,37 +1410,68 @@ if ($autoOpenTool) {
             }
         });
 
-        // Animated word swapping in hero section
+        // Animated word swapping with letter-by-letter effects
         const wordElement = document.getElementById('animatedWord');
         if (wordElement) {
             const words = ['Confidence', 'Growth', 'Impact', 'Excellence', 'Success', 'Mastery'];
-            const animations = ['typing', 'slide', 'splash', 'typing', 'slide', 'splash'];
             let currentIndex = 0;
             
-            function animateWord() {
-                const nextIndex = (currentIndex + 1) % words.length;
-                const nextWord = words[nextIndex];
-                const animType = animations[nextIndex];
-                
-                wordElement.classList.add('word-animation-slide-out');
-                setTimeout(() => {
-                    wordElement.textContent = nextWord;
-                    wordElement.classList.remove('word-animation-slide-out');
-                    
-                    if (animType === 'typing') {
-                        wordElement.classList.add('word-animation-typing');
-                    } else if (animType === 'slide') {
-                        wordElement.classList.add('word-animation-slide');
-                    } else if (animType === 'splash') {
-                        wordElement.classList.add('word-animation-splash');
-                    }
-                    
-                    currentIndex = nextIndex;
-                    setTimeout(animateWord, 3500);
-                }, 400);
+            const outAnimations = ['evaporate', 'wipe', 'diagonal', 'rotate', 'sparkle-out'];
+            const inAnimations = ['slide-in', 'bounce-in', 'flip-in', 'sparkle-in'];
+            
+            function getRandomAnimation(animArray) {
+                return animArray[Math.floor(Math.random() * animArray.length)];
             }
             
-            setTimeout(animateWord, 2000);
+            function animateWordChange() {
+                const currentWord = words[currentIndex];
+                const nextIndex = (currentIndex + 1) % words.length;
+                const nextWord = words[nextIndex];
+                
+                // Animate out - each letter disappears with different animation
+                const letters = Array.from(wordElement.children || []);
+                let animationDelay = 0;
+                
+                // Clear word and rebuild with letter spans if needed
+                if (wordElement.children.length === 0) {
+                    wordElement.innerHTML = currentWord.split('').map(letter => 
+                        `<span class="letter">${letter}</span>`
+                    ).join('');
+                }
+                
+                const letterElements = Array.from(wordElement.querySelectorAll('.letter'));
+                
+                letterElements.forEach((el, index) => {
+                    const outAnim = getRandomAnimation(outAnimations);
+                    el.style.animationDelay = (index * 0.08) + 's';
+                    el.classList.add('letter-' + outAnim);
+                });
+                
+                // After letters disappear, show new word
+                setTimeout(() => {
+                    wordElement.innerHTML = nextWord.split('').map(letter => 
+                        `<span class="letter" style="opacity: 0;">${letter}</span>`
+                    ).join('');
+                    
+                    // Animate in - each letter appears with different animation
+                    const newLetters = Array.from(wordElement.querySelectorAll('.letter'));
+                    newLetters.forEach((el, index) => {
+                        const inAnim = getRandomAnimation(inAnimations);
+                        el.style.animationDelay = (index * 0.1) + 's';
+                        el.classList.add('letter-' + inAnim);
+                    });
+                    
+                    currentIndex = nextIndex;
+                    setTimeout(animateWordChange, 3500);
+                }, 600);
+            }
+            
+            // Initial setup - show first word with letters
+            wordElement.innerHTML = words[0].split('').map(letter => 
+                `<span class="letter">${letter}</span>`
+            ).join('');
+            
+            setTimeout(animateWordChange, 2000);
         }
     </script>
 </body>
