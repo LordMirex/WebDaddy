@@ -256,8 +256,24 @@ if ($autoOpenTool) {
                             800: '#1e40af',
                             900: '#1e3a8a',
                         },
-                        gold: '#d4af37',
-                        navy: '#0f172a'
+                        gold: {
+                            DEFAULT: '#c9a962',
+                            50: '#fdf9ef',
+                            100: '#f9f0d9',
+                            200: '#f2ddb0',
+                            300: '#e9c67d',
+                            400: '#c9a962',
+                            500: '#b8923f',
+                            600: '#a47a33',
+                            700: '#88602c',
+                            800: '#704f29',
+                            900: '#5e4225',
+                        },
+                        navy: {
+                            DEFAULT: '#0f172a',
+                            dark: '#0a1929',
+                            light: '#1e293b',
+                        }
                     }
                 }
             }
@@ -284,34 +300,44 @@ if ($autoOpenTool) {
     </script>
     <?php endif; ?>
 </head>
-<body class="bg-gray-900 dark:bg-gray-900">
+<body class="bg-navy-dark">
     <!-- Navigation -->
-    <nav id="mainNav" class="bg-gray-800 dark:bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
+    <nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="/" class="flex items-center">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-14 mr-3" loading="eager" decoding="async" onerror="this.style.display='none'">
-                        <span class="text-xl font-bold text-primary-900 dark:text-white"><?php echo SITE_NAME; ?></span>
+                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mr-3" loading="eager" decoding="async" onerror="this.style.display='none'">
+                        <span class="text-xl font-bold text-white"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">Tools</a>
-                    <a href="#faq" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">FAQ</a>
-                    <!-- Cart Badge -->
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 font-medium transition-colors">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-300 hover:text-gold font-medium transition-colors">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="text-gray-300 hover:text-gold font-medium transition-colors">Tools</a>
+                    <a href="#faq" class="text-gray-300 hover:text-gold font-medium transition-colors">FAQ</a>
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300 hover:text-gold font-medium transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute top-0 right-0 bg-gray-900 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 10px;"><?php echo $cartCount; ?></span>
+                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
                     </a>
-                    <a href="/affiliate/register.php" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+                    <a href="#" class="text-gray-300 hover:text-gold transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </a>
+                    <a href="/affiliate/register.php" class="inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors shadow-lg">
                         Become an Affiliate
                     </a>
                 </div>
-                <div class="md:hidden flex items-center">
-                    <button @click="open = !open" class="text-gray-100 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 focus:outline-none">
+                <div class="md:hidden flex items-center gap-4">
+                    <a href="#" id="cart-button-mobile-icon" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span id="cart-count-mobile-icon" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
+                    </a>
+                    <button @click="open = !open" class="text-gray-300 hover:text-gold focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -322,86 +348,121 @@ if ($autoOpenTool) {
                 </div>
             </div>
         </div>
-        <div x-show="open" @click.away="open = false" class="md:hidden bg-gray-800 dark:bg-gray-800 border-t border-gray-700 dark:border-gray-700" style="display: none;">
-            <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-100 dark:text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-700 font-medium">Templates</a>
-                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-md text-gray-100 dark:text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-700 font-medium">Tools</a>
-                <a href="#faq" class="block px-3 py-2 rounded-md text-gray-100 dark:text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-700 font-medium">FAQ</a>
-                <a href="#" id="cart-button-mobile" onclick="toggleCartDrawer(); return false;" class="block px-3 py-2 rounded-md text-gray-100 dark:text-gray-300 hover:bg-gray-800 dark:hover:bg-gray-700 font-medium flex items-center">
-                    Cart
-                    <span id="cart-count-mobile" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> ml-2 bg-gray-900 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 10px;"><?php echo $cartCount; ?></span>
-                </a>
-                <a href="/affiliate/register.php" class="block px-3 py-2 rounded-md text-white bg-primary-600 hover:bg-primary-700 font-medium">Become an Affiliate</a>
+        <div x-show="open" @click.away="open = false" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">Templates</a>
+                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">Tools</a>
+                <a href="#faq" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">FAQ</a>
+                <a href="/affiliate/register.php" class="block px-3 py-2 rounded-lg text-navy bg-gold hover:bg-gold-500 font-semibold text-center transition-colors">Become an Affiliate</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="relative bg-gradient-to-br from-primary-900 via-primary-800 to-navy text-white py-12 sm:py-16 lg:py-20">
+    <!-- Hero Section - Split Layout -->
+    <header class="relative bg-navy text-white py-16 sm:py-20 lg:py-24">
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">Turn Your Ideas Into Reality</h1>
-                <p class="text-lg sm:text-xl lg:text-2xl text-white/90 mb-4 max-w-3xl mx-auto">
-                    Get a <span class="font-bold text-white">professional website live in hours</span> or grab 
-                    <span class="font-bold text-white">working tools that boost your earnings</span>
-                </p>
-                
-                <!-- Trust Elements -->
-                <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10">
-                    <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
-                        <svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                        <span class="text-xs sm:text-sm font-semibold">30-Day Money Back</span>
-                    </div>
-                    <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
-                        <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        <span class="text-xs sm:text-sm font-semibold">Fast Setup</span>
-                    </div>
-                    <div class="flex items-center bg-gray-800/10 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2">
-                        <svg class="w-5 h-5 text-primary-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                        <span class="text-xs sm:text-sm font-semibold">24/7 Support</span>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+                <!-- Left Side (60%) -->
+                <div class="lg:col-span-3">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                        Build Your Digital Presence with <span class="text-gold">Confidence.</span>
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-xl">
+                        Premium website templates and powerful digital tools designed for growing businesses. Launch faster, scale smarter.
+                    </p>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
+                            Browse Templates
+                        </a>
+                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                            Explore Tools
+                        </a>
                     </div>
                 </div>
                 
-                <!-- CTA Buttons -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border-2 border-white text-base font-semibold rounded-lg text-white bg-transparent hover:bg-gray-800 hover:text-primary-900 transition-all shadow-lg">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                        </svg>
-                        Browse Templates
-                    </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 border border-transparent text-base font-semibold rounded-lg text-white bg-gray-800 hover:bg-gray-900 transition-all shadow-xl">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
-                        Explore Tools
-                    </a>
-                </div>
-                
-                <!-- Success Metrics -->
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
-                    <div>
-                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">500+</div>
-                        <div class="text-xs sm:text-sm text-white/75">Websites Launched</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">98%</div>
-                        <div class="text-xs sm:text-sm text-white/75">Happy Customers</div>
-                    </div>
-                    <div>
-                        <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">24hrs</div>
-                        <div class="text-xs sm:text-sm text-white/75">Average Setup</div>
+                <!-- Right Side (40%) - Website Mockup -->
+                <div class="lg:col-span-2 hidden lg:block">
+                    <div class="relative">
+                        <div class="bg-navy-light rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
+                            <div class="bg-navy-light px-4 py-3 border-b border-gray-700 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                <div class="flex-1 ml-4">
+                                    <div class="bg-navy rounded-lg px-3 py-1 text-xs text-gray-400 max-w-xs">yourwebsite.com</div>
+                                </div>
+                            </div>
+                            <div class="aspect-[4/3] bg-gradient-to-br from-navy-light to-navy p-6 flex flex-col items-center justify-center">
+                                <div class="w-full max-w-xs space-y-4">
+                                    <div class="h-8 bg-gold/20 rounded-lg w-3/4 mx-auto"></div>
+                                    <div class="h-4 bg-gray-700 rounded w-full"></div>
+                                    <div class="h-4 bg-gray-700 rounded w-5/6"></div>
+                                    <div class="grid grid-cols-2 gap-3 mt-6">
+                                        <div class="h-20 bg-navy-light rounded-lg border border-gray-700"></div>
+                                        <div class="h-20 bg-navy-light rounded-lg border border-gray-700"></div>
+                                    </div>
+                                    <div class="h-10 bg-gold rounded-lg w-1/2 mx-auto mt-4"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gold/10 rounded-full blur-2xl"></div>
+                        <div class="absolute -top-4 -left-4 w-32 h-32 bg-gold/5 rounded-full blur-3xl"></div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+    
+    <!-- Stats Bar -->
+    <section class="py-8 bg-navy">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-navy-light border border-gray-700 rounded-full py-4 px-8">
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-lg sm:text-xl font-bold text-white">500+</div>
+                            <div class="text-xs text-gray-400">Websites Launched</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center gap-3 border-x border-gray-700">
+                        <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-lg sm:text-xl font-bold text-white">10k+</div>
+                            <div class="text-xs text-gray-400">Active Users</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-lg sm:text-xl font-bold text-white">4.9/5</div>
+                            <div class="text-xs text-gray-400">Customer Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Smart WhatsApp Button with Message Carousel -->
     <div x-data="{ 
@@ -456,64 +517,44 @@ if ($autoOpenTool) {
     </div>
 
     <!-- Products Section (Templates & Tools) -->
-    <section class="py-12 bg-gray-800" id="products">
+    <section class="py-12 bg-navy-dark" id="products">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Section Header with Tabs -->
-            <div class="max-w-3xl mx-auto text-center mb-8">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-                    <?php echo $currentView === 'tools' ? 'Digital Working Tools' : 'Choose Your Template'; ?>
-                </h2>
-                <p class="text-xl text-gray-300 mb-2">
-                    <?php echo $currentView === 'tools' ? 'Get powerful digital tools to grow your business' : 'Pick a professionally designed website and get started instantly'; ?>
-                </p>
-                <div class="flex justify-center gap-8 text-sm text-gray-400 dark:text-gray-400">
-                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTemplates; ?></span> Active Templates</span>
-                    <span class="font-semibold"><span class="text-primary-600"><?php echo $totalActiveTools; ?></span> Active Tools</span>
-                </div>
-            </div>
-
-            <!-- View Toggle Tabs -->
+            <!-- View Toggle Tabs with Gold Underline -->
             <div class="flex justify-center mb-8">
-                <div class="inline-flex rounded-lg border border-gray-600 dark:border-gray-600 bg-gray-800 dark:bg-gray-800 p-1 shadow-sm" role="group">
+                <div class="inline-flex gap-8" role="group">
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="px-4 sm:px-8 py-2.5 text-sm sm:text-base font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'templates' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-100 hover:bg-gray-900'; ?>">
-                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
-                        </svg>
-                        Websites
+                       class="pb-3 text-lg font-semibold transition-all whitespace-nowrap border-b-2 <?php echo $currentView === 'templates' ? 'text-white border-gold' : 'text-gray-400 border-transparent hover:text-gray-300'; ?>">
+                        Website Templates
                     </a>
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                       class="px-4 sm:px-8 py-2.5 text-sm sm:text-base font-medium rounded-md transition-all whitespace-nowrap <?php echo $currentView === 'tools' ? 'bg-primary-600 text-white shadow-sm' : 'text-gray-100 hover:bg-gray-900'; ?>">
-                        <svg class="w-4 h-4 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                        </svg>
+                       class="pb-3 text-lg font-semibold transition-all whitespace-nowrap border-b-2 <?php echo $currentView === 'tools' ? 'text-white border-gold' : 'text-gray-400 border-transparent hover:text-gray-300'; ?>">
                         Working Tools
                     </a>
                 </div>
             </div>
 
             <!-- Search and Filter Container -->
-            <div class="max-w-4xl mx-auto mb-4 sm:mb-8">
-                <div class="flex flex-col lg:flex-row gap-3 lg:gap-4">
+            <div class="max-w-4xl mx-auto mb-8">
+                <div class="flex flex-col lg:flex-row gap-4">
                     <!-- Search Input -->
                     <div class="flex-1">
                         <div class="relative">
                             <input type="text" 
                                    id="search-input"
                                    placeholder="Search <?php echo $currentView === 'templates' ? 'templates' : 'tools'; ?>..." 
-                                   class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-600 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all">
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   class="w-full px-4 py-3 pl-11 pr-10 bg-navy-light border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold transition-all">
+                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <button id="clear-search" style="display: none;" 
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors z-10"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors z-10"
                                     title="Clear search">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                             <div id="search-loading" style="display: none;" class="absolute right-10 top-1/2 -translate-y-1/2">
-                                <svg class="animate-spin h-5 w-5 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <svg class="animate-spin h-5 w-5 text-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
@@ -521,12 +562,12 @@ if ($autoOpenTool) {
                         </div>
                     </div>
 
-                    <!-- Category Filter for Templates -->
-                    <div class="w-full lg:w-64">
+                    <!-- Category Filter -->
+                    <div class="w-full lg:w-56">
                         <div class="relative">
                             <select id="category-filter" 
-                                    class="w-full px-4 py-3 pl-11 pr-10 border-2 border-gray-600 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all appearance-none bg-gray-800 text-white font-medium cursor-pointer">
-                                <option value="">All Categories</option>
+                                    class="w-full px-4 py-3 pl-4 pr-10 bg-navy-light border border-gray-700 rounded-lg text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
+                                <option value="">Filter</option>
                                 <?php 
                                 $categories = $currentView === 'templates' ? $templateCategories : $toolCategories;
                                 foreach ($categories as $cat): 
@@ -536,10 +577,7 @@ if ($autoOpenTool) {
                                 </option>
                                 <?php endforeach; ?>
                             </select>
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            </svg>
-                            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </div>
@@ -552,12 +590,12 @@ if ($autoOpenTool) {
             <?php if ($currentView === 'templates'): ?>
             
             <?php if (empty($templates)): ?>
-            <div class="bg-gray-800 border border-gray-700 rounded-2xl p-12 text-center">
-                <svg class="w-16 h-16 mx-auto text-blue-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-navy-light border border-gray-700 rounded-xl p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-gold mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <h4 class="text-xl font-bold text-white mb-2">No templates available</h4>
-                <p class="text-gray-300 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-primary-600 hover:text-primary-700">contact us on WhatsApp</a>.</p>
+                <p class="text-gray-400 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-gold hover:text-gold-500">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6" data-templates-grid>
@@ -567,8 +605,8 @@ if ($autoOpenTool) {
                      data-template-name="<?php echo htmlspecialchars($template['name']); ?>"
                      data-template-category="<?php echo htmlspecialchars($template['category']); ?>"
                      data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
-                    <div class="bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                        <div class="relative overflow-hidden h-48 bg-gray-800">
+                    <div class="bg-navy-light rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1">
+                        <div class="relative overflow-hidden h-48 bg-navy">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -584,7 +622,7 @@ if ($autoOpenTool) {
                             ?>
                             <?php if ($isYoutube): ?>
                             <button onclick="event.stopPropagation(); openYoutubeModal('<?php echo htmlspecialchars($template['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                    class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-lg transition-colors z-10 backdrop-blur-sm">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -603,7 +641,7 @@ if ($autoOpenTool) {
                             </button>
                             <?php elseif ($isVideo): ?>
                             <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                    class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-lg transition-colors z-10 backdrop-blur-sm">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -625,7 +663,7 @@ if ($autoOpenTool) {
                             </button>
                             <?php elseif ($isDemoUrl): ?>
                             <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10">
+                                    class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-lg transition-colors z-10 backdrop-blur-sm">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -648,23 +686,23 @@ if ($autoOpenTool) {
                         <div class="p-4">
                             <div class="flex justify-between items-start mb-2">
                                 <h3 class="text-base font-bold text-white flex-1 pr-2"><?php echo htmlspecialchars($template['name']); ?></h3>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-blue-200 shrink-0">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
                                     <?php echo htmlspecialchars($template['category']); ?>
                                 </span>
                             </div>
-                            <p class="text-gray-300 text-xs mb-3 line-clamp-2 min-h-[32px]"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-700">
+                            <p class="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
                                 <div class="flex flex-col">
-                                    <span class="text-xs text-gray-400 uppercase tracking-wide">Price</span>
-                                    <span class="text-base font-bold text-primary-600"><?php echo formatCurrency($template['price']); ?></span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
+                                    <span class="text-lg font-bold text-gold"><?php echo formatCurrency($template['price']); ?></span>
                                 </div>
                                 <div class="flex gap-2">
                                     <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                                       class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-600 text-xs font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors whitespace-nowrap">
+                                       class="inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-xs font-semibold rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-colors whitespace-nowrap">
                                         Details
                                     </a>
                                     <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo addslashes($template['name']); ?>', this)" 
-                                       class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                                       class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                                         <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                         </svg>
@@ -687,15 +725,6 @@ if ($autoOpenTool) {
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
                     if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
                     ?>
-                    <?php if ($page > 1): ?>
-                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Previous
-                    </a>
-                    <?php endif; ?>
                     
                     <?php
                     $start = max(1, $page - 2);
@@ -704,14 +733,14 @@ if ($autoOpenTool) {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-gray-800 text-gray-100 border-gray-600 hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-gold text-navy' : 'bg-navy-light text-gray-300 border border-gray-700 hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
+                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 bg-navy-light border border-gray-700 rounded-lg hover:border-gold/50 hover:text-white transition-all">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -719,8 +748,8 @@ if ($autoOpenTool) {
                     </a>
                     <?php endif; ?>
                 </nav>
-                <p class="text-sm font-medium text-gray-300">
-                    Page <span class="text-primary-600 font-bold"><?php echo $page; ?></span> of <?php echo $totalPages; ?> <span class="text-gray-400 mx-1">•</span> <?php echo $totalTemplates; ?> templates
+                <p class="text-sm font-medium text-gray-500">
+                    Page <?php echo $page; ?> of <?php echo $totalPages; ?> <span class="mx-1">•</span> <?php echo $totalTemplates; ?> products
                 </p>
             </div>
             <?php endif; ?>
@@ -729,19 +758,19 @@ if ($autoOpenTool) {
             <?php else: ?>
             <!-- TOOLS VIEW -->
             <?php if (empty($tools)): ?>
-            <div class="bg-gray-800 border border-gray-700 rounded-2xl p-12 text-center">
-                <svg class="w-16 h-16 mx-auto text-blue-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-navy-light border border-gray-700 rounded-xl p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-gold mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <h4 class="text-xl font-bold text-white mb-2">No tools available</h4>
-                <p class="text-gray-300 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-primary-600 hover:text-primary-700">contact us on WhatsApp</a>.</p>
+                <p class="text-gray-400 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-gold hover:text-gold-500">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6">
                 <?php foreach ($tools as $tool): ?>
-                <div class="tool-card group bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
+                <div class="tool-card group bg-navy-light rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1" 
                      data-tool-id="<?php echo $tool['id']; ?>">
-                    <div class="relative overflow-hidden h-40 bg-gray-800">
+                    <div class="relative overflow-hidden h-40 bg-navy">
                         <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -751,7 +780,7 @@ if ($autoOpenTool) {
                         if ($toolMediaType === 'youtube' && !empty($tool['preview_youtube'])): 
                         ?>
                         <button onclick="openYoutubeModal('<?php echo htmlspecialchars($tool['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
-                                class="absolute top-2 left-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                                class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all shadow-lg backdrop-blur-sm">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -760,7 +789,7 @@ if ($autoOpenTool) {
                         </button>
                         <?php elseif ($toolMediaType === 'video' && !empty($tool['demo_video_url'])): ?>
                         <button onclick="openVideoModal('<?php echo htmlspecialchars($tool['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')"
-                                class="absolute top-2 left-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
+                                class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all shadow-lg backdrop-blur-sm">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -782,19 +811,19 @@ if ($autoOpenTool) {
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-sm font-bold text-white flex-1 pr-2"><?php echo htmlspecialchars($tool['name']); ?></h3>
                             <?php if (!empty($tool['category'])): ?>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 shrink-0">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
                                 <?php echo htmlspecialchars($tool['category']); ?>
                             </span>
                             <?php endif; ?>
                         </div>
-                        <p class="text-gray-300 text-xs mb-3 line-clamp-2 min-h-[32px]"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-700">
+                        <p class="text-gray-400 text-xs mb-3 line-clamp-2 min-h-[32px]"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
                             <div class="flex flex-col">
-                                <span class="text-xs text-gray-400 uppercase tracking-wide">Price</span>
-                                <span class="text-lg font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
+                                <span class="text-lg font-extrabold text-gold"><?php echo formatCurrency($tool['price']); ?></span>
                             </div>
                             <button data-tool-id="<?php echo $tool['id']; ?>" 
-                                    class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border-2 border-primary-600 text-xs font-semibold rounded-lg text-primary-600 bg-gray-800 hover:bg-gray-700 transition-all shadow-sm hover:shadow-md whitespace-nowrap">
+                                    class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-xs font-semibold rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
                                 <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -816,15 +845,6 @@ if ($autoOpenTool) {
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
                     if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
                     ?>
-                    <?php if ($page > 1): ?>
-                    <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Previous
-                    </a>
-                    <?php endif; ?>
                     
                     <?php
                     $start = max(1, $page - 2);
@@ -832,14 +852,14 @@ if ($autoOpenTool) {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-primary-600 text-white border-primary-600 shadow-lg scale-110' : 'bg-gray-800 text-gray-100 border-gray-600 hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold border-2 rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-gold text-navy' : 'bg-navy-light text-gray-300 border border-gray-700 hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-bold rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-100 bg-gray-800 border-2 border-gray-600 rounded-lg hover:bg-gray-700 hover:border-primary-600 hover:text-primary-400 transition-all shadow-sm">
+                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 bg-navy-light border border-gray-700 rounded-lg hover:border-gold/50 hover:text-white transition-all">
                         Next
                         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -847,8 +867,8 @@ if ($autoOpenTool) {
                     </a>
                     <?php endif; ?>
                 </nav>
-                <p class="text-sm font-medium text-gray-300">
-                    Page <span class="text-primary-600 font-bold"><?php echo $page; ?></span> of <?php echo $totalPages; ?> <span class="text-gray-400 mx-1">•</span> <?php echo $totalTools; ?> tools
+                <p class="text-sm font-medium text-gray-500">
+                    Page <?php echo $page; ?> of <?php echo $totalPages; ?> <span class="mx-1">•</span> <?php echo $totalTools; ?> products
                 </p>
             </div>
             <?php endif; ?>
@@ -857,12 +877,12 @@ if ($autoOpenTool) {
         </div>
     </section>
 
-    <!-- Testimonials Infinite Carousel Section -->
-    <section class="py-12 bg-gray-800">
+    <!-- Testimonials Section -->
+    <section class="py-16 bg-navy">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
             <div class="max-w-3xl mx-auto text-center">
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Trusted by Businesses Like Yours</h2>
-                <p class="text-xl text-gray-300">See what our customers say about launching their online presence</p>
+                <p class="text-lg text-gray-400">See what our customers say about launching their online presence</p>
             </div>
         </div>
         
@@ -870,52 +890,52 @@ if ($autoOpenTool) {
             <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow: hidden; scroll-behavior: auto; -webkit-overflow-scrolling: touch;">
                 <!-- Items will be cloned by JavaScript for infinite scroll -->
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
-                    <div class="bg-gray-800 rounded-xl shadow-md p-8 border border-gray-700 h-full flex flex-col">
+                    <div class="bg-navy-light rounded-xl shadow-md p-8 border border-gray-700/50 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
-                        <p class="text-gray-100 mb-6 flex-grow">"Amazing service! My restaurant website was live in 24 hours. The template looks professional and my customers love it."</p>
+                        <p class="text-gray-300 mb-6 flex-grow">"Amazing service! My restaurant website was live in 24 hours. The template looks professional and my customers love it."</p>
                         <div>
                             <div class="font-semibold text-white">Adebayo Johnson</div>
-                            <div class="text-sm text-gray-300">Bella's Kitchen, Lagos</div>
+                            <div class="text-sm text-gray-500">Bella's Kitchen, Lagos</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
-                    <div class="bg-gray-800 rounded-xl shadow-md p-8 border border-gray-700 h-full flex flex-col">
+                    <div class="bg-navy-light rounded-xl shadow-md p-8 border border-gray-700/50 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
-                        <p class="text-gray-100 mb-6 flex-grow">"From zero to online business in one day! The setup was seamless and the support team is incredible."</p>
+                        <p class="text-gray-300 mb-6 flex-grow">"From zero to online business in one day! The setup was seamless and the support team is incredible."</p>
                         <div>
                             <div class="font-semibold text-white">Ngozi Okoro</div>
-                            <div class="text-sm text-gray-300">Fashion Boutique, Abuja</div>
+                            <div class="text-sm text-gray-500">Fashion Boutique, Abuja</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
-                    <div class="bg-gray-800 rounded-xl shadow-md p-8 border border-gray-700 h-full flex flex-col">
+                    <div class="bg-navy-light rounded-xl shadow-md p-8 border border-gray-700/50 h-full flex flex-col">
                         <div class="flex gap-1 mb-4">
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
-                        <p class="text-gray-100 mb-6 flex-grow">"Professional, fast, and affordable. My law firm website attracts new clients every week. Highly recommended!"</p>
+                        <p class="text-gray-300 mb-6 flex-grow">"Professional, fast, and affordable. My law firm website attracts new clients every week. Highly recommended!"</p>
                         <div>
                             <div class="font-semibold text-white">Barrister Emeka</div>
-                            <div class="text-sm text-gray-300">Legal Services, Port Harcourt</div>
+                            <div class="text-sm text-gray-500">Legal Services, Port Harcourt</div>
                         </div>
                     </div>
                 </div>

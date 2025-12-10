@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:7206:"        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
+a:4:{s:7:"success";b:1;s:4:"html";s:7222:"        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
                         <div style="background: #1f2937; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #374151; transition: all 0.3s ease;">
                 <div style="position: relative; overflow: hidden; height: 192px; background: #111827;">
                     <img loading="eager"                         src="/assets/images/placeholder.jpg"
@@ -21,7 +21,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:7206:"        <div class="grid grid-cols-1 m
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦890,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=agency-1" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
@@ -58,7 +58,7 @@ a:4:{s:7:"success";b:1;s:4:"html";s:7206:"        <div class="grid grid-cols-1 m
                             <span style="font-size: 18px; font-weight: 800; color: #2563eb;">₦1,650,000.00</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
-                            <a href="/template.php?slug=" 
+                            <a href="/template.php?slug=agency-2" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 12px; font-weight: 500; border-radius: 6px; color: #d1d5db; background: #1f2937; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background 0.2s;">
                                 Details
                             </a>
