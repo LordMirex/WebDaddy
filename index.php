@@ -639,7 +639,7 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Stats Bar - Inside Hero for 100vh -->
-        <div class="relative py-4 lg:py-4 bg-navy/50 backdrop-blur-sm mt-auto">
+        <div class="relative py-4 lg:py-6 bg-navy/50 backdrop-blur-sm mb-8 lg:mb-12">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-1.5 lg:py-3 px-2 lg:px-6">
                     <div class="grid grid-cols-3 gap-1 lg:gap-4 text-center">
