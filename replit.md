@@ -115,6 +115,16 @@ All cron jobs confirmed as necessary and properly implemented:
 - **Mobile Enhancement**: Golden X SVG background decoration for hero section on mobile devices
 - **Consistent Styling**: All product cards, preview buttons, prices, and pagination now use gold/navy color palette
 
+### Hero Section Upgrade (December 2025)
+- **Portfolio Image Slider**: Safari-style browser mockup showcasing 7 portfolio website images (Jasper AI, Viralcuts, Webflow, Intercom, Glide Apps, Notion, Runway) with auto-rotation every 4 seconds
+- **Shiny Professional Effects**: Added glow effects around browser mockup with gold gradients, blur effects, and pulse animations for premium appearance
+- **100vh Viewport Fit**: Hero section adjusted to fit within viewport height on desktop (h-[calc(100vh-64px)]) and min-height on mobile
+- **Mobile Laptop Mockup**: Added Safari-style browser slider on mobile view, positioned after CTA buttons and before stats bar
+- **Compact Stats Bar**: Reduced sizing for better 100vh fit - smaller icons, text, and padding
+- **Navbar Active States**: Added gold underline for active view (Templates/Tools) on desktop, gold left-border on mobile
+- **Category Filter Label**: Changed dropdown from "Filter" to "Category" for clarity
+- **Pagination Improvements**: Added Previous button, improved button colors with hover effects (gold glow on active, hover transitions)
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
