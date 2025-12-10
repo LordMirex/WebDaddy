@@ -421,10 +421,10 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="pb-2 border-b-2 font-medium transition-colors <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="pb-2 border-b-2 font-medium transition-colors <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Tools</a>
-                    <a href="#faq" class="text-gray-300 hover:text-gold font-medium transition-colors py-1">FAQ</a>
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300 hover:text-gold font-medium transition-colors">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Templates</a>
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Tools</a>
+                    <a href="#faq" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
+                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative inline-flex items-center justify-center text-gray-300 hover:text-gold font-medium transition-colors py-4">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
@@ -453,11 +453,11 @@ if ($autoOpenTool) {
             </div>
         </div>
         <div x-show="open" @click.away="open = false" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
-            <div class="px-4 pt-2 pb-4 space-y-2">
-                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg <?php echo $currentView === 'templates' ? 'text-gold bg-navy-light border-l-2 border-gold' : 'text-gray-300 hover:bg-navy-light hover:text-gold'; ?> font-medium transition-colors">Templates</a>
-                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-3 py-2 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-navy-light border-l-2 border-gold' : 'text-gray-300 hover:bg-navy-light hover:text-gold'; ?> font-medium transition-colors">Tools</a>
-                <a href="#faq" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-navy-light hover:text-gold font-medium transition-colors">FAQ</a>
-                <a href="/affiliate/register.php" class="btn-gold-shine block px-3 py-2 rounded-lg text-navy font-semibold text-center transition-all">Become an Affiliate</a>
+            <div class="px-2 pt-2 pb-4 space-y-1">
+                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'templates' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Templates</a>
+                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Tools</a>
+                <a href="#faq" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
+                <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
             </div>
         </div>
     </nav>
