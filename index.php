@@ -179,7 +179,7 @@ if ($autoOpenTool) {
     <link rel="canonical" href="<?php echo $pageUrl; ?>">
     
     <!-- Preload first mockup image for faster initial load -->
-    <link rel="preload" as="image" href="/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg" fetchpriority="high">
+    <link rel="preload" as="image" href="/attached_assets/673cef5e85d139561a882612_673cef539f14468937589302_viralcuts_1765359813240.jpeg" fetchpriority="high">
     
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="<?php echo $ogType; ?>">
@@ -424,8 +424,8 @@ if ($autoOpenTool) {
             <div class="lg:w-2/5 hidden lg:block order-2 lg:order-2" x-data="{ 
                     currentSlide: 0,
                     slides: [
-                        { image: '/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg', title: 'Jasper AI' },
                         { image: '/attached_assets/673cef5e85d139561a882612_673cef539f14468937589302_viralcuts_1765359813240.jpeg', title: 'Viralcuts' },
+                        { image: '/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg', title: 'Jasper AI' },
                         { image: '/attached_assets/673cf391555dd04aeb064892_673cf0e346300e72c673bd83_webflow_1765359813293.jpeg', title: 'Webflow' },
                         { image: '/attached_assets/6722ae41694d5b50ae789bf1_64ac9276557ed29aaabd9b80_intercom-bl_1765359813696.jpeg', title: 'Intercom' },
                         { image: '/attached_assets/673cef5e85d139561a882618_673cef03d1e3baecff16211b_glide-apps_1765359813790.jpeg', title: 'Glide Apps' },
@@ -482,8 +482,8 @@ if ($autoOpenTool) {
             <div class="lg:hidden w-full order-2 lg:order-2" x-data="{ 
                     currentSlide: 0,
                     slides: [
-                        { image: '/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg', title: 'Jasper AI' },
                         { image: '/attached_assets/673cef5e85d139561a882612_673cef539f14468937589302_viralcuts_1765359813240.jpeg', title: 'Viralcuts' },
+                        { image: '/attached_assets/673cf391555dd04aeb06488c_673cf043058ae62753b85be9_jasper-ai_1765359812987.jpeg', title: 'Jasper AI' },
                         { image: '/attached_assets/673cf391555dd04aeb064892_673cf0e346300e72c673bd83_webflow_1765359813293.jpeg', title: 'Webflow' },
                         { image: '/attached_assets/6722ae41694d5b50ae789bf1_64ac9276557ed29aaabd9b80_intercom-bl_1765359813696.jpeg', title: 'Intercom' },
                         { image: '/attached_assets/673cef5e85d139561a882618_673cef03d1e3baecff16211b_glide-apps_1765359813790.jpeg', title: 'Glide Apps' },
