@@ -1040,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Update all cart badges
                 updateBadgeElement('cart-count', count);
-                updateBadgeElement('cart-count-mobile', count);
+                updateBadgeElement('cart-count-mobile-icon', count);
             }
         } catch (error) {
             console.error('Failed to update cart badge:', error);
