@@ -305,6 +305,69 @@ if ($autoOpenTool) {
             border-color: #D4AF37;
             box-shadow: 0 0 15px rgba(212,175,55,0.25);
         }
+        
+        /* Animated word swapping styles */
+        .animate-word-swap {
+            display: inline-block;
+            min-width: 160px;
+            position: relative;
+        }
+        
+        @keyframes typing {
+            from { width: 0; opacity: 1; }
+            to { width: 100%; opacity: 1; }
+        }
+        
+        @keyframes erasing {
+            from { width: 100%; opacity: 1; }
+            to { width: 0; opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-20px); opacity: 0; }
+        }
+        
+        @keyframes splash {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.3; }
+        }
+        
+        .word-animation-typing {
+            animation: typing 0.6s steps(20, end) forwards;
+            border-right: 3px solid #D4AF37;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .word-animation-erase {
+            animation: erasing 0.4s steps(20, end) forwards;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .word-animation-slide {
+            animation: slideInRight 0.5s ease-out forwards;
+        }
+        
+        .word-animation-slide-out {
+            animation: slideOutLeft 0.4s ease-in forwards;
+        }
+        
+        .word-animation-splash {
+            animation: splash 0.4s ease-out forwards;
+        }
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -419,10 +482,10 @@ if ($autoOpenTool) {
             <!-- Left Side (60%) - Text Content Only -->
             <div class="lg:w-3/5 order-1 lg:order-1">
                 <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
-                    Build Your Digital Presence with <span class="text-gold">Confidence.</span>
+                    Launch Your Business Online with <span class="text-gold animate-word-swap" id="animatedWord">Confidence</span>.
                 </h1>
                 <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-400 mb-3 sm:mb-4 lg:mb-8 max-w-xl">
-                    Premium website templates and powerful digital tools designed for growing businesses. Launch faster, scale smarter.
+                    Professional website templates and digital tools built for African entrepreneurs. Get online in 24 hours, scale your business faster, dominate your market.
                 </p>
                 
                 <!-- Desktop CTA Buttons - Hidden on mobile -->
@@ -1331,6 +1394,39 @@ if ($autoOpenTool) {
                 navbar.classList.remove('shadow-lg');
             }
         });
+
+        // Animated word swapping in hero section
+        const wordElement = document.getElementById('animatedWord');
+        if (wordElement) {
+            const words = ['Confidence', 'Growth', 'Impact', 'Excellence', 'Success', 'Mastery'];
+            const animations = ['typing', 'slide', 'splash', 'typing', 'slide', 'splash'];
+            let currentIndex = 0;
+            
+            function animateWord() {
+                const nextIndex = (currentIndex + 1) % words.length;
+                const nextWord = words[nextIndex];
+                const animType = animations[nextIndex];
+                
+                wordElement.classList.add('word-animation-slide-out');
+                setTimeout(() => {
+                    wordElement.textContent = nextWord;
+                    wordElement.classList.remove('word-animation-slide-out');
+                    
+                    if (animType === 'typing') {
+                        wordElement.classList.add('word-animation-typing');
+                    } else if (animType === 'slide') {
+                        wordElement.classList.add('word-animation-slide');
+                    } else if (animType === 'splash') {
+                        wordElement.classList.add('word-animation-splash');
+                    }
+                    
+                    currentIndex = nextIndex;
+                    setTimeout(animateWord, 3500);
+                }, 400);
+            }
+            
+            setTimeout(animateWord, 2000);
+        }
     </script>
 </body>
 </html>
