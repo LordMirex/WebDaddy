@@ -469,34 +469,18 @@ if ($autoOpenTool) {
 
     <!-- Hero Section - Full 100vh with Stats -->
     <header class="relative bg-navy text-white min-h-[auto] sm:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
-        <!-- Golden X Stripes Background Decoration - Both Desktop & Mobile -->
-        <div class="absolute inset-0 pointer-events-none overflow-hidden">
-            <!-- Desktop Only - Clean Diagonal X Lines -->
-            <div class="hidden lg:block">
-                <!-- Top Left to Bottom Right diagonal lines (/) -->
-                <div class="absolute top-1/4 right-1/3 w-[800px] h-[4px] bg-gradient-to-r from-transparent via-gold to-transparent transform -rotate-[45deg] origin-center opacity-35"></div>
-                <div class="absolute top-1/3 right-1/4 w-[900px] h-[3px] bg-gradient-to-r from-transparent via-gold/70 to-transparent transform -rotate-[45deg] origin-center opacity-30"></div>
-                <div class="absolute top-1/2 right-0 w-[1000px] h-[3px] bg-gradient-to-r from-transparent via-gold/50 to-transparent transform -rotate-[45deg] origin-center opacity-25"></div>
-                
-                <!-- Top Right to Bottom Left diagonal lines (\) -->
-                <div class="absolute top-1/4 right-0 w-[800px] h-[4px] bg-gradient-to-r from-transparent via-gold to-transparent transform rotate-[45deg] origin-center opacity-35"></div>
-                <div class="absolute top-1/3 right-1/12 w-[900px] h-[3px] bg-gradient-to-r from-transparent via-gold/70 to-transparent transform rotate-[45deg] origin-center opacity-30"></div>
-                <div class="absolute top-1/2 right-1/4 w-[1000px] h-[3px] bg-gradient-to-r from-transparent via-gold/50 to-transparent transform rotate-[45deg] origin-center opacity-25"></div>
-            </div>
-            <!-- Mobile X Pattern - Cleaner and more visible -->
-            <div class="lg:hidden">
-                <svg class="absolute top-0 right-0 w-full h-full opacity-[0.12]" viewBox="0 0 400 800" fill="none" preserveAspectRatio="none">
-                    <!-- Forward slash lines (/) -->
-                    <line x1="150" y1="0" x2="250" y2="800" stroke="#D4AF37" stroke-width="3"/>
-                    <line x1="50" y1="0" x2="150" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
-                    <line x1="250" y1="0" x2="350" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
-                    <!-- Backslash lines (\) -->
-                    <line x1="250" y1="0" x2="150" y2="800" stroke="#D4AF37" stroke-width="3"/>
-                    <line x1="350" y1="0" x2="250" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
-                    <line x1="150" y1="0" x2="50" y2="800" stroke="#D4AF37" stroke-width="2" opacity="0.7"/>
-                </svg>
-            </div>
-        </div>
+        <!-- Golden X Stripes Background Decoration - Same for Desktop & Mobile -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1280 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <!-- Forward slash lines (/) -->
+            <line x1="600" y1="0" x2="800" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
+            <line x1="300" y1="0" x2="500" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <line x1="900" y1="0" x2="1100" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            
+            <!-- Backslash lines (\) -->
+            <line x1="800" y1="0" x2="600" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
+            <line x1="1100" y1="0" x2="900" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <line x1="500" y1="0" x2="300" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+        </svg>
         
         <!-- Main Content Area -->
         <div class="relative flex-1 flex flex-col lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-6 gap-4 lg:gap-12">
