@@ -483,7 +483,7 @@ if ($autoOpenTool) {
         </svg>
         
         <!-- Main Content Area -->
-        <div class="relative flex-1 flex flex-col lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-6 gap-4 lg:gap-12">
+        <div class="relative flex-1 flex flex-col lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-3 gap-4 lg:gap-8">
             <!-- Left Side (60%) - Text Content Only -->
             <div class="lg:w-3/5 order-1 lg:order-1">
                 <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
@@ -639,7 +639,7 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Stats Bar - Inside Hero for 100vh -->
-        <div class="relative py-2 lg:py-4 bg-navy/50 backdrop-blur-sm">
+        <div class="relative py-2 lg:py-2 bg-navy/50 backdrop-blur-sm">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-1.5 lg:py-3 px-2 lg:px-6">
                     <div class="grid grid-cols-3 gap-1 lg:gap-4 text-center">
