@@ -107,6 +107,14 @@ All cron jobs confirmed as necessary and properly implemented:
 - After successful withdrawal request, the affiliate dashboard now properly refreshes all balance components
 - Re-fetches total earned, total paid, and in-progress withdrawals to display accurate available balance
 
+### Index.php Navy/Gold Redesign (December 2025)
+- **Color Scheme**: Complete redesign with navy (#0f172a) primary background and gold (#c9a962) accents
+- **FAQ Section**: Updated to navy-dark background with gold arrow icons and navy-light card backgrounds
+- **Footer**: Gold "Become an Affiliate" button, 5 social media icons (Facebook, Twitter, Instagram, LinkedIn, YouTube), rounded pill-style buttons
+- **AJAX Products**: api/ajax-products.php updated with matching gold/navy theme for dynamically loaded products
+- **Mobile Enhancement**: Golden X SVG background decoration for hero section on mobile devices
+- **Consistent Styling**: All product cards, preview buttons, prices, and pagination now use gold/navy color palette
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
