@@ -359,7 +359,13 @@ if ($autoOpenTool) {
     </nav>
 
     <!-- Hero Section - Split Layout -->
-    <header class="relative bg-navy text-white py-16 sm:py-20 lg:py-24">
+    <header class="relative bg-navy text-white py-16 sm:py-20 lg:py-24 overflow-hidden">
+        <!-- Mobile Golden X Background Decoration -->
+        <div class="absolute inset-0 lg:hidden pointer-events-none overflow-hidden">
+            <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.03]" viewBox="0 0 200 200" fill="none">
+                <path d="M20 20L180 180M180 20L20 180" stroke="#c9a962" stroke-width="20" stroke-linecap="round"/>
+            </svg>
+        </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
                 <!-- Left Side (60%) -->
