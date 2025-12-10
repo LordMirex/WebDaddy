@@ -309,103 +309,86 @@ if ($autoOpenTool) {
         /* Animated word swapping styles */
         .animate-word-swap {
             display: inline-block;
-            min-width: 140px;
+            min-width: 180px;
             position: relative;
             vertical-align: baseline;
         }
         
-        /* SLOW EVAPORATE UP - 1.2 seconds */
-        @keyframes dissolveEvaporateSlow {
-            0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); text-shadow: 0 0 0px #D4AF37; }
-            30% { opacity: 0.7; text-shadow: 0 0 15px #D4AF37; }
-            70% { opacity: 0.2; transform: translateY(-40px) scale(0.6); filter: blur(6px); }
-            100% { opacity: 0; transform: translateY(-80px) scale(0.1); filter: blur(15px); }
+        /* EXIT ANIMATION 1: Fade Upward with Glow Burst */
+        @keyframes exitFadeUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); text-shadow: 0 0 0px #D4AF37; }
+            40% { text-shadow: 0 0 25px #D4AF37, 0 0 40px rgba(212,175,55,0.5); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); text-shadow: 0 0 60px #D4AF37; filter: blur(8px); }
         }
         
-        /* SUPER FAST WIPE - 0.35 seconds */
-        @keyframes dissolveWipeFast {
+        /* EXIT ANIMATION 2: Wipe Right with Shine */
+        @keyframes exitWipeRight {
             0% { opacity: 1; transform: translateX(0); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
-            100% { opacity: 0; transform: translateX(100px); clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); }
+            60% { opacity: 0.3; text-shadow: 0 0 20px #D4AF37; }
+            100% { opacity: 0; transform: translateX(80px); clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); }
         }
         
-        /* VERY SLOW FADE GLOW - 1.6 seconds */
-        @keyframes dissolveFadeSlow {
+        /* EXIT ANIMATION 3: Golden Fade with Blur */
+        @keyframes exitGoldenFade {
             0% { opacity: 1; filter: brightness(1) blur(0px); text-shadow: 0 0 0px #D4AF37; }
-            20% { text-shadow: 0 0 25px #D4AF37, 0 0 15px #D4AF37; }
-            50% { opacity: 0.4; filter: brightness(1.8) blur(3px); text-shadow: 0 0 40px #D4AF37, 0 0 25px #D4AF37; }
-            80% { opacity: 0.1; filter: brightness(0.3) blur(12px); text-shadow: 0 0 5px #D4AF37; }
-            100% { opacity: 0; filter: brightness(0) blur(20px); text-shadow: 0 0 0px #D4AF37; }
+            30% { text-shadow: 0 0 30px #D4AF37, 0 0 20px #D4AF37; }
+            60% { opacity: 0.5; filter: brightness(2) blur(5px); }
+            100% { opacity: 0; filter: brightness(0.2) blur(15px); }
         }
         
-        /* FAST DIAGONAL SCATTER - 0.45 seconds */
-        @keyframes dissolveScatterFast {
-            0% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0px); }
-            40% { opacity: 0.4; transform: scale(1.2) rotate(20deg); text-shadow: 0 0 20px #D4AF37; }
-            100% { opacity: 0; transform: translate(40px, -40px) scale(0.2) rotate(-45deg); filter: blur(12px); }
+        /* EXIT ANIMATION 4: Spin Away */
+        @keyframes exitSpinAway {
+            0% { opacity: 1; transform: rotate(0deg) scale(1); text-shadow: 0 0 0px #D4AF37; }
+            50% { text-shadow: 0 0 25px #D4AF37; }
+            100% { opacity: 0; transform: rotate(360deg) translateY(-80px) scale(0.3); filter: blur(10px); }
         }
         
-        /* VERY SLOW DRIP DOWN - 1.4 seconds */
-        @keyframes dissolveMeltSlow {
-            0% { opacity: 1; transform: translateY(0) skewY(0deg) scaleY(1); filter: blur(0px); }
-            25% { opacity: 0.8; text-shadow: 0 0 15px #D4AF37; }
-            60% { opacity: 0.3; transform: translateY(30px) skewY(8deg) scaleY(0.4); filter: blur(6px); }
-            100% { opacity: 0; transform: translateY(60px) skewY(15deg) scaleY(0.1); filter: blur(10px); }
+        /* ENTRANCE ANIMATION 1: Slide Down Smooth */
+        @keyframes enterSlideDown {
+            0% { opacity: 0; transform: translateY(-60px); filter: blur(12px); text-shadow: 0 0 0px #D4AF37; }
+            60% { text-shadow: 0 0 25px #D4AF37; }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0px); text-shadow: 0 0 10px #D4AF37; }
         }
         
-        /* MEDIUM TWIRL - 0.7 seconds */
-        @keyframes dissolveTwirl {
-            0% { opacity: 1; transform: rotate(0deg) scale(1); filter: blur(0px); }
-            50% { opacity: 0.5; transform: rotate(180deg) scale(1.1); text-shadow: 0 0 20px #D4AF37; }
-            100% { opacity: 0; transform: rotate(360deg) scale(0.3); filter: blur(10px); }
+        /* ENTRANCE ANIMATION 2: Expand Pulse Glow */
+        @keyframes enterExpandPulse {
+            0% { opacity: 0; transform: scale(0.1); filter: blur(15px); text-shadow: 0 0 0px #D4AF37; }
+            50% { opacity: 0.8; transform: scale(1.3); text-shadow: 0 0 40px #D4AF37, 0 0 25px #D4AF37; }
+            100% { opacity: 1; transform: scale(1); filter: blur(0px); text-shadow: 0 0 10px #D4AF37; }
         }
         
-        /* SLOW SLIDE DOWN - 1.2 seconds */
-        @keyframes appearSlideFast {
-            0% { opacity: 0; transform: translateY(-50px); filter: blur(10px); }
-            100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
+        /* ENTRANCE ANIMATION 3: 3D Flip In */
+        @keyframes enterFlipIn {
+            0% { opacity: 0; transform: perspective(1000px) rotateY(90deg) rotateX(20deg); filter: blur(8px); }
+            70% { text-shadow: 0 0 30px #D4AF37; }
+            100% { opacity: 1; transform: perspective(1000px) rotateY(0deg) rotateX(0deg); filter: blur(0px); }
         }
         
-        /* SLOW PULSE EXPAND - 2.2 seconds */
-        @keyframes appearPulseSlow {
-            0% { opacity: 0; transform: scale(0.2); filter: blur(10px); text-shadow: 0 0 0px #D4AF37; }
-            40% { opacity: 0.8; transform: scale(1.25); text-shadow: 0 0 30px #D4AF37, 0 0 20px #D4AF37; }
-            100% { opacity: 1; transform: scale(1); filter: blur(0px); }
-        }
-        
-        /* SLOW FLIP - 1.0 seconds */
-        @keyframes appearFlipFast {
-            0% { opacity: 0; transform: perspective(800px) rotateY(90deg); filter: blur(8px); }
-            100% { opacity: 1; transform: perspective(800px) rotateY(0deg); filter: blur(0px); }
-        }
-        
-        /* MEDIUM SPLIT REVEAL - 2.0 seconds */
-        @keyframes appearRevealSplit {
-            0% { opacity: 0; clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%); filter: blur(10px); }
-            50% { opacity: 0.7; text-shadow: 0 0 25px #D4AF37; }
+        /* ENTRANCE ANIMATION 4: Split Reveal */
+        @keyframes enterSplitReveal {
+            0% { opacity: 0; clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%); filter: blur(10px); text-shadow: 0 0 0px #D4AF37; }
+            40% { text-shadow: 0 0 30px #D4AF37, 0 0 15px #D4AF37; }
             100% { opacity: 1; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); filter: blur(0px); }
         }
         
-        /* VERY SLOW RISE WITH SHIMMER - 2.8 seconds */
-        @keyframes appearRiseSlow {
-            0% { opacity: 0; transform: translateY(50px) scaleY(0.3); filter: blur(12px); text-shadow: 0 0 0px #D4AF37; }
-            30% { opacity: 0.6; text-shadow: 0 0 25px #D4AF37; }
-            70% { opacity: 1; transform: translateY(0) scaleY(1); text-shadow: 0 0 15px #D4AF37; }
-            100% { opacity: 1; transform: translateY(0) scaleY(1); filter: blur(0px); }
+        /* ENTRANCE ANIMATION 5: Rise with Shimmer */
+        @keyframes enterRiseShimmer {
+            0% { opacity: 0; transform: translateY(60px) scaleY(0.5); filter: blur(12px); text-shadow: 0 0 0px #D4AF37; }
+            40% { opacity: 0.7; text-shadow: 0 0 25px #D4AF37, 0 0 40px rgba(212,175,55,0.3); }
+            100% { opacity: 1; transform: translateY(0) scaleY(1); filter: blur(0px); text-shadow: 0 0 10px #D4AF37; }
         }
         
-        /* Animation classes - ALL DIFFERENT SPEEDS */
-        .anim-evaporate { animation: dissolveEvaporateSlow 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-        .anim-wipe { animation: dissolveWipeFast 0.35s linear forwards; }
-        .anim-fade { animation: dissolveFadeSlow 1.6s ease-out forwards; }
-        .anim-scatter { animation: dissolveScatterFast 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .anim-melt { animation: dissolveMeltSlow 1.4s ease-in forwards; }
-        .anim-twirl { animation: dissolveTwirl 0.7s ease-in forwards; }
+        /* Animation classes */
+        .anim-exit-1 { animation: exitFadeUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .anim-exit-2 { animation: exitWipeRight 1.0s ease-in forwards; }
+        .anim-exit-3 { animation: exitGoldenFade 1.3s ease-out forwards; }
+        .anim-exit-4 { animation: exitSpinAway 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
         
-        .anim-in-slide { animation: appearSlideFast 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .anim-in-pulse { animation: appearPulseSlow 2.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .anim-in-flip { animation: appearFlipFast 1.0s ease-out forwards; }
-        .anim-in-reveal { animation: appearRevealSplit 2.0s ease-out forwards; }
-        .anim-in-rise { animation: appearRiseSlow 2.8s ease-out forwards; }
+        .anim-enter-1 { animation: enterSlideDown 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-enter-2 { animation: enterExpandPulse 1.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .anim-enter-3 { animation: enterFlipIn 1.1s ease-out forwards; }
+        .anim-enter-4 { animation: enterSplitReveal 1.5s ease-out forwards; }
+        .anim-enter-5 { animation: enterRiseShimmer 1.8s ease-out forwards; }
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -520,7 +503,7 @@ if ($autoOpenTool) {
             <!-- Left Side (60%) - Text Content Only -->
             <div class="lg:w-3/5 order-1 lg:order-1">
                 <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
-                    Launch Your Business Online with <span class="text-gold animate-word-swap" id="animatedWord">Confidence</span>.
+                    Launch Your Business Online with <span class="text-gold animate-word-swap" id="animatedWord">Confidence.</span>
                 </h1>
                 <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-400 mb-3 sm:mb-4 lg:mb-8 max-w-xl">
                     Professional website templates and digital tools built for African entrepreneurs. Get online in 24 hours, scale your business faster, dominate your market.
@@ -1433,45 +1416,62 @@ if ($autoOpenTool) {
             }
         });
 
-        // Professional word animations - EACH TRANSITION IS COMPLETELY DIFFERENT
+        // Professional word animations with period included
         const wordElement = document.getElementById('animatedWord');
         if (wordElement) {
-            const words = ['Confidence', 'Growth', 'Impact', 'Excellence', 'Success', 'Mastery'];
-            // SIX different exit animations
-            const outAnimations = ['anim-evaporate', 'anim-wipe', 'anim-fade', 'anim-scatter', 'anim-melt', 'anim-twirl'];
-            // FIVE different entrance animations
-            const inAnimations = ['anim-in-slide', 'anim-in-pulse', 'anim-in-flip', 'anim-in-reveal', 'anim-in-rise'];
+            const words = ['Confidence.', 'Growth.', 'Impact.', 'Excellence.', 'Success.', 'Mastery.'];
+            const exitAnimations = ['anim-exit-1', 'anim-exit-2', 'anim-exit-3', 'anim-exit-4'];
+            const enterAnimations = ['anim-enter-1', 'anim-enter-2', 'anim-enter-3', 'anim-enter-4', 'anim-enter-5'];
             
             let currentIndex = 0;
+            let animationSequence = [];
+            
+            // Pregenerate animation sequence to ensure variety
+            function generateSequence() {
+                animationSequence = [];
+                for (let i = 0; i < 12; i++) {
+                    animationSequence.push({
+                        exit: exitAnimations[Math.floor(Math.random() * exitAnimations.length)],
+                        enter: enterAnimations[Math.floor(Math.random() * enterAnimations.length)]
+                    });
+                }
+            }
+            
+            generateSequence();
             
             function animateWordChange() {
                 const nextIndex = (currentIndex + 1) % words.length;
                 const nextWord = words[nextIndex];
+                const animSeq = animationSequence[currentIndex];
                 
-                // Pick a RANDOM exit animation (guaranteed variety)
-                const outAnim = outAnimations[Math.floor(Math.random() * outAnimations.length)];
-                const exitTime = parseInt(window.getComputedStyle(document.documentElement).getPropertyValue('--anim-exit-time') || '1200');
+                // Apply exit animation
+                wordElement.classList.add(animSeq.exit);
                 
-                wordElement.classList.add(outAnim);
+                // Calculate exit duration
+                const exitDuration = animSeq.exit === 'anim-exit-1' ? 1200 : 
+                                    animSeq.exit === 'anim-exit-2' ? 1000 : 
+                                    animSeq.exit === 'anim-exit-3' ? 1300 : 1400;
                 
                 setTimeout(() => {
                     wordElement.textContent = nextWord;
-                    // Remove ALL animation classes
-                    wordElement.classList.remove(...outAnimations);
+                    wordElement.classList.remove(...exitAnimations);
                     
-                    // Pick a RANDOM entrance animation
-                    const inAnim = inAnimations[Math.floor(Math.random() * inAnimations.length)];
-                    wordElement.classList.add(inAnim);
-                    
+                    // Apply enter animation
+                    wordElement.classList.add(animSeq.enter);
                     currentIndex = nextIndex;
                     
                     // Schedule next transition
-                    setTimeout(animateWordChange, 3000);
-                }, 1200);
+                    const enterDuration = animSeq.enter === 'anim-enter-1' ? 1200 : 
+                                        animSeq.enter === 'anim-enter-2' ? 1600 : 
+                                        animSeq.enter === 'anim-enter-3' ? 1100 : 
+                                        animSeq.enter === 'anim-enter-4' ? 1500 : 1800;
+                    
+                    setTimeout(animateWordChange, 3500);
+                }, exitDuration);
             }
             
             wordElement.textContent = words[0];
-            setTimeout(animateWordChange, 2000);
+            setTimeout(animateWordChange, 2500);
         }
     </script>
 </body>
