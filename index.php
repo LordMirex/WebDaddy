@@ -385,7 +385,7 @@ if ($autoOpenTool) {
                 </div>
                 
                 <!-- Success Metrics -->
-                <div class="grid grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-2xl mx-auto">
                     <div>
                         <div class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-1">500+</div>
                         <div class="text-xs sm:text-sm text-white/75">Websites Launched</div>
