@@ -493,11 +493,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const tabView = tabUrl.searchParams.get('view');
             
             if (tabView === view) {
-                tab.classList.add('bg-primary-600', 'text-white', 'shadow-sm');
-                tab.classList.remove('text-gray-100', 'hover:bg-gray-900');
+                tab.classList.add('text-white', 'border-gold');
+                tab.classList.remove('text-gray-500', 'border-transparent');
             } else {
-                tab.classList.remove('bg-primary-600', 'text-white', 'shadow-sm');
-                tab.classList.add('text-gray-100', 'hover:bg-gray-900');
+                tab.classList.add('text-gray-500', 'border-transparent');
+                tab.classList.remove('text-white', 'border-gold');
             }
         });
     }
@@ -1273,17 +1273,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function showNotification(message, type = 'success') {
         // Create notification container
         const container = document.createElement('div');
-        container.className = 'fixed top-4 right-4 z-50 flex flex-col gap-2';
+        container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
         
         // Create notification element
         const notification = document.createElement('div');
-        const bgColor = type === 'success' ? 'bg-emerald-900 border-emerald-700' : 'bg-red-900 border-red-700';
-        const textColor = type === 'success' ? 'text-emerald-100' : 'text-red-100';
-        const iconColor = type === 'success' ? 'text-emerald-400' : 'text-red-400';
-        const shadowColor = type === 'success' ? 'shadow-emerald-900' : 'shadow-red-900';
+        const bgColor = type === 'success' ? 'bg-green-600/80 border-green-500/60' : 'bg-red-600/80 border-red-500/60';
+        const textColor = type === 'success' ? 'text-green-50' : 'text-red-50';
+        const iconColor = type === 'success' ? 'text-green-200' : 'text-red-200';
         
         notification.innerHTML = `
-            <div class="animate-slide-in flex items-start gap-3 px-4 py-3 sm:px-5 sm:py-4 rounded-lg border-2 ${bgColor} ${shadowColor} shadow-lg backdrop-blur-sm max-w-sm">
+            <div class="animate-slide-in flex items-start gap-3 px-4 py-3 sm:px-5 sm:py-4 rounded-lg border-2 ${bgColor} shadow-lg backdrop-blur-md max-w-sm pointer-events-auto">
                 <svg class="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0 mt-0.5 ${iconColor}" fill="currentColor" viewBox="0 0 20 20">
                     ${type === 'success' 
                         ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
@@ -1293,8 +1292,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="flex-1">
                     <p class="text-sm sm:text-base font-semibold ${textColor} leading-tight">${escapeHtml(message)}</p>
                 </div>
-                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 text-gray-100 hover:text-white transition-colors pt-1">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity pt-1">
+                    <svg class="w-4 h-4 ${textColor}" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                     </svg>
                 </button>
