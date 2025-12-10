@@ -359,7 +359,7 @@ if ($autoOpenTool) {
     </nav>
 
     <!-- Hero Section - Full 100vh with Stats -->
-    <header class="relative bg-navy text-white min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
+    <header class="relative bg-navy text-white min-h-[auto] sm:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
         <!-- Golden X Stripes Background Decoration - Both Desktop & Mobile -->
         <div class="absolute inset-0 pointer-events-none overflow-hidden">
             <!-- Top Left X Stripe -->
@@ -390,19 +390,19 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Main Content Area -->
-        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 lg:py-6">
+        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-6">
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-12 items-center w-full">
                 <!-- Left Side (60%) -->
                 <div class="lg:col-span-3">
-                    <h1 class="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-extrabold mb-3 lg:mb-6 leading-tight">
+                    <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
                         Build Your Digital Presence with <span class="text-gold">Confidence.</span>
                     </h1>
-                    <p class="text-sm sm:text-base lg:text-xl text-gray-400 mb-4 lg:mb-8 max-w-xl">
+                    <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-400 mb-3 sm:mb-4 lg:mb-8 max-w-xl">
                         Premium website templates and powerful digital tools designed for growing businesses. Launch faster, scale smarter.
                     </p>
                     
                     <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-2 lg:gap-4">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4">
                         <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-5 lg:px-8 py-2.5 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
                             <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
@@ -646,7 +646,7 @@ if ($autoOpenTool) {
 
             <!-- Search and Filter Container -->
             <div class="max-w-4xl mx-auto mb-8">
-                <div class="flex flex-col lg:flex-row gap-4">
+                <div class="flex flex-col md:flex-row gap-2 md:gap-4">
                     <!-- Search Input -->
                     <div class="flex-1">
                         <div class="relative">
@@ -674,7 +674,7 @@ if ($autoOpenTool) {
                     </div>
 
                     <!-- Category Filter -->
-                    <div class="w-full lg:w-56">
+                    <div class="w-full md:w-56">
                         <div class="relative">
                             <select id="category-filter" 
                                     class="w-full px-4 py-3 pl-4 pr-10 bg-navy-light border border-gray-700 rounded-lg text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
