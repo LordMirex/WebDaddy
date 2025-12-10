@@ -358,35 +358,59 @@ if ($autoOpenTool) {
         </div>
     </nav>
 
-    <!-- Hero Section - Split Layout -->
-    <header class="relative bg-navy text-white py-16 sm:py-20 lg:py-24 overflow-hidden">
-        <!-- Mobile Golden X Background Decoration -->
-        <div class="absolute inset-0 lg:hidden pointer-events-none overflow-hidden">
-            <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.03]" viewBox="0 0 200 200" fill="none">
-                <path d="M20 20L180 180M180 20L20 180" stroke="#c9a962" stroke-width="20" stroke-linecap="round"/>
-            </svg>
+    <!-- Hero Section - Full 100vh with Stats -->
+    <header class="relative bg-navy text-white min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col overflow-hidden">
+        <!-- Golden X Stripes Background Decoration - Both Desktop & Mobile -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+            <!-- Top Left X Stripe -->
+            <div class="absolute -top-20 -left-20 w-[400px] h-[2px] bg-gradient-to-r from-transparent via-gold/30 to-transparent transform rotate-45 origin-center"></div>
+            <div class="absolute -top-10 -left-32 w-[500px] h-[2px] bg-gradient-to-r from-transparent via-gold/20 to-transparent transform rotate-45 origin-center"></div>
+            <!-- Top Right X Stripe -->
+            <div class="absolute -top-20 -right-20 w-[400px] h-[2px] bg-gradient-to-r from-transparent via-gold/30 to-transparent transform -rotate-45 origin-center"></div>
+            <div class="absolute -top-10 -right-32 w-[500px] h-[2px] bg-gradient-to-r from-transparent via-gold/20 to-transparent transform -rotate-45 origin-center"></div>
+            <!-- Desktop Only - Additional Decorative Stripes -->
+            <div class="hidden lg:block">
+                <div class="absolute top-0 right-0 w-[600px] h-[600px]">
+                    <div class="absolute top-0 right-0 w-[3px] h-[500px] bg-gradient-to-b from-gold/40 via-gold/20 to-transparent transform rotate-[30deg] origin-top-right"></div>
+                    <div class="absolute top-10 right-10 w-[3px] h-[450px] bg-gradient-to-b from-gold/30 via-gold/15 to-transparent transform rotate-[30deg] origin-top-right"></div>
+                    <div class="absolute top-20 right-20 w-[2px] h-[400px] bg-gradient-to-b from-gold/20 via-gold/10 to-transparent transform rotate-[30deg] origin-top-right"></div>
+                </div>
+                <div class="absolute bottom-0 right-0 w-[600px] h-[600px]">
+                    <div class="absolute bottom-0 right-0 w-[3px] h-[500px] bg-gradient-to-t from-gold/40 via-gold/20 to-transparent transform -rotate-[30deg] origin-bottom-right"></div>
+                    <div class="absolute bottom-10 right-10 w-[3px] h-[450px] bg-gradient-to-t from-gold/30 via-gold/15 to-transparent transform -rotate-[30deg] origin-bottom-right"></div>
+                    <div class="absolute bottom-20 right-20 w-[2px] h-[400px] bg-gradient-to-t from-gold/20 via-gold/10 to-transparent transform -rotate-[30deg] origin-bottom-right"></div>
+                </div>
+            </div>
+            <!-- Mobile X Pattern -->
+            <div class="lg:hidden">
+                <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-[0.06]" viewBox="0 0 200 200" fill="none">
+                    <path d="M20 20L180 180M180 20L20 180" stroke="#c9a962" stroke-width="8" stroke-linecap="round"/>
+                </svg>
+            </div>
         </div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
+        
+        <!-- Main Content Area -->
+        <div class="relative flex-1 flex items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center w-full">
                 <!-- Left Side (60%) -->
                 <div class="lg:col-span-3">
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-4 lg:mb-6 leading-tight">
                         Build Your Digital Presence with <span class="text-gold">Confidence.</span>
                     </h1>
-                    <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-xl">
+                    <p class="text-base sm:text-lg lg:text-xl text-gray-400 mb-6 lg:mb-8 max-w-xl">
                         Premium website templates and powerful digital tools designed for growing businesses. Launch faster, scale smarter.
                     </p>
                     
                     <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex flex-col sm:flex-row gap-3 lg:gap-4">
+                        <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg">
+                            <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                             </svg>
                             Browse Templates
                         </a>
-                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold hover:bg-gold hover:text-navy transition-all">
+                            <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                             </svg>
                             Explore Tools
@@ -398,77 +422,77 @@ if ($autoOpenTool) {
                 <div class="lg:col-span-2 hidden lg:block">
                     <div class="relative">
                         <div class="bg-navy-light rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
-                            <div class="bg-navy-light px-4 py-3 border-b border-gray-700 flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                                <div class="flex-1 ml-4">
-                                    <div class="bg-navy rounded-lg px-3 py-1 text-xs text-gray-400 max-w-xs">yourwebsite.com</div>
+                            <div class="bg-navy-light px-3 py-2 border-b border-gray-700 flex items-center gap-2">
+                                <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                                <div class="flex-1 ml-3">
+                                    <div class="bg-navy rounded-lg px-2 py-0.5 text-xs text-gray-400 max-w-xs">yourwebsite.com</div>
                                 </div>
                             </div>
-                            <div class="aspect-[4/3] bg-gradient-to-br from-navy-light to-navy p-6 flex flex-col items-center justify-center">
-                                <div class="w-full max-w-xs space-y-4">
-                                    <div class="h-8 bg-gold/20 rounded-lg w-3/4 mx-auto"></div>
-                                    <div class="h-4 bg-gray-700 rounded w-full"></div>
-                                    <div class="h-4 bg-gray-700 rounded w-5/6"></div>
-                                    <div class="grid grid-cols-2 gap-3 mt-6">
-                                        <div class="h-20 bg-navy-light rounded-lg border border-gray-700"></div>
-                                        <div class="h-20 bg-navy-light rounded-lg border border-gray-700"></div>
+                            <div class="aspect-[16/10] bg-gradient-to-br from-navy-light to-navy p-4 flex flex-col items-center justify-center">
+                                <div class="w-full max-w-xs space-y-3">
+                                    <div class="h-6 bg-gold/20 rounded-lg w-3/4 mx-auto"></div>
+                                    <div class="h-3 bg-gray-700 rounded w-full"></div>
+                                    <div class="h-3 bg-gray-700 rounded w-5/6"></div>
+                                    <div class="grid grid-cols-2 gap-2 mt-4">
+                                        <div class="h-16 bg-navy-light rounded-lg border border-gray-700"></div>
+                                        <div class="h-16 bg-navy-light rounded-lg border border-gray-700"></div>
                                     </div>
-                                    <div class="h-10 bg-gold rounded-lg w-1/2 mx-auto mt-4"></div>
+                                    <div class="h-8 bg-gold rounded-lg w-1/2 mx-auto mt-3"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gold/10 rounded-full blur-2xl"></div>
-                        <div class="absolute -top-4 -left-4 w-32 h-32 bg-gold/5 rounded-full blur-3xl"></div>
+                        <div class="absolute -bottom-3 -right-3 w-20 h-20 bg-gold/10 rounded-full blur-2xl"></div>
+                        <div class="absolute -top-3 -left-3 w-24 h-24 bg-gold/5 rounded-full blur-3xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Bar - Inside Hero for 100vh -->
+        <div class="relative py-4 lg:py-6 bg-navy/50 backdrop-blur-sm">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-3 lg:py-4 px-4 lg:px-8">
+                    <div class="grid grid-cols-3 gap-2 lg:gap-4 text-center">
+                        <div class="flex items-center justify-center gap-2 lg:gap-3">
+                            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm sm:text-base lg:text-xl font-bold text-white">500+</div>
+                                <div class="text-[10px] lg:text-xs text-gray-400 whitespace-nowrap">Websites Launched</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-2 lg:gap-3 border-x border-gray-700/50">
+                            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm sm:text-base lg:text-xl font-bold text-white">10k+</div>
+                                <div class="text-[10px] lg:text-xs text-gray-400 whitespace-nowrap">Active Users</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center gap-2 lg:gap-3">
+                            <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 lg:w-5 lg:h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm sm:text-base lg:text-xl font-bold text-white">4.9/5</div>
+                                <div class="text-[10px] lg:text-xs text-gray-400 whitespace-nowrap">Customer Rating</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
-    
-    <!-- Stats Bar -->
-    <section class="py-8 bg-navy">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-navy-light border border-gray-700 rounded-full py-4 px-8">
-                <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-lg sm:text-xl font-bold text-white">500+</div>
-                            <div class="text-xs text-gray-400">Websites Launched</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-center gap-3 border-x border-gray-700">
-                        <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-lg sm:text-xl font-bold text-white">10k+</div>
-                            <div class="text-xs text-gray-400">Active Users</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <div class="text-lg sm:text-xl font-bold text-white">4.9/5</div>
-                            <div class="text-xs text-gray-400">Customer Rating</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Smart WhatsApp Button with Message Carousel -->
     <div x-data="{ 
