@@ -2270,6 +2270,13 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 !$totals['has_discount'] || 
                 ($totals['discount_type'] === 'bonus_code' && $activeBonusCode['discount_percent'] > $totals['discount_percent'])
             );
+            
+            // Debug info
+            if (!empty($activeBonusCode)) {
+                error_log('DEBUG: Active Bonus Code Found - ' . $activeBonusCode['code'] . ' (' . $activeBonusCode['discount_percent'] . '%)');
+            } else {
+                error_log('DEBUG: No Active Bonus Code found - check if bonus_codes table has active codes');
+            }
             ?>
             <?php if ($showBonusBanner): ?>
             if (!isConfirmationPage) {
