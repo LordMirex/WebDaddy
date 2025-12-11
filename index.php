@@ -400,7 +400,7 @@ if ($autoOpenTool) {
             align-items: center;
             justify-content: center;
             pointer-events: all;
-            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
         }
         
         #page-loader.loader-hidden {
@@ -419,7 +419,8 @@ if ($autoOpenTool) {
             position: absolute;
             width: 100%;
             height: 100%;
-            animation: loaderRotate 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: loaderRotate 1.2s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.8));
         }
         
         .loader-x-bar {
@@ -430,33 +431,35 @@ if ($autoOpenTool) {
             height: 100%;
             background: linear-gradient(180deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%);
             border-radius: 8px;
-            box-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.3);
+            box-shadow: 0 0 20px rgba(212,175,55,0.8), 0 0 40px rgba(212,175,55,0.4), inset 0 0 10px rgba(255,255,255,0.2);
             transform-origin: center center;
         }
         
         .loader-x-bar:nth-child(1) {
             transform: translate(-50%, -50%) rotate(45deg);
-            animation: loaderPulse1 1.2s ease-in-out infinite;
+            animation: loaderSliceBar1 1.2s ease-in-out infinite;
         }
         
         .loader-x-bar:nth-child(2) {
             transform: translate(-50%, -50%) rotate(-45deg);
-            animation: loaderPulse2 1.2s ease-in-out infinite 0.15s;
+            animation: loaderSliceBar2 1.2s ease-in-out infinite 0.1s;
         }
         
         .loader-glow {
             position: absolute;
-            inset: -20%;
-            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
-            animation: loaderGlowPulse 2s ease-in-out infinite;
+            inset: -30%;
+            background: radial-gradient(circle, rgba(212,175,55,0.25) 0%, transparent 70%);
+            animation: loaderGlowIntense 1.5s ease-in-out infinite;
+            filter: blur(15px);
         }
         
         .loader-ring {
             position: absolute;
-            inset: -15%;
-            border: 2px solid rgba(212,175,55,0.3);
+            inset: -20%;
+            border: 2px solid rgba(212,175,55,0.4);
             border-radius: 50%;
-            animation: loaderRingSpin 3s linear infinite;
+            animation: loaderRingFastSpin 1.8s linear infinite;
+            box-shadow: 0 0 15px rgba(212,175,55,0.5);
         }
         
         .loader-ring::before {
@@ -464,12 +467,12 @@ if ($autoOpenTool) {
             position: absolute;
             top: -2px;
             left: 50%;
-            width: 8px;
-            height: 8px;
-            background: #D4AF37;
+            width: 10px;
+            height: 10px;
+            background: #F5D669;
             border-radius: 50%;
             transform: translateX(-50%);
-            box-shadow: 0 0 15px #D4AF37;
+            box-shadow: 0 0 20px #F5D669, 0 0 40px rgba(212,175,55,0.6);
         }
         
         .loader-text {
@@ -478,103 +481,131 @@ if ($autoOpenTool) {
             left: 50%;
             transform: translateX(-50%);
             font-size: clamp(12px, 3vw, 16px);
-            font-weight: 600;
+            font-weight: 700;
             color: #D4AF37;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            opacity: 0.9;
-            animation: loaderTextPulse 1.5s ease-in-out infinite;
+            opacity: 1;
+            animation: loaderTextFade 1.5s ease-in-out infinite;
+            text-shadow: 0 0 10px rgba(212,175,55,0.6);
         }
         
         @keyframes loaderRotate {
             0% { transform: rotate(0deg); }
-            25% { transform: rotate(90deg); }
-            50% { transform: rotate(180deg); }
-            75% { transform: rotate(270deg); }
             100% { transform: rotate(360deg); }
         }
         
-        @keyframes loaderPulse1 {
+        @keyframes loaderSliceBar1 {
             0%, 100% { 
-                transform: translate(-50%, -50%) rotate(45deg) scaleY(1);
-                box-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.3);
+                transform: translate(-50%, -50%) rotate(45deg) scaleY(1) scaleX(1);
+                box-shadow: 0 0 20px rgba(212,175,55,0.8), 0 0 40px rgba(212,175,55,0.4), inset 0 0 10px rgba(255,255,255,0.2);
             }
             50% { 
-                transform: translate(-50%, -50%) rotate(45deg) scaleY(0.85);
-                box-shadow: 0 0 50px rgba(212,175,55,0.9), 0 0 100px rgba(212,175,55,0.5);
+                transform: translate(-50%, -50%) rotate(45deg) scaleY(0.9) scaleX(1.05);
+                box-shadow: 0 0 35px rgba(212,175,55,1), 0 0 70px rgba(212,175,55,0.6), inset 0 0 15px rgba(255,255,255,0.3);
             }
         }
         
-        @keyframes loaderPulse2 {
+        @keyframes loaderSliceBar2 {
             0%, 100% { 
-                transform: translate(-50%, -50%) rotate(-45deg) scaleY(1);
-                box-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.3);
+                transform: translate(-50%, -50%) rotate(-45deg) scaleY(1) scaleX(1);
+                box-shadow: 0 0 20px rgba(212,175,55,0.8), 0 0 40px rgba(212,175,55,0.4), inset 0 0 10px rgba(255,255,255,0.2);
             }
             50% { 
-                transform: translate(-50%, -50%) rotate(-45deg) scaleY(0.85);
-                box-shadow: 0 0 50px rgba(212,175,55,0.9), 0 0 100px rgba(212,175,55,0.5);
+                transform: translate(-50%, -50%) rotate(-45deg) scaleY(0.9) scaleX(1.05);
+                box-shadow: 0 0 35px rgba(212,175,55,1), 0 0 70px rgba(212,175,55,0.6), inset 0 0 15px rgba(255,255,255,0.3);
             }
         }
         
-        @keyframes loaderGlowPulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
+        @keyframes loaderGlowIntense {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
         }
         
-        @keyframes loaderRingSpin {
+        @keyframes loaderRingFastSpin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            100% { transform: rotate(-360deg); }
         }
         
-        @keyframes loaderTextPulse {
-            0%, 100% { opacity: 0.7; letter-spacing: 3px; }
-            50% { opacity: 1; letter-spacing: 5px; }
+        @keyframes loaderTextFade {
+            0%, 100% { opacity: 0.8; letter-spacing: 4px; }
+            50% { opacity: 1; letter-spacing: 6px; text-shadow: 0 0 20px rgba(212,175,55,0.9); }
         }
         
-        /* Loader exit animation */
+        /* Loader exit animation - Fast zoom out with dust particles */
+        #page-loader.loader-exit {
+            animation: loaderBgFadeOut 0.5s ease-out forwards;
+        }
+        
         #page-loader.loader-exit .loader-x {
-            animation: loaderExitSpin 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderZoomOutSpin 0.5s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
         }
         
         #page-loader.loader-exit .loader-x-bar {
-            animation: loaderBarExit 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderBarSliceFade 0.4s cubic-bezier(0.36, 0, 0.66, -0.56) forwards;
         }
         
         #page-loader.loader-exit .loader-ring {
-            animation: loaderRingExit 0.4s ease-out forwards;
+            animation: loaderRingExpand 0.5s ease-out forwards;
         }
         
         #page-loader.loader-exit .loader-glow {
-            animation: loaderGlowExit 0.5s ease-out forwards;
+            animation: loaderGlowExpand 0.5s ease-out forwards;
         }
         
         #page-loader.loader-exit .loader-text {
-            animation: loaderTextExit 0.3s ease-out forwards;
+            animation: loaderTextDust 0.4s ease-out forwards;
         }
         
-        @keyframes loaderExitSpin {
-            0% { transform: rotate(0deg) scale(1); }
-            100% { transform: rotate(180deg) scale(1.5); opacity: 0; }
+        /* Dust particle effect */
+        .loader-dust {
+            position: absolute;
+            pointer-events: none;
         }
         
-        @keyframes loaderBarExit {
-            0% { transform: translate(-50%, -50%) rotate(var(--bar-rotation)) scaleY(1); }
-            100% { transform: translate(-50%, -50%) rotate(var(--bar-rotation)) scaleY(0); opacity: 0; }
+        .dust-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #D4AF37;
+            border-radius: 50%;
+            opacity: 0.8;
+            box-shadow: 0 0 8px rgba(212,175,55,0.6);
         }
         
-        @keyframes loaderRingExit {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2); opacity: 0; }
+        @keyframes loaderZoomOutSpin {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(3.5) rotate(180deg); opacity: 0; filter: blur(8px); }
         }
         
-        @keyframes loaderGlowExit {
+        @keyframes loaderBarSliceFade {
+            0% { transform: translate(-50%, -50%) rotate(var(--bar-rotation)) scaleY(1) scaleX(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) rotate(var(--bar-rotation)) scaleY(0.1) scaleX(0.1); opacity: 0; }
+        }
+        
+        @keyframes loaderRingExpand {
+            0% { transform: scale(1); opacity: 0.4; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+        
+        @keyframes loaderGlowExpand {
             0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(3); }
+            100% { opacity: 0; transform: scale(5); }
         }
         
-        @keyframes loaderTextExit {
-            0% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
-            100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        @keyframes loaderTextDust {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(0.3); filter: blur(10px); }
+        }
+        
+        @keyframes dustFloat {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.2); }
+        }
+        
+        @keyframes loaderBgFadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
@@ -1676,7 +1707,7 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Loader Controller -->
+    <!-- Premium Loader Controller with Dust Particles -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
@@ -1687,6 +1718,35 @@ if ($autoOpenTool) {
             const MAX_DISPLAY_TIME = 3500;
             const startTime = Date.now();
             
+            function createDustParticles() {
+                const container = loader.querySelector('.loader-x-container');
+                const particleCount = 12;
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'dust-particle';
+                    
+                    const angle = (Math.PI * 2 * i) / particleCount;
+                    const distance = 40 + Math.random() * 80;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
+                    
+                    particle.style.left = centerX + 'px';
+                    particle.style.top = centerY + 'px';
+                    particle.style.setProperty('--tx', tx + 'px');
+                    particle.style.setProperty('--ty', ty + 'px');
+                    particle.style.animation = `dustFloat 0.5s ease-out forwards`;
+                    particle.style.animationDelay = (i * 0.02) + 's';
+                    
+                    document.body.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 600);
+                }
+            }
+            
             function dismissLoader() {
                 if (loaderDismissed) return;
                 loaderDismissed = true;
@@ -1695,11 +1755,12 @@ if ($autoOpenTool) {
                 const remainingTime = Math.max(0, MIN_DISPLAY_TIME - elapsed);
                 
                 setTimeout(() => {
+                    createDustParticles();
                     loader.classList.add('loader-exit');
                     
                     setTimeout(() => {
                         loader.classList.add('loader-hidden');
-                    }, 600);
+                    }, 500);
                 }, remainingTime);
             }
             
