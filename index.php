@@ -390,7 +390,7 @@ if ($autoOpenTool) {
         .anim-enter-4 { animation: enterSplitReveal 1.5s ease-out forwards; }
         .anim-enter-5 { animation: enterRiseShimmer 1.8s ease-out forwards; }
         
-        /* ========== ULTRA-SLIM PREMIUM X LOADER STYLES ========== */
+        /* ========== PREMIUM WEBDADDY LOADER WITH LOGO ========== */
         #page-loader {
             position: fixed;
             top: 0;
@@ -398,7 +398,7 @@ if ($autoOpenTool) {
             right: 0;
             bottom: 0;
             z-index: 9999;
-            background: linear-gradient(135deg, #0a1929 0%, #0f1f2e 50%, #0a1929 100%);
+            background: radial-gradient(ellipse at center, #0f1f2e 0%, #0a1929 60%, #061018 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -410,23 +410,23 @@ if ($autoOpenTool) {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.7s;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
         }
         
         .loader-x-container {
             position: fixed;
-            top: 50%;
-            left: 50%;
+            top: calc(50% - 8%);
+            left: calc(50% + 5%);
             transform: translate(-50%, -50%);
-            width: 100vmax;
-            height: 100vmax;
+            width: 140vmax;
+            height: 140vmax;
         }
         
         .loader-x {
             position: absolute;
             width: 100%;
             height: 100%;
-            animation: premiumXRotate 3s linear infinite;
+            animation: premiumXRotate 8s linear infinite;
             top: 0;
             left: 0;
         }
@@ -439,38 +439,58 @@ if ($autoOpenTool) {
             height: 100%;
             background: linear-gradient(180deg, 
                 transparent 0%, 
-                rgba(212,175,55,0.3) 15%,
-                rgba(245,214,105,0.6) 35%,
-                #F5D669 50%, 
-                rgba(245,214,105,0.6) 65%,
-                rgba(212,175,55,0.3) 85%,
+                rgba(212,175,55,0.2) 10%,
+                rgba(245,214,105,0.5) 30%,
+                #F5D669 45%,
+                #FFE17B 50%, 
+                #F5D669 55%,
+                rgba(245,214,105,0.5) 70%,
+                rgba(212,175,55,0.2) 90%,
                 transparent 100%);
             border-radius: 1px;
-            box-shadow: 0 0 8px rgba(212,175,55,0.5), 0 0 20px rgba(212,175,55,0.3), inset 0 0 4px rgba(255,255,255,0.15);
+            box-shadow: 0 0 20px rgba(245,214,105,0.9), 0 0 40px rgba(212,175,55,0.6), 0 0 80px rgba(212,175,55,0.3);
             transform-origin: center center;
         }
         
         .loader-x-bar:nth-child(1) {
             transform: translate(-50%, -50%) rotate(45deg);
-            animation: barAesthetic1 3s ease-in-out infinite;
+            animation: barShine1 2s ease-in-out infinite;
         }
         
         .loader-x-bar:nth-child(2) {
             transform: translate(-50%, -50%) rotate(-45deg);
-            animation: barAesthetic2 3s ease-in-out infinite;
+            animation: barShine2 2s ease-in-out infinite 0.5s;
         }
         
         .loader-glow {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 60%);
             transform: translate(-50%, -50%);
-            animation: premiumGlowExpand 3s ease-in-out infinite;
-            filter: blur(30px);
+            animation: glowBreath 2s ease-in-out infinite;
+            filter: blur(40px);
             pointer-events: none;
+        }
+        
+        .loader-logo-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loader-logo {
+            width: 120px;
+            height: auto;
+            animation: logoZoomPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.6)) drop-shadow(0 0 40px rgba(212,175,55,0.3));
         }
         
         @keyframes premiumXRotate {
@@ -478,61 +498,76 @@ if ($autoOpenTool) {
             100% { transform: rotate(360deg); }
         }
         
-        @keyframes barAesthetic1 {
+        @keyframes barShine1 {
             0%, 100% { 
-                box-shadow: 0 0 8px rgba(212,175,55,0.5), 0 0 20px rgba(212,175,55,0.3), inset 0 0 4px rgba(255,255,255,0.15);
-                opacity: 0.8;
+                box-shadow: 0 0 20px rgba(245,214,105,0.9), 0 0 40px rgba(212,175,55,0.6), 0 0 80px rgba(212,175,55,0.3);
+                opacity: 0.7;
             }
             50% { 
-                box-shadow: 0 0 15px rgba(212,175,55,0.7), 0 0 40px rgba(212,175,55,0.4), inset 0 0 8px rgba(255,255,255,0.25);
+                box-shadow: 0 0 35px rgba(255,225,123,1), 0 0 70px rgba(245,214,105,0.8), 0 0 120px rgba(212,175,55,0.5);
                 opacity: 1;
             }
         }
         
-        @keyframes barAesthetic2 {
+        @keyframes barShine2 {
             0%, 100% { 
-                box-shadow: 0 0 10px rgba(212,175,55,0.4), 0 0 25px rgba(212,175,55,0.2), inset 0 0 5px rgba(255,255,255,0.1);
-                opacity: 0.75;
+                box-shadow: 0 0 18px rgba(245,214,105,0.8), 0 0 35px rgba(212,175,55,0.5), 0 0 70px rgba(212,175,55,0.25);
+                opacity: 0.65;
             }
             50% { 
-                box-shadow: 0 0 18px rgba(212,175,55,0.6), 0 0 45px rgba(212,175,55,0.35), inset 0 0 10px rgba(255,255,255,0.2);
+                box-shadow: 0 0 30px rgba(255,225,123,0.95), 0 0 60px rgba(245,214,105,0.7), 0 0 100px rgba(212,175,55,0.4);
                 opacity: 1;
             }
         }
         
-        @keyframes premiumGlowExpand {
-            0%, 100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.4; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        @keyframes glowBreath {
+            0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
         }
         
-        /* Premium exit animation */
+        @keyframes logoZoomPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.85; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+        
+        /* Premium exit animation - Logo zooms out widely */
         #page-loader.loader-exit {
-            animation: premiumBgFadeOut 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: loaderFadeOut 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-x {
-            animation: premiumXFadeAway 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: xExpandFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-glow {
-            animation: premiumGlowFade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation: glowExpandFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
-        @keyframes premiumBgFadeOut {
+        #page-loader.loader-exit .loader-logo {
+            animation: logoZoomOutFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes loaderFadeOut {
             0% { opacity: 1; }
-            70% { opacity: 0.3; }
+            60% { opacity: 0.4; }
             100% { opacity: 0; }
         }
         
-        @keyframes premiumXFadeAway {
-            0% { transform: rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
-            50% { opacity: 0.6; }
-            100% { transform: rotate(360deg) scale(1.5); opacity: 0; filter: blur(15px); }
+        @keyframes xExpandFade {
+            0% { transform: rotate(0deg) scale(1); opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { transform: rotate(180deg) scale(1.3); opacity: 0; filter: blur(10px); }
         }
         
-        @keyframes premiumGlowFade {
-            0% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+        @keyframes glowExpandFade {
+            0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5); }
+        }
+        
+        @keyframes logoZoomOutFade {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: blur(0); }
+            30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; filter: blur(15px); }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
@@ -556,16 +591,17 @@ if ($autoOpenTool) {
     <?php endif; ?>
 </head>
 <body class="bg-navy-dark">
-    <!-- Premium X Loader -->
+    <!-- Premium WebDaddy Loader -->
     <div id="page-loader">
         <div class="loader-x-container">
             <div class="loader-glow"></div>
-            <div class="loader-ring"></div>
             <div class="loader-x">
-                <div class="loader-x-bar" style="--bar-rotation: 45deg;"></div>
-                <div class="loader-x-bar" style="--bar-rotation: -45deg;"></div>
+                <div class="loader-x-bar"></div>
+                <div class="loader-x-bar"></div>
             </div>
-            <div class="loader-text">Loading</div>
+        </div>
+        <div class="loader-logo-container">
+            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo">
         </div>
     </div>
     
@@ -1634,15 +1670,15 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Slim Glowing X Loader Controller -->
+    <!-- Premium WebDaddy Loader Controller -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             
             let loaderDismissed = false;
-            const MIN_DISPLAY_TIME = 800;
-            const MAX_DISPLAY_TIME = 3500;
+            const MIN_DISPLAY_TIME = 1200;
+            const MAX_DISPLAY_TIME = 4000;
             const startTime = Date.now();
             
             function dismissLoader() {
@@ -1657,7 +1693,7 @@ if ($autoOpenTool) {
                     
                     setTimeout(() => {
                         loader.classList.add('loader-hidden');
-                    }, 600);
+                    }, 1000);
                 }, remainingTime);
             }
             
