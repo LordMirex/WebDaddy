@@ -430,9 +430,10 @@ if ($autoOpenTool) {
         }
         .slice-line.s2 { animation-delay: 0.05s; }
         .slice-line.s3 { animation-delay: 0.1s; }
-        .slice-line.s4 { animation-delay: 0.05s; }
-        .slice-line.s5 { animation-delay: 0s; }
-        .slice-line.s6 { animation-delay: 0s; }
+        .slice-line.s4 { animation-delay: 0.1s; }
+        .slice-line.s5 { animation-delay: 0.05s; }
+        .slice-line.s7 { animation-delay: 0s; }
+        .slice-line.s8 { animation-delay: 0s; }
         
         @keyframes sliceGlowSync {
             0%, 100% { opacity: 0.4; stroke-width: 2; filter: url(#glow1); }
@@ -590,15 +591,16 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <!-- W shape: left V (outer) -->
-            <line class="slice-line s1" x1="300" y1="-50" x2="680" y2="1000" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
-            <line class="slice-line s2" x1="680" y1="1000" x2="960" y2="-50" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
-            <!-- W shape: right V (outer) -->
-            <line class="slice-line s3" x1="960" y1="-50" x2="1240" y2="1000" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
-            <line class="slice-line s4" x1="1240" y1="1000" x2="1620" y2="-50" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
-            <!-- Center X intersection at (960, 700) -->
-            <line class="slice-line s5" x1="480" y1="-50" x2="1200" y2="1130" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s6" x1="1440" y1="-50" x2="720" y2="1130" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <!-- Crown/W shape: 3 peaks with center highest -->
+            <line class="slice-line s1" x1="340" y1="1020" x2="520" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s2" x1="520" y1="200" x2="760" y2="880" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s3" x1="760" y1="880" x2="960" y2="90" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s4" x1="960" y1="90" x2="1160" y2="880" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s5" x1="1160" y1="880" x2="1400" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s6" x1="1400" y1="200" x2="1580" y2="1020" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <!-- Center X intersection at (960, 728) -->
+            <line class="slice-line s7" x1="560" y1="160" x2="1180" y2="1040" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s8" x1="1360" y1="160" x2="740" y2="1040" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
