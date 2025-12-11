@@ -26,7 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'affiliate_cookie_days' => (int)$_POST['affiliate_cookie_days'],
                 'site_account_number' => sanitizeInput($_POST['site_account_number'] ?? ''),
                 'site_bank_name' => sanitizeInput($_POST['site_bank_name'] ?? ''),
-                'site_bank_number' => sanitizeInput($_POST['site_bank_number'] ?? '')
+                'site_bank_number' => sanitizeInput($_POST['site_bank_number'] ?? ''),
+                'social_facebook' => sanitizeInput($_POST['social_facebook'] ?? ''),
+                'social_twitter' => sanitizeInput($_POST['social_twitter'] ?? ''),
+                'social_instagram' => sanitizeInput($_POST['social_instagram'] ?? ''),
+                'social_linkedin' => sanitizeInput($_POST['social_linkedin'] ?? ''),
+                'social_tiktok' => sanitizeInput($_POST['social_tiktok'] ?? ''),
+                'social_youtube' => sanitizeInput($_POST['social_youtube'] ?? '')
             ];
 
             try {
@@ -181,6 +187,73 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
 
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h6 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="bi bi-share text-primary-600"></i>Social Media Links
+                        </h6>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-facebook text-blue-600 mr-1"></i>Facebook
+                                </label>
+                                <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="social_facebook"
+                                       value="<?php echo htmlspecialchars($currentSettings['social_facebook'] ?? ''); ?>" 
+                                       placeholder="https://facebook.com/yourpage">
+                                <small class="text-gray-500 text-sm">Your Facebook page URL</small>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-twitter text-sky-500 mr-1"></i>Twitter/X
+                                </label>
+                                <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="social_twitter"
+                                       value="<?php echo htmlspecialchars($currentSettings['social_twitter'] ?? ''); ?>" 
+                                       placeholder="https://twitter.com/yourhandle">
+                                <small class="text-gray-500 text-sm">Your Twitter/X profile URL</small>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-instagram text-pink-600 mr-1"></i>Instagram
+                                </label>
+                                <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="social_instagram"
+                                       value="<?php echo htmlspecialchars($currentSettings['social_instagram'] ?? ''); ?>" 
+                                       placeholder="https://instagram.com/yourhandle">
+                                <small class="text-gray-500 text-sm">Your Instagram profile URL</small>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-linkedin text-blue-700 mr-1"></i>LinkedIn
+                                </label>
+                                <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="social_linkedin"
+                                       value="<?php echo htmlspecialchars($currentSettings['social_linkedin'] ?? ''); ?>" 
+                                       placeholder="https://linkedin.com/company/yourcompany">
+                                <small class="text-gray-500 text-sm">Your LinkedIn profile URL</small>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-tiktok text-black mr-1"></i>TikTok
+                                </label>
+                                <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="social_tiktok"
+                                       value="<?php echo htmlspecialchars($currentSettings['social_tiktok'] ?? ''); ?>" 
+                                       placeholder="https://tiktok.com/@yourhandle">
+                                <small class="text-gray-500 text-sm">Your TikTok profile URL</small>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="bi bi-youtube text-red-600 mr-1"></i>YouTube
+                                </label>
+                                <input type="url" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="social_youtube"
+                                       value="<?php echo htmlspecialchars($currentSettings['social_youtube'] ?? ''); ?>" 
+                                       placeholder="https://youtube.com/@yourchannel">
+                                <small class="text-gray-500 text-sm">Your YouTube channel URL</small>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-6">
                         <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all transform hover:scale-[1.02] shadow-lg">
                             <i class="bi bi-save mr-2"></i>Save Settings
@@ -233,6 +306,42 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="border border-gray-200 rounded-lg p-4 bg-blue-50 border-blue-200">
                         <div class="text-sm text-gray-600 mb-1">👤 Account Name</div>
                         <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['site_bank_number'] ?? 'Not set'); ?></div>
+                    </div>
+
+                    <div class="border border-t-4 border-t-pink-500 border-gray-200 rounded-lg p-4 bg-pink-50">
+                        <div class="text-sm text-gray-600 mb-2 font-semibold">📱 Social Media</div>
+                        <div class="space-y-2">
+                            <?php
+                            $socials = [
+                                'social_facebook' => ['Facebook', 'bi-facebook'],
+                                'social_twitter' => ['Twitter/X', 'bi-twitter'],
+                                'social_instagram' => ['Instagram', 'bi-instagram'],
+                                'social_linkedin' => ['LinkedIn', 'bi-linkedin'],
+                                'social_tiktok' => ['TikTok', 'bi-tiktok'],
+                                'social_youtube' => ['YouTube', 'bi-youtube']
+                            ];
+                            foreach ($socials as $key => [$label, $icon]) {
+                                $value = $currentSettings[$key] ?? '';
+                                if ($value) {
+                                    echo '<div class="flex items-center gap-2 text-sm">';
+                                    echo '<i class="bi ' . htmlspecialchars($icon) . '"></i>';
+                                    echo '<span class="text-gray-700">' . htmlspecialchars($label) . ': </span>';
+                                    echo '<a href="' . htmlspecialchars($value) . '" target="_blank" class="text-primary-600 hover:text-primary-700 underline truncate">' . htmlspecialchars($value) . '</a>';
+                                    echo '</div>';
+                                }
+                            }
+                            $hasSocials = false;
+                            foreach ($socials as $key => $label) {
+                                if (!empty($currentSettings[$key])) {
+                                    $hasSocials = true;
+                                    break;
+                                }
+                            }
+                            if (!$hasSocials) {
+                                echo '<p class="text-gray-500 text-sm italic">No social media links configured yet</p>';
+                            }
+                            ?>
+                        </div>
                     </div>
                 </div>
             </div>
