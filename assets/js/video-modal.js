@@ -682,7 +682,7 @@ class YouTubeModal {
                                    class="w-full border-0 rounded-b-2xl"
                                    style="position: relative; z-index: 1; aspect-ratio: 9/16; min-height: 60vh; max-height: 80vh;"
                                    loading="eager"
-                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                    allowfullscreen>
                             </iframe>
                             
