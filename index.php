@@ -591,12 +591,12 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <line class="slice-line s1" x1="720" y1="-100" x2="1050" y2="1200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s2" x1="1280" y1="-100" x2="950" y2="1200" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s3" x1="420" y1="-50" x2="680" y2="1150" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
-            <line class="slice-line s4" x1="1580" y1="-50" x2="1240" y2="1150" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
-            <line class="slice-line s5" x1="870" y1="-150" x2="1000" y2="1250" stroke="url(#goldGrad1)" stroke-width="1.5" filter="url(#glow1)"/>
-            <line class="slice-line s6" x1="1130" y1="-150" x2="1000" y2="1250" stroke="url(#goldGrad2)" stroke-width="1.5" filter="url(#glow1)"/>
+            <line class="slice-line s1" x1="100" y1="-100" x2="480" y2="900" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s2" x1="480" y1="900" x2="880" y2="-100" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s3" x1="500" y1="-100" x2="1420" y2="1180" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow1)"/>
+            <line class="slice-line s4" x1="1420" y1="-100" x2="500" y2="1180" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow1)"/>
+            <line class="slice-line s5" x1="1040" y1="-100" x2="1440" y2="900" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s6" x1="1440" y1="900" x2="1820" y2="-100" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
