@@ -23,6 +23,12 @@ $activeBonusCode = getActiveBonusCode();
 // Get applied discount code from session (could be bonus code or affiliate code)
 $appliedBonusCode = $_SESSION['applied_bonus_code'] ?? null;
 
+// AUTO-APPLY: If there's an active bonus code and no discount applied yet, auto-apply it
+if ($activeBonusCode && !$appliedBonusCode && !$affiliateCode) {
+    $appliedBonusCode = $activeBonusCode['code'];
+    $_SESSION['applied_bonus_code'] = $appliedBonusCode;
+}
+
 // Check if this is an order confirmation page
 $confirmedOrderId = isset($_GET['confirmed']) ? (int)$_GET['confirmed'] : null;
 
@@ -163,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
     if (empty($errors)) {
         // Re-fetch cart items and totals after validation to ensure we have fresh data
         $cartItems = getCart();
-        $totals = getCartTotal(null, $affiliateCode);
+        $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode);
         
         // Double-check cart is still not empty
         if (empty($cartItems)) {
@@ -2094,10 +2100,19 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
-            // 5. FLOATING BONUS OFFER BANNER - ONLY SHOW ON CHECKOUT FORM, NOT ON CONFIRMATION PAGE
+            // 5. FLOATING BONUS OFFER BANNER - SHOW ON CHECKOUT FORM IF BETTER DISCOUNT AVAILABLE
             console.log('✅ Cart Recovery Features Initialized');
             
-            <?php if (!empty($activeBonusCode) && !$totals['has_discount']): ?>
+            <?php 
+            // Show bonus code banner if:
+            // 1. There's an active bonus code AND
+            // 2. Either no discount is applied yet OR the bonus code offers a better discount than current affiliate
+            $showBonusBanner = !empty($activeBonusCode) && (
+                !$totals['has_discount'] || 
+                ($totals['discount_type'] === 'affiliate' && $activeBonusCode['discount_percent'] > $totals['discount_percent'])
+            );
+            ?>
+            <?php if ($showBonusBanner): ?>
             if (!isConfirmationPage) {
                 const floatingBanner = document.createElement('div');
                 floatingBanner.innerHTML = `
@@ -2108,6 +2123,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 14px;">Special Offer!</p>
                                 <p style="margin: 0; font-size: 12px; opacity: 0.95;">Use code: <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; font-weight: bold;"><?php echo htmlspecialchars($activeBonusCode['code']); ?></span></p>
                                 <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: bold;"><?php echo number_format($activeBonusCode['discount_percent'], 0); ?>% OFF!</p>
+                                <?php if ($totals['has_discount'] && $totals['discount_type'] === 'affiliate'): ?>
+                                <p style="margin: 4px 0 0 0; font-size: 11px; opacity: 0.8;">Better than your current <?php echo $totals['discount_percent']; ?>%!</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

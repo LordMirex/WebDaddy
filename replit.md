@@ -137,6 +137,17 @@ All cron jobs confirmed as necessary and properly implemented:
 - **Category Filter Label**: Changed dropdown from "Filter" to "Category" for clarity
 - **Pagination Improvements**: Added Previous button, improved button colors with hover effects (gold glow on active, hover transitions)
 
+### Bonus Code System (December 2025)
+- **Admin-Managed Promotional Codes**: New system for creating promotional discount codes (e.g., CHRISTMAS2025 → 40% off)
+- **Database**: New `bonus_codes` table with fields: id, code, discount_percent, is_active, expires_at, usage_count, total_sales_generated
+- **Admin Interface**: New "Bonus Codes" tab in admin/affiliates.php with full CRUD operations, stats cards, and professional UI
+- **Single Active Code**: Only ONE bonus code can be active at a time - activating a new code automatically deactivates others
+- **Priority System**: Bonus codes take precedence over affiliate codes (bonus code discount with NO affiliate commission)
+- **Dynamic Checkout Banner**: Replaced hardcoded "HUSTLE" banner with dynamic display of active bonus code
+- **Tracking**: Usage count and total sales generated are tracked automatically when orders are placed
+- **Auto-Expiration**: Expired codes are automatically deactivated
+- **Files Modified**: includes/bonus_codes.php (new), includes/cart.php, admin/affiliates.php, cart-checkout.php
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
