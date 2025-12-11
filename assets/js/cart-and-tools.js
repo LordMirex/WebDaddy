@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         const hasDemo = isYoutube || isVideo || isDemoUrl;
                         const demoUrl = template.preview_youtube || template.demo_video_url || template.demo_url;
                         const descText = template.description ? (template.description.length > 80 ? template.description.substring(0, 80) + '...' : template.description) : '';
-                        const templateSlug = template.slug || template.id;
                         const detailsUrl = '/templates/' + templateSlug + (affiliateCode ? '?aff=' + encodeURIComponent(affiliateCode) : '');
                         
                         return `

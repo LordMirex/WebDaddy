@@ -389,6 +389,194 @@ if ($autoOpenTool) {
         .anim-enter-3 { animation: enterFlipIn 1.1s ease-out forwards; }
         .anim-enter-4 { animation: enterSplitReveal 1.5s ease-out forwards; }
         .anim-enter-5 { animation: enterRiseShimmer 1.8s ease-out forwards; }
+        
+        /* ========== PREMIUM X LOADER STYLES ========== */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #0a1929;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: all;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+        }
+        
+        #page-loader.loader-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .loader-x-container {
+            position: relative;
+            width: clamp(80px, 20vw, 140px);
+            height: clamp(80px, 20vw, 140px);
+        }
+        
+        .loader-x {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: loaderRotate 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        
+        .loader-x-bar {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: clamp(10px, 3vw, 16px);
+            height: 100%;
+            background: linear-gradient(180deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.3);
+            transform-origin: center center;
+        }
+        
+        .loader-x-bar:nth-child(1) {
+            transform: translate(-50%, -50%) rotate(45deg);
+            animation: loaderPulse1 1.2s ease-in-out infinite;
+        }
+        
+        .loader-x-bar:nth-child(2) {
+            transform: translate(-50%, -50%) rotate(-45deg);
+            animation: loaderPulse2 1.2s ease-in-out infinite 0.15s;
+        }
+        
+        .loader-glow {
+            position: absolute;
+            inset: -20%;
+            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
+            animation: loaderGlowPulse 2s ease-in-out infinite;
+        }
+        
+        .loader-ring {
+            position: absolute;
+            inset: -15%;
+            border: 2px solid rgba(212,175,55,0.3);
+            border-radius: 50%;
+            animation: loaderRingSpin 3s linear infinite;
+        }
+        
+        .loader-ring::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: #D4AF37;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px #D4AF37;
+        }
+        
+        .loader-text {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(12px, 3vw, 16px);
+            font-weight: 600;
+            color: #D4AF37;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            animation: loaderTextPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loaderRotate {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes loaderPulse1 {
+            0%, 100% { 
+                transform: translate(-50%, -50%) rotate(45deg) scaleY(1);
+                box-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.3);
+            }
+            50% { 
+                transform: translate(-50%, -50%) rotate(45deg) scaleY(0.85);
+                box-shadow: 0 0 50px rgba(212,175,55,0.9), 0 0 100px rgba(212,175,55,0.5);
+            }
+        }
+        
+        @keyframes loaderPulse2 {
+            0%, 100% { 
+                transform: translate(-50%, -50%) rotate(-45deg) scaleY(1);
+                box-shadow: 0 0 30px rgba(212,175,55,0.6), 0 0 60px rgba(212,175,55,0.3);
+            }
+            50% { 
+                transform: translate(-50%, -50%) rotate(-45deg) scaleY(0.85);
+                box-shadow: 0 0 50px rgba(212,175,55,0.9), 0 0 100px rgba(212,175,55,0.5);
+            }
+        }
+        
+        @keyframes loaderGlowPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        @keyframes loaderRingSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes loaderTextPulse {
+            0%, 100% { opacity: 0.7; letter-spacing: 3px; }
+            50% { opacity: 1; letter-spacing: 5px; }
+        }
+        
+        /* Loader exit animation */
+        #page-loader.loader-exit .loader-x {
+            animation: loaderExitSpin 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        #page-loader.loader-exit .loader-x-bar {
+            animation: loaderBarExit 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        #page-loader.loader-exit .loader-ring {
+            animation: loaderRingExit 0.4s ease-out forwards;
+        }
+        
+        #page-loader.loader-exit .loader-glow {
+            animation: loaderGlowExit 0.5s ease-out forwards;
+        }
+        
+        #page-loader.loader-exit .loader-text {
+            animation: loaderTextExit 0.3s ease-out forwards;
+        }
+        
+        @keyframes loaderExitSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            100% { transform: rotate(180deg) scale(1.5); opacity: 0; }
+        }
+        
+        @keyframes loaderBarExit {
+            0% { transform: translate(-50%, -50%) rotate(var(--bar-rotation)) scaleY(1); }
+            100% { transform: translate(-50%, -50%) rotate(var(--bar-rotation)) scaleY(0); opacity: 0; }
+        }
+        
+        @keyframes loaderRingExit {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        @keyframes loaderGlowExit {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(3); }
+        }
+        
+        @keyframes loaderTextExit {
+            0% { opacity: 0.9; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        }
+        /* ========== END LOADER STYLES ========== */
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -410,6 +598,19 @@ if ($autoOpenTool) {
     <?php endif; ?>
 </head>
 <body class="bg-navy-dark">
+    <!-- Premium X Loader -->
+    <div id="page-loader">
+        <div class="loader-x-container">
+            <div class="loader-glow"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-x">
+                <div class="loader-x-bar" style="--bar-rotation: 45deg;"></div>
+                <div class="loader-x-bar" style="--bar-rotation: -45deg;"></div>
+            </div>
+            <div class="loader-text">Loading</div>
+        </div>
+    </div>
+    
     <!-- Navigation -->
     <nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50" x-data="{ open: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1473,6 +1674,43 @@ if ($autoOpenTool) {
             wordElement.textContent = words[0];
             setTimeout(animateWordChange, 2500);
         }
+    </script>
+    
+    <!-- Premium Loader Controller -->
+    <script>
+        (function() {
+            const loader = document.getElementById('page-loader');
+            if (!loader) return;
+            
+            let loaderDismissed = false;
+            const MIN_DISPLAY_TIME = 800;
+            const MAX_DISPLAY_TIME = 3500;
+            const startTime = Date.now();
+            
+            function dismissLoader() {
+                if (loaderDismissed) return;
+                loaderDismissed = true;
+                
+                const elapsed = Date.now() - startTime;
+                const remainingTime = Math.max(0, MIN_DISPLAY_TIME - elapsed);
+                
+                setTimeout(() => {
+                    loader.classList.add('loader-exit');
+                    
+                    setTimeout(() => {
+                        loader.classList.add('loader-hidden');
+                    }, 600);
+                }, remainingTime);
+            }
+            
+            if (document.readyState === 'complete') {
+                dismissLoader();
+            } else {
+                window.addEventListener('load', dismissLoader);
+            }
+            
+            setTimeout(dismissLoader, MAX_DISPLAY_TIME);
+        })();
     </script>
 </body>
 </html>
