@@ -427,109 +427,19 @@ if ($autoOpenTool) {
         
         .slice-line {
             opacity: 0.7;
+            animation: sliceGlowSync 1.5s ease-in-out infinite;
         }
+        .slice-line.s2 { animation-delay: 0.05s; }
+        .slice-line.s3 { animation-delay: 0.1s; }
+        .slice-line.s4 { animation-delay: 0.05s; }
+        .slice-line.s5 { animation-delay: 0.15s; }
+        .slice-line.s6 { animation-delay: 0.15s; }
         
-        .slice-line.s1 {
-            animation: sliceGlow1 1.2s ease-in-out infinite;
-        }
-        .slice-line.s2 {
-            animation: sliceGlow2 1.4s ease-in-out infinite 0.15s;
-        }
-        .slice-line.s3 {
-            animation: sliceGlow1 1.6s ease-in-out infinite 0.3s;
-        }
-        .slice-line.s4 {
-            animation: sliceGlow2 1.3s ease-in-out infinite 0.45s;
-        }
-        .slice-line.s5 {
-            animation: sliceGlow1 1.5s ease-in-out infinite 0.2s;
-        }
-        .slice-line.s6 {
-            animation: sliceGlow2 1.1s ease-in-out infinite 0.35s;
-        }
-        
-        @keyframes sliceGlow1 {
+        @keyframes sliceGlowSync {
             0%, 100% { opacity: 0.4; stroke-width: 2; filter: url(#glow1); }
-            25% { opacity: 0.95; stroke-width: 3; filter: url(#glow2); }
-            50% { opacity: 0.5; stroke-width: 2.5; filter: url(#glow1); }
-            75% { opacity: 0.85; stroke-width: 2.8; filter: url(#glow2); }
-        }
-        @keyframes sliceGlow2 {
-            0%, 100% { opacity: 0.45; stroke-width: 2; filter: url(#glow1); }
-            30% { opacity: 0.9; stroke-width: 2.8; filter: url(#glow2); }
-            60% { opacity: 0.55; stroke-width: 2.3; filter: url(#glow1); }
-            85% { opacity: 0.8; stroke-width: 2.6; filter: url(#glow2); }
+            50% { opacity: 0.95; stroke-width: 3.5; filter: url(#glow2); }
         }
         
-        /* Sparkling particles container */
-        .loader-sparks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        
-        .spark {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: radial-gradient(circle, #FFE17B 0%, #D4AF37 50%, transparent 100%);
-            border-radius: 50%;
-            box-shadow: 0 0 6px #D4AF37, 0 0 12px rgba(212,175,55,0.6), 0 0 18px rgba(212,175,55,0.3);
-            animation: sparkFall linear infinite;
-            opacity: 0;
-        }
-        
-        .spark:nth-child(1) { left: 52%; animation-duration: 1.8s; animation-delay: 0s; }
-        .spark:nth-child(2) { left: 48%; animation-duration: 2.2s; animation-delay: 0.3s; }
-        .spark:nth-child(3) { left: 55%; animation-duration: 1.6s; animation-delay: 0.6s; }
-        .spark:nth-child(4) { left: 45%; animation-duration: 2.0s; animation-delay: 0.2s; }
-        .spark:nth-child(5) { left: 58%; animation-duration: 2.4s; animation-delay: 0.8s; }
-        .spark:nth-child(6) { left: 42%; animation-duration: 1.9s; animation-delay: 0.4s; }
-        .spark:nth-child(7) { left: 60%; animation-duration: 2.1s; animation-delay: 0.1s; }
-        .spark:nth-child(8) { left: 40%; animation-duration: 1.7s; animation-delay: 0.5s; }
-        .spark:nth-child(9) { left: 50%; animation-duration: 2.3s; animation-delay: 0.7s; }
-        .spark:nth-child(10) { left: 53%; animation-duration: 1.5s; animation-delay: 0.15s; }
-        .spark:nth-child(11) { left: 47%; animation-duration: 2.5s; animation-delay: 0.45s; }
-        .spark:nth-child(12) { left: 56%; animation-duration: 1.4s; animation-delay: 0.65s; }
-        .spark:nth-child(13) { left: 44%; animation-duration: 2.6s; animation-delay: 0.25s; }
-        .spark:nth-child(14) { left: 62%; animation-duration: 1.3s; animation-delay: 0.55s; }
-        .spark:nth-child(15) { left: 38%; animation-duration: 2.0s; animation-delay: 0.85s; }
-        .spark:nth-child(16) { left: 51%; animation-duration: 1.8s; animation-delay: 0.35s; }
-        
-        @keyframes sparkFall {
-            0% { 
-                opacity: 0; 
-                transform: translateY(-20px) scale(0.3);
-            }
-            10% { 
-                opacity: 1; 
-                transform: translateY(0) scale(1);
-            }
-            20% {
-                opacity: 0.9;
-                transform: translateY(15vh) scale(0.9);
-            }
-            40% {
-                opacity: 0.7;
-                transform: translateY(35vh) scale(0.7);
-            }
-            60% {
-                opacity: 0.5;
-                transform: translateY(55vh) scale(0.5);
-            }
-            80% {
-                opacity: 0.3;
-                transform: translateY(75vh) scale(0.3);
-            }
-            100% { 
-                opacity: 0; 
-                transform: translateY(100vh) scale(0.1);
-            }
-        }
         
         .loader-center-glow {
             position: fixed;
@@ -574,54 +484,63 @@ if ($autoOpenTool) {
             50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 30px rgba(212,175,55,1)) drop-shadow(0 0 60px rgba(212,175,55,0.7)); }
         }
         
-        /* Premium synced exit animation - X and logo zoom together */
+        /* Premium luxury exit animation */
         #page-loader.loader-exit {
-            animation: loaderEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesBottomToTopFade 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowDustFade 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoGoldenDust 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
-        #page-loader.loader-exit .loader-sparks {
-            animation: sparksEvaporate 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        
-        @keyframes loaderEvaporate {
+        @keyframes loaderFadeOut {
             0% { opacity: 1; }
-            60% { opacity: 0.6; }
             100% { opacity: 0; }
         }
         
-        @keyframes slicesZoomEvaporate {
-            0% { opacity: 1; transform: scale(1); filter: blur(0); }
-            30% { opacity: 0.9; transform: scale(1.3); filter: blur(2px); }
-            100% { opacity: 0; transform: scale(2.5); filter: blur(15px); }
+        @keyframes slicesBottomToTopFade {
+            0% { 
+                opacity: 1; 
+                clip-path: inset(0 0 0 0);
+                filter: blur(0);
+            }
+            100% { 
+                opacity: 0; 
+                clip-path: inset(0 0 100% 0);
+                filter: blur(3px);
+            }
         }
         
-        @keyframes glowEvaporate {
+        @keyframes glowDustFade {
             0% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(40px); }
-            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(2); filter: blur(60px); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(4); filter: blur(80px); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.5); filter: blur(50px); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); filter: blur(60px); }
         }
         
-        @keyframes logoZoomEvaporate {
-            0% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) blur(0); }
-            30% { transform: scale(1.4); opacity: 0.9; filter: drop-shadow(0 0 40px rgba(212,175,55,1)) blur(2px); }
-            100% { transform: scale(3); opacity: 0; filter: drop-shadow(0 0 60px rgba(212,175,55,0.5)) blur(20px); }
-        }
-        
-        @keyframes sparksEvaporate {
-            0% { opacity: 1; }
-            100% { opacity: 0; transform: scale(1.5); }
+        @keyframes logoGoldenDust {
+            0% { 
+                transform: scale(1); 
+                opacity: 1; 
+                filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) blur(0); 
+            }
+            50% { 
+                transform: scale(1.3); 
+                opacity: 0.9; 
+                filter: drop-shadow(0 0 40px rgba(212,175,55,1)) drop-shadow(0 0 60px rgba(255,225,123,0.8)) blur(1px); 
+            }
+            100% { 
+                transform: scale(1.3); 
+                opacity: 0; 
+                filter: drop-shadow(0 0 80px rgba(212,175,55,0.3)) blur(8px); 
+            }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
@@ -672,31 +591,13 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <line class="slice-line s1" x1="700" y1="-100" x2="1100" y2="1200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s2" x1="1300" y1="-100" x2="900" y2="1200" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s3" x1="400" y1="-50" x2="700" y2="1150" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
-            <line class="slice-line s4" x1="1600" y1="-50" x2="1200" y2="1150" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
-            <line class="slice-line s5" x1="850" y1="-150" x2="1050" y2="1250" stroke="url(#goldGrad1)" stroke-width="1.5" filter="url(#glow1)"/>
-            <line class="slice-line s6" x1="1150" y1="-150" x2="950" y2="1250" stroke="url(#goldGrad2)" stroke-width="1.5" filter="url(#glow1)"/>
+            <line class="slice-line s1" x1="720" y1="-100" x2="1050" y2="1200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s2" x1="1280" y1="-100" x2="950" y2="1200" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s3" x1="420" y1="-50" x2="680" y2="1150" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s4" x1="1580" y1="-50" x2="1240" y2="1150" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s5" x1="870" y1="-150" x2="1000" y2="1250" stroke="url(#goldGrad1)" stroke-width="1.5" filter="url(#glow1)"/>
+            <line class="slice-line s6" x1="1130" y1="-150" x2="1000" y2="1250" stroke="url(#goldGrad2)" stroke-width="1.5" filter="url(#glow1)"/>
         </svg>
-        <div class="loader-sparks">
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-            <div class="spark"></div>
-        </div>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
             <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo" fetchpriority="high">
@@ -1768,41 +1669,28 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Loader Controller - Optimized for instant display -->
+    <!-- Premium Loader Controller - 3.5s display with luxury exit -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             
             let loaderDismissed = false;
-            const MIN_DISPLAY_TIME = 400;
-            const MAX_DISPLAY_TIME = 2000;
-            const startTime = Date.now();
+            const DISPLAY_TIME = 3500;
             
             function dismissLoader() {
                 if (loaderDismissed) return;
                 loaderDismissed = true;
                 
-                const elapsed = Date.now() - startTime;
-                const remainingTime = Math.max(0, MIN_DISPLAY_TIME - elapsed);
+                loader.classList.add('loader-exit');
                 
                 setTimeout(() => {
-                    loader.classList.add('loader-exit');
-                    
-                    setTimeout(() => {
-                        loader.classList.add('loader-hidden');
-                        loader.remove();
-                    }, 600);
-                }, remainingTime);
+                    loader.classList.add('loader-hidden');
+                    loader.remove();
+                }, 800);
             }
             
-            if (document.readyState === 'complete') {
-                dismissLoader();
-            } else {
-                window.addEventListener('load', dismissLoader);
-            }
-            
-            setTimeout(dismissLoader, MAX_DISPLAY_TIME);
+            setTimeout(dismissLoader, DISPLAY_TIME);
         })();
     </script>
 </body>
