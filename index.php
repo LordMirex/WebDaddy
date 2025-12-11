@@ -593,8 +593,8 @@ if ($autoOpenTool) {
             </defs>
             <line class="slice-line s1" x1="100" y1="-100" x2="480" y2="900" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
             <line class="slice-line s2" x1="480" y1="900" x2="880" y2="-100" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
-            <line class="slice-line s3" x1="550" y1="100" x2="1350" y2="1300" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow1)"/>
-            <line class="slice-line s4" x1="1350" y1="100" x2="550" y2="1300" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow1)"/>
+            <line class="slice-line s3" x1="400" y1="200" x2="1520" y2="1200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow1)"/>
+            <line class="slice-line s4" x1="1520" y1="200" x2="400" y2="1200" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow1)"/>
             <line class="slice-line s5" x1="1040" y1="-100" x2="1440" y2="900" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
             <line class="slice-line s6" x1="1440" y1="900" x2="1820" y2="-100" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
         </svg>
