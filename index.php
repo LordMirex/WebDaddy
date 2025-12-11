@@ -53,10 +53,6 @@ $affiliateCode = getAffiliateCode();
 // Get cart count for badge
 $cartCount = getCartCount();
 
-// Get total active templates and tools (unfiltered by category)
-$totalActiveTemplates = count(getTemplates(true));
-$totalActiveTools = getToolsCount(true, null, true);
-
 // Initialize variables
 $templates = [];
 $tools = [];
@@ -78,61 +74,37 @@ if ($autoOpenToolSlug) {
 }
 
 if ($currentView === 'templates') {
-    // TEMPLATES VIEW
-    $perPage = 18;
-    $allTemplates = getTemplates(true);
-    $templateCategories = array_unique(array_column($allTemplates, 'category'));
-    sort($templateCategories);
-    
-    if ($category = $_GET['category'] ?? null) {
-        $allTemplates = array_filter($allTemplates, function($t) use ($category) {
-            return $t['category'] === $category;
-        });
-    }
-    
-    // Sort by priority first (null=999), then by newest date
-    usort($allTemplates, function($a, $b) {
-        $aPriority = ($a['priority_order'] !== null && $a['priority_order'] !== '') ? intval($a['priority_order']) : 999;
-        $bPriority = ($b['priority_order'] !== null && $b['priority_order'] !== '') ? intval($b['priority_order']) : 999;
-        if ($aPriority != $bPriority) {
-            return $aPriority <=> $bPriority;
-        }
-        $aDate = strtotime($a['created_at'] ?? '0');
-        $bDate = strtotime($b['created_at'] ?? '0');
-        return $bDate <=> $aDate;
-    });
-    
-    $totalTemplates = count($allTemplates);
-    $totalPages = max(1, ceil($totalTemplates / $perPage));
-    $page = max(1, min($page, $totalPages));
-    $offset = ($page - 1) * $perPage;
-    $templates = array_slice($allTemplates, $offset, $perPage);
-} else {
-    // TOOLS VIEW
+    // TEMPLATES VIEW - LEAN QUERYING: only fetch what's needed per page
     $perPage = 18;
     $category = $_GET['category'] ?? null;
     
-    // Get all tools first to sort by priority
-    $db = getDb();
-    $allTools = getTools(true, $category, null, null, true);
+    // Get templates for current page only (lean query)
+    $offset = ($page - 1) * $perPage;
+    $templates = getTemplates(true, $category, $perPage, $offset);
     
-    // Sort by priority first (null=999), then by newest date
-    usort($allTools, function($a, $b) {
-        $aPriority = ($a['priority_order'] !== null && $a['priority_order'] !== '') ? intval($a['priority_order']) : 999;
-        $bPriority = ($b['priority_order'] !== null && $b['priority_order'] !== '') ? intval($b['priority_order']) : 999;
-        if ($aPriority != $bPriority) {
-            return $aPriority <=> $bPriority;
-        }
-        $aDate = strtotime($a['created_at'] ?? '0');
-        $bDate = strtotime($b['created_at'] ?? '0');
-        return $bDate <=> $aDate;
-    });
+    // Get total count for pagination
+    $totalTemplates = getTemplatesCount(true, $category);
+    $totalPages = max(1, ceil($totalTemplates / $perPage));
+    $page = max(1, min($page, $totalPages));
     
-    $totalTools = count($allTools);
+    // Get categories from a single lookup
+    $allTemplates = getTemplates(true);
+    $templateCategories = array_unique(array_column($allTemplates, 'category'));
+    sort($templateCategories);
+} else {
+    // TOOLS VIEW - LEAN QUERYING: only fetch what's needed per page
+    $perPage = 18;
+    $category = $_GET['category'] ?? null;
+    
+    // Get tools for current page only (lean query)
+    $offset = ($page - 1) * $perPage;
+    $tools = getTools(true, $category, $perPage, $offset, true);
+    
+    // Get total count for pagination
+    $totalTools = getToolsCount(true, $category, true);
     $totalPages = max(1, ceil($totalTools / $perPage));
     $page = max(1, min($page, $totalPages));
-    $offset = ($page - 1) * $perPage;
-    $tools = array_slice($allTools, $offset, $perPage);
+    
     $toolCategories = getToolCategories();
 }
 

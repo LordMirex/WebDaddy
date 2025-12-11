@@ -165,7 +165,7 @@ function getTemplates($activeOnly = true, $category = null, $limit = null, $offs
     if ($category) {
         $sql .= " AND category = " . $db->quote($category);
     }
-    $sql .= " ORDER BY created_at DESC";
+    $sql .= " ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC";
     if ($limit) {
         $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
     }

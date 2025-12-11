@@ -38,7 +38,7 @@ function getTools($activeOnly = true, $category = null, $limit = null, $offset =
         $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
     }
     
-    $sql .= " ORDER BY created_at DESC";
+    $sql .= " ORDER BY CASE WHEN priority_order IS NOT NULL THEN priority_order ELSE 999 END, created_at DESC";
     
     if ($limit !== null) {
         $sql .= " LIMIT ?";
