@@ -178,8 +178,11 @@ if ($autoOpenTool) {
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?php echo $pageUrl; ?>">
     
-    <!-- Preload first mockup image for faster initial load -->
+    <!-- Preload critical images for instant display -->
+    <link rel="preload" as="image" href="/assets/images/webdaddy-logo.png" fetchpriority="high">
     <link rel="preload" as="image" href="/assets/images/mockups/viralcuts.jpg" fetchpriority="high">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="<?php echo $ogType; ?>">
@@ -390,7 +393,7 @@ if ($autoOpenTool) {
         .anim-enter-4 { animation: enterSplitReveal 1.5s ease-out forwards; }
         .anim-enter-5 { animation: enterRiseShimmer 1.8s ease-out forwards; }
         
-        /* ========== PREMIUM SLICED X LOADER WITH LOGO ========== */
+        /* ========== PREMIUM SLICED X LOADER WITH SPARKLING EFFECTS ========== */
         #page-loader {
             position: fixed;
             top: 0;
@@ -398,7 +401,7 @@ if ($autoOpenTool) {
             right: 0;
             bottom: 0;
             z-index: 9999;
-            background: radial-gradient(ellipse at 55% 45%, #0f1f2e 0%, #0a1929 50%, #050d14 100%);
+            background: radial-gradient(ellipse at 50% 50%, #0f1f2e 0%, #0a1929 50%, #050d14 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -410,7 +413,7 @@ if ($autoOpenTool) {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
+            transition: opacity 0.3s ease-out, visibility 0.3s;
         }
         
         .loader-slices {
@@ -423,128 +426,202 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            opacity: 0.6;
+            opacity: 0.7;
         }
         
         .slice-line.s1 {
-            animation: slicePulse1 2.5s ease-in-out infinite;
+            animation: sliceGlow1 1.2s ease-in-out infinite;
         }
         .slice-line.s2 {
-            animation: slicePulse2 2.5s ease-in-out infinite 0.3s;
+            animation: sliceGlow2 1.4s ease-in-out infinite 0.15s;
         }
         .slice-line.s3 {
-            animation: slicePulse3 3s ease-in-out infinite 0.1s;
+            animation: sliceGlow1 1.6s ease-in-out infinite 0.3s;
         }
         .slice-line.s4 {
-            animation: slicePulse3 3s ease-in-out infinite 0.6s;
+            animation: sliceGlow2 1.3s ease-in-out infinite 0.45s;
         }
         .slice-line.s5 {
-            animation: slicePulse4 2s ease-in-out infinite;
+            animation: sliceGlow1 1.5s ease-in-out infinite 0.2s;
         }
         .slice-line.s6 {
-            animation: slicePulse4 2s ease-in-out infinite 0.4s;
+            animation: sliceGlow2 1.1s ease-in-out infinite 0.35s;
         }
         
-        @keyframes slicePulse1 {
-            0%, 100% { opacity: 0.5; stroke-width: 2; }
-            50% { opacity: 0.9; stroke-width: 2.5; }
+        @keyframes sliceGlow1 {
+            0%, 100% { opacity: 0.4; stroke-width: 2; filter: url(#glow1); }
+            25% { opacity: 0.95; stroke-width: 3; filter: url(#glow2); }
+            50% { opacity: 0.5; stroke-width: 2.5; filter: url(#glow1); }
+            75% { opacity: 0.85; stroke-width: 2.8; filter: url(#glow2); }
         }
-        @keyframes slicePulse2 {
-            0%, 100% { opacity: 0.45; stroke-width: 2; }
-            50% { opacity: 0.85; stroke-width: 2.5; }
+        @keyframes sliceGlow2 {
+            0%, 100% { opacity: 0.45; stroke-width: 2; filter: url(#glow1); }
+            30% { opacity: 0.9; stroke-width: 2.8; filter: url(#glow2); }
+            60% { opacity: 0.55; stroke-width: 2.3; filter: url(#glow1); }
+            85% { opacity: 0.8; stroke-width: 2.6; filter: url(#glow2); }
         }
-        @keyframes slicePulse3 {
-            0%, 100% { opacity: 0.3; stroke-width: 1.5; }
-            50% { opacity: 0.6; stroke-width: 2; }
+        
+        /* Sparkling particles container */
+        .loader-sparks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
         }
-        @keyframes slicePulse4 {
-            0%, 100% { opacity: 0.25; stroke-width: 1; }
-            50% { opacity: 0.5; stroke-width: 1.5; }
+        
+        .spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #FFE17B 0%, #D4AF37 50%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 6px #D4AF37, 0 0 12px rgba(212,175,55,0.6), 0 0 18px rgba(212,175,55,0.3);
+            animation: sparkFall linear infinite;
+            opacity: 0;
+        }
+        
+        .spark:nth-child(1) { left: 52%; animation-duration: 1.8s; animation-delay: 0s; }
+        .spark:nth-child(2) { left: 48%; animation-duration: 2.2s; animation-delay: 0.3s; }
+        .spark:nth-child(3) { left: 55%; animation-duration: 1.6s; animation-delay: 0.6s; }
+        .spark:nth-child(4) { left: 45%; animation-duration: 2.0s; animation-delay: 0.2s; }
+        .spark:nth-child(5) { left: 58%; animation-duration: 2.4s; animation-delay: 0.8s; }
+        .spark:nth-child(6) { left: 42%; animation-duration: 1.9s; animation-delay: 0.4s; }
+        .spark:nth-child(7) { left: 60%; animation-duration: 2.1s; animation-delay: 0.1s; }
+        .spark:nth-child(8) { left: 40%; animation-duration: 1.7s; animation-delay: 0.5s; }
+        .spark:nth-child(9) { left: 50%; animation-duration: 2.3s; animation-delay: 0.7s; }
+        .spark:nth-child(10) { left: 53%; animation-duration: 1.5s; animation-delay: 0.15s; }
+        .spark:nth-child(11) { left: 47%; animation-duration: 2.5s; animation-delay: 0.45s; }
+        .spark:nth-child(12) { left: 56%; animation-duration: 1.4s; animation-delay: 0.65s; }
+        .spark:nth-child(13) { left: 44%; animation-duration: 2.6s; animation-delay: 0.25s; }
+        .spark:nth-child(14) { left: 62%; animation-duration: 1.3s; animation-delay: 0.55s; }
+        .spark:nth-child(15) { left: 38%; animation-duration: 2.0s; animation-delay: 0.85s; }
+        .spark:nth-child(16) { left: 51%; animation-duration: 1.8s; animation-delay: 0.35s; }
+        
+        @keyframes sparkFall {
+            0% { 
+                opacity: 0; 
+                transform: translateY(-20px) scale(0.3);
+            }
+            10% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+            20% {
+                opacity: 0.9;
+                transform: translateY(15vh) scale(0.9);
+            }
+            40% {
+                opacity: 0.7;
+                transform: translateY(35vh) scale(0.7);
+            }
+            60% {
+                opacity: 0.5;
+                transform: translateY(55vh) scale(0.5);
+            }
+            80% {
+                opacity: 0.3;
+                transform: translateY(75vh) scale(0.3);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(100vh) scale(0.1);
+            }
         }
         
         .loader-center-glow {
             position: fixed;
             top: 50%;
             left: 50%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 60%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.08) 40%, transparent 70%);
             transform: translate(-50%, -50%);
-            animation: centerGlowPulse 2s ease-in-out infinite;
-            filter: blur(50px);
+            animation: centerGlowPulse 1.5s ease-in-out infinite;
+            filter: blur(40px);
             pointer-events: none;
         }
         
         .loader-logo-container {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
         }
         
         .loader-logo {
             width: 140px;
             height: auto;
             max-width: none;
-            animation: logoZoomPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 25px rgba(212,175,55,0.8)) drop-shadow(0 0 50px rgba(212,175,55,0.4));
+            animation: logoGlowPulse 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.5));
         }
         
         @keyframes centerGlowPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-        }
-        
-        @keyframes logoZoomPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+            0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
             50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
         }
         
-        /* Premium exit animation */
+        @keyframes logoGlowPulse {
+            0%, 100% { transform: scale(0.92); opacity: 0.95; filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.5)); }
+            50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 30px rgba(212,175,55,1)) drop-shadow(0 0 60px rgba(212,175,55,0.7)); }
+        }
+        
+        /* Premium synced exit animation - X and logo zoom together */
         #page-loader.loader-exit {
-            animation: loaderFadeOut 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesExpandFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowExpandFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoZoomOutFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
-        @keyframes loaderFadeOut {
+        #page-loader.loader-exit .loader-sparks {
+            animation: sparksEvaporate 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes loaderEvaporate {
             0% { opacity: 1; }
-            50% { opacity: 0.5; }
+            60% { opacity: 0.6; }
             100% { opacity: 0; }
         }
         
-        @keyframes slicesExpandFade {
-            0% { opacity: 1; transform: scale(1); }
-            8% { opacity: 1; transform: scale(1.08); }
-            50% { opacity: 0.5; transform: scale(1.5); }
-            100% { opacity: 0; transform: scale(2.2); filter: blur(12px); }
+        @keyframes slicesZoomEvaporate {
+            0% { opacity: 1; transform: scale(1); filter: blur(0); }
+            30% { opacity: 0.9; transform: scale(1.3); filter: blur(2px); }
+            100% { opacity: 0; transform: scale(2.5); filter: blur(15px); }
         }
         
-        @keyframes glowExpandFade {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.8); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(3.5); }
+        @keyframes glowEvaporate {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(40px); }
+            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(2); filter: blur(60px); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(4); filter: blur(80px); }
         }
         
-        @keyframes logoZoomOutFade {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: blur(0); }
-            8% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; filter: blur(0); }
-            35% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.85; filter: blur(3px); }
-            100% { transform: translate(-50%, -50%) scale(5); opacity: 0; filter: blur(25px); }
+        @keyframes logoZoomEvaporate {
+            0% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) blur(0); }
+            30% { transform: scale(1.4); opacity: 0.9; filter: drop-shadow(0 0 40px rgba(212,175,55,1)) blur(2px); }
+            100% { transform: scale(3); opacity: 0; filter: drop-shadow(0 0 60px rgba(212,175,55,0.5)) blur(20px); }
+        }
+        
+        @keyframes sparksEvaporate {
+            0% { opacity: 1; }
+            100% { opacity: 0; transform: scale(1.5); }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
@@ -568,15 +645,15 @@ if ($autoOpenTool) {
     <?php endif; ?>
 </head>
 <body class="bg-navy-dark">
-    <!-- Premium WebDaddy Loader -->
+    <!-- Premium WebDaddy Loader with Sparkling Effects -->
     <div id="page-loader">
         <svg class="loader-slices" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
             <defs>
                 <linearGradient id="goldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" style="stop-color:transparent"/>
-                    <stop offset="20%" style="stop-color:rgba(212,175,55,0.3)"/>
+                    <stop offset="15%" style="stop-color:rgba(212,175,55,0.25)"/>
                     <stop offset="50%" style="stop-color:#F5D669"/>
-                    <stop offset="80%" style="stop-color:rgba(212,175,55,0.3)"/>
+                    <stop offset="85%" style="stop-color:rgba(212,175,55,0.25)"/>
                     <stop offset="100%" style="stop-color:transparent"/>
                 </linearGradient>
                 <linearGradient id="goldGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
@@ -587,24 +664,42 @@ if ($autoOpenTool) {
                     <stop offset="100%" style="stop-color:transparent"/>
                 </linearGradient>
                 <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
                 <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <line class="slice-line s1" x1="700" y1="-100" x2="1100" y2="1200" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
-            <line class="slice-line s2" x1="1300" y1="-100" x2="900" y2="1200" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow2)"/>
-            <line class="slice-line s3" x1="400" y1="-50" x2="700" y2="1150" stroke="url(#goldGrad1)" stroke-width="1.5" filter="url(#glow1)"/>
-            <line class="slice-line s4" x1="1600" y1="-50" x2="1200" y2="1150" stroke="url(#goldGrad2)" stroke-width="1.5" filter="url(#glow1)"/>
-            <line class="slice-line s5" x1="850" y1="-150" x2="1050" y2="1250" stroke="url(#goldGrad1)" stroke-width="1" filter="url(#glow1)"/>
-            <line class="slice-line s6" x1="1150" y1="-150" x2="950" y2="1250" stroke="url(#goldGrad2)" stroke-width="1" filter="url(#glow1)"/>
+            <line class="slice-line s1" x1="700" y1="-100" x2="1100" y2="1200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s2" x1="1300" y1="-100" x2="900" y2="1200" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s3" x1="400" y1="-50" x2="700" y2="1150" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s4" x1="1600" y1="-50" x2="1200" y2="1150" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s5" x1="850" y1="-150" x2="1050" y2="1250" stroke="url(#goldGrad1)" stroke-width="1.5" filter="url(#glow1)"/>
+            <line class="slice-line s6" x1="1150" y1="-150" x2="950" y2="1250" stroke="url(#goldGrad2)" stroke-width="1.5" filter="url(#glow1)"/>
         </svg>
+        <div class="loader-sparks">
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+            <div class="spark"></div>
+        </div>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
-            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo">
+            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo" fetchpriority="high">
         </div>
     </div>
     
@@ -1673,15 +1768,15 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Sliced X Loader Controller -->
+    <!-- Premium Loader Controller - Optimized for instant display -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             
             let loaderDismissed = false;
-            const MIN_DISPLAY_TIME = 1500;
-            const MAX_DISPLAY_TIME = 4500;
+            const MIN_DISPLAY_TIME = 400;
+            const MAX_DISPLAY_TIME = 2000;
             const startTime = Date.now();
             
             function dismissLoader() {
@@ -1696,7 +1791,8 @@ if ($autoOpenTool) {
                     
                     setTimeout(() => {
                         loader.classList.add('loader-hidden');
-                    }, 1200);
+                        loader.remove();
+                    }, 600);
                 }, remainingTime);
             }
             

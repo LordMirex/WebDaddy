@@ -6,7 +6,7 @@
 class LazyLoader {
     constructor(options = {}) {
         this.options = {
-            rootMargin: options.rootMargin || '50px',
+            rootMargin: options.rootMargin || '200px',
             threshold: options.threshold || 0.01,
             loadingClass: options.loadingClass || 'lazy-loading',
             loadedClass: options.loadedClass || 'lazy-loaded',
@@ -14,7 +14,20 @@ class LazyLoader {
         };
         
         this.observer = null;
+        this.loadedCount = 0;
         this.init();
+        this.preloadAboveFold();
+    }
+    
+    preloadAboveFold() {
+        const viewportHeight = window.innerHeight;
+        const images = document.querySelectorAll('img[data-src], img[loading="lazy"]');
+        images.forEach(img => {
+            const rect = img.getBoundingClientRect();
+            if (rect.top < viewportHeight * 1.5) {
+                this.loadImage(img);
+            }
+        });
     }
 
     init() {
@@ -55,40 +68,25 @@ class LazyLoader {
     }
 
     loadImage(img) {
+        if (img.classList.contains(this.options.loadedClass)) return;
+        
         const src = img.dataset.src || img.src;
         
         if (!src) {
-            this.observer.unobserve(img);
+            if (this.observer) this.observer.unobserve(img);
             return;
         }
 
-        // Create a new image to preload
-        const tempImg = new Image();
+        img.src = src;
+        img.classList.remove(this.options.loadingClass);
+        img.classList.add(this.options.loadedClass);
         
-        tempImg.onload = () => {
-            // Use requestAnimationFrame for smooth rendering
-            requestAnimationFrame(() => {
-                img.src = src;
-                img.classList.remove(this.options.loadingClass);
-                img.classList.add(this.options.loadedClass);
-                
-                // Remove data-src to prevent reloading
-                if (img.dataset.src) {
-                    delete img.dataset.src;
-                }
-                
-                // Unobserve the image
-                this.observer.unobserve(img);
-            });
-        };
+        if (img.dataset.src) {
+            delete img.dataset.src;
+        }
         
-        tempImg.onerror = () => {
-            img.classList.remove(this.options.loadingClass);
-            img.classList.add(this.options.errorClass);
-            this.observer.unobserve(img);
-        };
-        
-        tempImg.src = src;
+        if (this.observer) this.observer.unobserve(img);
+        this.loadedCount++;
     }
 
     loadAllImages() {
