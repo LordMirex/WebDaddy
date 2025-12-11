@@ -174,7 +174,6 @@ function searchTools($query, $limit = 20) {
     $stmt = $db->prepare($sql);
     $stmt->execute([
         $searchTerm, $searchTerm, $searchTerm, $searchTerm,
-        $searchTerm, $searchTerm, $searchTerm,
         (int)$limit
     ]);
     
