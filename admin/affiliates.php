@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/mailer.php';
+require_once __DIR__ . '/../includes/bonus_codes.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -457,9 +458,103 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 error_log('Delete announcement error: ' . $e->getMessage());
                 $errorMessage = 'Failed to delete announcement.';
             }
+        } elseif ($action === 'create_bonus_code') {
+            $code = strtoupper(trim($_POST['bonus_code'] ?? ''));
+            $discountPercent = floatval($_POST['discount_percent'] ?? 20);
+            $expiresAt = !empty($_POST['expires_at']) ? $_POST['expires_at'] : null;
+            
+            if (empty($code)) {
+                $errorMessage = 'Bonus code is required.';
+            } elseif (!preg_match('/^[A-Z0-9]{3,30}$/', $code)) {
+                $errorMessage = 'Bonus code must be 3-30 characters (letters and numbers only).';
+            } elseif ($discountPercent < 1 || $discountPercent > 100) {
+                $errorMessage = 'Discount must be between 1% and 100%.';
+            } elseif (getBonusCodeByCode($code)) {
+                $errorMessage = 'This bonus code already exists.';
+            } else {
+                $result = createBonusCode($code, $discountPercent, $expiresAt);
+                if ($result) {
+                    $successMessage = "Bonus code '{$code}' created successfully!";
+                    logActivity('bonus_code_created', "Created bonus code: {$code} ({$discountPercent}% off)", getAdminId());
+                } else {
+                    $errorMessage = 'Failed to create bonus code.';
+                }
+            }
+        } elseif ($action === 'update_bonus_code') {
+            $bonusId = intval($_POST['bonus_id'] ?? 0);
+            $code = strtoupper(trim($_POST['bonus_code'] ?? ''));
+            $discountPercent = floatval($_POST['discount_percent'] ?? 20);
+            $expiresAt = !empty($_POST['expires_at']) ? $_POST['expires_at'] : null;
+            
+            if (empty($code)) {
+                $errorMessage = 'Bonus code is required.';
+            } elseif (!preg_match('/^[A-Z0-9]{3,30}$/', $code)) {
+                $errorMessage = 'Bonus code must be 3-30 characters (letters and numbers only).';
+            } elseif ($discountPercent < 1 || $discountPercent > 100) {
+                $errorMessage = 'Discount must be between 1% and 100%.';
+            } else {
+                $existing = getBonusCodeByCode($code);
+                if ($existing && $existing['id'] != $bonusId) {
+                    $errorMessage = 'This bonus code already exists.';
+                } else {
+                    $result = updateBonusCode($bonusId, $code, $discountPercent, $expiresAt);
+                    if ($result) {
+                        $successMessage = "Bonus code '{$code}' updated successfully!";
+                        logActivity('bonus_code_updated', "Updated bonus code: {$code}", getAdminId());
+                    } else {
+                        $errorMessage = 'Failed to update bonus code.';
+                    }
+                }
+            }
+        } elseif ($action === 'activate_bonus_code') {
+            $bonusId = intval($_POST['bonus_id'] ?? 0);
+            $bonusCode = getBonusCodeById($bonusId);
+            
+            if ($bonusCode) {
+                if (activateBonusCode($bonusId)) {
+                    $successMessage = "Bonus code '{$bonusCode['code']}' is now ACTIVE! All other codes have been deactivated.";
+                    logActivity('bonus_code_activated', "Activated bonus code: {$bonusCode['code']}", getAdminId());
+                } else {
+                    $errorMessage = 'Failed to activate bonus code.';
+                }
+            } else {
+                $errorMessage = 'Bonus code not found.';
+            }
+        } elseif ($action === 'deactivate_bonus_code') {
+            $bonusId = intval($_POST['bonus_id'] ?? 0);
+            $bonusCode = getBonusCodeById($bonusId);
+            
+            if ($bonusCode) {
+                if (deactivateBonusCode($bonusId)) {
+                    $successMessage = "Bonus code '{$bonusCode['code']}' has been deactivated.";
+                    logActivity('bonus_code_deactivated', "Deactivated bonus code: {$bonusCode['code']}", getAdminId());
+                } else {
+                    $errorMessage = 'Failed to deactivate bonus code.';
+                }
+            } else {
+                $errorMessage = 'Bonus code not found.';
+            }
+        } elseif ($action === 'delete_bonus_code') {
+            $bonusId = intval($_POST['bonus_id'] ?? 0);
+            $bonusCode = getBonusCodeById($bonusId);
+            
+            if ($bonusCode) {
+                if (deleteBonusCode($bonusId)) {
+                    $successMessage = "Bonus code '{$bonusCode['code']}' has been deleted.";
+                    logActivity('bonus_code_deleted', "Deleted bonus code: {$bonusCode['code']}", getAdminId());
+                } else {
+                    $errorMessage = 'Failed to delete bonus code.';
+                }
+            } else {
+                $errorMessage = 'Bonus code not found.';
+            }
         }
     }
 }
+
+deactivateExpiredBonusCodes();
+$bonusCodes = getAllBonusCodes();
+$bonusCodeStats = getBonusCodeStats();
 
 $searchTerm = $_GET['search'] ?? '';
 $filterStatus = $_GET['status'] ?? '';
@@ -575,6 +670,8 @@ require_once __DIR__ . '/includes/header.php';
     showCreateModal: false, 
     showEmailModal: false,
     showAnnouncementModal: false,
+    showBonusCodeModal: false,
+    editBonusCode: null,
     processWithdrawalId: null
 }">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
@@ -638,6 +735,14 @@ require_once __DIR__ . '/includes/header.php';
                 :class="activeTab === 'announcements' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-600 hover:text-gray-800'"
                 class="px-6 py-3 font-semibold transition-colors whitespace-nowrap">
             <i class="bi bi-megaphone mr-2"></i> Announcements
+        </button>
+        <button @click="activeTab = 'bonus_codes'" 
+                :class="activeTab === 'bonus_codes' ? 'border-b-2 border-orange-600 text-orange-600' : 'text-gray-600 hover:text-gray-800'"
+                class="px-6 py-3 font-semibold transition-colors whitespace-nowrap">
+            <i class="bi bi-gift mr-2"></i> Bonus Codes
+            <?php if ($bonusCodeStats['active_codes'] > 0): ?>
+            <span class="ml-1 px-2 py-0.5 bg-green-600 text-white rounded-full text-xs font-bold">LIVE</span>
+            <?php endif; ?>
         </button>
     </div>
 
@@ -1055,6 +1160,296 @@ require_once __DIR__ . '/includes/header.php';
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Bonus Codes Tab Content -->
+    <div x-show="activeTab === 'bonus_codes'">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-gift text-orange-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900"><?php echo $bonusCodeStats['total_codes']; ?></div>
+                        <div class="text-sm text-gray-500">Total Codes</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-check-circle text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900"><?php echo $bonusCodeStats['active_codes']; ?></div>
+                        <div class="text-sm text-gray-500">Active Now</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-graph-up text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900"><?php echo number_format($bonusCodeStats['total_usage']); ?></div>
+                        <div class="text-sm text-gray-500">Total Uses</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="bi bi-currency-dollar text-purple-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900"><?php echo formatCurrency($bonusCodeStats['total_sales']); ?></div>
+                        <div class="text-sm text-gray-500">Sales Generated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="bi bi-gift text-orange-600"></i> Manage Bonus Codes
+                </h3>
+                <button @click="showBonusCodeModal = true; editBonusCode = null;" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors text-sm">
+                    <i class="bi bi-plus-circle mr-1"></i> Create Bonus Code
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-lg mb-6">
+                    <div class="flex items-start gap-3">
+                        <i class="bi bi-info-circle text-xl"></i>
+                        <div>
+                            <strong>How Bonus Codes Work:</strong>
+                            <ul class="text-sm mt-2 space-y-1">
+                                <li>Only <strong>ONE</strong> bonus code can be active at a time.</li>
+                                <li>Active codes appear automatically on the checkout page.</li>
+                                <li>Bonus codes give discounts to buyers with <strong>NO affiliate commission</strong>.</li>
+                                <li>Expired codes are automatically deactivated.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-gray-300">
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">ID</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Code</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Discount</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Status</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Expires</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Usage</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Sales Generated</th>
+                                <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php if (empty($bonusCodes)): ?>
+                            <tr>
+                                <td colspan="8" class="text-center py-12">
+                                    <i class="bi bi-gift text-6xl text-gray-300"></i>
+                                    <p class="text-gray-500 mt-4">No bonus codes yet</p>
+                                    <button @click="showBonusCodeModal = true; editBonusCode = null;" class="mt-4 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
+                                        <i class="bi bi-plus-circle mr-2"></i> Create First Bonus Code
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                            <?php foreach ($bonusCodes as $bc): ?>
+                            <?php
+                            $isActive = $bc['is_active'];
+                            $isExpired = $bc['expires_at'] && strtotime($bc['expires_at']) < time();
+                            ?>
+                            <tr class="hover:bg-gray-50 <?php echo $isActive ? 'bg-green-50' : ''; ?>">
+                                <td class="py-3 px-2 font-bold text-gray-900">#<?php echo $bc['id']; ?></td>
+                                <td class="py-3 px-2">
+                                    <code class="bg-orange-100 text-orange-800 px-3 py-1 rounded font-mono font-bold text-lg"><?php echo htmlspecialchars($bc['code']); ?></code>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <span class="text-xl font-bold text-green-600"><?php echo number_format($bc['discount_percent'], 0); ?>%</span>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <?php if ($isActive && !$isExpired): ?>
+                                    <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">
+                                        <i class="bi bi-broadcast mr-1"></i> LIVE
+                                    </span>
+                                    <?php elseif ($isExpired): ?>
+                                    <span class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">
+                                        <i class="bi bi-clock-history mr-1"></i> EXPIRED
+                                    </span>
+                                    <?php else: ?>
+                                    <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
+                                        <i class="bi bi-pause-circle mr-1"></i> Inactive
+                                    </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="py-3 px-2 text-gray-700 text-sm">
+                                    <?php if ($bc['expires_at']): ?>
+                                        <?php if ($isExpired): ?>
+                                        <span class="text-red-600"><?php echo date('M d, Y', strtotime($bc['expires_at'])); ?></span>
+                                        <?php else: ?>
+                                        <?php echo date('M d, Y', strtotime($bc['expires_at'])); ?>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <span class="text-gray-400">Never</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <span class="font-bold text-gray-900"><?php echo number_format($bc['usage_count']); ?></span>
+                                    <span class="text-gray-500 text-xs">times</span>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <span class="font-bold text-gray-900"><?php echo formatCurrency($bc['total_sales_generated']); ?></span>
+                                </td>
+                                <td class="py-3 px-2">
+                                    <div class="flex items-center gap-2">
+                                        <?php if (!$isExpired): ?>
+                                        <?php if ($isActive): ?>
+                                        <form method="POST" style="display: inline;">
+                                            <input type="hidden" name="action" value="deactivate_bonus_code">
+                                            <input type="hidden" name="bonus_id" value="<?php echo $bc['id']; ?>">
+                                            <button type="submit" class="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors text-xs font-medium" title="Deactivate">
+                                                <i class="bi bi-pause-fill"></i> Deactivate
+                                            </button>
+                                        </form>
+                                        <?php else: ?>
+                                        <form method="POST" style="display: inline;">
+                                            <input type="hidden" name="action" value="activate_bonus_code">
+                                            <input type="hidden" name="bonus_id" value="<?php echo $bc['id']; ?>">
+                                            <button type="submit" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-medium" title="Activate">
+                                                <i class="bi bi-play-fill"></i> Activate
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
+                                        <?php endif; ?>
+                                        <button @click="showBonusCodeModal = true; editBonusCode = <?php echo htmlspecialchars(json_encode($bc)); ?>" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-medium" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this bonus code?');">
+                                            <input type="hidden" name="action" value="delete_bonus_code">
+                                            <input type="hidden" name="bonus_id" value="<?php echo $bc['id']; ?>">
+                                            <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-xs font-medium" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bonus Code Modal (Create/Edit) -->
+    <div x-show="showBonusCodeModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="showBonusCodeModal = false" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <form method="POST">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <i class="bi bi-gift text-orange-600"></i>
+                        <span x-text="editBonusCode ? 'Edit Bonus Code' : 'Create Bonus Code'"></span>
+                    </h3>
+                    <button type="button" @click="showBonusCodeModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <input type="hidden" name="action" x-bind:value="editBonusCode ? 'update_bonus_code' : 'create_bonus_code'">
+                    <template x-if="editBonusCode">
+                        <input type="hidden" name="bonus_id" x-bind:value="editBonusCode?.id">
+                    </template>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-tag text-orange-600"></i> Bonus Code <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all uppercase" 
+                               name="bonus_code" 
+                               required 
+                               pattern="[A-Za-z0-9]{3,30}" 
+                               placeholder="e.g., CHRISTMAS2025"
+                               x-bind:value="editBonusCode?.code || ''"
+                               style="text-transform: uppercase;">
+                        <small class="text-gray-500 text-xs">3-30 characters, letters and numbers only. Will be auto-uppercased.</small>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-percent text-orange-600"></i> Discount Percentage <span class="text-red-600">*</span>
+                        </label>
+                        <div class="flex">
+                            <input type="number" 
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" 
+                                   name="discount_percent" 
+                                   required 
+                                   min="1" 
+                                   max="100" 
+                                   step="0.01"
+                                   placeholder="20"
+                                   x-bind:value="editBonusCode?.discount_percent || 20">
+                            <span class="px-4 py-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-700 font-semibold">%</span>
+                        </div>
+                        <small class="text-gray-500 text-xs">Enter a value between 1 and 100</small>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-calendar-event text-orange-600"></i> Expiration Date (Optional)
+                        </label>
+                        <input type="datetime-local" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all" 
+                               name="expires_at"
+                               x-bind:value="editBonusCode?.expires_at ? editBonusCode.expires_at.substring(0, 16) : ''">
+                        <small class="text-gray-500 text-xs">Leave empty for no expiration. Code will auto-deactivate when expired.</small>
+                    </div>
+                    
+                    <div class="bg-orange-50 border-l-4 border-orange-500 text-orange-800 p-4 rounded-lg">
+                        <div class="flex items-start gap-2">
+                            <i class="bi bi-info-circle mt-0.5"></i>
+                            <div class="text-sm">
+                                <strong>Note:</strong> Only one bonus code can be active at a time. When you activate this code, any other active code will be deactivated automatically.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showBonusCodeModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        <i class="bi bi-x-circle mr-2"></i> Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold rounded-lg transition-colors shadow-lg">
+                        <i class="bi bi-check-circle mr-2"></i>
+                        <span x-text="editBonusCode ? 'Update Code' : 'Create Code'"></span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
