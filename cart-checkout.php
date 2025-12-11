@@ -2274,13 +2274,14 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             <?php if ($showBonusBanner): ?>
             if (!isConfirmationPage) {
                 const floatingBanner = document.createElement('div');
+                const bonusCodeToApply = '<?php echo htmlspecialchars($activeBonusCode['code']); ?>';
                 floatingBanner.innerHTML = `
-                    <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 260px; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
+                    <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 260px; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3); font-family: Arial, sans-serif; pointer-events: auto; cursor: pointer; transition: all 0.3s ease; user-select: none;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 32px rgba(249, 115, 22, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(249, 115, 22, 0.3)'">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="font-size: 22px;">🎁</span>
                             <div>
                                 <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 14px;">Special Offer!</p>
-                                <p style="margin: 0; font-size: 12px; opacity: 0.95;">Use code: <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; font-weight: bold;"><?php echo htmlspecialchars($activeBonusCode['code']); ?></span></p>
+                                <p style="margin: 0; font-size: 12px; opacity: 0.95;">Click to apply: <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; font-weight: bold;"><?php echo htmlspecialchars($activeBonusCode['code']); ?></span></p>
                                 <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: bold;"><?php echo number_format($activeBonusCode['discount_percent'], 0); ?>% OFF!</p>
                                 <?php if ($totals['has_discount'] && $totals['discount_type'] === 'affiliate'): ?>
                                 <p style="margin: 4px 0 0 0; font-size: 11px; opacity: 0.8;">Better than your current <?php echo $totals['discount_percent']; ?>%!</p>
@@ -2290,6 +2291,63 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 `;
                 document.body.appendChild(floatingBanner);
+                
+                // Make banner clickable to apply bonus code
+                floatingBanner.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get the affiliate code input and form
+                    const affiliateInput = document.getElementById('affiliate_code');
+                    const affiliateForm = document.getElementById('affiliateForm');
+                    
+                    // Preserve customer data
+                    const customerName = document.getElementById('customer_name')?.value || '';
+                    const customerEmail = document.getElementById('customer_email')?.value || '';
+                    const customerPhone = document.getElementById('customer_phone')?.value || '';
+                    
+                    if (affiliateInput && affiliateForm) {
+                        // Insert bonus code
+                        affiliateInput.value = bonusCodeToApply;
+                        
+                        // Store customer data in hidden fields
+                        const nameField = document.getElementById('aff_customer_name');
+                        const emailField = document.getElementById('aff_customer_email');
+                        const phoneField = document.getElementById('aff_customer_phone');
+                        
+                        if (nameField) nameField.value = customerName;
+                        if (emailField) emailField.value = customerEmail;
+                        if (phoneField) phoneField.value = customerPhone;
+                        
+                        // Submit form without page reload using fetch
+                        const formData = new FormData(affiliateForm);
+                        
+                        fetch('<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Parse response and extract success/error message
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            
+                            // Hide banner on success
+                            floatingBanner.style.opacity = '0';
+                            floatingBanner.style.transform = 'translateX(400px)';
+                            floatingBanner.style.transition = 'all 0.5s ease';
+                            
+                            // Reload page after short delay to show updated prices
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 800);
+                        })
+                        .catch(err => {
+                            console.error('Error applying bonus code:', err);
+                            alert('Error applying code. Please try again.');
+                        });
+                    }
+                });
             }
             <?php endif; ?>
         });
