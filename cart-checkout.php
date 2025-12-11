@@ -2297,16 +2297,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    // Get the affiliate code input and form
                     const affiliateInput = document.getElementById('affiliate_code');
                     const affiliateForm = document.getElementById('affiliateForm');
                     
-                    // Preserve customer data
-                    const customerName = document.getElementById('customer_name')?.value || '';
-                    const customerEmail = document.getElementById('customer_email')?.value || '';
-                    const customerPhone = document.getElementById('customer_phone')?.value || '';
-                    
                     if (affiliateInput && affiliateForm) {
+                        // Preserve customer data before form submission
+                        const customerName = document.getElementById('customer_name')?.value || '';
+                        const customerEmail = document.getElementById('customer_email')?.value || '';
+                        const customerPhone = document.getElementById('customer_phone')?.value || '';
+                        
                         // Insert bonus code
                         affiliateInput.value = bonusCodeToApply;
                         
@@ -2319,33 +2318,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         if (emailField) emailField.value = customerEmail;
                         if (phoneField) phoneField.value = customerPhone;
                         
-                        // Submit form without page reload using fetch
-                        const formData = new FormData(affiliateForm);
+                        // Animate banner away and submit form
+                        floatingBanner.style.opacity = '0';
+                        floatingBanner.style.transform = 'translateX(400px)';
+                        floatingBanner.style.transition = 'all 0.3s ease';
                         
-                        fetch('<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Parse response and extract success/error message
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            
-                            // Hide banner on success
-                            floatingBanner.style.opacity = '0';
-                            floatingBanner.style.transform = 'translateX(400px)';
-                            floatingBanner.style.transition = 'all 0.5s ease';
-                            
-                            // Reload page after short delay to show updated prices
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 800);
-                        })
-                        .catch(err => {
-                            console.error('Error applying bonus code:', err);
-                            alert('Error applying code. Please try again.');
-                        });
+                        // Submit form after brief animation
+                        setTimeout(() => {
+                            affiliateForm.submit();
+                        }, 300);
                     }
                 });
             }
