@@ -426,7 +426,6 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            opacity: 0.7;
             animation: sliceGlowSync 1.5s ease-in-out infinite;
         }
         .slice-line.s2 { animation-delay: 0.05s; }
@@ -434,6 +433,8 @@ if ($autoOpenTool) {
         .slice-line.s4 { animation-delay: 0.05s; }
         .slice-line.s5 { animation-delay: 0.15s; }
         .slice-line.s6 { animation-delay: 0.15s; }
+        .slice-line.sx1 { animation-delay: 0s; }
+        .slice-line.sx2 { animation-delay: 0s; }
         
         @keyframes sliceGlowSync {
             0%, 100% { opacity: 0.4; stroke-width: 2; filter: url(#glow1); }
@@ -591,12 +592,17 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <line class="slice-line s1" x1="600" y1="0" x2="800" y2="800" stroke="url(#goldGrad1)" stroke-width="4" opacity="0.35"/>
-            <line class="slice-line s2" x1="300" y1="0" x2="500" y2="800" stroke="url(#goldGrad1)" stroke-width="3" opacity="0.25"/>
-            <line class="slice-line s3" x1="900" y1="0" x2="1100" y2="800" stroke="url(#goldGrad1)" stroke-width="3" opacity="0.25"/>
-            <line class="slice-line s4" x1="800" y1="0" x2="600" y2="800" stroke="url(#goldGrad2)" stroke-width="4" opacity="0.35"/>
-            <line class="slice-line s5" x1="1100" y1="0" x2="900" y2="800" stroke="url(#goldGrad2)" stroke-width="3" opacity="0.25"/>
-            <line class="slice-line s6" x1="500" y1="0" x2="300" y2="800" stroke="url(#goldGrad2)" stroke-width="3" opacity="0.25"/>
+            <!-- Outer W stripes (forward slashes) -->
+            <line class="slice-line s1" x1="600" y1="0" x2="800" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
+            <line class="slice-line s2" x1="300" y1="0" x2="500" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <line class="slice-line s3" x1="900" y1="0" x2="1100" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <!-- Outer W stripes (backslashes) -->
+            <line class="slice-line s4" x1="800" y1="0" x2="600" y2="800" stroke="#D4AF37" stroke-width="4" opacity="0.35"/>
+            <line class="slice-line s5" x1="1100" y1="0" x2="900" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <line class="slice-line s6" x1="500" y1="0" x2="300" y2="800" stroke="#D4AF37" stroke-width="3" opacity="0.25"/>
+            <!-- Center X intersection (lower position) -->
+            <line class="slice-line sx1" x1="400" y1="0" x2="880" y2="1080" stroke="url(#goldGrad1)" stroke-width="3.5" filter="url(#glow2)"/>
+            <line class="slice-line sx2" x1="880" y1="0" x2="400" y2="1080" stroke="url(#goldGrad2)" stroke-width="3.5" filter="url(#glow2)"/>
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
