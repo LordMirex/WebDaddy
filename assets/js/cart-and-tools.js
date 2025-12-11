@@ -881,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cartDrawer.className = 'fixed inset-0 z-50 hidden';
         cartDrawer.innerHTML = `
             <div class="absolute inset-0 bg-gray-900 bg-opacity-50" onclick="toggleCartDrawer()"></div>
-            <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-300" id="cart-drawer-content">
+            <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
                 <div class="h-full flex flex-col">
                     <div class="flex items-center justify-between p-4 border-b border-gray-700">
                         <h3 class="text-lg font-bold text-white">Your Cart</h3>
@@ -931,11 +931,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (drawer.classList.contains('hidden')) {
             drawer.classList.remove('hidden');
-            setTimeout(() => content.classList.remove('translate-x-full'), 10);
+            content.classList.remove('translate-x-full');
             loadCartItems();
         } else {
             content.classList.add('translate-x-full');
-            setTimeout(() => drawer.classList.add('hidden'), 300);
+            drawer.classList.add('hidden');
         }
     };
     
