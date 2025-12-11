@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-tools-grid>
+a:4:{s:7:"success";b:1;s:4:"html";s:72098:"        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-tools-grid>
                         <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;" data-tool-id="61">
                 <div style="position: relative; overflow: hidden; height: 140px; background: #0f172a;">
                     <img loading="eager"                         src="/uploads/tools/images/image_1765316383_a590b533_thumbnail.jpg"
@@ -30,10 +30,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦500,000.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/tttttttt" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/tttttttt'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(61, 'Tttttttt', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,10 +67,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦50,000.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/tesla-live-support" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/tesla-live-support'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(58, 'Tesla Live Support', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,10 +104,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦3,000.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/cms-database-840" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/cms-database-840'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(38, 'CMS Database', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,10 +141,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦1,200.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/email-template-kit-172" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/email-template-kit-172'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(39, 'Email Template Kit', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,10 +178,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦1,800.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/wordpress-plugin-884" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/wordpress-plugin-884'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(40, 'WordPress Plugin', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,10 +215,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦2,200.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/seo-tools-bundle-435" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/seo-tools-bundle-435'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(41, 'SEO Tools Bundle', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,10 +252,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦900.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/social-media-kit-605" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/social-media-kit-605'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(42, 'Social Media Kit', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,10 +289,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦2,000.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/video-template-library-235" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/video-template-library-235'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(43, 'Video Template Library', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,10 +326,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦1,100.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/presentation-master-536" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/presentation-master-536'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(44, 'Presentation Master', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,10 +363,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦3,500.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/analytics-dashboard-418" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/analytics-dashboard-418'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(45, 'Analytics Dashboard', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -400,10 +400,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦2,800.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/payment-gateway-835" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/payment-gateway-835'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(46, 'Payment Gateway', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -437,10 +437,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦4,000.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/customer-support-bot-533" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/customer-support-bot-533'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(47, 'Customer Support Bot', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -474,10 +474,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦700.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/photography-preset-pack-451" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/photography-preset-pack-451'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(48, 'Photography Preset Pack', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -511,10 +511,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦1,400.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/audio-library-286" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/audio-library-286'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(49, 'Audio Library', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -548,10 +548,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦1,300.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/branding-guideline-kit-912" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/branding-guideline-kit-912'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(50, 'Branding Guideline Kit', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -585,10 +585,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦900.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/code-snippet-library-250" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/code-snippet-library-250'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(51, 'Code Snippet Library', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -622,10 +622,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦3,200.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/mobile-app-template-514" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/mobile-app-template-514'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(52, 'Mobile App Template', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -659,10 +659,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:71558:"        <div class="grid grid-cols-1 
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">₦1,600.00</span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="/tool/graphic-design-addon-890" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='/tool/graphic-design-addon-890'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(53, 'Graphic Design Addon', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">

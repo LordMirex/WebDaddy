@@ -220,10 +220,10 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($template['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='<?php echo htmlspecialchars(getTemplateUrl($template, $affiliateCode)); ?>'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,10 +314,10 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <a href="<?php echo getToolUrl($tool, $affiliateCode); ?>" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; text-decoration: none; white-space: nowrap; transition: all 0.2s;">
+                            <button onclick="window.location.href='<?php echo htmlspecialchars(getToolUrl($tool, $affiliateCode)); ?>'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addToolToCart(<?php echo $tool['id']; ?>, '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
