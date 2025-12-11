@@ -539,11 +539,13 @@ if ($autoOpenTool) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="aspect-[16/10] relative overflow-hidden bg-navy">
+                            <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-gray-800 via-navy to-gray-900">
+                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700 ease-in-out"
-                                         :class="currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'">
-                                        <img :src="slide.image" :alt="slide.title" :loading="index === 0 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" class="w-full h-full object-cover object-top">
+                                         :class="currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
+                                         x-show="index > 0 || currentSlide !== 0">
+                                        <img :src="slide.image" :alt="slide.title" loading="lazy" class="w-full h-full object-cover object-top">
                                     </div>
                                 </template>
                             </div>
@@ -596,11 +598,13 @@ if ($autoOpenTool) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="aspect-[16/10] relative overflow-hidden bg-navy">
+                            <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-gray-800 via-navy to-gray-900">
+                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700"
-                                         :class="currentSlide === index ? 'opacity-100' : 'opacity-0'">
-                                        <img :src="slide.image" :alt="slide.title" :loading="index === 0 ? 'eager' : 'lazy'" :fetchpriority="index === 0 ? 'high' : 'auto'" class="w-full h-full object-cover object-top">
+                                         :class="currentSlide === index ? 'opacity-100' : 'opacity-0'"
+                                         x-show="index > 0 || currentSlide !== 0">
+                                        <img :src="slide.image" :alt="slide.title" loading="lazy" class="w-full h-full object-cover object-top">
                                     </div>
                                 </template>
                             </div>
