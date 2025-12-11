@@ -808,92 +808,52 @@ if ($autoOpenTool) {
                             <?php if ($isYoutube): ?>
                             <button onclick="event.stopPropagation(); openYoutubeModal('<?php echo htmlspecialchars($template['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-lg transition-colors z-10 backdrop-blur-sm">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                                 Preview
-                            </button>
-                            <button onclick="openYoutubeModal('<?php echo htmlspecialchars($template['preview_youtube'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Preview
-                                </span>
                             </button>
                             <?php elseif ($isVideo): ?>
                             <button onclick="event.stopPropagation(); openVideoModal('<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-lg transition-colors z-10 backdrop-blur-sm">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                                 Preview
-                            </button>
-                            <button onclick="openVideoModal('<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
-                                    data-video-trigger
-                                    data-video-url="<?php echo htmlspecialchars($template['demo_video_url'], ENT_QUOTES); ?>"
-                                    data-video-title="<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>"
-                                    class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Preview
-                                </span>
                             </button>
                             <?php elseif ($isDemoUrl): ?>
                             <button onclick="event.stopPropagation(); openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')"
                                     class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-lg transition-colors z-10 backdrop-blur-sm">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                                 Preview
-                            </button>
-                            <button onclick="openDemoFullscreen('<?php echo htmlspecialchars($template['demo_url'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>')" 
-                                    class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Preview
-                                </span>
                             </button>
                             <?php endif; ?>
                             <?php endif; ?>
                         </div>
                         <div class="p-3 md:p-4 flex-1 flex flex-col">
                             <div class="flex justify-between items-start mb-1 md:mb-2">
-                                <h3 class="text-sm md:text-base font-bold text-white flex-1 pr-2 line-clamp-1"><?php echo htmlspecialchars($template['name']); ?></h3>
+                                <h3 class="text-xs md:text-sm font-bold text-white flex-1 pr-2 line-clamp-1"><?php echo htmlspecialchars($template['name']); ?></h3>
                                 <span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">
                                     <?php echo htmlspecialchars($template['category']); ?>
                                 </span>
                             </div>
-                            <p class="text-gray-400 text-xs md:text-sm mb-2 md:mb-4 line-clamp-2 min-h-[28px] md:min-h-[40px] flex-1"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
                             <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
                                 <div class="flex flex-col">
                                     <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
-                                    <span class="text-base md:text-lg font-bold text-gold"><?php echo formatCurrency($template['price']); ?></span>
+                                    <span class="text-base md:text-lg font-extrabold text-gold"><?php echo formatCurrency($template['price']); ?></span>
                                 </div>
-                                <div class="flex gap-1.5 md:gap-2">
-                                    <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                                       class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-colors whitespace-nowrap">
-                                        Details
-                                    </a>
-                                    <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo addslashes($template['name']); ?>', this)" 
-                                       class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-transparent text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-0.5 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                        </svg>
-                                        Add
-                                    </button>
-                                </div>
+                                <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo addslashes($template['name']); ?>', this)" 
+                                   class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    </svg>
+                                    Buy
+                                </button>
                             </div>
                         </div>
                     </div>
