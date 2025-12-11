@@ -390,7 +390,7 @@ if ($autoOpenTool) {
         .anim-enter-4 { animation: enterSplitReveal 1.5s ease-out forwards; }
         .anim-enter-5 { animation: enterRiseShimmer 1.8s ease-out forwards; }
         
-        /* ========== PREMIUM WEBDADDY LOADER WITH LOGO ========== */
+        /* ========== PREMIUM SLICED X LOADER WITH LOGO ========== */
         #page-loader {
             position: fixed;
             top: 0;
@@ -398,7 +398,7 @@ if ($autoOpenTool) {
             right: 0;
             bottom: 0;
             z-index: 9999;
-            background: radial-gradient(ellipse at center, #0f1f2e 0%, #0a1929 60%, #061018 100%);
+            background: radial-gradient(ellipse at 55% 45%, #0f1f2e 0%, #0a1929 50%, #050d14 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -413,65 +413,65 @@ if ($autoOpenTool) {
             transition: opacity 0.5s ease-out, visibility 0.5s;
         }
         
-        .loader-x-container {
+        .loader-slices {
             position: fixed;
-            top: calc(50% - 8%);
-            left: calc(50% + 5%);
-            transform: translate(-50%, -50%);
-            width: 140vmax;
-            height: 140vmax;
-        }
-        
-        .loader-x {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            animation: premiumXRotate 8s linear infinite;
             top: 0;
             left: 0;
-        }
-        
-        .loader-x-bar {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 2px;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, 
-                transparent 0%, 
-                rgba(212,175,55,0.2) 10%,
-                rgba(245,214,105,0.5) 30%,
-                #F5D669 45%,
-                #FFE17B 50%, 
-                #F5D669 55%,
-                rgba(245,214,105,0.5) 70%,
-                rgba(212,175,55,0.2) 90%,
-                transparent 100%);
-            border-radius: 1px;
-            box-shadow: 0 0 20px rgba(245,214,105,0.9), 0 0 40px rgba(212,175,55,0.6), 0 0 80px rgba(212,175,55,0.3);
-            transform-origin: center center;
+            pointer-events: none;
         }
         
-        .loader-x-bar:nth-child(1) {
-            transform: translate(-50%, -50%) rotate(45deg);
-            animation: barShine1 2s ease-in-out infinite;
+        .slice-line {
+            opacity: 0.6;
         }
         
-        .loader-x-bar:nth-child(2) {
-            transform: translate(-50%, -50%) rotate(-45deg);
-            animation: barShine2 2s ease-in-out infinite 0.5s;
+        .slice-line.s1 {
+            animation: slicePulse1 2.5s ease-in-out infinite;
+        }
+        .slice-line.s2 {
+            animation: slicePulse2 2.5s ease-in-out infinite 0.3s;
+        }
+        .slice-line.s3 {
+            animation: slicePulse3 3s ease-in-out infinite 0.1s;
+        }
+        .slice-line.s4 {
+            animation: slicePulse3 3s ease-in-out infinite 0.6s;
+        }
+        .slice-line.s5 {
+            animation: slicePulse4 2s ease-in-out infinite;
+        }
+        .slice-line.s6 {
+            animation: slicePulse4 2s ease-in-out infinite 0.4s;
         }
         
-        .loader-glow {
-            position: absolute;
+        @keyframes slicePulse1 {
+            0%, 100% { opacity: 0.5; stroke-width: 2; }
+            50% { opacity: 0.9; stroke-width: 2.5; }
+        }
+        @keyframes slicePulse2 {
+            0%, 100% { opacity: 0.45; stroke-width: 2; }
+            50% { opacity: 0.85; stroke-width: 2.5; }
+        }
+        @keyframes slicePulse3 {
+            0%, 100% { opacity: 0.3; stroke-width: 1.5; }
+            50% { opacity: 0.6; stroke-width: 2; }
+        }
+        @keyframes slicePulse4 {
+            0%, 100% { opacity: 0.25; stroke-width: 1; }
+            50% { opacity: 0.5; stroke-width: 1.5; }
+        }
+        
+        .loader-center-glow {
+            position: fixed;
             top: 50%;
             left: 50%;
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 60%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 60%);
             transform: translate(-50%, -50%);
-            animation: glowBreath 2s ease-in-out infinite;
-            filter: blur(40px);
+            animation: centerGlowPulse 2s ease-in-out infinite;
+            filter: blur(50px);
             pointer-events: none;
         }
         
@@ -487,87 +487,60 @@ if ($autoOpenTool) {
         }
         
         .loader-logo {
-            width: 120px;
+            width: 100px;
             height: auto;
             animation: logoZoomPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(212,175,55,0.6)) drop-shadow(0 0 40px rgba(212,175,55,0.3));
+            filter: drop-shadow(0 0 25px rgba(212,175,55,0.8)) drop-shadow(0 0 50px rgba(212,175,55,0.4));
         }
         
-        @keyframes premiumXRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        @keyframes barShine1 {
-            0%, 100% { 
-                box-shadow: 0 0 20px rgba(245,214,105,0.9), 0 0 40px rgba(212,175,55,0.6), 0 0 80px rgba(212,175,55,0.3);
-                opacity: 0.7;
-            }
-            50% { 
-                box-shadow: 0 0 35px rgba(255,225,123,1), 0 0 70px rgba(245,214,105,0.8), 0 0 120px rgba(212,175,55,0.5);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes barShine2 {
-            0%, 100% { 
-                box-shadow: 0 0 18px rgba(245,214,105,0.8), 0 0 35px rgba(212,175,55,0.5), 0 0 70px rgba(212,175,55,0.25);
-                opacity: 0.65;
-            }
-            50% { 
-                box-shadow: 0 0 30px rgba(255,225,123,0.95), 0 0 60px rgba(245,214,105,0.7), 0 0 100px rgba(212,175,55,0.4);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes glowBreath {
-            0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
-            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
+        @keyframes centerGlowPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
         }
         
         @keyframes logoZoomPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.85; }
-            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.9; }
+            50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
         }
         
-        /* Premium exit animation - Logo zooms out widely */
+        /* Premium exit animation */
         #page-loader.loader-exit {
-            animation: loaderFadeOut 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderFadeOut 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
-        #page-loader.loader-exit .loader-x {
-            animation: xExpandFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        #page-loader.loader-exit .loader-slices {
+            animation: slicesExpandFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
-        #page-loader.loader-exit .loader-glow {
-            animation: glowExpandFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        #page-loader.loader-exit .loader-center-glow {
+            animation: glowExpandFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoZoomOutFade 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoZoomOutFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         @keyframes loaderFadeOut {
             0% { opacity: 1; }
-            60% { opacity: 0.4; }
+            50% { opacity: 0.5; }
             100% { opacity: 0; }
         }
         
-        @keyframes xExpandFade {
-            0% { transform: rotate(0deg) scale(1); opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { transform: rotate(180deg) scale(1.3); opacity: 0; filter: blur(10px); }
+        @keyframes slicesExpandFade {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; }
+            100% { opacity: 0; transform: scale(1.3); filter: blur(8px); }
         }
         
         @keyframes glowExpandFade {
-            0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5); }
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
         }
         
         @keyframes logoZoomOutFade {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: blur(0); }
-            30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; filter: blur(15px); }
+            40% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(4); opacity: 0; filter: blur(20px); }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
@@ -593,13 +566,39 @@ if ($autoOpenTool) {
 <body class="bg-navy-dark">
     <!-- Premium WebDaddy Loader -->
     <div id="page-loader">
-        <div class="loader-x-container">
-            <div class="loader-glow"></div>
-            <div class="loader-x">
-                <div class="loader-x-bar"></div>
-                <div class="loader-x-bar"></div>
-            </div>
-        </div>
+        <svg class="loader-slices" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="goldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:transparent"/>
+                    <stop offset="20%" style="stop-color:rgba(212,175,55,0.3)"/>
+                    <stop offset="50%" style="stop-color:#F5D669"/>
+                    <stop offset="80%" style="stop-color:rgba(212,175,55,0.3)"/>
+                    <stop offset="100%" style="stop-color:transparent"/>
+                </linearGradient>
+                <linearGradient id="goldGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:transparent"/>
+                    <stop offset="15%" style="stop-color:rgba(212,175,55,0.2)"/>
+                    <stop offset="50%" style="stop-color:#FFE17B"/>
+                    <stop offset="85%" style="stop-color:rgba(212,175,55,0.2)"/>
+                    <stop offset="100%" style="stop-color:transparent"/>
+                </linearGradient>
+                <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+            </defs>
+            <line class="slice-line s1" x1="700" y1="-100" x2="1100" y2="1200" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s2" x1="1300" y1="-100" x2="900" y2="1200" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow2)"/>
+            <line class="slice-line s3" x1="400" y1="-50" x2="700" y2="1150" stroke="url(#goldGrad1)" stroke-width="1.5" filter="url(#glow1)"/>
+            <line class="slice-line s4" x1="1600" y1="-50" x2="1200" y2="1150" stroke="url(#goldGrad2)" stroke-width="1.5" filter="url(#glow1)"/>
+            <line class="slice-line s5" x1="850" y1="-150" x2="1050" y2="1250" stroke="url(#goldGrad1)" stroke-width="1" filter="url(#glow1)"/>
+            <line class="slice-line s6" x1="1150" y1="-150" x2="950" y2="1250" stroke="url(#goldGrad2)" stroke-width="1" filter="url(#glow1)"/>
+        </svg>
+        <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
             <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo">
         </div>
@@ -1670,15 +1669,15 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium WebDaddy Loader Controller -->
+    <!-- Premium Sliced X Loader Controller -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             
             let loaderDismissed = false;
-            const MIN_DISPLAY_TIME = 1200;
-            const MAX_DISPLAY_TIME = 4000;
+            const MIN_DISPLAY_TIME = 1500;
+            const MAX_DISPLAY_TIME = 4500;
             const startTime = Date.now();
             
             function dismissLoader() {
@@ -1693,7 +1692,7 @@ if ($autoOpenTool) {
                     
                     setTimeout(() => {
                         loader.classList.add('loader-hidden');
-                    }, 1000);
+                    }, 1200);
                 }, remainingTime);
             }
             
