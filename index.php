@@ -390,97 +390,149 @@ if ($autoOpenTool) {
         .anim-enter-4 { animation: enterSplitReveal 1.5s ease-out forwards; }
         .anim-enter-5 { animation: enterRiseShimmer 1.8s ease-out forwards; }
         
-        /* ========== SLIM GLOWING X LOADER STYLES ========== */
+        /* ========== ULTRA-SLIM PREMIUM X LOADER STYLES ========== */
         #page-loader {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 100vh;
+            bottom: 0;
             z-index: 9999;
-            background: #0a1929;
+            background: linear-gradient(135deg, #0a1929 0%, #0f1f2e 50%, #0a1929 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             pointer-events: all;
-            transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+            overflow: hidden;
         }
         
         #page-loader.loader-hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
+            transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.7s;
         }
         
         .loader-x-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vmax;
+            height: 100vmax;
         }
         
         .loader-x {
             position: absolute;
             width: 100%;
             height: 100%;
-            animation: slimXRotate 2.5s linear infinite;
+            animation: premiumXRotate 3s linear infinite;
+            top: 0;
+            left: 0;
         }
         
         .loader-x-bar {
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 4px;
-            height: 180px;
-            background: linear-gradient(180deg, transparent 0%, #D4AF37 20%, #F5D669 50%, #D4AF37 80%, transparent 100%);
-            border-radius: 2px;
-            box-shadow: 0 0 15px #D4AF37, 0 0 30px rgba(212,175,55,0.6);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(212,175,55,0.3) 15%,
+                rgba(245,214,105,0.6) 35%,
+                #F5D669 50%, 
+                rgba(245,214,105,0.6) 65%,
+                rgba(212,175,55,0.3) 85%,
+                transparent 100%);
+            border-radius: 1px;
+            box-shadow: 0 0 8px rgba(212,175,55,0.5), 0 0 20px rgba(212,175,55,0.3), inset 0 0 4px rgba(255,255,255,0.15);
             transform-origin: center center;
         }
         
         .loader-x-bar:nth-child(1) {
             transform: translate(-50%, -50%) rotate(45deg);
+            animation: barAesthetic1 3s ease-in-out infinite;
         }
         
         .loader-x-bar:nth-child(2) {
             transform: translate(-50%, -50%) rotate(-45deg);
+            animation: barAesthetic2 3s ease-in-out infinite;
         }
         
         .loader-glow {
             position: absolute;
-            inset: -40px;
-            background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 60%);
-            animation: slimGlowPulse 2s ease-in-out infinite;
-            filter: blur(20px);
+            top: 50%;
+            left: 50%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            animation: premiumGlowExpand 3s ease-in-out infinite;
+            filter: blur(30px);
             pointer-events: none;
         }
         
-        @keyframes slimXRotate {
+        @keyframes premiumXRotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        @keyframes slimGlowPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.9; }
+        @keyframes barAesthetic1 {
+            0%, 100% { 
+                box-shadow: 0 0 8px rgba(212,175,55,0.5), 0 0 20px rgba(212,175,55,0.3), inset 0 0 4px rgba(255,255,255,0.15);
+                opacity: 0.8;
+            }
+            50% { 
+                box-shadow: 0 0 15px rgba(212,175,55,0.7), 0 0 40px rgba(212,175,55,0.4), inset 0 0 8px rgba(255,255,255,0.25);
+                opacity: 1;
+            }
         }
         
-        /* Exit animation */
+        @keyframes barAesthetic2 {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(212,175,55,0.4), 0 0 25px rgba(212,175,55,0.2), inset 0 0 5px rgba(255,255,255,0.1);
+                opacity: 0.75;
+            }
+            50% { 
+                box-shadow: 0 0 18px rgba(212,175,55,0.6), 0 0 45px rgba(212,175,55,0.35), inset 0 0 10px rgba(255,255,255,0.2);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes premiumGlowExpand {
+            0%, 100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.4; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+        
+        /* Premium exit animation */
         #page-loader.loader-exit {
-            animation: fadeOutSlow 0.6s ease-out forwards;
+            animation: premiumBgFadeOut 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         
         #page-loader.loader-exit .loader-x {
-            animation: slimXFadeOut 0.6s ease-out forwards;
+            animation: premiumXFadeAway 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
         
-        @keyframes fadeOutSlow {
+        #page-loader.loader-exit .loader-glow {
+            animation: premiumGlowFade 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        @keyframes premiumBgFadeOut {
             0% { opacity: 1; }
+            70% { opacity: 0.3; }
             100% { opacity: 0; }
         }
         
-        @keyframes slimXFadeOut {
-            0% { transform: rotate(0deg) scale(1); opacity: 1; }
-            100% { transform: rotate(180deg) scale(0.3); opacity: 0; }
+        @keyframes premiumXFadeAway {
+            0% { transform: rotate(0deg) scale(1); opacity: 1; filter: blur(0px); }
+            50% { opacity: 0.6; }
+            100% { transform: rotate(360deg) scale(1.5); opacity: 0; filter: blur(15px); }
+        }
+        
+        @keyframes premiumGlowFade {
+            0% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
