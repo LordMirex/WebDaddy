@@ -591,12 +591,12 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <line class="slice-line s1" x1="100" y1="-100" x2="480" y2="900" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
-            <line class="slice-line s2" x1="480" y1="900" x2="880" y2="-100" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
-            <line class="slice-line s3" x1="400" y1="200" x2="1520" y2="1200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow1)"/>
-            <line class="slice-line s4" x1="1520" y1="200" x2="400" y2="1200" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow1)"/>
-            <line class="slice-line s5" x1="1040" y1="-100" x2="1440" y2="900" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
-            <line class="slice-line s6" x1="1440" y1="900" x2="1820" y2="-100" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s1" x1="0" y1="0" x2="960" y2="750" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s2" x1="960" y1="750" x2="600" y2="0" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s3" x1="1320" y1="0" x2="960" y2="750" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s4" x1="960" y1="750" x2="1920" y2="0" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s5" x1="500" y1="0" x2="1400" y2="1080" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow1)"/>
+            <line class="slice-line s6" x1="1420" y1="0" x2="540" y2="1080" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow1)"/>
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
