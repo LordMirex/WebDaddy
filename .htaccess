@@ -55,11 +55,11 @@ RewriteRule ^tool/([a-z0-9\-_]+)/?$ tool.php?slug=$1 [QSA,L]
 # ------------------------------------------------------------------
 # 8. Template slug routing → template.php?slug=name
 #     (only triggers if file/folder doesn't exist)
-#     Excludes: admin, affiliate, assets, api, uploads, mailer, index, template, sitemap, tool, robots
+#     Matches single slug path: /slug-name (but not /slug/path or special dirs)
 # ------------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/(admin|affiliate|assets|api|uploads|mailer|index|template|sitemap|tool|robots) [NC]
+RewriteCond %{REQUEST_URI} !^/(admin|affiliate|assets|api|uploads|mailer|legal|index|template|sitemap|tool|robots|favicon|\.well-known) [NC]
 RewriteRule ^([a-zA-Z0-9_-]+)/?$ template.php?slug=$1 [QSA,L]
 
 # ------------------------------------------------------------------
