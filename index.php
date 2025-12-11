@@ -731,7 +731,13 @@ if ($autoOpenTool) {
         <!-- WhatsApp Icon Button (40px) -->
         <a :href="'https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>?text=' + encodeURIComponent(getContextualMessage())" 
            target="_blank"
-           class="btn-gold-shine flex items-center gap-2 rounded-r-full transition-all duration-300 pl-3 pr-3 py-2"
+           x-transition:enter="transition ease-out duration-[2000ms]"
+           x-transition:enter-start="opacity-0 -translate-x-4"
+           x-transition:enter-end="opacity-100 translate-x-0"
+           x-transition:leave="transition ease-in duration-[1000ms]"
+           x-transition:leave-start="opacity-100 translate-x-0"
+           x-transition:leave-end="opacity-0 -translate-x-full"
+           class="btn-gold-shine flex items-center gap-2 rounded-r-full pl-3 pr-3 py-2"
            aria-label="Chat on WhatsApp">
             <!-- Icon -->
             <svg class="w-10 h-10 text-navy-dark" fill="currentColor" viewBox="0 0 24 24">
@@ -740,12 +746,6 @@ if ($autoOpenTool) {
             
             <!-- Sliding Message (Hidden near header/footer) -->
             <div x-show="showMessage && !isNearHeaderOrFooter" 
-                 x-transition:enter="transition ease-out duration-[2000ms]"
-                 x-transition:enter-start="opacity-0 -translate-x-4"
-                 x-transition:enter-end="opacity-100 translate-x-0"
-                 x-transition:leave="transition ease-in duration-[1000ms]"
-                 x-transition:leave-start="opacity-100 translate-x-0"
-                 x-transition:leave-end="opacity-0 -translate-x-full"
                  class="text-navy-dark font-semibold text-sm whitespace-nowrap pr-2 overflow-hidden">
                 <span x-text="messages[currentIndex]"></span>
             </div>
