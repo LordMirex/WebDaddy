@@ -679,6 +679,32 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <style>
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-slideDown {
+            animation: slideDown 0.3s ease-out;
+        }
+
         * {
             box-sizing: border-box;
         }
@@ -1426,7 +1452,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             <?php else: ?>
                 <!-- Regular Checkout Form -->
                 <?php if (!empty($success)): ?>
-                <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                <div id="success-message" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 transition-all duration-300 animate-slideDown">
                     <div class="flex">
                         <svg class="w-5 h-5 text-green-600 mr-3 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -1436,6 +1462,16 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         </div>
                     </div>
                 </div>
+                <script>
+                    // Auto-hide success message after 4 seconds with slide animation
+                    setTimeout(() => {
+                        const msg = document.getElementById('success-message');
+                        if (msg) {
+                            msg.style.animation = 'slideUp 0.3s ease-out forwards';
+                            setTimeout(() => msg.remove(), 300);
+                        }
+                    }, 4000);
+                </script>
                 <?php endif; ?>
                 
                 <?php if (!empty($errors)): ?>
@@ -1522,9 +1558,12 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <input type="hidden" name="customer_email" id="remove_customer_email" value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>">
                                 <input type="hidden" name="customer_phone" id="remove_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
                                 <button type="submit" 
-                                        class="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 font-medium rounded transition-colors"
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-600 hover:text-red-700 font-medium rounded transition-colors"
                                         title="Remove this discount">
-                                    ✕ Remove
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Remove
                                 </button>
                             </form>
                         </div>
@@ -1532,8 +1571,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php endif; ?>
                 
-                <!-- Discount Code Input Form (Always visible) -->
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
+                <!-- Discount Code Input Form (Hidden when discount already applied) -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6 <?php echo $totals['has_discount'] ? 'hidden' : ''; ?>" id="discountCodeSection">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="flex items-center flex-1">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -2163,7 +2202,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
-            // 5. POPULATE REMOVE DISCOUNT FORM WITH CUSTOMER DATA
+            // 5. POPULATE REMOVE DISCOUNT FORM WITH CUSTOMER DATA & SHOW DISCOUNT INPUT WHEN REMOVED
             const removeDiscountForm = document.getElementById('removeDiscountForm');
             if (removeDiscountForm) {
                 removeDiscountForm.addEventListener('submit', function(e) {
@@ -2180,6 +2219,14 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     if (customerPhone) {
                         document.getElementById('remove_customer_phone').value = customerPhone.value;
                     }
+                    
+                    // Show the discount code input after form submission
+                    setTimeout(() => {
+                        const discountSection = document.getElementById('discountCodeSection');
+                        if (discountSection) {
+                            discountSection.classList.remove('hidden');
+                        }
+                    }, 100);
                 });
             }
             
