@@ -258,12 +258,13 @@ function getTemplateUrl($template, $affiliateCode = null)
     // Use slug if available, otherwise fallback to ID
     $identifier = !empty($slug) ? $slug : $id;
     
-    // Point directly to template.php (works on all servers)
-    // When deployed to cPanel, .htaccess can convert clean URLs to this format automatically
-    $url = 'template.php?slug=' . urlencode($identifier);
+    // Clean URL format: /{slug}
+    // Router.php handles this for PHP built-in server
+    // .htaccess handles this for Apache/cPanel
+    $url = '/' . urlencode($identifier);
     
     if ($affiliateCode) {
-        $url .= '&aff=' . urlencode($affiliateCode);
+        $url .= '?aff=' . urlencode($affiliateCode);
     }
     
     return $url;
@@ -282,12 +283,14 @@ function getToolUrl($tool, $affiliateCode = null)
     // Use slug if available, otherwise fallback to ID
     $identifier = !empty($slug) ? $slug : $id;
     
-    // Point directly to tool.php (works on all servers)
-    // When deployed to cPanel, .htaccess can convert clean URLs /tool/slug to this format automatically
-    $url = 'tool.php?slug=' . urlencode($identifier);
+    // Clean URL format: /tool/{slug}
+    // This routes to index.php?tool={slug} which opens the tool modal
+    // Router.php handles this for PHP built-in server
+    // .htaccess handles this for Apache/cPanel
+    $url = '/tool/' . urlencode($identifier);
     
     if ($affiliateCode) {
-        $url .= '&aff=' . urlencode($affiliateCode);
+        $url .= '?aff=' . urlencode($affiliateCode);
     }
     
     return $url;

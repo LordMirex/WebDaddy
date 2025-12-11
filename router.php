@@ -40,11 +40,12 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
     exit;
 }
 
-// Tool detail page routing: /tool/slug-name → tool.php?slug=slug-name
-if (preg_match('#^/tool/([a-z0-9\-_]+)/?$#i', $path, $matches)) {
-    $_GET['slug'] = $matches[1];
-    $_SERVER['SCRIPT_NAME'] = '/tool.php';
-    require __DIR__ . '/tool.php';
+// Tool detail page routing: /tool/slug-name → index.php?tool=slug-name
+// Tools open as modals on the index page, not a separate page
+if (preg_match('#^/tool/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
+    $_GET['tool'] = $matches[1];
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    require __DIR__ . '/index.php';
     exit;
 }
 

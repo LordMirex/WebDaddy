@@ -46,11 +46,12 @@ RewriteRule ^sitemap\.xml$ sitemap.php [L]
 RewriteRule ^sitemap/?$ sitemap.php [L]
 
 # ------------------------------------------------------------------
-# 7. Tool detail page routing: /tool/slug-name → tool.php?slug=slug-name
+# 7. Tool detail page routing: /tool/slug-name → index.php?tool=slug-name
+#    (Tools open as modals on index page, not a separate page)
 # ------------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^tool/([a-z0-9\-_]+)/?$ tool.php?slug=$1 [QSA,L]
+RewriteRule ^tool/([a-zA-Z0-9\-_]+)/?$ index.php?tool=$1 [QSA,L]
 
 # ------------------------------------------------------------------
 # 8. Template slug routing → template.php?slug=name
