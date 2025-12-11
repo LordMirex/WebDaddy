@@ -209,8 +209,12 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                             <?php echo htmlspecialchars($template['category']); ?>
                         </span>
                     </div>
-                    <p style="color: #9ca3af; font-size: 11px; margin-bottom: 8px; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(55,65,81,0.5); margin-top: auto;">
+                    <?php $descText = substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : ''); ?>
+                    <?php if (!empty($descText)): ?>
+                    <p style="color: #9ca3af; font-size: 11px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;"><?php echo htmlspecialchars($descText); ?></p>
+                    <?php endif; ?>
+                    <div style="flex-grow: 1;"></div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(55,65,81,0.5);">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($template['price']); ?></span>
@@ -300,8 +304,11 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                         </span>
                         <?php endif; ?>
                     </div>
-                    <p style="color: #9ca3af; font-size: 11px; margin-bottom: 8px; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(55,65,81,0.5); margin-top: auto;">
+                    <?php if (!empty($tool['short_description'])): ?>
+                    <p style="color: #9ca3af; font-size: 11px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
+                    <?php endif; ?>
+                    <div style="flex-grow: 1;"></div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(55,65,81,0.5);">
                         <div style="display: flex; flex-direction: column;">
                             <span style="font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($tool['price']); ?></span>
