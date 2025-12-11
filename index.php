@@ -487,8 +487,9 @@ if ($autoOpenTool) {
         }
         
         .loader-logo {
-            width: 100px;
+            width: 140px;
             height: auto;
+            max-width: none;
             animation: logoZoomPulse 2s ease-in-out infinite;
             filter: drop-shadow(0 0 25px rgba(212,175,55,0.8)) drop-shadow(0 0 50px rgba(212,175,55,0.4));
         }
@@ -528,19 +529,22 @@ if ($autoOpenTool) {
         
         @keyframes slicesExpandFade {
             0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; }
-            100% { opacity: 0; transform: scale(1.3); filter: blur(8px); }
+            8% { opacity: 1; transform: scale(1.08); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+            100% { opacity: 0; transform: scale(2.2); filter: blur(12px); }
         }
         
         @keyframes glowExpandFade {
             0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.8); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(3.5); }
         }
         
         @keyframes logoZoomOutFade {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 1; filter: blur(0); }
-            40% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(4); opacity: 0; filter: blur(20px); }
+            8% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; filter: blur(0); }
+            35% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.85; filter: blur(3px); }
+            100% { transform: translate(-50%, -50%) scale(5); opacity: 0; filter: blur(25px); }
         }
         /* ========== END LOADER STYLES ========== */
     </style>
