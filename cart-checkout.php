@@ -23,11 +23,8 @@ $activeBonusCode = getActiveBonusCode();
 // Get applied discount code from session (could be bonus code or affiliate code)
 $appliedBonusCode = $_SESSION['applied_bonus_code'] ?? null;
 
-// AUTO-APPLY: If there's an active bonus code and no discount applied yet, auto-apply it
-if ($activeBonusCode && !$appliedBonusCode && !$affiliateCode) {
-    $appliedBonusCode = $activeBonusCode['code'];
-    $_SESSION['applied_bonus_code'] = $appliedBonusCode;
-}
+// DO NOT AUTO-APPLY bonus codes - users must manually enter them
+// Bonus codes should only be applied when user explicitly enters them in the form
 
 // Check if this is an order confirmation page
 $confirmedOrderId = isset($_GET['confirmed']) ? (int)$_GET['confirmed'] : null;
@@ -61,6 +58,25 @@ if ($confirmedOrderId) {
         if ($orderStatus) {
             $confirmationStatus = $orderStatus['status'];
         }
+    }
+}
+
+// Handle discount code removal
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_discount'])) {
+    if (validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        // Clear bonus code
+        $appliedBonusCode = null;
+        unset($_SESSION['applied_bonus_code']);
+        
+        // Clear affiliate code
+        $affiliateCode = null;
+        unset($_SESSION['affiliate_code']);
+        setcookie('affiliate_code', '', time() - 3600, '/');
+        
+        // Recalculate totals without any discount
+        $totals = getCartTotal(null, null, null);
+        
+        $success = 'Discount code removed.';
     }
 }
 
@@ -121,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
                     // Recalculate totals with discount
                     $totals = getCartTotal(null, $affiliateCode, null);
                     
-                    $success = '20% discount applied successfully!';
+                    $success = '20% affiliate discount applied successfully!';
                     $submittedAffiliateCode = '';
                 } else {
                     $errors[] = 'Invalid or inactive discount code.';
@@ -133,8 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
     }
 }
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) {
+// Handle form submission (skip if applying/removing discount codes)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount'])) {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
     }
@@ -522,8 +538,10 @@ if ($confirmedOrderId) {
         $messagePaymentProof .= "\n━━━━━━━━━━━━━━━━━━━━\n";
         $messagePaymentProof .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
         
-        if (!empty($order['affiliate_code'])) {
-            $messagePaymentProof .= "\n🎁 *Discount Applied:* 20% OFF";
+        if (!empty($order['discount_amount']) && $order['discount_amount'] > 0) {
+            $discountPct = !empty($order['discount_percent']) ? number_format($order['discount_percent'], 0) : '20';
+            $discountLabel = (!empty($order['discount_type']) && $order['discount_type'] === 'bonus_code') ? 'Bonus Code' : 'Affiliate';
+            $messagePaymentProof .= "\n🎁 *{$discountLabel} Discount:* {$discountPct}% OFF";
         }
         
         $messagePaymentProof .= "\n\n🏦 *PAYMENT DETAILS:*\n";
@@ -553,8 +571,10 @@ if ($confirmedOrderId) {
         $messageDiscussion .= "\n━━━━━━━━━━━━━━━━━━━━\n";
         $messageDiscussion .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
         
-        if (!empty($order['affiliate_code'])) {
-            $messageDiscussion .= "\n🎁 *Discount Applied:* 20% OFF";
+        if (!empty($order['discount_amount']) && $order['discount_amount'] > 0) {
+            $discountPctMsg = !empty($order['discount_percent']) ? number_format($order['discount_percent'], 0) : '20';
+            $discountLabelMsg = (!empty($order['discount_type']) && $order['discount_type'] === 'bonus_code') ? 'Bonus Code' : 'Affiliate';
+            $messageDiscussion .= "\n🎁 *{$discountLabelMsg} Discount:* {$discountPctMsg}% OFF";
         }
         
         $messageDiscussion .= "\n\n🏦 *PAYMENT DETAILS:*\n";
@@ -952,7 +972,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             
                             <?php if (!empty($confirmationData['order']['discount_amount']) && $confirmationData['order']['discount_amount'] > 0): ?>
                             <div class="flex justify-between text-green-600">
-                                <span>Affiliate Discount (20%)</span>
+                                <span><?php 
+                                    $discountLabel = !empty($confirmationData['order']['discount_type']) && $confirmationData['order']['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+                                    $discountPct = !empty($confirmationData['order']['discount_percent']) ? $confirmationData['order']['discount_percent'] : 20;
+                                    echo $discountLabel . ' Discount (' . number_format($discountPct, 0) . '%)';
+                                ?></span>
                                 <span>-<?php echo formatCurrency($confirmationData['order']['discount_amount']); ?></span>
                             </div>
                             <?php endif; ?>
@@ -1070,7 +1094,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             
                             <?php if (!empty($confirmationData['order']['discount_amount']) && $confirmationData['order']['discount_amount'] > 0): ?>
                             <div class="flex justify-between text-green-600">
-                                <span>Affiliate Discount (20%)</span>
+                                <span><?php 
+                                    $discountLabel = !empty($confirmationData['order']['discount_type']) && $confirmationData['order']['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+                                    $discountPct = !empty($confirmationData['order']['discount_percent']) ? $confirmationData['order']['discount_percent'] : 20;
+                                    echo $discountLabel . ' Discount (' . number_format($discountPct, 0) . '%)';
+                                ?></span>
                                 <span>-<?php echo formatCurrency($confirmationData['order']['discount_amount']); ?></span>
                             </div>
                             <?php endif; ?>
@@ -1359,7 +1387,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             
                             <?php if (!empty($confirmationData['order']['discount_amount']) && $confirmationData['order']['discount_amount'] > 0): ?>
                             <div class="flex justify-between text-green-600">
-                                <span>Affiliate Discount (20%)</span>
+                                <span><?php 
+                                    $discountLabel = !empty($confirmationData['order']['discount_type']) && $confirmationData['order']['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+                                    $discountPct = !empty($confirmationData['order']['discount_percent']) ? $confirmationData['order']['discount_percent'] : 20;
+                                    echo $discountLabel . ' Discount (' . number_format($discountPct, 0) . '%)';
+                                ?></span>
                                 <span>-<?php echo formatCurrency($confirmationData['order']['discount_amount']); ?></span>
                             </div>
                             <?php endif; ?>
@@ -1464,28 +1496,52 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php endif; ?>
                 
-                <!-- Affiliate Discount Banner -->
+                <!-- Discount Code Section -->
                 <?php if ($totals['has_discount']): ?>
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-6">
-                    <div class="flex items-center justify-between">
+                <!-- Applied Discount Banner with Cancel Option -->
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-green-900">20% OFF! Code: <?php echo htmlspecialchars($totals['affiliate_code']); ?></span>
+                            <span class="text-xs sm:text-sm font-semibold text-green-900">
+                                <?php 
+                                    $displayDiscountPct = number_format($totals['discount_percent'], 0);
+                                    $displayDiscountType = $totals['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+                                    echo $displayDiscountPct . '% OFF! ' . $displayDiscountType . ': ' . htmlspecialchars($totals['discount_code']);
+                                ?>
+                            </span>
                         </div>
-                        <span class="text-xs sm:text-sm font-bold text-green-900">-<?php echo formatCurrency($totals['discount']); ?></span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs sm:text-sm font-bold text-green-900">-<?php echo formatCurrency($totals['discount']); ?></span>
+                            <form method="POST" action="" class="inline" id="removeDiscountForm">
+                                <?php echo csrfTokenField(); ?>
+                                <input type="hidden" name="remove_discount" value="1">
+                                <input type="hidden" name="customer_name" id="remove_customer_name" value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>">
+                                <input type="hidden" name="customer_email" id="remove_customer_email" value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>">
+                                <input type="hidden" name="customer_phone" id="remove_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
+                                <button type="submit" 
+                                        class="px-2 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 font-medium rounded transition-colors"
+                                        title="Remove this discount">
+                                    ✕ Remove
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <?php else: ?>
-                <!-- Affiliate Code Input -->
+                <?php endif; ?>
+                
+                <!-- Discount Code Input Form (Always visible) -->
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-700 rounded-lg p-3 sm:p-4 mb-6">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="flex items-center flex-1">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-gray-900">Have an affiliate code? Get 20% OFF!</span>
+                            <span class="text-xs sm:text-sm font-semibold text-gray-900">
+                                <?php echo $totals['has_discount'] ? 'Have a different code?' : 'Have a discount code?'; ?>
+                            </span>
                         </div>
                         <form method="POST" action="" id="affiliateForm" class="flex gap-2 flex-1 sm:flex-initial">
                             <?php echo csrfTokenField(); ?>
@@ -1508,7 +1564,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         </form>
                     </div>
                 </div>
-                <?php endif; ?>
                 
                 <!-- Payment Status Banner -->
                 <?php if ($confirmedOrderId && $confirmationStatus !== 'none'): ?>
@@ -1664,7 +1719,10 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             
                             <?php if ($totals['has_discount']): ?>
                             <div class="flex justify-between text-green-600">
-                                <span>Affiliate Discount (20%)</span>
+                                <span><?php 
+                                    $summaryDiscountLabel = $totals['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+                                    echo $summaryDiscountLabel . ' Discount (' . number_format($totals['discount_percent'], 0) . '%)';
+                                ?></span>
                                 <span>-<?php echo formatCurrency($totals['discount']); ?></span>
                             </div>
                             <?php endif; ?>
@@ -2100,7 +2158,27 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
-            // 5. FLOATING BONUS OFFER BANNER - SHOW ON CHECKOUT FORM IF BETTER DISCOUNT AVAILABLE
+            // 5. POPULATE REMOVE DISCOUNT FORM WITH CUSTOMER DATA
+            const removeDiscountForm = document.getElementById('removeDiscountForm');
+            if (removeDiscountForm) {
+                removeDiscountForm.addEventListener('submit', function(e) {
+                    const customerName = document.getElementById('customer_name');
+                    const customerEmail = document.getElementById('customer_email');
+                    const customerPhone = document.getElementById('customer_phone');
+                    
+                    if (customerName) {
+                        document.getElementById('remove_customer_name').value = customerName.value;
+                    }
+                    if (customerEmail) {
+                        document.getElementById('remove_customer_email').value = customerEmail.value;
+                    }
+                    if (customerPhone) {
+                        document.getElementById('remove_customer_phone').value = customerPhone.value;
+                    }
+                });
+            }
+            
+            // 6. FLOATING BONUS OFFER BANNER - SHOW ON CHECKOUT FORM IF BETTER DISCOUNT AVAILABLE
             console.log('✅ Cart Recovery Features Initialized');
             
             <?php 
