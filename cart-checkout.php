@@ -2230,16 +2230,45 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 });
             }
             
+            // 5B. AUTO-INSERT BONUS CODE ON INPUT FOCUS (ENHANCED UX)
+            const affiliateInput = document.getElementById('affiliate_code');
+            <?php if (!empty($activeBonusCode)): ?>
+            const bonusCode = '<?php echo htmlspecialchars($activeBonusCode['code']); ?>';
+            if (affiliateInput) {
+                affiliateInput.addEventListener('focus', function() {
+                    // Only auto-insert if field is empty
+                    if (!this.value) {
+                        this.value = bonusCode;
+                        this.classList.add('bonus-code-inserted');
+                        // Highlight the field to show bonus code was inserted
+                        this.style.borderColor = '#f97316';
+                        this.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.1)';
+                    }
+                });
+                
+                affiliateInput.addEventListener('blur', function() {
+                    // Reset styling if user didn't keep the bonus code
+                    if (this.value !== bonusCode) {
+                        this.classList.remove('bonus-code-inserted');
+                        this.style.borderColor = '';
+                        this.style.boxShadow = '';
+                    }
+                });
+            }
+            <?php endif; ?>
+            
             // 6. FLOATING BONUS OFFER BANNER - SHOW ON CHECKOUT FORM IF BETTER DISCOUNT AVAILABLE
             console.log('✅ Cart Recovery Features Initialized');
             
             <?php 
             // Show bonus code banner if:
             // 1. There's an active bonus code AND
-            // 2. Either no discount is applied yet OR the bonus code offers a better discount than current affiliate
-            $showBonusBanner = !empty($activeBonusCode) && (
+            // 2. User does NOT have affiliate code (URL or session) AND
+            // 3. Either no discount is applied yet OR the bonus code offers a better discount than current affiliate
+            $hasAffiliateCode = !empty($affiliateCode);
+            $showBonusBanner = !empty($activeBonusCode) && !$hasAffiliateCode && (
                 !$totals['has_discount'] || 
-                ($totals['discount_type'] === 'affiliate' && $activeBonusCode['discount_percent'] > $totals['discount_percent'])
+                ($totals['discount_type'] === 'bonus_code' && $activeBonusCode['discount_percent'] > $totals['discount_percent'])
             );
             ?>
             <?php if ($showBonusBanner): ?>
