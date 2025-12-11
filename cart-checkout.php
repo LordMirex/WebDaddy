@@ -2103,13 +2103,18 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 }
             }
             
-            // 2. AUTO-APPLY AFFILIATE CODE FROM URL PARAMETER
+            // 2. AUTO-APPLY AFFILIATE CODE FROM URL PARAMETER (only if no discount already applied)
             const urlParams = new URLSearchParams(window.location.search);
             const affiliateCodeFromUrl = urlParams.get('aff');
-            if (affiliateCodeFromUrl) {
+            const discountAlreadyApplied = <?php echo ($totals['has_discount'] ? 'true' : 'false'); ?>;
+            const autoApplyDone = sessionStorage.getItem('affiliate_auto_applied_' + (affiliateCodeFromUrl || ''));
+            
+            if (affiliateCodeFromUrl && !discountAlreadyApplied && !autoApplyDone) {
                 const affiliateInput = document.getElementById('affiliate_code');
                 if (affiliateInput && !affiliateInput.value) {
                     affiliateInput.value = affiliateCodeFromUrl.toUpperCase();
+                    // Mark as applied to prevent refresh loop
+                    sessionStorage.setItem('affiliate_auto_applied_' + affiliateCodeFromUrl, 'true');
                     // Auto-submit the affiliate form after short delay
                     setTimeout(() => {
                         const affiliateForm = document.getElementById('affiliateForm');
