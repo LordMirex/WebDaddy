@@ -44,6 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
         setupPaginationHandlers();
         setupAnalyticsTracking();
         
+        // Preload cart cache on page load for instant display
+        const cached = localStorage.getItem('cartCache');
+        if (!cached) {
+            // If no cache yet, fetch and cache cart data
+            fetch('/api/cart.php?action=get')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                        localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                    }
+                })
+                .catch(e => console.error('Failed to preload cart cache:', e));
+        }
+        
         // Pre-cache both views for instant switching
         preCacheBothViews();
     }
@@ -996,6 +1011,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification(notificationMessage, 'success');
                 updateCartBadge();
                 
+                // Cache the updated cart immediately
+                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                
                 // Animate cart button
                 animateCartBadge();
                 
@@ -1049,13 +1068,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function loadCartItems() {
+        // INSTANT: Show cached data first
+        const cached = localStorage.getItem('cartCache');
+        if (cached) {
+            try {
+                const cachedData = JSON.parse(cached);
+                displayCartItems(cachedData.items || [], cachedData.totals || 0);
+            } catch (e) {
+                console.error('Failed to parse cached cart:', e);
+            }
+        }
+        
+        // BACKGROUND: Fetch fresh data to keep in sync
         try {
             const response = await fetch('/api/cart.php?action=get');
             const data = await response.json();
             
             if (data.success) {
-                // Pass the full totals object with discount info
-                displayCartItems(data.items || [], data.totals || data.total || 0);
+                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                displayCartItems(cacheData.items, cacheData.totals);
             }
         } catch (error) {
             console.error('Failed to load cart:', error);
@@ -1166,6 +1198,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
+                // Cache updated cart immediately for instant display
+                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                
                 // Reload cart with fresh data from server
                 await loadCartItems();
                 await updateCartBadge();
@@ -1193,6 +1229,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
+                // Cache updated cart immediately for instant display
+                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                
                 // Reload cart with fresh data from server
                 await loadCartItems();
                 await updateCartBadge();
