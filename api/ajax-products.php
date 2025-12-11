@@ -295,33 +295,33 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                     </div>
                     <?php endif; ?>
                 </div>
-                <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 4px;">
-                        <h3 style="font-size: 13px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 4px; line-height: 1.3;"><?php echo htmlspecialchars($tool['name']); ?></h3>
+                <div style="padding: 10px; flex-grow: 1; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; gap: 4px;">
+                        <h3 style="font-size: 12px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 4px; line-height: 1.2;"><?php echo htmlspecialchars($tool['name']); ?></h3>
                         <?php if (!empty($tool['category'])): ?>
-                        <span style="display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 9999px; font-size: 10px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
+                        <span style="display: inline-flex; align-items: center; padding: 2px 5px; border-radius: 9999px; font-size: 9px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
                             <?php echo htmlspecialchars($tool['category']); ?>
                         </span>
                         <?php endif; ?>
                     </div>
                     <?php if (!empty($tool['short_description'])): ?>
-                    <p style="color: #9ca3af; font-size: 11px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
+                    <p style="color: #9ca3af; font-size: 10px; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;"><?php echo htmlspecialchars($tool['short_description']); ?></p>
                     <?php endif; ?>
-                    <div style="flex-grow: 1;"></div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(55,65,81,0.5);">
+                    <div style="flex-grow: 1; min-height: 4px;"></div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(55,65,81,0.5);">
                         <div style="display: flex; flex-direction: column;">
-                            <span style="font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
-                            <span style="font-size: 16px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($tool['price']); ?></span>
+                            <span style="font-size: 8px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
+                            <span style="font-size: 14px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
-                        <div style="display: flex; gap: 6px;">
+                        <div style="display: flex; gap: 4px;">
                             <button data-tool-id="<?php echo $tool['id']; ?>" 
                                     class="tool-preview-btn"
-                                    style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                    style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
                             </button>
                             <button onclick="addToolToCart(<?php echo $tool['id']; ?>, '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>', this)" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                                <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
                                 Add
