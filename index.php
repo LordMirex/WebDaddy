@@ -755,7 +755,7 @@ if ($autoOpenTool) {
                             <input type="text" 
                                    id="search-input"
                                    placeholder="Search <?php echo $currentView === 'templates' ? 'templates' : 'tools'; ?>..." 
-                                   class="w-full px-3 py-2 md:px-4 md:py-3 pl-9 md:pl-11 pr-8 md:pr-10 bg-navy-light border border-gray-700 rounded-lg text-sm md:text-base text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold transition-all">
+                                   class="w-full px-2 py-1.5 md:px-4 md:py-2.5 pl-8 md:pl-10 pr-7 md:pr-10 bg-navy-light border border-gray-700 rounded-lg text-xs md:text-sm text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold transition-all">
                             <svg class="w-4 h-4 md:w-5 md:h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -776,10 +776,10 @@ if ($autoOpenTool) {
                     </div>
 
                     <!-- Category Filter -->
-                    <div class="w-full md:w-56">
+                    <div class="w-full md:w-auto">
                         <div class="relative">
                             <select id="category-filter" 
-                                    class="w-full px-3 py-2 md:px-4 md:py-3 pl-3 md:pl-4 pr-8 md:pr-10 bg-navy-light border border-gray-700 rounded-lg text-sm md:text-base text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
+                                    class="w-full px-2 py-1.5 md:px-4 md:py-2.5 pl-3 md:pl-4 pr-7 md:pr-10 bg-navy-light border border-gray-700 rounded-lg text-xs md:text-sm text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
                                 <option value="">Category</option>
                                 <?php 
                                 $categories = $currentView === 'templates' ? $templateCategories : $toolCategories;
