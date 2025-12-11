@@ -2299,42 +2299,49 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 `;
                 document.body.appendChild(floatingBanner);
                 
-                // Make banner clickable to apply bonus code
+                // Make banner clickable to apply bonus code (instant with no validation)
                 floatingBanner.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    const affiliateInput = document.getElementById('affiliate_code');
-                    const affiliateForm = document.getElementById('affiliateForm');
+                    // Animate banner away
+                    floatingBanner.style.opacity = '0';
+                    floatingBanner.style.transform = 'translateX(400px)';
+                    floatingBanner.style.transition = 'all 0.3s ease';
                     
-                    if (affiliateInput && affiliateForm) {
-                        // Preserve customer data before form submission
-                        const customerName = document.getElementById('customer_name')?.value || '';
-                        const customerEmail = document.getElementById('customer_email')?.value || '';
-                        const customerPhone = document.getElementById('customer_phone')?.value || '';
-                        
-                        // Insert bonus code
-                        affiliateInput.value = bonusCodeToApply;
-                        
-                        // Store customer data in hidden fields
-                        const nameField = document.getElementById('aff_customer_name');
-                        const emailField = document.getElementById('aff_customer_email');
-                        const phoneField = document.getElementById('aff_customer_phone');
-                        
-                        if (nameField) nameField.value = customerName;
-                        if (emailField) emailField.value = customerEmail;
-                        if (phoneField) phoneField.value = customerPhone;
-                        
-                        // Animate banner away and submit form
-                        floatingBanner.style.opacity = '0';
-                        floatingBanner.style.transform = 'translateX(400px)';
-                        floatingBanner.style.transition = 'all 0.3s ease';
-                        
-                        // Submit form after brief animation
+                    // Get CSRF token
+                    const csrfInput = document.querySelector('input[name="csrf_token"]');
+                    const csrfToken = csrfInput ? csrfInput.value : '';
+                    
+                    // Get optional customer data (only if filled by user)
+                    const customerName = document.getElementById('customer_name')?.value || '';
+                    const customerEmail = document.getElementById('customer_email')?.value || '';
+                    const customerPhone = document.getElementById('customer_phone')?.value || '';
+                    
+                    // Build form data - ONLY send filled fields
+                    const formData = new FormData();
+                    formData.append('apply_affiliate', '1');
+                    formData.append('affiliate_code', bonusCodeToApply);
+                    formData.append('csrf_token', csrfToken);
+                    
+                    // Only add customer data if user filled it
+                    if (customerName.trim()) formData.append('customer_name', customerName);
+                    if (customerEmail.trim()) formData.append('customer_email', customerEmail);
+                    if (customerPhone.trim()) formData.append('customer_phone', customerPhone);
+                    
+                    // Send AJAX request (no form validation!)
+                    fetch(window.location.pathname, {
+                        method: 'POST',
+                        body: formData
+                    }).then(() => {
+                        // Reload page to show applied discount
                         setTimeout(() => {
-                            affiliateForm.submit();
-                        }, 300);
-                    }
+                            window.location.reload();
+                        }, 200);
+                    }).catch(err => {
+                        console.error('Error applying bonus code:', err);
+                        window.location.reload();
+                    });
                 });
             }
             <?php endif; ?>
