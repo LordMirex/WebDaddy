@@ -342,6 +342,16 @@ function renderPagination($totalPages, $page, $view, $category, $affiliateCode) 
     ?>
     <div style="margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
         <nav style="display: flex; align-items: center; gap: 8px;">
+            <?php if ($page > 1): ?>
+            <a href="?view=<?php echo $view; ?>&page=<?php echo ($page - 1); ?><?php echo $category ? '&category=' . urlencode($category) : ''; ?><?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+               style="display: inline-flex; align-items: center; padding: 10px 16px; font-size: 14px; font-weight: 600; color: #d1d5db; background: #1e293b; border: 1px solid rgba(55,65,81,0.5); border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Prev
+            </a>
+            <?php endif; ?>
+            
             <?php
             $start = max(1, $page - 2);
             $end = min($totalPages, $page + 2);
