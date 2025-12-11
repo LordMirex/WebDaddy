@@ -65,13 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
+        } elseif (empty($slug)) {
+            $errorMessage = 'Slug is required.';
         } elseif (empty($thumbnailUrl)) {
             $errorMessage = 'Product banner image is required.';
         } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
             $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
         } else {
             try {
-                $slug = generateToolSlug($name);
                 
                 $toolId = createTool([
                     'name' => $name,
@@ -110,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'update_tool') {
         $toolId = intval($_POST['tool_id']);
         $name = sanitizeInput($_POST['name']);
+        $slug = sanitizeInput($_POST['slug'] ?? '');
         $category = sanitizeInput($_POST['category']);
         $toolType = sanitizeInput($_POST['tool_type']);
         $price = floatval($_POST['price']);
@@ -152,13 +154,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
+        } elseif (empty($slug)) {
+            $errorMessage = 'Slug is required.';
         } elseif (empty($thumbnailUrl)) {
             $errorMessage = 'Product banner image is required.';
         } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
             $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
         } else {
             try {
-                $slug = generateToolSlug($name, $toolId);
                 
                 $result = updateTool($toolId, [
                     'name' => $name,
@@ -829,8 +832,9 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., Premium API Key">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                            <input type="text" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., API Keys">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Slug <span class="text-red-600">*</span></label>
+                            <input type="text" name="slug" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., premium-api-key">
+                            <small class="text-gray-500 text-xs">URL-friendly identifier (lowercase, hyphens only)</small>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Price (₦) <span class="text-red-600">*</span></label>
@@ -1045,8 +1049,9 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="text" name="name" required value="<?php echo htmlspecialchars($editTool['name']); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                            <input type="text" name="category" value="<?php echo htmlspecialchars($editTool['category'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Slug <span class="text-red-600">*</span></label>
+                            <input type="text" name="slug" required value="<?php echo htmlspecialchars($editTool['slug'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="e.g., premium-api-key">
+                            <small class="text-gray-500 text-xs">URL-friendly identifier (lowercase, hyphens only)</small>
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Price (₦) <span class="text-red-600">*</span></label>

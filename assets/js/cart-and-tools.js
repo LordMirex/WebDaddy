@@ -829,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.copyToolShareLink = async function(slug) {
         if (!slug) return;
         try {
-            const shareUrl = window.location.origin + '/?tool=' + slug;
+            const shareUrl = window.location.origin + '/tools/' + slug;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(shareUrl);
             } else {
@@ -849,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Share tool via WhatsApp
     window.shareToolViaWhatsApp = function(toolName, toolSlug) {
-        const shareUrl = window.location.origin + '/?tool=' + toolSlug;
+        const shareUrl = window.location.origin + '/tools/' + toolSlug;
         const text = `Check out this amazing tool: ${toolName}!\n\n${shareUrl}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(whatsappUrl, '_blank', 'width=600,height=400');
@@ -857,14 +857,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Share tool via Facebook
     window.shareToolViaFacebook = function(toolName, toolSlug) {
-        const shareUrl = window.location.origin + '/?tool=' + toolSlug;
+        const shareUrl = window.location.origin + '/tools/' + toolSlug;
         const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
         window.open(facebookUrl, '_blank', 'width=600,height=400');
     };
     
     // Share tool via Twitter
     window.shareToolViaTwitter = function(toolName, toolSlug) {
-        const shareUrl = window.location.origin + '/?tool=' + toolSlug;
+        const shareUrl = window.location.origin + '/tools/' + toolSlug;
         const twitterText = `Check out this tool: ${toolName}`;
         const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(shareUrl)}`;
         window.open(twitterUrl, '_blank', 'width=600,height=400');
