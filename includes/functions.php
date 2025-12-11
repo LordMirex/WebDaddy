@@ -258,11 +258,34 @@ function getTemplateUrl($template, $affiliateCode = null)
     // Use slug if available, otherwise fallback to ID
     $identifier = !empty($slug) ? $slug : $id;
     
-    // Direct link to template.php with slug parameter (works in both development and production)
-    $url = '/template.php?slug=' . urlencode($identifier);
+    // Clean URL format: /{slug} (URL rewriting in .htaccess converts this to template.php?slug=...)
+    $url = '/' . urlencode($identifier);
     
     if ($affiliateCode) {
-        $url .= '&aff=' . urlencode($affiliateCode);
+        $url .= '?aff=' . urlencode($affiliateCode);
+    }
+    
+    return $url;
+}
+
+function getToolUrl($tool, $affiliateCode = null)
+{
+    if (is_array($tool)) {
+        $slug = $tool['slug'] ?? '';
+        $id = $tool['id'] ?? '';
+    } else {
+        $slug = $tool;
+        $id = '';
+    }
+    
+    // Use slug if available, otherwise fallback to ID
+    $identifier = !empty($slug) ? $slug : $id;
+    
+    // Clean URL format: /tool/{slug} (URL rewriting in .htaccess converts this to tool.php?slug=...)
+    $url = '/tool/' . urlencode($identifier);
+    
+    if ($affiliateCode) {
+        $url .= '?aff=' . urlencode($affiliateCode);
     }
     
     return $url;
