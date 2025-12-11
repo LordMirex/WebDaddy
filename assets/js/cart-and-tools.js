@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTemplates(templates) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mb-10" data-templates-grid>
                     ${templates.map(template => {
                         const mediaType = template.media_type || 'banner';
                         const isYoutube = mediaType === 'youtube' && template.preview_youtube;
@@ -205,18 +205,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         const isDemoUrl = mediaType === 'demo_url' && template.demo_url;
                         const hasDemo = isYoutube || isVideo || isDemoUrl;
                         const demoUrl = template.preview_youtube || template.demo_video_url || template.demo_url;
+                        const descText = template.description ? (template.description.length > 80 ? template.description.substring(0, 80) + '...' : template.description) : '';
+                        const templateSlug = template.slug || template.id;
+                        const detailsUrl = '/templates/' + templateSlug + (affiliateCode ? '?aff=' + encodeURIComponent(affiliateCode) : '');
                         
                         return `
-                        <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" data-template-id="${template.id}">
-                            <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
+                        <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;" data-template-id="${template.id}">
+                            <div style="position: relative; overflow: hidden; height: 150px; background: #0f172a;">
                                 <img src="${escapeHtml(template.thumbnail_url || '/assets/images/placeholder.jpg')}" 
                                      alt="${escapeHtml(template.name)}"
-                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                     style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasDemo ? `
                                 <button onclick="event.stopPropagation(); ${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
-                                        class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all shadow-lg backdrop-blur-sm z-10">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: none; cursor: pointer; z-index: 10; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
@@ -224,25 +227,33 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                                 ` : ''}
                             </div>
-                            <div class="p-3 md:p-4 flex-1 flex flex-col">
-                                <div class="flex justify-between items-start mb-1 md:mb-2">
-                                    <h3 class="text-xs md:text-sm font-bold text-white flex-1 pr-2 line-clamp-1">${escapeHtml(template.name)}</h3>
-                                    <span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">
+                            <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 4px;">
+                                    <h3 style="font-size: 13px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 4px; line-height: 1.3;">${escapeHtml(template.name)}</h3>
+                                    <span style="display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 9999px; font-size: 10px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
                                         ${escapeHtml(template.category || '')}
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
-                                    <div class="flex flex-col">
-                                        <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
-                                        <span class="text-base md:text-lg font-extrabold text-gold">${formatCurrency(template.price)}</span>
+                                ${descText ? `<p style="color: #9ca3af; font-size: 11px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${escapeHtml(descText)}</p>` : ''}
+                                <div style="flex-grow: 1;"></div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(55,65,81,0.5);">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
+                                        <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">${formatCurrency(template.price)}</span>
                                     </div>
-                                    <button onclick="addTemplateToCart(${template.id}, '${escapeJsString(template.name)}', this)" 
-                                       class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                        </svg>
-                                        Buy
-                                    </button>
+                                    <div style="display: flex; gap: 6px;">
+                                        <a href="${detailsUrl}" 
+                                           style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                                            Details
+                                        </a>
+                                        <button onclick="addTemplateToCart(${template.id}, '', this)" 
+                                           style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                            <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                            </svg>
+                                            Add
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -256,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTools(tools) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-tools-grid>
                     ${tools.map(tool => {
                         const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
                         const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
@@ -267,17 +278,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         const demoUrl = tool.preview_youtube || tool.demo_video_url;
                         
                         return `
-                        <div class="tool-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" 
-                             data-tool-id="${tool.id}">
-                            <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
+                        <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;" data-tool-id="${tool.id}">
+                            <div style="position: relative; overflow: hidden; height: 140px; background: #0f172a;">
                                 <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}"
                                      alt="${escapeHtml(tool.name)}"
-                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                     style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasDemo ? `
                                 <button onclick="${isYoutube ? `openYoutubeModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')` : `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')`}"
-                                        class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all shadow-lg backdrop-blur-sm">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
@@ -285,33 +295,41 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                                 ` : ''}
                                 ${isLowStock ? `
-                                <div class="absolute top-2 right-2 px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
-                                    Limited Stock
+                                <div style="position: absolute; top: 12px; right: 12px; padding: 4px 10px; background: #eab308; color: #0f172a; font-size: 11px; font-weight: bold; border-radius: 9999px;">
+                                    Limited
                                 </div>
                                 ` : isOutOfStock ? `
-                                <div class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
-                                    Out of Stock
+                                <div style="position: absolute; top: 12px; right: 12px; padding: 4px 10px; background: #ef4444; color: white; font-size: 11px; font-weight: bold; border-radius: 9999px;">
+                                    Sold Out
                                 </div>
                                 ` : ''}
                             </div>
-                            <div class="p-3 md:p-4 flex-1 flex flex-col">
-                                <div class="flex justify-between items-start mb-1 md:mb-2">
-                                    <h3 class="text-xs md:text-sm font-bold text-white flex-1 pr-2 line-clamp-1">${escapeHtml(tool.name)}</h3>
-                                    ${tool.category ? `<span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">${escapeHtml(tool.category)}</span>` : ''}
+                            <div style="padding: 10px; flex-grow: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; gap: 4px;">
+                                    <h3 style="font-size: 12px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 4px; line-height: 1.2;">${escapeHtml(tool.name)}</h3>
+                                    ${tool.category ? `<span style="display: inline-flex; align-items: center; padding: 2px 5px; border-radius: 9999px; font-size: 9px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">${escapeHtml(tool.category)}</span>` : ''}
                                 </div>
-                                <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
-                                    <div class="flex flex-col">
-                                        <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
-                                        <span class="text-base md:text-lg font-extrabold text-gold">${formatCurrency(tool.price)}</span>
+                                ${tool.short_description ? `<p style="color: #9ca3af; font-size: 10px; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">${escapeHtml(tool.short_description)}</p>` : ''}
+                                <div style="flex-grow: 1; min-height: 4px;"></div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(55,65,81,0.5);">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <span style="font-size: 8px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
+                                        <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">${formatCurrency(tool.price)}</span>
                                     </div>
-                                    <button data-tool-id="${tool.id}" 
-                                            class="tool-preview-btn inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
-                                        <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                        Preview
-                                    </button>
+                                    <div style="display: flex; gap: 4px;">
+                                        <button data-tool-id="${tool.id}" 
+                                                class="tool-preview-btn"
+                                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                            Details
+                                        </button>
+                                        <button onclick="addToolToCart(${tool.id}, '${escapeJsString(tool.name)}', this)" 
+                                           style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
+                                            <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                            </svg>
+                                            Add
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
