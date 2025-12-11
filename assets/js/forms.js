@@ -222,12 +222,12 @@ class TemplateFilter {
                 e.preventDefault();
                 
                 categoryButtons.forEach(b => {
-                    b.classList.remove('bg-primary-600', 'text-white', 'shadow-sm');
-                    b.classList.add('bg-gray-800', 'text-gray-100', 'border-2', 'border-gray-700');
+                    b.classList.remove('bg-gold', 'text-navy', 'shadow-sm');
+                    b.classList.add('bg-transparent', 'text-gray-300', 'border', 'border-gray-600');
                 });
                 
-                btn.classList.remove('bg-gray-800', 'text-gray-100', 'border-2', 'border-gray-700');
-                btn.classList.add('bg-primary-600', 'text-white', 'shadow-sm');
+                btn.classList.remove('bg-transparent', 'text-gray-300', 'border', 'border-gray-600');
+                btn.classList.add('bg-gold', 'text-navy', 'shadow-sm');
                 
                 this.currentCategory = btn.getAttribute('data-category-filter');
                 this.filterTemplates();
@@ -316,13 +316,13 @@ window.TemplateSearch = {
     
     getEmptyStateHTML() {
         return `
-            <div class="col-span-full bg-yellow-50 border border-yellow-200 rounded-2xl p-12 text-center">
-                <svg class="w-16 h-16 mx-auto text-yellow-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="col-span-full bg-navy-light border border-gray-700/50 rounded-2xl p-12 text-center">
+                <svg class="w-16 h-16 mx-auto text-gold mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <h4 class="text-xl font-bold text-white mb-2">No templates found</h4>
-                <p class="text-gray-600 mb-4">Try searching for: "Business", "E-commerce", "Portfolio", or "Resume"</p>
-                <a href="/" class="text-primary-600 hover:text-primary-700 font-medium">View all templates</a>
+                <p class="text-gray-200 mb-4">Try searching for: "Business", "E-commerce", "Portfolio", or "Resume"</p>
+                <a href="/" class="text-gold hover:text-gold-500 font-medium">View all templates</a>
             </div>
         `;
     },
@@ -344,7 +344,7 @@ window.TemplateSearch = {
         
         // Use data attributes instead of inline onclick to prevent XSS
         const demoButtons = template.demo_url ? `
-            <button class="demo-btn absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10"
+            <button class="demo-btn absolute top-2 right-2 px-3 py-1 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full shadow-lg transition-colors z-10"
                     data-demo-url="${escapeHtml(template.demo_url)}"
                     data-demo-name="${safeName}">
                 Preview
@@ -352,7 +352,7 @@ window.TemplateSearch = {
             <button class="demo-btn absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     data-demo-url="${escapeHtml(template.demo_url)}"
                     data-demo-name="${safeName}">
-                <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
+                <span class="inline-flex items-center px-4 py-2 bg-navy text-white rounded-lg font-medium shadow-lg">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -364,8 +364,8 @@ window.TemplateSearch = {
         
         return `
             <div class="group">
-                <div class="bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    <div class="relative overflow-hidden h-48 bg-gray-100">
+                <div class="bg-navy-light rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <div class="relative overflow-hidden h-48 bg-navy">
                         <img src="${safeThumbnail}"
                              alt="${safeName}"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -375,15 +375,15 @@ window.TemplateSearch = {
                     <div class="p-4">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-base font-bold text-white flex-1 pr-2">${safeName}</h3>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 shrink-0">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
                                 ${safeCategory}
                             </span>
                         </div>
-                        <p class="text-sm text-gray-600 mb-3 line-clamp-2">${safeDescription}</p>
+                        <p class="text-sm text-gray-100 mb-3 line-clamp-2">${safeDescription}</p>
                         <div class="flex items-center justify-between">
-                            <span class="text-xl font-extrabold text-primary-600">₦${parseFloat(template.price).toLocaleString()}</span>
+                            <span class="text-xl font-extrabold text-gold">₦${parseFloat(template.price).toLocaleString()}</span>
                             <button onclick="addTemplateToCart(${safeId}, ${JSON.stringify(template.name)}, this)" 
-                               class="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                               class="inline-flex items-center px-4 py-2 bg-gold hover:bg-gold-500 text-navy text-sm font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                 </svg>
