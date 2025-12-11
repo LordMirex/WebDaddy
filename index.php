@@ -148,7 +148,7 @@ if ($autoOpenTool) {
     $pageTitle = htmlspecialchars($autoOpenTool['name']) . ' - ' . SITE_NAME;
     $pageDescription = htmlspecialchars($autoOpenTool['short_description'] ?? $autoOpenTool['description']);
     $pageKeywords = !empty($autoOpenTool['seo_keywords']) ? htmlspecialchars($autoOpenTool['seo_keywords']) : (htmlspecialchars($autoOpenTool['category'] ?? 'digital tool') . ', ' . htmlspecialchars($autoOpenTool['tool_type'] ?? 'working tool') . ', ' . htmlspecialchars($autoOpenTool['name']));
-    $pageUrl = SITE_URL . '/?tool=' . $autoOpenToolSlug;
+    $pageUrl = SITE_URL . '/tool/' . $autoOpenToolSlug;
     
     // Use tool-specific thumbnail if available
     $pageImage = SITE_URL . '/assets/images/og-image.jpg';
