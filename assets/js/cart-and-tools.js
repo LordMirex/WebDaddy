@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTemplates(templates) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6">
                     ${templates.map(template => {
                         const mediaType = template.media_type || 'banner';
                         const isYoutube = mediaType === 'youtube' && template.preview_youtube;
@@ -207,63 +207,42 @@ document.addEventListener('DOMContentLoaded', function() {
                         const demoUrl = template.preview_youtube || template.demo_video_url || template.demo_url;
                         
                         return `
-                        <div class="group">
-                            <div class="bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                                <div class="relative overflow-hidden h-48 bg-gray-800">
-                                    <img src="${escapeHtml(template.thumbnail_url || '/assets/images/placeholder.jpg')}" 
-                                         alt="${escapeHtml(template.name)}"
-                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                         onerror="this.src='/assets/images/placeholder.jpg'">
-                                    ${hasDemo ? `
-                                    <button onclick="event.stopPropagation(); ${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
-                                            class="absolute top-2 right-2 px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded shadow-lg transition-colors z-10 flex items-center gap-1">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                        Preview
-                                    </button>
-                                    <button onclick="${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
-                                            ${isVideo ? 'data-video-trigger' : ''}
-                                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <span class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg font-medium shadow-lg">
-                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            Preview
-                                        </span>
-                                    </button>
-                                    ` : ''}
+                        <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" data-template-id="${template.id}">
+                            <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
+                                <img src="${escapeHtml(template.thumbnail_url || '/assets/images/placeholder.jpg')}" 
+                                     alt="${escapeHtml(template.name)}"
+                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                     onerror="this.src='/assets/images/placeholder.jpg'">
+                                ${hasDemo ? `
+                                <button onclick="event.stopPropagation(); ${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
+                                        class="absolute top-3 left-3 px-3 py-1.5 bg-navy/90 hover:bg-navy text-white text-xs font-semibold rounded-full flex items-center gap-1.5 transition-all shadow-lg backdrop-blur-sm z-10">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    Preview
+                                </button>
+                                ` : ''}
+                            </div>
+                            <div class="p-3 md:p-4 flex-1 flex flex-col">
+                                <div class="flex justify-between items-start mb-1 md:mb-2">
+                                    <h3 class="text-xs md:text-sm font-bold text-white flex-1 pr-2 line-clamp-1">${escapeHtml(template.name)}</h3>
+                                    <span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">
+                                        ${escapeHtml(template.category || '')}
+                                    </span>
                                 </div>
-                                <div class="p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h3 class="text-base font-bold text-white flex-1 pr-2">${escapeHtml(template.name)}</h3>
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
-                                            ${escapeHtml(template.category || '')}
-                                        </span>
+                                <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
+                                    <div class="flex flex-col">
+                                        <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
+                                        <span class="text-base md:text-lg font-extrabold text-gold">${formatCurrency(template.price)}</span>
                                     </div>
-                                    <p class="text-gray-100 text-xs mb-3 line-clamp-2 min-h-[32px]">${escapeHtml((template.description || '').substring(0, 80))}${(template.description || '').length > 80 ? '...' : ''}</p>
-                                    <div class="flex items-center justify-between pt-3 border-t border-gray-700">
-                                        <div class="flex flex-col">
-                                            <span class="text-xs text-gray-200 uppercase tracking-wide">Price</span>
-                                            <span class="text-base font-bold text-primary-600">${formatCurrency(template.price)}</span>
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <a href="/template.php?slug=${template.slug ? escapeHtml(template.slug) : template.id}${affiliateCode ? '&aff=' + affiliateCode : ''}" 
-                                               data-template-id="${template.id}"
-                                               class="inline-flex items-center justify-center px-3 py-1.5 border border-gray-600 text-xs font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors whitespace-nowrap">
-                                                Details
-                                            </a>
-                                            <button onclick="addTemplateToCart(${template.id}, '${escapeJsString(template.name)}', this)" 
-                                               class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                                                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                                </svg>
-                                                Add to Cart
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <button onclick="addTemplateToCart(${template.id}, '${escapeJsString(template.name)}', this)" 
+                                       class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                        Buy
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -277,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTools(tools) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                     ${tools.map(tool => {
                         const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
                         const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
@@ -288,15 +267,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         const demoUrl = tool.preview_youtube || tool.demo_video_url;
                         
                         return `
-                        <div class="tool-card group bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-700 transition-all duration-300 hover:shadow-xl hover:-translate-y-1" 
+                        <div class="tool-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" 
                              data-tool-id="${tool.id}">
-                            <div class="relative overflow-hidden h-40 bg-gray-800">
+                            <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
                                 <img src="${escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg')}"
                                      alt="${escapeHtml(tool.name)}"
                                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasDemo ? `
-                                <button onclick="openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')"
+                                <button onclick="${isYoutube ? `openYoutubeModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')` : `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')`}"
                                         class="absolute top-2 left-2 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-full flex items-center gap-1 transition-all shadow-lg">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -315,34 +294,24 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                                 ` : ''}
                             </div>
-                            <div class="p-4">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="text-sm font-bold text-white flex-1 pr-2">${escapeHtml(tool.name)}</h3>
-                                    ${tool.category ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white shrink-0">${escapeHtml(tool.category)}</span>` : ''}
+                            <div class="p-3 md:p-4 flex-1 flex flex-col">
+                                <div class="flex justify-between items-start mb-1 md:mb-2">
+                                    <h3 class="text-xs md:text-sm font-bold text-white flex-1 pr-2 line-clamp-1">${escapeHtml(tool.name)}</h3>
+                                    ${tool.category ? `<span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">${escapeHtml(tool.category)}</span>` : ''}
                                 </div>
-                                <p class="text-gray-100 text-xs mb-3 line-clamp-2 min-h-[32px]">${escapeHtml(tool.short_description || '')}</p>
-                                <div class="flex items-center justify-between pt-3 border-t border-gray-700">
+                                <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
                                     <div class="flex flex-col">
-                                        <span class="text-xs text-gray-200 uppercase tracking-wide">Price</span>
-                                        <span class="text-lg font-extrabold text-primary-600">${formatCurrency(tool.price)}</span>
+                                        <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
+                                        <span class="text-base md:text-lg font-extrabold text-gold">${formatCurrency(tool.price)}</span>
                                     </div>
-                                    <div class="flex gap-2">
-                                        <button data-tool-id="${tool.id}" 
-                                                class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border-2 border-primary-600 text-xs font-semibold rounded-lg text-primary-600 bg-gray-800 hover:bg-primary-50 transition-all shadow-sm hover:shadow-md whitespace-nowrap">
-                                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            Preview
-                                        </button>
-                                        <button onclick="addToolToCart(${tool.id}, '${escapeJsString(tool.name)}', this)" 
-                                                class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                                            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                            </svg>
-                                            Add to Cart
-                                        </button>
-                                    </div>
+                                    <button data-tool-id="${tool.id}" 
+                                            class="tool-preview-btn inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
+                                        <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        Preview
+                                    </button>
                                 </div>
                             </div>
                         </div>
