@@ -730,7 +730,7 @@ if ($autoOpenTool) {
     </div>
 
     <!-- Products Section (Templates & Tools) -->
-    <section class="py-12 bg-navy-dark" id="products">
+    <section class="py-6 md:py-12 bg-navy-dark" id="products">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- View Toggle Tabs with Gold Underline -->
             <div class="flex justify-center mb-6 sm:mb-8">
@@ -747,7 +747,7 @@ if ($autoOpenTool) {
             </div>
 
             <!-- Search and Filter Container -->
-            <div class="max-w-4xl mx-auto mb-8">
+            <div class="max-w-4xl mx-auto mb-4 md:mb-8">
                 <div class="flex flex-col md:flex-row gap-2 md:gap-4">
                     <!-- Search Input -->
                     <div class="flex-1">
@@ -755,19 +755,19 @@ if ($autoOpenTool) {
                             <input type="text" 
                                    id="search-input"
                                    placeholder="Search <?php echo $currentView === 'templates' ? 'templates' : 'tools'; ?>..." 
-                                   class="w-full px-4 py-3 pl-11 pr-10 bg-navy-light border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold transition-all">
-                            <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   class="w-full px-3 py-2 md:px-4 md:py-3 pl-9 md:pl-11 pr-8 md:pr-10 bg-navy-light border border-gray-700 rounded-lg text-sm md:text-base text-white placeholder-gray-500 focus:border-gold focus:ring-1 focus:ring-gold transition-all">
+                            <svg class="w-4 h-4 md:w-5 md:h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <button id="clear-search" style="display: none;" 
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors z-10"
+                                    class="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors z-10"
                                     title="Clear search">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
-                            <div id="search-loading" style="display: none;" class="absolute right-10 top-1/2 -translate-y-1/2">
-                                <svg class="animate-spin h-5 w-5 text-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <div id="search-loading" style="display: none;" class="absolute right-8 md:right-10 top-1/2 -translate-y-1/2">
+                                <svg class="animate-spin h-4 w-4 md:h-5 md:w-5 text-gold" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
@@ -779,7 +779,7 @@ if ($autoOpenTool) {
                     <div class="w-full md:w-56">
                         <div class="relative">
                             <select id="category-filter" 
-                                    class="w-full px-4 py-3 pl-4 pr-10 bg-navy-light border border-gray-700 rounded-lg text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
+                                    class="w-full px-3 py-2 md:px-4 md:py-3 pl-3 md:pl-4 pr-8 md:pr-10 bg-navy-light border border-gray-700 rounded-lg text-sm md:text-base text-white font-medium cursor-pointer focus:border-gold focus:ring-1 focus:ring-gold transition-all appearance-none">
                                 <option value="">Category</option>
                                 <?php 
                                 $categories = $currentView === 'templates' ? $templateCategories : $toolCategories;
@@ -790,7 +790,7 @@ if ($autoOpenTool) {
                                 </option>
                                 <?php endforeach; ?>
                             </select>
-                            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 md:w-5 md:h-5 absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </div>
@@ -811,15 +811,15 @@ if ($autoOpenTool) {
                 <p class="text-gray-400 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-gold hover:text-gold-500">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6" data-templates-grid>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6" data-templates-grid>
                 <?php foreach ($templates as $template): ?>
                 <div class="group" 
                      data-template
                      data-template-name="<?php echo htmlspecialchars($template['name']); ?>"
                      data-template-category="<?php echo htmlspecialchars($template['category']); ?>"
                      data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
-                    <div class="bg-navy-light rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1">
-                        <div class="relative overflow-hidden h-48 bg-navy">
+                    <div class="bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col">
+                        <div class="relative overflow-hidden h-32 md:h-48 bg-navy">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -896,30 +896,30 @@ if ($autoOpenTool) {
                             <?php endif; ?>
                             <?php endif; ?>
                         </div>
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-base font-bold text-white flex-1 pr-2"><?php echo htmlspecialchars($template['name']); ?></h3>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
+                        <div class="p-3 md:p-4 flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-1 md:mb-2">
+                                <h3 class="text-sm md:text-base font-bold text-white flex-1 pr-2 line-clamp-1"><?php echo htmlspecialchars($template['name']); ?></h3>
+                                <span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">
                                     <?php echo htmlspecialchars($template['category']); ?>
                                 </span>
                             </div>
-                            <p class="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
+                            <p class="text-gray-400 text-xs md:text-sm mb-2 md:mb-4 line-clamp-2 min-h-[28px] md:min-h-[40px] flex-1"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                            <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
                                 <div class="flex flex-col">
-                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
-                                    <span class="text-lg font-bold text-gold"><?php echo formatCurrency($template['price']); ?></span>
+                                    <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
+                                    <span class="text-base md:text-lg font-bold text-gold"><?php echo formatCurrency($template['price']); ?></span>
                                 </div>
-                                <div class="flex gap-2">
+                                <div class="flex gap-1.5 md:gap-2">
                                     <a href="<?php echo getTemplateUrl($template, $affiliateCode); ?>" 
-                                       class="inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-xs font-semibold rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-colors whitespace-nowrap">
+                                       class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-colors whitespace-nowrap">
                                         Details
                                     </a>
                                     <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo addslashes($template['name']); ?>', this)" 
-                                       class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-semibold rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                       class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-transparent text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-0.5 md:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                         </svg>
-                                        Add to Cart
+                                        Add
                                     </button>
                                 </div>
                             </div>
@@ -931,8 +931,8 @@ if ($autoOpenTool) {
             
             <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
-            <div class="mt-12 flex flex-col items-center gap-4">
-                <nav class="flex items-center gap-2">
+            <div class="mt-6 md:mt-12 flex flex-col items-center gap-2 md:gap-4">
+                <nav class="flex items-center gap-1 md:gap-2">
                     <?php
                     $paginationParams = ['view' => $currentView];
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
@@ -941,8 +941,8 @@ if ($autoOpenTool) {
                     
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="inline-flex items-center px-2.5 md:px-4 py-1.5 md:py-2.5 text-xs md:text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-md md:rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
+                        <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                         Prev
@@ -956,22 +956,22 @@ if ($autoOpenTool) {
                     for ($i = $start; $i <= $end; $i++):
                     ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $i])); ?>#products" 
-                       class="<?php echo $i === $page ? 'bg-gold text-navy font-bold shadow-md shadow-gold/20' : 'bg-navy-light text-gray-300 border border-gray-600 hover:bg-gold/20 hover:text-gold hover:border-gold/50'; ?> inline-flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-lg transition-all">
+                       class="<?php echo $i === $page ? 'bg-gold text-navy font-bold shadow-md shadow-gold/20' : 'bg-navy-light text-gray-300 border border-gray-600 hover:bg-gold/20 hover:text-gold hover:border-gold/50'; ?> inline-flex items-center justify-center w-8 h-8 md:w-10 md:h-10 text-xs md:text-sm font-semibold rounded-md md:rounded-lg transition-all">
                         <?php echo $i; ?>
                     </a>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page + 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
+                       class="inline-flex items-center px-2.5 md:px-4 py-1.5 md:py-2.5 text-xs md:text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-md md:rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
                         Next
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
                     </a>
                     <?php endif; ?>
                 </nav>
-                <p class="text-sm font-medium text-gray-500">
+                <p class="text-xs md:text-sm font-medium text-gray-500">
                     Page <?php echo $page; ?> of <?php echo $totalPages; ?> <span class="mx-1">•</span> <?php echo $totalTemplates; ?> products
                 </p>
             </div>
@@ -989,11 +989,11 @@ if ($autoOpenTool) {
                 <p class="text-gray-400 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-gold hover:text-gold-500">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                 <?php foreach ($tools as $tool): ?>
-                <div class="tool-card group bg-navy-light rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1" 
+                <div class="tool-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" 
                      data-tool-id="<?php echo $tool['id']; ?>">
-                    <div class="relative overflow-hidden h-40 bg-navy">
+                    <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
                         <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                              alt="<?php echo htmlspecialchars($tool['name']); ?>"
                              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -1030,24 +1030,24 @@ if ($autoOpenTool) {
                         </div>
                         <?php endif; ?>
                     </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-sm font-bold text-white flex-1 pr-2"><?php echo htmlspecialchars($tool['name']); ?></h3>
+                    <div class="p-3 md:p-4 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-1 md:mb-2">
+                            <h3 class="text-xs md:text-sm font-bold text-white flex-1 pr-2 line-clamp-1"><?php echo htmlspecialchars($tool['name']); ?></h3>
                             <?php if (!empty($tool['category'])): ?>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gold/20 text-gold shrink-0">
+                            <span class="inline-flex items-center px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-gold/20 text-gold shrink-0">
                                 <?php echo htmlspecialchars($tool['category']); ?>
                             </span>
                             <?php endif; ?>
                         </div>
-                        <p class="text-gray-400 text-xs mb-3 line-clamp-2 min-h-[32px]"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-700/50">
+                        <p class="text-gray-400 text-[11px] md:text-xs mb-2 md:mb-3 line-clamp-2 min-h-[24px] md:min-h-[32px] flex-1"><?php echo htmlspecialchars($tool['short_description'] ?? ''); ?></p>
+                        <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
                             <div class="flex flex-col">
-                                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
-                                <span class="text-lg font-extrabold text-gold"><?php echo formatCurrency($tool['price']); ?></span>
+                                <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
+                                <span class="text-base md:text-lg font-extrabold text-gold"><?php echo formatCurrency($tool['price']); ?></span>
                             </div>
                             <button data-tool-id="<?php echo $tool['id']; ?>" 
-                                    class="tool-preview-btn inline-flex items-center justify-center px-4 py-2 border border-gray-600 text-xs font-semibold rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
-                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="tool-preview-btn inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
+                                <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
@@ -1061,8 +1061,8 @@ if ($autoOpenTool) {
             
             <!-- Pagination for tools -->
             <?php if ($totalPages > 1): ?>
-            <div class="mt-12 flex flex-col items-center gap-4">
-                <nav class="flex items-center gap-2">
+            <div class="mt-6 md:mt-12 flex flex-col items-center gap-2 md:gap-4">
+                <nav class="flex items-center gap-1 md:gap-2">
                     <?php
                     $paginationParams = ['view' => 'tools'];
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
@@ -1071,8 +1071,8 @@ if ($autoOpenTool) {
                     
                     <?php if ($page > 1): ?>
                     <a href="?<?php echo http_build_query(array_merge($paginationParams, ['page' => $page - 1])); ?>#products" 
-                       class="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       class="inline-flex items-center px-2.5 md:px-4 py-1.5 md:py-2.5 text-xs md:text-sm font-semibold text-white bg-navy-light border border-gray-600 rounded-md md:rounded-lg hover:bg-gold hover:text-navy hover:border-gold transition-all">
+                        <svg class="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
                         Prev
