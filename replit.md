@@ -20,6 +20,13 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 ### UI/UX Decisions
 The platform features a clean, professional UI with consistent design elements. Admin dashboards provide real-time updates and clear visualizations. Admin pages include proper spacing and a professional footer. Recent updates include a vibrant luxury gold color palette and a navy/gold redesign for the index page, including a portfolio image slider in the hero section and enhanced mobile responsiveness.
 
+**Premium Page Loader**: Enhanced loader featuring:
+- Centered logo with glowing pulse animation
+- Sparkling gold particles that fall from the X stripe intersection points
+- Glowing/blinking X stripes with dynamic animations
+- Synced exit animation where X stripes and logo zoom together and evaporate beautifully
+- Optimized for instant display (400ms min, 2s max, 600ms exit transition)
+
 ### Technical Implementations
 - **File Upload System**: Production-grade chunked upload system supporting files up to 2GB with automatic retry logic, manifest-based tracking, and duplicate file prevention.
 - **File Type Support**: Comprehensive support for various file types including ZIP Archives, General Attachments, Instructions, Code, Access Keys, Images, Videos, and External Links.
