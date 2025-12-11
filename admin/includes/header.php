@@ -205,6 +205,11 @@
                     <span class="font-semibold">Activity Logs</span>
                 </a>
 
+                <a href="/admin/system-updates.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'system-updates.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-megaphone <?php echo basename($_SERVER['PHP_SELF']) == 'system-updates.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">System Updates</span>
+                </a>
+
                 <!-- Logout for Mobile -->
                 <div class="border-t border-gray-200 my-2 lg:hidden"></div>
                 <a href="/admin/logout.php" class="lg:hidden flex items-center space-x-2 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition-all group text-sm">

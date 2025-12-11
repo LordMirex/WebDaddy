@@ -1,19 +1,18 @@
 <?php
+$pageTitle = 'System Updates';
+
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
+requireAdmin();
 
-// Check if user is admin
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: /admin/login.php');
-    exit;
-}
+$db = getDb();
 
 // Initialize table if it doesn't exist
-$db = getDb();
 try {
     $result = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='system_updates'");
     if (!$result->fetch()) {
@@ -42,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $stmt = $db->prepare('DELETE FROM system_updates WHERE id = ?');
     if ($stmt->execute([$id])) {
         $message = 'Update deleted successfully.';
+        logActivity('system_update_deleted', 'System update #' . $id . ' deleted', getAdminId());
     } else {
         $error = 'Failed to delete update.';
     }
@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmt = $db->prepare('UPDATE system_updates SET title = ?, description = ?, display_date = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
             if ($stmt->execute([$title, $description, $display_date, $id])) {
                 $message = 'Update saved successfully.';
+                logActivity('system_update_edited', 'System update #' . $id . ' updated', getAdminId());
             } else {
                 $error = 'Failed to save update.';
             }
@@ -72,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmt = $db->prepare('INSERT INTO system_updates (title, description, display_date) VALUES (?, ?, ?)');
             if ($stmt->execute([$title, $description, $display_date])) {
                 $message = 'Update created successfully.';
+                logActivity('system_update_created', 'New system update created', getAdminId());
             } else {
                 $error = 'Failed to create update.';
             }
@@ -97,159 +99,141 @@ if ($editId) {
     $editData = $stmt->fetch();
 }
 
-$siteName = SITE_NAME;
+require_once __DIR__ . '/includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Updates - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .admin-container {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-            background-color: #0f172a;
-        }
-        .sidebar {
-            background-color: #1e293b;
-            border-right: 1px solid rgba(148, 163, 184, 0.1);
-        }
-        .sidebar a {
-            display: block;
-            padding: 12px 16px;
-            color: #cbd5e1;
-            text-decoration: none;
-            border-left: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        .sidebar a:hover {
-            background-color: #334155;
-            color: #f1f5f9;
-        }
-        .sidebar a.active {
-            border-left-color: #3b82f6;
-            background-color: #1e3a8a;
-            color: #60a5fa;
-        }
-    </style>
-</head>
-<body class="bg-slate-950 text-white">
-    <div class="admin-container">
-        <!-- Sidebar -->
-        <div class="sidebar p-4">
-            <a href="/admin/index.php" class="font-bold mb-4">Admin Dashboard</a>
-            <nav class="space-y-2">
-                <a href="/admin/index.php">Dashboard</a>
-                <a href="/admin/templates.php">Templates</a>
-                <a href="/admin/tools.php">Tools</a>
-                <a href="/admin/orders.php">Orders</a>
-                <a href="/admin/affiliates.php">Affiliates</a>
-                <a href="/admin/settings.php">Settings</a>
-                <a href="/admin/system-updates.php" class="active">System Updates</a>
-                <a href="/admin/logout.php">Logout</a>
-            </nav>
-        </div>
 
-        <!-- Main Content -->
-        <main class="p-8">
-            <div class="max-w-4xl">
-                <h1 class="text-3xl font-bold mb-8">System Updates</h1>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+        <i class="bi bi-megaphone text-primary-600"></i> System Updates
+    </h1>
+    <p class="text-gray-600 mt-2">Manage status page announcements</p>
+</div>
 
-                <!-- Messages -->
-                <?php if ($message): ?>
-                    <div class="bg-green-900/30 border border-green-500/50 rounded-lg p-4 mb-6">
-                        <p class="text-green-400"><?php echo htmlspecialchars($message); ?></p>
-                    </div>
-                <?php endif; ?>
-                <?php if ($error): ?>
-                    <div class="bg-red-900/30 border border-red-500/50 rounded-lg p-4 mb-6">
-                        <p class="text-red-400"><?php echo htmlspecialchars($error); ?></p>
-                    </div>
+<?php if ($message): ?>
+<div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-check-circle text-xl"></i>
+        <span><?php echo htmlspecialchars($message); ?></span>
+    </div>
+    <button @click="show = false" class="text-green-600 hover:text-green-800">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+<?php endif; ?>
+
+<?php if ($error): ?>
+<div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-6 flex items-center justify-between" x-data="{ show: true }" x-show="show">
+    <div class="flex items-center gap-3">
+        <i class="bi bi-exclamation-circle text-xl"></i>
+        <span><?php echo htmlspecialchars($error); ?></span>
+    </div>
+    <button @click="show = false" class="text-red-600 hover:text-red-800">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+<?php endif; ?>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Form Section -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="bi bi-plus-circle text-primary-600"></i>
+                <?php echo $editId ? 'Edit Update' : 'Add New Update'; ?>
+            </h2>
+
+            <form method="POST" class="space-y-4">
+                <input type="hidden" name="action" value="save">
+                <?php if ($editId): ?>
+                    <input type="hidden" name="id" value="<?php echo $editId; ?>">
                 <?php endif; ?>
 
-                <!-- Add/Edit Form -->
-                <div class="bg-slate-800 rounded-lg p-6 mb-8 border border-slate-700">
-                    <h2 class="text-xl font-bold mb-4"><?php echo $editId ? 'Edit Update' : 'Add New Update'; ?></h2>
-                    <form method="POST">
-                        <input type="hidden" name="action" value="save">
-                        <?php if ($editId): ?>
-                            <input type="hidden" name="id" value="<?php echo $editId; ?>">
-                        <?php endif; ?>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Title</label>
-                            <input type="text" name="title" required 
-                                   value="<?php echo $editData ? htmlspecialchars($editData['title']) : ''; ?>"
-                                   class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                                   placeholder="e.g., System Maintenance Complete">
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Description</label>
-                            <textarea name="description" required rows="3"
-                                      class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                                      placeholder="e.g., Routine maintenance completed successfully. All services running smoothly."><?php echo $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium mb-2">Display Date</label>
-                            <input type="text" name="display_date"
-                                   value="<?php echo $editData ? htmlspecialchars($editData['display_date']) : date('M j, Y'); ?>"
-                                   class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                                   placeholder="Dec 11, 2025">
-                        </div>
-
-                        <div class="flex gap-3">
-                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">
-                                <?php echo $editId ? 'Update' : 'Add'; ?> Update
-                            </button>
-                            <?php if ($editId): ?>
-                                <a href="/admin/system-updates.php" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">
-                                    Cancel
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <input type="text" name="title" required 
+                           value="<?php echo $editData ? htmlspecialchars($editData['title']) : ''; ?>"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                           placeholder="System Maintenance Complete">
                 </div>
 
-                <!-- Updates List -->
                 <div>
-                    <h2 class="text-xl font-bold mb-4">Recent Updates</h2>
-                    <?php if (empty($updates)): ?>
-                        <p class="text-gray-400">No updates yet. Create one to get started.</p>
-                    <?php else: ?>
-                        <div class="space-y-3">
-                            <?php foreach ($updates as $update): ?>
-                                <div class="bg-slate-800 border border-slate-700 rounded-lg p-4 flex justify-between items-start">
-                                    <div>
-                                        <h3 class="font-semibold text-lg"><?php echo htmlspecialchars($update['title']); ?></h3>
-                                        <p class="text-gray-400 text-sm mt-1"><?php echo htmlspecialchars($update['description']); ?></p>
-                                        <p class="text-gray-500 text-xs mt-2">
-                                            Date: <?php echo htmlspecialchars($update['display_date']); ?>
-                                        </p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <a href="?edit=<?php echo $update['id']; ?>" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm transition-colors">
-                                            Edit
-                                        </a>
-                                        <form method="POST" class="inline" onsubmit="return confirm('Delete this update?');">
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="id" value="<?php echo $update['id']; ?>">
-                                            <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm transition-colors">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea name="description" required rows="4"
+                              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                              placeholder="Describe the update..."><?php echo $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Display Date</label>
+                    <input type="text" name="display_date"
+                           value="<?php echo $editData ? htmlspecialchars($editData['display_date']) : date('M j, Y'); ?>"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                           placeholder="Dec 11, 2025">
+                    <small class="text-gray-500 mt-1 block">Format: M d, Y (e.g., Dec 11, 2025)</small>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg font-semibold hover:shadow-lg transition-all">
+                        <i class="bi bi-check-circle mr-2"></i>
+                        <?php echo $editId ? 'Update' : 'Create'; ?> Update
+                    </button>
+                    <?php if ($editId): ?>
+                        <a href="/admin/system-updates.php" class="flex-1 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all text-center">
+                            <i class="bi bi-x-circle mr-2"></i>
+                            Cancel
+                        </a>
                     <?php endif; ?>
                 </div>
-            </div>
-        </main>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+
+    <!-- Updates List Section -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="bi bi-list-check text-primary-600"></i>
+                Recent Updates <?php echo count($updates) > 0 ? '(' . count($updates) . ')' : ''; ?>
+            </h2>
+
+            <?php if (empty($updates)): ?>
+                <div class="text-center py-12">
+                    <i class="bi bi-inbox text-4xl text-gray-300 mb-3 block"></i>
+                    <p class="text-gray-500 font-medium">No updates yet</p>
+                    <p class="text-gray-400 text-sm">Create your first system update to get started</p>
+                </div>
+            <?php else: ?>
+                <div class="space-y-3 max-h-[700px] overflow-y-auto">
+                    <?php foreach ($updates as $update): ?>
+                        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 hover:bg-primary-50 transition-all">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-900 text-sm"><?php echo htmlspecialchars($update['title']); ?></h3>
+                                    <p class="text-gray-600 text-sm mt-1"><?php echo htmlspecialchars($update['description']); ?></p>
+                                    <div class="flex gap-4 mt-2 text-xs text-gray-500">
+                                        <span><i class="bi bi-calendar mr-1"></i><?php echo htmlspecialchars($update['display_date']); ?></span>
+                                        <span><i class="bi bi-clock mr-1"></i><?php echo date('M j, Y', strtotime($update['created_at'])); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <a href="?edit=<?php echo $update['id']; ?>" class="flex-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded text-xs font-medium hover:bg-blue-200 transition-colors text-center">
+                                    <i class="bi bi-pencil mr-1"></i>Edit
+                                </a>
+                                <form method="POST" class="flex-1" onsubmit="return confirm('Delete this update? This cannot be undone.');">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="<?php echo $update['id']; ?>">
+                                    <button type="submit" class="w-full px-3 py-1.5 bg-red-100 text-red-700 rounded text-xs font-medium hover:bg-red-200 transition-colors">
+                                        <i class="bi bi-trash mr-1"></i>Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
