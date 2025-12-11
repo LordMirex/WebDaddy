@@ -181,6 +181,12 @@ if ($autoOpenTool) {
     <!-- Preload critical images for instant display -->
     <link rel="preload" as="image" href="/assets/images/webdaddy-logo.png" fetchpriority="high">
     <link rel="preload" as="image" href="/assets/images/mockups/viralcuts.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/jasper-ai.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/webflow.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/intercom.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/glide-apps.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/notion.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/runway.jpg">
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     
@@ -471,7 +477,22 @@ if ($autoOpenTool) {
             height: auto;
             max-width: none;
             animation: logoGlowPulse 1.5s ease-in-out infinite;
+            animation-play-state: paused;
             filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.5));
+            opacity: 0;
+        }
+        
+        .loader-logo.loaded {
+            animation-play-state: running;
+            opacity: 1;
+        }
+        
+        .slice-line {
+            animation-play-state: paused;
+        }
+        
+        .loader-ready .slice-line {
+            animation-play-state: running;
         }
         
         @keyframes centerGlowPulse {
@@ -490,7 +511,12 @@ if ($autoOpenTool) {
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesBottomToTopFade 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomDecay 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        #page-loader.loader-exit .slice-line {
+            animation: sliceZoomFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            transform-origin: 960px 728px;
         }
         
         #page-loader.loader-exit .loader-center-glow {
@@ -506,16 +532,36 @@ if ($autoOpenTool) {
             100% { opacity: 0; }
         }
         
-        @keyframes slicesBottomToTopFade {
+        @keyframes slicesZoomDecay {
             0% { 
                 opacity: 1; 
-                clip-path: inset(0 0 0 0);
+                transform: scale(1);
                 filter: blur(0);
+            }
+            60% {
+                opacity: 0.7;
+                transform: scale(1.3);
+                filter: blur(2px);
             }
             100% { 
                 opacity: 0; 
-                clip-path: inset(0 0 100% 0);
-                filter: blur(3px);
+                transform: scale(1.6);
+                filter: blur(6px);
+            }
+        }
+        
+        @keyframes sliceZoomFade {
+            0% { 
+                opacity: 1; 
+                stroke-width: 3;
+            }
+            50% {
+                opacity: 0.6;
+                stroke-width: 5;
+            }
+            100% { 
+                opacity: 0; 
+                stroke-width: 8;
             }
         }
         
@@ -1673,14 +1719,71 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Loader Controller - 3.5s display with luxury exit -->
+    <!-- Premium Loader Controller - 3.5s display with luxury exit + preloading -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             
             let loaderDismissed = false;
+            let loaderStartTime = null;
             const DISPLAY_TIME = 3500;
+            
+            // Critical assets to preload during loader display
+            const criticalAssets = [
+                '/assets/images/webdaddy-logo.png',
+                '/assets/images/mockups/viralcuts.jpg',
+                '/assets/images/mockups/jasper-ai.jpg',
+                '/assets/images/mockups/webflow.jpg',
+                '/assets/images/mockups/intercom.jpg',
+                '/assets/images/mockups/glide-apps.jpg',
+                '/assets/images/mockups/notion.jpg',
+                '/assets/images/mockups/runway.jpg'
+            ];
+            
+            // Preload all critical images in background
+            function preloadCriticalAssets() {
+                return Promise.allSettled(criticalAssets.map(src => {
+                    return new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve; // Don't fail on error
+                        img.src = src;
+                    });
+                }));
+            }
+            
+            // Wait for logo to fully load before starting animation
+            const loaderLogo = document.querySelector('.loader-logo');
+            if (loaderLogo) {
+                const logoImg = new Image();
+                logoImg.onload = function() {
+                    loaderLogo.classList.add('loaded');
+                    loader.classList.add('loader-ready');
+                    loaderStartTime = Date.now();
+                };
+                logoImg.onerror = function() {
+                    loaderLogo.classList.add('loaded');
+                    loader.classList.add('loader-ready');
+                    loaderStartTime = Date.now();
+                };
+                logoImg.src = loaderLogo.src;
+                
+                // Safety timeout - start anyway after 500ms
+                setTimeout(() => {
+                    if (!loaderLogo.classList.contains('loaded')) {
+                        loaderLogo.classList.add('loaded');
+                        loader.classList.add('loader-ready');
+                        loaderStartTime = Date.now();
+                    }
+                }, 500);
+            } else {
+                loader.classList.add('loader-ready');
+                loaderStartTime = Date.now();
+            }
+            
+            // Start preloading critical assets immediately
+            const preloadPromise = preloadCriticalAssets();
             
             function dismissLoader() {
                 if (loaderDismissed) return;
@@ -1691,10 +1794,21 @@ if ($autoOpenTool) {
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
                     loader.remove();
-                }, 800);
+                }, 600);
             }
             
-            setTimeout(dismissLoader, DISPLAY_TIME);
+            // Wait for both: minimum display time AND critical assets loaded
+            function checkReadyToDismiss() {
+                const elapsed = loaderStartTime ? Date.now() - loaderStartTime : 0;
+                const remainingTime = Math.max(0, DISPLAY_TIME - elapsed);
+                
+                preloadPromise.then(() => {
+                    setTimeout(dismissLoader, remainingTime);
+                });
+            }
+            
+            // Start dismissal check after initial timeout
+            setTimeout(checkReadyToDismiss, DISPLAY_TIME);
         })();
     </script>
 </body>
