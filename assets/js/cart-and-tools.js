@@ -278,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             contentArea.innerHTML = html;
-            rebindToolPopupHandlers();
         }
         
         function renderTools(tools) {
@@ -355,7 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             contentArea.innerHTML = html;
-            rebindToolPopupHandlers();
         }
     }
     
@@ -483,9 +481,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Re-attach event listeners for AJAX-replaced elements
                 setupCategoryFilters();
                 setupCategoryDropdown();
-                
-                // Re-bind tool popup handlers for new tools added
-                rebindToolPopupHandlers();
             }
         } catch (error) {
             console.error('Failed to load view:', error);
@@ -578,9 +573,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Tool Popup Modal
+    // Tool Popup Modal - uses event delegation to work with dynamically added elements
     function setupToolPopup() {
-        // Use event delegation - attach once globally
         if (toolPopupBound) return;
         toolPopupBound = true;
 
@@ -595,22 +589,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (toolId) {
                 openToolModal(parseInt(toolId));
             }
-        });
-    }
-    
-    // Ensure tool popup handlers work after dynamic content loads
-    function rebindToolPopupHandlers() {
-        // Already bound globally via setupToolPopup, just verify buttons exist
-        document.querySelectorAll('.tool-preview-btn').forEach(btn => {
-            // Ensure click handler is properly attached
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const toolId = parseInt(btn.dataset.toolId);
-                if (toolId) {
-                    openToolModal(toolId);
-                }
-            });
         });
     }
     
