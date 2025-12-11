@@ -87,13 +87,43 @@ $siteName = SITE_NAME;
         <div class="mt-12">
             <h2 class="text-xl font-semibold mb-4">Recent Updates</h2>
             <div class="space-y-4">
-                <div class="bg-navy-light rounded-lg p-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-medium">System Maintenance Complete</span>
-                        <span class="text-gray-400 text-sm"><?php echo date('M j, Y'); ?></span>
-                    </div>
-                    <p class="text-gray-400 text-sm">Routine maintenance completed successfully. All services running smoothly.</p>
-                </div>
+                <?php
+                try {
+                    $db = getDb();
+                    $stmt = $db->query('SELECT * FROM system_updates ORDER BY created_at DESC LIMIT 5');
+                    $updates = $stmt->fetchAll();
+                    
+                    if (empty($updates)) {
+                        // Show default if no updates
+                        echo '<div class="bg-navy-light rounded-lg p-4">';
+                        echo '<div class="flex items-center justify-between mb-2">';
+                        echo '<span class="font-medium">System Maintenance Complete</span>';
+                        echo '<span class="text-gray-400 text-sm">' . date('M j, Y') . '</span>';
+                        echo '</div>';
+                        echo '<p class="text-gray-400 text-sm">Routine maintenance completed successfully. All services running smoothly.</p>';
+                        echo '</div>';
+                    } else {
+                        foreach ($updates as $update) {
+                            echo '<div class="bg-navy-light rounded-lg p-4">';
+                            echo '<div class="flex items-center justify-between mb-2">';
+                            echo '<span class="font-medium">' . htmlspecialchars($update['title']) . '</span>';
+                            echo '<span class="text-gray-400 text-sm">' . htmlspecialchars($update['display_date']) . '</span>';
+                            echo '</div>';
+                            echo '<p class="text-gray-400 text-sm">' . htmlspecialchars($update['description']) . '</p>';
+                            echo '</div>';
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Fallback if table doesn't exist yet
+                    echo '<div class="bg-navy-light rounded-lg p-4">';
+                    echo '<div class="flex items-center justify-between mb-2">';
+                    echo '<span class="font-medium">System Maintenance Complete</span>';
+                    echo '<span class="text-gray-400 text-sm">' . date('M j, Y') . '</span>';
+                    echo '</div>';
+                    echo '<p class="text-gray-400 text-sm">Routine maintenance completed successfully. All services running smoothly.</p>';
+                    echo '</div>';
+                }
+                ?>
             </div>
         </div>
 
