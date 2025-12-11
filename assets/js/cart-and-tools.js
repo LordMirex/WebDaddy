@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const html = `
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mb-10" data-templates-grid>
                     ${templates.map(template => {
+                        const templateSlug = template.slug || template.id;
                         const mediaType = template.media_type || 'banner';
                         const isYoutube = mediaType === 'youtube' && template.preview_youtube;
                         const isVideo = mediaType === 'video' && template.demo_video_url;
@@ -277,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             contentArea.innerHTML = html;
+            rebindToolPopupHandlers();
         }
         
         function renderTools(tools) {
@@ -300,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                      style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasDemo ? `
-                                <button onclick="${isYoutube ? `openYoutubeModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')` : `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')`}"
+                                <button onclick="event.stopPropagation(); ${isYoutube ? `openYoutubeModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')` : `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(tool.name)}')`}"
                                         style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
                                     <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -332,12 +334,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">${formatCurrency(tool.price)}</span>
                                     </div>
                                     <div style="display: flex; gap: 4px;">
-                                        <button data-tool-id="${tool.id}" 
+                                        <button type="button" data-tool-id="${tool.id}" 
                                                 class="tool-preview-btn"
                                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                             Details
                                         </button>
-                                        <button onclick="addToolToCart(${tool.id}, '${escapeJsString(tool.name)}', this)" 
+                                        <button type="button" onclick="addToolToCart(${tool.id}, '${escapeJsString(tool.name)}', this)" 
                                            style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: none; font-size: 10px; font-weight: 600; border-radius: 5px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                             <svg style="width: 11px; height: 11px; margin-right: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -353,6 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             contentArea.innerHTML = html;
+            rebindToolPopupHandlers();
         }
     }
     
@@ -480,6 +483,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Re-attach event listeners for AJAX-replaced elements
                 setupCategoryFilters();
                 setupCategoryDropdown();
+                
+                // Re-bind tool popup handlers for new tools added
+                rebindToolPopupHandlers();
             }
         } catch (error) {
             console.error('Failed to load view:', error);
@@ -574,6 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Tool Popup Modal
     function setupToolPopup() {
+        // Use event delegation - attach once globally
         if (toolPopupBound) return;
         toolPopupBound = true;
 
@@ -581,12 +588,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const previewBtn = event.target.closest('.tool-preview-btn');
             if (!previewBtn) return;
 
+            event.preventDefault();
+            event.stopPropagation();
+            
             const toolId = previewBtn.dataset.toolId;
             if (toolId) {
-                event.preventDefault();
-                event.stopPropagation();
-                openToolModal(toolId);
+                openToolModal(parseInt(toolId));
             }
+        });
+    }
+    
+    // Ensure tool popup handlers work after dynamic content loads
+    function rebindToolPopupHandlers() {
+        // Already bound globally via setupToolPopup, just verify buttons exist
+        document.querySelectorAll('.tool-preview-btn').forEach(btn => {
+            // Ensure click handler is properly attached
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const toolId = parseInt(btn.dataset.toolId);
+                if (toolId) {
+                    openToolModal(toolId);
+                }
+            });
         });
     }
     
