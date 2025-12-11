@@ -590,15 +590,15 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <!-- W shape: left V -->
-            <line class="slice-line s1" x1="520" y1="0" x2="780" y2="980" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s2" x1="780" y1="980" x2="960" y2="0" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
-            <!-- W shape: right V -->
-            <line class="slice-line s3" x1="960" y1="0" x2="1140" y2="980" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s4" x1="1140" y1="980" x2="1400" y2="0" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
-            <!-- Center X intersection at (960, 780) -->
-            <line class="slice-line s5" x1="440" y1="0" x2="1160" y2="1080" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s6" x1="1480" y1="0" x2="760" y2="1080" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <!-- W shape: left V (outer) -->
+            <line class="slice-line s1" x1="300" y1="-50" x2="680" y2="1000" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s2" x1="680" y1="1000" x2="960" y2="-50" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <!-- W shape: right V (outer) -->
+            <line class="slice-line s3" x1="960" y1="-50" x2="1240" y2="1000" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
+            <line class="slice-line s4" x1="1240" y1="1000" x2="1620" y2="-50" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
+            <!-- Center X intersection at (960, 700) -->
+            <line class="slice-line s5" x1="480" y1="-50" x2="1200" y2="1130" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s6" x1="1440" y1="-50" x2="720" y2="1130" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
