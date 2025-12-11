@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTemplates(templates) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
                     ${templates.map(template => {
                         const mediaType = template.media_type || 'banner';
                         const isYoutube = mediaType === 'youtube' && template.preview_youtube;
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTools(tools) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
                     ${tools.map(tool => {
                         const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
                         const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
@@ -381,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear search when switching views
         const searchInput = document.getElementById('search-input');
         const clearBtn = document.getElementById('clear-search');
+        const categoryFilter = document.getElementById('category-filter');
         if (searchInput) {
             searchInput.value = '';
             searchInput.placeholder = `Search ${view === 'templates' ? 'templates' : 'tools'}...`;
@@ -391,6 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (previousView !== view) {
             category = '';
             currentCategory = '';
+            if (categoryFilter) categoryFilter.value = '';
         }
         
         const contentArea = productsSection.querySelector('.max-w-7xl > div:last-child');
