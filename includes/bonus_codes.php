@@ -424,4 +424,30 @@ function getBonusCodeStats() {
     }
 }
 
+/**
+ * Increment bonus code usage count and total sales
+ * Called when an order with a bonus code is placed
+ * 
+ * @param int $bonusCodeId The bonus code ID
+ * @param float $saleAmount The sale amount to add
+ * @return bool Success status
+ */
+function incrementBonusCodeUsage($bonusCodeId, $saleAmount) {
+    $db = getDb();
+    
+    try {
+        $stmt = $db->prepare("
+            UPDATE bonus_codes 
+            SET usage_count = usage_count + 1,
+                total_sales_generated = total_sales_generated + ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ");
+        return $stmt->execute([$saleAmount, $bonusCodeId]);
+    } catch (PDOException $e) {
+        error_log('Error incrementing bonus code usage: ' . $e->getMessage());
+        return false;
+    }
+}
+
 initBonusCodesTable();

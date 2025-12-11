@@ -310,13 +310,18 @@ function clearCart($sessionId = null) {
 }
 
 /**
- * Calculate cart total with affiliate discount
+ * Calculate cart total with bonus code or affiliate discount
+ * 
+ * Priority: Bonus codes take precedence over affiliate codes
+ * Bonus codes provide discount with NO affiliate commission
+ * Affiliate codes provide 20% discount WITH affiliate commission
  * 
  * @param string $sessionId Optional session ID
  * @param string $affiliateCode Optional affiliate code for discount
+ * @param string $bonusCode Optional bonus code for discount (takes priority)
  * @return array Cart totals with breakdown
  */
-function getCartTotal($sessionId = null, $affiliateCode = null) {
+function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = null) {
     if ($sessionId === null) {
         $sessionId = getCartSessionId();
     }
@@ -331,10 +336,32 @@ function getCartTotal($sessionId = null, $affiliateCode = null) {
         $itemCount += $item['quantity'];
     }
     
-    // Apply affiliate discount (20%)
     $discount = 0;
-    if ($affiliateCode) {
-        $discount = $subtotal * 0.20; // 20% discount
+    $discountType = null;
+    $discountCode = null;
+    $discountPercent = 0;
+    $bonusCodeId = null;
+    
+    // PRIORITY: Check bonus code first (no affiliate commission when bonus code is used)
+    if ($bonusCode) {
+        require_once __DIR__ . '/bonus_codes.php';
+        $bonusCodeData = getBonusCodeByCode($bonusCode);
+        if ($bonusCodeData && $bonusCodeData['is_active'] && 
+            (!$bonusCodeData['expires_at'] || strtotime($bonusCodeData['expires_at']) >= time())) {
+            $discountPercent = $bonusCodeData['discount_percent'];
+            $discount = $subtotal * ($discountPercent / 100);
+            $discountType = 'bonus_code';
+            $discountCode = $bonusCode;
+            $bonusCodeId = $bonusCodeData['id'];
+        }
+    }
+    
+    // FALLBACK: Apply affiliate discount if no valid bonus code
+    if ($discount == 0 && $affiliateCode) {
+        $discount = $subtotal * 0.20; // 20% affiliate discount
+        $discountType = 'affiliate';
+        $discountCode = $affiliateCode;
+        $discountPercent = 20;
     }
     
     $total = $subtotal - $discount;
@@ -344,8 +371,12 @@ function getCartTotal($sessionId = null, $affiliateCode = null) {
         'discount' => $discount,
         'total' => $total,
         'item_count' => $itemCount,
-        'has_discount' => $affiliateCode ? true : false,
-        'affiliate_code' => $affiliateCode
+        'has_discount' => $discount > 0,
+        'discount_type' => $discountType,
+        'discount_code' => $discountCode,
+        'discount_percent' => $discountPercent,
+        'bonus_code_id' => $bonusCodeId,
+        'affiliate_code' => $discountType === 'affiliate' ? $affiliateCode : null
     ];
 }
 

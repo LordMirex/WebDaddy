@@ -9,6 +9,7 @@ require_once __DIR__ . '/includes/tool_files.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/email_queue.php';
 require_once __DIR__ . '/includes/delivery.php';
+require_once __DIR__ . '/includes/bonus_codes.php';
 
 startSecureSession();
 handleAffiliateTracking();
@@ -16,12 +17,18 @@ handleAffiliateTracking();
 // Get affiliate code
 $affiliateCode = getAffiliateCode();
 
+// Get active bonus code (to display on checkout page)
+$activeBonusCode = getActiveBonusCode();
+
+// Get applied discount code from session (could be bonus code or affiliate code)
+$appliedBonusCode = $_SESSION['applied_bonus_code'] ?? null;
+
 // Check if this is an order confirmation page
 $confirmedOrderId = isset($_GET['confirmed']) ? (int)$_GET['confirmed'] : null;
 
 // Get cart items
 $cartItems = getCart();
-$totals = getCartTotal(null, $affiliateCode);
+$totals = getCartTotal(null, $affiliateCode, $appliedBonusCode);
 
 // If cart is empty and not showing confirmation, redirect to homepage
 if (empty($cartItems) && !$confirmedOrderId) {
@@ -51,7 +58,7 @@ if ($confirmedOrderId) {
     }
 }
 
-// Handle affiliate code application (separate from order submission)
+// Handle discount code application (bonus codes or affiliate codes)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
@@ -59,37 +66,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
         $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
         
         if (!empty($submittedAffiliateCode)) {
-            $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
-            
-            if ($lookupAffiliate && $lookupAffiliate['status'] === 'active') {
-                $affiliateCode = $submittedAffiliateCode;
+            // PRIORITY 1: Check if it's a valid bonus code first
+            $bonusCodeData = getBonusCodeByCode($submittedAffiliateCode);
+            if ($bonusCodeData && $bonusCodeData['is_active'] && 
+                (!$bonusCodeData['expires_at'] || strtotime($bonusCodeData['expires_at']) >= time())) {
                 
-                $_SESSION['affiliate_code'] = $affiliateCode;
-                setcookie(
-                    'affiliate_code',
-                    $affiliateCode,
-                    time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
-                    '/',
-                    '',
-                    isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-                    true
-                );
+                // Apply bonus code (no affiliate commission)
+                $appliedBonusCode = $submittedAffiliateCode;
+                $_SESSION['applied_bonus_code'] = $appliedBonusCode;
                 
-                // Increment affiliate clicks
-                if (function_exists('incrementAffiliateClick')) {
-                    incrementAffiliateClick($affiliateCode);
-                }
+                // Clear any affiliate code since bonus code takes precedence
+                $affiliateCode = null;
+                unset($_SESSION['affiliate_code']);
+                setcookie('affiliate_code', '', time() - 3600, '/');
                 
-                // Recalculate totals with discount
-                $totals = getCartTotal(null, $affiliateCode);
+                // Recalculate totals with bonus code
+                $totals = getCartTotal(null, null, $appliedBonusCode);
                 
-                $success = '20% discount applied successfully!';
+                $success = $bonusCodeData['discount_percent'] . '% discount applied with code ' . $submittedAffiliateCode . '!';
                 $submittedAffiliateCode = '';
             } else {
-                $errors[] = 'Invalid or inactive affiliate code.';
+                // PRIORITY 2: Check if it's a valid affiliate code
+                $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
+                
+                if ($lookupAffiliate && $lookupAffiliate['status'] === 'active') {
+                    $affiliateCode = $submittedAffiliateCode;
+                    
+                    // Clear any bonus code
+                    $appliedBonusCode = null;
+                    unset($_SESSION['applied_bonus_code']);
+                    
+                    $_SESSION['affiliate_code'] = $affiliateCode;
+                    setcookie(
+                        'affiliate_code',
+                        $affiliateCode,
+                        time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
+                        '/',
+                        '',
+                        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                        true
+                    );
+                    
+                    // Increment affiliate clicks
+                    if (function_exists('incrementAffiliateClick')) {
+                        incrementAffiliateClick($affiliateCode);
+                    }
+                    
+                    // Recalculate totals with discount
+                    $totals = getCartTotal(null, $affiliateCode, null);
+                    
+                    $success = '20% discount applied successfully!';
+                    $submittedAffiliateCode = '';
+                } else {
+                    $errors[] = 'Invalid or inactive discount code.';
+                }
             }
         } else {
-            $errors[] = 'Please enter an affiliate code.';
+            $errors[] = 'Please enter a discount code.';
         }
     }
 }
@@ -191,8 +224,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
         $message .= "Subtotal: " . formatCurrency($totals['subtotal']) . "\n";
         
         if ($totals['has_discount']) {
-            $message .= "Affiliate Discount (20%): -" . formatCurrency($totals['discount']) . "\n";
-            $message .= "Affiliate Code: *" . $totals['affiliate_code'] . "*\n";
+            $discountLabel = $totals['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+            $message .= $discountLabel . " Discount (" . number_format($totals['discount_percent'], 0) . "%): -" . formatCurrency($totals['discount']) . "\n";
+            $message .= "Discount Code: *" . $totals['discount_code'] . "*\n";
         }
         
         $message .= "*TOTAL TO PAY: " . formatCurrency($totals['total']) . "*\n\n";
@@ -252,6 +286,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             'customer_email' => $customerEmail,
             'customer_phone' => $customerPhone,
             'affiliate_code' => $totals['affiliate_code'],
+            'bonus_code_id' => $totals['bonus_code_id'] ?? null,
+            'discount_type' => $totals['discount_type'],
+            'discount_code' => $totals['discount_code'],
+            'discount_percent' => $totals['discount_percent'],
             'session_id' => session_id(),
             'message_text' => $message,
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
@@ -272,6 +310,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate'])) 
             }
             $errors[] = 'Failed to create order. Please try again or contact support.';
         } else {
+            // Track bonus code usage if applicable
+            if (!empty($totals['bonus_code_id'])) {
+                incrementBonusCodeUsage($totals['bonus_code_id'], $totals['total']);
+                // Clear applied bonus code from session after order is placed
+                unset($_SESSION['applied_bonus_code']);
+            }
+            
             // Log activity
             logActivity('cart_checkout', 'Cart order #' . $orderId . ' initiated with ' . count($cartItems) . ' items');
             
@@ -2052,21 +2097,24 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             // 5. FLOATING BONUS OFFER BANNER - ONLY SHOW ON CHECKOUT FORM, NOT ON CONFIRMATION PAGE
             console.log('✅ Cart Recovery Features Initialized');
             
+            <?php if (!empty($activeBonusCode) && !$totals['has_discount']): ?>
             if (!isConfirmationPage) {
                 const floatingBanner = document.createElement('div');
                 floatingBanner.innerHTML = `
-                    <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 250px; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
+                    <div style="position: fixed; top: 100px; right: 20px; z-index: 40; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; padding: 12px 16px; border-radius: 8px; max-width: 260px; box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3); font-family: Arial, sans-serif; pointer-events: auto;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 18px;">💰</span>
+                            <span style="font-size: 22px;">🎁</span>
                             <div>
-                                <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 13px;">Special Bonus</p>
-                                <p style="margin: 0; font-size: 12px; opacity: 0.95;">Code: <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; font-weight: bold;">HUSTLE</span> = 20% OFF</p>
+                                <p style="margin: 0 0 4px 0; font-weight: bold; font-size: 14px;">Special Offer!</p>
+                                <p style="margin: 0; font-size: 12px; opacity: 0.95;">Use code: <span style="background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 4px; font-weight: bold;"><?php echo htmlspecialchars($activeBonusCode['code']); ?></span></p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: bold;"><?php echo number_format($activeBonusCode['discount_percent'], 0); ?>% OFF!</p>
                             </div>
                         </div>
                     </div>
                 `;
                 document.body.appendChild(floatingBanner);
             }
+            <?php endif; ?>
         });
     </script>
 </body>
