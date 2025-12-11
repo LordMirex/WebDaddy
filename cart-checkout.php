@@ -2231,8 +2231,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             }
             
             // 5B. AUTO-INSERT BONUS CODE ON INPUT FOCUS (ENHANCED UX)
-            const affiliateInput = document.getElementById('affiliate_code');
             <?php if (!empty($activeBonusCode)): ?>
+            const affiliateInput = document.getElementById('affiliate_code');
             const bonusCode = '<?php echo htmlspecialchars($activeBonusCode['code']); ?>';
             if (affiliateInput) {
                 affiliateInput.addEventListener('focus', function() {
