@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["php82Extensions.pdo_pgsql", "sqlite", "nano", "ffmpeg", "chromium"]
+packages = ["php82Extensions.pdo_pgsql", "sqlite", "nano", "ffmpeg", "chromium", "pngquant", "optipng"]
 
 [workflows]
 runButton = "Project"

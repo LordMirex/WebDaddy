@@ -477,22 +477,12 @@ if ($autoOpenTool) {
             height: auto;
             max-width: none;
             animation: logoGlowPulse 1.5s ease-in-out infinite;
-            animation-play-state: paused;
             filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.5));
-            opacity: 0;
-        }
-        
-        .loader-logo.loaded {
-            animation-play-state: running;
             opacity: 1;
         }
         
-        .slice-line {
-            animation-play-state: paused;
-        }
-        
-        .loader-ready .slice-line {
-            animation-play-state: running;
+        .cyan-dot {
+            filter: drop-shadow(0 0 10px rgba(0,229,204,0.9)) drop-shadow(0 0 20px rgba(0,229,204,0.6));
         }
         
         @keyframes centerGlowPulse {
@@ -644,9 +634,14 @@ if ($autoOpenTool) {
             <line class="slice-line s4" x1="960" y1="90" x2="1160" y2="880" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
             <line class="slice-line s5" x1="1160" y1="880" x2="1400" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
             <line class="slice-line s6" x1="1400" y1="200" x2="1580" y2="1020" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
-            <!-- Center X intersection at (960, 728) -->
-            <line class="slice-line s7" x1="560" y1="160" x2="1180" y2="1040" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
-            <line class="slice-line s8" x1="1360" y1="160" x2="740" y2="1040" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
+            <!-- Center X intersection at (960, 728) with curved bottom beams meeting at center -->
+            <path class="slice-line s7" d="M560,160 L960,650 Q880,880 960,1040" stroke="url(#goldGrad1)" stroke-width="2" fill="none" filter="url(#glow1)"/>
+            <path class="slice-line s8" d="M1360,160 L960,650 Q1040,880 960,1040" stroke="url(#goldGrad2)" stroke-width="2" fill="none" filter="url(#glow1)"/>
+            <!-- Cyan glowing dot where bottom beams meet -->
+            <circle class="cyan-dot" cx="960" cy="1040" r="6" fill="#00E5CC">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+                <animate attributeName="r" values="5;8;5" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
@@ -1753,34 +1748,8 @@ if ($autoOpenTool) {
                 }));
             }
             
-            // Wait for logo to fully load before starting animation
-            const loaderLogo = document.querySelector('.loader-logo');
-            if (loaderLogo) {
-                const logoImg = new Image();
-                logoImg.onload = function() {
-                    loaderLogo.classList.add('loaded');
-                    loader.classList.add('loader-ready');
-                    loaderStartTime = Date.now();
-                };
-                logoImg.onerror = function() {
-                    loaderLogo.classList.add('loaded');
-                    loader.classList.add('loader-ready');
-                    loaderStartTime = Date.now();
-                };
-                logoImg.src = loaderLogo.src;
-                
-                // Safety timeout - start anyway after 500ms
-                setTimeout(() => {
-                    if (!loaderLogo.classList.contains('loaded')) {
-                        loaderLogo.classList.add('loaded');
-                        loader.classList.add('loader-ready');
-                        loaderStartTime = Date.now();
-                    }
-                }, 500);
-            } else {
-                loader.classList.add('loader-ready');
-                loaderStartTime = Date.now();
-            }
+            // Logo and animations start instantly - no waiting
+            loaderStartTime = Date.now();
             
             // Start preloading critical assets immediately
             const preloadPromise = preloadCriticalAssets();
