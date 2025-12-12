@@ -1401,11 +1401,12 @@ if ($autoOpenTool) {
     </section>
 
     <!-- Testimonials Section -->
-    <section class="py-16 bg-navy">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+    <section class="py-20 bg-gradient-to-br from-slate-900 via-blue-900/5 to-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
             <div class="max-w-3xl mx-auto text-center">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Trusted by Businesses Like Yours</h2>
-                <p class="text-lg text-gray-400">See what our customers say about launching their online presence</p>
+                <span class="inline-block px-4 py-2 bg-blue-500/10 text-blue-400 text-sm font-semibold rounded-full mb-4 border border-blue-500/20">CUSTOMER STORIES</span>
+                <h2 class="text-4xl sm:text-5xl font-bold text-white mb-6 tracking-tight">Trusted by Industry Leaders</h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">Join hundreds of successful entrepreneurs who transformed their business with our platform</p>
             </div>
         </div>
         
@@ -1413,7 +1414,7 @@ if ($autoOpenTool) {
             <div id="testimonialCarousel" class="carousel-container" style="display: flex; gap: 24px; overflow: hidden; scroll-behavior: auto; -webkit-overflow-scrolling: touch;">
                 <!-- Items will be cloned by JavaScript for infinite scroll -->
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
-                    <div class="bg-navy-light rounded-xl shadow-md p-8 border border-gray-700/50 h-full flex flex-col">
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-900/40 rounded-2xl shadow-lg p-8 border border-blue-500/20 h-full flex flex-col hover:border-blue-500/40 transition-all duration-300">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -1430,7 +1431,7 @@ if ($autoOpenTool) {
                 </div>
                 
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
-                    <div class="bg-navy-light rounded-xl shadow-md p-8 border border-gray-700/50 h-full flex flex-col">
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-900/40 rounded-2xl shadow-lg p-8 border border-blue-500/20 h-full flex flex-col hover:border-blue-500/40 transition-all duration-300">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -1447,7 +1448,7 @@ if ($autoOpenTool) {
                 </div>
                 
                 <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
-                    <div class="bg-navy-light rounded-xl shadow-md p-8 border border-gray-700/50 h-full flex flex-col">
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-900/40 rounded-2xl shadow-lg p-8 border border-blue-500/20 h-full flex flex-col hover:border-blue-500/40 transition-all duration-300">
                         <div class="flex gap-1 mb-4">
                             <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -1555,15 +1556,16 @@ if ($autoOpenTool) {
     </section>
 
     <!-- FAQ Section -->
-    <section class="py-12 bg-navy-dark" id="faq">
+    <section class="py-20 bg-gradient-to-br from-blue-950/40 via-slate-950 to-blue-950/40" id="faq">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Frequently Asked Questions</h2>
-                <p class="text-lg text-gray-400">Everything you need to know</p>
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-2 bg-blue-500/10 text-blue-400 text-sm font-semibold rounded-full mb-4 border border-blue-500/20">HELP CENTER</span>
+                <h2 class="text-4xl sm:text-5xl font-bold text-white mb-6 tracking-tight">Common Questions Answered</h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">Find answers to frequently asked questions about our services</p>
             </div>
             <div class="space-y-4" x-data="{ selected: 1 }">
-                <div class="bg-navy-light rounded-xl shadow-md border border-gray-700/50 overflow-hidden">
-                    <button @click="selected = selected === 1 ? null : 1" class="w-full text-left px-6 py-4 font-semibold text-white flex justify-between items-center hover:bg-navy transition-colors">
+                <div class="bg-gradient-to-r from-slate-800/60 to-slate-900/30 rounded-xl shadow-md border border-blue-500/15 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
+                    <button @click="selected = selected === 1 ? null : 1" class="w-full text-left px-6 py-4 font-semibold text-white flex justify-between items-center hover:bg-blue-500/5 transition-colors">
                         <span>What's included in the price?</span>
                         <svg class="w-5 h-5 text-gold transform transition-transform" :class="selected === 1 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -1573,7 +1575,7 @@ if ($autoOpenTool) {
                         Complete website template, premium domain name, hosting setup, and full customization access. You get everything needed to launch your business online.
                     </div>
                 </div>
-                <div class="bg-navy-light rounded-xl shadow-md border border-gray-700/50 overflow-hidden">
+                <div class="bg-gradient-to-r from-slate-800/60 to-slate-900/30 rounded-xl shadow-md border border-blue-500/15 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
                     <button @click="selected = selected === 2 ? null : 2" class="w-full text-left px-6 py-4 font-semibold text-white flex justify-between items-center hover:bg-navy transition-colors">
                         <span>How long does setup take?</span>
                         <svg class="w-5 h-5 text-gold transform transition-transform" :class="selected === 2 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1584,7 +1586,7 @@ if ($autoOpenTool) {
                         Your website will be ready within 24 hours after payment confirmation. We handle all the technical setup so you can focus on your business.
                     </div>
                 </div>
-                <div class="bg-navy-light rounded-xl shadow-md border border-gray-700/50 overflow-hidden">
+                <div class="bg-gradient-to-r from-slate-800/60 to-slate-900/30 rounded-xl shadow-md border border-blue-500/15 overflow-hidden hover:border-blue-500/30 transition-all duration-300">
                     <button @click="selected = selected === 3 ? null : 3" class="w-full text-left px-6 py-4 font-semibold text-white flex justify-between items-center hover:bg-navy transition-colors">
                         <span>How do I get support?</span>
                         <svg class="w-5 h-5 text-gold transform transition-transform" :class="selected === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1601,7 +1603,7 @@ if ($autoOpenTool) {
 
 
         <!-- Footer -->
-    <footer class="bg-navy text-white border-t border-gray-700/50">
+    <footer class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white border-t border-blue-500/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
             <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
                 <!-- Brand & Social -->
@@ -1610,7 +1612,7 @@ if ($autoOpenTool) {
                         <img src="/assets/images/webdaddy-logo.png" alt="<?php echo SITE_NAME; ?>" class="h-8 md:h-10" loading="eager" decoding="async" onerror="this.classList.add('image-broken'); this.style.display='none'; this.style.visibility='hidden';" onload="this.classList.remove('image-broken');">
                         <span class="text-lg md:text-xl font-bold"><?php echo SITE_NAME; ?></span>
                     </div>
-                    <p class="text-gray-400 text-xs md:text-sm mb-3 max-w-xs">Professional websites & digital tools. Launch in 24 hours.</p>
+                    <p class="text-gray-400 text-xs md:text-sm mb-3 max-w-xs font-medium">Professional websites & digital tools. Launch in 24 hours.</p>
                     <div class="flex gap-2">
                         <?php 
                         $socials = [
