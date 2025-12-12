@@ -55,7 +55,7 @@ if (preg_match('#^/tool/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
 // Template slug routing: /slug-name → template.php?slug=slug-name
 // Must not match admin, affiliate, assets, api, uploads, mailer directories
 // Must match pattern: /lowercase-slug-with-hyphens
-if (preg_match('#^/([a-z0-9\-_]+)/?$#i', $path, $matches)) {
+if (preg_match('#^/([a-z0-9_-]+)/?$#i', $path, $matches)) {
     // Exclude specific directories/files
     $excluded = ['admin', 'affiliate', 'assets', 'api', 'uploads', 'mailer', 'index', 'template', 'sitemap', 'tool', 'robots'];
     $slug = $matches[1];
