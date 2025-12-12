@@ -1337,14 +1337,14 @@ if ($autoOpenTool) {
                                 <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
                                 <span class="text-base md:text-lg font-extrabold text-gold"><?php echo formatCurrency($tool['price']); ?></span>
                             </div>
-                            <a href="<?php echo getToolUrl($tool, $affiliateCode); ?>" 
+                            <button onclick="openToolModal(<?php echo $tool['id']; ?>)" 
                                class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
                                 <svg class="w-3 h-3 md:w-3.5 md:h-3.5 mr-1 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                                 Details
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
