@@ -624,6 +624,15 @@ if ($autoOpenTool) {
     <?php endif; ?>
 </head>
 <body class="bg-navy-dark">
+    <style>
+        /* Instantly hide page content until loader completes */
+        body > *:not(#page-loader) {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        #page-loader { display: flex; }
+    </style>
     <!-- Premium WebDaddy Loader with Sparkling Effects -->
     <div id="page-loader">
         <svg class="loader-slices" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
@@ -1767,6 +1776,11 @@ if ($autoOpenTool) {
                 loaderDismissed = true;
                 
                 loader.classList.add('loader-exit');
+                
+                // Reveal page content while loader exits
+                const style = document.createElement('style');
+                style.textContent = 'body > *:not(#page-loader) { opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }';
+                document.head.appendChild(style);
                 
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
