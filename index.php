@@ -432,14 +432,14 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            animation: sliceGlowSync 0.8s ease-in-out infinite;
+            animation: sliceGlowSync 0.6s ease-in-out infinite;
         }
-        .slice-line.s2 { animation-delay: 0.1s; }
-        .slice-line.s3 { animation-delay: 0.2s; }
-        .slice-line.s4 { animation-delay: 0.15s; }
-        .slice-line.s5 { animation-delay: 0.05s; }
-        .slice-line.s7 { animation-delay: 0.2s; }
-        .slice-line.s8 { animation-delay: 0.25s; }
+        .slice-line.s2 { animation-delay: 0.08s; }
+        .slice-line.s3 { animation-delay: 0.15s; }
+        .slice-line.s4 { animation-delay: 0.1s; }
+        .slice-line.s5 { animation-delay: 0.04s; }
+        .slice-line.s7 { animation-delay: 0.15s; }
+        .slice-line.s8 { animation-delay: 0.2s; }
         
         @keyframes sliceGlowSync {
             0% { opacity: 0.45; stroke-width: 2.2; filter: url(#glow1); }
@@ -483,7 +483,7 @@ if ($autoOpenTool) {
             width: 140px;
             height: auto;
             max-width: none;
-            animation: logoGlowPulse 0.8s ease-in-out infinite;
+            animation: logoGlowPulse 0.6s ease-in-out infinite;
             filter: drop-shadow(0 0 25px rgba(212,175,55,0.9));
             opacity: 1;
         }
@@ -512,20 +512,20 @@ if ($autoOpenTool) {
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesZoomDecay 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomDecay 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .slice-line {
-            animation: sliceZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: sliceZoomEvaporate 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: 960px 728px;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowDustFade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowDustFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoZoomEvaporate 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         @keyframes loaderFadeOut {
@@ -1728,8 +1728,8 @@ if ($autoOpenTool) {
             
             let loaderDismissed = false;
             const BREATHING_CYCLES = 2;
-            const CYCLE_DURATION = 800;
-            const DISPLAY_TIME = (BREATHING_CYCLES * CYCLE_DURATION) + 1400;
+            const CYCLE_DURATION = 600;
+            const DISPLAY_TIME = (BREATHING_CYCLES * CYCLE_DURATION) + 600;
             
             // Critical assets to preload during loader display
             const criticalAssets = [
@@ -1758,7 +1758,7 @@ if ($autoOpenTool) {
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
                     loader.remove();
-                }, 600);
+                }, 500);
             }
             
             // Dismiss after 2 normal breaths + 3rd breath zoom/evaporate
