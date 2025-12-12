@@ -432,14 +432,14 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            animation: sliceGlowSync 1.2s ease-in-out infinite;
+            animation: sliceGlowSync 0.8s ease-in-out infinite;
         }
-        .slice-line.s2 { animation-delay: 0.15s; }
-        .slice-line.s3 { animation-delay: 0.3s; }
-        .slice-line.s4 { animation-delay: 0.2s; }
+        .slice-line.s2 { animation-delay: 0.1s; }
+        .slice-line.s3 { animation-delay: 0.2s; }
+        .slice-line.s4 { animation-delay: 0.15s; }
         .slice-line.s5 { animation-delay: 0.05s; }
-        .slice-line.s7 { animation-delay: 0.35s; }
-        .slice-line.s8 { animation-delay: 0.4s; }
+        .slice-line.s7 { animation-delay: 0.2s; }
+        .slice-line.s8 { animation-delay: 0.25s; }
         
         @keyframes sliceGlowSync {
             0%, 100% { opacity: 0.45; stroke-width: 2.2; filter: url(#glow1); }
@@ -476,7 +476,7 @@ if ($autoOpenTool) {
             width: 140px;
             height: auto;
             max-width: none;
-            animation: logoGlowPulse 1.2s ease-in-out infinite;
+            animation: logoGlowPulse 0.8s ease-in-out infinite;
             filter: drop-shadow(0 0 25px rgba(212,175,55,0.9));
             opacity: 1;
         }
@@ -484,7 +484,7 @@ if ($autoOpenTool) {
         
         @keyframes centerGlowPulse {
             0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
         }
         
         @keyframes logoGlowPulse {
@@ -1714,7 +1714,7 @@ if ($autoOpenTool) {
             
             let loaderDismissed = false;
             const BREATHING_CYCLES = 3;
-            const CYCLE_DURATION = 1200;
+            const CYCLE_DURATION = 800;
             const DISPLAY_TIME = BREATHING_CYCLES * CYCLE_DURATION;
             
             // Critical assets to preload during loader display
@@ -1744,7 +1744,7 @@ if ($autoOpenTool) {
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
                     loader.remove();
-                }, 350);
+                }, 300);
             }
             
             // Dismiss after 3 breathing cycles
