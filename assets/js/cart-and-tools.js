@@ -1,5 +1,22 @@
 let toolPopupBound = false;
 
+// Global function to open tool modal - accessible from HTML onclick attributes
+async function openToolModal(toolId) {
+    try {
+        const response = await fetch(`/api/tools.php?action=get_tool&id=${toolId}`);
+        const data = await response.json();
+        
+        if (data.success && data.tool) {
+            showToolModal(data.tool);
+            
+            // Track tool view when preview is clicked on index page
+            trackToolViewFromPreview(toolId);
+        }
+    } catch (error) {
+        console.error('Failed to load tool details:', error);
+    }
+}
+
 function trackTemplateClick(templateId) {
     if (!templateId) return;
     fetch('/api/analytics.php', {
@@ -22,6 +39,292 @@ function trackToolClick(toolId) {
             tool_id: toolId
         })
     }).catch(err => {}); // Silently ignore analytics tracking errors
+}
+
+// Utility Functions - moved outside closure so they can be called globally
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function escapeJsString(text) {
+    if (!text) return '';
+    return text.replace(/\\/g, '\\\\')
+               .replace(/'/g, "\\'")
+               .replace(/"/g, '\\"')
+               .replace(/`/g, '\\`')
+               .replace(/\$/g, '\\$')
+               .replace(/\n/g, '\\n')
+               .replace(/\r/g, '\\r');
+}
+
+function formatCurrency(amount) {
+    return '₦' + parseFloat(amount).toLocaleString('en-NG', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+}
+
+function showNotification(message, type = 'success') {
+    // Create notification container
+    const container = document.createElement('div');
+    container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-gold/60 border-gold/40' : 'bg-red-600/60 border-red-500/40';
+    const textColor = type === 'success' ? 'text-navy-dark' : 'text-white';
+    const iconColor = type === 'success' ? 'text-navy-dark' : 'text-red-100';
+    
+    notification.innerHTML = `
+        <div class="animate-slide-in flex items-start gap-2 px-3 py-2 rounded-md border ${bgColor} shadow-md backdrop-blur-sm max-w-xs pointer-events-auto">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5 ${iconColor}" fill="currentColor" viewBox="0 0 20 20">
+                ${type === 'success' 
+                    ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
+                    : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
+                }
+            </svg>
+            <div class="flex-1">
+                <p class="text-xs sm:text-sm font-semibold ${textColor} leading-tight">${escapeHtml(message)}</p>
+            </div>
+            <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
+                <svg class="w-3 h-3 ${iconColor}" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    container.appendChild(notification);
+    document.body.appendChild(container);
+    
+    // Auto-dismiss after 4 seconds
+    setTimeout(() => {
+        notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+        setTimeout(() => container.remove(), 300);
+    }, 4000);
+}
+
+// Track tool view from preview modal
+function trackToolViewFromPreview(toolId) {
+    if (!toolId) return;
+    
+    console.log('Tracking tool view:', toolId);
+    fetch('/api/track-view.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            tool_id: toolId,
+            source: 'preview_modal'
+        })
+    })
+    .then(res => {
+        console.log('Track response:', res.status);
+        return res.json();
+    })
+    .then(data => console.log('Tracked:', data))
+    .catch(err => {}); // Silently ignore tracking errors
+}
+
+function showToolModal(tool) {
+    const modal = document.createElement('div');
+    modal.id = 'tool-modal';
+    modal.className = 'fixed inset-0 z-50 overflow-y-auto';
+    
+    // Pre-escape values before template literal to prevent injection
+    const escapedName = escapeHtml(tool.name);
+    const escapedNameForJs = escapeJsString(tool.name);
+    const escapedCategory = tool.category ? escapeHtml(tool.category) : '';
+    const escapedDescription = tool.description || tool.short_description ? escapeHtml(tool.description || tool.short_description).replace(/\n/g, '<br>') : '';
+    const escapedDeliveryTime = tool.delivery_time ? escapeHtml(tool.delivery_time) : '';
+    const escapedThumbnail = escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg');
+    
+    const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
+    const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
+    const stockBadge = isOutOfStock 
+        ? '<span class="inline-block px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full">Out of Stock</span>'
+        : isLowStock 
+        ? `<span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">Limited Stock (${tool.stock_quantity} left)</span>`
+        : tool.stock_unlimited == 0 
+        ? `<span class="inline-block px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full">${tool.stock_quantity} in stock</span>`
+        : '';
+    
+    modal.innerHTML = `
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="fixed inset-0 transition-opacity bg-black/75" onclick="closeToolModal()"></div>
+            
+            <div class="relative inline-block bg-navy-light rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-3xl mx-4">
+                <div class="bg-navy-light">
+                    <!-- Header with close button -->
+                    <div class="flex justify-between items-start px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-700/50">
+                        <div class="flex-1">
+                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">${escapedName}</h3>
+                            <div class="flex gap-2 items-center flex-wrap">
+                                ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-gold/20 text-gold text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
+                                ${stockBadge}
+                            </div>
+                        </div>
+                        <button onclick="closeToolModal()" class="text-gray-200 hover:text-gray-100 ml-2 sm:ml-4 flex-shrink-0">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="px-4 sm:px-6 py-3 sm:py-4 max-h-[60vh] overflow-y-auto">
+                        <div class="mb-4 sm:mb-6">
+                            <img src="${escapedThumbnail}" 
+                                 alt="${escapedName}"
+                                 class="w-full h-48 sm:h-64 md:h-72 object-cover rounded-lg sm:rounded-xl shadow-md"
+                                 onerror="this.src='/assets/images/placeholder.jpg'">
+                        </div>
+                        
+                        ${tool.demo_video_url || tool.preview_youtube || tool.demo_url ? `
+                        <div class="mb-4 sm:mb-6">
+                            <button onclick="${tool.preview_youtube ? `openYoutubeModal('${escapeJsString(tool.preview_youtube)}', '${escapedNameForJs}')` : tool.demo_video_url ? `openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapedNameForJs}')` : `openDemoFullscreen('${escapeJsString(tool.demo_url)}', '${escapedNameForJs}')`}"
+                                    class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors shadow-md">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                Preview
+                            </button>
+                        </div>
+                        ` : ''}
+                        
+                        ${escapedDescription ? `
+                        <div class="mb-4 sm:mb-6">
+                            <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                About This Tool
+                            </h4>
+                            <div class="text-gray-100 text-sm sm:text-base leading-relaxed bg-gray-900 p-3 sm:p-4 rounded-lg border border-gray-700">
+                                ${escapedDescription}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${tool.features ? `
+                        <div class="mb-4 sm:mb-6">
+                            <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Key Features
+                            </h4>
+                            <ul class="space-y-2">
+                                ${tool.features.split(',').map(f => `
+                                    <li class="flex items-start">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <span class="text-gray-100 text-sm sm:text-base">${escapeHtml(f.trim())}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- Share Section in scrollable content -->
+                        <div class="bg-navy border border-gray-700/50 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6">
+                            <div class="text-center mb-4">
+                                <h3 class="text-base font-bold text-white mb-1">Love this tool?</h3>
+                                <p class="text-xs text-gray-100">Share it with your friends!</p>
+                            </div>
+                            
+                            <!-- Share Buttons -->
+                            <div class="flex items-center gap-2 flex-wrap justify-center">
+                                <!-- WhatsApp Share -->
+                                <button onclick="shareToolViaWhatsApp('${escapedNameForJs}', '${tool.slug}')" 
+                                        class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                    </svg>
+                                    <span class="hidden sm:inline">WhatsApp</span>
+                                </button>
+                                
+                                <!-- Facebook Share -->
+                                <button onclick="shareToolViaFacebook('${escapedNameForJs}', '${tool.slug}')" 
+                                        class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    </svg>
+                                    <span class="hidden sm:inline">Facebook</span>
+                                </button>
+                                
+                                <!-- Twitter/X Share -->
+                                <button onclick="shareToolViaTwitter('${escapedNameForJs}', '${tool.slug}')" 
+                                        class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417a9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                    </svg>
+                                    <span class="hidden sm:inline">Twitter</span>
+                                </button>
+                                
+                                <!-- Copy Link -->
+                                <button onclick="copyToolShareLink('${tool.slug}')" 
+                                        class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                    </svg>
+                                    <span class="hidden sm:inline">Copy Link</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        ${escapedDeliveryTime ? `
+                        <div class="mb-4 sm:mb-6">
+                            <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Delivery
+                            </h4>
+                            <p class="text-sm sm:text-base text-gray-100 bg-navy p-3 rounded-lg border border-gray-700/50">
+                                <span class="font-semibold text-gold">Estimated delivery:</span> ${escapedDeliveryTime}
+                            </p>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Footer with price and CTA only -->
+                    <div class="px-4 sm:px-6 py-4 sm:py-6 bg-navy border-t border-gray-700/50">
+                        <!-- Price and Cart Button -->
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <p class="text-xs sm:text-sm text-gray-100 mb-1">Price</p>
+                                <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-gold">${formatCurrency(tool.price)}</p>
+                            </div>
+                            ${isOutOfStock 
+                                ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-500 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-navy cursor-not-allowed">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    Out of Stock
+                                </button>`
+                                : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
+                                    class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                    </svg>
+                                    Add to Cart
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -591,242 +894,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    window.openToolModal = async function(toolId) {
-        try {
-            const response = await fetch(`/api/tools.php?action=get_tool&id=${toolId}`);
-            const data = await response.json();
-            
-            if (data.success && data.tool) {
-                showToolModal(data.tool);
-                
-                // Track tool view when preview is clicked on index page
-                trackToolViewFromPreview(toolId);
-            }
-        } catch (error) {
-            console.error('Failed to load tool details:', error);
-        }
-    };
-    
-    // Track tool view from preview modal
-    function trackToolViewFromPreview(toolId) {
-        if (!toolId) return;
-        
-        console.log('Tracking tool view:', toolId);
-        fetch('/api/track-view.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                tool_id: toolId,
-                source: 'preview_modal'
-            })
-        })
-        .then(res => {
-            console.log('Track response:', res.status);
-            return res.json();
-        })
-        .then(data => console.log('Tracked:', data))
-        .catch(err => {}); // Silently ignore tracking errors
-    }
-    
-    function showToolModal(tool) {
-        const modal = document.createElement('div');
-        modal.id = 'tool-modal';
-        modal.className = 'fixed inset-0 z-50 overflow-y-auto';
-        
-        // Pre-escape values before template literal to prevent injection
-        const escapedName = escapeHtml(tool.name);
-        const escapedNameForJs = escapeJsString(tool.name);
-        const escapedCategory = tool.category ? escapeHtml(tool.category) : '';
-        const escapedDescription = tool.description || tool.short_description ? escapeHtml(tool.description || tool.short_description).replace(/\n/g, '<br>') : '';
-        const escapedDeliveryTime = tool.delivery_time ? escapeHtml(tool.delivery_time) : '';
-        const escapedThumbnail = escapeHtml(tool.thumbnail_url || '/assets/images/placeholder.jpg');
-        
-        const isOutOfStock = tool.stock_unlimited == 0 && tool.stock_quantity <= 0;
-        const isLowStock = tool.stock_unlimited == 0 && tool.stock_quantity <= tool.low_stock_threshold && tool.stock_quantity > 0;
-        const stockBadge = isOutOfStock 
-            ? '<span class="inline-block px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded-full">Out of Stock</span>'
-            : isLowStock 
-            ? `<span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded-full">Limited Stock (${tool.stock_quantity} left)</span>`
-            : tool.stock_unlimited == 0 
-            ? `<span class="inline-block px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full">${tool.stock_quantity} in stock</span>`
-            : '';
-        
-        modal.innerHTML = `
-            <div class="flex min-h-screen items-center justify-center p-4">
-                <div class="fixed inset-0 transition-opacity bg-black/75" onclick="closeToolModal()"></div>
-                
-                <div class="relative inline-block bg-navy-light rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all w-full max-w-3xl mx-4">
-                    <div class="bg-navy-light">
-                        <!-- Header with close button -->
-                        <div class="flex justify-between items-start px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-gray-700/50">
-                            <div class="flex-1">
-                                <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">${escapedName}</h3>
-                                <div class="flex gap-2 items-center flex-wrap">
-                                    ${escapedCategory ? `<span class="inline-block px-2 py-0.5 sm:px-3 sm:py-1 bg-gold/20 text-gold text-xs sm:text-sm font-medium rounded-full">${escapedCategory}</span>` : ''}
-                                    ${stockBadge}
-                                </div>
-                            </div>
-                            <button onclick="closeToolModal()" class="text-gray-200 hover:text-gray-100 ml-2 sm:ml-4 flex-shrink-0">
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-                        
-                        <!-- Content -->
-                        <div class="px-4 sm:px-6 py-3 sm:py-4 max-h-[60vh] overflow-y-auto">
-                            <div class="mb-4 sm:mb-6">
-                                <img src="${escapedThumbnail}" 
-                                     alt="${escapedName}"
-                                     class="w-full h-48 sm:h-64 md:h-72 object-cover rounded-lg sm:rounded-xl shadow-md"
-                                     onerror="this.src='/assets/images/placeholder.jpg'">
-                            </div>
-                            
-                            ${tool.demo_video_url || tool.preview_youtube || tool.demo_url ? `
-                            <div class="mb-4 sm:mb-6">
-                                <button onclick="${tool.preview_youtube ? `openYoutubeModal('${escapeJsString(tool.preview_youtube)}', '${escapedNameForJs}')` : tool.demo_video_url ? `openVideoModal('${escapeJsString(tool.demo_video_url)}', '${escapedNameForJs}')` : `openDemoFullscreen('${escapeJsString(tool.demo_url)}', '${escapedNameForJs}')`}"
-                                        class="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-navy bg-gold hover:bg-gold-500 transition-colors shadow-md">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    Preview
-                                </button>
-                            </div>
-                            ` : ''}
-                            
-                            ${escapedDescription ? `
-                            <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    About This Tool
-                                </h4>
-                                <div class="text-gray-100 text-sm sm:text-base leading-relaxed bg-gray-900 p-3 sm:p-4 rounded-lg border border-gray-700">
-                                    ${escapedDescription}
-                                </div>
-                            </div>
-                            ` : ''}
-                            
-                            ${tool.features ? `
-                            <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    Key Features
-                                </h4>
-                                <ul class="space-y-2">
-                                    ${tool.features.split(',').map(f => `
-                                        <li class="flex items-start">
-                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                            </svg>
-                                            <span class="text-gray-100 text-sm sm:text-base">${escapeHtml(f.trim())}</span>
-                                        </li>
-                                    `).join('')}
-                                </ul>
-                            </div>
-                            ` : ''}
-                            
-                            <!-- Share Section in scrollable content -->
-                            <div class="bg-navy border border-gray-700/50 rounded-lg p-4 sm:p-5 mb-4 sm:mb-6">
-                                <div class="text-center mb-4">
-                                    <h3 class="text-base font-bold text-white mb-1">Love this tool?</h3>
-                                    <p class="text-xs text-gray-100">Share it with your friends!</p>
-                                </div>
-                                
-                                <!-- Share Buttons -->
-                                <div class="flex items-center gap-2 flex-wrap justify-center">
-                                    <!-- WhatsApp Share -->
-                                    <button onclick="shareToolViaWhatsApp('${escapedNameForJs}', '${tool.slug}')" 
-                                            class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                        </svg>
-                                        <span class="hidden sm:inline">WhatsApp</span>
-                                    </button>
-                                    
-                                    <!-- Facebook Share -->
-                                    <button onclick="shareToolViaFacebook('${escapedNameForJs}', '${tool.slug}')" 
-                                            class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                        </svg>
-                                        <span class="hidden sm:inline">Facebook</span>
-                                    </button>
-                                    
-                                    <!-- Twitter/X Share -->
-                                    <button onclick="shareToolViaTwitter('${escapedNameForJs}', '${tool.slug}')" 
-                                            class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gray-900 hover:bg-black text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417a9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                                        </svg>
-                                        <span class="hidden sm:inline">Twitter</span>
-                                    </button>
-                                    
-                                    <!-- Copy Link -->
-                                    <button onclick="copyToolShareLink('${tool.slug}')" 
-                                            class="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-medium">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.658 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-                                        </svg>
-                                        <span class="hidden sm:inline">Copy Link</span>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            ${escapedDeliveryTime ? `
-                            <div class="mb-4 sm:mb-6">
-                                <h4 class="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3 flex items-center">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    Delivery
-                                </h4>
-                                <p class="text-sm sm:text-base text-gray-100 bg-navy p-3 rounded-lg border border-gray-700/50">
-                                    <span class="font-semibold text-gold">Estimated delivery:</span> ${escapedDeliveryTime}
-                                </p>
-                            </div>
-                            ` : ''}
-                        </div>
-                        
-                        <!-- Footer with price and CTA only -->
-                        <div class="px-4 sm:px-6 py-4 sm:py-6 bg-navy border-t border-gray-700/50">
-                            <!-- Price and Cart Button -->
-                            <div class="flex items-center justify-between gap-4">
-                                <div>
-                                    <p class="text-xs sm:text-sm text-gray-100 mb-1">Price</p>
-                                    <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-gold">${formatCurrency(tool.price)}</p>
-                                </div>
-                                ${isOutOfStock 
-                                    ? `<button disabled class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-gray-500 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-gray-400 bg-navy cursor-not-allowed">
-                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                        Out of Stock
-                                    </button>`
-                                    : `<button onclick="addToCartFromModal(${tool.id}, '${escapedNameForJs}', ${tool.price}); closeToolModal();" 
-                                        class="inline-flex items-center px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl text-navy bg-gold hover:bg-gold-500 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                        </svg>
-                                        Add to Cart
-                                    </button>`
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden';
-    }
     
     window.closeToolModal = function() {
         const modal = document.getElementById('tool-modal');
@@ -1253,70 +1320,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = checkoutUrl;
     };
     
-    // Utility Functions
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    function escapeJsString(text) {
-        if (!text) return '';
-        return text.replace(/\\/g, '\\\\')
-                   .replace(/'/g, "\\'")
-                   .replace(/"/g, '\\"')
-                   .replace(/`/g, '\\`')
-                   .replace(/\$/g, '\\$')
-                   .replace(/\n/g, '\\n')
-                   .replace(/\r/g, '\\r');
-    }
-    
-    function formatCurrency(amount) {
-        return '₦' + parseFloat(amount).toLocaleString('en-NG', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        });
-    }
-    
-    function showNotification(message, type = 'success') {
-        // Create notification container
-        const container = document.createElement('div');
-        container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
-        
-        // Create notification element
-        const notification = document.createElement('div');
-        const bgColor = type === 'success' ? 'bg-gold/60 border-gold/40' : 'bg-red-600/60 border-red-500/40';
-        const textColor = type === 'success' ? 'text-navy-dark' : 'text-white';
-        const iconColor = type === 'success' ? 'text-navy-dark' : 'text-red-100';
-        
-        notification.innerHTML = `
-            <div class="animate-slide-in flex items-start gap-2 px-3 py-2 rounded-md border ${bgColor} shadow-md backdrop-blur-sm max-w-xs pointer-events-auto">
-                <svg class="w-4 h-4 flex-shrink-0 mt-0.5 ${iconColor}" fill="currentColor" viewBox="0 0 20 20">
-                    ${type === 'success' 
-                        ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
-                        : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
-                    }
-                </svg>
-                <div class="flex-1">
-                    <p class="text-xs sm:text-sm font-semibold ${textColor} leading-tight">${escapeHtml(message)}</p>
-                </div>
-                <button onclick="this.closest('div').closest('div').remove()" class="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
-                    <svg class="w-3 h-3 ${iconColor}" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                    </svg>
-                </button>
-            </div>
-        `;
-        
-        container.appendChild(notification);
-        document.body.appendChild(container);
-        
-        // Auto-dismiss after 4 seconds
-        setTimeout(() => {
-            notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
-            setTimeout(() => container.remove(), 300);
-        }, 4000);
-    }
     
     // Global function for opening demo previews (uses modal for in-page previews)
     window.openDemo = function(demoUrl, templateName) {
