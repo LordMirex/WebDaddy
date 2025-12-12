@@ -432,7 +432,7 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            animation: sliceGlowSync 2.4s ease-in-out infinite;
+            animation: sliceGlowSync 1.2s ease-in-out infinite;
         }
         .slice-line.s2 { animation-delay: 0.15s; }
         .slice-line.s3 { animation-delay: 0.3s; }
@@ -476,7 +476,7 @@ if ($autoOpenTool) {
             width: 140px;
             height: auto;
             max-width: none;
-            animation: logoGlowPulse 2.4s ease-in-out infinite;
+            animation: logoGlowPulse 1.2s ease-in-out infinite;
             filter: drop-shadow(0 0 25px rgba(212,175,55,0.9));
             opacity: 1;
         }
@@ -484,7 +484,7 @@ if ($autoOpenTool) {
         
         @keyframes centerGlowPulse {
             0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; }
-            50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
         }
         
         @keyframes logoGlowPulse {
@@ -494,24 +494,24 @@ if ($autoOpenTool) {
         
         /* Premium luxury exit animation */
         #page-loader.loader-exit {
-            animation: loaderFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderFadeOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesZoomDecay 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomDecay 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .slice-line {
-            animation: sliceZoomFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: sliceZoomFade 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: 960px 728px;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowDustFade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowDustFade 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoGoldenDust 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoGoldenDust 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         @keyframes loaderFadeOut {
@@ -1714,7 +1714,7 @@ if ($autoOpenTool) {
             
             let loaderDismissed = false;
             const BREATHING_CYCLES = 3;
-            const CYCLE_DURATION = 2400;
+            const CYCLE_DURATION = 1200;
             const DISPLAY_TIME = BREATHING_CYCLES * CYCLE_DURATION;
             
             // Critical assets to preload during loader display
@@ -1744,7 +1744,7 @@ if ($autoOpenTool) {
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
                     loader.remove();
-                }, 600);
+                }, 350);
             }
             
             // Dismiss after 3 breathing cycles
