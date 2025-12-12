@@ -634,17 +634,17 @@ if ($autoOpenTool) {
             <line class="slice-line s4" x1="960" y1="90" x2="1160" y2="880" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
             <line class="slice-line s5" x1="1160" y1="880" x2="1400" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
             <line class="slice-line s6" x1="1400" y1="200" x2="1580" y2="1020" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
-            <!-- Center X with forked bottom beams - beams meet at junction then split outward -->
-            <!-- Left beam: from top-left to center junction, then forks outward to left -->
-            <line class="slice-line s7" x1="560" y1="160" x2="960" y2="880" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
-            <path class="slice-line s7a" d="M960,880 Q860,980 780,1080" stroke="url(#goldGrad1)" stroke-width="2" fill="none" filter="url(#glow1)"/>
-            <path class="slice-line s7b" d="M960,880 Q920,1000 880,1080" stroke="url(#goldGrad1)" stroke-width="2" fill="none" filter="url(#glow1)"/>
-            <!-- Right beam: from top-right to center junction, then forks outward to right -->
-            <line class="slice-line s8" x1="1360" y1="160" x2="960" y2="880" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
-            <path class="slice-line s8a" d="M960,880 Q1060,980 1140,1080" stroke="url(#goldGrad2)" stroke-width="2" fill="none" filter="url(#glow1)"/>
-            <path class="slice-line s8b" d="M960,880 Q1000,1000 1040,1080" stroke="url(#goldGrad2)" stroke-width="2" fill="none" filter="url(#glow1)"/>
-            <!-- Cyan glowing dot at the junction where beams meet before forking -->
-            <circle class="cyan-dot" cx="960" cy="880" r="6" fill="#00E5CC">
+            <!-- Center X with forked bottom beams - beams fork at the very bottom -->
+            <!-- Left beam: from top-left down to fork point, then splits into 2 prongs -->
+            <line class="slice-line s7" x1="560" y1="160" x2="960" y2="1010" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s7a" x1="960" y1="1010" x2="900" y2="1060" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s7b" x1="960" y1="1010" x2="1020" y2="1060" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
+            <!-- Right beam: from top-right down to fork point, then splits into 2 prongs -->
+            <line class="slice-line s8" x1="1360" y1="160" x2="960" y2="1010" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s8a" x1="960" y1="1010" x2="900" y2="1060" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
+            <line class="slice-line s8b" x1="960" y1="1010" x2="1020" y2="1060" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
+            <!-- Cyan glowing dot at the fork point where beams split -->
+            <circle class="cyan-dot" cx="960" cy="1010" r="6" fill="#00E5CC">
                 <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
                 <animate attributeName="r" values="5;8;5" dur="1.5s" repeatCount="indefinite"/>
             </circle>
