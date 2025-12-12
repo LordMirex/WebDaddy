@@ -6,6 +6,11 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/analytics.php';
 require_once __DIR__ . '/includes/cart.php';
 
+// Set cache headers - no caching for dynamic pages
+header('Cache-Control: no-cache, no-store, must-revalidate', false);
+header('Pragma: no-cache', false);
+header('Expires: 0', false);
+
 startSecureSession();
 handleAffiliateTracking();
 

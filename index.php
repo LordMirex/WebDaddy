@@ -7,8 +7,10 @@ require_once __DIR__ . '/includes/analytics.php';
 require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/cart.php';
 
-// Set cache headers for static content - works with .htaccess on main server
-header('Cache-Control: public, max-age=31536000, immutable', false);
+// Set cache headers - no caching for dynamic pages
+header('Cache-Control: no-cache, no-store, must-revalidate', false);
+header('Pragma: no-cache', false);
+header('Expires: 0', false);
 
 startSecureSession();
 handleAffiliateTracking();
