@@ -1,4 +1,4 @@
-a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mb-10" data-templates-grid>
+a:4:{s:7:"success";b:1;s:4:"html";s:73797:"        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mb-10" data-templates-grid>
                         <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;">
                 <div style="position: relative; overflow: hidden; height: 150px; background: #0f172a;">
                     <img loading="eager"                         src="/assets/images/placeholder.jpg"
@@ -22,10 +22,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦7,200.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=auto-dealer" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/auto-dealer'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(36, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,10 +60,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦4,300.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=beauty-salon" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/beauty-salon'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(37, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,10 +98,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦5,900.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=event-manager" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/event-manager'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(38, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,10 +136,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦6,100.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=consulting-agency" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/consulting-agency'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(39, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,10 +174,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦5,400.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=sports-academy" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/sports-academy'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(40, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,10 +212,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦8,200.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=financial-services" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/financial-services'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(41, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,10 +250,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦7,800.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=insurance-company" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/insurance-company'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(42, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -288,10 +288,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦6,700.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=creative-studio" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/creative-studio'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(43, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,10 +326,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦6,400.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=marketing-agency" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/marketing-agency'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(44, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -364,10 +364,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦6,900.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=construction-company" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/construction-company'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(45, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,10 +402,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦550,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=premium-business-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/premium-business-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(1, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -440,10 +440,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦620,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=ecommerce-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/ecommerce-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(2, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -478,10 +478,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦480,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=portfolio-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/portfolio-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(3, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -516,10 +516,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦750,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=blog-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/blog-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(4, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -554,10 +554,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦890,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=agency-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/agency-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(5, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -592,10 +592,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦1,100,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=saas-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/saas-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(6, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -630,10 +630,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦950,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=restaurant-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/restaurant-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(7, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -668,10 +668,10 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
                             <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">₦680,000.00</span>
                         </div>
                         <div style="display: flex; gap: 6px;">
-                            <a href="/template.php?slug=education-1" 
-                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; text-decoration: none; transition: all 0.2s;">
+                            <button onclick="window.location.href='/education-1'" 
+                               style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid #4b5563; font-size: 11px; font-weight: 600; border-radius: 6px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
-                            </a>
+                            </button>
                             <button onclick="addTemplateToCart(8, '', this)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -687,6 +687,14 @@ a:4:{s:7:"success";b:1;s:4:"html";s:73213:"        <div class="grid grid-cols-1 
         
             <div style="margin-top: 48px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
         <nav style="display: flex; align-items: center; gap: 8px;">
+                        <a href="?view=templates&page=1#products" 
+               style="display: inline-flex; align-items: center; padding: 10px 16px; font-size: 14px; font-weight: 600; color: #d1d5db; background: #1e293b; border: 1px solid rgba(55,65,81,0.5); border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s;">
+                <svg style="width: 16px; height: 16px; margin-right: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Prev
+            </a>
+                        
                         <a href="?view=templates&page=1#products" 
                style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 14px; font-weight: 700; border: 1px solid rgba(55,65,81,0.5); border-radius: 8px; cursor: pointer; text-decoration: none; transition: all 0.2s; background: #1e293b; color: #d1d5db;">
                 1            </a>
