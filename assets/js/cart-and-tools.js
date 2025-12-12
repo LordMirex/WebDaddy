@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    async function openToolModal(toolId) {
+    window.openToolModal = async function(toolId) {
         try {
             const response = await fetch(`/api/tools.php?action=get_tool&id=${toolId}`);
             const data = await response.json();
@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Failed to load tool details:', error);
         }
-    }
+    };
     
     // Track tool view from preview modal
     function trackToolViewFromPreview(toolId) {
@@ -833,6 +833,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modal) {
             modal.remove();
             document.body.style.overflow = 'auto';
+            document.body.style.overflow = '';
         }
     };
     
