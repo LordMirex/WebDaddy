@@ -442,8 +442,15 @@ if ($autoOpenTool) {
         .slice-line.s8 { animation-delay: 0.25s; }
         
         @keyframes sliceGlowSync {
-            0%, 100% { opacity: 0.45; stroke-width: 2.2; filter: url(#glow1); }
+            0% { opacity: 0.45; stroke-width: 2.2; filter: url(#glow1); }
             50% { opacity: 1; stroke-width: 4; filter: url(#glow2); }
+            100% { opacity: 0.45; stroke-width: 2.2; filter: url(#glow1); }
+        }
+        
+        @keyframes sliceZoomEvaporate {
+            0% { opacity: 1; stroke-width: 4; filter: url(#glow2); transform: scale(1); }
+            70% { opacity: 1; stroke-width: 4; filter: url(#glow2); transform: scale(1.1); }
+            100% { opacity: 0; stroke-width: 2; filter: url(#glow1); transform: scale(1.8); }
         }
         
         
@@ -488,8 +495,15 @@ if ($autoOpenTool) {
         }
         
         @keyframes logoGlowPulse {
-            0%, 100% { transform: scale(0.92); opacity: 0.95; }
+            0% { transform: scale(0.92); opacity: 0.95; }
             50% { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(0.92); opacity: 0.95; }
+        }
+        
+        @keyframes logoZoomEvaporate {
+            0% { transform: scale(1.12); opacity: 1; }
+            60% { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
         
         /* Premium luxury exit animation */
@@ -498,20 +512,20 @@ if ($autoOpenTool) {
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesZoomDecay 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomDecay 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .slice-line {
-            animation: sliceZoomFade 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: sliceZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: 960px 728px;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowDustFade 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowDustFade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoGoldenDust 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoZoomEvaporate 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         @keyframes loaderFadeOut {
@@ -1713,9 +1727,9 @@ if ($autoOpenTool) {
             if (!loader) return;
             
             let loaderDismissed = false;
-            const BREATHING_CYCLES = 3;
+            const BREATHING_CYCLES = 2;
             const CYCLE_DURATION = 800;
-            const DISPLAY_TIME = BREATHING_CYCLES * CYCLE_DURATION;
+            const DISPLAY_TIME = (BREATHING_CYCLES * CYCLE_DURATION) + 1400;
             
             // Critical assets to preload during loader display
             const criticalAssets = [
@@ -1744,10 +1758,10 @@ if ($autoOpenTool) {
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
                     loader.remove();
-                }, 300);
+                }, 600);
             }
             
-            // Dismiss after 3 breathing cycles
+            // Dismiss after 2 normal breaths + 3rd breath zoom/evaporate
             setTimeout(dismissLoader, DISPLAY_TIME);
         })();
     </script>
