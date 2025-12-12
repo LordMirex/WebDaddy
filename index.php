@@ -1465,6 +1465,40 @@ if ($autoOpenTool) {
                         </div>
                     </div>
                 </div>
+                
+                <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-900/40 rounded-2xl shadow-lg p-8 border border-blue-500/20 h-full flex flex-col hover:border-blue-500/40 transition-all duration-300">
+                        <div class="flex gap-1 mb-4">
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                        <p class="text-gray-300 mb-6 flex-grow">"Customer support is amazing! Had a question about customization and got help within minutes. Will definitely recommend!"</p>
+                        <div>
+                            <div class="font-semibold text-white">Chioma Okafor</div>
+                            <div class="text-sm text-gray-500">E-commerce Store, Ibadan</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="carousel-item original-item" style="flex: 0 0 calc(50% - 12px); min-width: 280px;">
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-900/40 rounded-2xl shadow-lg p-8 border border-blue-500/20 h-full flex flex-col hover:border-blue-500/40 transition-all duration-300">
+                        <div class="flex gap-1 mb-4">
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </div>
+                        <p class="text-gray-300 mb-6 flex-grow">"Best investment for my consulting business! The templates are sleek, modern, and my conversion rate increased by 40%."</p>
+                        <div>
+                            <div class="font-semibold text-white">Dr. Tunde Ajayi</div>
+                            <div class="text-sm text-gray-500">Business Consulting, Abeokuta</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1474,6 +1508,12 @@ if ($autoOpenTool) {
             
             @media (max-width: 768px) {
                 .carousel-item { flex: 0 0 calc(100% - 16px) !important; }
+                #testimonialCarousel {
+                    user-select: none;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                }
             }
             @media (min-width: 769px) and (max-width: 1024px) {
                 .carousel-item { flex: 0 0 calc(50% - 12px) !important; }
@@ -1497,10 +1537,11 @@ if ($autoOpenTool) {
                 let autoScrollId;
                 const itemWidth = originals[0].offsetWidth + 24; // width + gap
                 const originalSetWidth = itemWidth * originals.length;
+                const isMobile = window.innerWidth <= 768;
                 
                 function startAutoScroll() {
                     clearInterval(autoScrollId);
-                    let speed = 0.8; // pixels per frame - very smooth speed
+                    let speed = isMobile ? 2.5 : 0.8; // faster on mobile, smooth on desktop
                     
                     autoScrollId = setInterval(() => {
                         carousel.scrollLeft += speed;
@@ -1537,7 +1578,7 @@ if ($autoOpenTool) {
                     carousel.scrollLeft = scrollLeft - walk;
                 });
                 
-                // Touch support
+                // Touch support - faster scroll momentum on mobile
                 carousel.addEventListener('touchstart', (e) => {
                     startX = e.touches[0].pageX - carousel.offsetLeft;
                     scrollLeft = carousel.scrollLeft;
@@ -1546,7 +1587,7 @@ if ($autoOpenTool) {
                 
                 carousel.addEventListener('touchmove', (e) => {
                     const x = e.touches[0].pageX - carousel.offsetLeft;
-                    const walk = (x - startX);
+                    const walk = (x - startX) * (isMobile ? 2.5 : 1); // faster drag on mobile
                     carousel.scrollLeft = scrollLeft - walk;
                 }, false);
                 
