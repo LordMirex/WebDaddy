@@ -492,21 +492,6 @@ if ($autoOpenTool) {
             50% { transform: scale(1.12); opacity: 1; }
         }
         
-        /* Blink animation - 3 blinks before exit */
-        @keyframes loaderBlink {
-            0%, 15% { opacity: 1; }
-            20%, 25% { opacity: 0.1; }
-            30%, 48% { opacity: 1; }
-            53%, 58% { opacity: 0.1; }
-            63%, 81% { opacity: 1; }
-            86%, 91% { opacity: 0.1; }
-            96%, 100% { opacity: 1; }
-        }
-        
-        #page-loader.loader-blink {
-            animation: loaderBlink 0.9s ease-in-out forwards;
-        }
-        
         /* Premium luxury exit animation */
         #page-loader.loader-exit {
             animation: loaderFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -1721,18 +1706,18 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Loader Controller - 2.5s display with 3 blinks + luxury exit -->
+    <!-- Premium Loader Controller - 3 breathing cycles with exit on 3rd -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             
             let loaderDismissed = false;
-            let loaderStartTime = null;
-            const DISPLAY_TIME = 2000;
-            const BLINK_DURATION = 900;
+            const BREATHING_CYCLES = 3;
+            const CYCLE_DURATION = 2400;
+            const DISPLAY_TIME = BREATHING_CYCLES * CYCLE_DURATION;
             
-            // Critical assets to preload during loader display - start immediately
+            // Critical assets to preload during loader display
             const criticalAssets = [
                 '/assets/images/webdaddy-logo.png',
                 '/assets/images/mockups/viralcuts.jpg',
@@ -1740,7 +1725,7 @@ if ($autoOpenTool) {
                 '/assets/images/mockups/webflow.jpg'
             ];
             
-            // Preload critical images aggressively in background
+            // Preload critical images
             function preloadCriticalAssets() {
                 criticalAssets.forEach(src => {
                     const img = new Image();
@@ -1748,30 +1733,21 @@ if ($autoOpenTool) {
                 });
             }
             
-            // Start preloading immediately
-            loaderStartTime = Date.now();
             preloadCriticalAssets();
             
             function dismissLoader() {
                 if (loaderDismissed) return;
                 loaderDismissed = true;
                 
-                // First: 3 blinks
-                loader.classList.add('loader-blink');
+                loader.classList.add('loader-exit');
                 
-                // After blinks complete: evaporate
                 setTimeout(() => {
-                    loader.classList.remove('loader-blink');
-                    loader.classList.add('loader-exit');
-                    
-                    setTimeout(() => {
-                        loader.classList.add('loader-hidden');
-                        loader.remove();
-                    }, 500);
-                }, BLINK_DURATION);
+                    loader.classList.add('loader-hidden');
+                    loader.remove();
+                }, 600);
             }
             
-            // Dismiss after display time - don't wait for images
+            // Dismiss after 3 breathing cycles
             setTimeout(dismissLoader, DISPLAY_TIME);
         })();
     </script>
