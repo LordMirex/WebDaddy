@@ -492,26 +492,41 @@ if ($autoOpenTool) {
             50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 30px rgba(212,175,55,1)) drop-shadow(0 0 60px rgba(212,175,55,0.7)); }
         }
         
+        /* Blink animation - 3 blinks before exit */
+        @keyframes loaderBlink {
+            0%, 15% { opacity: 1; }
+            20%, 25% { opacity: 0.1; }
+            30%, 48% { opacity: 1; }
+            53%, 58% { opacity: 0.1; }
+            63%, 81% { opacity: 1; }
+            86%, 91% { opacity: 0.1; }
+            96%, 100% { opacity: 1; }
+        }
+        
+        #page-loader.loader-blink {
+            animation: loaderBlink 0.9s ease-in-out forwards;
+        }
+        
         /* Premium luxury exit animation */
         #page-loader.loader-exit {
-            animation: loaderFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: loaderFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesZoomDecay 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomDecay 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .slice-line {
-            animation: sliceZoomFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: sliceZoomFade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: 960px 728px;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowDustFade 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowDustFade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoGoldenDust 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoGoldenDust 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         @keyframes loaderFadeOut {
@@ -624,13 +639,13 @@ if ($autoOpenTool) {
                     <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
             </defs>
-            <!-- Crown/W shape: 3 peaks with center highest -->
-            <line class="slice-line s1" x1="340" y1="1020" x2="520" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
+            <!-- Crown/W shape: 3 peaks with center highest - bottom points touch at center -->
+            <line class="slice-line s1" x1="880" y1="1020" x2="520" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
             <line class="slice-line s2" x1="520" y1="200" x2="760" y2="880" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
             <line class="slice-line s3" x1="760" y1="880" x2="960" y2="90" stroke="url(#goldGrad1)" stroke-width="3" filter="url(#glow2)"/>
             <line class="slice-line s4" x1="960" y1="90" x2="1160" y2="880" stroke="url(#goldGrad2)" stroke-width="3" filter="url(#glow2)"/>
             <line class="slice-line s5" x1="1160" y1="880" x2="1400" y2="200" stroke="url(#goldGrad1)" stroke-width="2.5" filter="url(#glow2)"/>
-            <line class="slice-line s6" x1="1400" y1="200" x2="1580" y2="1020" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
+            <line class="slice-line s6" x1="1400" y1="200" x2="1040" y2="1020" stroke="url(#goldGrad2)" stroke-width="2.5" filter="url(#glow2)"/>
             <!-- Center X intersection at (960, 728) -->
             <line class="slice-line s7" x1="560" y1="160" x2="1180" y2="1040" stroke="url(#goldGrad1)" stroke-width="2" filter="url(#glow1)"/>
             <line class="slice-line s8" x1="1360" y1="160" x2="740" y2="1040" stroke="url(#goldGrad2)" stroke-width="2" filter="url(#glow1)"/>
@@ -1706,7 +1721,7 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Loader Controller - 3.5s display with luxury exit + preloading -->
+    <!-- Premium Loader Controller - 2.5s display with 3 blinks + luxury exit -->
     <script>
         (function() {
             const loader = document.getElementById('page-loader');
@@ -1714,62 +1729,50 @@ if ($autoOpenTool) {
             
             let loaderDismissed = false;
             let loaderStartTime = null;
-            const DISPLAY_TIME = 3500;
+            const DISPLAY_TIME = 2000;
+            const BLINK_DURATION = 900;
             
-            // Critical assets to preload during loader display
+            // Critical assets to preload during loader display - start immediately
             const criticalAssets = [
                 '/assets/images/webdaddy-logo.png',
                 '/assets/images/mockups/viralcuts.jpg',
                 '/assets/images/mockups/jasper-ai.jpg',
-                '/assets/images/mockups/webflow.jpg',
-                '/assets/images/mockups/intercom.jpg',
-                '/assets/images/mockups/glide-apps.jpg',
-                '/assets/images/mockups/notion.jpg',
-                '/assets/images/mockups/runway.jpg'
+                '/assets/images/mockups/webflow.jpg'
             ];
             
-            // Preload all critical images in background
+            // Preload critical images aggressively in background
             function preloadCriticalAssets() {
-                return Promise.allSettled(criticalAssets.map(src => {
-                    return new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = resolve;
-                        img.onerror = resolve; // Don't fail on error
-                        img.src = src;
-                    });
-                }));
+                criticalAssets.forEach(src => {
+                    const img = new Image();
+                    img.src = src;
+                });
             }
             
-            // Logo and animations start instantly - no waiting
+            // Start preloading immediately
             loaderStartTime = Date.now();
-            
-            // Start preloading critical assets immediately
-            const preloadPromise = preloadCriticalAssets();
+            preloadCriticalAssets();
             
             function dismissLoader() {
                 if (loaderDismissed) return;
                 loaderDismissed = true;
                 
-                loader.classList.add('loader-exit');
+                // First: 3 blinks
+                loader.classList.add('loader-blink');
                 
+                // After blinks complete: evaporate
                 setTimeout(() => {
-                    loader.classList.add('loader-hidden');
-                    loader.remove();
-                }, 600);
+                    loader.classList.remove('loader-blink');
+                    loader.classList.add('loader-exit');
+                    
+                    setTimeout(() => {
+                        loader.classList.add('loader-hidden');
+                        loader.remove();
+                    }, 500);
+                }, BLINK_DURATION);
             }
             
-            // Wait for both: minimum display time AND critical assets loaded
-            function checkReadyToDismiss() {
-                const elapsed = loaderStartTime ? Date.now() - loaderStartTime : 0;
-                const remainingTime = Math.max(0, DISPLAY_TIME - elapsed);
-                
-                preloadPromise.then(() => {
-                    setTimeout(dismissLoader, remainingTime);
-                });
-            }
-            
-            // Start dismissal check after initial timeout
-            setTimeout(checkReadyToDismiss, DISPLAY_TIME);
+            // Dismiss after display time - don't wait for images
+            setTimeout(dismissLoader, DISPLAY_TIME);
         })();
     </script>
 </body>

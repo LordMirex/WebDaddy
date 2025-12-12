@@ -22,10 +22,12 @@ The platform features a clean, professional UI with consistent design elements. 
 
 **Premium Page Loader**: Enhanced loader featuring:
 - Centered logo with glowing pulse animation
-- Sparkling gold particles that fall from the X stripe intersection points
-- Glowing/blinking X stripes with dynamic animations
-- Synced exit animation where X stripes and logo zoom together and evaporate beautifully
-- Optimized for instant display (400ms min, 2s max, 600ms exit transition)
+- W-shaped gold stripes with connected bottom points (crown design)
+- Glowing/blinking stripes with dynamic synchronized animations
+- 3-blink effect before evaporation for polished exit
+- Fast exit animation with zoom decay and golden dust effects
+- Optimized for quick display (2s display + 0.9s blinks + 0.5s exit = ~3.4s total)
+- Aggressive image preloading during loader display for seamless hero reveal
 
 ### Technical Implementations
 - **File Upload System**: Production-grade chunked upload system supporting files up to 2GB with automatic retry logic, manifest-based tracking, and duplicate file prevention.
