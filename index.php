@@ -445,7 +445,7 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            animation: sliceGlowSync 0.9s ease-in-out infinite;
+            animation: sliceGlowSync 0.6s ease-in-out infinite;
         }
         .slice-line.s2 { animation-delay: 0.15s; }
         .slice-line.s3 { animation-delay: 0.3s; }
@@ -496,7 +496,7 @@ if ($autoOpenTool) {
             width: 140px;
             height: auto;
             max-width: none;
-            animation: logoGlowPulse 0.9s ease-in-out infinite;
+            animation: logoGlowPulse 0.6s ease-in-out infinite;
             filter: drop-shadow(0 0 25px rgba(212,175,55,0.9));
             opacity: 1;
         }
@@ -525,20 +525,20 @@ if ($autoOpenTool) {
         }
         
         #page-loader.loader-exit .loader-slices {
-            animation: slicesZoomDecay 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slicesZoomDecay 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .slice-line {
-            animation: sliceZoomEvaporate 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: sliceZoomEvaporate 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: 960px 728px;
         }
         
         #page-loader.loader-exit .loader-center-glow {
-            animation: glowDustFade 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: glowDustFade 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         #page-loader.loader-exit .loader-logo {
-            animation: logoZoomEvaporate 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: logoZoomEvaporate 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         @keyframes loaderFadeOut {
@@ -623,15 +623,15 @@ if ($autoOpenTool) {
     </script>
     <?php endif; ?>
 </head>
-<body class="bg-navy-dark">
+<body class="bg-navy-dark loader-active">
     <style>
-        /* Instantly hide page content until loader completes */
-        body > *:not(#page-loader) {
+        /* Instantly hide page content while loader displays */
+        #page-loader { display: flex; }
+        body.loader-active > *:not(#page-loader) {
             opacity: 0;
             pointer-events: none;
             visibility: hidden;
         }
-        #page-loader { display: flex; }
     </style>
     <!-- Premium WebDaddy Loader with Sparkling Effects -->
     <div id="page-loader">
@@ -1750,8 +1750,8 @@ if ($autoOpenTool) {
             
             let loaderDismissed = false;
             const BREATHING_CYCLES = 2;
-            const CYCLE_DURATION = 900;
-            const DISPLAY_TIME = (BREATHING_CYCLES * CYCLE_DURATION) + 500;
+            const CYCLE_DURATION = 600;
+            const DISPLAY_TIME = (BREATHING_CYCLES * CYCLE_DURATION) + 300;
             
             // Critical assets to preload during loader display
             const criticalAssets = [
@@ -1776,16 +1776,12 @@ if ($autoOpenTool) {
                 loaderDismissed = true;
                 
                 loader.classList.add('loader-exit');
-                
-                // Reveal page content while loader exits
-                const style = document.createElement('style');
-                style.textContent = 'body > *:not(#page-loader) { opacity: 1 !important; pointer-events: auto !important; visibility: visible !important; }';
-                document.head.appendChild(style);
+                document.body.classList.remove('loader-active');
                 
                 setTimeout(() => {
                     loader.classList.add('loader-hidden');
                     loader.remove();
-                }, 500);
+                }, 300);
             }
             
             // Dismiss after 2 normal breaths + 3rd breath zoom/evaporate
