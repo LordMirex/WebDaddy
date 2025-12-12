@@ -315,6 +315,19 @@ if ($autoOpenTool) {
             box-shadow: 0 0 15px rgba(212,175,55,0.25);
         }
         
+        /* Hide broken images completely */
+        img[alt]:not([src]),
+        img[alt][src=""]:not([loading]),
+        img.image-broken {
+            display: none !important;
+            visibility: hidden !important;
+        }
+        
+        /* Prevent browser default broken image icon */
+        img:broken {
+            display: none !important;
+        }
+        
         /* Animated word swapping styles */
         .animate-word-swap {
             display: inline-block;
@@ -661,7 +674,7 @@ if ($autoOpenTool) {
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="/" class="flex items-center">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mr-3" loading="eager" decoding="async" onerror="this.style.display='none'">
+                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mr-3" loading="eager" decoding="async" onerror="this.classList.add('image-broken'); this.style.display='none'; this.style.visibility='hidden';" onload="this.classList.remove('image-broken');">
                         <span class="text-xl font-bold text-white"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
@@ -785,12 +798,12 @@ if ($autoOpenTool) {
                                 </div>
                             </div>
                             <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-gray-800 via-navy to-gray-900">
-                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'">
+                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700 ease-in-out"
                                          :class="currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
                                          x-show="index > 0 || currentSlide !== 0">
-                                        <img :src="slide.image" :alt="slide.title" loading="lazy" class="w-full h-full object-cover object-top">
+                                        <img :src="slide.image" :alt="slide.title" loading="lazy" class="w-full h-full object-cover object-top" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
                                     </div>
                                 </template>
                             </div>
@@ -844,12 +857,12 @@ if ($autoOpenTool) {
                                 </div>
                             </div>
                             <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-gray-800 via-navy to-gray-900">
-                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'">
+                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700"
                                          :class="currentSlide === index ? 'opacity-100' : 'opacity-0'"
                                          x-show="index > 0 || currentSlide !== 0">
-                                        <img :src="slide.image" :alt="slide.title" loading="lazy" class="w-full h-full object-cover object-top">
+                                        <img :src="slide.image" :alt="slide.title" loading="lazy" class="w-full h-full object-cover object-top" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
                                     </div>
                                 </template>
                             </div>
@@ -1585,7 +1598,7 @@ if ($autoOpenTool) {
                 <!-- Brand & Social -->
                 <div class="flex-shrink-0">
                     <div class="flex items-center gap-2 mb-2">
-                        <img src="/assets/images/webdaddy-logo.png" alt="<?php echo SITE_NAME; ?>" class="h-8 md:h-10" loading="eager" decoding="async" onerror="this.style.display='none'">
+                        <img src="/assets/images/webdaddy-logo.png" alt="<?php echo SITE_NAME; ?>" class="h-8 md:h-10" loading="eager" decoding="async" onerror="this.classList.add('image-broken'); this.style.display='none'; this.style.visibility='hidden';" onload="this.classList.remove('image-broken');">
                         <span class="text-lg md:text-xl font-bold"><?php echo SITE_NAME; ?></span>
                     </div>
                     <p class="text-gray-400 text-xs md:text-sm mb-3 max-w-xs">Professional websites & digital tools. Launch in 24 hours.</p>
@@ -1764,6 +1777,15 @@ if ($autoOpenTool) {
             // Dismiss after 2 normal breaths + 3rd breath zoom/evaporate
             setTimeout(dismissLoader, DISPLAY_TIME);
         })();
+        
+        // Global image error handler - hide broken images completely
+        document.addEventListener('error', function(event) {
+            if (event.target && event.target.tagName === 'IMG') {
+                event.target.classList.add('image-broken');
+                event.target.style.display = 'none';
+                event.target.style.visibility = 'hidden';
+            }
+        }, true);
     </script>
 </body>
 </html>
