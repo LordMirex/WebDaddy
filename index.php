@@ -432,21 +432,18 @@ if ($autoOpenTool) {
         }
         
         .slice-line {
-            animation: sliceGlowSync 2.2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-            filter: drop-shadow(0 0 12px rgba(212,175,55,0.8));
+            animation: sliceGlowSync 2.4s ease-in-out infinite;
         }
-        .slice-line.s2 { animation-delay: 0.1s; }
-        .slice-line.s3 { animation-delay: 0.2s; }
-        .slice-line.s4 { animation-delay: 0.15s; }
+        .slice-line.s2 { animation-delay: 0.15s; }
+        .slice-line.s3 { animation-delay: 0.3s; }
+        .slice-line.s4 { animation-delay: 0.2s; }
         .slice-line.s5 { animation-delay: 0.05s; }
-        .slice-line.s7 { animation-delay: 0.25s; }
-        .slice-line.s8 { animation-delay: 0.3s; }
+        .slice-line.s7 { animation-delay: 0.35s; }
+        .slice-line.s8 { animation-delay: 0.4s; }
         
         @keyframes sliceGlowSync {
-            0%, 100% { opacity: 0.3; stroke-width: 1.8; filter: url(#glow1); }
-            25% { opacity: 0.6; stroke-width: 2.8; }
-            50% { opacity: 1; stroke-width: 4.5; filter: url(#glow2); text-shadow: 0 0 30px rgba(212,175,55,0.9); }
-            75% { opacity: 0.65; stroke-width: 3.2; }
+            0%, 100% { opacity: 0.45; stroke-width: 2.2; filter: url(#glow1); }
+            50% { opacity: 1; stroke-width: 4; filter: url(#glow2); }
         }
         
         
@@ -454,14 +451,13 @@ if ($autoOpenTool) {
             position: fixed;
             top: 50%;
             left: 50%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(212,175,55,0.35) 0%, rgba(212,175,55,0.15) 30%, rgba(212,175,55,0.05) 60%, transparent 100%);
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(212,175,55,0.3) 0%, rgba(212,175,55,0.1) 40%, transparent 100%);
             transform: translate(-50%, -50%);
-            animation: centerGlowPulse 2.2s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-            filter: blur(50px);
+            animation: centerGlowPulse 2.4s ease-in-out infinite;
+            filter: blur(45px);
             pointer-events: none;
-            box-shadow: 0 0 80px rgba(212,175,55,0.6), 0 0 150px rgba(212,175,55,0.3);
         }
         
         .loader-logo-container {
@@ -480,24 +476,20 @@ if ($autoOpenTool) {
             width: 140px;
             height: auto;
             max-width: none;
-            animation: logoGlowPulse 1.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(212,175,55,0.9)) drop-shadow(0 0 40px rgba(212,175,55,0.5));
+            animation: logoGlowPulse 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(212,175,55,0.9));
             opacity: 1;
         }
         
         
         @keyframes centerGlowPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
-            25% { transform: translate(-50%, -50%) scale(1); opacity: 0.75; }
-            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-            75% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.8; }
+            0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; }
+            50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
         }
         
         @keyframes logoGlowPulse {
-            0%, 100% { transform: scale(0.88); opacity: 0.9; filter: drop-shadow(0 0 15px rgba(212,175,55,0.7)) drop-shadow(0 0 30px rgba(212,175,55,0.4)); }
-            25% { transform: scale(0.98); opacity: 0.95; filter: drop-shadow(0 0 25px rgba(212,175,55,0.9)) drop-shadow(0 0 45px rgba(212,175,55,0.5)); }
-            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 40px rgba(212,175,55,1)) drop-shadow(0 0 70px rgba(212,175,55,0.8)); }
-            75% { transform: scale(1.02); opacity: 0.96; filter: drop-shadow(0 0 30px rgba(212,175,55,0.9)) drop-shadow(0 0 50px rgba(212,175,55,0.6)); }
+            0%, 100% { transform: scale(0.92); opacity: 0.95; }
+            50% { transform: scale(1.12); opacity: 1; }
         }
         
         /* Blink animation - 3 blinks before exit */
