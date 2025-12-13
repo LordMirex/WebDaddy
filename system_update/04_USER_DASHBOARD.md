@@ -507,3 +507,234 @@ $navItems = [
   - Failed = Red
 - Empty states with helpful messages
 - Loading states for async operations
+
+---
+
+## Customer Notification System
+
+The dashboard includes a notification system for important alerts, including:
+- Admin-generated verification OTPs
+- Template delivery notifications
+- Order status updates
+- Support ticket replies
+
+### Notification Database Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS customer_notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
+    type VARCHAR(50) NOT NULL,  -- admin_verification_otp, template_delivered, order_update, ticket_reply
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    data JSON,  -- Additional data (otp_code, order_id, etc.)
+    priority VARCHAR(20) DEFAULT 'normal',  -- low, normal, high
+    is_read INTEGER DEFAULT 0,
+    read_at DATETIME,
+    auto_dismiss INTEGER DEFAULT 0,
+    dismiss_after_seconds INTEGER,
+    expires_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE INDEX idx_notifications_customer ON customer_notifications(customer_id);
+CREATE INDEX idx_notifications_unread ON customer_notifications(customer_id, is_read);
+```
+
+### Notification Functions
+
+```php
+/**
+ * Create a notification for a customer
+ */
+function createCustomerNotification($customerId, $data) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        INSERT INTO customer_notifications 
+        (customer_id, type, title, message, data, priority, auto_dismiss, dismiss_after_seconds, expires_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([
+        $customerId,
+        $data['type'],
+        $data['title'],
+        $data['message'],
+        isset($data['otp_code']) ? json_encode(['otp_code' => $data['otp_code']]) : null,
+        $data['priority'] ?? 'normal',
+        $data['auto_dismiss'] ?? 0,
+        $data['dismiss_after_seconds'] ?? null,
+        $data['expires_at'] ?? null
+    ]);
+    
+    return $db->lastInsertId();
+}
+
+/**
+ * Get unread notifications for customer (with expiry check)
+ */
+function getCustomerNotifications($customerId, $unreadOnly = true) {
+    $db = getDb();
+    
+    $sql = "
+        SELECT * FROM customer_notifications 
+        WHERE customer_id = ?
+        AND (expires_at IS NULL OR expires_at > datetime('now'))
+    ";
+    
+    if ($unreadOnly) {
+        $sql .= " AND is_read = 0";
+    }
+    
+    $sql .= " ORDER BY priority DESC, created_at DESC LIMIT 20";
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute([$customerId]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Mark notification as read
+ */
+function markNotificationRead($notificationId, $customerId) {
+    $db = getDb();
+    $db->prepare("
+        UPDATE customer_notifications 
+        SET is_read = 1, read_at = datetime('now')
+        WHERE id = ? AND customer_id = ?
+    ")->execute([$notificationId, $customerId]);
+}
+```
+
+### Notification Display Component (Dashboard Header)
+
+```html
+<!-- Notification Bell in Header -->
+<div class="relative" x-data="notificationBell()">
+    <button @click="toggle()" class="relative p-2 text-gray-600 hover:text-gray-900">
+        <i class="bi bi-bell text-xl"></i>
+        <span x-show="unreadCount > 0" 
+              x-text="unreadCount" 
+              class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        </span>
+    </button>
+    
+    <!-- Dropdown -->
+    <div x-show="open" 
+         @click.away="open = false"
+         x-transition
+         class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border z-50">
+        <div class="p-4 border-b">
+            <h3 class="font-bold">Notifications</h3>
+        </div>
+        
+        <div class="max-h-96 overflow-y-auto">
+            <template x-for="notification in notifications" :key="notification.id">
+                <div class="p-4 border-b hover:bg-gray-50 cursor-pointer"
+                     :class="{'bg-blue-50': notification.priority === 'high'}"
+                     @click="markRead(notification.id)">
+                    
+                    <!-- High Priority OTP Notification -->
+                    <template x-if="notification.type === 'admin_verification_otp'">
+                        <div class="text-center">
+                            <p class="text-sm font-semibold text-amber-600 mb-2" x-text="notification.title"></p>
+                            <div class="bg-amber-100 rounded-lg p-3 mb-2">
+                                <span class="text-3xl font-mono font-bold text-amber-800 tracking-widest"
+                                      x-text="JSON.parse(notification.data).otp_code"></span>
+                            </div>
+                            <p class="text-xs text-gray-500">Share this code to verify your identity</p>
+                            <p class="text-xs text-red-500 mt-1" x-show="notification.expires_at">
+                                Expires soon - copy now!
+                            </p>
+                        </div>
+                    </template>
+                    
+                    <!-- Template Delivered Notification -->
+                    <template x-if="notification.type === 'template_delivered'">
+                        <div>
+                            <p class="text-sm font-semibold text-green-600" x-text="notification.title"></p>
+                            <p class="text-sm text-gray-600 mt-1" x-text="notification.message"></p>
+                            <a href="#" class="text-sm text-primary-600 underline mt-2 inline-block">View Credentials</a>
+                        </div>
+                    </template>
+                    
+                    <!-- Default Notification -->
+                    <template x-if="!['admin_verification_otp', 'template_delivered'].includes(notification.type)">
+                        <div>
+                            <p class="text-sm font-semibold" x-text="notification.title"></p>
+                            <p class="text-sm text-gray-600 mt-1" x-text="notification.message"></p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            
+            <div x-show="notifications.length === 0" class="p-8 text-center text-gray-500">
+                No new notifications
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function notificationBell() {
+    return {
+        open: false,
+        notifications: [],
+        unreadCount: 0,
+        
+        init() {
+            this.loadNotifications();
+            // Poll every 30 seconds for new notifications
+            setInterval(() => this.loadNotifications(), 30000);
+        },
+        
+        toggle() {
+            this.open = !this.open;
+            if (this.open) this.loadNotifications();
+        },
+        
+        async loadNotifications() {
+            try {
+                const response = await fetch('/api/customer/notifications.php');
+                const data = await response.json();
+                this.notifications = data.notifications;
+                this.unreadCount = data.unread_count;
+            } catch (err) {
+                console.error('Failed to load notifications');
+            }
+        },
+        
+        async markRead(id) {
+            try {
+                await fetch('/api/customer/notifications.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'mark_read', id })
+                });
+                this.loadNotifications();
+            } catch (err) {
+                console.error('Failed to mark notification read');
+            }
+        }
+    };
+}
+</script>
+```
+
+---
+
+## Testing Checklist
+
+- [ ] Dashboard home loads with stats
+- [ ] Orders page shows all customer orders
+- [ ] Order detail shows items and deliveries
+- [ ] Template credentials display correctly in dashboard
+- [ ] Downloads page shows available files
+- [ ] Support tickets can be created and replied to
+- [ ] Profile page allows editing
+- [ ] Security page shows sessions and allows password change
+- [ ] **Notification bell shows unread count**
+- [ ] **Admin-generated OTP appears as high-priority notification**
+- [ ] **OTP notification expires after 5 minutes**
+- [ ] **Template delivery notification appears when template is delivered**

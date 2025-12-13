@@ -448,6 +448,225 @@ function linkOrderToCustomer($orderId, $customerId, $adminId) {
 }
 ```
 
+---
+
+## Admin Generate OTP for User Verification
+
+This feature allows admin to generate a 6-digit OTP code for a specific user. The OTP appears as a **notification on the user's dashboard** (visible for about 5 minutes). This is used for identity verification when a user contacts you via WhatsApp for manual payment issues.
+
+### Use Case
+1. User contacts admin via WhatsApp claiming they have an account issue
+2. Admin goes to User Management and clicks "Generate OTP" for that user
+3. A 6-digit code is created and displayed as a notification on the user's dashboard
+4. User sees the notification, copies the code, and sends it to admin via WhatsApp
+5. Admin verifies the code matches - confirming the user's identity
+6. Admin can now safely help with the issue or send credentials
+
+### Admin UI - Generate OTP Button
+
+In the customer detail page (`/admin/customer-detail.php`), add a "Generate Verification OTP" button:
+
+```html
+<!-- Admin Generate OTP Section -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <h5 class="text-lg font-bold mb-4">
+        <i class="bi bi-shield-check text-warning"></i> Identity Verification
+    </h5>
+    <p class="text-gray-600 text-sm mb-4">
+        Generate a one-time code that will appear on the user's dashboard. 
+        Ask them to provide this code to verify their identity.
+    </p>
+    
+    <button 
+        onclick="generateUserOTP(<?= $customer['id'] ?>)" 
+        class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-medium transition"
+        id="generate-otp-btn"
+    >
+        <i class="bi bi-key"></i> Generate Verification OTP
+    </button>
+    
+    <!-- Result display -->
+    <div id="otp-result" class="mt-4 hidden">
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p class="text-sm text-green-800 mb-2">OTP sent to user's dashboard:</p>
+            <div class="text-3xl font-mono font-bold text-green-700 tracking-widest" id="generated-otp"></div>
+            <p class="text-xs text-green-600 mt-2">Expires in 5 minutes. User will see this on their dashboard.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+async function generateUserOTP(customerId) {
+    const btn = document.getElementById('generate-otp-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+    
+    try {
+        const response = await fetch('/admin/api/generate-user-otp.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer_id: customerId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('generated-otp').textContent = data.otp_code;
+            document.getElementById('otp-result').classList.remove('hidden');
+            btn.innerHTML = '<i class="bi bi-check"></i> OTP Generated';
+            btn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+            btn.classList.add('bg-green-500');
+            
+            // Re-enable after 30 seconds
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-key"></i> Generate New OTP';
+                btn.classList.remove('bg-green-500');
+                btn.classList.add('bg-amber-500', 'hover:bg-amber-600');
+            }, 30000);
+        } else {
+            alert('Error: ' + data.error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-key"></i> Generate Verification OTP';
+        }
+    } catch (err) {
+        alert('Failed to generate OTP');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-key"></i> Generate Verification OTP';
+    }
+}
+</script>
+```
+
+### Backend Function - Generate Admin OTP
+
+```php
+/**
+ * Admin generates OTP for user identity verification
+ * This OTP is displayed as a notification on the user's dashboard
+ * 
+ * @param int $customerId Customer ID
+ * @param int $adminId Admin who generated the OTP
+ * @return array Result with OTP code
+ */
+function adminGenerateVerificationOTP($customerId, $adminId) {
+    $db = getDb();
+    
+    // Verify customer exists
+    $customer = getCustomerById($customerId);
+    if (!$customer) {
+        return ['success' => false, 'error' => 'Customer not found'];
+    }
+    
+    // Rate limit: max 5 admin OTPs per customer per hour
+    $rateCheck = $db->prepare("
+        SELECT COUNT(*) FROM admin_verification_otps 
+        WHERE customer_id = ? 
+        AND created_at > datetime('now', '-1 hour')
+    ");
+    $rateCheck->execute([$customerId]);
+    if ($rateCheck->fetchColumn() >= 5) {
+        return ['success' => false, 'error' => 'Too many OTPs generated. Please wait.'];
+    }
+    
+    // Invalidate any previous OTPs for this customer
+    $db->prepare("
+        UPDATE admin_verification_otps 
+        SET is_used = 1 
+        WHERE customer_id = ? AND is_used = 0
+    ")->execute([$customerId]);
+    
+    // Generate 6-digit OTP
+    $otpCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    
+    // Set expiry (5 minutes)
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+5 minutes'));
+    
+    // Insert OTP record
+    $stmt = $db->prepare("
+        INSERT INTO admin_verification_otps 
+        (customer_id, admin_id, otp_code, expires_at)
+        VALUES (?, ?, ?, ?)
+    ");
+    $stmt->execute([$customerId, $adminId, $otpCode, $expiresAt]);
+    $otpId = $db->lastInsertId();
+    
+    // Create dashboard notification for the user
+    createCustomerNotification($customerId, [
+        'type' => 'admin_verification_otp',
+        'title' => 'Verification Code',
+        'message' => 'Your identity verification code is: ' . $otpCode,
+        'otp_code' => $otpCode,
+        'expires_at' => $expiresAt,
+        'priority' => 'high',
+        'auto_dismiss' => true,
+        'dismiss_after_seconds' => 300 // 5 minutes
+    ]);
+    
+    // Log activity
+    logActivity('admin_otp_generated', "Admin generated verification OTP for customer #$customerId", $adminId);
+    logCustomerActivity($customerId, 'verification_otp_received', 'Admin generated verification OTP');
+    
+    return [
+        'success' => true,
+        'otp_code' => $otpCode,
+        'expires_at' => $expiresAt,
+        'message' => 'OTP sent to user dashboard'
+    ];
+}
+```
+
+### Admin API Endpoint
+
+Create `/admin/api/generate-user-otp.php`:
+
+```php
+<?php
+require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../includes/auth.php';
+
+header('Content-Type: application/json');
+
+// Require admin auth
+$admin = requireAdmin();
+
+// Get request data
+$input = json_decode(file_get_contents('php://input'), true);
+$customerId = $input['customer_id'] ?? null;
+
+if (!$customerId) {
+    echo json_encode(['success' => false, 'error' => 'Customer ID required']);
+    exit;
+}
+
+// Generate OTP
+$result = adminGenerateVerificationOTP($customerId, $admin['id']);
+
+echo json_encode($result);
+```
+
+### Database Schema for Admin OTPs
+
+```sql
+CREATE TABLE IF NOT EXISTS admin_verification_otps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL,
+    admin_id INTEGER NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    is_used INTEGER DEFAULT 0,
+    used_at DATETIME,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id),
+    FOREIGN KEY (admin_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_admin_otp_customer ON admin_verification_otps(customer_id);
+CREATE INDEX idx_admin_otp_code ON admin_verification_otps(otp_code);
+```
+
+---
+
 ## Testing Checklist
 
 - [ ] Customer list page loads with all data
@@ -461,3 +680,8 @@ function linkOrderToCustomer($orderId, $customerId, $adminId) {
 - [ ] Admin can reply to tickets
 - [ ] Manual order linking works
 - [ ] Reports show customer analytics
+- [ ] **Admin Generate OTP button appears on customer detail page**
+- [ ] **Admin can generate verification OTP for any customer**
+- [ ] **OTP appears as notification on user's dashboard**
+- [ ] **OTP notification expires after 5 minutes**
+- [ ] **Rate limiting works (max 5 OTPs per customer per hour)**

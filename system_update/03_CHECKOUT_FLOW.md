@@ -4,6 +4,14 @@
 
 This document details the modifications to the checkout process to integrate customer accounts while maintaining a conversion-optimized experience.
 
+## IMPORTANT: OTP at Checkout
+
+**At checkout, ONLY EMAIL OTP is sent by the system.**
+
+- No SMS OTP is sent during checkout
+- The email OTP is automatically sent when a new user enters their email
+- SMS OTP is only used during account registration (Step 3) and account recovery
+
 ## Current Checkout Flow (Before Update)
 
 ```
@@ -32,12 +40,12 @@ This document details the modifications to the checkout process to integrate cus
     └── Skip to Step 3 (Payment Method)
     
 4b. IF EMAIL NEW (New Customer):
-    └── Send OTP (SMS via Termii + Email)
+    └── Send OTP (EMAIL ONLY - system sends automatically)
     └── Show OTP input (6 digits)
     └── Verify OTP
-    └── Create customer account (without password)
+    └── Create customer account (status: pending_setup)
     └── Session created
-    └── Skip to Step 3 (Payment Method)
+    └── After checkout: Prompt for 3-step registration (see 02_CUSTOMER_AUTH.md)
 
 5. Step 2: Personal Info (CONDITIONAL)
    └── ONLY SHOWN if customer has no phone on file
