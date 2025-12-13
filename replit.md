@@ -58,7 +58,21 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Data Integrity**: Safeguarding functions maintain consistency between cached affiliate data and the `sales` table.
 - **Timezone**: All datetime queries consistently use a `+1 hour` offset for Nigeria time.
 
+## Planned Updates
+
+### Customer Account System (system_update/ folder)
+Comprehensive documentation for adding customer accounts to the platform. Documentation created in `system_update/` folder includes:
+- **Database Schema**: 7 new tables (customers, customer_sessions, customer_otp_codes, etc.)
+- **Customer Authentication**: Email-first login with OTP (Termii SMS) or password
+- **User Dashboard**: New `/user/` folder with order tracking, downloads, support tickets
+- **Checkout Flow**: Frictionless auth integration maintaining conversion optimization
+- **Termii Integration**: SMS OTP for Nigerian market (used by Paystack)
+- **Implementation Guide**: 10-phase step-by-step deployment plan
+
+See `system_update/00_OVERVIEW.md` for executive summary.
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
 - **Email Service**: Utilized for sending various system notifications.
+- **Termii (Planned)**: SMS OTP service for customer verification.
