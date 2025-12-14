@@ -12,7 +12,7 @@ Track your progress through each document. Update the status as you work through
 | 03 | [03_CHECKOUT_FLOW.md](./03_CHECKOUT_FLOW.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Customer API endpoints created (check-email, request-otp, verify-otp, login, notifications) |
 | 04 | [04_USER_DASHBOARD.md](./04_USER_DASHBOARD.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Full /user/ dashboard with 15 pages: index, orders, order-detail, downloads, support, ticket, new-ticket, profile, security, login, logout, forgot/reset-password |
 | 05 | [05_DELIVERY_SYSTEM.md](./05_DELIVERY_SYSTEM.md) | ⬜ Pending | | | Delivery tracking updates |
-| 06 | [06_ADMIN_UPDATES.md](./06_ADMIN_UPDATES.md) | ⬜ Pending | | | Admin panel changes |
+| 06 | [06_ADMIN_UPDATES.md](./06_ADMIN_UPDATES.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | New pages: customers.php, customer-detail.php, customer-tickets.php. Updated: orders.php, index.php, reports.php, header.php. API: generate-user-otp.php |
 | 07 | [07_API_ENDPOINTS.md](./07_API_ENDPOINTS.md) | ⬜ Pending | | | Customer API endpoints |
 | 08 | [08_EMAIL_TEMPLATES.md](./08_EMAIL_TEMPLATES.md) | ⬜ Pending | | | New email templates |
 | 09 | [09_FRONTEND_CHANGES.md](./09_FRONTEND_CHANGES.md) | ⬜ Pending | | | UI/UX modifications |
@@ -47,9 +47,9 @@ Track your progress through each document. Update the status as you work through
 
 ```
 Total Documents: 26
-Completed: 5 / 26 (19%)
+Completed: 6 / 26 (23%)
 In Progress: 0
-Pending: 21
+Pending: 20
 ```
 
 ### How to Use This Tracker
