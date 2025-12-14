@@ -27,8 +27,8 @@ Track your progress through each document. Update the status as you work through
 | 18 | [18_SELF_SERVICE_EXPERIENCE.md](./18_SELF_SERVICE_EXPERIENCE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Database tables created (help_articles, help_article_feedback, order_events) |
 | 19 | [19_ADMIN_AUTOMATION.md](./19_ADMIN_AUTOMATION.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Database tables created (admin_auto_rules, admin_rule_executions, canned_responses) |
 | 20 | [20_SECURITY_HARDENING.md](./20_SECURITY_HARDENING.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Database tables created (security_alerts, login_attempts) |
-| 21 | [21_INFRASTRUCTURE_IMPROVEMENTS.md](./21_INFRASTRUCTURE_IMPROVEMENTS.md) | ⬜ Pending | | | Caching and background jobs |
-| 22 | [22_AFFILIATE_ENHANCEMENTS.md](./22_AFFILIATE_ENHANCEMENTS.md) | ⬜ Pending | | | Affiliate tracking updates |
+| 21 | [21_INFRASTRUCTURE_IMPROVEMENTS.md](./21_INFRASTRUCTURE_IMPROVEMENTS.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Cache class, JobQueue, ErrorLogger, BackupManager created. Database tables: job_queue, error_logs, backup_logs. Cron: process_jobs.php |
+| 22 | [22_AFFILIATE_ENHANCEMENTS.md](./22_AFFILIATE_ENHANCEMENTS.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | AffiliateFraudDetector, affiliate_stats.php, api/affiliate/live-activity.php. Tables: affiliate_fraud_logs, affiliate_marketing_assets, affiliate_asset_downloads. Columns added to pending_orders |
 | 23 | [23_UI_UX_PREMIUM_UPGRADE.md](./23_UI_UX_PREMIUM_UPGRADE.md) | ⬜ Pending | | | UI/UX redesign |
 | 24 | [24_FLOATING_CART_WIDGET.md](./24_FLOATING_CART_WIDGET.md) | ⬜ Pending | | | Floating cart feature |
 | 25 | [25_INDEX_PAGE_USER_PROFILE.md](./25_INDEX_PAGE_USER_PROFILE.md) | ⬜ Pending | | | User profile on index |
@@ -47,9 +47,9 @@ Track your progress through each document. Update the status as you work through
 
 ```
 Total Documents: 26
-Completed: 21 / 26 (81%)
+Completed: 23 / 26 (88%)
 In Progress: 0
-Pending: 5
+Pending: 3
 ```
 
 ### How to Use This Tracker
