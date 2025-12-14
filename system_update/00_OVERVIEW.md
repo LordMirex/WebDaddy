@@ -13,8 +13,8 @@ Track your progress through each document. Update the status as you work through
 | 04 | [04_USER_DASHBOARD.md](./04_USER_DASHBOARD.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Full /user/ dashboard with 15 pages: index, orders, order-detail, downloads, support, ticket, new-ticket, profile, security, login, logout, forgot/reset-password |
 | 05 | [05_DELIVERY_SYSTEM.md](./05_DELIVERY_SYSTEM.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Customer delivery functions: getCustomerDeliveries, getDeliveryForCustomer, getTemplateCredentialsForCustomer, processCustomerDownload, regenerateDownloadToken, getOrderTimeline, createToolDownloadTokens. Updated createDeliveryRecords with customer_id linking. Dashboard link added to emails. |
 | 06 | [06_ADMIN_UPDATES.md](./06_ADMIN_UPDATES.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | New pages: customers.php, customer-detail.php, customer-tickets.php. Updated: orders.php, index.php, reports.php, header.php. API: generate-user-otp.php |
-| 07 | [07_API_ENDPOINTS.md](./07_API_ENDPOINTS.md) | ⬜ Pending | | | Customer API endpoints |
-| 08 | [08_EMAIL_TEMPLATES.md](./08_EMAIL_TEMPLATES.md) | ⬜ Pending | | | New email templates |
+| 07 | [07_API_ENDPOINTS.md](./07_API_ENDPOINTS.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | 9 new endpoints: logout, profile, orders, order-detail, downloads, regenerate-token, tickets, ticket-reply, sessions |
+| 08 | [08_EMAIL_TEMPLATES.md](./08_EMAIL_TEMPLATES.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | 8 new email functions: sendOTPEmail, sendCustomerWelcomeEmail, sendPasswordSetEmail, sendPasswordResetEmail, sendTemplateDeliveryNotification, sendTicketConfirmationEmail, sendTicketReplyNotificationEmail, sendNewCustomerTicketNotification |
 | 09 | [09_FRONTEND_CHANGES.md](./09_FRONTEND_CHANGES.md) | ⬜ Pending | | | UI/UX modifications |
 | 10 | [10_SECURITY.md](./10_SECURITY.md) | ⬜ Pending | | | Security measures |
 | 11 | [11_FILE_STRUCTURE.md](./11_FILE_STRUCTURE.md) | ⬜ Pending | | | Complete file organization |
@@ -47,9 +47,9 @@ Track your progress through each document. Update the status as you work through
 
 ```
 Total Documents: 26
-Completed: 7 / 26 (27%)
+Completed: 9 / 26 (35%)
 In Progress: 0
-Pending: 19
+Pending: 17
 ```
 
 ### How to Use This Tracker

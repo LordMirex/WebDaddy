@@ -1105,3 +1105,434 @@ HTML;
     $emailBody = createEmailTemplate($subject, $content, 'Admin');
     return sendEmail($adminEmail, $subject, $emailBody);
 }
+
+// ============================================================================
+// CUSTOMER ACCOUNT EMAIL FUNCTIONS
+// Added for customer authentication, account management, and support
+// ============================================================================
+
+/**
+ * Send OTP verification email (High Priority)
+ * Used for email verification during registration/login
+ * @param string $email Customer email
+ * @param string $otpCode The OTP code
+ * @return bool Success status
+ */
+function sendOTPEmail($email, $otpCode) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $subject = "Your Verification Code - " . $siteName;
+    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">Email Verification</h2>
+    <p style="color: #374151; margin: 0;">Use the code below to verify your email address.</p>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <div style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 20px 40px; border-radius: 10px;">
+        <span style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', monospace;">{$escOtp}</span>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <p style="color: #dc2626; font-size: 14px; margin: 0;">
+        <strong>⏱️ This code expires in 10 minutes</strong>
+    </p>
+    <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
+        If you didn't request this code, please ignore this email.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Customer');
+    $queued = queueHighPriorityEmail($email, 'otp_verification', $subject, $emailBody);
+    if ($queued) {
+        processHighPriorityEmails();
+    }
+    return $queued !== false;
+}
+
+/**
+ * Send welcome email to new customer (Normal Priority)
+ * @param string $email Customer email
+ * @param string $name Customer name
+ * @return bool Success status
+ */
+function sendCustomerWelcomeEmail($email, $name) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
+    $subject = "Welcome to " . $siteName . "!";
+    $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $accountUrl = htmlspecialchars($siteUrl . '/user/', ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">🎉 Welcome Aboard!</h2>
+</div>
+
+<p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+    Your account has been successfully created. Here's what you can now do:
+</p>
+
+<div style="background: #ffffff; border-radius: 8px; padding: 15px; margin: 20px 0;">
+    <ul style="color: #374151; margin: 0; padding-left: 20px; line-height: 2;">
+        <li><strong>📦 Track Orders</strong> - Monitor all your purchases in one place</li>
+        <li><strong>📥 Access Purchases</strong> - Download your tools and templates anytime</li>
+        <li><strong>🎫 Get Support</strong> - Create and manage support tickets</li>
+        <li><strong>⚡ Faster Checkout</strong> - Your details are saved for quick purchases</li>
+    </ul>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{$accountUrl}" style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">Go to My Account</a>
+</div>
+
+<p style="color: #6b7280; font-size: 13px; text-align: center; margin: 20px 0 0 0;">
+    Thank you for joining us. We're excited to have you!
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    return queueEmail($email, 'customer_welcome', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+}
+
+/**
+ * Send password set confirmation email (Normal Priority)
+ * @param string $email Customer email
+ * @param string $name Customer name
+ * @return bool Success status
+ */
+function sendPasswordSetEmail($email, $name) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $subject = "Password Set Successfully - " . $siteName;
+    $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $escEmail = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <div style="display: inline-block; background: #dcfce7; border-radius: 50%; padding: 15px; margin-bottom: 10px;">
+        <span style="font-size: 32px;">✅</span>
+    </div>
+    <h2 style="color: #16a34a; margin: 0; font-size: 22px;">Password Set Successfully</h2>
+</div>
+
+<p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+    Your password has been successfully set. You can now log in to your account using your email and password.
+</p>
+
+<div style="background: #ffffff; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #16a34a;">
+    <p style="color: #374151; margin: 0;"><strong>📧 Login Email:</strong> {$escEmail}</p>
+</div>
+
+<div style="background: #fef3c7; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+    <p style="color: #92400e; margin: 0; font-size: 14px;">
+        <strong>🔒 Security Tip:</strong> Never share your password with anyone. Our team will never ask for your password.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    return queueEmail($email, 'password_set', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+}
+
+/**
+ * Send password reset link email (High Priority)
+ * @param string $email Customer email
+ * @param string $name Customer name
+ * @param string $resetLink The password reset URL
+ * @return bool Success status
+ */
+function sendPasswordResetEmail($email, $name, $resetLink) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $subject = "Reset Your Password - " . $siteName;
+    $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $escLink = htmlspecialchars($resetLink, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">Password Reset Request</h2>
+    <p style="color: #374151; margin: 0;">Click the button below to reset your password.</p>
+</div>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{$escLink}" style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">Reset Password</a>
+</div>
+
+<div style="text-align: center; margin: 20px 0;">
+    <p style="color: #dc2626; font-size: 14px; margin: 0;">
+        <strong>⏱️ This link expires in 1 hour</strong>
+    </p>
+</div>
+
+<div style="background: #fef3c7; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+    <p style="color: #92400e; margin: 0; font-size: 14px;">
+        <strong>⚠️ Didn't request this?</strong> If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+    </p>
+</div>
+
+<p style="color: #6b7280; font-size: 12px; margin: 20px 0 0 0; word-break: break-all;">
+    If the button doesn't work, copy and paste this link: {$escLink}
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    $queued = queueHighPriorityEmail($email, 'password_reset', $subject, $emailBody);
+    if ($queued) {
+        processHighPriorityEmails();
+    }
+    return $queued !== false;
+}
+
+/**
+ * Send recovery OTP email for password reset (High Priority)
+ * Different styling from regular OTP to indicate security-sensitive action
+ * @param string $email Customer email
+ * @param string $otpCode The OTP code
+ * @return bool Success status
+ */
+function sendRecoveryOTPEmail($email, $otpCode) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $subject = "Password Reset Code - " . $siteName;
+    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #dc2626; margin: 0 0 10px 0; font-size: 22px;">🔐 Password Reset</h2>
+    <p style="color: #374151; margin: 0;">Use this code to reset your password.</p>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <div style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px 40px; border-radius: 10px;">
+        <span style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', monospace;">{$escOtp}</span>
+    </div>
+</div>
+
+<div style="text-align: center; margin: 20px 0;">
+    <p style="color: #dc2626; font-size: 14px; margin: 0;">
+        <strong>⏱️ This code expires in 10 minutes</strong>
+    </p>
+</div>
+
+<div style="background: #fef2f2; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #dc2626;">
+    <p style="color: #991b1b; margin: 0; font-size: 14px;">
+        <strong>🚨 Security Alert:</strong> If you did not request this password reset, someone may be trying to access your account. Please ignore this email and consider changing your password.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Customer');
+    $queued = queueHighPriorityEmail($email, 'recovery_otp', $subject, $emailBody);
+    if ($queued) {
+        processHighPriorityEmails();
+    }
+    return $queued !== false;
+}
+
+/**
+ * Send template delivery notification (Normal Priority)
+ * Notifies customer their website is live - credentials in dashboard only for security
+ * @param string $email Customer email
+ * @param string $name Customer name
+ * @param int $orderId Order ID
+ * @param string $templateName Template/product name
+ * @param string $websiteUrl The live website URL
+ * @return bool Success status
+ */
+function sendTemplateDeliveryNotification($email, $name, $orderId, $templateName, $websiteUrl) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
+    $subject = "Your Website Is Live! - " . $siteName;
+    $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $escTemplate = htmlspecialchars($templateName, ENT_QUOTES, 'UTF-8');
+    $escWebsiteUrl = htmlspecialchars($websiteUrl, ENT_QUOTES, 'UTF-8');
+    $dashboardUrl = htmlspecialchars($siteUrl . '/user/order-detail.php?id=' . intval($orderId), ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <div style="display: inline-block; background: #dcfce7; border-radius: 50%; padding: 15px; margin-bottom: 10px;">
+        <span style="font-size: 32px;">🎉</span>
+    </div>
+    <h2 style="color: #16a34a; margin: 0; font-size: 22px;">Your Website Is Live!</h2>
+</div>
+
+<p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+    Great news! Your <strong>{$escTemplate}</strong> website has been set up and is now live.
+</p>
+
+<div style="background: #f0fdf4; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; border: 2px solid #16a34a;">
+    <p style="color: #374151; margin: 0 0 10px 0; font-size: 14px;">🌐 Your Website URL:</p>
+    <a href="{$escWebsiteUrl}" style="color: #1e3a8a; font-size: 18px; font-weight: 600; word-break: break-all; text-decoration: none;">{$escWebsiteUrl}</a>
+</div>
+
+<div style="background: #ffffff; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+    <p style="color: #374151; margin: 0; font-size: 14px;">
+        <strong>📋 Order ID:</strong> #{$orderId}
+    </p>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{$dashboardUrl}" style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">View Credentials in Dashboard</a>
+</div>
+
+<div style="background: #fef3c7; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+    <p style="color: #92400e; margin: 0; font-size: 14px;">
+        <strong>🔒 Security Note:</strong> For your protection, login credentials are only available in your dashboard. Never share them via email.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    return queueEmail($email, 'template_delivery_notification', $subject, strip_tags($content), $emailBody, $orderId, null, 'normal') !== false;
+}
+
+/**
+ * Send ticket confirmation email (Normal Priority)
+ * @param string $email Customer email
+ * @param string $name Customer name
+ * @param int $ticketId Ticket ID
+ * @param string $ticketSubject Ticket subject
+ * @return bool Success status
+ */
+function sendTicketConfirmationEmail($email, $name, $ticketId, $ticketSubject) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
+    $subject = "Support Ticket #" . intval($ticketId) . " Created - " . $siteName;
+    $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $escTicketSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    $ticketUrl = htmlspecialchars($siteUrl . '/user/ticket.php?id=' . intval($ticketId), ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">🎫 Support Ticket Created</h2>
+    <p style="color: #374151; margin: 0;">We've received your support request.</p>
+</div>
+
+<div style="background: #ffffff; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+    <p style="color: #374151; margin: 0 0 10px 0;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="color: #374151; margin: 0;"><strong>Subject:</strong> {$escTicketSubject}</p>
+</div>
+
+<p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+    Our support team will review your request and respond as soon as possible. You'll receive an email notification when we reply.
+</p>
+
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{$ticketUrl}" style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">View Ticket</a>
+</div>
+
+<p style="color: #6b7280; font-size: 13px; text-align: center; margin: 20px 0 0 0;">
+    You can also reply to this ticket directly from your dashboard.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    return queueEmail($email, 'ticket_confirmation', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+}
+
+/**
+ * Send ticket reply notification email (Normal Priority)
+ * @param string $email Customer email
+ * @param string $name Customer name
+ * @param int $ticketId Ticket ID
+ * @param string $ticketSubject Ticket subject
+ * @return bool Success status
+ */
+function sendTicketReplyNotificationEmail($email, $name, $ticketId, $ticketSubject) {
+    require_once __DIR__ . '/email_queue.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
+    $subject = "New Reply to Ticket #" . intval($ticketId) . " - " . $siteName;
+    $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $escTicketSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    $ticketUrl = htmlspecialchars($siteUrl . '/user/ticket.php?id=' . intval($ticketId), ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">💬 New Reply to Your Ticket</h2>
+</div>
+
+<p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+    Our support team has replied to your ticket. Click below to view the response.
+</p>
+
+<div style="background: #ffffff; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+    <p style="color: #374151; margin: 0 0 10px 0;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="color: #374151; margin: 0;"><strong>Subject:</strong> {$escTicketSubject}</p>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{$ticketUrl}" style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">View Ticket</a>
+</div>
+
+<p style="color: #6b7280; font-size: 13px; text-align: center; margin: 20px 0 0 0;">
+    You can continue the conversation by replying in your dashboard.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    return queueEmail($email, 'ticket_reply_notification', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+}
+
+/**
+ * Send new customer ticket notification to admin (Direct Send)
+ * @param int $ticketId Ticket ID
+ * @param string $customerEmail Customer email
+ * @param string $customerName Customer name
+ * @param string $ticketSubject Ticket subject
+ * @param string $ticketCategory Ticket category
+ * @return bool Success status
+ */
+function sendNewCustomerTicketNotification($ticketId, $customerEmail, $customerName, $ticketSubject, $ticketCategory) {
+    $adminEmail = defined('SMTP_FROM_EMAIL') ? SMTP_FROM_EMAIL : 'admin@example.com';
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
+    $subject = "New Customer Ticket #" . intval($ticketId);
+    
+    $escCustomerName = htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8');
+    $escCustomerEmail = htmlspecialchars($customerEmail, ENT_QUOTES, 'UTF-8');
+    $escTicketSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    $escCategory = htmlspecialchars($ticketCategory, ENT_QUOTES, 'UTF-8');
+    $ticketUrl = htmlspecialchars($siteUrl . '/admin/customer-tickets.php?view=' . intval($ticketId), ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<h2 style="color: #1e3a8a; margin: 0 0 15px 0; font-size: 22px;">🎫 New Customer Support Ticket</h2>
+
+<p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0;">
+    A customer has submitted a new support ticket.
+</p>
+
+<div style="background: #ffffff; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+    <p style="color: #374151; margin: 5px 0;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="color: #374151; margin: 5px 0;"><strong>Category:</strong> {$escCategory}</p>
+    <p style="color: #374151; margin: 5px 0;"><strong>Subject:</strong> {$escTicketSubject}</p>
+</div>
+
+<div style="background: #f3f4f6; border-radius: 8px; padding: 15px; margin: 20px 0;">
+    <p style="color: #1e3a8a; margin: 0 0 10px 0; font-weight: 600;">Customer Details:</p>
+    <p style="color: #374151; margin: 5px 0;"><strong>Name:</strong> {$escCustomerName}</p>
+    <p style="color: #374151; margin: 5px 0;"><strong>Email:</strong> {$escCustomerEmail}</p>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <a href="{$ticketUrl}" style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: #ffffff; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-weight: 600; font-size: 16px;">View Ticket in Admin</a>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Admin');
+    return sendEmail($adminEmail, $subject, $emailBody);
+}

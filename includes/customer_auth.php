@@ -481,23 +481,6 @@ function maskPhoneNumber($phone) {
     return str_repeat('*', $length - 4) . substr($phone, -4);
 }
 
-function sendRecoveryOTPEmail($email, $otpCode) {
-    if (!function_exists('sendEmail')) {
-        require_once __DIR__ . '/mailer.php';
-    }
-    
-    $subject = 'Password Recovery OTP - ' . SITE_NAME;
-    $body = "
-        <h2>Password Recovery</h2>
-        <p>Your OTP code for password recovery is:</p>
-        <h1 style='font-size: 32px; letter-spacing: 5px; color: #4F46E5;'>{$otpCode}</h1>
-        <p>This code will expire in 10 minutes.</p>
-        <p>If you did not request this, please ignore this email.</p>
-    ";
-    
-    return sendEmail($email, $subject, $body);
-}
-
 function sendTermiiOTP($phone, $otpCode, $otpId) {
     return true;
 }
