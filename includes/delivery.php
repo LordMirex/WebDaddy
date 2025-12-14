@@ -2895,7 +2895,8 @@ function createToolDownloadTokens($orderId, $toolId, $customerId = null) {
         ");
         $existing->execute([$file['id'], $orderId]);
         
-        if (!$existing->fetch()) {
+        $existingRow = $existing->fetch();
+        if (!$existingRow) {
             // Generate new token
             $token = bin2hex(random_bytes(32));
             $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
@@ -2912,14 +2913,20 @@ function createToolDownloadTokens($orderId, $toolId, $customerId = null) {
             $createdTokens[] = $db->lastInsertId();
             error_log("✅ Created download token for File #{$file['id']}, Order #$orderId, Customer #$customerId");
         } else {
-            // Update existing token with customer_id if not set
+            // CRITICAL FIX: Always update existing tokens with customer_id if provided
+            // This ensures dashboard access works for existing orders
             if ($customerId) {
-                $db->prepare("
+                $updateStmt = $db->prepare("
                     UPDATE download_tokens 
-                    SET customer_id = COALESCE(customer_id, ?)
-                    WHERE file_id = ? AND pending_order_id = ?
-                ")->execute([$customerId, $file['id'], $orderId]);
+                    SET customer_id = ?
+                    WHERE file_id = ? AND pending_order_id = ? AND (customer_id IS NULL OR customer_id != ?)
+                ");
+                $updateStmt->execute([$customerId, $file['id'], $orderId, $customerId]);
+                if ($updateStmt->rowCount() > 0) {
+                    error_log("🔗 Linked existing token to Customer #$customerId for File #{$file['id']}, Order #$orderId");
+                }
             }
+            $createdTokens[] = $existingRow['id'];
         }
     }
     
@@ -2978,12 +2985,14 @@ function processCustomerDownload($token, $customerId = null) {
     $db->prepare("UPDATE download_tokens SET download_count = download_count + 1, last_downloaded_at = datetime('now', '+1 hour') WHERE id = ?")
        ->execute([$tokenData['id']]);
     
-    // Update delivery record download count
+    // Update specific delivery record download count (via tool_files -> tools -> deliveries)
     $db->prepare("
         UPDATE deliveries 
         SET customer_download_count = customer_download_count + 1
-        WHERE pending_order_id = ? AND product_type = 'tool'
-    ")->execute([$tokenData['pending_order_id']]);
+        WHERE pending_order_id = ? 
+        AND product_type = 'tool'
+        AND product_id = (SELECT tool_id FROM tool_files WHERE id = ?)
+    ")->execute([$tokenData['pending_order_id'], $tokenData['file_id']]);
     
     // Log activity if customer is known
     if ($tokenData['order_customer_id'] && function_exists('logCustomerActivity')) {

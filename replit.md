@@ -60,7 +60,7 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Customer Account System Progress
 
-### Completed (Updates 01-04)
+### Completed (Updates 01-06)
 - **Database Schema (01)**: All 7 customer tables created (customers, customer_sessions, customer_otp_codes, customer_password_resets, customer_activity_log, customer_support_tickets, customer_ticket_replies) + customer_notifications table
 - **Existing Tables Modified**: customer_id added to pending_orders, sales, deliveries, download_tokens, cart_items
 - **Customer Authentication (02)**: Core auth files created:
@@ -79,12 +79,26 @@ The platform features a clean, professional UI with consistent design elements. 
   - Profile settings, security settings
   - Login, logout, forgot-password, reset-password
   - Includes: auth middleware, header, footer
+- **Delivery System Updates (05)**: Customer dashboard delivery functions:
+  - `getCustomerDeliveries()` - Get all deliveries for a customer
+  - `getDeliveryForCustomer()` - Single delivery with security check
+  - `getTemplateCredentialsForCustomer()` - Decrypted credentials for dashboard
+  - `processCustomerDownload()` - Handle downloads from dashboard
+  - `regenerateDownloadToken()` - Regenerate expired tokens
+  - `getOrderTimeline()` - Build delivery timeline
+  - `createToolDownloadTokens()` - Link tokens to customers
+  - `getCustomerDownloadTokens()` - Get tokens for order
+  - `getDeliveryWithCustomerStats()` - Admin view with customer stats
+  - `linkDownloadTokensToCustomer()` - Link tokens after account creation
+  - Updated `createDeliveryRecords()` with customer_id linking
+  - Updated `sendToolDeliveryEmail()` with dashboard access link
+- **Admin Panel Updates (06)**: New pages and API endpoints for customer management
 
-### Pending Updates (05-25)
+### Pending Updates (07-25)
 See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
-- Delivery system updates (05)
-- Admin panel updates (06)
-- And 19 more enhancement updates...
+- API endpoints (07)
+- Email templates (08)
+- And 17 more enhancement updates...
 
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
