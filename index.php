@@ -605,6 +605,77 @@ if ($autoOpenTool) {
             }
         }
         /* ========== END LOADER STYLES ========== */
+        
+        /* ========== CUSTOMER AUTH STYLES ========== */
+        .otp-input {
+            width: 3.5rem;
+            height: 4rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #d1d5db;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .otp-input:focus {
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+            outline: none;
+        }
+        .otp-input.filled {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        .auth-step {
+            animation: authFadeIn 0.3s ease-out;
+        }
+        @keyframes authFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .customer-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1e40af;
+        }
+        .account-dropdown {
+            position: relative;
+        }
+        .account-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: #1e293b;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0;
+            min-width: 180px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+        }
+        .account-dropdown-menu a {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #e5e7eb;
+            transition: all 0.2s;
+        }
+        .account-dropdown-menu a:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: #D4AF37;
+        }
+        /* ========== END CUSTOMER AUTH STYLES ========== */
     </style>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
@@ -693,6 +764,26 @@ if ($autoOpenTool) {
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Templates</a>
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Tools</a>
                     <a href="#faq" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
+                    <div x-data="customerNav()" class="relative">
+                        <template x-if="customer">
+                            <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors py-4">
+                                <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                                </svg>
+                                <span x-text="customer.name ? customer.name.split(' ')[0] : 'My Account'"></span>
+                            </a>
+                        </template>
+                        <template x-if="!customer">
+                            <a href="/user/login.php" class="inline-flex items-center border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">
+                                <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+                                    <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                                </svg>
+                                Track Order
+                            </a>
+                        </template>
+                    </div>
                     <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative inline-flex items-center justify-center text-gray-300 hover:text-gold font-medium transition-colors py-4">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -727,6 +818,15 @@ if ($autoOpenTool) {
                 <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" @click="open = false" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Tools</a>
                 <a href="#faq" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
                 <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
+                <div class="border-t border-navy-light/50 pt-3 mt-3" x-data="customerNav()">
+                    <a :href="customer ? '/user/' : '/user/login.php'" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                        </svg>
+                        <span x-text="customer ? (customer.name ? customer.name.split(' ')[0] : 'My Account') : 'Track Order'"></span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -1841,6 +1941,29 @@ if ($autoOpenTool) {
                 event.target.style.visibility = 'hidden';
             }
         }, true);
+    </script>
+    
+    <!-- Customer Auth Module -->
+    <script src="/assets/js/customer-auth.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('customer', {
+                data: null,
+                loading: true,
+                async init() {
+                    this.loading = true;
+                    this.data = await checkCustomerSession();
+                    this.loading = false;
+                }
+            });
+            
+            Alpine.data('customerNav', () => ({
+                customer: null,
+                async init() {
+                    this.customer = await checkCustomerSession();
+                }
+            }));
+        });
     </script>
 </body>
 </html>

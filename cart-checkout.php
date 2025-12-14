@@ -1640,49 +1640,159 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             <h3 class="text-xl sm:text-2xl font-extrabold text-white">Your Information</h3>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="customer_name" class="block text-sm font-bold text-gray-100 mb-2">
-                                    Full Name <span class="text-red-600">*</span>
+                        <div id="checkout-auth-section" x-data="checkoutAuth()">
+                            <!-- Email Input Step -->
+                            <div x-show="step === 'email'" class="mb-6">
+                                <label class="block text-sm font-bold text-gray-100 mb-2">
+                                    Email Address <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" 
-                                       class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
-                                       id="customer_name" 
-                                       name="customer_name" 
-                                       value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>" 
-                                       required
-                                       placeholder="John Doe">
-                            </div>
-                            
-                            <div>
-                                <label for="customer_email" class="block text-sm font-bold text-gray-100 mb-2">
-                                    Email Address <span class="text-red-600">*</span>
-                                </label>
-                                <input type="email" 
-                                       class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
-                                       id="customer_email" 
-                                       name="customer_email" 
-                                       value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>" 
-                                       required
-                                       placeholder="you@example.com">
-                            </div>
-
-                            <div>
-                                <label for="customer_phone" class="block text-sm font-bold text-gray-100 mb-2">
-                                    WhatsApp Number <span class="text-red-600">*</span>
-                                </label>
-                                <input type="tel" 
-                                       class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" 
-                                       id="customer_phone" 
-                                       name="customer_phone" 
-                                       value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>" 
-                                       required
-                                       placeholder="+234 800 000 0000">
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="email" 
+                                        x-model="email"
+                                        @keydown.enter.prevent="checkEmail()"
+                                        class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                        placeholder="your@email.com"
+                                    >
+                                    <button 
+                                        type="button"
+                                        @click="checkEmail()"
+                                        :disabled="loading || !email"
+                                        class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 transition-all"
+                                    >
+                                        <span x-show="!loading">Continue</span>
+                                        <span x-show="loading" class="inline-flex items-center">
+                                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                                <p x-show="error" class="text-red-400 text-sm mt-2" x-text="error"></p>
                             </div>
 
-                            <div class="md:col-span-2">
+                            <!-- Password Step (returning user with password) -->
+                            <div x-show="step === 'password'" class="mb-6">
+                                <div class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg mb-4">
+                                    <p class="text-blue-200">
+                                        Welcome back! Login as <strong class="text-blue-100" x-text="email"></strong>
+                                        <button type="button" @click="step = 'email'; error = ''" class="text-blue-400 underline ml-2 text-sm hover:text-blue-300">change</button>
+                                    </p>
+                                </div>
+                                <label class="block text-sm font-bold text-gray-100 mb-2">Password</label>
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="password" 
+                                        x-model="password"
+                                        @keydown.enter.prevent="login()"
+                                        class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                        placeholder="Enter your password"
+                                    >
+                                    <button 
+                                        type="button"
+                                        @click="login()"
+                                        :disabled="loading"
+                                        class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 transition-all"
+                                    >
+                                        <span x-show="!loading">Login</span>
+                                        <span x-show="loading" class="inline-flex items-center">
+                                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                                <div class="flex justify-between mt-2">
+                                    <a href="/user/forgot-password.php" class="text-sm text-primary-400 hover:text-primary-300">Forgot password?</a>
+                                    <button type="button" @click="requestOTP()" class="text-sm text-primary-400 hover:text-primary-300">Use OTP instead</button>
+                                </div>
+                                <p x-show="error" class="text-red-400 text-sm mt-2" x-text="error"></p>
+                            </div>
+
+                            <!-- OTP Step (new user or OTP login) -->
+                            <div x-show="step === 'otp'" class="mb-6">
+                                <div class="bg-green-900/30 border border-green-700 p-4 rounded-lg mb-4">
+                                    <p class="text-green-200">
+                                        <svg class="w-5 h-5 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                        Verification code sent to <strong class="text-green-100" x-text="email"></strong>
+                                        <button type="button" @click="step = 'email'; error = ''" class="text-green-400 underline ml-2 text-sm hover:text-green-300">change</button>
+                                    </p>
+                                </div>
+                                
+                                <label class="block text-sm font-bold text-gray-100 mb-3 text-center">Enter 6-digit code</label>
+                                
+                                <!-- OTP Input Boxes -->
+                                <div class="flex justify-center gap-2 sm:gap-3 mb-4">
+                                    <template x-for="(digit, i) in otpDigits" :key="i">
+                                        <input 
+                                            type="text" 
+                                            inputmode="numeric"
+                                            maxlength="1"
+                                            x-model="otpDigits[i]"
+                                            @input="handleOTPInput($event, i)"
+                                            @keydown.backspace="handleOTPBackspace($event, i)"
+                                            @paste.prevent="handleOTPPaste($event)"
+                                            :id="'otp-' + i"
+                                            class="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold text-gray-900 border-2 border-gray-500 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all"
+                                        >
+                                    </template>
+                                </div>
+                                
+                                <p class="text-sm text-gray-400 text-center">
+                                    Check your inbox and spam folder.
+                                    <span x-show="!canResend">Resend in <span x-text="resendTimer"></span>s</span>
+                                    <button type="button" x-show="canResend" @click="resendOTP()" class="text-primary-400 underline hover:text-primary-300">
+                                        Resend code
+                                    </button>
+                                </p>
+                                
+                                <p x-show="error" class="text-red-400 text-sm text-center mt-2" x-text="error"></p>
+                            </div>
+
+                            <!-- Authenticated State -->
+                            <div x-show="step === 'authenticated'" class="mb-6">
+                                <div class="bg-green-900/40 border border-green-600 p-4 rounded-lg flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <svg class="w-6 h-6 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                        <div>
+                                            <p class="font-semibold text-green-100" x-text="customerName || email"></p>
+                                            <p class="text-sm text-green-300" x-text="email"></p>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="logout()" class="text-green-400 hover:text-green-300 flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                        Switch
+                                    </button>
+                                </div>
+                                
+                                <!-- Phone input if customer doesn't have one -->
+                                <div x-show="!customerPhone" class="mt-4">
+                                    <label class="block text-sm font-bold text-gray-100 mb-2">
+                                        WhatsApp Number <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="tel" 
+                                        x-model="phone"
+                                        id="customer_phone"
+                                        class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                        placeholder="+234 800 000 0000"
+                                    >
+                                    <p class="text-sm text-gray-400 mt-1">For order updates and support</p>
+                                </div>
+                                
+                                <!-- Hidden fields for form submission -->
+                                <input type="hidden" name="customer_id" :value="customerId">
+                                <input type="hidden" name="customer_email" id="customer_email" :value="email">
+                                <input type="hidden" name="customer_name" id="customer_name" :value="customerName || ''">
+                                <input type="hidden" name="customer_phone" id="customer_phone_hidden" :value="customerPhone || phone">
+                            </div>
+
+                            <!-- Payment Method Selection (only shown when authenticated) -->
+                            <div x-show="step === 'authenticated'" class="mt-6">
                                 <label class="block text-sm font-bold text-gray-100 mb-3">
-                                    Payment Method <span class="text-red-600">*</span>
+                                    Payment Method <span class="text-red-500">*</span>
                                 </label>
                                 <div class="space-y-3" id="payment-method-container">
                                     <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option">
@@ -2347,5 +2457,8 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             <?php endif; ?>
         });
     </script>
+    
+    <!-- Customer Auth Module -->
+    <script src="/assets/js/customer-auth.js"></script>
 </body>
 </html>
