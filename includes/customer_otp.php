@@ -198,27 +198,6 @@ function verifyPhoneOTP($customerId, $phoneNumber, $otpCode) {
     ];
 }
 
-function sendOTPEmail($email, $otpCode, $name = null) {
-    $greeting = $name ? "Hi {$name}," : "Hi,";
-    
-    $subject = "Your Verification Code - " . SITE_NAME;
-    
-    $body = "
-    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-        <h2 style='color: #4F46E5;'>{$greeting}</h2>
-        <p>Your verification code is:</p>
-        <div style='background: #F3F4F6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;'>
-            <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1F2937;'>{$otpCode}</span>
-        </div>
-        <p>This code will expire in " . OTP_EXPIRY_MINUTES . " minutes.</p>
-        <p style='color: #6B7280; font-size: 14px;'>If you didn't request this code, please ignore this email.</p>
-        <hr style='border: none; border-top: 1px solid #E5E7EB; margin: 20px 0;'>
-        <p style='color: #9CA3AF; font-size: 12px;'>This is an automated email from " . SITE_NAME . "</p>
-    </div>
-    ";
-    
-    return sendEmail($email, $subject, $body);
-}
 
 /**
  * Send SMS OTP via Termii
