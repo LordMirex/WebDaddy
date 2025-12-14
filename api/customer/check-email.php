@@ -33,6 +33,7 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 $result = checkCustomerEmail($email);
 
 echo json_encode([
+    'success' => true,
     'exists' => $result['exists'],
     'has_password' => $result['has_password'] ?? false,
     'full_name' => $result['full_name'] ?? null,
