@@ -189,6 +189,52 @@ $salesByDay = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
 // Payment reconciliation data
 $reconciliation = getPaymentReconciliation($db);
 
+// Customer Analytics
+$customersByMonth = $db->query("
+    SELECT 
+        strftime('%Y-%m', created_at) as month,
+        COUNT(*) as new_customers
+    FROM customers
+    GROUP BY strftime('%Y-%m', created_at)
+    ORDER BY month DESC
+    LIMIT 12
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$customerLTV = $db->query("
+    SELECT 
+        c.id,
+        c.email,
+        c.full_name,
+        COUNT(po.id) as order_count,
+        COALESCE(SUM(po.final_amount), 0) as total_spent,
+        MIN(po.created_at) as first_order,
+        MAX(po.created_at) as last_order
+    FROM customers c
+    JOIN pending_orders po ON po.customer_id = c.id
+    WHERE po.status = 'paid'
+    GROUP BY c.id
+    ORDER BY total_spent DESC
+    LIMIT 20
+")->fetchAll(PDO::FETCH_ASSOC);
+
+$totalCustomersWithOrders = $db->query("
+    SELECT COUNT(DISTINCT customer_id) 
+    FROM pending_orders 
+    WHERE customer_id IS NOT NULL AND status = 'paid'
+")->fetchColumn();
+
+$repeatCustomers = $db->query("
+    SELECT COUNT(*) FROM (
+        SELECT customer_id, COUNT(*) as orders
+        FROM pending_orders
+        WHERE customer_id IS NOT NULL AND status = 'paid'
+        GROUP BY customer_id
+        HAVING orders > 1
+    )
+")->fetchColumn();
+
+$repeatCustomerRate = $totalCustomersWithOrders > 0 ? round(($repeatCustomers / $totalCustomersWithOrders) * 100, 1) : 0;
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -735,6 +781,112 @@ new Chart(ctx, {
     }
 });
 </script>
+
+<!-- Customer Analytics Section -->
+<div class="bg-white rounded-xl shadow-md border border-gray-100 mt-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h5 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="bi bi-people text-primary-600"></i> Customer Analytics
+        </h5>
+        <p class="text-sm text-gray-600 mt-1">Customer acquisition, lifetime value and retention metrics</p>
+    </div>
+    <div class="p-6">
+        <!-- Customer Metrics Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h6 class="text-xs font-semibold text-blue-600 uppercase mb-1">Paying Customers</h6>
+                <div class="text-xl font-bold text-blue-900"><?php echo number_format($totalCustomersWithOrders); ?></div>
+                <div class="text-sm text-blue-700">With completed orders</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h6 class="text-xs font-semibold text-green-600 uppercase mb-1">Repeat Customers</h6>
+                <div class="text-xl font-bold text-green-900"><?php echo number_format($repeatCustomers); ?></div>
+                <div class="text-sm text-green-700">2+ orders</div>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                <h6 class="text-xs font-semibold text-purple-600 uppercase mb-1">Repeat Rate</h6>
+                <div class="text-xl font-bold text-purple-900"><?php echo $repeatCustomerRate; ?>%</div>
+                <div class="text-sm text-purple-700">Customer retention</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Customer Acquisition by Month -->
+            <div>
+                <h6 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <i class="bi bi-graph-up-arrow text-green-600"></i> Customer Acquisition by Month
+                </h6>
+                <?php if (empty($customersByMonth)): ?>
+                <p class="text-gray-500">No customer data available</p>
+                <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-2 px-2 font-semibold text-gray-700">Month</th>
+                                <th class="text-right py-2 px-2 font-semibold text-gray-700">New Customers</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <?php foreach (array_slice($customersByMonth, 0, 6) as $row): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-2 px-2 text-gray-900"><?php echo date('M Y', strtotime($row['month'] . '-01')); ?></td>
+                                <td class="py-2 px-2 text-right">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                                        +<?php echo number_format($row['new_customers']); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Top Customers by Lifetime Value -->
+            <div>
+                <h6 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <i class="bi bi-trophy text-yellow-500"></i> Top Customers by Lifetime Value
+                </h6>
+                <?php if (empty($customerLTV)): ?>
+                <p class="text-gray-500">No customer purchase data available</p>
+                <?php else: ?>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-2 px-2 font-semibold text-gray-700">Customer</th>
+                                <th class="text-center py-2 px-2 font-semibold text-gray-700">Orders</th>
+                                <th class="text-right py-2 px-2 font-semibold text-gray-700">Total Spent</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <?php foreach (array_slice($customerLTV, 0, 10) as $customer): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-2 px-2">
+                                    <a href="/admin/customer-detail.php?id=<?php echo $customer['id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium">
+                                        <?php echo htmlspecialchars($customer['full_name'] ?: $customer['email']); ?>
+                                    </a>
+                                </td>
+                                <td class="py-2 px-2 text-center">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                                        <?php echo $customer['order_count']; ?>
+                                    </span>
+                                </td>
+                                <td class="py-2 px-2 text-right font-bold text-gray-900">
+                                    <?php echo formatCurrency($customer['total_spent']); ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Payment Reconciliation Section -->
 <div class="bg-white rounded-xl shadow-md border border-gray-100 mt-6">

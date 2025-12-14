@@ -95,6 +95,11 @@ $totalCommissionPending = $totalCommissionEarned - $totalCommissionPaid;
 // YOUR ACTUAL PROFIT = What customers paid you - What you paid affiliates
 $yourActualProfit = $totalRevenue - $totalCommissionEarned;
 
+// Customer statistics
+$totalCustomers = $db->query("SELECT COUNT(*) FROM customers")->fetchColumn();
+$newCustomersToday = $db->query("SELECT COUNT(*) FROM customers WHERE DATE(created_at) = DATE('now')")->fetchColumn();
+$customersWithOrders = $db->query("SELECT COUNT(DISTINCT customer_id) FROM pending_orders WHERE customer_id IS NOT NULL AND status = 'paid'")->fetchColumn();
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -172,6 +177,32 @@ require_once __DIR__ . '/includes/header.php';
             <span class="text-green-700">= Money You Keep:</span>
             <span class="text-green-700"><?php echo formatCurrency($yourActualProfit); ?></span>
         </div>
+    </div>
+</div>
+
+<!-- Customer Overview -->
+<div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-8 border border-gray-100">
+    <h5 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <i class="bi bi-people text-primary-600"></i> Customer Accounts
+    </h5>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+            <div class="text-2xl sm:text-3xl font-bold text-gray-900"><?php echo number_format($totalCustomers); ?></div>
+            <div class="text-gray-500 text-sm">Total Customers</div>
+        </div>
+        <div class="bg-green-50 rounded-lg p-4">
+            <div class="text-2xl sm:text-3xl font-bold text-green-600">+<?php echo $newCustomersToday; ?></div>
+            <div class="text-gray-500 text-sm">New Today</div>
+        </div>
+        <div class="bg-blue-50 rounded-lg p-4">
+            <div class="text-2xl sm:text-3xl font-bold text-blue-600"><?php echo number_format($customersWithOrders); ?></div>
+            <div class="text-gray-500 text-sm">Paying Customers</div>
+        </div>
+    </div>
+    <div class="mt-4 text-right">
+        <a href="/admin/customers.php" class="text-primary-600 hover:text-primary-700 text-sm font-semibold">
+            View All Customers <i class="bi bi-arrow-right"></i>
+        </a>
     </div>
 </div>
 

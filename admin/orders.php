@@ -809,15 +809,18 @@ $filterPaymentMethod = $_GET['payment_method'] ?? '';
 $filterDateFrom = $_GET['date_from'] ?? '';
 $filterDateTo = $_GET['date_to'] ?? '';
 $filterDeliveryStatus = $_GET['delivery_status'] ?? '';
+$filterCustomerId = $_GET['customer_id'] ?? '';
 
 $sql = "SELECT po.*, po.payment_notes, t.name as template_name, t.price as template_price, 
         tool.name as tool_name, tool.price as tool_price, d.domain_name,
+        c.email as customer_account_email, c.full_name as customer_account_name, c.id as customer_account_id,
         (SELECT COUNT(*) FROM sales WHERE pending_order_id = po.id) as is_paid,
         (SELECT COUNT(*) FROM order_items WHERE pending_order_id = po.id) as item_count
         FROM pending_orders po
         LEFT JOIN templates t ON po.template_id = t.id
         LEFT JOIN tools tool ON po.tool_id = tool.id
         LEFT JOIN domains d ON po.chosen_domain_id = d.id
+        LEFT JOIN customers c ON po.customer_id = c.id
         WHERE 1=1";
 $params = [];
 
@@ -898,6 +901,12 @@ if (!empty($filterDeliveryStatus)) {
     }
 }
 
+// Customer filter
+if (!empty($filterCustomerId)) {
+    $sql .= " AND po.customer_id = ?";
+    $params[] = intval($filterCustomerId);
+}
+
 $sql .= " ORDER BY po.created_at DESC";
 
 // Pagination setup
@@ -909,6 +918,7 @@ $countSql = "SELECT COUNT(*) FROM pending_orders po
         LEFT JOIN templates t ON po.template_id = t.id
         LEFT JOIN tools tool ON po.tool_id = tool.id
         LEFT JOIN domains d ON po.chosen_domain_id = d.id
+        LEFT JOIN customers c ON po.customer_id = c.id
         WHERE 1=1";
 
 // Re-apply all the same filters for the count query
@@ -976,6 +986,10 @@ if (!empty($filterDeliveryStatus)) {
     }
 }
 
+if (!empty($filterCustomerId)) {
+    $countSql .= " AND po.customer_id = ?";
+}
+
 $countStmt = $db->prepare($countSql);
 $countStmt->execute($params);
 $totalOrders = $countStmt->fetchColumn();
@@ -990,6 +1004,9 @@ $stmt->execute($params);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $templates = getTemplates(false);
+
+// Get customers list for filter dropdown
+$customersList = $db->query("SELECT id, email, full_name FROM customers ORDER BY full_name ASC, email ASC LIMIT 200")->fetchAll(PDO::FETCH_ASSOC);
 
 $viewOrder = null;
 $viewOrderItems = [];
@@ -1105,7 +1122,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
-            <div x-show="showAdvanced" x-transition class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+            <div x-show="showAdvanced" x-transition class="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-gray-200">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
                     <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="payment_method">
@@ -1124,6 +1141,17 @@ require_once __DIR__ . '/includes/header.php';
                     </select>
                 </div>
                 <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Customer Account</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="customer_id">
+                        <option value="">All Customers</option>
+                        <?php foreach ($customersList as $cust): ?>
+                        <option value="<?php echo $cust['id']; ?>" <?php echo $filterCustomerId == $cust['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($cust['full_name'] ?: $cust['email']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">From Date</label>
                     <input type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="date_from" value="<?php echo htmlspecialchars($filterDateFrom); ?>">
                 </div>
@@ -1134,7 +1162,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <?php
-            $hasFilters = !empty($searchTerm) || !empty($filterStatus) || !empty($filterTemplate) || !empty($filterOrderType) || !empty($filterPaymentMethod) || !empty($filterDateFrom) || !empty($filterDateTo) || !empty($filterDeliveryStatus);
+            $hasFilters = !empty($searchTerm) || !empty($filterStatus) || !empty($filterTemplate) || !empty($filterOrderType) || !empty($filterPaymentMethod) || !empty($filterDateFrom) || !empty($filterDateTo) || !empty($filterDeliveryStatus) || !empty($filterCustomerId);
             if ($hasFilters):
             ?>
             <div class="flex items-center justify-between pt-4 border-t border-gray-200">
@@ -1154,6 +1182,9 @@ require_once __DIR__ . '/includes/header.php';
                     <?php endif; ?>
                     <?php if (!empty($filterDeliveryStatus)): ?>
                     <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs"><?php echo ucwords(str_replace('_', ' ', $filterDeliveryStatus)); ?></span>
+                    <?php endif; ?>
+                    <?php if (!empty($filterCustomerId)): ?>
+                    <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs">Customer Account</span>
                     <?php endif; ?>
                     <?php if (!empty($filterDateFrom) || !empty($filterDateTo)): ?>
                     <span class="bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-xs">
@@ -1201,6 +1232,7 @@ require_once __DIR__ . '/includes/header.php';
                             </th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Order ID</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Customer</th>
+                            <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Account</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Products</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Total</th>
                             <th class="text-left py-3 px-2 font-semibold text-gray-700 text-sm">Notes</th>
@@ -1212,7 +1244,7 @@ require_once __DIR__ . '/includes/header.php';
                 <tbody class="divide-y divide-gray-200">
                     <?php if (empty($orders)): ?>
                     <tr>
-                        <td colspan="9" class="text-center py-12">
+                        <td colspan="10" class="text-center py-12">
                             <i class="bi bi-inbox text-6xl text-gray-300"></i>
                             <p class="text-gray-500 mt-4">No orders found</p>
                         </td>
@@ -1232,6 +1264,16 @@ require_once __DIR__ . '/includes/header.php';
                                 <div><i class="bi bi-envelope"></i> <?php echo htmlspecialchars($order['customer_email']); ?></div>
                                 <div><i class="bi bi-phone"></i> <?php echo htmlspecialchars($order['customer_phone']); ?></div>
                             </div>
+                        </td>
+                        <td class="py-3 px-2">
+                            <?php if (!empty($order['customer_account_id'])): ?>
+                            <a href="/admin/customer-detail.php?id=<?php echo $order['customer_account_id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium text-sm">
+                                <i class="bi bi-person-badge mr-1"></i>
+                                <?php echo htmlspecialchars($order['customer_account_name'] ?: $order['customer_account_email']); ?>
+                            </a>
+                            <?php else: ?>
+                            <span class="text-gray-400 text-sm"><i class="bi bi-person-x mr-1"></i>Guest</span>
+                            <?php endif; ?>
                         </td>
                         <td class="py-3 px-2">
                             <?php
