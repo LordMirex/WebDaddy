@@ -94,11 +94,32 @@ The platform features a clean, professional UI with consistent design elements. 
   - Updated `sendToolDeliveryEmail()` with dashboard access link
 - **Admin Panel Updates (06)**: New pages and API endpoints for customer management
 
-### Pending Updates (07-25)
+### Completed (Updates 07-08)
+- **API Endpoints (07)**: 9 new customer API endpoints created in `/api/customer/`:
+  - `logout.php` - Customer logout with optional all-device revocation
+  - `profile.php` - GET/POST for customer profile management
+  - `orders.php` - Paginated order list with status filtering
+  - `order-detail.php` - Single order with items, deliveries, timeline
+  - `downloads.php` - Customer download tokens grouped by tool
+  - `regenerate-token.php` - Regenerate expired download tokens (with ownership validation)
+  - `tickets.php` - GET/POST for support tickets
+  - `ticket-reply.php` - Add replies to support tickets
+  - `sessions.php` - GET/DELETE for session management
+- **Email Templates (08)**: 8 new email functions added to `includes/mailer.php`:
+  - `sendOTPEmail()` - High-priority OTP verification email
+  - `sendCustomerWelcomeEmail()` - Welcome email with dashboard link
+  - `sendPasswordSetEmail()` - Password set confirmation
+  - `sendPasswordResetEmail()` - High-priority password reset link
+  - `sendTemplateDeliveryNotification()` - Website-is-live notification (dashboard-first, no credentials in email)
+  - `sendTicketConfirmationEmail()` - Support ticket created confirmation
+  - `sendTicketReplyNotificationEmail()` - Ticket reply notification
+  - `sendNewCustomerTicketNotification()` - Admin notification for new customer tickets
+
+### Pending Updates (09-25)
 See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
-- API endpoints (07)
-- Email templates (08)
-- And 17 more enhancement updates...
+- Frontend changes (09)
+- Security (10)
+- And 15 more enhancement updates...
 
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
