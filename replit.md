@@ -60,18 +60,28 @@ The platform features a clean, professional UI with consistent design elements. 
 
 ## Customer Account System Progress
 
-### Completed (Updates 01-02)
-- **Database Schema (01)**: All 7 customer tables created (customers, customer_sessions, customer_otp_codes, customer_password_resets, customer_activity_log, customer_support_tickets, customer_ticket_replies)
+### Completed (Updates 01-04)
+- **Database Schema (01)**: All 7 customer tables created (customers, customer_sessions, customer_otp_codes, customer_password_resets, customer_activity_log, customer_support_tickets, customer_ticket_replies) + customer_notifications table
 - **Existing Tables Modified**: customer_id added to pending_orders, sales, deliveries, download_tokens, cart_items
 - **Customer Authentication (02)**: Core auth files created:
   - `includes/customer_auth.php` - Login, registration, password recovery
   - `includes/customer_session.php` - Long-lasting session tokens
   - `includes/customer_otp.php` - OTP generation and verification
+- **Checkout Flow API (03)**: Customer API endpoints created:
+  - `api/customer/check-email.php` - Check if customer exists
+  - `api/customer/request-otp.php` - Send OTP for email verification
+  - `api/customer/verify-otp.php` - Verify OTP and create session
+  - `api/customer/login.php` - Password login
+  - `api/customer/notifications.php` - Customer notifications
+- **User Dashboard (04)**: Full `/user/` customer portal with 15 pages:
+  - Dashboard home, orders list, order detail, downloads
+  - Support tickets list, ticket detail, new ticket
+  - Profile settings, security settings
+  - Login, logout, forgot-password, reset-password
+  - Includes: auth middleware, header, footer
 
-### Pending Updates (03-25)
+### Pending Updates (05-25)
 See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
-- Checkout Flow integration (03)
-- User Dashboard pages (04)
 - Delivery system updates (05)
 - Admin panel updates (06)
 - And 19 more enhancement updates...
