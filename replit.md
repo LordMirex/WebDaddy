@@ -58,18 +58,23 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Data Integrity**: Safeguarding functions maintain consistency between cached affiliate data and the `sales` table.
 - **Timezone**: All datetime queries consistently use a `+1 hour` offset for Nigeria time.
 
-## Planned Updates
+## Customer Account System Progress
 
-### Customer Account System (system_update/ folder)
-Comprehensive documentation for adding customer accounts to the platform. Documentation created in `system_update/` folder includes:
-- **Database Schema**: 7 new tables (customers, customer_sessions, customer_otp_codes, etc.)
-- **Customer Authentication**: Email-first login with OTP (Termii SMS) or password
-- **User Dashboard**: New `/user/` folder with order tracking, downloads, support tickets
-- **Checkout Flow**: Frictionless auth integration maintaining conversion optimization
-- **Termii Integration**: SMS OTP for Nigerian market (used by Paystack)
-- **Implementation Guide**: 10-phase step-by-step deployment plan
+### Completed (Updates 01-02)
+- **Database Schema (01)**: All 7 customer tables created (customers, customer_sessions, customer_otp_codes, customer_password_resets, customer_activity_log, customer_support_tickets, customer_ticket_replies)
+- **Existing Tables Modified**: customer_id added to pending_orders, sales, deliveries, download_tokens, cart_items
+- **Customer Authentication (02)**: Core auth files created:
+  - `includes/customer_auth.php` - Login, registration, password recovery
+  - `includes/customer_session.php` - Long-lasting session tokens
+  - `includes/customer_otp.php` - OTP generation and verification
 
-See `system_update/00_OVERVIEW.md` for executive summary.
+### Pending Updates (03-25)
+See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
+- Checkout Flow integration (03)
+- User Dashboard pages (04)
+- Delivery system updates (05)
+- Admin panel updates (06)
+- And 19 more enhancement updates...
 
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
