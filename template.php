@@ -585,5 +585,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
             }
         });
     </script>
+    
+    <?php include __DIR__ . '/includes/floating-cart-widget.php'; ?>
 </body>
 </html>

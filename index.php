@@ -1968,5 +1968,7 @@ if ($autoOpenTool) {
             }));
         });
     </script>
+    
+    <?php include __DIR__ . '/includes/floating-cart-widget.php'; ?>
 </body>
 </html>
