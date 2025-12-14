@@ -1885,15 +1885,30 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 
                 
-                <button type="submit" 
-                        <?php echo !$validation['valid'] ? 'disabled' : ''; ?>
-                        id="submit-btn"
-                        class="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <span id="submit-text">Confirm Order - Manual Payment</span>
-                </button>
+                <!-- Submit Button Container - controlled by Alpine state -->
+                <div id="submit-btn-container" x-data="{ authStep: 'email' }" 
+                     x-init="window.addEventListener('checkout-auth-ready', e => { authStep = e.detail.step; console.log('Auth state updated:', e.detail.step); });">
+                    
+                    <!-- Show prompt when not authenticated -->
+                    <div x-show="authStep !== 'authenticated'" x-cloak class="bg-yellow-900/30 border border-yellow-600/50 rounded-xl p-4 mb-4 text-center">
+                        <p class="text-yellow-200 text-sm">
+                            <svg class="w-5 h-5 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                            Please verify your email above to continue checkout
+                        </p>
+                    </div>
+                    
+                    <!-- Submit button - only enabled when authenticated -->
+                    <button type="submit" 
+                            id="submit-btn"
+                            :disabled="authStep !== 'authenticated' || <?php echo !$validation['valid'] ? 'true' : 'false'; ?>"
+                            :class="authStep !== 'authenticated' ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'"
+                            class="w-full disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span id="submit-text">Confirm Order - Manual Payment</span>
+                    </button>
+                </div>
                 
                 </form>
                 
@@ -2460,5 +2475,270 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     
     <!-- Customer Auth Module -->
     <script src="/assets/js/customer-auth.js"></script>
+    
+    <!-- Checkout Auth Alpine Component -->
+    <script>
+    function checkoutAuth() {
+        return {
+            // State
+            step: 'email', // 'email', 'password', 'otp', 'authenticated'
+            email: '',
+            password: '',
+            phone: '',
+            otpDigits: ['', '', '', '', '', ''],
+            loading: false,
+            error: '',
+            
+            // Customer data (populated on auth)
+            customerId: null,
+            customerName: '',
+            customerPhone: '',
+            
+            // OTP resend timer
+            resendTimer: 60,
+            canResend: false,
+            resendInterval: null,
+            
+            // Initialize - check if already logged in
+            async init() {
+                try {
+                    const customer = await CustomerAuth.checkSession();
+                    if (customer) {
+                        this.setAuthenticatedState(customer);
+                    } else {
+                        // Dispatch initial state
+                        window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'email' } }));
+                    }
+                } catch (e) {
+                    console.error('Init error:', e);
+                    window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'email' } }));
+                }
+            },
+            
+            // Set authenticated state with customer data
+            setAuthenticatedState(customer) {
+                this.customerId = customer.id;
+                this.email = customer.email;
+                this.customerName = customer.full_name || customer.name || '';
+                this.customerPhone = customer.phone || '';
+                this.step = 'authenticated';
+                this.error = '';
+                // Dispatch event to notify submit button
+                window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'authenticated' } }));
+            },
+            
+            // Check email - determine if new or existing user
+            async checkEmail() {
+                if (!this.email || !this.email.includes('@')) {
+                    this.error = 'Please enter a valid email address';
+                    return;
+                }
+                
+                this.loading = true;
+                this.error = '';
+                
+                try {
+                    const result = await CustomerAuth.checkEmail(this.email);
+                    
+                    if (result.success) {
+                        if (result.exists && result.has_password) {
+                            // Existing user with password - show login
+                            this.customerName = result.full_name || '';
+                            this.step = 'password';
+                        } else {
+                            // New user or user without password - send OTP
+                            await this.requestOTP();
+                        }
+                    } else {
+                        this.error = result.error || 'Failed to check email';
+                    }
+                } catch (e) {
+                    this.error = 'Network error. Please try again.';
+                    console.error('checkEmail error:', e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            // Request OTP for email verification
+            async requestOTP() {
+                this.loading = true;
+                this.error = '';
+                
+                try {
+                    const result = await CustomerAuth.requestOTP(this.email, this.phone || null);
+                    
+                    if (result.success) {
+                        this.step = 'otp';
+                        this.otpDigits = ['', '', '', '', '', ''];
+                        this.startResendTimer();
+                        // Focus first OTP input
+                        this.$nextTick(() => {
+                            document.getElementById('otp-0')?.focus();
+                        });
+                    } else {
+                        this.error = result.error || 'Failed to send verification code';
+                    }
+                } catch (e) {
+                    this.error = 'Network error. Please try again.';
+                    console.error('requestOTP error:', e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            // Resend OTP
+            async resendOTP() {
+                if (!this.canResend) return;
+                await this.requestOTP();
+            },
+            
+            // Start resend timer
+            startResendTimer() {
+                this.resendTimer = 60;
+                this.canResend = false;
+                
+                if (this.resendInterval) clearInterval(this.resendInterval);
+                
+                this.resendInterval = setInterval(() => {
+                    this.resendTimer--;
+                    if (this.resendTimer <= 0) {
+                        this.canResend = true;
+                        clearInterval(this.resendInterval);
+                    }
+                }, 1000);
+            },
+            
+            // Handle OTP input - enforce numeric only
+            handleOTPInput(event, index) {
+                // Force numeric only
+                const value = event.target.value.replace(/\D/g, '');
+                event.target.value = value.charAt(0) || '';
+                this.otpDigits[index] = value.charAt(0) || '';
+                
+                if (value && index < 5) {
+                    // Auto-advance to next input
+                    this.$nextTick(() => {
+                        document.getElementById('otp-' + (index + 1))?.focus();
+                    });
+                }
+                
+                // Auto-verify when all digits entered
+                this.$nextTick(() => {
+                    if (this.otpDigits.every(d => d !== '')) {
+                        this.verifyOTP();
+                    }
+                });
+            },
+            
+            // Handle OTP backspace
+            handleOTPBackspace(event, index) {
+                if (!this.otpDigits[index] && index > 0) {
+                    document.getElementById('otp-' + (index - 1))?.focus();
+                }
+            },
+            
+            // Handle OTP paste
+            handleOTPPaste(event) {
+                const pastedData = (event.clipboardData || window.clipboardData).getData('text');
+                const digits = pastedData.replace(/\D/g, '').slice(0, 6).split('');
+                
+                digits.forEach((digit, i) => {
+                    this.otpDigits[i] = digit;
+                });
+                
+                // Focus last filled input or next empty
+                const lastIndex = Math.min(digits.length, 5);
+                document.getElementById('otp-' + lastIndex)?.focus();
+                
+                // Auto-verify if all digits pasted
+                if (digits.length === 6) {
+                    this.$nextTick(() => this.verifyOTP());
+                }
+            },
+            
+            // Verify OTP
+            async verifyOTP() {
+                const code = this.otpDigits.join('');
+                if (code.length !== 6) {
+                    this.error = 'Please enter all 6 digits';
+                    return;
+                }
+                
+                this.loading = true;
+                this.error = '';
+                
+                try {
+                    const result = await CustomerAuth.verifyOTP(this.email, code);
+                    
+                    if (result.success) {
+                        this.setAuthenticatedState(result.customer);
+                        if (this.resendInterval) clearInterval(this.resendInterval);
+                    } else {
+                        this.error = result.error || 'Invalid verification code';
+                        this.otpDigits = ['', '', '', '', '', ''];
+                        document.getElementById('otp-0')?.focus();
+                    }
+                } catch (e) {
+                    this.error = 'Network error. Please try again.';
+                    console.error('verifyOTP error:', e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            // Login with password
+            async login() {
+                if (!this.password) {
+                    this.error = 'Please enter your password';
+                    return;
+                }
+                
+                this.loading = true;
+                this.error = '';
+                
+                try {
+                    const result = await CustomerAuth.login(this.email, this.password);
+                    
+                    if (result.success) {
+                        this.setAuthenticatedState(result.customer);
+                    } else {
+                        this.error = result.error || 'Invalid password';
+                    }
+                } catch (e) {
+                    this.error = 'Network error. Please try again.';
+                    console.error('login error:', e);
+                } finally {
+                    this.loading = false;
+                }
+            },
+            
+            // Logout / switch account
+            async logout() {
+                try {
+                    await CustomerAuth.logout();
+                } catch (e) {
+                    console.error('logout error:', e);
+                }
+                
+                // Reset state
+                this.step = 'email';
+                this.email = '';
+                this.password = '';
+                this.phone = '';
+                this.otpDigits = ['', '', '', '', '', ''];
+                this.customerId = null;
+                this.customerName = '';
+                this.customerPhone = '';
+                this.error = '';
+                
+                if (this.resendInterval) clearInterval(this.resendInterval);
+                
+                // Dispatch event to notify submit button
+                window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'email' } }));
+            }
+        };
+    }
+    </script>
 </body>
 </html>
