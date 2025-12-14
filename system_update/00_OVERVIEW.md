@@ -11,7 +11,7 @@ Track your progress through each document. Update the status as you work through
 | 02 | [02_CUSTOMER_AUTH.md](./02_CUSTOMER_AUTH.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Auth system with OTP, sessions, recovery implemented |
 | 03 | [03_CHECKOUT_FLOW.md](./03_CHECKOUT_FLOW.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Customer API endpoints created (check-email, request-otp, verify-otp, login, notifications) |
 | 04 | [04_USER_DASHBOARD.md](./04_USER_DASHBOARD.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Full /user/ dashboard with 15 pages: index, orders, order-detail, downloads, support, ticket, new-ticket, profile, security, login, logout, forgot/reset-password |
-| 05 | [05_DELIVERY_SYSTEM.md](./05_DELIVERY_SYSTEM.md) | ⬜ Pending | | | Delivery tracking updates |
+| 05 | [05_DELIVERY_SYSTEM.md](./05_DELIVERY_SYSTEM.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Customer delivery functions: getCustomerDeliveries, getDeliveryForCustomer, getTemplateCredentialsForCustomer, processCustomerDownload, regenerateDownloadToken, getOrderTimeline, createToolDownloadTokens. Updated createDeliveryRecords with customer_id linking. Dashboard link added to emails. |
 | 06 | [06_ADMIN_UPDATES.md](./06_ADMIN_UPDATES.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | New pages: customers.php, customer-detail.php, customer-tickets.php. Updated: orders.php, index.php, reports.php, header.php. API: generate-user-otp.php |
 | 07 | [07_API_ENDPOINTS.md](./07_API_ENDPOINTS.md) | ⬜ Pending | | | Customer API endpoints |
 | 08 | [08_EMAIL_TEMPLATES.md](./08_EMAIL_TEMPLATES.md) | ⬜ Pending | | | New email templates |
@@ -47,9 +47,9 @@ Track your progress through each document. Update the status as you work through
 
 ```
 Total Documents: 26
-Completed: 6 / 26 (23%)
+Completed: 7 / 26 (27%)
 In Progress: 0
-Pending: 20
+Pending: 19
 ```
 
 ### How to Use This Tracker

@@ -24,6 +24,12 @@ function createDeliveryRecords($orderId) {
     error_log("📦 Creating delivery records for Order #$orderId");
     
     try {
+        // Get customer_id for dashboard access linking
+        $orderStmt = $db->prepare("SELECT customer_id FROM pending_orders WHERE id = ?");
+        $orderStmt->execute([$orderId]);
+        $orderData = $orderStmt->fetch(PDO::FETCH_ASSOC);
+        $customerId = $orderData['customer_id'] ?? null;
+        
         // Get order items - ensure we get ALL items
         // CRITICAL FIX: For tools, only include those marked upload_complete = 1
         // NOTE: Tools use delivery_instructions field, templates use delivery_note
@@ -78,6 +84,10 @@ function createDeliveryRecords($orderId) {
             try {
                 if ($item['product_type'] === 'tool') {
                     createToolDelivery($orderId, $item);
+                    // Link download tokens to customer for dashboard access
+                    if ($customerId) {
+                        createToolDownloadTokens($orderId, $item['product_id'], $customerId);
+                    }
                 } else {
                     createTemplateDelivery($orderId, $item);
                 }
@@ -234,6 +244,12 @@ function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
         $body .= '<p style="color: #374151; margin: 0; white-space: pre-wrap;">' . htmlspecialchars($item['delivery_note']) . '</p>';
         $body .= '</div>';
     }
+    
+    // Dashboard access link
+    $dashboardLink = SITE_URL . '/user/order-detail.php?id=' . $orderId;
+    $body .= '<p style="margin-top: 15px; color: #374151;">';
+    $body .= 'You can also access your downloads anytime from your <a href="' . $dashboardLink . '" style="color: #3b82f6;">account dashboard</a>.';
+    $body .= '</p>';
     
     require_once __DIR__ . '/mailer.php';
     return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
@@ -2723,4 +2739,589 @@ function buildVersionControlEmail($tool, $orderId, $customerName, $addedFiles, $
         'body' => $body,
         'html' => $htmlEmail
     ];
+}
+
+// ============================================================================
+// CUSTOMER DASHBOARD DELIVERY FUNCTIONS
+// Document 05: Delivery System Updates for Customer Dashboard Access
+// ============================================================================
+
+/**
+ * Get all deliveries for a customer
+ * Used in user dashboard to show delivery history and status
+ * 
+ * @param int $customerId Customer ID
+ * @param string|null $status Optional status filter
+ * @return array List of deliveries with order and product details
+ */
+function getCustomerDeliveries($customerId, $status = null) {
+    $db = getDb();
+    
+    $sql = "
+        SELECT 
+            d.*,
+            po.id as order_id,
+            po.created_at as order_date,
+            po.status as order_status,
+            COALESCE(t.name, tl.name) as product_display_name,
+            COALESCE(t.thumbnail_url, tl.thumbnail_url) as product_thumbnail,
+            oi.product_type,
+            oi.price
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        JOIN order_items oi ON oi.pending_order_id = po.id 
+                           AND oi.product_type = d.product_type 
+                           AND oi.product_id = d.product_id
+        LEFT JOIN templates t ON d.product_type = 'template' AND d.product_id = t.id
+        LEFT JOIN tools tl ON d.product_type = 'tool' AND d.product_id = tl.id
+        WHERE po.customer_id = ?
+    ";
+    $params = [$customerId];
+    
+    if ($status) {
+        $sql .= " AND d.delivery_status = ?";
+        $params[] = $status;
+    }
+    
+    $sql .= " ORDER BY po.created_at DESC";
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get single delivery with security check
+ * Verifies the customer owns the order before returning delivery details
+ * 
+ * @param int $deliveryId Delivery ID
+ * @param int $customerId Customer ID for ownership verification
+ * @return array|null Delivery record or null if not found/not owned
+ */
+function getDeliveryForCustomer($deliveryId, $customerId) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        SELECT d.*, po.customer_id
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.id = ? AND po.customer_id = ?
+    ");
+    $stmt->execute([$deliveryId, $customerId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get decrypted template credentials for customer view
+ * Only returns credentials if delivery is complete
+ * Tracks customer access for admin visibility
+ * 
+ * @param int $deliveryId Delivery ID
+ * @param int $customerId Customer ID for ownership verification
+ * @return array|null Credentials array or null if not available
+ */
+function getTemplateCredentialsForCustomer($deliveryId, $customerId) {
+    $db = getDb();
+    
+    // Verify ownership and delivery status
+    $stmt = $db->prepare("
+        SELECT d.*
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        WHERE d.id = ? 
+        AND po.customer_id = ?
+        AND d.product_type = 'template'
+        AND d.delivery_status = 'delivered'
+    ");
+    $stmt->execute([$deliveryId, $customerId]);
+    $delivery = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$delivery) {
+        return null;
+    }
+    
+    // Decrypt password if encrypted
+    $password = null;
+    if (!empty($delivery['template_admin_password'])) {
+        require_once __DIR__ . '/functions.php';
+        $password = decryptCredential($delivery['template_admin_password']);
+    }
+    
+    // Track customer view (first view only)
+    $db->prepare("
+        UPDATE deliveries 
+        SET customer_viewed_at = COALESCE(customer_viewed_at, datetime('now', '+1 hour'))
+        WHERE id = ?
+    ")->execute([$deliveryId]);
+    
+    // Log access
+    if (function_exists('logCustomerActivity')) {
+        logCustomerActivity($customerId, 'credential_view', "Viewed credentials for delivery #$deliveryId");
+    }
+    
+    return [
+        'domain' => $delivery['hosted_domain'],
+        'website_url' => $delivery['hosted_url'],
+        'login_url' => $delivery['template_login_url'],
+        'username' => $delivery['template_admin_username'],
+        'password' => $password,
+        'hosting_provider' => $delivery['hosting_provider'],
+        'admin_notes' => $delivery['admin_notes']
+    ];
+}
+
+/**
+ * Create download tokens for tool files with customer_id linking
+ * Links tokens to both order and customer for dashboard access
+ * 
+ * @param int $orderId Order ID
+ * @param int $toolId Tool/Product ID
+ * @param int|null $customerId Customer ID for dashboard access
+ * @return array Created token IDs
+ */
+function createToolDownloadTokens($orderId, $toolId, $customerId = null) {
+    $db = getDb();
+    
+    require_once __DIR__ . '/tool_files.php';
+    $files = getToolFiles($toolId);
+    
+    $createdTokens = [];
+    
+    foreach ($files as $file) {
+        // Check if token already exists for this file and order
+        $existing = $db->prepare("
+            SELECT id FROM download_tokens 
+            WHERE file_id = ? AND pending_order_id = ?
+        ");
+        $existing->execute([$file['id'], $orderId]);
+        
+        if (!$existing->fetch()) {
+            // Generate new token
+            $token = bin2hex(random_bytes(32));
+            $expiryDays = defined('DOWNLOAD_LINK_EXPIRY_DAYS') ? DOWNLOAD_LINK_EXPIRY_DAYS : 30;
+            $maxDownloads = defined('MAX_DOWNLOAD_ATTEMPTS') ? MAX_DOWNLOAD_ATTEMPTS : 10;
+            $expiresAt = date('Y-m-d H:i:s', strtotime("+{$expiryDays} days"));
+            
+            $stmt = $db->prepare("
+                INSERT INTO download_tokens 
+                (file_id, pending_order_id, customer_id, token, max_downloads, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$file['id'], $orderId, $customerId, $token, $maxDownloads, $expiresAt]);
+            
+            $createdTokens[] = $db->lastInsertId();
+            error_log("✅ Created download token for File #{$file['id']}, Order #$orderId, Customer #$customerId");
+        } else {
+            // Update existing token with customer_id if not set
+            if ($customerId) {
+                $db->prepare("
+                    UPDATE download_tokens 
+                    SET customer_id = COALESCE(customer_id, ?)
+                    WHERE file_id = ? AND pending_order_id = ?
+                ")->execute([$customerId, $file['id'], $orderId]);
+            }
+        }
+    }
+    
+    return $createdTokens;
+}
+
+/**
+ * Process download request from customer dashboard
+ * Validates token, checks ownership, and tracks downloads
+ * 
+ * @param string $token Download token
+ * @param int|null $customerId Customer ID for ownership verification (optional)
+ * @return array Result with success status, file info or error
+ */
+function processCustomerDownload($token, $customerId = null) {
+    $db = getDb();
+    
+    // Validate token and get file info
+    $stmt = $db->prepare("
+        SELECT dt.*, tf.file_path, tf.file_name, tf.file_type,
+               po.customer_id as order_customer_id, po.status as order_status
+        FROM download_tokens dt
+        JOIN tool_files tf ON dt.file_id = tf.id
+        JOIN pending_orders po ON dt.pending_order_id = po.id
+        WHERE dt.token = ?
+        AND dt.expires_at > datetime('now')
+        AND dt.download_count < dt.max_downloads
+        AND po.status = 'paid'
+    ");
+    $stmt->execute([$token]);
+    $tokenData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$tokenData) {
+        // Check if token exists but is expired or exhausted
+        $checkStmt = $db->prepare("SELECT id, expires_at, download_count, max_downloads FROM download_tokens WHERE token = ?");
+        $checkStmt->execute([$token]);
+        $expiredToken = $checkStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($expiredToken) {
+            if (strtotime($expiredToken['expires_at']) < time()) {
+                return ['success' => false, 'error' => 'Download link has expired. Please request a new link from your dashboard.'];
+            }
+            if ($expiredToken['download_count'] >= $expiredToken['max_downloads']) {
+                return ['success' => false, 'error' => 'Download limit reached. Please request a new link from your dashboard.'];
+            }
+        }
+        return ['success' => false, 'error' => 'Invalid download link'];
+    }
+    
+    // If customer ID provided, verify ownership
+    if ($customerId && $tokenData['order_customer_id'] != $customerId) {
+        return ['success' => false, 'error' => 'Access denied - this download does not belong to your account'];
+    }
+    
+    // Increment download count
+    $db->prepare("UPDATE download_tokens SET download_count = download_count + 1, last_downloaded_at = datetime('now', '+1 hour') WHERE id = ?")
+       ->execute([$tokenData['id']]);
+    
+    // Update delivery record download count
+    $db->prepare("
+        UPDATE deliveries 
+        SET customer_download_count = customer_download_count + 1
+        WHERE pending_order_id = ? AND product_type = 'tool'
+    ")->execute([$tokenData['pending_order_id']]);
+    
+    // Log activity if customer is known
+    if ($tokenData['order_customer_id'] && function_exists('logCustomerActivity')) {
+        logCustomerActivity($tokenData['order_customer_id'], 'file_download', 
+            "Downloaded file: {$tokenData['file_name']}");
+    }
+    
+    return [
+        'success' => true,
+        'file_path' => $tokenData['file_path'],
+        'file_name' => $tokenData['file_name'],
+        'file_type' => $tokenData['file_type'],
+        'remaining_downloads' => $tokenData['max_downloads'] - $tokenData['download_count'] - 1
+    ];
+}
+
+/**
+ * Regenerate download token for customer when original is expired
+ * Creates a new token with extended validity
+ * 
+ * @param int $oldTokenId Original token ID
+ * @param int $customerId Customer ID for ownership verification
+ * @return array Result with new token or error
+ */
+function regenerateDownloadToken($oldTokenId, $customerId) {
+    $db = getDb();
+    
+    // Get old token and verify ownership
+    $stmt = $db->prepare("
+        SELECT dt.*, po.customer_id, tf.file_name
+        FROM download_tokens dt
+        JOIN pending_orders po ON dt.pending_order_id = po.id
+        JOIN tool_files tf ON dt.file_id = tf.id
+        WHERE dt.id = ? AND po.customer_id = ?
+    ");
+    $stmt->execute([$oldTokenId, $customerId]);
+    $oldToken = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$oldToken) {
+        return ['success' => false, 'error' => 'Token not found or access denied'];
+    }
+    
+    // Check if order is still valid (paid)
+    $orderCheck = $db->prepare("SELECT status FROM pending_orders WHERE id = ?");
+    $orderCheck->execute([$oldToken['pending_order_id']]);
+    $order = $orderCheck->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$order || $order['status'] !== 'paid') {
+        return ['success' => false, 'error' => 'Order is not active'];
+    }
+    
+    // Generate new token with reduced expiry and downloads for regenerated tokens
+    $newToken = bin2hex(random_bytes(32));
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+    $maxDownloads = 5; // Reduced for regenerated tokens
+    
+    // Insert new token
+    $stmt = $db->prepare("
+        INSERT INTO download_tokens 
+        (file_id, pending_order_id, customer_id, token, max_downloads, expires_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([
+        $oldToken['file_id'],
+        $oldToken['pending_order_id'],
+        $customerId,
+        $newToken,
+        $maxDownloads,
+        $expiresAt
+    ]);
+    
+    $newTokenId = $db->lastInsertId();
+    
+    // Build download URL
+    $downloadUrl = SITE_URL . '/download.php?token=' . $newToken;
+    
+    // Log activity
+    if (function_exists('logCustomerActivity')) {
+        logCustomerActivity($customerId, 'token_regenerated', 
+            "Regenerated download token for file: {$oldToken['file_name']}");
+    }
+    
+    error_log("🔄 Regenerated download token for Customer #$customerId, File #{$oldToken['file_id']} -> Token #$newTokenId");
+    
+    return [
+        'success' => true,
+        'token' => $newToken,
+        'token_id' => $newTokenId,
+        'download_url' => $downloadUrl,
+        'expires_at' => $expiresAt,
+        'max_downloads' => $maxDownloads,
+        'file_name' => $oldToken['file_name']
+    ];
+}
+
+/**
+ * Get download tokens for a customer's order
+ * Used to display available downloads in dashboard
+ * 
+ * @param int $orderId Order ID
+ * @param int $customerId Customer ID for verification
+ * @return array List of download tokens with file info
+ */
+function getCustomerDownloadTokens($orderId, $customerId) {
+    $db = getDb();
+    
+    // Verify customer owns this order
+    $orderCheck = $db->prepare("SELECT id FROM pending_orders WHERE id = ? AND customer_id = ?");
+    $orderCheck->execute([$orderId, $customerId]);
+    if (!$orderCheck->fetch()) {
+        return [];
+    }
+    
+    $stmt = $db->prepare("
+        SELECT 
+            dt.*,
+            tf.file_name,
+            tf.file_type,
+            tf.file_size,
+            tl.name as tool_name
+        FROM download_tokens dt
+        JOIN tool_files tf ON dt.file_id = tf.id
+        JOIN tools tl ON tf.tool_id = tl.id
+        WHERE dt.pending_order_id = ?
+        ORDER BY tl.name ASC, tf.file_name ASC
+    ");
+    $stmt->execute([$orderId]);
+    $tokens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Add status and URL to each token
+    foreach ($tokens as &$token) {
+        $isExpired = strtotime($token['expires_at']) < time();
+        $isExhausted = $token['download_count'] >= $token['max_downloads'];
+        
+        $token['is_expired'] = $isExpired;
+        $token['is_exhausted'] = $isExhausted;
+        $token['is_valid'] = !$isExpired && !$isExhausted;
+        $token['remaining_downloads'] = max(0, $token['max_downloads'] - $token['download_count']);
+        $token['download_url'] = SITE_URL . '/download.php?token=' . $token['token'];
+    }
+    
+    return $tokens;
+}
+
+/**
+ * Build delivery timeline for order detail page
+ * Shows chronological events for customer visibility
+ * 
+ * @param int $orderId Order ID
+ * @param int $customerId Customer ID for ownership verification
+ * @return array Timeline events sorted chronologically
+ */
+function getOrderTimeline($orderId, $customerId) {
+    $db = getDb();
+    
+    // Verify ownership
+    $orderCheck = $db->prepare("SELECT id FROM pending_orders WHERE id = ? AND customer_id = ?");
+    $orderCheck->execute([$orderId, $customerId]);
+    if (!$orderCheck->fetch()) {
+        return [];
+    }
+    
+    $timeline = [];
+    
+    // Get order creation
+    $stmt = $db->prepare("SELECT created_at, payment_verified_at FROM pending_orders WHERE id = ?");
+    $stmt->execute([$orderId]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($order) {
+        $timeline[] = [
+            'event' => 'order_created',
+            'timestamp' => $order['created_at'],
+            'description' => 'Order placed',
+            'icon' => 'shopping-cart',
+            'color' => 'blue'
+        ];
+        
+        if (!empty($order['payment_verified_at'])) {
+            $timeline[] = [
+                'event' => 'payment_confirmed',
+                'timestamp' => $order['payment_verified_at'],
+                'description' => 'Payment confirmed',
+                'icon' => 'check-circle',
+                'color' => 'green'
+            ];
+        }
+    }
+    
+    // Get delivery events
+    $stmt = $db->prepare("
+        SELECT 
+            id, product_name, product_type, delivery_status,
+            created_at, delivered_at, email_sent_at, credentials_sent_at,
+            customer_viewed_at
+        FROM deliveries 
+        WHERE pending_order_id = ?
+        ORDER BY created_at ASC
+    ");
+    $stmt->execute([$orderId]);
+    $deliveries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($deliveries as $delivery) {
+        // Delivery created
+        $timeline[] = [
+            'event' => 'delivery_created',
+            'timestamp' => $delivery['created_at'],
+            'description' => $delivery['product_name'] . ' - Processing started',
+            'icon' => 'package',
+            'color' => 'yellow',
+            'product_type' => $delivery['product_type']
+        ];
+        
+        // Email sent (for tools)
+        if (!empty($delivery['email_sent_at']) && $delivery['product_type'] === 'tool') {
+            $timeline[] = [
+                'event' => 'tool_email_sent',
+                'timestamp' => $delivery['email_sent_at'],
+                'description' => $delivery['product_name'] . ' - Download links sent',
+                'icon' => 'mail',
+                'color' => 'purple',
+                'product_type' => 'tool'
+            ];
+        }
+        
+        // Credentials sent (for templates)
+        if (!empty($delivery['credentials_sent_at']) && $delivery['product_type'] === 'template') {
+            $timeline[] = [
+                'event' => 'template_credentials_sent',
+                'timestamp' => $delivery['credentials_sent_at'],
+                'description' => $delivery['product_name'] . ' - Login credentials sent',
+                'icon' => 'key',
+                'color' => 'purple',
+                'product_type' => 'template'
+            ];
+        }
+        
+        // Delivered
+        if ($delivery['delivery_status'] === 'delivered' && !empty($delivery['delivered_at'])) {
+            $timeline[] = [
+                'event' => 'delivery_complete',
+                'timestamp' => $delivery['delivered_at'],
+                'description' => $delivery['product_name'] . ' - Delivered',
+                'icon' => 'check',
+                'color' => 'green',
+                'product_type' => $delivery['product_type']
+            ];
+        }
+        
+        // Customer first view
+        if (!empty($delivery['customer_viewed_at'])) {
+            $timeline[] = [
+                'event' => 'customer_viewed',
+                'timestamp' => $delivery['customer_viewed_at'],
+                'description' => $delivery['product_name'] . ' - Accessed by customer',
+                'icon' => 'eye',
+                'color' => 'gray',
+                'product_type' => $delivery['product_type']
+            ];
+        }
+    }
+    
+    // Sort by timestamp
+    usort($timeline, function($a, $b) {
+        return strtotime($a['timestamp']) - strtotime($b['timestamp']);
+    });
+    
+    return $timeline;
+}
+
+/**
+ * Get delivery with customer access stats for admin view
+ * Shows when customer viewed and download counts
+ * 
+ * @param int $deliveryId Delivery ID
+ * @return array|null Delivery with stats or null
+ */
+function getDeliveryWithCustomerStats($deliveryId) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        SELECT d.*, 
+               po.customer_name, po.customer_email, po.customer_id,
+               c.name as registered_customer_name, c.email as registered_customer_email
+        FROM deliveries d
+        JOIN pending_orders po ON d.pending_order_id = po.id
+        LEFT JOIN customers c ON po.customer_id = c.id
+        WHERE d.id = ?
+    ");
+    $stmt->execute([$deliveryId]);
+    $delivery = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$delivery) {
+        return null;
+    }
+    
+    // Get download token stats if it's a tool
+    if ($delivery['product_type'] === 'tool') {
+        $tokenStmt = $db->prepare("
+            SELECT 
+                COUNT(*) as total_tokens,
+                SUM(download_count) as total_downloads,
+                MAX(last_downloaded_at) as last_download
+            FROM download_tokens
+            WHERE pending_order_id = ?
+        ");
+        $tokenStmt->execute([$delivery['pending_order_id']]);
+        $tokenStats = $tokenStmt->fetch(PDO::FETCH_ASSOC);
+        
+        $delivery['token_stats'] = $tokenStats;
+    }
+    
+    return $delivery;
+}
+
+/**
+ * Link existing download tokens to customer after account creation
+ * Called when guest checkout user creates account
+ * 
+ * @param int $orderId Order ID
+ * @param int $customerId Customer ID to link
+ * @return int Number of tokens updated
+ */
+function linkDownloadTokensToCustomer($orderId, $customerId) {
+    $db = getDb();
+    
+    $stmt = $db->prepare("
+        UPDATE download_tokens 
+        SET customer_id = ?
+        WHERE pending_order_id = ? AND customer_id IS NULL
+    ");
+    $stmt->execute([$customerId, $orderId]);
+    
+    $updated = $stmt->rowCount();
+    
+    if ($updated > 0) {
+        error_log("🔗 Linked $updated download tokens to Customer #$customerId for Order #$orderId");
+    }
+    
+    return $updated;
 }
