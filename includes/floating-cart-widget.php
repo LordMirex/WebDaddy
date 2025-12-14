@@ -6,128 +6,29 @@ $cartTotal = $cartTotals['total'] ?? 0;
 
 if ($isCheckoutPage || $cartCount <= 0) return;
 ?>
-<style>
-.floating-cart-widget {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1000;
-    font-family: inherit;
-}
-.cart-widget-main {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-    border-radius: 16px;
-    box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.4), 0 4px 10px -5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.cart-widget-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px -5px rgba(30, 64, 175, 0.5), 0 6px 15px -5px rgba(0, 0, 0, 0.15);
-}
-.cart-icon-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    color: white;
-    font-size: 1.125rem;
-}
-.cart-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    background: #ef4444;
-    color: white;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #1e3a8a;
-}
-.cart-info {
-    display: flex;
-    flex-direction: column;
-    color: white;
-}
-.cart-items-text {
-    font-size: 0.75rem;
-    opacity: 0.8;
-}
-.cart-total {
-    font-size: 1.125rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-.checkout-btn-float {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    background: white;
-    color: #1e3a8a;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    border-radius: 10px;
-    transition: all 0.15s ease;
-    text-decoration: none;
-}
-.checkout-btn-float:hover {
-    background: #f0f9ff;
-    transform: translateX(2px);
-    color: #1e3a8a;
-    text-decoration: none;
-}
-@media (max-width: 640px) {
-    .floating-cart-widget {
-        bottom: 16px;
-        right: 16px;
-        left: auto;
-    }
-    .cart-widget-main {
-        padding: 10px 14px;
-        border-radius: 14px;
-    }
-    .cart-icon-wrapper {
-        width: 36px;
-        height: 36px;
-    }
-    .cart-total {
-        font-size: 1rem;
-    }
-    .checkout-btn-float {
-        padding: 8px 14px;
-        font-size: 0.875rem;
-    }
-}
-</style>
 
-<div id="floating-cart-widget" class="floating-cart-widget">
-    <div class="cart-widget-main">
-        <div class="cart-icon-wrapper">
+<div id="floating-cart-widget" class="fixed bottom-6 right-6 z-[1000] font-sans sm:bottom-4 sm:right-4">
+    <div class="cart-widget-main flex items-center gap-3 px-4 py-3 bg-gradient-to-br from-blue-800 to-blue-900 rounded-2xl shadow-lg cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl sm:px-3.5 sm:py-2.5 sm:rounded-xl"
+         style="box-shadow: 0 10px 25px -5px rgba(30, 64, 175, 0.4), 0 4px 10px -5px rgba(0, 0, 0, 0.1);">
+        
+        <div class="relative flex items-center justify-center w-10 h-10 bg-white/15 rounded-xl text-white text-lg sm:w-9 sm:h-9">
             <i class="bi bi-bag-fill"></i>
-            <span class="cart-badge" id="fcw-count"><?= $cartCount ?></span>
+            <span id="fcw-count" class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center border-2 border-blue-900">
+                <?= $cartCount ?>
+            </span>
         </div>
         
-        <div class="cart-info">
-            <span class="cart-items-text" id="fcw-text"><?= $cartCount ?> item<?= $cartCount > 1 ? 's' : '' ?></span>
-            <span class="cart-total" id="fcw-total">₦<?= number_format($cartTotal) ?></span>
+        <div class="flex flex-col text-white">
+            <span id="fcw-text" class="text-xs opacity-80">
+                <?= $cartCount ?> item<?= $cartCount > 1 ? 's' : '' ?>
+            </span>
+            <span id="fcw-total" class="text-lg font-bold tracking-tight sm:text-base">
+                ₦<?= number_format($cartTotal) ?>
+            </span>
         </div>
         
-        <a href="/cart-checkout.php" class="checkout-btn-float">
+        <a href="/cart-checkout.php" 
+           class="flex items-center gap-1.5 px-4 py-2.5 bg-white text-blue-900 font-semibold text-sm rounded-lg transition-all duration-150 hover:bg-blue-50 hover:translate-x-0.5 no-underline sm:px-3.5 sm:py-2 sm:text-[13px]">
             Checkout
             <i class="bi bi-arrow-right"></i>
         </a>
