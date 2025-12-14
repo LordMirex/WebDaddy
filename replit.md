@@ -136,10 +136,23 @@ The platform features a clean, professional UI with consistent design elements. 
 - **Admin Automation (19)**: Database tables (admin_auto_rules, admin_rule_executions, canned_responses)
 - **Security Hardening (20)**: Database tables (security_alerts, login_attempts)
 
-### Pending Updates (21-25)
+### Completed (Updates 21-22)
+- **Infrastructure Improvements (21)**:
+  - `includes/cache.php` - Enhanced with full Cache class (get, set, delete, clear, remember methods)
+  - `includes/job_queue.php` - JobQueue class for background job processing with retry logic
+  - `includes/error_logger.php` - Centralized ErrorLogger class with database and file logging
+  - `includes/backup_manager.php` - BackupManager class for automated backups (database, uploads, config)
+  - `cron/process_jobs.php` - Cron script to process pending background jobs
+  - Database tables: job_queue, error_logs, backup_logs
+- **Affiliate Enhancements (22)**:
+  - `includes/affiliate_stats.php` - Real-time affiliate statistics and analytics
+  - `includes/affiliate_fraud.php` - AffiliateFraudDetector class for fraud detection (click velocity, bot detection, self-referral checks)
+  - `api/affiliate/live-activity.php` - API endpoint for live affiliate activity feed
+  - Database tables: affiliate_fraud_logs, affiliate_marketing_assets, affiliate_asset_downloads
+  - Columns added to pending_orders: affiliate_commission_held, affiliate_hold_reason
+
+### Pending Updates (23-25)
 See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
-- Infrastructure Improvements (21) - Caching and background jobs
-- Affiliate Enhancements (22) - Affiliate tracking updates
 - UI/UX Premium Upgrade (23) - Visual design overhaul
 - Floating Cart Widget (24) - Persistent cart feature
 - Index Page User Profile (25) - Homepage user integration
