@@ -119,11 +119,10 @@ define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 // ============================================
 // TERMII SMS CONFIGURATION
 // ============================================
-// Sign up at https://termii.com to get your API key
-// Add your API key below to enable SMS OTP
-define('TERMII_API_KEY', '');  // Your Termii API key
-define('TERMII_SENDER_ID', 'WebDaddy');  // Your approved sender ID or 'Termii'
-define('TERMII_BASE_URL', 'https://api.ng.termii.com/api');
+// Termii API for SMS OTP delivery
+define('TERMII_API_KEY', 'TLvYXAFRFapJDEzBfrEikuPqjgsmqsaDztgfcIdWSdPQSKCoIzaBZYKinbmaKP');
+define('TERMII_SENDER_ID', 'WebDaddy');
+define('TERMII_BASE_URL', 'https://v3.api.termii.com/api');
 
 // Customer Session Settings
 define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions

@@ -12,13 +12,13 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 
 if (!defined('TERMII_API_KEY')) {
-    define('TERMII_API_KEY', ''); // Set your Termii API key in config.php
+    define('TERMII_API_KEY', '');
 }
 if (!defined('TERMII_SENDER_ID')) {
     define('TERMII_SENDER_ID', 'WebDaddy');
 }
 if (!defined('TERMII_BASE_URL')) {
-    define('TERMII_BASE_URL', 'https://api.ng.termii.com/api');
+    define('TERMII_BASE_URL', 'https://v3.api.termii.com/api');
 }
 
 /**

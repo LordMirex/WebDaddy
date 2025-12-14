@@ -20,9 +20,9 @@ Track your progress through each document. Update the status as you work through
 | 11 | [11_FILE_STRUCTURE.md](./11_FILE_STRUCTURE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | All required files verified: user portal (13 pages), api/customer (14 endpoints), customer includes (5 files), database tables (9 customer tables + rate_limits) |
 | 12 | [12_IMPLEMENTATION_GUIDE.md](./12_IMPLEMENTATION_GUIDE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Implementation phases 1-8 completed, security measures added, file structure verified |
 | 13 | [13_TERMII_INTEGRATION.md](./13_TERMII_INTEGRATION.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | includes/termii.php created with full Termii API integration (sendTermiiSMS, sendTermiiOTPSMS, sendTermiiVoiceOTP, getTermiiBalance), config.php updated with TERMII_API_KEY setting |
-| 14 | [14_DEPLOYMENT_GUIDE.md](./14_DEPLOYMENT_GUIDE.md) | ⬜ Pending | | | Production deployment |
-| 15 | [15_OPERATIONS_AND_MAINTENANCE.md](./15_OPERATIONS_AND_MAINTENANCE.md) | ⬜ Pending | | | Daily/weekly operations |
-| 16 | [16_RISKS_ASSUMPTIONS_DEPENDENCIES.md](./16_RISKS_ASSUMPTIONS_DEPENDENCIES.md) | ⬜ Pending | | | Risks and dependencies |
+| 14 | [14_DEPLOYMENT_GUIDE.md](./14_DEPLOYMENT_GUIDE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | health.php endpoint created for system monitoring |
+| 15 | [15_OPERATIONS_AND_MAINTENANCE.md](./15_OPERATIONS_AND_MAINTENANCE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Cron scripts created: check_termii_balance.php, cleanup_expired_otp.php, check_delivery_sla.php, monthly_cleanup.php |
+| 16 | [16_RISKS_ASSUMPTIONS_DEPENDENCIES.md](./16_RISKS_ASSUMPTIONS_DEPENDENCIES.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Risk register reviewed, mitigations in place (email fallback, rate limiting, backups) |
 | 17 | [17_BULLETPROOF_DELIVERY_SYSTEM.md](./17_BULLETPROOF_DELIVERY_SYSTEM.md) | ⬜ Pending | | | Enhanced delivery system |
 | 18 | [18_SELF_SERVICE_EXPERIENCE.md](./18_SELF_SERVICE_EXPERIENCE.md) | ⬜ Pending | | | Customer self-service |
 | 19 | [19_ADMIN_AUTOMATION.md](./19_ADMIN_AUTOMATION.md) | ⬜ Pending | | | Admin automation rules |
@@ -47,9 +47,9 @@ Track your progress through each document. Update the status as you work through
 
 ```
 Total Documents: 26
-Completed: 14 / 26 (54%)
+Completed: 17 / 26 (65%)
 In Progress: 0
-Pending: 12
+Pending: 9
 ```
 
 ### How to Use This Tracker
