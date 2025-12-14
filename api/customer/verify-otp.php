@@ -81,9 +81,13 @@ setcookie('customer_session', $sessionResult['token'], [
 
 echo json_encode([
     'success' => true,
-    'customer_id' => $customerId,
-    'full_name' => $customer['full_name'],
-    'phone' => $customer['phone'] ?: $customer['whatsapp_number'],
+    'customer' => [
+        'id' => $customerId,
+        'email' => $customer['email'],
+        'full_name' => $customer['full_name'],
+        'phone' => $customer['phone'] ?: $customer['whatsapp_number'],
+        'username' => $customer['username'] ?? null
+    ],
     'needs_setup' => $customer['status'] === 'pending_setup',
     'registration_step' => $customer['registration_step']
 ]);
