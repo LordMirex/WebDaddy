@@ -114,11 +114,10 @@ if ($isCheckoutPage) return;
     .floating-cart-widget {
         bottom: 16px;
         right: 16px;
-        left: 16px;
+        left: auto;
     }
     .cart-widget-main {
-        width: 100%;
-        justify-content: space-between;
+        justify-content: flex-end;
         padding: 10px 14px;
         border-radius: 14px;
     }

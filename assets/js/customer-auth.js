@@ -27,10 +27,21 @@ const CustomerAuth = {
                 credentials: 'include',
                 body: JSON.stringify({ email })
             });
-            return await response.json();
+            
+            const data = await response.json();
+            
+            if (response.status === 429) {
+                return { success: false, error: data.error || 'Too many requests. Please wait a moment.' };
+            }
+            
+            if (!response.ok && !data.success) {
+                return { success: false, error: data.error || 'Server error. Please try again.' };
+            }
+            
+            return data;
         } catch (e) {
             console.error('CustomerAuth.checkEmail error:', e);
-            return { success: false, error: 'Network error. Please try again.' };
+            return { success: false, error: 'Connection failed. Please check your internet and try again.' };
         }
     },
 
@@ -47,10 +58,17 @@ const CustomerAuth = {
                 credentials: 'include',
                 body: JSON.stringify(body)
             });
-            return await response.json();
+            
+            const data = await response.json();
+            
+            if (response.status === 429) {
+                return { success: false, error: data.error || 'Too many OTP requests. Please wait before trying again.' };
+            }
+            
+            return data;
         } catch (e) {
             console.error('CustomerAuth.requestOTP error:', e);
-            return { success: false, error: 'Network error. Please try again.' };
+            return { success: false, error: 'Connection failed. Please check your internet and try again.' };
         }
     },
 
