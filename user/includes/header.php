@@ -1,4 +1,13 @@
 <?php
+// Security Headers - Protect customer portal
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net");
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+
 $page = $page ?? 'dashboard';
 $pageTitle = $pageTitle ?? 'Dashboard';
 

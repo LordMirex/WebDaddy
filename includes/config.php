@@ -117,6 +117,29 @@ define('DELIVERY_RETRY_BASE_DELAY_SECONDS', 60);
 define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 
 // ============================================
+// TERMII SMS CONFIGURATION
+// ============================================
+// Sign up at https://termii.com to get your API key
+// Add your API key below to enable SMS OTP
+define('TERMII_API_KEY', '');  // Your Termii API key
+define('TERMII_SENDER_ID', 'WebDaddy');  // Your approved sender ID or 'Termii'
+define('TERMII_BASE_URL', 'https://api.ng.termii.com/api');
+
+// Customer Session Settings
+define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions
+define('CUSTOMER_OTP_EXPIRY_MINUTES', 10);
+define('CUSTOMER_OTP_MAX_ATTEMPTS', 5);
+define('CUSTOMER_OTP_RATE_LIMIT_HOUR', 3);
+
+// API Rate Limiting Settings
+define('API_RATE_LIMIT_CHECK_EMAIL', 10);        // 10 requests per minute per IP
+define('API_RATE_LIMIT_REQUEST_OTP', 3);         // 3 OTP requests per hour per email
+define('API_RATE_LIMIT_LOGIN', 5);               // 5 login attempts per 15 min per email
+define('API_RATE_LIMIT_PROFILE', 30);            // 30 profile requests per minute
+define('API_RATE_LIMIT_WINDOW_MINUTE', 60);      // 1 minute window
+define('API_RATE_LIMIT_WINDOW_HOUR', 3600);      // 1 hour window
+
+// ============================================
 // DATABASE & ERROR REPORTING
 // ============================================
 if (DISPLAY_ERRORS) {

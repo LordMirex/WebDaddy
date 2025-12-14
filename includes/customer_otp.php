@@ -3,15 +3,24 @@
  * Customer OTP System
  * 
  * Handles OTP generation, sending, and verification for customer authentication
+ * Supports SMS via Termii and email as fallback
  */
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/mailer.php';
+require_once __DIR__ . '/termii.php';
 
-define('OTP_EXPIRY_MINUTES', 10);
-define('OTP_MAX_ATTEMPTS', 5);
-define('OTP_RATE_LIMIT_HOUR', 3);
+// Use config constants if defined, otherwise use defaults
+if (!defined('OTP_EXPIRY_MINUTES')) {
+    define('OTP_EXPIRY_MINUTES', defined('CUSTOMER_OTP_EXPIRY_MINUTES') ? CUSTOMER_OTP_EXPIRY_MINUTES : 10);
+}
+if (!defined('OTP_MAX_ATTEMPTS')) {
+    define('OTP_MAX_ATTEMPTS', defined('CUSTOMER_OTP_MAX_ATTEMPTS') ? CUSTOMER_OTP_MAX_ATTEMPTS : 5);
+}
+if (!defined('OTP_RATE_LIMIT_HOUR')) {
+    define('OTP_RATE_LIMIT_HOUR', defined('CUSTOMER_OTP_RATE_LIMIT_HOUR') ? CUSTOMER_OTP_RATE_LIMIT_HOUR : 3);
+}
 
 function generateOTP() {
     return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -132,7 +141,7 @@ function sendPhoneVerificationOTP($customerId, $phoneNumber) {
     $stmt->execute([$customerId, $cleanNumber, $otpCode, $expiresAt]);
     $otpId = $db->lastInsertId();
     
-    $smsSent = sendTermiiSMS($cleanNumber, $otpCode, $otpId);
+    $smsSent = sendTermiiSMSOTP($cleanNumber, $otpCode, $otpId);
     
     $db->prepare("UPDATE customer_otp_codes SET sms_sent = ? WHERE id = ?")
        ->execute([$smsSent ? 1 : 0, $otpId]);
@@ -211,7 +220,31 @@ function sendOTPEmail($email, $otpCode, $name = null) {
     return sendEmail($email, $subject, $body);
 }
 
-function sendTermiiSMS($phone, $otpCode, $otpId) {
+/**
+ * Send SMS OTP via Termii
+ * This is the real implementation that connects to Termii API
+ * 
+ * @param string $phone Phone number
+ * @param string $otpCode OTP code
+ * @param int $otpId OTP record ID
+ * @return bool Success status
+ */
+function sendTermiiSMSOTP($phone, $otpCode, $otpId) {
+    // Check if Termii is configured
+    if (empty(TERMII_API_KEY)) {
+        error_log("Termii SMS not configured - TERMII_API_KEY is empty. SMS OTP disabled.");
+        return false;
+    }
+    
+    $result = sendTermiiOTPSMS($phone, $otpCode, $otpId);
+    
+    if (!$result['success']) {
+        // Try voice call as fallback
+        error_log("SMS OTP failed, trying voice fallback for phone: " . maskPhoneForDisplay($phone));
+        $voiceResult = sendTermiiVoiceOTP($phone, $otpCode);
+        return $voiceResult['success'];
+    }
+    
     return true;
 }
 

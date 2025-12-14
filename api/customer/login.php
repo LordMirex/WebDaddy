@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/customer_auth.php';
 require_once __DIR__ . '/../../includes/customer_session.php';
+require_once __DIR__ . '/../../includes/rate_limiter.php';
 
 header('Content-Type: application/json');
 
@@ -24,6 +25,17 @@ $password = $input['password'] ?? '';
 if (empty($email) || empty($password)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Email and password are required']);
+    exit;
+}
+
+// Rate limit: 5 login attempts per 15 minutes per email
+if (!checkLoginRateLimit($email)) {
+    logSecurityEvent('login_rate_limited', ['email' => $email]);
+    http_response_code(429);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Too many login attempts. Please try again in 15 minutes.'
+    ]);
     exit;
 }
 

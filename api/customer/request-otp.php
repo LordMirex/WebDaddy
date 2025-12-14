@@ -1,12 +1,13 @@
 <?php
 /**
  * Request OTP for email verification at checkout
- * Only sends EMAIL OTP (not SMS) at checkout
+ * Sends EMAIL OTP (SMS available when Termii is configured)
  */
 
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/customer_otp.php';
+require_once __DIR__ . '/../../includes/rate_limiter.php';
 
 header('Content-Type: application/json');
 
@@ -19,6 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $input = json_decode(file_get_contents('php://input'), true);
 $email = trim($input['email'] ?? '');
 $type = $input['type'] ?? 'email_verify';
+
+// Rate limit: 3 OTP requests per hour per email (applied after email validation)
+if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!checkOTPRateLimit($email)) {
+        http_response_code(429);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Too many OTP requests. Please wait before trying again.'
+        ]);
+        exit;
+    }
+}
 
 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);

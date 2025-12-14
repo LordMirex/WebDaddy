@@ -7,6 +7,7 @@
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/customer_auth.php';
+require_once __DIR__ . '/../../includes/rate_limiter.php';
 
 header('Content-Type: application/json');
 
@@ -15,6 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => 'Method not allowed']);
     exit;
 }
+
+// Rate limit: 10 requests per minute per IP
+$clientIP = getClientIP();
+enforceRateLimit($clientIP, 'check_email', 10, 60, 'Too many email checks. Please wait a moment.');
 
 $input = json_decode(file_get_contents('php://input'), true);
 $email = trim($input['email'] ?? '');
