@@ -53,7 +53,7 @@ function createCustomerSession($customerId, $rememberMe = true) {
         ]
     );
     
-    return $token;
+    return ['success' => true, 'token' => $token];
 }
 
 function getCustomerFromSession() {
@@ -195,4 +195,8 @@ function getCustomerActivityLog($customerId, $limit = 50) {
     ");
     $stmt->execute([$customerId, $limit]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function validateCustomerSession() {
+    return getCustomerFromSession();
 }

@@ -9,8 +9,8 @@ Track your progress through each document. Update the status as you work through
 | 00 | [00_OVERVIEW.md](./00_OVERVIEW.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Read first - project overview |
 | 01 | [01_DATABASE_SCHEMA.md](./01_DATABASE_SCHEMA.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | All customer tables created, existing tables updated |
 | 02 | [02_CUSTOMER_AUTH.md](./02_CUSTOMER_AUTH.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Auth system with OTP, sessions, recovery implemented |
-| 03 | [03_CHECKOUT_FLOW.md](./03_CHECKOUT_FLOW.md) | ⬜ Pending | | | Modified checkout process |
-| 04 | [04_USER_DASHBOARD.md](./04_USER_DASHBOARD.md) | ⬜ Pending | | | Customer portal pages |
+| 03 | [03_CHECKOUT_FLOW.md](./03_CHECKOUT_FLOW.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Customer API endpoints created (check-email, request-otp, verify-otp, login, notifications) |
+| 04 | [04_USER_DASHBOARD.md](./04_USER_DASHBOARD.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Full /user/ dashboard with 15 pages: index, orders, order-detail, downloads, support, ticket, new-ticket, profile, security, login, logout, forgot/reset-password |
 | 05 | [05_DELIVERY_SYSTEM.md](./05_DELIVERY_SYSTEM.md) | ⬜ Pending | | | Delivery tracking updates |
 | 06 | [06_ADMIN_UPDATES.md](./06_ADMIN_UPDATES.md) | ⬜ Pending | | | Admin panel changes |
 | 07 | [07_API_ENDPOINTS.md](./07_API_ENDPOINTS.md) | ⬜ Pending | | | Customer API endpoints |
@@ -47,9 +47,9 @@ Track your progress through each document. Update the status as you work through
 
 ```
 Total Documents: 26
-Completed: 3 / 26 (12%)
+Completed: 5 / 26 (19%)
 In Progress: 0
-Pending: 23
+Pending: 21
 ```
 
 ### How to Use This Tracker

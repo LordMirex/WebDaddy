@@ -1,0 +1,126 @@
+<?php
+$page = $page ?? 'dashboard';
+$pageTitle = $pageTitle ?? 'Dashboard';
+
+$pendingOrders = getCustomerOrderCount($customer['id'], 'pending');
+$openTickets = getCustomerOpenTickets($customer['id']);
+
+$navItems = [
+    ['url' => '/user/', 'icon' => 'bi-speedometer2', 'label' => 'Dashboard', 'page' => 'dashboard'],
+    ['url' => '/user/orders.php', 'icon' => 'bi-bag', 'label' => 'My Orders', 'page' => 'orders', 'badge' => $pendingOrders > 0 ? $pendingOrders : null],
+    ['url' => '/user/downloads.php', 'icon' => 'bi-download', 'label' => 'Downloads', 'page' => 'downloads'],
+    ['url' => '/user/support.php', 'icon' => 'bi-chat-dots', 'label' => 'Support', 'page' => 'support', 'badge' => $openTickets > 0 ? $openTickets : null],
+    ['url' => '/user/profile.php', 'icon' => 'bi-person', 'label' => 'Profile', 'page' => 'profile'],
+    ['url' => '/user/security.php', 'icon' => 'bi-shield-lock', 'label' => 'Security', 'page' => 'security'],
+];
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pageTitle) ?> - WebDaddy Empire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" href="/assets/images/favicon.png" type="image/png">
+    <style>
+        [x-cloak] { display: none !important; }
+        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F4E4A6 50%, #D4AF37 100%); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div x-data="{ sidebarOpen: false }" class="flex min-h-screen">
+        <!-- Mobile sidebar backdrop -->
+        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" 
+             class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+        
+        <!-- Sidebar -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+               class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-white z-50 transform transition-transform lg:translate-x-0">
+            <div class="p-4 border-b border-slate-700">
+                <a href="/" class="flex items-center space-x-2">
+                    <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-8">
+                    <span class="font-bold text-lg">My Account</span>
+                </a>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <?php foreach ($navItems as $item): ?>
+                <a href="<?= $item['url'] ?>" 
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors <?= $page === $item['page'] ? 'bg-amber-600 text-white' : 'text-slate-300 hover:bg-slate-800' ?>">
+                    <i class="<?= $item['icon'] ?> text-lg mr-3"></i>
+                    <span><?= $item['label'] ?></span>
+                    <?php if (!empty($item['badge'])): ?>
+                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"><?= $item['badge'] ?></span>
+                    <?php endif; ?>
+                </a>
+                <?php endforeach; ?>
+                
+                <hr class="border-slate-700 my-4">
+                
+                <a href="/" class="flex items-center px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors">
+                    <i class="bi-shop text-lg mr-3"></i>
+                    <span>Back to Store</span>
+                </a>
+                
+                <a href="/user/logout.php" class="flex items-center px-4 py-3 rounded-lg text-red-400 hover:bg-slate-800 transition-colors">
+                    <i class="bi-box-arrow-right text-lg mr-3"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- Top bar -->
+            <header class="bg-white shadow-sm border-b px-4 lg:px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 hover:text-gray-900">
+                            <i class="bi-list text-2xl"></i>
+                        </button>
+                        <h1 class="text-xl font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div x-data="notificationBell()" class="relative">
+                            <button @click="toggle()" class="relative p-2 text-gray-600 hover:text-gray-900">
+                                <i class="bi-bell text-xl"></i>
+                                <span x-show="unreadCount > 0" x-text="unreadCount" 
+                                      class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
+                            </button>
+                            
+                            <div x-show="open" x-cloak @click.away="open = false" x-transition
+                                 class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border z-50">
+                                <div class="p-4 border-b">
+                                    <h3 class="font-bold">Notifications</h3>
+                                </div>
+                                <div class="max-h-96 overflow-y-auto">
+                                    <template x-for="n in notifications" :key="n.id">
+                                        <div class="p-4 border-b hover:bg-gray-50" :class="{'bg-blue-50': n.priority === 'high'}">
+                                            <p class="text-sm font-semibold" x-text="n.title"></p>
+                                            <p class="text-sm text-gray-600 mt-1" x-text="n.message"></p>
+                                        </div>
+                                    </template>
+                                    <div x-show="notifications.length === 0" class="p-8 text-center text-gray-500">
+                                        No new notifications
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold">
+                                <?= strtoupper(substr(getCustomerName(), 0, 1)) ?>
+                            </div>
+                            <span class="hidden sm:block text-sm font-medium text-gray-700"><?= htmlspecialchars(getCustomerName()) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page content -->
+            <main class="flex-1 p-4 lg:p-6">

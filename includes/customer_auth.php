@@ -215,7 +215,8 @@ function customerLogin($email, $password) {
     
     clearCustomerLoginAttempts($email);
     
-    $token = createCustomerSession($customer['id']);
+    $sessionResult = createCustomerSession($customer['id']);
+    $token = $sessionResult['token'] ?? null;
     
     $db->prepare("UPDATE customers SET last_login_at = datetime('now') WHERE id = ?")
        ->execute([$customer['id']]);
