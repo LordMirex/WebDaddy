@@ -1737,21 +1737,20 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 
                                 <label class="block text-sm font-bold text-gray-100 mb-3 text-center">Enter 6-digit code</label>
                                 
-                                <!-- OTP Input Boxes -->
-                                <div class="flex justify-center gap-2 sm:gap-3 mb-4">
-                                    <template x-for="(digit, i) in otpDigits" :key="i">
-                                        <input 
-                                            type="text" 
-                                            inputmode="numeric"
-                                            maxlength="1"
-                                            x-model="otpDigits[i]"
-                                            @input="handleOTPInput($event, i)"
-                                            @keydown.backspace="handleOTPBackspace($event, i)"
-                                            @paste.prevent="handleOTPPaste($event)"
-                                            :id="'otp-' + i"
-                                            class="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold text-gray-900 border-2 border-gray-500 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all"
-                                        >
-                                    </template>
+                                <!-- Single OTP Input - Pasteable -->
+                                <div class="flex justify-center mb-4">
+                                    <input 
+                                        type="text" 
+                                        inputmode="numeric"
+                                        maxlength="6"
+                                        x-model="otpCode"
+                                        @input="handleOTPInput($event)"
+                                        @paste="handleOTPPaste($event)"
+                                        id="otp-input"
+                                        placeholder="000000"
+                                        class="w-48 h-14 text-center text-2xl sm:text-3xl font-bold text-gray-900 border-2 border-gray-500 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all tracking-[0.5em] placeholder:tracking-[0.5em] placeholder:text-gray-400"
+                                        autocomplete="one-time-code"
+                                    >
                                 </div>
                                 
                                 <!-- Prominent Spam Warning -->
@@ -2507,7 +2506,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             email: '',
             password: '',
             phone: '',
-            otpDigits: ['', '', '', '', '', ''],
+            otpCode: '',
             loading: false,
             error: '',
             
@@ -2592,11 +2591,11 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     
                     if (result.success) {
                         this.step = 'otp';
-                        this.otpDigits = ['', '', '', '', '', ''];
+                        this.otpCode = '';
                         this.startResendTimer();
-                        // Focus first OTP input
+                        // Focus OTP input
                         this.$nextTick(() => {
-                            document.getElementById('otp-0')?.focus();
+                            document.getElementById('otp-input')?.focus();
                         });
                     } else {
                         this.error = result.error || 'Failed to send verification code';
@@ -2632,56 +2631,35 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             },
             
             // Handle OTP input - enforce numeric only
-            handleOTPInput(event, index) {
-                // Force numeric only
-                const value = event.target.value.replace(/\D/g, '');
-                event.target.value = value.charAt(0) || '';
-                this.otpDigits[index] = value.charAt(0) || '';
+            handleOTPInput(event) {
+                // Force numeric only and max 6 digits
+                const value = event.target.value.replace(/\D/g, '').slice(0, 6);
+                this.otpCode = value;
+                event.target.value = value;
                 
-                if (value && index < 5) {
-                    // Auto-advance to next input
-                    this.$nextTick(() => {
-                        document.getElementById('otp-' + (index + 1))?.focus();
-                    });
-                }
-                
-                // Auto-verify when all digits entered
-                this.$nextTick(() => {
-                    if (this.otpDigits.every(d => d !== '')) {
-                        this.verifyOTP();
-                    }
-                });
-            },
-            
-            // Handle OTP backspace
-            handleOTPBackspace(event, index) {
-                if (!this.otpDigits[index] && index > 0) {
-                    document.getElementById('otp-' + (index - 1))?.focus();
+                // Auto-verify when all 6 digits entered
+                if (value.length === 6) {
+                    this.$nextTick(() => this.verifyOTP());
                 }
             },
             
             // Handle OTP paste
             handleOTPPaste(event) {
-                const pastedData = (event.clipboardData || window.clipboardData).getData('text');
-                const digits = pastedData.replace(/\D/g, '').slice(0, 6).split('');
-                
-                digits.forEach((digit, i) => {
-                    this.otpDigits[i] = digit;
-                });
-                
-                // Focus last filled input or next empty
-                const lastIndex = Math.min(digits.length, 5);
-                document.getElementById('otp-' + lastIndex)?.focus();
-                
-                // Auto-verify if all digits pasted
-                if (digits.length === 6) {
-                    this.$nextTick(() => this.verifyOTP());
-                }
+                setTimeout(() => {
+                    const value = event.target.value.replace(/\D/g, '').slice(0, 6);
+                    this.otpCode = value;
+                    event.target.value = value;
+                    
+                    // Auto-verify if 6 digits pasted
+                    if (value.length === 6) {
+                        this.$nextTick(() => this.verifyOTP());
+                    }
+                }, 10);
             },
             
             // Verify OTP
             async verifyOTP() {
-                const code = this.otpDigits.join('');
+                const code = this.otpCode.replace(/\D/g, '');
                 if (code.length !== 6) {
                     this.error = 'Please enter all 6 digits';
                     return;
@@ -2697,9 +2675,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         this.setAuthenticatedState(result.customer);
                         if (this.resendInterval) clearInterval(this.resendInterval);
                     } else {
-                        this.error = result.error || 'Invalid verification code';
-                        this.otpDigits = ['', '', '', '', '', ''];
-                        document.getElementById('otp-0')?.focus();
+                        this.error = result.message || result.error || 'Invalid verification code';
+                        this.otpCode = '';
+                        document.getElementById('otp-input')?.focus();
                     }
                 } catch (e) {
                     this.error = 'Network error. Please try again.';
@@ -2748,7 +2726,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 this.email = '';
                 this.password = '';
                 this.phone = '';
-                this.otpDigits = ['', '', '', '', '', ''];
+                this.otpCode = '';
                 this.customerId = null;
                 this.customerName = '';
                 this.customerPhone = '';
