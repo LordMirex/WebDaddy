@@ -722,6 +722,66 @@ html {
 }
 
 /* ========== SELECTION ========== */
+/* ========== URL & TEXT OVERFLOW FIXES ========== */
+/* Break long URLs and text that would overflow on mobile */
+.url-break, .break-all {
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+.url-truncate {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Better handling for mobile credentials display */
+.credentials-display {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.credentials-display a {
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+/* Better spacing on mobile for small containers */
+@media (max-width: 640px) {
+    .p-3, [class*='p-3'] {
+        padding: 0.75rem;
+    }
+    
+    .space-y-2 > * + * {
+        margin-top: 0.5rem;
+    }
+    
+    /* Ensure text doesn't overflow containers */
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Better handling for flex items on mobile */
+    .flex {
+        flex-wrap: wrap;
+    }
+}
+
+/* Support/message section improvements */
+.ticket-messages {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.support-content {
+    max-width: 100%;
+    overflow: auto;
+}
+
 ::selection {
     background: var(--gold-500);
     color: var(--navy);

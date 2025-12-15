@@ -152,20 +152,20 @@ require_once __DIR__ . '/includes/header.php';
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Admin Panel</p>
                                         <a href="<?= htmlspecialchars($adminUrl) ?>" target="_blank" 
-                                           class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center gap-1">
+                                           class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center gap-1 break-all url-break">
                                             <?= htmlspecialchars($displayLoginUrl) ?>
-                                            <i class="bi-box-arrow-up-right text-xs"></i>
+                                            <i class="bi-box-arrow-up-right text-xs flex-shrink-0"></i>
                                         </a>
                                     </div>
                                     <?php endif; ?>
                                     
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Login Credentials</p>
-                                        <div class="space-y-2">
-                                            <div class="flex items-center gap-2">
-                                                <i class="bi-person text-gray-400"></i>
+                                        <div class="space-y-2 credentials-display">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <i class="bi-person text-gray-400 flex-shrink-0"></i>
                                                 <span class="text-gray-600">Username:</span>
-                                                <span class="font-medium"><?= htmlspecialchars($item['admin_username'] ?? 'Not set') ?></span>
+                                                <span class="font-medium break-all"><?= htmlspecialchars($item['admin_username'] ?? 'Not set') ?></span>
                                                 <?php if (!empty($item['admin_username'])): ?>
                                                 <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_username']) ?>'); copied = 'user'; setTimeout(() => copied = '', 2000)"
                                                         class="ml-auto p-1 text-gray-400 hover:text-amber-600 transition" title="Copy">
@@ -174,11 +174,11 @@ require_once __DIR__ . '/includes/header.php';
                                                 </button>
                                                 <?php endif; ?>
                                             </div>
-                                            <div class="flex items-center gap-2">
-                                                <i class="bi-key text-gray-400"></i>
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <i class="bi-key text-gray-400 flex-shrink-0"></i>
                                                 <span class="text-gray-600">Password:</span>
                                                 <?php if (!empty($item['admin_password'])): ?>
-                                                <span x-show="showPassword" class="font-medium"><?= htmlspecialchars($item['admin_password']) ?></span>
+                                                <span x-show="showPassword" class="font-medium break-all"><?= htmlspecialchars($item['admin_password']) ?></span>
                                                 <span x-show="!showPassword" class="text-gray-400">••••••••</span>
                                                 <button @click="showPassword = !showPassword" class="p-1 text-gray-400 hover:text-amber-600 transition" title="Show/Hide">
                                                     <i x-show="!showPassword" class="bi-eye"></i>

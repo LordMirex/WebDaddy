@@ -115,12 +115,12 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="w-10 h-10 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold flex-shrink-0">
                                 <?= strtoupper(substr(getCustomerName(), 0, 1)) ?>
                             </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-semibold text-gray-900"><?= htmlspecialchars(getCustomerName()) ?></span>
                                     <span class="text-xs text-gray-500"><?= date('M j, Y \a\t g:i A', strtotime($ticket['created_at'])) ?></span>
                                 </div>
-                                <div class="mt-2 text-gray-700 whitespace-pre-wrap"><?= nl2br(htmlspecialchars($ticket['message'])) ?></div>
+                                <div class="mt-2 text-gray-700 whitespace-pre-wrap break-words support-content"><?= nl2br(htmlspecialchars($ticket['message'])) ?></div>
                             </div>
                         </div>
                     </div>
@@ -136,8 +136,8 @@ require_once __DIR__ . '/includes/header.php';
                                 <?= strtoupper(substr(getCustomerName(), 0, 1)) ?>
                                 <?php endif; ?>
                             </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-semibold text-gray-900">
                                         <?= $isAdmin ? 'Support Team' : htmlspecialchars(getCustomerName()) ?>
                                     </span>
@@ -146,7 +146,7 @@ require_once __DIR__ . '/includes/header.php';
                                     <?php endif; ?>
                                     <span class="text-xs text-gray-500"><?= date('M j, Y \a\t g:i A', strtotime($reply['created_at'])) ?></span>
                                 </div>
-                                <div class="mt-2 text-gray-700 whitespace-pre-wrap"><?= nl2br(htmlspecialchars($reply['message'])) ?></div>
+                                <div class="mt-2 text-gray-700 whitespace-pre-wrap break-words support-content"><?= nl2br(htmlspecialchars($reply['message'])) ?></div>
                             </div>
                         </div>
                     </div>
