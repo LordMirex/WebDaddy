@@ -1,7 +1,11 @@
 <?php
 /**
  * Customer Registration Page
- * Standalone registration - users can create account before purchasing
+ * 4-Step Registration Wizard:
+ * Step 1: Email + OTP Verification
+ * Step 2: Username + Password + Confirm Password + WhatsApp (MANDATORY)
+ * Step 3: Phone Number + SMS OTP Verification
+ * Step 4: Success + Dashboard Guide
  */
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
@@ -47,21 +51,27 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
             <p class="text-gray-600 mt-2">Join WebDaddy Empire today</p>
         </div>
         
+        <!-- Step Indicator (4 steps) -->
         <div class="mb-6">
-            <div class="flex items-center justify-center space-x-4">
+            <div class="flex items-center justify-center space-x-2">
                 <div class="flex items-center">
                     <div :class="step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                    <span class="ml-2 text-sm" :class="step >= 1 ? 'text-amber-600 font-medium' : 'text-gray-500'">Email</span>
+                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 1 ? 'text-amber-600 font-medium' : 'text-gray-500'">Email</span>
                 </div>
-                <div class="w-8 h-px bg-gray-300"></div>
+                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
                 <div class="flex items-center">
                     <div :class="step >= 2 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <span class="ml-2 text-sm" :class="step >= 2 ? 'text-amber-600 font-medium' : 'text-gray-500'">Verify</span>
+                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 2 ? 'text-amber-600 font-medium' : 'text-gray-500'">Account</span>
                 </div>
-                <div class="w-8 h-px bg-gray-300"></div>
+                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
                 <div class="flex items-center">
                     <div :class="step >= 3 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <span class="ml-2 text-sm" :class="step >= 3 ? 'text-amber-600 font-medium' : 'text-gray-500'">Setup</span>
+                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 3 ? 'text-amber-600 font-medium' : 'text-gray-500'">Phone</span>
+                </div>
+                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
+                <div class="flex items-center">
+                    <div :class="step >= 4 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 4 ? 'text-amber-600 font-medium' : 'text-gray-500'">Done</span>
                 </div>
             </div>
         </div>
@@ -75,89 +85,112 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 <i class="bi-check-circle mr-2"></i><span x-text="success"></span>
             </div>
             
-            <!-- Step 1: Email Entry -->
+            <!-- Step 1: Email Entry & OTP Verification -->
             <div x-show="step === 1">
-                <form @submit.prevent="checkEmail" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <input type="email" x-model="email" required
-                               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                               placeholder="your@email.com">
+                <!-- Email Input (before OTP sent) -->
+                <div x-show="!otpSent">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi-envelope text-3xl text-amber-600"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-gray-900">Verify Your Email</h2>
+                        <p class="text-gray-600 text-sm mt-1">We'll send you a verification code</p>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input type="text" x-model="fullName" required
-                               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                               placeholder="Your full name">
-                    </div>
-                    
-                    <button type="submit" :disabled="loading" 
-                            class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                        <span x-show="!loading">Continue</span>
-                        <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Checking...</span>
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Step 2: OTP Verification -->
-            <div x-show="step === 2">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="bi-envelope-check text-3xl text-amber-600"></i>
-                    </div>
-                    <p class="text-gray-600">We've sent a 6-digit code to</p>
-                    <p class="font-semibold text-gray-900" x-text="email"></p>
+                    <form @submit.prevent="sendEmailOTP" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" x-model="email" required
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                   placeholder="your@email.com">
+                        </div>
+                        
+                        <button type="submit" :disabled="loading" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Send Verification Code</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
+                        </button>
+                    </form>
                 </div>
                 
-                <form @submit.prevent="verifyOTP" class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Enter Verification Code</label>
-                        <input type="text" x-model="otpCode" required maxlength="6" pattern="[0-9]{6}"
-                               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-center text-2xl tracking-widest"
-                               placeholder="000000">
+                <!-- OTP Verification (after OTP sent) -->
+                <div x-show="otpSent">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi-envelope-check text-3xl text-amber-600"></i>
+                        </div>
+                        <p class="text-gray-600">We've sent a 6-digit code to</p>
+                        <p class="font-semibold text-gray-900" x-text="email"></p>
                     </div>
                     
-                    <button type="submit" :disabled="loading || otpCode.length !== 6" 
-                            class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                        <span x-show="!loading">Verify Email</span>
-                        <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Verifying...</span>
-                    </button>
+                    <form @submit.prevent="verifyEmailOTP" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2 text-center">Enter Verification Code</label>
+                            <input type="text" x-model="otpCode" required maxlength="6" pattern="[0-9]{6}"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-center text-2xl tracking-widest"
+                                   placeholder="000000">
+                        </div>
+                        
+                        <!-- Spam folder warning -->
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                            <p class="text-amber-700 text-sm font-medium">
+                                <i class="bi-exclamation-triangle mr-1"></i>
+                                Can't find it? Check your <strong>Spam/Junk</strong> folder!
+                            </p>
+                        </div>
+                        
+                        <button type="submit" :disabled="loading || otpCode.length !== 6" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Verify Email</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Verifying...</span>
+                        </button>
+                        
+                        <div class="text-center">
+                            <button type="button" @click="resendOTP" :disabled="resendCooldown > 0" 
+                                    class="text-amber-600 hover:underline text-sm disabled:text-gray-400">
+                                <span x-show="resendCooldown <= 0">Resend code</span>
+                                <span x-show="resendCooldown > 0">Resend in <span x-text="resendCooldown"></span>s</span>
+                            </button>
+                        </div>
+                    </form>
                     
-                    <div class="text-center">
-                        <button type="button" @click="resendOTP" :disabled="resendCooldown > 0" 
-                                class="text-amber-600 hover:underline text-sm disabled:text-gray-400">
-                            <span x-show="resendCooldown <= 0">Resend code</span>
-                            <span x-show="resendCooldown > 0">Resend in <span x-text="resendCooldown"></span>s</span>
+                    <div class="mt-4 text-center">
+                        <button @click="otpSent = false; otpCode = ''; error = ''" class="text-gray-500 hover:text-gray-700 text-sm">
+                            <i class="bi-arrow-left mr-1"></i> Change email
                         </button>
                     </div>
-                </form>
-                
-                <div class="mt-4 text-center">
-                    <button @click="step = 1; error = ''" class="text-gray-500 hover:text-gray-700 text-sm">
-                        <i class="bi-arrow-left mr-1"></i> Change email
-                    </button>
                 </div>
             </div>
             
-            <!-- Step 3: Password Setup -->
-            <div x-show="step === 3">
+            <!-- Step 2: Username, Password, WhatsApp -->
+            <div x-show="step === 2">
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="bi-check-lg text-3xl text-green-600"></i>
                     </div>
                     <p class="text-gray-600">Email verified!</p>
-                    <p class="font-semibold text-gray-900">Now set up your password</p>
+                    <p class="font-semibold text-gray-900">Now set up your account</p>
                 </div>
                 
-                <form @submit.prevent="setupPassword" class="space-y-6">
+                <form @submit.prevent="saveCredentials" class="space-y-5">
+                    <!-- Username (pre-filled with auto-generated, editable) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Create Password</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <input type="text" x-model="username" required minlength="3"
+                               class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                               placeholder="your_username">
+                        <p class="text-xs text-gray-500 mt-1">Auto-generated from your email. You can change it.</p>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                         <input type="password" x-model="password" required minlength="6"
                                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                                placeholder="At least 6 characters">
                     </div>
                     
+                    <!-- Confirm Password -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
                         <input type="password" x-model="confirmPassword" required minlength="6"
@@ -165,19 +198,81 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                                placeholder="Re-enter your password">
                     </div>
                     
+                    <!-- WhatsApp Number - MANDATORY -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number (optional)</label>
-                        <input type="tel" x-model="phone"
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            WhatsApp Number <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" x-model="whatsappNumber" required
                                class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                                placeholder="+234 xxx xxx xxxx">
+                        <p class="text-xs text-gray-500 mt-1">Required for order updates and support.</p>
                     </div>
                     
                     <button type="submit" :disabled="loading" 
                             class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                        <span x-show="!loading">Create Account</span>
-                        <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Creating...</span>
+                        <span x-show="!loading">Continue</span>
+                        <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
                     </button>
                 </form>
+            </div>
+            
+            <!-- Step 3: Phone Number + SMS OTP Verification -->
+            <div x-show="step === 3">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="bi-phone text-3xl text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-600">Final step!</p>
+                    <p class="font-semibold text-gray-900">Verify your phone number</p>
+                </div>
+                
+                <!-- Phone Number Input (before sending SMS) -->
+                <div x-show="!phoneSent">
+                    <form @submit.prevent="sendPhoneOTP" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number (SMS)</label>
+                            <input type="tel" x-model="phoneNumber" required
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                   placeholder="+234 xxx xxx xxxx">
+                            <p class="text-xs text-gray-500 mt-1">We'll send a verification code to this number.</p>
+                        </div>
+                        
+                        <button type="submit" :disabled="loading || !phoneNumber" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Send Verification Code</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Phone OTP Verification (after sending SMS) -->
+                <div x-show="phoneSent">
+                    <form @submit.prevent="verifyPhoneOTP" class="space-y-6">
+                        <div class="text-center mb-4">
+                            <p class="text-gray-600">Enter the code sent to</p>
+                            <p class="font-semibold text-gray-900" x-text="phoneNumber"></p>
+                        </div>
+                        
+                        <div>
+                            <input type="text" x-model="phoneOtpCode" required maxlength="6" pattern="[0-9]{6}"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-center text-2xl tracking-widest"
+                                   placeholder="000000">
+                        </div>
+                        
+                        <button type="submit" :disabled="loading || phoneOtpCode.length !== 6" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Complete Registration</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Verifying...</span>
+                        </button>
+                        
+                        <div class="text-center">
+                            <button type="button" @click="phoneSent = false; phoneOtpCode = ''" class="text-gray-500 hover:text-gray-700 text-sm">
+                                <i class="bi-arrow-left mr-1"></i> Change number
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
             
             <!-- Step 4: Success -->
@@ -188,6 +283,29 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     </div>
                     <h2 class="text-xl font-bold text-gray-900 mb-2">Account Created!</h2>
                     <p class="text-gray-600 mb-6">Welcome to WebDaddy Empire. Your account is ready.</p>
+                    
+                    <!-- Quick Guide -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                        <h3 class="font-semibold text-gray-900 mb-3">Quick Guide</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-start">
+                                <i class="bi-cart text-amber-600 mr-2 mt-0.5"></i>
+                                <span>Browse and purchase templates & tools</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="bi-box-seam text-amber-600 mr-2 mt-0.5"></i>
+                                <span>Track your orders and delivery status</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="bi-download text-amber-600 mr-2 mt-0.5"></i>
+                                <span>Access your downloads anytime</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="bi-headset text-amber-600 mr-2 mt-0.5"></i>
+                                <span>Get support via tickets or WhatsApp</span>
+                            </li>
+                        </ul>
+                    </div>
                     
                     <a href="/user/" class="block w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition text-center">
                         Go to Dashboard
@@ -215,63 +333,61 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
         return {
             step: 1,
             email: '',
-            fullName: '',
             otpCode: '',
+            otpSent: false,
+            username: '', // Pre-filled after OTP verification
             password: '',
             confirmPassword: '',
-            phone: '',
+            whatsappNumber: '', // MANDATORY
+            phoneNumber: '',
+            phoneOtpCode: '',
+            phoneSent: false,
             customerId: null,
             loading: false,
             error: '',
             success: '',
             resendCooldown: 0,
             
-            async checkEmail() {
+            async sendEmailOTP() {
+                if (!this.email || !this.email.includes('@')) {
+                    this.error = 'Please enter a valid email address';
+                    return;
+                }
+                
                 this.loading = true;
                 this.error = '';
                 
                 try {
-                    const response = await fetch('/api/customer/check-email.php', {
+                    // First check if email already registered
+                    const checkResponse = await fetch('/api/customer/check-email.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: this.email })
                     });
-                    const data = await response.json();
+                    const checkData = await checkResponse.json();
                     
-                    if (data.exists && data.has_password) {
-                        this.error = 'An account with this email already exists. Please login instead.';
-                    } else if (data.exists && !data.has_password) {
-                        await this.requestOTP();
-                    } else {
-                        await this.requestOTP();
+                    if (checkData.exists && checkData.has_password) {
+                        this.error = 'This email is already registered. Please login instead.';
+                        this.loading = false;
+                        return;
                     }
-                } catch (e) {
-                    this.error = 'Connection error. Please try again.';
-                }
-                
-                this.loading = false;
-            },
-            
-            async requestOTP() {
-                this.loading = true;
-                this.error = '';
-                
-                try {
+                    
+                    // Send OTP
                     const response = await fetch('/api/customer/request-otp.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             email: this.email,
-                            full_name: this.fullName
+                            type: 'email_verify'
                         })
                     });
                     const data = await response.json();
                     
                     if (data.success) {
-                        this.step = 2;
+                        this.otpSent = true;
                         this.startResendCooldown();
                     } else {
-                        this.error = data.error || 'Failed to send verification code.';
+                        this.error = data.error || data.message || 'Failed to send verification code';
                     }
                 } catch (e) {
                     this.error = 'Connection error. Please try again.';
@@ -280,7 +396,12 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 this.loading = false;
             },
             
-            async verifyOTP() {
+            async verifyEmailOTP() {
+                if (this.otpCode.length !== 6) {
+                    this.error = 'Please enter all 6 digits';
+                    return;
+                }
+                
                 this.loading = true;
                 this.error = '';
                 
@@ -288,20 +409,22 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     const response = await fetch('/api/customer/verify-otp.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
+                        body: JSON.stringify({
                             email: this.email,
                             code: this.otpCode,
-                            full_name: this.fullName,
+                            type: 'email_verify',
                             source: 'registration'
                         })
                     });
                     const data = await response.json();
                     
                     if (data.success) {
-                        this.customerId = data.customer_id;
-                        this.step = 3;
+                        // Account created, username auto-generated
+                        this.customerId = data.customer_id || data.customer?.id;
+                        this.username = data.username || data.customer?.username || ''; // Pre-fill
+                        this.step = 2;
                     } else {
-                        this.error = data.error || 'Invalid verification code.';
+                        this.error = data.message || data.error || 'Invalid verification code';
                     }
                 } catch (e) {
                     this.error = 'Connection error. Please try again.';
@@ -310,14 +433,22 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 this.loading = false;
             },
             
-            async setupPassword() {
+            async saveCredentials() {
+                // Validate
                 if (this.password !== this.confirmPassword) {
-                    this.error = 'Passwords do not match.';
+                    this.error = 'Passwords do not match';
                     return;
                 }
-                
                 if (this.password.length < 6) {
-                    this.error = 'Password must be at least 6 characters.';
+                    this.error = 'Password must be at least 6 characters';
+                    return;
+                }
+                if (!this.username || this.username.length < 3) {
+                    this.error = 'Username must be at least 3 characters';
+                    return;
+                }
+                if (!this.whatsappNumber || this.whatsappNumber.length < 10) {
+                    this.error = 'Please enter a valid WhatsApp number';
                     return;
                 }
                 
@@ -325,22 +456,22 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 this.error = '';
                 
                 try {
-                    const response = await fetch('/api/customer/complete-registration.php', {
+                    const response = await fetch('/api/customer/set-credentials.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
+                        body: JSON.stringify({
                             email: this.email,
+                            username: this.username,
                             password: this.password,
-                            phone: this.phone,
-                            full_name: this.fullName
+                            whatsapp_number: this.whatsappNumber
                         })
                     });
                     const data = await response.json();
                     
                     if (data.success) {
-                        this.step = 4;
+                        this.step = 3;
                     } else {
-                        this.error = data.error || 'Failed to create account.';
+                        this.error = data.error || data.message || 'Failed to save';
                     }
                 } catch (e) {
                     this.error = 'Connection error. Please try again.';
@@ -349,8 +480,69 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 this.loading = false;
             },
             
-            async resendOTP() {
-                await this.requestOTP();
+            async sendPhoneOTP() {
+                if (!this.phoneNumber || this.phoneNumber.length < 10) {
+                    this.error = 'Please enter a valid phone number';
+                    return;
+                }
+                
+                this.loading = true;
+                this.error = '';
+                
+                try {
+                    const response = await fetch('/api/customer/send-phone-otp.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: this.email,
+                            phone: this.phoneNumber
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.phoneSent = true;
+                    } else {
+                        this.error = data.error || data.message || 'Failed to send SMS';
+                    }
+                } catch (e) {
+                    this.error = 'Connection error. Please try again.';
+                }
+                
+                this.loading = false;
+            },
+            
+            async verifyPhoneOTP() {
+                if (this.phoneOtpCode.length !== 6) {
+                    this.error = 'Please enter all 6 digits';
+                    return;
+                }
+                
+                this.loading = true;
+                this.error = '';
+                
+                try {
+                    const response = await fetch('/api/customer/verify-phone-otp.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: this.email,
+                            phone: this.phoneNumber,
+                            code: this.phoneOtpCode
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.step = 4; // Success!
+                    } else {
+                        this.error = data.error || data.message || 'Invalid code';
+                    }
+                } catch (e) {
+                    this.error = 'Connection error. Please try again.';
+                }
+                
+                this.loading = false;
             },
             
             startResendCooldown() {
@@ -361,8 +553,14 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                         clearInterval(interval);
                     }
                 }, 1000);
+            },
+            
+            async resendOTP() {
+                if (this.resendCooldown > 0) return;
+                this.otpCode = '';
+                await this.sendEmailOTP();
             }
-        }
+        };
     }
     </script>
 </body>

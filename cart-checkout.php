@@ -170,14 +170,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
     }
     
     if (empty($errors)) {
-        $customerName = trim($_POST['customer_name'] ?? '');
+        $customerName = trim($_POST['customer_name'] ?? ''); // Optional now - username auto-generated
         $customerEmail = trim($_POST['customer_email'] ?? '');
         $customerPhone = trim($_POST['customer_phone'] ?? '');
         $paymentMethod = trim($_POST['payment_method'] ?? 'manual');
         
-        if (empty($customerName)) {
-            $errors[] = 'Please enter your full name';
-        }
+        // customer_name is no longer required - username is auto-generated from email
         
         if (empty($customerEmail)) {
             $errors[] = 'Please enter your email address';
@@ -1787,7 +1785,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     <div class="flex items-center">
                                         <svg class="w-6 h-6 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                                         <div>
-                                            <p class="font-semibold text-green-100" x-text="customerName || email"></p>
+                                            <p class="font-semibold text-green-100" x-text="customerUsername || email"></p>
                                             <p class="text-sm text-green-300" x-text="email"></p>
                                         </div>
                                     </div>
@@ -1795,21 +1793,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                                         Switch
                                     </button>
-                                </div>
-                                
-                                <!-- Name input if customer doesn't have one -->
-                                <div x-show="!customerName" class="mt-4">
-                                    <label class="block text-sm font-bold text-gray-100 mb-2">
-                                        Full Name <span class="text-red-500">*</span>
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        x-model="newName"
-                                        name="customer_name_input"
-                                        id="customer_name_new"
-                                        class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                        placeholder="Enter your full name"
-                                    >
                                 </div>
                                 
                                 <!-- Phone input if customer doesn't have one -->
@@ -1831,7 +1814,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <!-- Hidden fields for form submission -->
                                 <input type="hidden" name="customer_id" :value="customerId">
                                 <input type="hidden" name="customer_email" id="customer_email" :value="email">
-                                <input type="hidden" name="customer_name" id="customer_name" :value="customerName || newName || ''">
+                                <input type="hidden" name="customer_name" id="customer_name" :value="customerUsername || ''">
                                 <input type="hidden" name="customer_phone" id="customer_phone_hidden" :value="customerPhone || phone">
                             </div>
 
@@ -2531,15 +2514,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             email: '',
             password: '',
             phone: '',
-            newName: '',
             otpCode: '',
             loading: false,
             error: '',
             
             // Customer data (populated on auth)
             customerId: null,
-            customerName: '',
+            customerUsername: '', // Use username instead of full_name
             customerPhone: '',
+            accountComplete: false,
             
             // OTP resend timer
             resendTimer: 60,
@@ -2566,8 +2549,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             setAuthenticatedState(customer) {
                 this.customerId = customer.id;
                 this.email = customer.email;
-                this.customerName = customer.full_name || customer.name || '';
+                this.customerUsername = customer.username || customer.full_name || customer.name || '';
                 this.customerPhone = customer.phone || '';
+                this.accountComplete = customer.account_complete || false;
                 this.step = 'authenticated';
                 this.error = '';
                 // Dispatch event to notify submit button
@@ -2590,7 +2574,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     if (result.success) {
                         if (result.exists && result.has_password) {
                             // Existing user with password - show login
-                            this.customerName = result.full_name || '';
+                            this.customerUsername = result.username || result.full_name || '';
                             this.step = 'password';
                         } else {
                             // New user or user without password - send OTP
@@ -2754,8 +2738,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 this.phone = '';
                 this.otpCode = '';
                 this.customerId = null;
-                this.customerName = '';
+                this.customerUsername = '';
                 this.customerPhone = '';
+                this.accountComplete = false;
                 this.error = '';
                 
                 if (this.resendInterval) clearInterval(this.resendInterval);

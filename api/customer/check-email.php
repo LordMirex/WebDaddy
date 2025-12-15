@@ -36,7 +36,9 @@ echo json_encode([
     'success' => true,
     'exists' => $result['exists'],
     'has_password' => $result['has_password'] ?? false,
-    'full_name' => $result['full_name'] ?? null,
+    'username' => $result['username'] ?? null,
+    'full_name' => $result['full_name'] ?? null, // Backwards compatibility
     'status' => $result['status'] ?? null,
-    'needs_setup' => ($result['status'] ?? '') === 'pending_setup'
+    'account_complete' => $result['account_complete'] ?? 0,
+    'needs_setup' => ($result['status'] ?? '') === 'pending_setup' || !($result['account_complete'] ?? 0)
 ]);

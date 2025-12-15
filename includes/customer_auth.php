@@ -13,7 +13,7 @@ require_once __DIR__ . '/mailer.php';
 
 function checkCustomerEmail($email) {
     $db = getDb();
-    $stmt = $db->prepare("SELECT id, email, password_hash, full_name, status, registration_step FROM customers WHERE LOWER(email) = LOWER(?)");
+    $stmt = $db->prepare("SELECT id, email, password_hash, username, full_name, status, registration_step, account_complete FROM customers WHERE LOWER(email) = LOWER(?)");
     $stmt->execute([$email]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -25,9 +25,11 @@ function checkCustomerEmail($email) {
         'exists' => true,
         'has_password' => !empty($customer['password_hash']),
         'customer_id' => $customer['id'],
-        'full_name' => $customer['full_name'],
+        'username' => $customer['username'],
+        'full_name' => $customer['full_name'], // Keep for backwards compatibility
         'status' => $customer['status'],
-        'registration_step' => $customer['registration_step']
+        'registration_step' => $customer['registration_step'],
+        'account_complete' => (int)($customer['account_complete'] ?? 0)
     ];
 }
 
@@ -45,6 +47,48 @@ function getCustomerByEmail($email) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+/**
+ * Generate unique username from email
+ * Format: email-local-part + random suffix
+ */
+function generateUsernameFromEmail($email) {
+    $db = getDb();
+    
+    // Extract part before @
+    $baseName = explode('@', strtolower($email))[0];
+    
+    // Remove special characters, keep alphanumeric and underscores
+    $baseName = preg_replace('/[^a-z0-9_]/', '', $baseName);
+    
+    // Limit to 15 characters
+    $baseName = substr($baseName, 0, 15);
+    
+    // Empty base fallback
+    if (empty($baseName)) {
+        $baseName = 'user';
+    }
+    
+    // Add random suffix for uniqueness
+    $suffix = random_int(100, 999);
+    $username = $baseName . '_' . $suffix;
+    
+    // Check if exists, regenerate if needed (max 5 attempts)
+    $attempts = 0;
+    while ($attempts < 5) {
+        $stmt = $db->prepare("SELECT id FROM customers WHERE username = ?");
+        $stmt->execute([$username]);
+        if (!$stmt->fetch()) {
+            return $username; // Unique!
+        }
+        $suffix = random_int(100, 999);
+        $username = $baseName . '_' . $suffix;
+        $attempts++;
+    }
+    
+    // Fallback with timestamp
+    return $baseName . '_' . substr(time(), -4);
+}
+
 function createCustomerAccount($email, $fullName = null, $phone = null) {
     $db = getDb();
     
@@ -53,11 +97,12 @@ function createCustomerAccount($email, $fullName = null, $phone = null) {
         return ['success' => false, 'message' => 'Account already exists', 'customer_id' => $check['customer_id']];
     }
     
-    $username = explode('@', $email)[0] . '_' . random_int(100, 999);
+    // Generate unique username from email
+    $username = generateUsernameFromEmail($email);
     
     $stmt = $db->prepare("
-        INSERT INTO customers (email, username, full_name, phone, status, email_verified, registration_step)
-        VALUES (?, ?, ?, ?, 'pending_setup', 1, 1)
+        INSERT INTO customers (email, username, full_name, phone, status, email_verified, registration_step, account_complete)
+        VALUES (?, ?, ?, ?, 'pending_setup', 1, 1, 0)
     ");
     $stmt->execute([$email, $username, $fullName, $phone]);
     $customerId = $db->lastInsertId();
@@ -67,8 +112,10 @@ function createCustomerAccount($email, $fullName = null, $phone = null) {
     return [
         'success' => true,
         'customer_id' => $customerId,
+        'username' => $username,
         'needs_setup' => true,
         'registration_step' => 1,
+        'account_complete' => false,
         'message' => 'Account created. Please complete setup.'
     ];
 }

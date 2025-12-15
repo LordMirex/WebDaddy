@@ -109,16 +109,25 @@ try {
         'samesite' => 'Lax'
     ]);
 
+    // Determine if this is a new user (account_complete = 0 or no password)
+    $isNewUser = empty($customer['password_hash']) || ($customer['account_complete'] ?? 0) == 0;
+    $accountComplete = (int)($customer['account_complete'] ?? 0);
+    
     echo json_encode([
         'success' => true,
         'customer' => [
             'id' => $customerId,
             'email' => $customer['email'],
-            'full_name' => $customer['full_name'],
+            'username' => $customer['username'] ?? null,
+            'full_name' => $customer['full_name'], // Keep for backwards compatibility
             'phone' => $customer['phone'] ?: ($customer['whatsapp_number'] ?? ''),
-            'username' => $customer['username'] ?? null
+            'account_complete' => $accountComplete
         ],
-        'needs_setup' => $customer['status'] === 'pending_setup',
+        'customer_id' => $customerId,
+        'username' => $customer['username'] ?? null,
+        'isNewUser' => $isNewUser,
+        'needs_setup' => $customer['status'] === 'pending_setup' || !$accountComplete,
+        'account_complete' => $accountComplete,
         'registration_step' => $customer['registration_step']
     ]);
 
