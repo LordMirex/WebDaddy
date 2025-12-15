@@ -173,6 +173,14 @@ The platform features a clean, professional UI with consistent design elements. 
   - Premium fonts added to index.php: Inter & Plus Jakarta Sans
   - Tailwind config updated with font-family defaults
 
+### Recent Fixes (December 15, 2025)
+- **New User Checkout Fix**: Fixed checkout failing for new users who verified via OTP
+  - Added "Full Name" input field for new users without a name on file
+  - Added `newName` variable to checkoutAuth Alpine.js component
+  - Updated hidden form field to use `customerName || newName`
+  - Added JSON error responses for AJAX validation failures (clearer error messages)
+  - Fixed sendOTPEmail function call in customer_otp.php (was passing extra parameter)
+
 ### Pending Updates (24-25)
 See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
 - Floating Cart Widget (24) - Already completed

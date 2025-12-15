@@ -196,6 +196,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
         }
     }
     
+    // Return JSON errors for AJAX requests
+    if (!empty($errors) && $isAjaxRequest) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'message' => implode(' ', $errors)
+        ]);
+        exit;
+    }
+    
     if (empty($errors)) {
         // Re-fetch cart items and totals after validation to ensure we have fresh data
         $cartItems = getCart();
@@ -1787,6 +1797,21 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     </button>
                                 </div>
                                 
+                                <!-- Name input if customer doesn't have one -->
+                                <div x-show="!customerName" class="mt-4">
+                                    <label class="block text-sm font-bold text-gray-100 mb-2">
+                                        Full Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        x-model="newName"
+                                        name="customer_name_input"
+                                        id="customer_name_new"
+                                        class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                        placeholder="Enter your full name"
+                                    >
+                                </div>
+                                
                                 <!-- Phone input if customer doesn't have one -->
                                 <div x-show="!customerPhone" class="mt-4">
                                     <label class="block text-sm font-bold text-gray-100 mb-2">
@@ -1806,7 +1831,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <!-- Hidden fields for form submission -->
                                 <input type="hidden" name="customer_id" :value="customerId">
                                 <input type="hidden" name="customer_email" id="customer_email" :value="email">
-                                <input type="hidden" name="customer_name" id="customer_name" :value="customerName || ''">
+                                <input type="hidden" name="customer_name" id="customer_name" :value="customerName || newName || ''">
                                 <input type="hidden" name="customer_phone" id="customer_phone_hidden" :value="customerPhone || phone">
                             </div>
 
@@ -2506,6 +2531,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             email: '',
             password: '',
             phone: '',
+            newName: '',
             otpCode: '',
             loading: false,
             error: '',

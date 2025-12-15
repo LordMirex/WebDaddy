@@ -55,7 +55,7 @@ function sendCheckoutEmailOTP($email, $fullName = null) {
     $stmt->execute([$customerId, $email, $otpCode, $expiresAt]);
     $otpId = $db->lastInsertId();
     
-    $sent = sendOTPEmail($email, $otpCode, $fullName);
+    $sent = sendOTPEmail($email, $otpCode);
     
     $db->prepare("UPDATE customer_otp_codes SET email_sent = ? WHERE id = ?")
        ->execute([$sent ? 1 : 0, $otpId]);
