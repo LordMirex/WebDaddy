@@ -140,52 +140,62 @@ require_once __DIR__ . '/includes/header.php';
                                     <?php if (!empty($item['hosted_domain'])): ?>
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Your Website</p>
-                                        <a href="https://<?= htmlspecialchars($item['hosted_domain']) ?>" target="_blank" 
-                                           class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center gap-1">
-                                            <?= htmlspecialchars($item['hosted_domain']) ?>
-                                            <i class="bi-box-arrow-up-right text-xs"></i>
-                                        </a>
+                                        <div class="flex items-start gap-1">
+                                            <a href="https://<?= htmlspecialchars($item['hosted_domain']) ?>" target="_blank" 
+                                               class="text-amber-600 hover:text-amber-700 font-medium block flex-1 break-all">
+                                                <?= htmlspecialchars($item['hosted_domain']) ?>
+                                            </a>
+                                            <i class="bi-box-arrow-up-right text-xs flex-shrink-0 text-amber-600 mt-0.5"></i>
+                                        </div>
                                     </div>
                                     <?php endif; ?>
                                     
                                     <?php if (!empty($adminUrl)): ?>
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Admin Panel</p>
-                                        <a href="<?= htmlspecialchars($adminUrl) ?>" target="_blank" 
-                                           class="text-amber-600 hover:text-amber-700 font-medium inline-flex items-center gap-1 break-all url-break">
-                                            <?= htmlspecialchars($displayLoginUrl) ?>
-                                            <i class="bi-box-arrow-up-right text-xs flex-shrink-0"></i>
-                                        </a>
+                                        <div class="flex items-start gap-1">
+                                            <a href="<?= htmlspecialchars($adminUrl) ?>" target="_blank" 
+                                               class="text-amber-600 hover:text-amber-700 font-medium block flex-1 break-words overflow-wrap-break-word">
+                                                <?= htmlspecialchars($displayLoginUrl) ?>
+                                            </a>
+                                            <i class="bi-box-arrow-up-right text-xs flex-shrink-0 text-amber-600 mt-0.5"></i>
+                                        </div>
                                     </div>
                                     <?php endif; ?>
                                     
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Login Credentials</p>
-                                        <div class="space-y-2 credentials-display">
-                                            <div class="flex items-center gap-2 flex-wrap">
-                                                <i class="bi-person text-gray-400 flex-shrink-0"></i>
-                                                <span class="text-gray-600">Username:</span>
-                                                <span class="font-medium break-all"><?= htmlspecialchars($item['admin_username'] ?? 'Not set') ?></span>
+                                        <div class="space-y-3">
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                                <div class="flex items-center gap-2 flex-shrink-0">
+                                                    <i class="bi-person text-gray-400"></i>
+                                                    <span class="text-gray-600 text-sm font-medium">Username:</span>
+                                                </div>
+                                                <span class="font-medium text-gray-900 break-words flex-1"><?= htmlspecialchars($item['admin_username'] ?? 'Not set') ?></span>
                                                 <?php if (!empty($item['admin_username'])): ?>
                                                 <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_username']) ?>'); copied = 'user'; setTimeout(() => copied = '', 2000)"
-                                                        class="ml-auto p-1 text-gray-400 hover:text-amber-600 transition" title="Copy">
+                                                        class="p-1 text-gray-400 hover:text-amber-600 transition flex-shrink-0 self-start sm:self-center" title="Copy">
                                                     <i x-show="copied !== 'user'" class="bi-clipboard"></i>
                                                     <i x-show="copied === 'user'" class="bi-check text-green-600"></i>
                                                 </button>
                                                 <?php endif; ?>
                                             </div>
-                                            <div class="flex items-center gap-2 flex-wrap">
-                                                <i class="bi-key text-gray-400 flex-shrink-0"></i>
-                                                <span class="text-gray-600">Password:</span>
+                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                                <div class="flex items-center gap-2 flex-shrink-0">
+                                                    <i class="bi-key text-gray-400"></i>
+                                                    <span class="text-gray-600 text-sm font-medium">Password:</span>
+                                                </div>
                                                 <?php if (!empty($item['admin_password'])): ?>
-                                                <span x-show="showPassword" class="font-medium break-all"><?= htmlspecialchars($item['admin_password']) ?></span>
-                                                <span x-show="!showPassword" class="text-gray-400">••••••••</span>
-                                                <button @click="showPassword = !showPassword" class="p-1 text-gray-400 hover:text-amber-600 transition" title="Show/Hide">
-                                                    <i x-show="!showPassword" class="bi-eye"></i>
-                                                    <i x-show="showPassword" class="bi-eye-slash"></i>
-                                                </button>
+                                                <div class="flex items-center gap-2 flex-1">
+                                                    <span x-show="showPassword" class="font-medium text-gray-900 break-words"><?= htmlspecialchars($item['admin_password']) ?></span>
+                                                    <span x-show="!showPassword" class="text-gray-400">••••••••</span>
+                                                    <button @click="showPassword = !showPassword" class="p-1 text-gray-400 hover:text-amber-600 transition flex-shrink-0" title="Show/Hide">
+                                                        <i x-show="!showPassword" class="bi-eye"></i>
+                                                        <i x-show="showPassword" class="bi-eye-slash"></i>
+                                                    </button>
+                                                </div>
                                                 <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_password']) ?>'); copied = 'pass'; setTimeout(() => copied = '', 2000)"
-                                                        class="ml-auto p-1 text-gray-400 hover:text-amber-600 transition" title="Copy">
+                                                        class="p-1 text-gray-400 hover:text-amber-600 transition flex-shrink-0 self-start sm:self-center" title="Copy">
                                                     <i x-show="copied !== 'pass'" class="bi-clipboard"></i>
                                                     <i x-show="copied === 'pass'" class="bi-check text-green-600"></i>
                                                 </button>
