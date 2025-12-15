@@ -319,12 +319,23 @@ function createPendingOrder($data)
             INSERT INTO pending_orders 
             (template_id, chosen_domain_id, customer_name, customer_email, customer_phone, 
              business_name, custom_fields, affiliate_code, session_id, message_text, ip_address, status, payment_method,
-             original_price, discount_amount, final_amount, order_type, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
+             original_price, discount_amount, final_amount, order_type, customer_id, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
         ");
         
         if (!$stmt) {
             throw new PDOException('Failed to prepare statement');
+        }
+        
+        // Try to find customer_id by email if not provided
+        $customerId = $data['customer_id'] ?? null;
+        if (!$customerId && !empty($data['customer_email'])) {
+            $custStmt = $db->prepare("SELECT id FROM customers WHERE LOWER(email) = LOWER(?)");
+            $custStmt->execute([$data['customer_email']]);
+            $custResult = $custStmt->fetch(PDO::FETCH_ASSOC);
+            if ($custResult) {
+                $customerId = $custResult['id'];
+            }
         }
         
         $params = [
@@ -343,7 +354,8 @@ function createPendingOrder($data)
             $data['original_price'] ?? null,
             $data['discount_amount'] ?? 0,
             $data['final_amount'] ?? null,
-            $data['order_type'] ?? 'template'
+            $data['order_type'] ?? 'template',
+            $customerId
         ];
         
         $result = $stmt->execute($params);
@@ -420,12 +432,23 @@ function createOrderWithItems($orderData, $items = [])
             (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
              customer_phone, business_name, custom_fields, affiliate_code, session_id, 
              message_text, ip_address, status, payment_method, original_price, discount_amount, final_amount, 
-             quantity, cart_snapshot, payment_notes, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
+             quantity, cart_snapshot, payment_notes, customer_id, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
         ");
         
         $templateId = $orderData['template_id'] ?? null;
         $toolId = $orderData['tool_id'] ?? null;
+        
+        // Try to find customer_id by email if not provided
+        $customerId = $orderData['customer_id'] ?? null;
+        if (!$customerId && !empty($orderData['customer_email'])) {
+            $custStmt = $db->prepare("SELECT id FROM customers WHERE LOWER(email) = LOWER(?)");
+            $custStmt->execute([$orderData['customer_email']]);
+            $custResult = $custStmt->fetch(PDO::FETCH_ASSOC);
+            if ($custResult) {
+                $customerId = $custResult['id'];
+            }
+        }
         
         $params = [
             $templateId,
@@ -447,7 +470,8 @@ function createOrderWithItems($orderData, $items = [])
             $orderData['final_amount'],
             $orderData['quantity'] ?? 1,
             $orderData['cart_snapshot'] ?? null,
-            $orderData['payment_notes'] ?? null
+            $orderData['payment_notes'] ?? null,
+            $customerId
         ];
         
         $stmt->execute($params);

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -29,6 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     $db->beginTransaction();
+                    
+                    // Get ticket info for email notification
+                    $ticketInfoStmt = $db->prepare("
+                        SELECT cst.*, c.full_name as customer_name, c.email as customer_email
+                        FROM customer_support_tickets cst
+                        JOIN customers c ON cst.customer_id = c.id
+                        WHERE cst.id = ?
+                    ");
+                    $ticketInfoStmt->execute([$ticketId]);
+                    $ticketInfo = $ticketInfoStmt->fetch(PDO::FETCH_ASSOC);
                     
                     // Add reply
                     $stmt = $db->prepare("
@@ -58,7 +69,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare($updateSql);
                     $stmt->execute($updateParams);
                     
+                    // Create in-app notification for customer
+                    if ($ticketInfo) {
+                        $notifStmt = $db->prepare("
+                            INSERT INTO customer_notifications (customer_id, type, title, message, priority, created_at)
+                            VALUES (?, 'ticket_reply', ?, ?, 'high', datetime('now'))
+                        ");
+                        $notifStmt->execute([
+                            $ticketInfo['customer_id'],
+                            "Support Reply - Ticket #{$ticketId}",
+                            substr($message, 0, 150) . (strlen($message) > 150 ? '...' : '')
+                        ]);
+                    }
+                    
                     $db->commit();
+                    
+                    // Send email notification to customer (outside transaction)
+                    if ($ticketInfo && !empty($ticketInfo['customer_email'])) {
+                        @sendCustomerTicketReplyEmail(
+                            $ticketInfo['customer_name'] ?? 'Customer',
+                            $ticketInfo['customer_email'],
+                            $ticketId,
+                            $ticketInfo['subject'] ?? 'Support Ticket',
+                            $message
+                        );
+                    }
+                    
                     $successMessage = 'Reply sent successfully!';
                     logActivity('customer_ticket_replied', "Replied to ticket #$ticketId", getAdminId());
                 } catch (PDOException $e) {

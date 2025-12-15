@@ -831,6 +831,40 @@ HTML;
 }
 
 /**
+ * Send notification when admin replies to customer support ticket
+ */
+function sendCustomerTicketReplyEmail($customerName, $customerEmail, $ticketId, $ticketSubject, $adminReply) {
+    $subject = "Support Ticket Reply - #{$ticketId}";
+    $siteUrl = defined('SITE_URL') ? SITE_URL : 'http://localhost:8080';
+    $escReply = htmlspecialchars($adminReply, ENT_QUOTES, 'UTF-8');
+    $escSubject = htmlspecialchars($ticketSubject, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<h2 style="color:#3b82f6; margin:0 0 15px 0; font-size:20px;">New Reply to Your Support Ticket</h2>
+<p style="color:#374151; line-height:1.6; margin:0 0 15px 0;">
+    Our support team has replied to your ticket.
+</p>
+<div style="background:#ffffff; padding:15px; border-radius:6px; margin:15px 0; border:1px solid #e5e7eb;">
+    <p style="margin:5px 0; color:#374151;"><strong>Ticket ID:</strong> #{$ticketId}</p>
+    <p style="margin:5px 0; color:#374151;"><strong>Subject:</strong> {$escSubject}</p>
+</div>
+<div style="background:#f0f9ff; padding:15px; border-radius:6px; margin:15px 0; border-left:4px solid #3b82f6;">
+    <p style="margin:0 0 8px 0; color:#1e40af; font-weight:600; font-size:13px;">SUPPORT REPLY:</p>
+    <p style="margin:0; color:#374151; line-height:1.6; white-space:pre-wrap;">{$escReply}</p>
+</div>
+<p style="color:#374151; line-height:1.6; margin:15px 0 0 0;">
+    <a href="{$siteUrl}/user/ticket.php?id={$ticketId}" style="background:#f59e0b; color:#ffffff; padding:10px 20px; border-radius:6px; text-decoration:none; display:inline-block; font-weight:600;">View Ticket</a>
+</p>
+<p style="color:#6b7280; font-size:13px; margin:15px 0 0 0;">
+    You can view this conversation and reply by logging into your account.
+</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $customerName);
+    return sendEmail($customerEmail, $subject, $emailBody);
+}
+
+/**
  * Send notification when support ticket is closed
  */
 function sendSupportTicketClosedEmail($affiliateName, $affiliateEmail, $ticketId, $ticketSubject) {

@@ -21,7 +21,12 @@
             
             toggle() {
                 this.open = !this.open;
-                if (this.open) this.loadNotifications();
+                if (this.open) {
+                    this.loadNotifications();
+                    if (this.unreadCount > 0) {
+                        this.markAllRead();
+                    }
+                }
             },
             
             async loadNotifications() {
@@ -32,6 +37,19 @@
                     this.unreadCount = data.unread_count || 0;
                 } catch (err) {
                     console.error('Failed to load notifications');
+                }
+            },
+            
+            async markAllRead() {
+                try {
+                    await fetch('/api/customer/notifications.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'mark_all_read' })
+                    });
+                    this.unreadCount = 0;
+                } catch (err) {
+                    console.error('Failed to mark notifications as read');
                 }
             }
         };
