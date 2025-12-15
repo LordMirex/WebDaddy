@@ -127,6 +127,7 @@ function getOrderItemsWithDelivery($orderId) {
             d.template_admin_username as admin_username,
             d.template_admin_password as admin_password_encrypted,
             d.template_login_url as login_url,
+            d.hosting_provider as hosting_provider,
             d.delivery_note as delivery_note,
             d.delivery_instructions as delivery_instructions,
             d.admin_notes as admin_notes,

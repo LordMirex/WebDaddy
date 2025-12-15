@@ -120,65 +120,119 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             
                             <?php if ($deliveryStatus === 'delivered'): ?>
-                            <div class="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <i class="bi-check-circle-fill text-green-600"></i>
-                                    <span class="font-semibold text-green-800">Delivery Complete</span>
+                            <?php 
+                                $hostingType = $item['hosting_provider'] ?? 'custom';
+                                $hostingLabels = [
+                                    'wordpress' => ['icon' => 'bi-wordpress', 'label' => 'WordPress Site', 'admin_label' => 'WordPress Admin'],
+                                    'cpanel' => ['icon' => 'bi-server', 'label' => 'cPanel Hosting', 'admin_label' => 'cPanel Login'],
+                                    'static' => ['icon' => 'bi-file-code', 'label' => 'Static Website', 'admin_label' => 'File Manager'],
+                                    'custom' => ['icon' => 'bi-globe', 'label' => 'Website', 'admin_label' => 'Admin Panel']
+                                ];
+                                $hosting = $hostingLabels[$hostingType] ?? $hostingLabels['custom'];
+                            ?>
+                            <div class="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4" x-data="{ showPassword: false, copied: '' }">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <i class="bi-check-circle-fill text-green-600 text-lg"></i>
+                                    <span class="font-bold text-green-800">Delivery Complete</span>
+                                    <span class="ml-auto text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                                        <i class="<?= $hosting['icon'] ?> mr-1"></i><?= $hosting['label'] ?>
+                                    </span>
                                 </div>
                                 
-                                <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="space-y-3">
                                     <?php if (!empty($item['hosted_domain'])): ?>
                                     <div class="bg-white rounded-lg p-3 border">
-                                        <p class="text-xs text-gray-500 mb-1 font-medium">YOUR WEBSITE</p>
-                                        <a href="https://<?= htmlspecialchars($item['hosted_domain']) ?>" target="_blank" 
-                                           class="text-amber-600 hover:text-amber-700 font-semibold inline-flex items-center break-all">
-                                            <?= htmlspecialchars($item['hosted_domain']) ?>
-                                            <i class="bi-box-arrow-up-right ml-2 text-sm flex-shrink-0"></i>
-                                        </a>
+                                        <p class="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Live Website URL</p>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <a href="https://<?= htmlspecialchars($item['hosted_domain']) ?>" target="_blank" 
+                                               class="text-amber-600 hover:text-amber-700 font-semibold inline-flex items-center break-all text-sm">
+                                                https://<?= htmlspecialchars($item['hosted_domain']) ?>
+                                                <i class="bi-box-arrow-up-right ml-2 text-xs flex-shrink-0"></i>
+                                            </a>
+                                            <button @click="navigator.clipboard.writeText('https://<?= htmlspecialchars($item['hosted_domain']) ?>'); copied = 'website'; setTimeout(() => copied = '', 2000)"
+                                                    class="flex-shrink-0 p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                                                    title="Copy URL">
+                                                <i x-show="copied !== 'website'" class="bi-clipboard text-sm"></i>
+                                                <i x-show="copied === 'website'" class="bi-check-lg text-green-600 text-sm"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <?php endif; ?>
                                     
-                                    <?php if (!empty($item['domain_login_url'])): ?>
+                                    <?php if (!empty($item['domain_login_url']) || !empty($item['login_url'])): ?>
+                                    <?php $adminUrl = $item['domain_login_url'] ?: $item['login_url']; ?>
                                     <div class="bg-white rounded-lg p-3 border">
-                                        <p class="text-xs text-gray-500 mb-1 font-medium">ADMIN PANEL</p>
-                                        <a href="<?= htmlspecialchars($item['domain_login_url']) ?>" target="_blank" 
-                                           class="text-amber-600 hover:text-amber-700 font-semibold inline-flex items-center">
-                                            Login to Admin
-                                            <i class="bi-box-arrow-up-right ml-2 text-sm"></i>
-                                        </a>
+                                        <p class="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide"><?= $hosting['admin_label'] ?> URL</p>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <a href="<?= htmlspecialchars($adminUrl) ?>" target="_blank" 
+                                               class="text-amber-600 hover:text-amber-700 font-semibold inline-flex items-center break-all text-sm">
+                                                <?= htmlspecialchars($adminUrl) ?>
+                                                <i class="bi-box-arrow-up-right ml-2 text-xs flex-shrink-0"></i>
+                                            </a>
+                                            <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($adminUrl) ?>'); copied = 'admin'; setTimeout(() => copied = '', 2000)"
+                                                    class="flex-shrink-0 p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                                                    title="Copy URL">
+                                                <i x-show="copied !== 'admin'" class="bi-clipboard text-sm"></i>
+                                                <i x-show="copied === 'admin'" class="bi-check-lg text-green-600 text-sm"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <?php if (!empty($item['admin_username']) || !empty($item['admin_password'])): ?>
-                                <div class="mt-4 bg-white rounded-lg p-3 border" x-data="{ showPassword: false }">
-                                    <p class="text-xs text-gray-500 mb-2 font-medium">LOGIN CREDENTIALS</p>
-                                    <div class="grid gap-2 sm:grid-cols-2">
+                                <div class="mt-4 bg-white rounded-lg p-4 border">
+                                    <p class="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Login Credentials</p>
+                                    <div class="space-y-3">
                                         <?php if (!empty($item['admin_username'])): ?>
-                                        <div class="flex items-center gap-2">
-                                            <i class="bi-person text-gray-400"></i>
-                                            <span class="text-sm text-gray-600">Username:</span>
-                                            <code class="bg-gray-100 px-2 py-0.5 rounded text-sm font-mono"><?= htmlspecialchars($item['admin_username']) ?></code>
+                                        <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <i class="bi-person-fill text-gray-400"></i>
+                                                <span class="text-sm text-gray-600">Username:</span>
+                                                <code class="font-mono text-sm text-gray-900"><?= htmlspecialchars($item['admin_username']) ?></code>
+                                            </div>
+                                            <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_username']) ?>'); copied = 'user'; setTimeout(() => copied = '', 2000)"
+                                                    class="flex-shrink-0 p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded transition"
+                                                    title="Copy username">
+                                                <i x-show="copied !== 'user'" class="bi-clipboard text-sm"></i>
+                                                <i x-show="copied === 'user'" class="bi-check-lg text-green-600 text-sm"></i>
+                                            </button>
                                         </div>
                                         <?php endif; ?>
+                                        
                                         <?php if (!empty($item['admin_password'])): ?>
-                                        <div class="flex items-center gap-2">
-                                            <i class="bi-key text-gray-400"></i>
-                                            <span class="text-sm text-gray-600">Password:</span>
-                                            <code x-show="showPassword" class="bg-gray-100 px-2 py-0.5 rounded text-sm font-mono"><?= htmlspecialchars($item['admin_password']) ?></code>
-                                            <span x-show="!showPassword" class="text-gray-400">••••••••</span>
-                                            <button @click="showPassword = !showPassword" class="text-amber-600 hover:text-amber-700 text-xs ml-1">
-                                                <span x-text="showPassword ? 'Hide' : 'Show'"></span>
-                                            </button>
+                                        <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg">
+                                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                                <i class="bi-key-fill text-gray-400"></i>
+                                                <span class="text-sm text-gray-600">Password:</span>
+                                                <code x-show="showPassword" class="font-mono text-sm text-gray-900 break-all"><?= htmlspecialchars($item['admin_password']) ?></code>
+                                                <span x-show="!showPassword" class="text-gray-400 font-mono">••••••••••</span>
+                                            </div>
+                                            <div class="flex items-center gap-1 flex-shrink-0">
+                                                <button @click="showPassword = !showPassword"
+                                                        class="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded transition"
+                                                        title="Toggle password visibility">
+                                                    <i x-show="!showPassword" class="bi-eye text-sm"></i>
+                                                    <i x-show="showPassword" class="bi-eye-slash text-sm"></i>
+                                                </button>
+                                                <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_password']) ?>'); copied = 'pass'; setTimeout(() => copied = '', 2000)"
+                                                        class="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded transition"
+                                                        title="Copy password">
+                                                    <i x-show="copied !== 'pass'" class="bi-clipboard text-sm"></i>
+                                                    <i x-show="copied === 'pass'" class="bi-check-lg text-green-600 text-sm"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 <?php else: ?>
-                                <p class="text-xs text-gray-500 mt-3 flex items-center gap-1">
-                                    <i class="bi-envelope"></i>
-                                    Login credentials were sent to your email
-                                </p>
+                                <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <p class="text-sm text-amber-700 flex items-center gap-2">
+                                        <i class="bi-envelope-fill"></i>
+                                        Login credentials were sent to your email
+                                    </p>
+                                </div>
                                 <?php endif; ?>
                                 
                                 <?php if (!empty($item['admin_notes'])): ?>
