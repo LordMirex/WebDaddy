@@ -33,8 +33,22 @@ $confirmedOrderId = isset($_GET['confirmed']) ? (int)$_GET['confirmed'] : null;
 $cartItems = getCart();
 $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode);
 
-// If cart is empty and not showing confirmation, redirect to homepage
+// Check if this is an AJAX request
+$isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' ||
+                 ($_SERVER['REQUEST_METHOD'] === 'POST' && 
+                  !isset($_POST['apply_affiliate']) && 
+                  !isset($_POST['remove_discount']) &&
+                  (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false ||
+                   isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false));
+
+// If cart is empty and not showing confirmation, redirect to homepage (or return JSON error for AJAX)
 if (empty($cartItems) && !$confirmedOrderId) {
+    if ($isAjaxRequest || ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount']))) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Your cart is empty. Please add items before checkout.']);
+        exit;
+    }
     header('Location: /?' . ($affiliateCode ? 'aff=' . urlencode($affiliateCode) : '') . '#products');
     exit;
 }
