@@ -165,42 +165,44 @@ require_once __DIR__ . '/includes/header.php';
                                     
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Login Credentials</p>
-                                        <div class="space-y-3">
-                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                                                <div class="flex items-center gap-2 flex-shrink-0">
-                                                    <i class="bi-person text-gray-400"></i>
-                                                    <span class="text-gray-600 text-sm font-medium">Username:</span>
+                                        <div class="space-y-2">
+                                            <div class="flex items-start justify-between gap-2">
+                                                <div class="flex items-start gap-2 min-w-0 flex-1">
+                                                    <i class="bi-person text-gray-400 flex-shrink-0 mt-0.5"></i>
+                                                    <span class="text-gray-600 text-sm flex-shrink-0">Username:</span>
+                                                    <span class="font-medium text-gray-900 break-all"><?= htmlspecialchars($item['admin_username'] ?? 'Not set') ?></span>
                                                 </div>
-                                                <span class="font-medium text-gray-900 break-words flex-1"><?= htmlspecialchars($item['admin_username'] ?? 'Not set') ?></span>
                                                 <?php if (!empty($item['admin_username'])): ?>
                                                 <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_username']) ?>'); copied = 'user'; setTimeout(() => copied = '', 2000)"
-                                                        class="p-1 text-gray-400 hover:text-amber-600 transition flex-shrink-0 self-start sm:self-center" title="Copy">
+                                                        class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition flex-shrink-0" title="Copy username">
                                                     <i x-show="copied !== 'user'" class="bi-clipboard"></i>
                                                     <i x-show="copied === 'user'" class="bi-check text-green-600"></i>
                                                 </button>
                                                 <?php endif; ?>
                                             </div>
-                                            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                                                <div class="flex items-center gap-2 flex-shrink-0">
-                                                    <i class="bi-key text-gray-400"></i>
-                                                    <span class="text-gray-600 text-sm font-medium">Password:</span>
+                                            <div class="flex items-start justify-between gap-2">
+                                                <div class="flex items-start gap-2 min-w-0 flex-1">
+                                                    <i class="bi-key text-gray-400 flex-shrink-0 mt-0.5"></i>
+                                                    <span class="text-gray-600 text-sm flex-shrink-0">Password:</span>
+                                                    <?php if (!empty($item['admin_password'])): ?>
+                                                    <span x-show="showPassword" class="font-medium text-gray-900 break-all"><?= htmlspecialchars($item['admin_password']) ?></span>
+                                                    <span x-show="!showPassword" class="text-gray-400">••••••••</span>
+                                                    <?php else: ?>
+                                                    <span class="text-gray-400">Not set</span>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <?php if (!empty($item['admin_password'])): ?>
-                                                <div class="flex items-center gap-2 flex-1">
-                                                    <span x-show="showPassword" class="font-medium text-gray-900 break-words"><?= htmlspecialchars($item['admin_password']) ?></span>
-                                                    <span x-show="!showPassword" class="text-gray-400">••••••••</span>
-                                                    <button @click="showPassword = !showPassword" class="p-1 text-gray-400 hover:text-amber-600 transition flex-shrink-0" title="Show/Hide">
+                                                <div class="flex items-center gap-1 flex-shrink-0">
+                                                    <button @click="showPassword = !showPassword" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition" title="Show/Hide password">
                                                         <i x-show="!showPassword" class="bi-eye"></i>
                                                         <i x-show="showPassword" class="bi-eye-slash"></i>
                                                     </button>
+                                                    <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_password']) ?>'); copied = 'pass'; setTimeout(() => copied = '', 2000)"
+                                                            class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition" title="Copy password">
+                                                        <i x-show="copied !== 'pass'" class="bi-clipboard"></i>
+                                                        <i x-show="copied === 'pass'" class="bi-check text-green-600"></i>
+                                                    </button>
                                                 </div>
-                                                <button @click="navigator.clipboard.writeText('<?= htmlspecialchars($item['admin_password']) ?>'); copied = 'pass'; setTimeout(() => copied = '', 2000)"
-                                                        class="p-1 text-gray-400 hover:text-amber-600 transition flex-shrink-0 self-start sm:self-center" title="Copy">
-                                                    <i x-show="copied !== 'pass'" class="bi-clipboard"></i>
-                                                    <i x-show="copied === 'pass'" class="bi-check text-green-600"></i>
-                                                </button>
-                                                <?php else: ?>
-                                                <span class="text-gray-400">Not set</span>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
