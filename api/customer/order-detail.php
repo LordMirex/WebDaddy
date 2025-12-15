@@ -6,16 +6,79 @@ require_once __DIR__ . '/../../includes/delivery.php';
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit;
-}
-
 $customer = validateCustomerSession();
 if (!$customer) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Authentication required']);
+    exit;
+}
+
+// Handle POST requests for payment notifications
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $action = $input['action'] ?? '';
+    
+    if ($action === 'payment_notification') {
+        $orderId = intval($input['order_id'] ?? 0);
+        $customerId = $customer['customer_id'];
+        
+        if ($orderId <= 0) {
+            echo json_encode(['success' => false, 'error' => 'Invalid order ID']);
+            exit;
+        }
+        
+        $db = getDb();
+        
+        // Verify order belongs to customer and is pending
+        $stmt = $db->prepare("SELECT id, status, final_amount, customer_email FROM pending_orders WHERE id = ? AND customer_id = ?");
+        $stmt->execute([$orderId, $customerId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order) {
+            echo json_encode(['success' => false, 'error' => 'Order not found']);
+            exit;
+        }
+        
+        if ($order['status'] !== 'pending') {
+            echo json_encode(['success' => false, 'error' => 'Order is not awaiting payment']);
+            exit;
+        }
+        
+        // Mark order as payment notified
+        $updateStmt = $db->prepare("UPDATE pending_orders SET payment_notified = 1, payment_notified_at = datetime('now') WHERE id = ?");
+        $updateStmt->execute([$orderId]);
+        
+        // Send admin notification email about pending payment
+        try {
+            require_once __DIR__ . '/../../includes/notifications.php';
+            $adminEmail = ADMIN_EMAIL ?? 'webdaddyempire@gmail.com';
+            $subject = "Manual Payment Notification - Order #$orderId";
+            $message = "A customer has indicated they've made a bank transfer payment.\n\n";
+            $message .= "Order ID: #$orderId\n";
+            $message .= "Amount: ₦" . number_format($order['final_amount'], 2) . "\n";
+            $message .= "Customer Email: " . $order['customer_email'] . "\n\n";
+            $message .= "Please verify the payment in your bank account and update the order status.";
+            
+            if (function_exists('sendAdminNotification')) {
+                sendAdminNotification($subject, $message);
+            }
+        } catch (Exception $e) {
+            // Log but don't fail
+            error_log("Failed to send admin notification for order #$orderId: " . $e->getMessage());
+        }
+        
+        echo json_encode(['success' => true, 'message' => 'Payment notification sent']);
+        exit;
+    }
+    
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Invalid action']);
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
     exit;
 }
 

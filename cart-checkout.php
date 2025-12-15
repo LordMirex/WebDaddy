@@ -459,7 +459,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             // CRITICAL: Different handling for payment methods - both return JSON for AJAX
             header('Content-Type: application/json');
             
-            $confirmationUrl = '/cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : '');
+            // NEW FLOW: Redirect to user order detail page, not checkout confirmation
+            $orderDetailUrl = '/user/order-detail.php?id=' . $orderId;
+            $fallbackUrl = '/cart-checkout.php?confirmed=' . $orderId . ($affiliateCode ? '&aff=' . urlencode($affiliateCode) : '');
             
             if ($paymentMethod === 'automatic') {
                 // Automatic payment: Return payment data to trigger Paystack popup immediately
@@ -471,16 +473,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
                     'order_id' => $orderId,
                     'amount' => (int)($totals['total'] * 100), // Paystack uses cents
                     'customer_email' => $customerEmail,
-                    'redirect_on_failure' => $confirmationUrl
+                    'redirect_url' => $orderDetailUrl,
+                    'redirect_on_failure' => $fallbackUrl
                 ]);
                 exit;
             } else {
-                // Manual payment: Return redirect URL
-                // Admin already notified above
+                // Manual payment: Redirect to order detail page
+                // Bank details and "I Have Paid" button now shown on order detail page
                 echo json_encode([
                     'success' => true,
                     'payment_method' => 'manual',
-                    'redirect' => $confirmationUrl
+                    'redirect' => $orderDetailUrl
                 ]);
                 exit;
             }

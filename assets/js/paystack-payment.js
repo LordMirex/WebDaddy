@@ -252,7 +252,7 @@ const PaymentManager = {
                         Check Payment Status
                     </button>
                     
-                    <a href="/cart-checkout.php?confirmed=${orderId}" 
+                    <a href="/user/order-detail.php?id=${orderId}" 
                        class="block w-full py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors text-center">
                         View Order Status
                     </a>
@@ -316,7 +316,7 @@ const PaymentManager = {
                 this.resetPayButton();
             } else {
                 if (modal) modal.remove();
-                window.location.href = '/cart-checkout.php?confirmed=' + orderId;
+                window.location.href = '/user/order-detail.php?id=' + orderId;
             }
         } catch (error) {
             if (modal) modal.remove();
@@ -385,7 +385,8 @@ const PaymentManager = {
         }
         
         setTimeout(() => {
-            window.location.href = '/cart-checkout.php?confirmed=' + orderId + '&payment=paystack';
+            // NEW FLOW: Redirect to user order detail page
+            window.location.href = '/user/order-detail.php?id=' + orderId;
         }, 1500);
     },
     

@@ -59,13 +59,14 @@ try {
     }
     
     // Initialize Paystack payment
+    // NEW FLOW: Redirect to order detail page after payment
     $paymentData = initializePayment([
         'order_id' => $orderId,
         'customer_name' => $input['name'],
         'email' => $input['email'],
         'amount' => $totals['final'],
         'currency' => 'NGN',
-        'callback_url' => SITE_URL . '/cart-checkout.php?confirmed=' . $orderId
+        'callback_url' => SITE_URL . '/user/order-detail.php?id=' . $orderId
     ]);
     
     if (!$paymentData['success']) {

@@ -1,9 +1,10 @@
 <?php
 /**
  * User Order Detail Page - Enhanced UX
+ * Allows incomplete accounts to view orders (modal prompts setup)
  */
 require_once __DIR__ . '/includes/auth.php';
-$customer = requireCustomer();
+$customer = requireCustomer(true); // Allow incomplete accounts - modal will prompt setup
 
 $orderId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -521,6 +522,108 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
             </div>
+            
+            <?php if ($order['status'] === 'pending'): ?>
+            <!-- Manual Payment Section - Bank Details & I Have Paid -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4" x-data="manualPayment()">
+                <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <i class="bi-bank text-blue-600"></i>
+                    Complete Your Payment
+                </h3>
+                
+                <div class="bg-white rounded-lg border p-4 mb-4">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-3">Bank Transfer Details</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Bank Name</span>
+                            <span class="font-medium text-gray-900">Opay (OPay Digital Services)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Account Number</span>
+                            <span class="font-medium text-gray-900 font-mono">7043609930</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Account Name</span>
+                            <span class="font-medium text-gray-900">WebDaddy Empire</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="flex justify-between font-bold">
+                            <span class="text-gray-900">Amount to Pay</span>
+                            <span class="text-blue-600">₦<?= number_format($order['final_amount'], 2) ?></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                    <p class="text-sm text-amber-800">
+                        <i class="bi-info-circle mr-1"></i>
+                        <strong>Reference:</strong> Include <span class="font-mono font-bold">Order #<?= $orderId ?></span> in your transfer narration
+                    </p>
+                </div>
+                
+                <?php if (empty($order['payment_notified'])): ?>
+                <button @click="confirmPayment()" :disabled="loading"
+                        class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+                    <span x-show="!loading"><i class="bi-check-circle mr-1"></i> I Have Made Payment</span>
+                    <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
+                </button>
+                
+                <div x-show="success" class="mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 text-sm">
+                    <i class="bi-check-circle-fill mr-1"></i> <span x-text="success"></span>
+                </div>
+                <div x-show="error" class="mt-3 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
+                    <i class="bi-exclamation-circle mr-1"></i> <span x-text="error"></span>
+                </div>
+                <?php else: ?>
+                <div class="bg-blue-50 border border-blue-200 text-blue-700 rounded-lg p-3 text-sm">
+                    <i class="bi-clock-history mr-1"></i>
+                    <strong>Payment notification sent.</strong> We're verifying your payment. This usually takes 1-24 hours.
+                </div>
+                <?php endif; ?>
+            </div>
+            
+            <script>
+            function manualPayment() {
+                return {
+                    loading: false,
+                    success: '',
+                    error: '',
+                    async confirmPayment() {
+                        if (!confirm('Please confirm you have transferred ₦<?= number_format($order['final_amount'], 2) ?> to our bank account. We will verify and process your order within 24 hours.')) {
+                            return;
+                        }
+                        
+                        this.loading = true;
+                        this.error = '';
+                        this.success = '';
+                        
+                        try {
+                            const response = await fetch('/api/customer/order-detail.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    action: 'payment_notification',
+                                    order_id: <?= $orderId ?>
+                                })
+                            });
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                this.success = 'Thank you! We will verify your payment and process your order shortly.';
+                                setTimeout(() => location.reload(), 2000);
+                            } else {
+                                this.error = data.error || 'Failed to send notification. Please try again.';
+                            }
+                        } catch (e) {
+                            this.error = 'Connection error. Please try again.';
+                        }
+                        
+                        this.loading = false;
+                    }
+                };
+            }
+            </script>
+            <?php endif; ?>
             
             <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-4">
                 <h3 class="font-bold text-gray-900 mb-2">Need Help?</h3>

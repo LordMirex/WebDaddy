@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/customer_auth.php';
 require_once __DIR__ . '/../../includes/customer_session.php';
 
-function requireCustomer() {
+function requireCustomer($allowIncomplete = false) {
     $customer = validateCustomerSession();
     
     if (!$customer) {
@@ -18,13 +18,32 @@ function requireCustomer() {
         exit;
     }
     
+    // NEW FLOW: Allow incomplete accounts to view order details
+    // Account completion modal is shown on order-detail.php
+    if ($allowIncomplete) {
+        return $customer;
+    }
+    
     // SECURITY: Check if registration is complete (registration_step must be 0)
-    // If registration is incomplete, redirect back to registration flow
+    // If registration is incomplete, redirect to order detail with completion modal
     $registrationStep = (int)($customer['registration_step'] ?? 0);
     $accountComplete = (int)($customer['account_complete'] ?? 0);
     
     if ($registrationStep > 0 || $accountComplete == 0) {
-        // Clear session to prevent unauthorized access
+        // NEW BEHAVIOR: For incomplete accounts, redirect to their most recent order
+        // where they can complete account setup via modal
+        $db = getDb();
+        $stmt = $db->prepare("SELECT id FROM pending_orders WHERE customer_id = ? ORDER BY created_at DESC LIMIT 1");
+        $stmt->execute([$customer['id']]);
+        $latestOrder = $stmt->fetchColumn();
+        
+        if ($latestOrder) {
+            // Redirect to order detail page where modal will prompt completion
+            header('Location: /user/order-detail.php?id=' . $latestOrder);
+            exit;
+        }
+        
+        // No orders - fallback to registration flow
         $_SESSION['incomplete_registration'] = true;
         $_SESSION['incomplete_email'] = $customer['email'];
         header('Location: /user/register.php');

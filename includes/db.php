@@ -115,10 +115,44 @@ class Database
 
 function getDb()
 {
-    return Database::getInstance()->getConnection();
+    static $migrationsApplied = false;
+    $db = Database::getInstance()->getConnection();
+    
+    // Apply pending schema migrations once per request
+    if (!$migrationsApplied) {
+        $migrationsApplied = true;
+        applyPendingMigrations($db);
+    }
+    
+    return $db;
 }
 
 function getDbType()
 {
     return 'sqlite';
+}
+
+/**
+ * Apply pending schema migrations for SQLite
+ * Checks if columns exist and adds them if missing
+ */
+function applyPendingMigrations($db) {
+    try {
+        // Check for payment_notified columns in pending_orders
+        $result = $db->query("PRAGMA table_info(pending_orders)")->fetchAll(PDO::FETCH_ASSOC);
+        $columns = array_column($result, 'name');
+        
+        if (!in_array('payment_notified', $columns)) {
+            $db->exec("ALTER TABLE pending_orders ADD COLUMN payment_notified INTEGER DEFAULT 0");
+            error_log("Migration: Added payment_notified column to pending_orders");
+        }
+        
+        if (!in_array('payment_notified_at', $columns)) {
+            $db->exec("ALTER TABLE pending_orders ADD COLUMN payment_notified_at TEXT");
+            error_log("Migration: Added payment_notified_at column to pending_orders");
+        }
+    } catch (Exception $e) {
+        // Log but don't fail - migrations are optional enhancements
+        error_log("Migration check error: " . $e->getMessage());
+    }
 }
