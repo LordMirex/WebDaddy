@@ -81,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errorMessage = 'Failed to revoke sessions.';
             }
         } elseif ($action === 'generate_otp') {
-            // Call the OTP API
+            // Call the OTP API with proper error handling
             $ch = curl_init();
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'];
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
             $url = "$protocol://$host/admin/api/generate-user-otp.php";
             
             curl_setopt($ch, CURLOPT_URL, $url);
@@ -93,17 +93,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
             
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
             curl_close($ch);
             
-            $result = json_decode($response, true);
-            
-            if ($httpCode === 200 && isset($result['success']) && $result['success']) {
-                $successMessage = 'OTP generated successfully! Code: ' . $result['otp_code'] . ' (expires in 10 minutes)';
+            if ($response === false || !empty($curlError)) {
+                error_log("OTP API cURL error: $curlError");
+                $errorMessage = 'Failed to connect to OTP service. Please try again.';
             } else {
-                $errorMessage = $result['error'] ?? 'Failed to generate OTP.';
+                $result = json_decode($response, true);
+                
+                if ($httpCode === 200 && isset($result['success']) && $result['success']) {
+                    $successMessage = 'OTP generated successfully! Code: ' . $result['otp_code'] . ' (expires in 10 minutes)';
+                } else {
+                    $errorMessage = $result['error'] ?? 'Failed to generate OTP.';
+                }
             }
         }
     }
