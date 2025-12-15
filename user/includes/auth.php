@@ -230,12 +230,18 @@ function addTicketReply($ticketId, $customerId, $message) {
         return false;
     }
     
+    // Get customer name for the reply
+    $customerStmt = $db->prepare("SELECT full_name, email FROM customers WHERE id = ?");
+    $customerStmt->execute([$customerId]);
+    $customerData = $customerStmt->fetch(PDO::FETCH_ASSOC);
+    $authorName = $customerData['full_name'] ?? $customerData['email'] ?? 'Customer';
+    
     $stmt = $db->prepare("
         INSERT INTO customer_ticket_replies 
-        (ticket_id, author_type, author_id, message)
-        VALUES (?, 'customer', ?, ?)
+        (ticket_id, author_type, author_id, author_name, message)
+        VALUES (?, 'customer', ?, ?, ?)
     ");
-    $stmt->execute([$ticketId, $customerId, $message]);
+    $stmt->execute([$ticketId, $customerId, $authorName, $message]);
     
     $db->prepare("
         UPDATE customer_support_tickets 

@@ -381,17 +381,28 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <!-- Replies -->
-                <?php foreach ($replies as $reply): ?>
+                <?php foreach ($replies as $reply): 
+                    // Get display name for the reply author
+                    $replyAuthorName = $reply['author_name'];
+                    if (empty($replyAuthorName)) {
+                        // Fallback to customer name from ticket for customer replies
+                        if ($reply['author_type'] === 'customer') {
+                            $replyAuthorName = $viewTicket['customer_name'] ?? $viewTicket['customer_email'] ?? 'Customer';
+                        } else {
+                            $replyAuthorName = 'Admin';
+                        }
+                    }
+                ?>
                 <div class="<?php echo $reply['author_type'] === 'admin' ? 'bg-blue-50 ml-8' : 'bg-gray-50'; ?> rounded-lg p-4">
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 <?php echo $reply['author_type'] === 'admin' ? 'bg-blue-100' : 'bg-primary-100'; ?> rounded-full flex items-center justify-center">
                                 <span class="<?php echo $reply['author_type'] === 'admin' ? 'text-blue-600' : 'text-primary-600'; ?> font-bold text-xs">
-                                    <?php echo strtoupper(substr($reply['author_name'] ?? 'U', 0, 1)); ?>
+                                    <?php echo strtoupper(substr($replyAuthorName, 0, 1)); ?>
                                 </span>
                             </div>
                             <span class="font-medium text-gray-900">
-                                <?php echo htmlspecialchars($reply['author_name'] ?? 'Unknown'); ?>
+                                <?php echo htmlspecialchars($replyAuthorName); ?>
                                 <?php if ($reply['author_type'] === 'admin'): ?>
                                 <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded ml-1">Admin</span>
                                 <?php endif; ?>

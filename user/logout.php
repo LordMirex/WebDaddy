@@ -7,21 +7,12 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/customer_session.php';
 
-$sessionToken = $_COOKIE['customer_session'] ?? $_SESSION['customer_session_token'] ?? null;
+// Destroy the customer session (handles token revocation and cookie clearing)
+destroyCustomerSession();
 
-if ($sessionToken) {
-    revokeCustomerSession($sessionToken, 'User logout');
-}
-
+// Clear any session variables
 unset($_SESSION['customer_id']);
 unset($_SESSION['customer_session_token']);
-
-setcookie('customer_session', '', [
-    'expires' => time() - 3600,
-    'path' => '/',
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
 
 header('Location: /user/login.php?logged_out=1');
 exit;
