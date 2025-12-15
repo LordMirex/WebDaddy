@@ -283,7 +283,17 @@ require_once __DIR__ . '/includes/header.php';
                                                 </div>
                                             </div>
                                         </div>
-                                        <a href="<?= htmlspecialchars($file['url'] ?? '#') ?>" 
+                                        <?php 
+                                            $downloadUrl = '#';
+                                            if (!empty($file['url'])) {
+                                                if (preg_match('/token=([a-f0-9]+)/', $file['url'], $m)) {
+                                                    $downloadUrl = '/download.php?token=' . $m[1];
+                                                } else {
+                                                    $downloadUrl = $file['url'];
+                                                }
+                                            }
+                                        ?>
+                                        <a href="<?= htmlspecialchars($downloadUrl) ?>" 
                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium flex-shrink-0">
                                             <i class="bi-download mr-2"></i>
                                             Download
