@@ -80,7 +80,7 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                         <td class="py-3 px-4">
                             <?php if ($log['order_id']): ?>
-                                <a href="/admin/orders.php?search=<?php echo $log['order_id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium">
+                                <a href="/admin/orders.php?view=<?php echo $log['order_id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium">
                                     #<?php echo $log['order_id']; ?>
                                 </a>
                             <?php else: ?>

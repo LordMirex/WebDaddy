@@ -343,7 +343,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div>
                     <span class="text-sm text-gray-500">Related Order</span>
                     <div>
-                        <a href="/admin/orders.php?search=<?php echo $viewTicket['order_id']; ?>" class="text-primary-600 hover:text-primary-700">
+                        <a href="/admin/orders.php?view=<?php echo $viewTicket['order_id']; ?>" class="text-primary-600 hover:text-primary-700">
                             Order #<?php echo $viewTicket['order_id']; ?> <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>

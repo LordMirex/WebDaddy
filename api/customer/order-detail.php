@@ -81,7 +81,7 @@ $deliveriesStmt = $db->prepare("
         d.product_name,
         d.delivery_status,
         d.hosted_domain,
-        d.domain_login_url,
+        COALESCE(d.hosted_url, d.template_login_url) as domain_login_url,
         d.delivered_at,
         d.delivery_link
     FROM deliveries d
