@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
             
             <div class="mt-6 text-center text-sm text-gray-600">
-                <p>Don't have an account? <a href="/cart-checkout.php" class="text-amber-600 hover:underline">Make a purchase to create one</a></p>
+                <p>Don't have an account? <a href="/user/register.php" class="text-amber-600 hover:underline font-medium">Create one for free</a></p>
             </div>
         </div>
         

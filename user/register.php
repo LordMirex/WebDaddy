@@ -290,7 +290,7 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             email: this.email,
-                            otp: this.otpCode,
+                            code: this.otpCode,
                             full_name: this.fullName,
                             source: 'registration'
                         })
