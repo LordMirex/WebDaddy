@@ -71,7 +71,7 @@ if (!empty($statusFilter)) {
 }
 
 if (!empty($searchQuery)) {
-    $whereConditions[] = "(c.email LIKE ? OR c.full_name LIKE ? OR c.phone LIKE ?)";
+    $whereConditions[] = "(c.email LIKE ? OR c.username LIKE ? OR c.phone LIKE ?)";
     $searchTerm = "%$searchQuery%";
     $params[] = $searchTerm;
     $params[] = $searchTerm;
@@ -261,11 +261,11 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                                 <span class="text-primary-600 font-bold text-sm">
-                                    <?php echo strtoupper(substr($customer['full_name'] ?? $customer['email'], 0, 1)); ?>
+                                    <?php echo strtoupper(substr($customer['username'] ?? $customer['email'], 0, 1)); ?>
                                 </span>
                             </div>
                             <div>
-                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($customer['full_name'] ?? 'Not set'); ?></div>
+                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($customer['username'] ?? 'Not set'); ?></div>
                                 <div class="text-sm text-gray-500"><?php echo htmlspecialchars($customer['email']); ?></div>
                             </div>
                         </div>

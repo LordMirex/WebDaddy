@@ -813,7 +813,7 @@ $filterCustomerId = $_GET['customer_id'] ?? '';
 
 $sql = "SELECT po.*, po.payment_notes, t.name as template_name, t.price as template_price, 
         tool.name as tool_name, tool.price as tool_price, d.domain_name,
-        c.email as customer_account_email, c.full_name as customer_account_name, c.id as customer_account_id,
+        c.email as customer_account_email, c.username as customer_account_name, c.id as customer_account_id,
         (SELECT COUNT(*) FROM sales WHERE pending_order_id = po.id) as is_paid,
         (SELECT COUNT(*) FROM order_items WHERE pending_order_id = po.id) as item_count
         FROM pending_orders po
@@ -1006,7 +1006,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $templates = getTemplates(false);
 
 // Get customers list for filter dropdown
-$customersList = $db->query("SELECT id, email, full_name FROM customers ORDER BY full_name ASC, email ASC LIMIT 200")->fetchAll(PDO::FETCH_ASSOC);
+$customersList = $db->query("SELECT id, email, username FROM customers ORDER BY username ASC, email ASC LIMIT 200")->fetchAll(PDO::FETCH_ASSOC);
 
 $viewOrder = null;
 $viewOrderItems = [];
@@ -1146,7 +1146,7 @@ require_once __DIR__ . '/includes/header.php';
                         <option value="">All Customers</option>
                         <?php foreach ($customersList as $cust): ?>
                         <option value="<?php echo $cust['id']; ?>" <?php echo $filterCustomerId == $cust['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cust['full_name'] ?: $cust['email']); ?>
+                            <?php echo htmlspecialchars($cust['username'] ?: $cust['email']); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
