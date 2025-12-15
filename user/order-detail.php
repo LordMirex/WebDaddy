@@ -534,4 +534,272 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<?php 
+// Check if user needs to complete account setup
+$needsSetup = empty($customer['account_complete']) || empty($customer['password_hash']);
+$autoUsername = $customer['username'] ?? '';
+?>
+
+<?php if ($needsSetup): ?>
+<!-- Account Completion Modal -->
+<div x-data="accountSetupModal()" x-init="showModal = true">
+    <div x-show="showModal" x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         @keydown.escape.window="null">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 transition-opacity bg-gray-900/80" @click.stop></div>
+            
+            <div class="relative z-50 w-full max-w-md p-6 mx-auto bg-white rounded-2xl shadow-xl">
+                <!-- Step Indicator -->
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div :class="step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                    <div class="w-8 h-0.5 bg-gray-200"></div>
+                    <div :class="step >= 2 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                    <div class="w-8 h-0.5 bg-gray-200"></div>
+                    <div :class="step >= 3 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                </div>
+                
+                <div x-show="error" class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
+                    <span x-text="error"></span>
+                </div>
+                
+                <!-- Step 1: Username & Password -->
+                <div x-show="step === 1">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi-person-check text-3xl text-amber-600"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Complete Your Account</h2>
+                        <p class="text-gray-600 text-sm mt-1">Set up your login credentials</p>
+                    </div>
+                    
+                    <form @submit.prevent="saveCredentials" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input type="text" x-model="username" required minlength="3"
+                                   class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                            <p class="text-xs text-gray-500 mt-1">Auto-generated. You can edit it.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" x-model="password" required minlength="6"
+                                   class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                   placeholder="At least 6 characters">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                            <input type="password" x-model="confirmPassword" required minlength="6"
+                                   class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                        </div>
+                        <button type="submit" :disabled="loading" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Continue</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Step 2: WhatsApp & Phone -->
+                <div x-show="step === 2">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi-phone text-3xl text-green-600"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Contact Details</h2>
+                        <p class="text-gray-600 text-sm mt-1">For order updates and support</p>
+                    </div>
+                    
+                    <form @submit.prevent="sendPhoneOTP" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number <span class="text-red-500">*</span></label>
+                            <input type="tel" x-model="whatsappNumber" required
+                                   class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                   placeholder="+234 xxx xxx xxxx">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number (for verification)</label>
+                            <input type="tel" x-model="phoneNumber" required
+                                   class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                   placeholder="+234 xxx xxx xxxx">
+                            <p class="text-xs text-gray-500 mt-1">We'll send a verification code</p>
+                        </div>
+                        <button type="submit" :disabled="loading" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Send Verification Code</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Step 3: Phone OTP Verification -->
+                <div x-show="step === 3">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi-shield-check text-3xl text-blue-600"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Verify Phone</h2>
+                        <p class="text-gray-600 text-sm mt-1">Enter the code sent to <span x-text="phoneNumber" class="font-medium"></span></p>
+                    </div>
+                    
+                    <form @submit.prevent="verifyPhone" class="space-y-4">
+                        <div>
+                            <input type="text" x-model="phoneOtp" required maxlength="6" pattern="[0-9]{6}"
+                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-center text-2xl tracking-widest"
+                                   placeholder="000000">
+                        </div>
+                        <button type="submit" :disabled="loading || phoneOtp.length !== 6" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
+                            <span x-show="!loading">Complete Setup</span>
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Verifying...</span>
+                        </button>
+                        <button type="button" @click="step = 2" class="w-full text-gray-500 hover:text-gray-700 text-sm py-2">
+                            <i class="bi-arrow-left mr-1"></i> Change number
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Success -->
+                <div x-show="step === 4">
+                    <div class="text-center py-4">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="bi-check-circle-fill text-4xl text-green-600"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">All Set!</h2>
+                        <p class="text-gray-600 mb-6">Your account is now complete. You can log in anytime with your email and password.</p>
+                        <button @click="showModal = false; location.reload()" 
+                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function accountSetupModal() {
+    return {
+        showModal: false,
+        step: 1,
+        loading: false,
+        error: '',
+        username: '<?= htmlspecialchars($autoUsername) ?>',
+        password: '',
+        confirmPassword: '',
+        whatsappNumber: '<?= htmlspecialchars($customer['whatsapp_number'] ?? '') ?>',
+        phoneNumber: '<?= htmlspecialchars($customer['phone'] ?? '') ?>',
+        phoneOtp: '',
+        
+        async saveCredentials() {
+            if (this.password !== this.confirmPassword) {
+                this.error = 'Passwords do not match';
+                return;
+            }
+            if (this.password.length < 6) {
+                this.error = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            this.loading = true;
+            this.error = '';
+            
+            try {
+                const response = await fetch('/api/customer/complete-setup.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'credentials',
+                        username: this.username,
+                        password: this.password
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.step = 2;
+                } else {
+                    this.error = data.error || 'Failed to save credentials';
+                }
+            } catch (e) {
+                this.error = 'Connection error. Please try again.';
+            }
+            
+            this.loading = false;
+        },
+        
+        async sendPhoneOTP() {
+            if (!this.whatsappNumber || this.whatsappNumber.length < 10) {
+                this.error = 'Please enter a valid WhatsApp number';
+                return;
+            }
+            if (!this.phoneNumber || this.phoneNumber.length < 10) {
+                this.error = 'Please enter a valid phone number';
+                return;
+            }
+            
+            this.loading = true;
+            this.error = '';
+            
+            try {
+                const response = await fetch('/api/customer/complete-setup.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'send_phone_otp',
+                        whatsapp_number: this.whatsappNumber,
+                        phone: this.phoneNumber
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.step = 3;
+                } else {
+                    this.error = data.error || 'Failed to send verification code';
+                }
+            } catch (e) {
+                this.error = 'Connection error. Please try again.';
+            }
+            
+            this.loading = false;
+        },
+        
+        async verifyPhone() {
+            if (this.phoneOtp.length !== 6) {
+                this.error = 'Please enter all 6 digits';
+                return;
+            }
+            
+            this.loading = true;
+            this.error = '';
+            
+            try {
+                const response = await fetch('/api/customer/complete-setup.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'verify_phone',
+                        phone: this.phoneNumber,
+                        phone_otp: this.phoneOtp
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.step = 4;
+                } else {
+                    this.error = data.error || 'Invalid verification code';
+                }
+            } catch (e) {
+                this.error = 'Connection error. Please try again.';
+            }
+            
+            this.loading = false;
+        }
+    };
+}
+</script>
+<?php endif; ?>
+
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
