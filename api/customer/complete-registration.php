@@ -8,6 +8,8 @@ require_once __DIR__ . '/../../includes/mailer.php';
 
 header('Content-Type: application/json');
 
+startSecureSession();
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['success' => false, 'error' => 'Method not allowed']);
@@ -32,13 +34,24 @@ if (strlen($password) < 6) {
     exit;
 }
 
-$db = getDb();
+if (empty($_SESSION['customer_id']) && empty($_SESSION['customer_session_token'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Please verify your email first']);
+    exit;
+}
 
+$db = getDb();
 $customer = getCustomerByEmail($email);
 
 if (!$customer) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Please verify your email first']);
+    exit;
+}
+
+if ((int)$_SESSION['customer_id'] !== (int)$customer['id']) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Session mismatch. Please verify your email again.']);
     exit;
 }
 
@@ -49,7 +62,6 @@ if (!empty($customer['password_hash'])) {
 }
 
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
 $cleanPhone = !empty($phone) ? preg_replace('/[^0-9+]/', '', $phone) : null;
 
 $stmt = $db->prepare("
@@ -65,20 +77,6 @@ $stmt = $db->prepare("
     WHERE id = ?
 ");
 $stmt->execute([$passwordHash, $fullName ?: null, $cleanPhone, $cleanPhone, $customer['id']]);
-
-$sessionResult = createCustomerSession($customer['id']);
-if ($sessionResult['success']) {
-    startSecureSession();
-    $_SESSION['customer_id'] = $customer['id'];
-    $_SESSION['customer_session_token'] = $sessionResult['token'];
-    
-    setcookie('customer_session', $sessionResult['token'], [
-        'expires' => strtotime('+1 year'),
-        'path' => '/',
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-}
 
 if (!empty($fullName)) {
     sendCustomerWelcomeEmail($email, $fullName);
