@@ -2336,16 +2336,15 @@ function decryptCredential($encryptedData) {
 
 /**
  * Get encryption key for credential storage
- * Uses a site-specific key derived from multiple sources for security
+ * Uses a STABLE site-specific key - NEVER use values that change like file modification times
  * 
  * @return string 32-byte encryption key
  */
 function getEncryptionKey() {
-    $dbPath = __DIR__ . '/../database/webdaddy.db';
     $keyComponents = [
-        'webdaddy_empire_credential_encryption_v1',
-        defined('SMTP_PASS') ? SMTP_PASS : 'default_salt',
-        file_exists($dbPath) ? filemtime($dbPath) : 'no_db'
+        'webdaddy_empire_credential_encryption_v2_stable',
+        defined('SMTP_PASS') ? SMTP_PASS : 'default_salt_webdaddy',
+        'fixed_nonce_2024_credential_storage'
     ];
     
     return hash('sha256', implode(':', $keyComponents), true);
