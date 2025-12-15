@@ -2412,34 +2412,71 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                     
                     <?php if ($isComplete): ?>
+                    <?php 
+                        $adminLoginUrl = $delivery['template_login_url'] ?? '';
+                        $displayAdminLoginUrl = $adminLoginUrl;
+                        if (!empty($adminLoginUrl) && strlen($adminLoginUrl) > 50) {
+                            $displayAdminLoginUrl = 'Login to Admin';
+                        }
+                        $websiteUrl = !empty($delivery['hosted_url']) ? $delivery['hosted_url'] : (!empty($delivery['hosted_domain']) ? 'https://' . $delivery['hosted_domain'] : '');
+                    ?>
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <h4 class="font-semibold text-green-800 mb-3 flex items-center gap-2">
-                            <i class="bi bi-check-circle-fill"></i> Delivered Credentials
-                        </h4>
-                        <div class="grid md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span class="text-gray-600">Domain:</span>
-                                <span class="font-semibold text-gray-900 ml-2"><?php echo htmlspecialchars($delivery['hosted_domain'] ?? 'Not set'); ?></span>
+                        <div class="flex items-center justify-between gap-2 mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-green-600"></i>
+                                <span class="font-semibold text-green-800">Delivery Complete</span>
                             </div>
-                            <div>
-                                <span class="text-gray-600">Website URL:</span>
-                                <a href="<?php echo htmlspecialchars($delivery['hosted_url'] ?? '#'); ?>" target="_blank" class="font-semibold text-primary-600 ml-2 hover:underline"><?php echo htmlspecialchars($delivery['hosted_url'] ?? 'Not set'); ?></a>
+                            <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Website</span>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg border divide-y">
+                            <?php if (!empty($delivery['hosted_domain'])): ?>
+                            <div class="p-3">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Your Website</p>
+                                <div class="flex items-start gap-1">
+                                    <a href="<?php echo htmlspecialchars($websiteUrl); ?>" target="_blank" 
+                                       class="text-primary-600 hover:text-primary-700 font-medium block flex-1 break-all">
+                                        <?php echo htmlspecialchars($delivery['hosted_domain']); ?>
+                                    </a>
+                                    <i class="bi-box-arrow-up-right text-xs flex-shrink-0 text-primary-600 mt-0.5"></i>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-gray-600">Username:</span>
-                                <code class="font-mono bg-gray-100 px-2 py-1 rounded ml-2"><?php echo htmlspecialchars($delivery['template_admin_username'] ?? 'Not set'); ?></code>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($adminLoginUrl)): ?>
+                            <div class="p-3">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Admin Panel</p>
+                                <div class="flex items-start gap-1">
+                                    <a href="<?php echo htmlspecialchars($adminLoginUrl); ?>" target="_blank" 
+                                       class="text-primary-600 hover:text-primary-700 font-medium block flex-1 break-words">
+                                        <?php echo htmlspecialchars($displayAdminLoginUrl); ?>
+                                    </a>
+                                    <i class="bi-box-arrow-up-right text-xs flex-shrink-0 text-primary-600 mt-0.5"></i>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-gray-600">Password:</span>
-                                <code class="font-mono bg-gray-100 px-2 py-1 rounded ml-2"><?php echo htmlspecialchars($decryptedPassword ? maskPassword($decryptedPassword) : 'Not set'); ?></code>
+                            <?php endif; ?>
+                            
+                            <div class="p-3">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Login Credentials</p>
+                                <div class="space-y-2">
+                                    <div class="flex items-start gap-2">
+                                        <i class="bi-person text-gray-400 flex-shrink-0 mt-0.5"></i>
+                                        <span class="text-gray-600 text-sm flex-shrink-0">Username:</span>
+                                        <span class="font-medium text-gray-900"><?php echo htmlspecialchars($delivery['template_admin_username'] ?? 'Not set'); ?></span>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <i class="bi-key text-gray-400 flex-shrink-0 mt-0.5"></i>
+                                        <span class="text-gray-600 text-sm flex-shrink-0">Password:</span>
+                                        <code class="font-mono bg-gray-100 px-2 py-1 rounded text-sm"><?php echo htmlspecialchars($decryptedPassword ? maskPassword($decryptedPassword) : 'Not set'); ?></code>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-gray-600">Login URL:</span>
-                                <a href="<?php echo htmlspecialchars($delivery['template_login_url'] ?? '#'); ?>" target="_blank" class="font-semibold text-primary-600 ml-2 hover:underline"><?php echo htmlspecialchars($delivery['template_login_url'] ?? 'Not set'); ?></a>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">Delivered:</span>
-                                <span class="font-semibold text-gray-900 ml-2"><?php echo $delivery['credentials_sent_at'] ? date('M d, Y H:i', strtotime($delivery['credentials_sent_at'])) : 'Not yet'; ?></span>
+                            
+                            <div class="p-3">
+                                <div class="flex items-center gap-2 text-sm text-gray-500">
+                                    <i class="bi-clock"></i>
+                                    <span>Delivered: <?php echo $delivery['credentials_sent_at'] ? date('M d, Y \a\t g:i A', strtotime($delivery['credentials_sent_at'])) : 'Not yet'; ?></span>
+                                </div>
                             </div>
                         </div>
                         
