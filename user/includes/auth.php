@@ -18,6 +18,19 @@ function requireCustomer() {
         exit;
     }
     
+    // SECURITY: Check if registration is complete (registration_step must be 0)
+    // If registration is incomplete, redirect back to registration flow
+    $registrationStep = (int)($customer['registration_step'] ?? 0);
+    $accountComplete = (int)($customer['account_complete'] ?? 0);
+    
+    if ($registrationStep > 0 || $accountComplete == 0) {
+        // Clear session to prevent unauthorized access
+        $_SESSION['incomplete_registration'] = true;
+        $_SESSION['incomplete_email'] = $customer['email'];
+        header('Location: /user/register.php');
+        exit;
+    }
+    
     return $customer;
 }
 
@@ -29,7 +42,8 @@ function getCustomerId() {
 function getCustomerName() {
     $customer = getCurrentCustomer();
     if (!$customer) return 'Guest';
-    return $customer['full_name'] ?: $customer['username'] ?: explode('@', $customer['email'])[0];
+    // Prefer username over full_name
+    return $customer['username'] ?: $customer['full_name'] ?: explode('@', $customer['email'])[0];
 }
 
 function getCustomerEmail() {
@@ -267,11 +281,11 @@ function addTicketReply($ticketId, $customerId, $message) {
         return false;
     }
     
-    // Get customer name for the reply
-    $customerStmt = $db->prepare("SELECT full_name, email FROM customers WHERE id = ?");
+    // Get customer username for the reply (prefer username over full_name)
+    $customerStmt = $db->prepare("SELECT username, full_name, email FROM customers WHERE id = ?");
     $customerStmt->execute([$customerId]);
     $customerData = $customerStmt->fetch(PDO::FETCH_ASSOC);
-    $authorName = $customerData['full_name'] ?? $customerData['email'] ?? 'Customer';
+    $authorName = $customerData['username'] ?: $customerData['full_name'] ?: $customerData['email'] ?? 'Customer';
     
     $stmt = $db->prepare("
         INSERT INTO customer_ticket_replies 

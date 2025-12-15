@@ -117,6 +117,12 @@ function sendPhoneVerificationOTP($customerId, $phoneNumber) {
         return ['success' => false, 'error' => 'Please enter a valid phone number'];
     }
     
+    // Check if Termii API is configured FIRST before any database operations
+    if (empty(TERMII_API_KEY)) {
+        error_log("SMS verification unavailable - TERMII_API_KEY not configured");
+        return ['success' => false, 'error' => 'SMS verification is temporarily unavailable. Please contact support or try again later.'];
+    }
+    
     $cleanNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
     
     $rateLimitCheck = $db->prepare("
@@ -147,7 +153,7 @@ function sendPhoneVerificationOTP($customerId, $phoneNumber) {
        ->execute([$smsSent ? 1 : 0, $otpId]);
     
     if (!$smsSent) {
-        return ['success' => false, 'error' => 'Failed to send SMS. Please try again.'];
+        return ['success' => false, 'error' => 'Failed to send SMS. Please try again or contact support.'];
     }
     
     return [
@@ -185,7 +191,14 @@ function verifyPhoneOTP($customerId, $phoneNumber, $otpCode) {
             WHERE customer_id = ? AND phone = ? AND is_used = 0
         ")->execute([$customerId, $cleanNumber]);
         
-        return ['success' => false, 'error' => 'Invalid or expired OTP code'];
+        // Check if there are ANY OTP records for this customer/phone to give better error
+        $hasAnyOtp = $db->prepare("SELECT COUNT(*) FROM customer_otp_codes WHERE customer_id = ? AND phone = ? AND otp_type = 'phone_verify'");
+        $hasAnyOtp->execute([$customerId, $cleanNumber]);
+        if ($hasAnyOtp->fetchColumn() == 0) {
+            return ['success' => false, 'error' => 'No verification code found. Please request a new code.'];
+        }
+        
+        return ['success' => false, 'error' => 'Invalid or expired verification code. Please check and try again.'];
     }
     
     $db->prepare("UPDATE customer_otp_codes SET is_used = 1, used_at = datetime('now') WHERE id = ?")

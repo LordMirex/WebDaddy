@@ -1466,10 +1466,22 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     </div>
                 <?php endif; ?>
                 
-                <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
-                   class="block text-center text-xs text-gray-400 hover:text-gray-200 font-medium transition-colors py-2">
-                    ← Continue Shopping
-                </a>
+                <!-- Navigation Links with User Dashboard Option -->
+                <div class="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-xl">
+                    <p class="text-center text-gray-300 text-sm mb-3">Track your order and manage downloads in your dashboard:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="/user/orders.php?confirmed=<?php echo $confirmationData['order']['id']; ?>" 
+                           class="inline-flex items-center justify-center gap-2 px-4 py-3 text-white bg-amber-600 hover:bg-amber-700 font-semibold rounded-lg transition-colors">
+                            <i class="bi-person-badge"></i>
+                            <span>Go to My Account</span>
+                        </a>
+                        <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                           class="inline-flex items-center justify-center gap-2 px-4 py-3 text-gray-100 bg-gray-700 hover:bg-gray-600 font-semibold rounded-lg transition-colors">
+                            <i class="bi-shop"></i>
+                            <span>Continue Shopping</span>
+                        </a>
+                    </div>
+                </div>
                 
             <?php else: ?>
                 <!-- Regular Checkout Form -->

@@ -18,8 +18,20 @@ startSecureSession();
 
 $customer = validateCustomerSession();
 if ($customer) {
-    header('Location: /user/');
-    exit;
+    // Check if this is an incomplete registration redirect from requireCustomer()
+    // If so, allow them to continue registration instead of redirecting
+    $isIncomplete = isset($_SESSION['incomplete_registration']) && $_SESSION['incomplete_registration'] === true;
+    $registrationStep = (int)($customer['registration_step'] ?? 0);
+    $accountComplete = (int)($customer['account_complete'] ?? 0);
+    
+    // Only redirect to dashboard if registration is fully complete
+    if (!$isIncomplete && $registrationStep === 0 && $accountComplete === 1) {
+        header('Location: /user/');
+        exit;
+    }
+    
+    // Clear the incomplete flag so it doesn't persist
+    unset($_SESSION['incomplete_registration']);
 }
 
 $error = '';

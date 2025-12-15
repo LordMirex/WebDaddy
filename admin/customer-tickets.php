@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $db->beginTransaction();
                     
-                    // Get ticket info for email notification
+                    // Get ticket info for email notification (prefer username over full_name)
                     $ticketInfoStmt = $db->prepare("
-                        SELECT cst.*, c.full_name as customer_name, c.email as customer_email
+                        SELECT cst.*, COALESCE(c.username, c.full_name) as customer_name, c.email as customer_email
                         FROM customer_support_tickets cst
                         JOIN customers c ON cst.customer_id = c.id
                         WHERE cst.id = ?
@@ -159,9 +159,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $viewTicketId = isset($_GET['ticket_id']) ? intval($_GET['ticket_id']) : 0;
 
 if ($viewTicketId) {
-    // Get ticket details
+    // Get ticket details (prefer username over full_name)
     $stmt = $db->prepare("
-        SELECT cst.*, c.email as customer_email, c.full_name as customer_name, c.phone as customer_phone
+        SELECT cst.*, c.email as customer_email, COALESCE(c.username, c.full_name) as customer_name, c.phone as customer_phone
         FROM customer_support_tickets cst
         JOIN customers c ON c.id = cst.customer_id
         WHERE cst.id = ?
@@ -212,8 +212,9 @@ if (!empty($categoryFilter)) {
 }
 
 if (!empty($searchQuery)) {
-    $whereConditions[] = "(cst.subject LIKE ? OR c.email LIKE ? OR c.full_name LIKE ?)";
+    $whereConditions[] = "(cst.subject LIKE ? OR c.email LIKE ? OR c.username LIKE ? OR c.full_name LIKE ?)";
     $searchTerm = "%$searchQuery%";
+    $params[] = $searchTerm;
     $params[] = $searchTerm;
     $params[] = $searchTerm;
     $params[] = $searchTerm;
@@ -228,9 +229,9 @@ $countStmt->execute($params);
 $totalTickets = $countStmt->fetchColumn();
 $totalPages = ceil($totalTickets / $perPage);
 
-// Get tickets
+// Get tickets (prefer username over full_name)
 $sql = "
-    SELECT cst.*, c.email as customer_email, c.full_name as customer_name
+    SELECT cst.*, c.email as customer_email, COALESCE(c.username, c.full_name) as customer_name
     FROM customer_support_tickets cst
     JOIN customers c ON c.id = cst.customer_id
     $whereClause

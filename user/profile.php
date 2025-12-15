@@ -12,29 +12,38 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $fullName = trim($_POST['full_name'] ?? '');
+    $username = trim($_POST['username'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     
-    if (empty($fullName)) {
-        $error = 'Full name is required';
-    } elseif (strlen($fullName) < 2) {
-        $error = 'Full name must be at least 2 characters';
+    if (empty($username)) {
+        $error = 'Username is required';
+    } elseif (strlen($username) < 3) {
+        $error = 'Username must be at least 3 characters';
+    } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        $error = 'Username can only contain letters, numbers, and underscores';
     } else {
         $db = getDb();
         
-        $stmt = $db->prepare("
-            UPDATE customers 
-            SET full_name = ?, phone = ?, updated_at = datetime('now')
-            WHERE id = ?
-        ");
-        $stmt->execute([$fullName, $phone, $customer['id']]);
-        
-        logCustomerActivity($customer['id'], 'profile_updated', 'Profile information updated');
-        
-        $customer['full_name'] = $fullName;
-        $customer['phone'] = $phone;
-        
-        $success = 'Profile updated successfully!';
+        // Check if username is unique (excluding current customer)
+        $checkStmt = $db->prepare("SELECT id FROM customers WHERE LOWER(username) = LOWER(?) AND id != ?");
+        $checkStmt->execute([$username, $customer['id']]);
+        if ($checkStmt->fetch()) {
+            $error = 'This username is already taken. Please choose another.';
+        } else {
+            $stmt = $db->prepare("
+                UPDATE customers 
+                SET username = ?, phone = ?, updated_at = datetime('now')
+                WHERE id = ?
+            ");
+            $stmt->execute([$username, $phone, $customer['id']]);
+            
+            logCustomerActivity($customer['id'], 'profile_updated', 'Profile information updated');
+            
+            $customer['username'] = $username;
+            $customer['phone'] = $phone;
+            
+            $success = 'Profile updated successfully!';
+        }
     }
 }
 
@@ -70,11 +79,12 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="full_name" required
-                           value="<?= htmlspecialchars($customer['full_name'] ?? '') ?>"
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username <span class="text-red-500">*</span></label>
+                    <input type="text" name="username" required minlength="3"
+                           value="<?= htmlspecialchars($customer['username'] ?? '') ?>"
                            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                           placeholder="Enter your full name">
+                           placeholder="Enter your username" pattern="[a-zA-Z0-9_]+">
+                    <p class="text-xs text-gray-500 mt-1">Letters, numbers, and underscores only</p>
                 </div>
                 
                 <div>
