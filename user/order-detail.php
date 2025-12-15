@@ -121,7 +121,8 @@ require_once __DIR__ . '/includes/header.php';
                             
                             <?php if ($deliveryStatus === 'delivered'): ?>
                             <?php 
-                                $adminUrl = $item['domain_login_url'] ?: $item['login_url'] ?? '';
+                                // Use login_url (template_login_url) for Admin Panel, not domain_login_url (hosted_url)
+                                $adminUrl = $item['login_url'] ?? '';
                                 $displayLoginUrl = $adminUrl;
                                 if (!empty($adminUrl) && strlen($adminUrl) > 50) {
                                     $displayLoginUrl = 'Login to Admin';
