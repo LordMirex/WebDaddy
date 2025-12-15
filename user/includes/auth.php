@@ -21,10 +21,6 @@ function requireCustomer() {
     return $customer;
 }
 
-function getCurrentCustomer() {
-    return validateCustomerSession();
-}
-
 function getCustomerId() {
     $customer = getCurrentCustomer();
     return $customer ? $customer['id'] : null;

@@ -107,15 +107,24 @@ function getCurrentCustomer() {
     static $customer = null;
     
     if ($customer === null) {
-        $customer = getCustomerFromSession();
+        $session = getCustomerFromSession();
+        if ($session && isset($session['customer_id'])) {
+            // Fetch full customer data
+            $db = getDb();
+            $stmt = $db->prepare("SELECT * FROM customers WHERE id = ?");
+            $stmt->execute([$session['customer_id']]);
+            $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            $customer = false;
+        }
     }
     
-    return $customer;
+    return $customer ?: null;
 }
 
 function getCurrentCustomerId() {
     $customer = getCurrentCustomer();
-    return $customer ? $customer['customer_id'] : null;
+    return $customer ? $customer['id'] : null;
 }
 
 function destroyCustomerSession() {
