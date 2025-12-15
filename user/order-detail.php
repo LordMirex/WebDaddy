@@ -137,17 +137,31 @@ require_once __DIR__ . '/includes/header.php';
                                     <span class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Website</span>
                                 </div>
                                 
+                                <?php 
+                                    $siteUrl = $item['domain_login_url'] ?? '';
+                                    $hostingType = $item['hosting_provider'] ?? '';
+                                    $hostingLabel = match($hostingType) {
+                                        'wordpress' => 'WordPress',
+                                        'cpanel' => 'cPanel',
+                                        'static' => 'Static Site',
+                                        'custom' => 'Custom Admin',
+                                        default => ''
+                                    };
+                                ?>
                                 <div class="bg-white rounded-lg border divide-y">
                                     <?php if (!empty($item['hosted_domain'])): ?>
                                     <div class="p-3">
                                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Your Website</p>
                                         <div class="flex items-start gap-1">
-                                            <a href="https://<?= htmlspecialchars($item['hosted_domain']) ?>" target="_blank" 
+                                            <a href="<?= !empty($siteUrl) ? htmlspecialchars($siteUrl) : 'https://' . htmlspecialchars($item['hosted_domain']) ?>" target="_blank" 
                                                class="text-amber-600 hover:text-amber-700 font-medium block flex-1 break-all">
                                                 <?= htmlspecialchars($item['hosted_domain']) ?>
                                             </a>
                                             <i class="bi-box-arrow-up-right text-xs flex-shrink-0 text-amber-600 mt-0.5"></i>
                                         </div>
+                                        <?php if (!empty($hostingLabel)): ?>
+                                        <span class="inline-block mt-1 text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded"><?= $hostingLabel ?></span>
+                                        <?php endif; ?>
                                     </div>
                                     <?php endif; ?>
                                     
