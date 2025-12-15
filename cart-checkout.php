@@ -1754,8 +1754,15 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     </template>
                                 </div>
                                 
+                                <!-- Prominent Spam Warning -->
+                                <div class="bg-amber-900/50 border-2 border-amber-500 p-3 rounded-lg mb-4 animate-pulse">
+                                    <p class="text-amber-200 text-center font-medium flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                        <span>Can't find the code? <strong class="text-amber-100">CHECK YOUR SPAM/JUNK FOLDER!</strong></span>
+                                    </p>
+                                </div>
+                                
                                 <p class="text-sm text-gray-400 text-center">
-                                    Check your inbox and spam folder.
                                     <span x-show="!canResend">Resend in <span x-text="resendTimer"></span>s</span>
                                     <button type="button" x-show="canResend" @click="resendOTP()" class="text-primary-400 underline hover:text-primary-300">
                                         Resend code
@@ -1789,6 +1796,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     <input 
                                         type="tel" 
                                         x-model="phone"
+                                        name="customer_phone_input"
                                         id="customer_phone"
                                         class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                                         placeholder="+234 800 000 0000"
