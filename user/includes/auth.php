@@ -124,8 +124,8 @@ function getOrderItemsWithDelivery($orderId) {
             d.hosted_domain,
             d.hosted_url as domain_login_url,
             d.delivery_link as download_link,
-            d.admin_username,
-            d.admin_password_encrypted
+            d.template_admin_username as admin_username,
+            d.template_admin_password as admin_password
         FROM order_items oi
         LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
         LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
