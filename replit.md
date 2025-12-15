@@ -32,6 +32,24 @@ The system includes a production-grade chunked file upload system (up to 2GB) wi
 ### System Design Choices
 The platform utilizes SQLite for its database, with a schema designed for robust tracking of orders, deliveries, downloads, and commissions. Key parameters are defined as constants. Data integrity functions maintain consistency between cached affiliate data and sales records. All datetime queries consistently use a `+1 hour` offset for Nigeria time.
 
+## Recent Changes (December 2024)
+
+### Checkout & Registration Flow Updates
+- **Post-Payment Redirect**: After successful payment, users are redirected to `/user/order-detail.php?id={orderId}` instead of the old confirmation page
+- **Account Completion Modal**: 3-step modal on order detail page for new users:
+  1. Username + password setup (username auto-generated from email)
+  2. WhatsApp (mandatory) + phone number
+  3. Phone OTP verification via Termii SMS
+- **Manual Payment Section**: Bank transfer details (Opay) with "I Have Paid" button displayed on order detail page for pending orders
+- **Auth Flow**: Incomplete accounts redirected to their order detail page (with modal) instead of register page
+- **Runtime Schema Migration**: Auto-applies database schema changes (payment_notified columns) on first request
+
+### Design Decisions
+- Username auto-generated format: `emailpart_randomnumber`
+- WhatsApp mandatory but NOT verified via OTP
+- Phone number IS verified via SMS OTP (Termii)
+- full_name field deprecated in favor of username + email
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
