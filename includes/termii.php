@@ -235,18 +235,14 @@ function formatPhoneForTermii($phone) {
     return '+234' . $phone;
 }
 
-/**
- * Mask phone number for display/logging
- * 
- * @param string $phone Phone number
- * @return string Masked phone number
- */
-function maskPhoneNumber($phone) {
-    $length = strlen($phone);
-    if ($length <= 4) {
-        return str_repeat('*', $length);
+if (!function_exists('maskPhoneNumber')) {
+    function maskPhoneNumber($phone) {
+        $length = strlen($phone);
+        if ($length <= 4) {
+            return str_repeat('*', $length);
+        }
+        return substr($phone, 0, 4) . str_repeat('*', $length - 8) . substr($phone, -4);
     }
-    return substr($phone, 0, 4) . str_repeat('*', $length - 8) . substr($phone, -4);
 }
 
 /**

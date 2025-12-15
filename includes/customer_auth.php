@@ -473,12 +473,14 @@ function maskEmail($email) {
     return substr($name, 0, 2) . str_repeat('*', strlen($name) - 2) . '@' . $domain;
 }
 
-function maskPhoneNumber($phone) {
-    $length = strlen($phone);
-    if ($length <= 4) {
-        return str_repeat('*', $length);
+if (!function_exists('maskPhoneNumber')) {
+    function maskPhoneNumber($phone) {
+        $length = strlen($phone);
+        if ($length <= 4) {
+            return str_repeat('*', $length);
+        }
+        return str_repeat('*', $length - 4) . substr($phone, -4);
     }
-    return str_repeat('*', $length - 4) . substr($phone, -4);
 }
 
 function sendTermiiOTP($phone, $otpCode, $otpId) {
