@@ -115,6 +115,7 @@ function getOrderItemsWithDelivery($orderId) {
     $stmt = $db->prepare("
         SELECT 
             oi.*,
+            oi.final_amount as price,
             COALESCE(t.name, tl.name) as product_name,
             COALESCE(t.thumbnail_url, tl.thumbnail_url) as product_thumbnail,
             d.id as delivery_id,
