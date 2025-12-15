@@ -1110,13 +1110,25 @@ function getTemplateDeliveryProgress($deliveryId) {
         return ['found' => false];
     }
     
+    // Check if this is a static website (no credentials needed)
+    $isStaticSite = ($delivery['hosting_provider'] ?? '') === 'static';
+    
+    // Build steps based on site type
     $steps = [
         'payment_confirmed' => ['status' => true, 'label' => 'Payment Confirmed'],
-        'domain_assigned' => ['status' => !empty($delivery['hosted_domain']), 'label' => 'Domain Assigned'],
-        'credentials_set' => ['status' => !empty($delivery['template_admin_username']), 'label' => 'Credentials Set'],
-        'instructions_added' => ['status' => !empty($delivery['admin_notes']), 'label' => 'Instructions Added'],
-        'email_sent' => ['status' => !empty($delivery['credentials_sent_at']), 'label' => 'Email Sent to Customer']
+        'domain_assigned' => ['status' => !empty($delivery['hosted_domain']), 'label' => 'Domain Assigned']
     ];
+    
+    // Only include credentials step for non-static sites
+    if (!$isStaticSite) {
+        $steps['credentials_set'] = ['status' => !empty($delivery['template_admin_username']), 'label' => 'Credentials Set'];
+        // Instructions are optional for non-static sites
+        if (!empty($delivery['admin_notes'])) {
+            $steps['instructions_added'] = ['status' => true, 'label' => 'Instructions Added'];
+        }
+    }
+    
+    $steps['email_sent'] = ['status' => !empty($delivery['credentials_sent_at']), 'label' => 'Email Sent to Customer'];
     
     $completedCount = 0;
     foreach ($steps as $step) {
