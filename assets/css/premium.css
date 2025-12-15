@@ -725,8 +725,8 @@ html {
 /* ========== URL & TEXT OVERFLOW FIXES ========== */
 /* Break long URLs and text that would overflow on mobile */
 .url-break, .break-all {
-    word-break: break-all;
-    overflow-wrap: break-word;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
 }
 
 .url-truncate {
@@ -738,19 +738,43 @@ html {
 
 /* Better handling for mobile credentials display */
 .credentials-display {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+}
+
+.credentials-display a,
+a.url-break {
+    display: inline !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Global text wrapping for all content */
+a {
     word-break: break-word;
     overflow-wrap: break-word;
 }
 
-.credentials-display a {
-    display: inline-block;
-    max-width: 100%;
-    overflow-wrap: break-word;
-    word-break: break-all;
+.support-content,
+.ticket-messages,
+.credentials-display {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
 }
 
 /* Better spacing on mobile for small containers */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    body {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    * {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    
     .p-3, [class*='p-3'] {
         padding: 0.75rem;
     }
@@ -759,27 +783,15 @@ html {
         margin-top: 0.5rem;
     }
     
-    /* Ensure text doesn't overflow containers */
-    * {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-    
     /* Better handling for flex items on mobile */
     .flex {
         flex-wrap: wrap;
     }
-}
-
-/* Support/message section improvements */
-.ticket-messages {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-}
-
-.support-content {
-    max-width: 100%;
-    overflow: auto;
+    
+    /* Ensure links wrap on mobile */
+    a, span, div {
+        max-width: 100%;
+    }
 }
 
 ::selection {
