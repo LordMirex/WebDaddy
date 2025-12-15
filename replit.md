@@ -181,6 +181,20 @@ The platform features a clean, professional UI with consistent design elements. 
   - Added JSON error responses for AJAX validation failures (clearer error messages)
   - Fixed sendOTPEmail function call in customer_otp.php (was passing extra parameter)
 
+### Major Implementation Guide Created (December 15, 2025)
+See **`IMPLEMENTATION_FIX.md`** in root folder for comprehensive changes needed:
+
+**Key Changes Required:**
+1. **Remove `full_name`** - Replace with auto-generated `username` from email
+2. **Registration Page** - Change to 4-step wizard: Email → OTP → Username/Password/WhatsApp → Phone OTP
+3. **Checkout (New Users)** - Simplify to: Email → OTP → Payment (skip personal info)
+4. **Post-Payment Redirect** - Go to `/user/orders/{id}` instead of checkout confirmation
+5. **Account Completion Modal** - Show on order page for first-time purchasers
+6. **Manual Payment** - Show bank details on user order page, not checkout
+7. **Admin Panel** - Display username instead of full_name everywhere
+8. **WhatsApp MANDATORY** - Required field, not optional
+9. **Phone SMS OTP** - Verified via Termii API
+
 ### Pending Updates (24-25)
 See `system_update/00_OVERVIEW.md` for full tracking. Remaining phases include:
 - Floating Cart Widget (24) - Already completed
