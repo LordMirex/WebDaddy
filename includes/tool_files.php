@@ -228,6 +228,7 @@ function addToolLink($toolId, $externalUrl, $description = '', $sortOrder = 0) {
 /**
  * Generate download link with token
  * Phase 3: Updated with configurable expiry (30 days default)
+ * Fixed: Now checks for existing valid tokens before creating new ones
  */
 function generateDownloadLink($fileId, $orderId, $expiryDays = null) {
     $db = getDb();
@@ -242,6 +243,35 @@ function generateDownloadLink($fileId, $orderId, $expiryDays = null) {
     $file = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$file) return null;
+    
+    $existingStmt = $db->prepare("
+        SELECT * FROM download_tokens 
+        WHERE file_id = ? AND pending_order_id = ? 
+        AND expires_at > datetime('now')
+        AND download_count < max_downloads
+        ORDER BY created_at DESC 
+        LIMIT 1
+    ");
+    $existingStmt->execute([$fileId, $orderId]);
+    $existingToken = $existingStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($existingToken) {
+        $siteUrl = defined('SITE_URL') ? SITE_URL : '';
+        $downloadUrl = $siteUrl . "/download.php?token={$existingToken['token']}";
+        
+        return [
+            'id' => $existingToken['id'],
+            'name' => $file['file_name'],
+            'url' => $downloadUrl,
+            'expires_at' => $existingToken['expires_at'],
+            'expires_formatted' => date('F j, Y', strtotime($existingToken['expires_at'])),
+            'file_type' => $file['file_type'],
+            'file_path' => $file['file_path'],
+            'file_size' => $file['file_size'],
+            'file_size_formatted' => formatFileSize($file['file_size']),
+            'max_downloads' => $existingToken['max_downloads']
+        ];
+    }
     
     $token = bin2hex(random_bytes(32));
     $expiresAt = date('Y-m-d H:i:s', strtotime("+{$expiryDays} days"));

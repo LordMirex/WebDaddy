@@ -159,6 +159,14 @@ function getCustomerDownloads($customerId) {
         JOIN pending_orders po ON dt.pending_order_id = po.id
         WHERE po.customer_id = ?
         AND po.status = 'paid'
+        AND dt.id = (
+            SELECT dt2.id 
+            FROM download_tokens dt2 
+            WHERE dt2.file_id = dt.file_id 
+            AND dt2.pending_order_id = dt.pending_order_id 
+            ORDER BY dt2.created_at DESC 
+            LIMIT 1
+        )
         ORDER BY po.created_at DESC, t.name
     ");
     $stmt->execute([$customerId]);

@@ -57,7 +57,7 @@ if (preg_match('#^/tool/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
 // Must match pattern: /lowercase-slug-with-hyphens
 if (preg_match('#^/([a-z0-9_-]+)/?$#i', $path, $matches)) {
     // Exclude specific directories/files
-    $excluded = ['admin', 'affiliate', 'assets', 'api', 'uploads', 'mailer', 'index', 'template', 'sitemap', 'tool', 'robots'];
+    $excluded = ['admin', 'affiliate', 'user', 'assets', 'api', 'uploads', 'mailer', 'index', 'template', 'sitemap', 'tool', 'robots'];
     $slug = $matches[1];
     
     if (!in_array(strtolower($slug), $excluded) && !file_exists(__DIR__ . '/' . $slug . '.php')) {
