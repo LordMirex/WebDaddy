@@ -131,7 +131,7 @@ function getOrderItemsWithDelivery($orderId) {
             d.delivery_note as delivery_note,
             d.delivery_instructions as delivery_instructions,
             d.admin_notes as admin_notes,
-            tl.delivery_note as tool_delivery_note
+            tl.delivery_instructions as tool_delivery_instructions
         FROM order_items oi
         LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
         LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
@@ -157,7 +157,7 @@ function getOrderItemsWithDelivery($orderId) {
         unset($item['admin_password_encrypted']);
         
         if ($item['product_type'] === 'tool') {
-            $item['delivery_note'] = $item['delivery_note'] ?: $item['delivery_instructions'] ?: $item['tool_delivery_note'] ?: '';
+            $item['delivery_note'] = $item['tool_delivery_instructions'] ?: $item['delivery_note'] ?: $item['delivery_instructions'] ?: '';
         }
     }
     unset($item);

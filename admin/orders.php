@@ -2825,44 +2825,24 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                     <?php endif; ?>
                     
-                    <!-- Editable Delivery Notes Section -->
-                    <div class="mb-4 bg-gray-50 rounded-lg p-4" x-data="{ editingNotes: false }">
-                        <div class="flex items-center justify-between mb-2">
-                            <h5 class="text-xs font-bold text-gray-700 uppercase tracking-wide">
-                                <i class="bi bi-sticky text-primary-600 mr-1"></i> Delivery Notes
-                            </h5>
-                            <button type="button" @click="editingNotes = !editingNotes" class="px-2 py-1 text-xs text-primary-600 hover:text-primary-800 hover:bg-primary-100 rounded transition-colors">
-                                <i class="bi" :class="editingNotes ? 'bi-x-lg' : 'bi-pencil'"></i>
-                                <span x-text="editingNotes ? 'Cancel' : 'Edit'"></span>
-                            </button>
+                    <?php 
+                    $toolDeliveryInstructions = '';
+                    $toolInfoStmt = $db->prepare("SELECT delivery_instructions FROM tools WHERE id = ?");
+                    $toolInfoStmt->execute([$delivery['product_id']]);
+                    $toolRow = $toolInfoStmt->fetch(PDO::FETCH_ASSOC);
+                    if ($toolRow) {
+                        $toolDeliveryInstructions = $toolRow['delivery_instructions'] ?? '';
+                    }
+                    ?>
+                    <?php if (!empty($toolDeliveryInstructions)): ?>
+                    <div class="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="bi bi-info-circle text-amber-600"></i>
+                            <h5 class="text-xs font-bold text-amber-800 uppercase tracking-wide">Delivery Instructions (from Tool Settings)</h5>
                         </div>
-                        
-                        <!-- View Mode -->
-                        <div x-show="!editingNotes">
-                            <?php if (!empty($delivery['admin_notes'])): ?>
-                            <p class="text-sm text-gray-700 whitespace-pre-wrap"><?php echo htmlspecialchars($delivery['admin_notes']); ?></p>
-                            <?php else: ?>
-                            <p class="text-sm text-gray-400 italic">No delivery notes added yet. Click Edit to add notes.</p>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <!-- Edit Mode -->
-                        <form method="POST" x-show="editingNotes" x-cloak>
-                            <input type="hidden" name="action" value="update_tool_delivery_notes">
-                            <input type="hidden" name="delivery_id" value="<?php echo $delivery['id']; ?>">
-                            <input type="hidden" name="order_id" value="<?php echo $viewOrder['id']; ?>">
-                            <input type="hidden" name="csrf_token" value="<?php echo getCsrfToken(); ?>">
-                            <textarea name="admin_notes" rows="3" placeholder="Add special instructions or notes for this delivery..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm mb-2"><?php echo htmlspecialchars($delivery['admin_notes'] ?? ''); ?></textarea>
-                            <div class="flex gap-2">
-                                <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-lg transition-colors">
-                                    <i class="bi bi-check-lg mr-1"></i> Save Notes
-                                </button>
-                                <button type="button" @click="editingNotes = false" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold rounded-lg transition-colors">
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap"><?php echo htmlspecialchars($toolDeliveryInstructions); ?></p>
                     </div>
+                    <?php endif; ?>
                     
                     <div class="flex gap-3">
                         <form method="POST" class="inline">

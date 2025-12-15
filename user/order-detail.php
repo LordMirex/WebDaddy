@@ -316,21 +316,21 @@ require_once __DIR__ . '/includes/header.php';
                                     <span class="font-semibold text-blue-800">Download Files (<?= count($downloadFiles) ?>)</span>
                                 </div>
                                 
-                                <div class="space-y-2">
+                                <div class="space-y-3">
                                     <?php foreach ($downloadFiles as $file): ?>
-                                    <div class="bg-white rounded-lg p-3 border flex items-center justify-between gap-3 hover:border-blue-300 transition">
-                                        <div class="flex items-center gap-3 min-w-0">
+                                    <div class="bg-white rounded-lg p-4 border hover:border-blue-300 transition">
+                                        <div class="flex items-start gap-3 mb-3">
                                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                                 <i class="bi-file-earmark-arrow-down text-blue-600"></i>
                                             </div>
-                                            <div class="min-w-0">
-                                                <p class="font-medium text-gray-900 truncate" title="<?= htmlspecialchars($file['name'] ?? 'File') ?>">
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium text-gray-900 break-words" title="<?= htmlspecialchars($file['name'] ?? 'File') ?>">
                                                     <?= htmlspecialchars($file['name'] ?? 'File') ?>
                                                 </p>
-                                                <div class="flex items-center gap-2 text-xs text-gray-500">
+                                                <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 mt-1">
                                                     <?php if (!empty($file['file_size_formatted'])): ?>
                                                     <span><?= htmlspecialchars($file['file_size_formatted']) ?></span>
-                                                    <span>•</span>
+                                                    <span class="hidden sm:inline">•</span>
                                                     <?php endif; ?>
                                                     <?php if (!empty($file['expires_formatted'])): ?>
                                                     <span>Expires: <?= htmlspecialchars($file['expires_formatted']) ?></span>
@@ -349,7 +349,7 @@ require_once __DIR__ . '/includes/header.php';
                                             }
                                         ?>
                                         <a href="<?= htmlspecialchars($downloadUrl) ?>" 
-                                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium flex-shrink-0">
+                                           class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
                                             <i class="bi-download mr-2"></i>
                                             Download
                                         </a>
