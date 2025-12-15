@@ -180,6 +180,16 @@ require_once __DIR__ . '/includes/header.php';
                                     Login credentials were sent to your email
                                 </p>
                                 <?php endif; ?>
+                                
+                                <?php if (!empty($item['admin_notes'])): ?>
+                                <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <i class="bi-info-circle-fill text-blue-600"></i>
+                                        <span class="font-semibold text-blue-800">Important Notes</span>
+                                    </div>
+                                    <div class="text-sm text-gray-700 whitespace-pre-wrap"><?= nl2br(htmlspecialchars($item['admin_notes'])) ?></div>
+                                </div>
+                                <?php endif; ?>
                             </div>
                             <?php elseif ($deliveryStatus === 'pending' && $order['status'] === 'paid'): ?>
                             <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -307,6 +317,16 @@ require_once __DIR__ . '/includes/header.php';
                                     <i class="bi-info-circle"></i>
                                     Each file can be downloaded up to <?= $downloadFiles[0]['max_downloads'] ?> times
                                 </p>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($item['delivery_note'])): ?>
+                                <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <i class="bi-journal-text text-amber-600"></i>
+                                        <span class="font-semibold text-amber-800">Instructions & Guide</span>
+                                    </div>
+                                    <div class="text-sm text-gray-700 whitespace-pre-wrap"><?= nl2br(htmlspecialchars($item['delivery_note'])) ?></div>
+                                </div>
                                 <?php endif; ?>
                             </div>
                             <?php elseif ($deliveryStatus === 'pending' && $order['status'] === 'paid'): ?>
