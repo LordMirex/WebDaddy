@@ -1306,7 +1306,6 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             ← Back to Shop
                         </a>
                     </div>
-                <?php endif; ?>
                 
                 <!-- Navigation Links with User Dashboard Option -->
                 <div class="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-xl">
