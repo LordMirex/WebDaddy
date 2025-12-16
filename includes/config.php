@@ -126,7 +126,7 @@ define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 define('RESEND_API_KEY', 're_FPAp2CGb_6hu6jpqt9rXZTFSeKbAa1bvo');
 define('RESEND_FROM_EMAIL', 'no-reply@webdaddy.online');
 define('RESEND_FROM_NAME', 'WebDaddy Empire');
-define('RESEND_WEBHOOK_SECRET', 'whsec_QurNso4HnYlYc+KCrr1o0KEG4W9oxW85');
+define('RESEND_WEBHOOK_SECRET', 'whsec_Ysf6QzDo72obRyZymdLUDF2+1xXoA2ul');
 // Webhook URL: https://webdaddy.online/api/resend-webhook.php
 
 // Customer Session Settings
