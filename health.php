@@ -52,10 +52,11 @@ try {
     $health['checks']['recent_errors'] = ['status' => 'unknown'];
 }
 
-if (!empty(TERMII_API_KEY)) {
-    $health['checks']['termii'] = ['status' => 'configured'];
+// Resend Email API check (replaces SMS - all notifications via email now)
+if (defined('RESEND_API_KEY') && !empty(RESEND_API_KEY)) {
+    $health['checks']['resend_email'] = ['status' => 'configured'];
 } else {
-    $health['checks']['termii'] = ['status' => 'not_configured'];
+    $health['checks']['resend_email'] = ['status' => 'not_configured'];
 }
 
 http_response_code($health['status'] === 'ok' ? 200 : ($health['status'] === 'warning' ? 200 : 503));
