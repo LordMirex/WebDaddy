@@ -1,7 +1,7 @@
 <?php
 /**
  * Request OTP for email verification at checkout
- * Sends EMAIL OTP (SMS available when Termii is configured)
+ * Sends EMAIL OTP via Resend API
  */
 
 require_once __DIR__ . '/../../includes/config.php';

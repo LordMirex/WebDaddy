@@ -2,7 +2,7 @@
 /**
  * Complete account setup from modal (post-purchase)
  * Used when user completes checkout without full registration
- * Handles: Username, Password, WhatsApp, Phone verification
+ * Handles: Username, Password, WhatsApp
  */
 
 require_once __DIR__ . '/../../includes/config.php';
@@ -88,10 +88,9 @@ try {
         
         echo json_encode(['success' => true, 'message' => 'Credentials saved', 'next' => 'contact']);
         
-    } elseif ($action === 'send_phone_otp') {
-        // Send phone OTP
+    } elseif ($action === 'save_whatsapp') {
+        // Save WhatsApp number and complete account (no phone SMS verification needed)
         $whatsappNumber = trim($input['whatsapp_number'] ?? '');
-        $phone = trim($input['phone'] ?? '');
         
         if (empty($whatsappNumber) || strlen($whatsappNumber) < 10) {
             http_response_code(400);
@@ -99,85 +98,19 @@ try {
             exit;
         }
         
-        if (empty($phone) || strlen($phone) < 10) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Valid phone number is required']);
-            exit;
-        }
-        
-        // Clean numbers
+        // Clean number
         $cleanWhatsApp = preg_replace('/[^0-9+]/', '', $whatsappNumber);
-        $cleanPhone = preg_replace('/[^0-9+]/', '', $phone);
         
-        // Save WhatsApp number
-        $db->prepare("UPDATE customers SET whatsapp_number = ?, updated_at = datetime('now') WHERE id = ?")
-           ->execute([$cleanWhatsApp, $customerId]);
-        
-        // Generate and store OTP
-        $otpCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-        
-        $insertStmt = $db->prepare("
-            INSERT INTO customer_otp_codes 
-            (customer_id, email, phone, otp_code, otp_type, delivery_method, expires_at)
-            VALUES (?, ?, ?, ?, 'phone_verify', 'sms', ?)
-        ");
-        $insertStmt->execute([$customerId, $customer['email'], $cleanPhone, $otpCode, $expiresAt]);
-        
-        // Send SMS (log for dev)
-        error_log("PHONE OTP for $cleanPhone: $otpCode");
-        
-        echo json_encode(['success' => true, 'message' => 'Verification code sent']);
-        
-    } elseif ($action === 'verify_phone') {
-        // Verify phone OTP and complete
-        $phoneOtp = trim($input['phone_otp'] ?? '');
-        $phone = trim($input['phone'] ?? '');
-        
-        if (strlen($phoneOtp) !== 6 || !ctype_digit($phoneOtp)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Invalid code format']);
-            exit;
-        }
-        
-        $cleanPhone = preg_replace('/[^0-9+]/', '', $phone);
-        
-        // Verify OTP
-        $otpStmt = $db->prepare("
-            SELECT * FROM customer_otp_codes 
-            WHERE customer_id = ? 
-            AND phone = ?
-            AND otp_code = ?
-            AND otp_type = 'phone_verify'
-            AND is_used = 0
-            AND expires_at > datetime('now')
-            LIMIT 1
-        ");
-        $otpStmt->execute([$customerId, $cleanPhone, $phoneOtp]);
-        $otp = $otpStmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$otp) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Invalid or expired code']);
-            exit;
-        }
-        
-        // Mark OTP used
-        $db->prepare("UPDATE customer_otp_codes SET is_used = 1, used_at = datetime('now') WHERE id = ?")
-           ->execute([$otp['id']]);
-        
-        // Complete account
+        // Save WhatsApp and complete account
         $db->prepare("
             UPDATE customers 
-            SET phone = ?, 
-                phone_verified = 1, 
-                phone_verified_at = datetime('now'),
+            SET whatsapp_number = ?,
                 status = 'active',
                 account_complete = 1,
                 registration_step = 0,
                 updated_at = datetime('now')
             WHERE id = ?
-        ")->execute([$cleanPhone, $customerId]);
+        ")->execute([$cleanWhatsApp, $customerId]);
         
         if (function_exists('logCustomerActivity')) {
             logCustomerActivity($customerId, 'account_setup_complete', 'Account setup completed via modal');

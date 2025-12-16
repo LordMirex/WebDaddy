@@ -43,8 +43,9 @@ The platform utilizes SQLite for its database, with a schema designed for robust
   3. Success + Dashboard Guide
 - **WhatsApp Number Field**: Phone number inputs replaced with WhatsApp number throughout
 - **Email Routing Updated**:
-  - **Resend API**: All user-facing emails (OTP, notifications, deliveries) - from support@webdaddy.online
+  - **Resend API**: All user-facing emails (OTP, notifications, deliveries) - from no-reply@webdaddy.online
   - **SMTP**: Admin-only internal emails - from admin@webdaddy.online
+  - **SUPPORT_EMAIL**: support@webdaddy.online - displayed in footer for users to contact
 - **Resend Webhook**: Created at `/api/resend-webhook.php` for email delivery tracking
 - **Removed Files**:
   - `cron/check_termii_balance.php` - Termii balance monitoring

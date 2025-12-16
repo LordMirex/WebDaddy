@@ -702,67 +702,34 @@ $autoUsername = $customer['username'] ?? '';
                     </form>
                 </div>
                 
-                <!-- Step 2: WhatsApp & Phone -->
+                <!-- Step 2: WhatsApp Number -->
                 <div x-show="step === 2">
                     <div class="text-center mb-6">
                         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="bi-phone text-3xl text-green-600"></i>
+                            <i class="bi-whatsapp text-3xl text-green-600"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900">Contact Details</h2>
+                        <h2 class="text-xl font-bold text-gray-900">WhatsApp Number</h2>
                         <p class="text-gray-600 text-sm mt-1">For order updates and support</p>
                     </div>
                     
-                    <form @submit.prevent="sendPhoneOTP" class="space-y-4">
+                    <form @submit.prevent="saveWhatsApp" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number <span class="text-red-500">*</span></label>
                             <input type="tel" x-model="whatsappNumber" required
                                    class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                                    placeholder="+234 xxx xxx xxxx">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number (for verification)</label>
-                            <input type="tel" x-model="phoneNumber" required
-                                   class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                                   placeholder="+234 xxx xxx xxxx">
-                            <p class="text-xs text-gray-500 mt-1">We'll send a verification code</p>
+                            <p class="text-xs text-gray-500 mt-1">We'll use this for order updates and support</p>
                         </div>
                         <button type="submit" :disabled="loading" 
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                            <span x-show="!loading">Send Verification Code</span>
-                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Step 3: Phone OTP Verification -->
-                <div x-show="step === 3">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="bi-shield-check text-3xl text-blue-600"></i>
-                        </div>
-                        <h2 class="text-xl font-bold text-gray-900">Verify Phone</h2>
-                        <p class="text-gray-600 text-sm mt-1">Enter the code sent to <span x-text="phoneNumber" class="font-medium"></span></p>
-                    </div>
-                    
-                    <form @submit.prevent="verifyPhone" class="space-y-4">
-                        <div>
-                            <input type="text" x-model="phoneOtp" required maxlength="6" pattern="[0-9]{6}"
-                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-center text-2xl tracking-widest"
-                                   placeholder="000000">
-                        </div>
-                        <button type="submit" :disabled="loading || phoneOtp.length !== 6" 
-                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
                             <span x-show="!loading">Complete Setup</span>
-                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Verifying...</span>
-                        </button>
-                        <button type="button" @click="step = 2" class="w-full text-gray-500 hover:text-gray-700 text-sm py-2">
-                            <i class="bi-arrow-left mr-1"></i> Change number
+                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
                         </button>
                     </form>
                 </div>
                 
                 <!-- Success -->
-                <div x-show="step === 4">
+                <div x-show="step === 3">
                     <div class="text-center py-4">
                         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="bi-check-circle-fill text-4xl text-green-600"></i>
@@ -791,8 +758,6 @@ function accountSetupModal() {
         password: '',
         confirmPassword: '',
         whatsappNumber: '<?= htmlspecialchars($customer['whatsapp_number'] ?? '') ?>',
-        phoneNumber: '<?= htmlspecialchars($customer['phone'] ?? '') ?>',
-        phoneOtp: '',
         
         async saveCredentials() {
             if (this.password !== this.confirmPassword) {
@@ -831,13 +796,9 @@ function accountSetupModal() {
             this.loading = false;
         },
         
-        async sendPhoneOTP() {
+        async saveWhatsApp() {
             if (!this.whatsappNumber || this.whatsappNumber.length < 10) {
                 this.error = 'Please enter a valid WhatsApp number';
-                return;
-            }
-            if (!this.phoneNumber || this.phoneNumber.length < 10) {
-                this.error = 'Please enter a valid phone number';
                 return;
             }
             
@@ -849,9 +810,8 @@ function accountSetupModal() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'send_phone_otp',
-                        whatsapp_number: this.whatsappNumber,
-                        phone: this.phoneNumber
+                        action: 'save_whatsapp',
+                        whatsapp_number: this.whatsappNumber
                     })
                 });
                 const data = await response.json();
@@ -859,40 +819,7 @@ function accountSetupModal() {
                 if (data.success) {
                     this.step = 3;
                 } else {
-                    this.error = data.error || 'Failed to send verification code';
-                }
-            } catch (e) {
-                this.error = 'Connection error. Please try again.';
-            }
-            
-            this.loading = false;
-        },
-        
-        async verifyPhone() {
-            if (this.phoneOtp.length !== 6) {
-                this.error = 'Please enter all 6 digits';
-                return;
-            }
-            
-            this.loading = true;
-            this.error = '';
-            
-            try {
-                const response = await fetch('/api/customer/complete-setup.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'verify_phone',
-                        phone: this.phoneNumber,
-                        phone_otp: this.phoneOtp
-                    })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.step = 4;
-                } else {
-                    this.error = data.error || 'Invalid verification code';
+                    this.error = data.error || 'Failed to save WhatsApp number';
                 }
             } catch (e) {
                 this.error = 'Connection error. Please try again.';
