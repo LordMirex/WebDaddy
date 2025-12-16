@@ -190,6 +190,11 @@
                     <span class="font-semibold">Payment Logs</span>
                 </a>
 
+                <a href="/admin/email-logs.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'email-logs.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-envelope-paper <?php echo basename($_SERVER['PHP_SELF']) == 'email-logs.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Email Logs</span>
+                </a>
+
                 <a href="/admin/export.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'export.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
                     <i class="bi bi-download <?php echo basename($_SERVER['PHP_SELF']) == 'export.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
                     <span class="font-semibold">Export Data</span>

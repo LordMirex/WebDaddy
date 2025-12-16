@@ -1146,13 +1146,16 @@ HTML;
 // ============================================================================
 
 /**
- * Send OTP verification email (High Priority)
+ * Send OTP verification email (High Priority via Resend)
  * Used for email verification during registration/login
+ * Uses Resend REST API for faster, more reliable delivery
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendOTPEmail($email, $otpCode) {
+    require_once __DIR__ . '/resend.php';
+    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $subject = "Your Verification Code - " . $siteName;
     $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
@@ -1180,6 +1183,14 @@ function sendOTPEmail($email, $otpCode) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
+    
+    $result = sendResendEmail($email, $subject, $emailBody, $siteName, 'otp');
+    
+    if ($result['success']) {
+        return true;
+    }
+    
+    error_log("Resend OTP email failed, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
     return sendEmail($email, $subject, $emailBody);
 }
 
@@ -1321,13 +1332,15 @@ HTML;
 }
 
 /**
- * Send recovery OTP email for password reset (High Priority)
+ * Send recovery OTP email for password reset (High Priority via Resend)
  * Different styling from regular OTP to indicate security-sensitive action
+ * Uses Resend REST API for faster, more reliable delivery
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendRecoveryOTPEmail($email, $otpCode) {
+    require_once __DIR__ . '/resend.php';
     require_once __DIR__ . '/email_queue.php';
     
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
@@ -1360,6 +1373,14 @@ function sendRecoveryOTPEmail($email, $otpCode) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
+    
+    $result = sendResendEmail($email, $subject, $emailBody, $siteName, 'recovery_otp');
+    
+    if ($result['success']) {
+        return true;
+    }
+    
+    error_log("Resend recovery OTP email failed, falling back to SMTP queue: " . ($result['error'] ?? 'Unknown error'));
     $queued = queueHighPriorityEmail($email, 'recovery_otp', $subject, $emailBody);
     if ($queued) {
         processHighPriorityEmails();

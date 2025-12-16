@@ -117,6 +117,15 @@ define('DELIVERY_RETRY_BASE_DELAY_SECONDS', 60);
 define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 
 // ============================================
+// RESEND EMAIL CONFIGURATION (For OTP Emails)
+// ============================================
+// Resend API for fast, reliable OTP email delivery
+define('RESEND_API_KEY', 're_FPAp2CGb_6hu6jpqt9rXZTFSeKbAa1bvo');
+define('RESEND_FROM_EMAIL', 'no-reply@webdaddy.online');
+define('RESEND_FROM_NAME', 'WebDaddy Empire');
+define('RESEND_WEBHOOK_SECRET', ''); // Add after creating webhook in Resend dashboard
+
+// ============================================
 // TERMII SMS CONFIGURATION
 // ============================================
 // Termii API for SMS OTP delivery
