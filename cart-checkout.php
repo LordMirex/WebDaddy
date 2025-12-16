@@ -704,6 +704,9 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <style>
+        /* CRITICAL: Hide Alpine.js elements until they're initialized to prevent flash of unstyled content */
+        [x-cloak] { display: none !important; }
+        
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -743,10 +746,47 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
             transition: all 0.2s ease;
         }
         
+        /* Fix checkout form input heights - prevent stretching */
+        #checkout-auth-section input[type="email"],
+        #checkout-auth-section input[type="password"],
+        #checkout-auth-section input[type="tel"],
+        #checkout-auth-section input[type="text"]:not(#otp-input) {
+            height: 48px !important;
+            max-height: 48px !important;
+            min-height: 48px !important;
+            flex-shrink: 0;
+        }
+        
+        /* Fix checkout form buttons - prevent text breaking */
+        #checkout-auth-section button {
+            white-space: nowrap;
+            min-width: 100px;
+            height: 48px !important;
+            max-height: 48px !important;
+            flex-shrink: 0;
+        }
+        
+        /* Ensure flex containers don't stretch children */
+        #checkout-auth-section .flex.gap-2 {
+            align-items: stretch;
+        }
+        
         @media (max-width: 640px) {
             button, a[role="button"], input[type="button"] {
                 min-height: 44px;
                 min-width: 44px;
+            }
+            
+            /* Mobile specific fixes for checkout */
+            #checkout-auth-section .flex.gap-2 {
+                flex-direction: row;
+                flex-wrap: nowrap;
+            }
+            
+            #checkout-auth-section button {
+                min-width: 90px;
+                padding-left: 12px;
+                padding-right: 12px;
             }
         }
     </style>
@@ -1679,7 +1719,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         
                         <div id="checkout-auth-section" x-data="checkoutAuth()">
                             <!-- Email Input Step -->
-                            <div x-show="step === 'email'" class="mb-6">
+                            <div x-show="step === 'email'" x-cloak class="mb-6">
                                 <label class="block text-sm font-bold text-gray-100 mb-2">
                                     Email Address <span class="text-red-500">*</span>
                                 </label>
@@ -1710,7 +1750,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
 
                             <!-- Password Step (returning user with password) -->
-                            <div x-show="step === 'password'" class="mb-6">
+                            <div x-show="step === 'password'" x-cloak class="mb-6">
                                 <div class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg mb-4">
                                     <p class="text-blue-200">
                                         Welcome back! Login as <strong class="text-blue-100" x-text="email"></strong>
@@ -1749,7 +1789,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
 
                             <!-- OTP Step (new user or OTP login) -->
-                            <div x-show="step === 'otp'" class="mb-6">
+                            <div x-show="step === 'otp'" x-cloak class="mb-6">
                                 <div class="bg-green-900/30 border border-green-700 p-4 rounded-lg mb-4">
                                     <p class="text-green-200">
                                         <svg class="w-5 h-5 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
@@ -1795,7 +1835,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                             </div>
 
                             <!-- Authenticated State -->
-                            <div x-show="step === 'authenticated'" class="mb-6">
+                            <div x-show="step === 'authenticated'" x-cloak class="mb-6">
                                 <div class="bg-green-900/40 border border-green-600 p-4 rounded-lg flex items-center justify-between">
                                     <div class="flex items-center">
                                         <svg class="w-6 h-6 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
@@ -1811,7 +1851,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 </div>
                                 
                                 <!-- Phone input if customer doesn't have one -->
-                                <div x-show="!customerPhone" class="mt-4">
+                                <div x-show="!customerPhone" x-cloak class="mt-4">
                                     <label class="block text-sm font-bold text-gray-100 mb-2">
                                         WhatsApp Number <span class="text-red-500">*</span>
                                     </label>
