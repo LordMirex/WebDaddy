@@ -45,6 +45,22 @@ if ($type !== 'email_verify') {
     exit;
 }
 
+// CHECK: Email must exist as a registered customer in database
+$db = getDb();
+$checkCustomer = $db->prepare("SELECT id FROM customers WHERE LOWER(email) = LOWER(?)");
+$checkCustomer->execute([$email]);
+$existingCustomerId = $checkCustomer->fetchColumn();
+
+if (!$existingCustomerId) {
+    // Email not found in database - reject OTP request
+    http_response_code(400);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'No account found with this email address. Please create an account first or contact support.'
+    ]);
+    exit;
+}
+
 $result = sendCheckoutEmailOTP($email);
 
 if ($result['success']) {
