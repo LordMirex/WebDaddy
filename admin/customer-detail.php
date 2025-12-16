@@ -268,10 +268,6 @@ require_once __DIR__ . '/includes/header.php';
             
             <div class="space-y-4">
                 <div class="flex justify-between">
-                    <span class="text-gray-500">Phone</span>
-                    <span class="font-medium"><?php echo htmlspecialchars($customer['phone'] ?? 'Not set'); ?></span>
-                </div>
-                <div class="flex justify-between">
                     <span class="text-gray-500">WhatsApp</span>
                     <span class="font-medium"><?php echo htmlspecialchars($customer['whatsapp_number'] ?? 'Not set'); ?></span>
                 </div>
@@ -283,16 +279,6 @@ require_once __DIR__ . '/includes/header.php';
                     <span class="text-gray-500">Email Verified</span>
                     <span class="font-medium">
                         <?php if ($customer['email_verified']): ?>
-                        <i class="bi bi-check-circle text-green-600"></i> Yes
-                        <?php else: ?>
-                        <i class="bi bi-x-circle text-red-600"></i> No
-                        <?php endif; ?>
-                    </span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-500">Phone Verified</span>
-                    <span class="font-medium">
-                        <?php if ($customer['phone_verified']): ?>
                         <i class="bi bi-check-circle text-green-600"></i> Yes
                         <?php else: ?>
                         <i class="bi bi-x-circle text-red-600"></i> No
