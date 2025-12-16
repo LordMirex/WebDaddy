@@ -1,10 +1,11 @@
 <?php
 /**
  * User Order Detail Page - Enhanced UX
+ * Track orders, make payments, retry failed payments
  * Allows incomplete accounts to view orders (modal prompts setup)
  */
 require_once __DIR__ . '/includes/auth.php';
-$customer = requireCustomer(true); // Allow incomplete accounts - modal will prompt setup
+$customer = requireCustomer(true);
 
 $orderId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -22,6 +23,20 @@ if (!$order) {
 
 $orderItems = getOrderItemsWithDelivery($orderId);
 
+$db = getDb();
+$bankSettings = [
+    'account_number' => $db->query("SELECT setting_value FROM settings WHERE setting_key = 'site_account_number'")->fetchColumn() ?: '7043609930',
+    'bank_name' => $db->query("SELECT setting_value FROM settings WHERE setting_key = 'site_bank_name'")->fetchColumn() ?: 'OPay (OPay Digital Services)',
+    'account_name' => $db->query("SELECT setting_value FROM settings WHERE setting_key = 'site_bank_number'")->fetchColumn() ?: 'WebDaddy Empire'
+];
+$whatsappNumber = $db->query("SELECT setting_value FROM settings WHERE setting_key = 'whatsapp_number'")->fetchColumn() ?: '+2349132672126';
+$whatsappNumberClean = preg_replace('/[^0-9]/', '', $whatsappNumber);
+
+$paymentStmt = $db->prepare("SELECT * FROM payments WHERE pending_order_id = ? ORDER BY created_at DESC LIMIT 1");
+$paymentStmt->execute([$orderId]);
+$lastPayment = $paymentStmt->fetch(PDO::FETCH_ASSOC);
+$isFailedPayment = $lastPayment && $lastPayment['status'] === 'failed';
+
 $page = 'orders';
 $pageTitle = 'Order #' . $orderId;
 
@@ -29,6 +44,7 @@ $statusColor = match($order['status']) {
     'paid' => 'bg-blue-100 text-blue-700 border-blue-200',
     'completed' => 'bg-green-100 text-green-700 border-green-200',
     'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    'failed' => 'bg-red-100 text-red-700 border-red-200',
     'cancelled' => 'bg-red-100 text-red-700 border-red-200',
     default => 'bg-gray-100 text-gray-700 border-gray-200'
 };
@@ -37,28 +53,385 @@ $templateItems = array_filter($orderItems, fn($i) => $i['product_type'] === 'tem
 $toolItems = array_filter($orderItems, fn($i) => $i['product_type'] === 'tool');
 $itemCount = count($orderItems);
 
+$itemNames = [];
+foreach ($orderItems as $item) {
+    $itemNames[] = $item['product_name'] ?? ($item['product_type'] === 'template' ? 'Template' : 'Digital Product');
+}
+$itemsDescription = implode(', ', array_slice($itemNames, 0, 3));
+if (count($itemNames) > 3) {
+    $itemsDescription .= ' + ' . (count($itemNames) - 3) . ' more';
+}
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
 <div class="space-y-6">
-    <div class="flex items-center justify-between flex-wrap gap-4">
-        <a href="/user/orders.php" class="text-amber-600 hover:text-amber-700 inline-flex items-center text-sm font-medium">
-            <i class="bi-arrow-left mr-2"></i>Back to Orders
-        </a>
-        <div class="flex items-center gap-3">
-            <span class="text-sm text-gray-500"><?= $itemCount ?> item<?= $itemCount !== 1 ? 's' : '' ?></span>
-            <span class="px-3 py-1 text-sm font-medium rounded-full border <?= $statusColor ?>">
-                <?= ucfirst($order['status']) ?>
-            </span>
+    <!-- Page Header with Context -->
+    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-4 sm:p-6">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+            <div>
+                <a href="/user/orders.php" class="text-amber-600 hover:text-amber-700 inline-flex items-center text-sm font-medium mb-2">
+                    <i class="bi-arrow-left mr-2"></i>Back to Orders
+                </a>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Order #<?= $orderId ?></h1>
+                <p class="text-sm text-gray-600 mt-1"><?= date('F j, Y \a\t g:i A', strtotime($order['created_at'])) ?></p>
+            </div>
+            <div class="flex flex-col items-end gap-2">
+                <span class="px-4 py-1.5 text-sm font-semibold rounded-full border <?= $statusColor ?>">
+                    <?= $order['status'] === 'failed' ? 'Payment Failed' : ucfirst($order['status']) ?>
+                </span>
+                <span class="text-sm text-gray-500"><?= $itemCount ?> item<?= $itemCount !== 1 ? 's' : '' ?></span>
+            </div>
+        </div>
+        
+        <!-- What You Can Do Here -->
+        <div class="mt-4 pt-4 border-t border-amber-200/50">
+            <p class="text-sm text-gray-700">
+                <i class="bi-info-circle text-amber-600 mr-1"></i>
+                <strong>On this page:</strong> Track your order status, view delivery details, 
+                <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
+                make payment via bank transfer or card, retry failed payments, 
+                <?php endif; ?>
+                and get support if needed.
+            </p>
         </div>
     </div>
 
+    <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
+    <!-- Payment Section - Prominent for pending/failed orders -->
+    <div class="bg-white rounded-2xl shadow-lg border-2 border-amber-400 overflow-hidden" x-data="orderPayment()">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
+            <h2 class="text-white font-bold text-lg flex items-center gap-2">
+                <i class="bi-credit-card-2-front"></i>
+                <?php if ($order['status'] === 'failed'): ?>
+                Payment Failed - Retry Now
+                <?php else: ?>
+                Complete Your Payment
+                <?php endif; ?>
+            </h2>
+            <p class="text-amber-100 text-sm mt-1">
+                <?php if ($order['status'] === 'failed'): ?>
+                Your previous payment attempt didn't go through. You can try again below.
+                <?php else: ?>
+                Choose how you'd like to pay for your order.
+                <?php endif; ?>
+            </p>
+        </div>
+        
+        <div class="p-4 sm:p-6 space-y-6">
+            <!-- Amount Due -->
+            <div class="text-center py-4 bg-gray-50 rounded-xl">
+                <p class="text-sm text-gray-500 uppercase tracking-wide">Amount Due</p>
+                <p class="text-3xl font-bold text-gray-900 mt-1">₦<?= number_format($order['final_amount'], 2) ?></p>
+            </div>
+            
+            <!-- Payment Options Tabs -->
+            <div class="flex border-b border-gray-200">
+                <button @click="paymentTab = 'card'" 
+                        :class="paymentTab === 'card' ? 'border-amber-500 text-amber-600 bg-amber-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all flex items-center justify-center gap-2">
+                    <i class="bi-credit-card"></i>
+                    Pay with Card
+                </button>
+                <button @click="paymentTab = 'bank'" 
+                        :class="paymentTab === 'bank' ? 'border-amber-500 text-amber-600 bg-amber-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all flex items-center justify-center gap-2">
+                    <i class="bi-bank"></i>
+                    Bank Transfer
+                </button>
+            </div>
+            
+            <!-- Card Payment Option -->
+            <div x-show="paymentTab === 'card'" x-transition class="space-y-4">
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="bi-shield-check text-green-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-800">Instant & Secure</h4>
+                            <p class="text-sm text-green-700 mt-1">
+                                Pay instantly with your debit/credit card via Paystack. 
+                                Your payment is secured and your order will be processed immediately.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button @click="payWithCard()" :disabled="loading"
+                        class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg hover:from-green-700 hover:to-green-800 transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg">
+                    <span x-show="!loading">
+                        <i class="bi-credit-card mr-2"></i>
+                        <?= $order['status'] === 'failed' ? 'Retry Payment with Card' : 'Pay ₦' . number_format($order['final_amount'], 2) . ' Now' ?>
+                    </span>
+                    <span x-show="loading" class="flex items-center gap-2">
+                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                    </span>
+                </button>
+                
+                <p class="text-center text-xs text-gray-500">
+                    <i class="bi-lock-fill mr-1"></i>
+                    Secured by Paystack. We never store your card details.
+                </p>
+            </div>
+            
+            <!-- Bank Transfer Option -->
+            <div x-show="paymentTab === 'bank'" x-transition class="space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="bi-bank text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-blue-800">Manual Bank Transfer</h4>
+                            <p class="text-sm text-blue-700 mt-1">
+                                Transfer the exact amount to our account below. 
+                                After transfer, notify us and we'll verify within 1-24 hours.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bank Details Card -->
+                <div class="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Transfer to this Account</p>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Bank Name</p>
+                                <p class="font-semibold text-gray-900"><?= htmlspecialchars($bankSettings['bank_name']) ?></p>
+                            </div>
+                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['bank_name']) ?>', 'bank')" 
+                                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
+                                <i x-show="copied !== 'bank'" class="bi-clipboard"></i>
+                                <i x-show="copied === 'bank'" class="bi-check text-green-600"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Account Number</p>
+                                <p class="font-bold text-2xl text-gray-900 font-mono tracking-wide"><?= htmlspecialchars($bankSettings['account_number']) ?></p>
+                            </div>
+                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['account_number']) ?>', 'account')" 
+                                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
+                                <i x-show="copied !== 'account'" class="bi-clipboard"></i>
+                                <i x-show="copied === 'account'" class="bi-check text-green-600"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500">Account Name</p>
+                                <p class="font-semibold text-gray-900"><?= htmlspecialchars($bankSettings['account_name']) ?></p>
+                            </div>
+                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['account_name']) ?>', 'name')" 
+                                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
+                                <i x-show="copied !== 'name'" class="bi-clipboard"></i>
+                                <i x-show="copied === 'name'" class="bi-check text-green-600"></i>
+                            </button>
+                        </div>
+                        
+                        <hr class="my-2">
+                        
+                        <div class="flex items-center justify-between bg-amber-50 -mx-4 -mb-4 p-4 border-t border-amber-100">
+                            <div>
+                                <p class="text-xs text-amber-600 font-semibold uppercase">Amount to Transfer</p>
+                                <p class="font-bold text-2xl text-amber-700">₦<?= number_format($order['final_amount'], 2) ?></p>
+                            </div>
+                            <button @click="copyToClipboard('<?= $order['final_amount'] ?>', 'amount')" 
+                                    class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium flex items-center gap-2">
+                                <i x-show="copied !== 'amount'" class="bi-clipboard"></i>
+                                <i x-show="copied === 'amount'" class="bi-check"></i>
+                                Copy Amount
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reference Note -->
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <p class="text-sm text-amber-800 flex items-start gap-2">
+                        <i class="bi-exclamation-triangle flex-shrink-0 mt-0.5"></i>
+                        <span>
+                            <strong>Important:</strong> Include <span class="font-mono font-bold bg-amber-100 px-2 py-0.5 rounded">Order #<?= $orderId ?></span> 
+                            in your transfer narration/remark so we can identify your payment quickly.
+                        </span>
+                    </p>
+                </div>
+                
+                <!-- After Transfer Actions -->
+                <div class="space-y-3 pt-2">
+                    <p class="text-sm font-medium text-gray-700 text-center">After you've made the transfer:</p>
+                    
+                    <?php if (empty($order['payment_notified'])): ?>
+                    <!-- Two Action Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- I Have Sent the Funds Button -->
+                        <button @click="confirmPayment()" :disabled="notifyLoading"
+                                class="bg-green-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+                            <span x-show="!notifyLoading">
+                                <i class="bi-check-circle mr-1"></i>
+                                I Have Sent the Funds
+                            </span>
+                            <span x-show="notifyLoading" class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                Sending...
+                            </span>
+                        </button>
+                        
+                        <!-- Process via WhatsApp Button -->
+                        <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode("Hello WebDaddy Empire!\n\nI just made a payment for my order and would like to confirm.\n\n📋 ORDER DETAILS:\n• Order ID: #$orderId\n• Amount Paid: ₦" . number_format($order['final_amount'], 2) . "\n• Items: $itemsDescription\n• Email: " . $order['customer_email'] . "\n\nPlease verify and process my order.\n\nThank you!") ?>" 
+                           target="_blank"
+                           class="bg-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-600 transition flex items-center justify-center gap-2">
+                            <i class="bi-whatsapp text-lg"></i>
+                            Process via WhatsApp
+                        </a>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 space-y-2">
+                        <p class="flex items-start gap-2">
+                            <i class="bi-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
+                            <span><strong>"I Have Sent the Funds":</strong> Click this to notify our team that you've made the transfer. We'll verify and process your order within 1-24 hours.</span>
+                        </p>
+                        <p class="flex items-start gap-2">
+                            <i class="bi-whatsapp text-green-600 flex-shrink-0 mt-0.5"></i>
+                            <span><strong>"Process via WhatsApp":</strong> Opens WhatsApp with a pre-filled message. Use this for faster verification or if you have questions about your payment.</span>
+                        </p>
+                    </div>
+                    <?php else: ?>
+                    <!-- Already Notified -->
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-4">
+                        <div class="flex items-start gap-3">
+                            <i class="bi-clock-history text-blue-600 text-xl flex-shrink-0"></i>
+                            <div>
+                                <p class="font-semibold">Payment Notification Sent!</p>
+                                <p class="text-sm mt-1">We received your payment notification and are verifying it now. This usually takes 1-24 hours.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- WhatsApp Follow-up -->
+                    <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode("Hello WebDaddy Empire!\n\nI sent a payment notification for Order #$orderId earlier and would like to follow up on the verification status.\n\n📋 ORDER DETAILS:\n• Order ID: #$orderId\n• Amount: ₦" . number_format($order['final_amount'], 2) . "\n• Email: " . $order['customer_email'] . "\n\nPlease let me know the status.\n\nThank you!") ?>" 
+                       target="_blank"
+                       class="w-full bg-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-600 transition flex items-center justify-center gap-2">
+                        <i class="bi-whatsapp text-lg"></i>
+                        Follow Up via WhatsApp
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <!-- Error/Success Messages -->
+            <div x-show="error" x-transition class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4">
+                <div class="flex items-start gap-2">
+                    <i class="bi-exclamation-circle flex-shrink-0 mt-0.5"></i>
+                    <span x-text="error"></span>
+                </div>
+            </div>
+            <div x-show="success" x-transition class="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4">
+                <div class="flex items-start gap-2">
+                    <i class="bi-check-circle flex-shrink-0 mt-0.5"></i>
+                    <span x-text="success"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    function orderPayment() {
+        return {
+            paymentTab: '<?= $order['status'] === 'failed' ? 'card' : 'card' ?>',
+            loading: false,
+            notifyLoading: false,
+            error: '',
+            success: '',
+            copied: '',
+            
+            copyToClipboard(text, field) {
+                navigator.clipboard.writeText(text);
+                this.copied = field;
+                setTimeout(() => this.copied = '', 2000);
+            },
+            
+            async payWithCard() {
+                this.loading = true;
+                this.error = '';
+                this.success = '';
+                
+                try {
+                    const response = await fetch('/api/customer/order-pay.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            order_id: <?= $orderId ?>,
+                            action: '<?= $order['status'] === 'failed' ? 'retry_payment' : 'pay_with_paystack' ?>'
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success && data.authorization_url) {
+                        window.location.href = data.authorization_url;
+                    } else {
+                        this.error = data.error || 'Failed to initialize payment. Please try again.';
+                        this.loading = false;
+                    }
+                } catch (e) {
+                    this.error = 'Connection error. Please check your internet and try again.';
+                    this.loading = false;
+                }
+            },
+            
+            async confirmPayment() {
+                if (!confirm('Please confirm that you have transferred ₦<?= number_format($order['final_amount'], 2) ?> to our bank account.\n\nWe will verify and process your order within 1-24 hours.')) {
+                    return;
+                }
+                
+                this.notifyLoading = true;
+                this.error = '';
+                this.success = '';
+                
+                try {
+                    const response = await fetch('/api/customer/order-detail.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'payment_notification',
+                            order_id: <?= $orderId ?>
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.success = 'Thank you! We will verify your payment and process your order shortly.';
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        this.error = data.error || 'Failed to send notification. Please try again.';
+                    }
+                } catch (e) {
+                    this.error = 'Connection error. Please try again.';
+                }
+                
+                this.notifyLoading = false;
+            }
+        };
+    }
+    </script>
+    <?php endif; ?>
+
+    <!-- Order Items -->
     <div class="bg-white rounded-xl shadow-sm border p-4 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Order #<?= $orderId ?></h1>
-                <p class="text-sm text-gray-500"><?= date('F j, Y \a\t g:i A', strtotime($order['created_at'])) ?></p>
-            </div>
+            <h2 class="text-lg font-bold text-gray-900">Order Items</h2>
         </div>
 
         <?php if (empty($orderItems)): ?>
@@ -72,7 +445,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="mb-8">
             <div class="flex items-center gap-2 mb-4">
                 <i class="bi-layout-wtf text-amber-600"></i>
-                <h2 class="font-bold text-gray-900">Website Templates (<?= count($templateItems) ?>)</h2>
+                <h3 class="font-bold text-gray-900">Website Templates (<?= count($templateItems) ?>)</h3>
             </div>
             <div class="grid gap-4">
                 <?php foreach ($templateItems as $item): ?>
@@ -102,9 +475,9 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-2 flex-wrap">
                                 <div>
-                                    <h3 class="font-semibold text-gray-900 text-lg">
+                                    <h4 class="font-semibold text-gray-900 text-lg">
                                         <?= htmlspecialchars($item['product_name'] ?? 'Template') ?>
-                                    </h3>
+                                    </h4>
                                     <div class="flex items-center gap-2 mt-1">
                                         <span class="px-2 py-0.5 text-xs font-medium rounded-full border <?= $deliveryColor ?>">
                                             <i class="bi-<?= $deliveryStatus === 'delivered' ? 'check-circle-fill' : ($deliveryStatus === 'pending' ? 'clock' : 'truck') ?> mr-1"></i>
@@ -122,7 +495,6 @@ require_once __DIR__ . '/includes/header.php';
                             
                             <?php if ($deliveryStatus === 'delivered'): ?>
                             <?php 
-                                // Use login_url (template_login_url) for Admin Panel, not domain_login_url (hosted_url)
                                 $adminUrl = $item['login_url'] ?? '';
                                 $displayLoginUrl = $adminUrl;
                                 if (!empty($adminUrl) && strlen($adminUrl) > 50) {
@@ -258,7 +630,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="mb-6">
             <div class="flex items-center gap-2 mb-4">
                 <i class="bi-tools text-amber-600"></i>
-                <h2 class="font-bold text-gray-900">Digital Products (<?= count($toolItems) ?>)</h2>
+                <h3 class="font-bold text-gray-900">Digital Products (<?= count($toolItems) ?>)</h3>
             </div>
             <div class="grid gap-4">
                 <?php foreach ($toolItems as $item): ?>
@@ -292,9 +664,9 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-2 flex-wrap">
                                 <div>
-                                    <h3 class="font-semibold text-gray-900 text-lg">
+                                    <h4 class="font-semibold text-gray-900 text-lg">
                                         <?= htmlspecialchars($item['product_name'] ?? 'Digital Product') ?>
-                                    </h3>
+                                    </h4>
                                     <div class="flex items-center gap-2 mt-1">
                                         <span class="px-2 py-0.5 text-xs font-medium rounded-full border <?= $deliveryColor ?>">
                                             <i class="bi-<?= $deliveryStatus === 'delivered' ? 'check-circle-fill' : ($deliveryStatus === 'pending' ? 'clock' : 'truck') ?> mr-1"></i>
@@ -415,7 +787,7 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <?php if ($order['status'] !== 'pending' && $order['status'] !== 'cancelled'): ?>
+                    <?php if ($order['status'] !== 'pending' && $order['status'] !== 'cancelled' && $order['status'] !== 'failed'): ?>
                     <div class="relative">
                         <div class="absolute -left-[25px] w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                         <div>
@@ -477,6 +849,14 @@ require_once __DIR__ . '/includes/header.php';
                             <p class="text-sm text-gray-400">Complete payment to proceed</p>
                         </div>
                     </div>
+                    <?php elseif ($order['status'] === 'failed'): ?>
+                    <div class="relative">
+                        <div class="absolute -left-[25px] w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
+                        <div>
+                            <p class="font-medium text-red-600">Payment Failed</p>
+                            <p class="text-sm text-red-500">Please retry your payment above</p>
+                        </div>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -512,8 +892,8 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-500">Status</span>
-                        <span class="<?= $order['status'] === 'paid' || $order['status'] === 'completed' ? 'text-green-600 font-medium' : 'text-yellow-600' ?>">
-                            <?= $order['status'] === 'paid' || $order['status'] === 'completed' ? 'Paid' : 'Pending' ?>
+                        <span class="<?= $order['status'] === 'paid' || $order['status'] === 'completed' ? 'text-green-600 font-medium' : ($order['status'] === 'failed' ? 'text-red-600 font-medium' : 'text-yellow-600') ?>">
+                            <?= $order['status'] === 'paid' || $order['status'] === 'completed' ? 'Paid' : ($order['status'] === 'failed' ? 'Failed' : 'Pending') ?>
                         </span>
                     </div>
                     <div class="flex justify-between">
@@ -522,108 +902,6 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
             </div>
-            
-            <?php if ($order['status'] === 'pending'): ?>
-            <!-- Manual Payment Section - Bank Details & I Have Paid -->
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-4" x-data="manualPayment()">
-                <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <i class="bi-bank text-blue-600"></i>
-                    Complete Your Payment
-                </h3>
-                
-                <div class="bg-white rounded-lg border p-4 mb-4">
-                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-3">Bank Transfer Details</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Bank Name</span>
-                            <span class="font-medium text-gray-900">Opay (OPay Digital Services)</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Account Number</span>
-                            <span class="font-medium text-gray-900 font-mono">7043609930</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Account Name</span>
-                            <span class="font-medium text-gray-900">WebDaddy Empire</span>
-                        </div>
-                        <hr class="my-2">
-                        <div class="flex justify-between font-bold">
-                            <span class="text-gray-900">Amount to Pay</span>
-                            <span class="text-blue-600">₦<?= number_format($order['final_amount'], 2) ?></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-                    <p class="text-sm text-amber-800">
-                        <i class="bi-info-circle mr-1"></i>
-                        <strong>Reference:</strong> Include <span class="font-mono font-bold">Order #<?= $orderId ?></span> in your transfer narration
-                    </p>
-                </div>
-                
-                <?php if (empty($order['payment_notified'])): ?>
-                <button @click="confirmPayment()" :disabled="loading"
-                        class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
-                    <span x-show="!loading"><i class="bi-check-circle mr-1"></i> I Have Made Payment</span>
-                    <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
-                </button>
-                
-                <div x-show="success" class="mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 text-sm">
-                    <i class="bi-check-circle-fill mr-1"></i> <span x-text="success"></span>
-                </div>
-                <div x-show="error" class="mt-3 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 text-sm">
-                    <i class="bi-exclamation-circle mr-1"></i> <span x-text="error"></span>
-                </div>
-                <?php else: ?>
-                <div class="bg-blue-50 border border-blue-200 text-blue-700 rounded-lg p-3 text-sm">
-                    <i class="bi-clock-history mr-1"></i>
-                    <strong>Payment notification sent.</strong> We're verifying your payment. This usually takes 1-24 hours.
-                </div>
-                <?php endif; ?>
-            </div>
-            
-            <script>
-            function manualPayment() {
-                return {
-                    loading: false,
-                    success: '',
-                    error: '',
-                    async confirmPayment() {
-                        if (!confirm('Please confirm you have transferred ₦<?= number_format($order['final_amount'], 2) ?> to our bank account. We will verify and process your order within 24 hours.')) {
-                            return;
-                        }
-                        
-                        this.loading = true;
-                        this.error = '';
-                        this.success = '';
-                        
-                        try {
-                            const response = await fetch('/api/customer/order-detail.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    action: 'payment_notification',
-                                    order_id: <?= $orderId ?>
-                                })
-                            });
-                            const data = await response.json();
-                            
-                            if (data.success) {
-                                this.success = 'Thank you! We will verify your payment and process your order shortly.';
-                                setTimeout(() => location.reload(), 2000);
-                            } else {
-                                this.error = data.error || 'Failed to send notification. Please try again.';
-                            }
-                        } catch (e) {
-                            this.error = 'Connection error. Please try again.';
-                        }
-                        
-                        this.loading = false;
-                    }
-                };
-            }
-            </script>
-            <?php endif; ?>
             
             <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-4">
                 <h3 class="font-bold text-gray-900 mb-2">Need Help?</h3>
@@ -638,17 +916,14 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <?php 
-// Check if user needs to complete account setup
 $needsSetup = empty($customer['account_complete']) || empty($customer['password_hash']);
 $autoUsername = $customer['username'] ?? '';
 
-// Get WhatsApp from customer or fallback to order's customer_phone
 $existingWhatsApp = $customer['whatsapp_number'] ?? '';
 if (empty($existingWhatsApp) && !empty($order['customer_phone'])) {
     $existingWhatsApp = $order['customer_phone'];
 }
 
-// Determine if WhatsApp step should be skipped (already have valid WhatsApp)
 $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/', '', $existingWhatsApp)) >= 10;
 ?>
 
@@ -662,7 +937,6 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
             <div class="fixed inset-0 transition-opacity bg-gray-900/80" @click.stop></div>
             
             <div class="relative z-50 w-full max-w-md p-6 mx-auto bg-white rounded-2xl shadow-xl">
-                <!-- Step Indicator -->
                 <?php if ($skipWhatsAppStep): ?>
                 <div class="flex items-center justify-center space-x-3 mb-6">
                     <div :class="step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
@@ -683,7 +957,6 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
                     <span x-text="error"></span>
                 </div>
                 
-                <!-- Step 1: Username & Password -->
                 <div x-show="step === 1">
                     <div class="text-center mb-6">
                         <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -708,54 +981,54 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                            <input type="password" x-model="confirmPassword" required minlength="6"
+                            <input type="password" x-model="confirmPassword" required
                                    class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
                         </div>
-                        <button type="submit" :disabled="loading" 
+                        <button type="submit" :disabled="loading"
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                            <span x-show="!loading"><?= $skipWhatsAppStep ? 'Complete Setup' : 'Continue' ?></span>
-                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
+                            <span x-show="!loading">Continue</span>
+                            <span x-show="loading">Saving...</span>
                         </button>
                     </form>
                 </div>
                 
-                <!-- Step 2: WhatsApp Number -->
+                <?php if (!$skipWhatsAppStep): ?>
                 <div x-show="step === 2">
                     <div class="text-center mb-6">
                         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="bi-whatsapp text-3xl text-green-600"></i>
                         </div>
                         <h2 class="text-xl font-bold text-gray-900">WhatsApp Number</h2>
-                        <p class="text-gray-600 text-sm mt-1">For order updates and support</p>
+                        <p class="text-gray-600 text-sm mt-1">We'll send order updates here</p>
                     </div>
                     
                     <form @submit.prevent="saveWhatsApp" class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number</label>
                             <input type="tel" x-model="whatsappNumber" required
                                    class="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                                   placeholder="+234 xxx xxx xxxx">
-                            <p class="text-xs text-gray-500 mt-1">We'll use this for order updates and support</p>
+                                   placeholder="e.g., 08012345678">
+                            <p class="text-xs text-gray-500 mt-1">Required for order updates and support</p>
                         </div>
-                        <button type="submit" :disabled="loading" 
+                        <button type="submit" :disabled="loading"
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
                             <span x-show="!loading">Complete Setup</span>
-                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
+                            <span x-show="loading">Saving...</span>
                         </button>
                     </form>
                 </div>
+                <?php endif; ?>
                 
-                <!-- Success -->
                 <div x-show="step === 3">
-                    <div class="text-center py-4">
+                    <div class="text-center">
                         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="bi-check-circle-fill text-4xl text-green-600"></i>
+                            <i class="bi-check-lg text-4xl text-green-600"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-900 mb-2">All Set!</h2>
-                        <p class="text-gray-600 mb-6">Your account is now complete. You can log in anytime with your email and password.</p>
+                        <h2 class="text-xl font-bold text-gray-900 mb-2">You're All Set!</h2>
+                        <p class="text-gray-600 text-sm mb-6">Your account is now complete. You can log in anytime.</p>
                         <button @click="showModal = false; location.reload()" 
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition">
-                            Continue
+                            View Order Details
                         </button>
                     </div>
                 </div>
@@ -767,7 +1040,7 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
 <script>
 function accountSetupModal() {
     return {
-        showModal: false,
+        showModal: true,
         step: 1,
         loading: false,
         error: '',
@@ -791,53 +1064,32 @@ function accountSetupModal() {
             this.error = '';
             
             try {
-                const response = await fetch('/api/customer/complete-setup.php', {
+                const response = await fetch('/api/customer/profile.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'credentials',
+                        action: 'complete_registration_step1',
                         username: this.username,
-                        password: this.password
+                        password: this.password,
+                        confirm_password: this.confirmPassword
                     })
                 });
                 const data = await response.json();
                 
                 if (data.success) {
-                    if (this.skipWhatsApp && this.whatsappNumber) {
-                        await this.autoSaveWhatsApp();
+                    if (this.skipWhatsApp) {
+                        this.step = 3;
                     } else {
                         this.step = 2;
                     }
                 } else {
-                    this.error = data.error || 'Failed to save credentials';
+                    this.error = data.error || 'Failed to save. Please try again.';
                 }
             } catch (e) {
                 this.error = 'Connection error. Please try again.';
             }
             
             this.loading = false;
-        },
-        
-        async autoSaveWhatsApp() {
-            try {
-                const response = await fetch('/api/customer/complete-setup.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'save_whatsapp',
-                        whatsapp_number: this.whatsappNumber
-                    })
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    this.step = 3;
-                } else {
-                    this.step = 2;
-                }
-            } catch (e) {
-                this.step = 2;
-            }
         },
         
         async saveWhatsApp() {
@@ -850,11 +1102,11 @@ function accountSetupModal() {
             this.error = '';
             
             try {
-                const response = await fetch('/api/customer/complete-setup.php', {
+                const response = await fetch('/api/customer/profile.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'save_whatsapp',
+                        action: 'complete_registration_whatsapp',
                         whatsapp_number: this.whatsappNumber
                     })
                 });
@@ -863,7 +1115,7 @@ function accountSetupModal() {
                 if (data.success) {
                     this.step = 3;
                 } else {
-                    this.error = data.error || 'Failed to save WhatsApp number';
+                    this.error = data.error || 'Failed to save. Please try again.';
                 }
             } catch (e) {
                 this.error = 'Connection error. Please try again.';
