@@ -83,18 +83,6 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="text-sm text-gray-500"><?= $itemCount ?> item<?= $itemCount !== 1 ? 's' : '' ?></span>
             </div>
         </div>
-        
-        <!-- What You Can Do Here -->
-        <div class="mt-4 pt-4 border-t border-amber-200/50">
-            <p class="text-sm text-gray-700">
-                <i class="bi-info-circle text-amber-600 mr-1"></i>
-                <strong>On this page:</strong> Track your order status, view delivery details, 
-                <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
-                make payment via bank transfer or card, retry failed payments, 
-                <?php endif; ?>
-                and get support if needed.
-            </p>
-        </div>
     </div>
 
     <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>

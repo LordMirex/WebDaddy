@@ -229,23 +229,26 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     <p class="text-gray-600 mb-6">Welcome to WebDaddy Empire. Your account is ready.</p>
                     
                     <!-- Quick Guide -->
-                    <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                        <h3 class="font-semibold text-gray-900 mb-3">Quick Guide</h3>
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
+                        <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <i class="bi-lightbulb text-amber-600"></i>
+                            What You Can Do on Your Dashboard
+                        </h3>
                         <ul class="space-y-2 text-sm text-gray-600">
                             <li class="flex items-start">
-                                <i class="bi-cart text-amber-600 mr-2 mt-0.5"></i>
-                                <span>Browse and purchase templates & tools</span>
+                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
+                                <span>Track your order status and delivery details</span>
                             </li>
                             <li class="flex items-start">
-                                <i class="bi-box-seam text-amber-600 mr-2 mt-0.5"></i>
-                                <span>Track your orders and delivery status</span>
+                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
+                                <span>Make payments via bank transfer or card</span>
                             </li>
                             <li class="flex items-start">
-                                <i class="bi-download text-amber-600 mr-2 mt-0.5"></i>
-                                <span>Access your downloads anytime</span>
+                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
+                                <span>Retry failed payments if needed</span>
                             </li>
                             <li class="flex items-start">
-                                <i class="bi-headset text-amber-600 mr-2 mt-0.5"></i>
+                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
                                 <span>Get support via tickets or WhatsApp</span>
                             </li>
                         </ul>
