@@ -1832,39 +1832,46 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <input type="hidden" name="customer_name" id="customer_name" :value="customerUsername || ''">
                                 <input type="hidden" name="customer_phone" id="customer_phone_hidden" :value="customerPhone || phone">
                             </div>
-
-                            <!-- Payment Method Selection (only shown when authenticated) -->
-                            <div x-show="step === 'authenticated'" class="mt-6">
-                                <label class="block text-sm font-bold text-gray-100 mb-3">
-                                    Payment Method <span class="text-red-500">*</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Method Section - ALWAYS VISIBLE -->
+                <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center mb-6">
+                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary-600 text-white font-bold mr-3">2</span>
+                            <h3 class="text-xl sm:text-2xl font-extrabold text-white">Payment Method</h3>
+                        </div>
+                        
+                        <label class="block text-sm font-bold text-gray-100 mb-3">
+                            Select Payment Method <span class="text-red-500">*</span>
+                        </label>
+                        <div class="space-y-3" id="payment-method-container">
+                            <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option">
+                                <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-5 h-5 cursor-pointer" />
+                                <label for="method_manual" class="ml-4 cursor-pointer flex-1">
+                                    <div class="font-bold text-lg text-gray-100">🏦 Manual Payment</div>
+                                    <div class="text-sm text-gray-300 mt-1">Bank Transfer • Get account details via WhatsApp • 24-hour setup</div>
                                 </label>
-                                <div class="space-y-3" id="payment-method-container">
-                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="manual-option">
-                                        <input type="radio" id="method_manual" name="payment_method" value="manual" checked class="w-5 h-5 cursor-pointer" />
-                                        <label for="method_manual" class="ml-4 cursor-pointer flex-1">
-                                            <div class="font-bold text-lg text-gray-100">🏦 Manual Payment</div>
-                                            <div class="text-sm text-gray-300 mt-1">Bank Transfer • Get account details via WhatsApp • 24-hour setup</div>
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option">
-                                        <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-5 h-5 cursor-pointer" />
-                                        <label for="method_automatic" class="ml-4 cursor-pointer flex-1">
-                                            <div class="font-bold text-lg text-gray-100">💳 Automatic Payment</div>
-                                            <div class="text-sm text-gray-300 mt-1">Card Payment • Instant approval • Immediate access</div>
-                                        </label>
-                                    </div>
-                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-4 border-2 border-gray-600 rounded-lg bg-gray-700 cursor-pointer hover:bg-gray-600 transition" id="automatic-option">
+                                <input type="radio" id="method_automatic" name="payment_method" value="automatic" class="w-5 h-5 cursor-pointer" />
+                                <label for="method_automatic" class="ml-4 cursor-pointer flex-1">
+                                    <div class="font-bold text-lg text-gray-100">💳 Automatic Payment</div>
+                                    <div class="text-sm text-gray-300 mt-1">Card Payment • Instant approval • Immediate access</div>
+                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Step 2: Order Summary -->
+                <!-- Step 3: Order Summary -->
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
                     <div class="p-6 sm:p-8">
                         <div class="flex items-center mb-3">
-                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm mr-2">2</span>
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white font-bold text-sm mr-2">3</span>
                             <h3 class="text-lg font-bold text-white">Order Summary</h3>
                         </div>
                         
