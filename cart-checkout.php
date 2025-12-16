@@ -1723,19 +1723,19 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 <label class="block text-sm font-bold text-gray-100 mb-2">
                                     Email Address <span class="text-red-500">*</span>
                                 </label>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 flex-nowrap items-stretch">
                                     <input 
                                         type="email" 
                                         x-model="email"
                                         @keydown.enter.prevent="checkEmail()"
-                                        class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                        class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-0"
                                         placeholder="your@email.com"
                                     >
                                     <button 
                                         type="button"
                                         @click="checkEmail()"
                                         :disabled="loading || !email"
-                                        class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 transition-all"
+                                        class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 transition-all flex-shrink-0 whitespace-nowrap"
                                     >
                                         <span x-show="!loading">Continue</span>
                                         <span x-show="loading" class="inline-flex items-center">
@@ -1746,7 +1746,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         </span>
                                     </button>
                                 </div>
-                                <p x-show="error" class="text-red-400 text-sm mt-2" x-text="error"></p>
+                                <p x-show="error" x-cloak class="text-red-400 text-sm mt-2 break-words" x-text="error"></p>
                             </div>
 
                             <!-- Password Step (returning user with password) -->
@@ -1758,19 +1758,19 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     </p>
                                 </div>
                                 <label class="block text-sm font-bold text-gray-100 mb-2">Password</label>
-                                <div class="flex gap-2">
+                                <div class="flex gap-2 flex-nowrap items-stretch">
                                     <input 
                                         type="password" 
                                         x-model="password"
                                         @keydown.enter.prevent="login()"
-                                        class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                                        class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-0"
                                         placeholder="Enter your password"
                                     >
                                     <button 
                                         type="button"
                                         @click="login()"
                                         :disabled="loading"
-                                        class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 transition-all"
+                                        class="px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 transition-all flex-shrink-0 whitespace-nowrap"
                                     >
                                         <span x-show="!loading">Login</span>
                                         <span x-show="loading" class="inline-flex items-center">
@@ -1785,7 +1785,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     <a href="/user/forgot-password.php" class="text-sm text-primary-400 hover:text-primary-300">Forgot password?</a>
                                     <button type="button" @click="requestOTP()" class="text-sm text-primary-400 hover:text-primary-300">Use OTP instead</button>
                                 </div>
-                                <p x-show="error" class="text-red-400 text-sm mt-2" x-text="error"></p>
+                                <p x-show="error" x-cloak class="text-red-400 text-sm mt-2 break-words" x-text="error"></p>
                             </div>
 
                             <!-- OTP Step (new user or OTP login) -->
