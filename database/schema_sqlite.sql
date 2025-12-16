@@ -509,3 +509,26 @@ CREATE TABLE sales (
 CREATE INDEX idx_sales_order ON sales(pending_order_id);
 CREATE INDEX idx_sales_affiliate ON sales(affiliate_id);
 CREATE UNIQUE INDEX idx_sales_unique_order ON sales(pending_order_id);
+
+-- Payments Table (Payment Processing)
+CREATE TABLE payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pending_order_id INTEGER NOT NULL REFERENCES pending_orders(id) ON DELETE CASCADE,
+    payment_method TEXT DEFAULT 'paystack' CHECK(payment_method IN ('paystack', 'manual', 'bank_transfer')),
+    amount_requested REAL NOT NULL,
+    amount_paid REAL,
+    currency TEXT DEFAULT 'NGN',
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'processing', 'completed', 'failed', 'abandoned')),
+    paystack_reference TEXT UNIQUE,
+    paystack_access_code TEXT,
+    paystack_authorization_url TEXT,
+    paystack_response TEXT,
+    payment_verified_at TIMESTAMP,
+    failure_reason TEXT,
+    retry_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_payments_order ON payments(pending_order_id);
+CREATE INDEX idx_payments_reference ON payments(paystack_reference);
+CREATE INDEX idx_payments_status ON payments(status);
