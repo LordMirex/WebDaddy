@@ -15,6 +15,12 @@ use PHPMailer\PHPMailer\Exception;
  * @return bool
  */
 function sendEmail($email, $subject, $message) {
+    // SECURITY: Validate recipient email
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        error_log("Email sending blocked: Invalid recipient email - " . ($email ?? 'empty'));
+        return false;
+    }
+    
     // SECURITY: Validate FROM email is configured
     if (!defined('SMTP_FROM_EMAIL') || empty(SMTP_FROM_EMAIL)) {
         error_log("Email sending failed: SMTP_FROM_EMAIL not configured");
@@ -1355,6 +1361,12 @@ HTML;
  * @return bool Success status
  */
 function sendRecoveryOTPEmail($email, $otpCode) {
+    // SECURITY: Validate email before sending
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        error_log("Recovery OTP email blocked: Invalid recipient email - " . ($email ?? 'empty'));
+        return false;
+    }
+    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $subject = "Password Reset Code - " . $siteName;
     $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
