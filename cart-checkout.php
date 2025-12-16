@@ -2124,7 +2124,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                 console.log('📝 Payment record created:', paymentRecordResult);
                                 
                                 if (paymentRecordResult.already_paid) {
-                                    window.location.href = '/cart-checkout.php?confirmed=' + paymentData.order_id;
+                                    window.location.href = '/user/order-detail.php?id=' + paymentData.order_id;
                                     return;
                                 }
                             } catch (err) {
@@ -2153,7 +2153,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                     })
                                     .then(r => r.json())
                                     .then(data => {
-                                        window.location.href = '/cart-checkout.php?confirmed=' + paymentData.order_id;
+                                        window.location.href = '/user/order-detail.php?id=' + paymentData.order_id;
                                     })
                                     .catch(err => {
                                         console.error('Error marking payment as failed:', err);
@@ -2202,7 +2202,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                             if (msg) msg.innerHTML = '<span class="success-message">Order approved • Redirecting to your order...</span>';
                                             
                                             setTimeout(() => {
-                                                window.location.href = '/cart-checkout.php?confirmed=' + data.order_id;
+                                                window.location.href = '/user/order-detail.php?id=' + data.order_id;
                                             }, 1200);
                                         } else {
                                             if (overlay) overlay.classList.remove('show');
@@ -2273,7 +2273,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 console.log('📝 Payment record created for retry:', paymentRecordResult);
                 
                 if (paymentRecordResult.already_paid) {
-                    window.location.href = '/cart-checkout.php?confirmed=' + orderId;
+                    window.location.href = '/user/order-detail.php?id=' + orderId;
                     return;
                 }
             } catch (err) {
@@ -2300,7 +2300,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                     })
                     .then(r => r.json())
                     .then(data => {
-                        window.location.href = '/cart-checkout.php?confirmed=' + orderId;
+                        window.location.href = '/user/order-detail.php?id=' + orderId;
                     })
                     .catch(err => {
                         console.error('Error:', err);
@@ -2322,7 +2322,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                         if (data.success) {
                             if (msg) msg.textContent = 'Payment confirmed! Redirecting to your order...';
                             setTimeout(() => {
-                                window.location.href = '/cart-checkout.php?confirmed=' + data.order_id;
+                                window.location.href = '/user/order-detail.php?id=' + data.order_id;
                             }, 1000);
                         } else {
                             btn.disabled = false;
