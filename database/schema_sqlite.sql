@@ -16,6 +16,75 @@ CREATE TABLE settings (
 );
 CREATE INDEX idx_settings_key ON settings(setting_key);
 
+-- Customers Table (User Accounts)
+CREATE TABLE customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    username TEXT UNIQUE,
+    full_name TEXT,
+    whatsapp_number TEXT,
+    password_hash TEXT,
+    password_changed_at TIMESTAMP,
+    last_login_at TIMESTAMP,
+    status TEXT DEFAULT 'pending_setup' CHECK(status IN ('pending_setup', 'active', 'inactive', 'suspended')),
+    email_verified INTEGER DEFAULT 0,
+    registration_step INTEGER DEFAULT 0,
+    account_complete INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_customers_email ON customers(email);
+CREATE INDEX idx_customers_username ON customers(username);
+CREATE INDEX idx_customers_status ON customers(status);
+
+-- Customer OTP Codes Table
+CREATE TABLE customer_otp_codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    otp_code TEXT NOT NULL,
+    otp_type TEXT DEFAULT 'email_verify' CHECK(otp_type IN ('email_verify', 'password_reset')),
+    delivery_method TEXT DEFAULT 'email',
+    is_used INTEGER DEFAULT 0,
+    used_at TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    attempts INTEGER DEFAULT 0,
+    max_attempts INTEGER DEFAULT 3,
+    email_sent INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_customer_otp_codes_customer ON customer_otp_codes(customer_id);
+CREATE INDEX idx_customer_otp_codes_email ON customer_otp_codes(email);
+CREATE INDEX idx_customer_otp_codes_code ON customer_otp_codes(otp_code);
+CREATE INDEX idx_customer_otp_codes_type ON customer_otp_codes(otp_type);
+
+-- Customer Sessions Table
+CREATE TABLE customer_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    session_token TEXT NOT NULL UNIQUE,
+    ip_address TEXT,
+    user_agent TEXT,
+    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_customer_sessions_customer ON customer_sessions(customer_id);
+CREATE INDEX idx_customer_sessions_token ON customer_sessions(session_token);
+
+-- Customer Activity Log Table
+CREATE TABLE customer_activity_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+    action TEXT NOT NULL,
+    details TEXT,
+    ip_address TEXT,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_customer_activity_log_customer ON customer_activity_log(customer_id);
+CREATE INDEX idx_customer_activity_log_action ON customer_activity_log(action);
+
 -- Users Table (Admin and Affiliates)
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
