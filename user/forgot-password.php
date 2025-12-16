@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $customerData = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        if ($customerData) {
+        // SECURITY: Only proceed if customer exists and is active
+        if ($customerData && !empty($customerData['id']) && !empty($customerData['email'])) {
             if ($customerData['status'] === 'suspended') {
                 $error = 'This account has been suspended. Please contact support.';
             } else {
@@ -70,13 +71,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ";
                 
                 $emailHtml = createEmailTemplate('Password Reset Request', $emailContent, $customerName);
-                sendEmail($customerData['email'], 'Reset Your Password - WebDaddy Empire', $emailHtml);
+                
+                // SECURITY: Verify email before sending - prevent accidental sends to invalid addresses
+                if (filter_var($customerData['email'], FILTER_VALIDATE_EMAIL)) {
+                    $emailSent = sendEmail($customerData['email'], 'Reset Your Password - WebDaddy Empire', $emailHtml);
+                    
+                    if (!$emailSent) {
+                        error_log("Password reset email failed for customer ID: {$customerData['id']}, email: {$customerData['email']}");
+                    }
+                } else {
+                    error_log("Invalid email format for customer ID: {$customerData['id']}, email: {$customerData['email']}");
+                }
                 
                 logCustomerActivity($customerData['id'], 'password_reset_requested', 'Password reset email sent');
                 
                 $success = 'If an account exists with that email, you will receive password reset instructions.';
             }
         } else {
+            // No customer found - show generic message for security (don't reveal if email exists)
             $success = 'If an account exists with that email, you will receive password reset instructions.';
         }
     }
