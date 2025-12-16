@@ -13,6 +13,43 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/resend.php';
 
+/**
+ * Log webhook event to database
+ */
+function logWebhookEvent($eventType, $emailId, $recipient, $data) {
+    try {
+        $db = getDb();
+        
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS resend_webhook_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                resend_email_id TEXT,
+                recipient_email TEXT,
+                event_data TEXT,
+                ip_address TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+        
+        $stmt = $db->prepare("
+            INSERT INTO resend_webhook_logs 
+            (event_type, resend_email_id, recipient_email, event_data, ip_address, created_at)
+            VALUES (?, ?, ?, ?, ?, datetime('now', '+1 hour'))
+        ");
+        $stmt->execute([
+            $eventType,
+            $emailId,
+            $recipient,
+            json_encode($data),
+            $_SERVER['REMOTE_ADDR'] ?? null
+        ]);
+        
+    } catch (Exception $e) {
+        error_log("Failed to log Resend webhook event: " . $e->getMessage());
+    }
+}
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
