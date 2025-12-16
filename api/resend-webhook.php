@@ -5,6 +5,7 @@
  * Receives webhook events from Resend for email delivery tracking
  * Events: email.sent, email.delivered, email.bounced, email.complained, email.opened, email.clicked
  * 
+ * Webhook URL: https://webdaddy.online/api/resend-webhook.php
  * Documentation: https://resend.com/docs/webhooks
  */
 
@@ -12,151 +13,170 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/resend.php';
 
-// Set JSON header
 header('Content-Type: application/json');
 
-// Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
     exit;
 }
 
-// Get raw POST data
 $payload = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_SVIX_SIGNATURE'] ?? '';
-$webhookId = $_SERVER['HTTP_SVIX_ID'] ?? '';
-$timestamp = $_SERVER['HTTP_SVIX_TIMESTAMP'] ?? '';
+$svixId = $_SERVER['HTTP_SVIX_ID'] ?? '';
+$svixTimestamp = $_SERVER['HTTP_SVIX_TIMESTAMP'] ?? '';
 
-// Log incoming webhook
-error_log("Resend Webhook received: ID={$webhookId}");
+error_log("Resend Webhook received: ID={$svixId}");
 
-// Verify webhook signature (if secret is configured)
-$webhookSecret = defined('RESEND_WEBHOOK_SECRET') ? RESEND_WEBHOOK_SECRET : '';
+$signingSecret = defined('RESEND_WEBHOOK_SECRET') ? RESEND_WEBHOOK_SECRET : '';
 
-if (!empty($webhookSecret) && !empty($signature)) {
-    // Verify the signature using the webhook secret
-    // Resend uses Svix for webhooks
-    $signedContent = "{$webhookId}.{$timestamp}.{$payload}";
+if (!empty($signingSecret)) {
+    $signedContent = "$svixId.$svixTimestamp.$payload";
     
-    // Parse the signature header - format: v1,signature
-    $signatures = explode(' ', $signature);
-    $verified = false;
+    $secretPart = $signingSecret;
+    if (strpos($signingSecret, 'whsec_') === 0) {
+        $secretPart = substr($signingSecret, 6);
+    }
+    $secretBytes = base64_decode($secretPart);
     
-    foreach ($signatures as $sig) {
+    if ($secretBytes === false) {
+        error_log("Resend Webhook: Failed to decode signing secret");
+        http_response_code(500);
+        echo json_encode(['error' => 'Server configuration error']);
+        exit;
+    }
+    
+    $computedSignature = base64_encode(hash_hmac('sha256', $signedContent, $secretBytes, true));
+    
+    $passedSignatures = explode(' ', $signature);
+    $signatureValid = false;
+    
+    foreach ($passedSignatures as $sig) {
         $parts = explode(',', $sig);
-        if (count($parts) === 2) {
-            $version = $parts[0];
-            $sigValue = $parts[1];
-            
-            if ($version === 'v1') {
-                // Extract the secret key (remove 'whsec_' prefix)
-                $secretKey = $webhookSecret;
-                if (strpos($secretKey, 'whsec_') === 0) {
-                    $secretKey = substr($secretKey, 6);
-                }
-                
-                // Decode base64 secret
-                $secretBytes = base64_decode($secretKey);
-                
-                // Calculate expected signature
-                $expectedSig = base64_encode(hash_hmac('sha256', $signedContent, $secretBytes, true));
-                
-                if (hash_equals($expectedSig, $sigValue)) {
-                    $verified = true;
-                    break;
-                }
+        if (count($parts) === 2 && $parts[0] === 'v1') {
+            if (hash_equals($computedSignature, $parts[1])) {
+                $signatureValid = true;
+                break;
             }
         }
     }
     
-    if (!$verified) {
-        error_log("Resend Webhook: Invalid signature");
-        http_response_code(401);
+    if (!$signatureValid) {
+        http_response_code(400);
+        error_log("Resend Webhook: Invalid signature - computed: $computedSignature");
+        logWebhookEvent('signature_invalid', null, null, ['signature' => $signature, 'svix_id' => $svixId]);
         echo json_encode(['error' => 'Invalid signature']);
         exit;
     }
+} else {
+    error_log("Resend Webhook: No signing secret configured - accepting without verification (dev mode)");
 }
 
-// Parse the payload
-$data = json_decode($payload, true);
+$event = json_decode($payload, true);
 
-if (json_last_error() !== JSON_ERROR_NONE) {
-    error_log("Resend Webhook: Invalid JSON payload");
+if (!$event || !isset($event['type'])) {
     http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON']);
+    error_log("Resend Webhook: Invalid payload");
+    echo json_encode(['error' => 'Invalid payload']);
     exit;
 }
 
-// Extract event type and data
-$eventType = $data['type'] ?? '';
-$eventData = $data['data'] ?? [];
+$eventType = $event['type'];
+$eventData = $event['data'] ?? [];
 $emailId = $eventData['email_id'] ?? null;
+$recipient = $eventData['to'][0] ?? ($eventData['email'] ?? null);
 
-if (empty($eventType)) {
-    error_log("Resend Webhook: Missing event type");
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing event type']);
-    exit;
-}
-
-// Log the event
-error_log("Resend Webhook: Event={$eventType}, EmailID={$emailId}");
+error_log("Resend Webhook: Received $eventType for email $emailId");
 
 try {
-    // Map Resend events to our status
-    $statusMap = [
-        'email.sent' => 'sent',
-        'email.delivered' => 'delivered',
-        'email.bounced' => 'bounced',
-        'email.complained' => 'complained',
-        'email.opened' => 'opened',
-        'email.clicked' => 'clicked',
-        'email.delivery_delayed' => 'delayed'
-    ];
-    
-    $status = $statusMap[$eventType] ?? 'unknown';
-    
-    // Get error message for bounced/complained emails
-    $errorMessage = null;
-    if ($eventType === 'email.bounced') {
-        $errorMessage = $eventData['bounce']['message'] ?? 'Email bounced';
-    } elseif ($eventType === 'email.complained') {
-        $errorMessage = 'Recipient marked as spam';
-    }
-    
-    // Update the email status in our database
-    if ($emailId) {
-        $updated = updateResendEmailStatus($emailId, $status, $eventData, $errorMessage);
-        
-        if ($updated) {
-            error_log("Resend Webhook: Updated status for EmailID={$emailId} to {$status}");
-        }
-    }
-    
-    // Handle specific event types
     switch ($eventType) {
-        case 'email.bounced':
-            // Log bounced emails for admin review
-            error_log("RESEND BOUNCE: EmailID={$emailId}, To=" . ($eventData['to'][0] ?? 'unknown'));
-            break;
-            
-        case 'email.complained':
-            // User marked as spam - important for sender reputation
-            error_log("RESEND COMPLAINT: EmailID={$emailId}, To=" . ($eventData['to'][0] ?? 'unknown'));
+        case 'email.sent':
+            updateResendEmailStatus($emailId, 'sent', $eventData);
+            logWebhookEvent('email.sent', $emailId, $recipient, $eventData);
             break;
             
         case 'email.delivered':
-            // Success - email was delivered
+            updateResendEmailStatus($emailId, 'delivered', $eventData);
+            logWebhookEvent('email.delivered', $emailId, $recipient, $eventData);
+            error_log("Resend: Email $emailId delivered to $recipient");
             break;
+            
+        case 'email.delivery_delayed':
+            updateResendEmailStatus($emailId, 'delayed', $eventData);
+            logWebhookEvent('email.delivery_delayed', $emailId, $recipient, $eventData);
+            error_log("Resend: Email $emailId delayed for $recipient");
+            break;
+            
+        case 'email.complained':
+            updateResendEmailStatus($emailId, 'complained', $eventData, 'Recipient marked as spam');
+            logWebhookEvent('email.complained', $emailId, $recipient, $eventData);
+            error_log("RESEND COMPLAINT: EmailID={$emailId}, To={$recipient}");
+            break;
+            
+        case 'email.bounced':
+            $bounceType = $eventData['bounce']['type'] ?? 'unknown';
+            $bounceMessage = $eventData['bounce']['message'] ?? "Bounce type: $bounceType";
+            updateResendEmailStatus($emailId, 'bounced', $eventData, $bounceMessage);
+            logWebhookEvent('email.bounced', $emailId, $recipient, $eventData);
+            error_log("RESEND BOUNCE: EmailID={$emailId}, To={$recipient} ($bounceType)");
+            break;
+            
+        case 'email.opened':
+            updateResendEmailStatus($emailId, 'opened', $eventData);
+            logWebhookEvent('email.opened', $emailId, $recipient, $eventData);
+            break;
+            
+        case 'email.clicked':
+            logWebhookEvent('email.clicked', $emailId, $recipient, $eventData);
+            break;
+            
+        default:
+            logWebhookEvent($eventType, $emailId, $recipient, $eventData);
+            error_log("Resend Webhook: Unhandled event type: $eventType");
     }
     
-    // Return success
     http_response_code(200);
-    echo json_encode(['success' => true, 'status' => $status]);
+    echo json_encode(['success' => true, 'status' => 'received', 'event' => $eventType]);
     
 } catch (Exception $e) {
     error_log("Resend Webhook Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'Internal server error']);
+}
+
+/**
+ * Log webhook event to database
+ */
+function logWebhookEvent($eventType, $emailId, $recipient, $data) {
+    try {
+        $db = getDb();
+        
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS resend_webhook_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                resend_email_id TEXT,
+                recipient_email TEXT,
+                event_data TEXT,
+                ip_address TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+        
+        $stmt = $db->prepare("
+            INSERT INTO resend_webhook_logs 
+            (event_type, resend_email_id, recipient_email, event_data, ip_address, created_at)
+            VALUES (?, ?, ?, ?, ?, datetime('now', '+1 hour'))
+        ");
+        $stmt->execute([
+            $eventType,
+            $emailId,
+            $recipient,
+            json_encode($data),
+            $_SERVER['REMOTE_ADDR'] ?? null
+        ]);
+        
+    } catch (Exception $e) {
+        error_log("Failed to log Resend webhook event: " . $e->getMessage());
+    }
 }
