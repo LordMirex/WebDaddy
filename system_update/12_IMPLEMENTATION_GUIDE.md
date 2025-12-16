@@ -9,7 +9,7 @@ This guide provides step-by-step instructions for implementing the customer acco
 Before starting implementation:
 
 1. **Backup database:** `cp database/webdaddy.db database/webdaddy.db.backup`
-2. **Get Termii API key:** Sign up at termii.com, get API credentials
+2. **Get SMS Provider (Removed) API key:** Sign up at sms-removed.com, get API credentials
 3. **Test environment:** Work on development before production
 4. **Read all docs:** Familiarize with all system_update/*.md files
 
@@ -77,13 +77,13 @@ SELECT COUNT(*) as linked_orders FROM pending_orders WHERE customer_id IS NOT NU
 
 ## Phase 2: Core Includes (Day 1-2)
 
-### Step 2.1: Create Termii Integration
+### Step 2.1: Create SMS Provider (Removed) Integration
 
-Create `includes/termii.php` per `13_TERMII_INTEGRATION.md`.
+Create `includes/sms-removed.php` per `13_SMS_REMOVED_INTEGRATION.md`.
 
 Test SMS sending:
 ```php
-$result = sendTermiiSMS('+2348012345678', 'Test message');
+$result = sendSMS Provider (Removed)SMS('+2348012345678', 'Test message');
 var_dump($result);
 ```
 

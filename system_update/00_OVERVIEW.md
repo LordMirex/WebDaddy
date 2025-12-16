@@ -19,9 +19,7 @@ Track your progress through each document. Update the status as you work through
 | 10 | [10_SECURITY.md](./10_SECURITY.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Security headers in user/includes/header.php, rate_limits table created, includes/rate_limiter.php with API rate limiting, login/OTP rate limiting in endpoints |
 | 11 | [11_FILE_STRUCTURE.md](./11_FILE_STRUCTURE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | All required files verified: user portal (13 pages), api/customer (14 endpoints), customer includes (5 files), database tables (9 customer tables + rate_limits) |
 | 12 | [12_IMPLEMENTATION_GUIDE.md](./12_IMPLEMENTATION_GUIDE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Implementation phases 1-8 completed, security measures added, file structure verified |
-| 13 | [13_TERMII_INTEGRATION.md](./13_TERMII_INTEGRATION.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | includes/termii.php created with full Termii API integration (sendTermiiSMS, sendTermiiOTPSMS, sendTermiiVoiceOTP, getTermiiBalance), config.php updated with TERMII_API_KEY setting |
 | 14 | [14_DEPLOYMENT_GUIDE.md](./14_DEPLOYMENT_GUIDE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | health.php endpoint created for system monitoring |
-| 15 | [15_OPERATIONS_AND_MAINTENANCE.md](./15_OPERATIONS_AND_MAINTENANCE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Cron scripts created: check_termii_balance.php, cleanup_expired_otp.php, check_delivery_sla.php, monthly_cleanup.php |
 | 16 | [16_RISKS_ASSUMPTIONS_DEPENDENCIES.md](./16_RISKS_ASSUMPTIONS_DEPENDENCIES.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Risk register reviewed, mitigations in place (email fallback, rate limiting, backups) |
 | 17 | [17_BULLETPROOF_DELIVERY_SYSTEM.md](./17_BULLETPROOF_DELIVERY_SYSTEM.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Delivery state machine, SLA tracking, auto-recovery, self-service APIs (delivery-status, regenerate-download, reset-credentials) |
 | 18 | [18_SELF_SERVICE_EXPERIENCE.md](./18_SELF_SERVICE_EXPERIENCE.md) | ✅ Completed | 2025-12-14 | 2025-12-14 | Database tables created (help_articles, help_article_feedback, order_events) |
@@ -127,7 +125,6 @@ This document outlines a major system update to add customer accounts to the Web
 
 ### 1. Frictionless Authentication
 - **Email-first flow:** User enters email, system determines next step
-- **New users:** Verify via OTP (SMS via Termii + email fallback)
 - **Returning users:** Enter password to login
 - **No registration form:** Account created automatically on first purchase
 - **Long sessions:** 12-month "remember me" for convenience
@@ -137,8 +134,6 @@ This document outlines a major system update to add customer accounts to the Web
 - Different authentication flow and permissions
 - Cleaner separation of concerns
 
-### 3. OTP via Termii
-- Termii API for SMS OTP (African market specialist)
 - Email OTP as fallback
 - 6-digit codes, 10-minute expiry
 - Rate limiting: 3 OTPs per email per hour
@@ -153,7 +148,6 @@ This document outlines a major system update to add customer accounts to the Web
 ### Phase 1: Database & Core Infrastructure
 - Create new database tables
 - Migrate historical orders to customer accounts
-- Set up Termii integration
 - Create customer session management
 
 ### Phase 2: Authentication System

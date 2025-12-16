@@ -91,7 +91,7 @@ CREATE TABLE customer_otp_codes (
     delivery_method TEXT DEFAULT 'email' CHECK(delivery_method IN ('email', 'sms', 'both')),
     sms_sent INTEGER DEFAULT 0,
     email_sent INTEGER DEFAULT 0,
-    termii_message_id TEXT,
+    sms-removed_message_id TEXT,
     
     -- Status
     is_used INTEGER DEFAULT 0,

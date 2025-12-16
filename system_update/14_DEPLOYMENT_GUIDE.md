@@ -18,7 +18,7 @@ This document provides step-by-step instructions for deploying the customer acco
 
 - [ ] Production server access verified
 - [ ] Database backup created (within last hour)
-- [ ] Termii API key configured in production secrets
+- [ ] SMS Provider (Removed) API key configured in production secrets
 - [ ] SMTP credentials verified for production
 - [ ] SSL certificate valid and not expiring soon
 
@@ -97,7 +97,7 @@ Upload these directories/files in order:
 2. **Core includes:**
    ```
    includes/config.php (if updated)
-   includes/termii.php
+   includes/sms-removed.php
    includes/customer_auth.php
    includes/customer_otp.php
    includes/mailer.php (updates)
@@ -195,15 +195,15 @@ SELECT email, full_name, created_at FROM customers LIMIT 10;
 Ensure these are set in production:
 
 ```bash
-# Termii SMS
-TERMII_API_KEY=your_production_api_key
+# SMS Provider (Removed) SMS
+SMS_REMOVED_API_KEY=your_production_api_key
 
 # Verify in PHP
-php -r "echo getenv('TERMII_API_KEY') ? 'Set' : 'Missing';"
+php -r "echo getenv('SMS_REMOVED_API_KEY') ? 'Set' : 'Missing';"
 ```
 
 For Replit, add to Secrets tab:
-- `TERMII_API_KEY` - Your Termii API key
+- `SMS_REMOVED_API_KEY` - Your SMS Provider (Removed) API key
 
 ### Step 6: Clear Any Caches
 
@@ -274,7 +274,7 @@ curl -X POST https://yoursite.com/api/customer/check-email.php \
 
 - [ ] Monitor error logs every 2-4 hours
 - [ ] Check email delivery (OTP, welcome emails)
-- [ ] Verify SMS delivery via Termii dashboard
+- [ ] Verify SMS delivery via SMS Provider (Removed) dashboard
 - [ ] Test full checkout with real payment
 - [ ] Verify order appears in customer dashboard
 - [ ] Test password reset flow
@@ -338,7 +338,7 @@ rm maintenance.flag
 // includes/config.php
 define('ENVIRONMENT', 'development');
 define('DEBUG_MODE', true);
-define('TERMII_API_KEY', 'test_key_xxx');
+define('SMS_REMOVED_API_KEY', 'test_key_xxx');
 ```
 
 ### Staging
@@ -346,7 +346,7 @@ define('TERMII_API_KEY', 'test_key_xxx');
 ```php
 define('ENVIRONMENT', 'staging');
 define('DEBUG_MODE', true);
-define('TERMII_API_KEY', getenv('TERMII_API_KEY'));
+define('SMS_REMOVED_API_KEY', getenv('SMS_REMOVED_API_KEY'));
 ```
 
 ### Production
@@ -354,7 +354,7 @@ define('TERMII_API_KEY', getenv('TERMII_API_KEY'));
 ```php
 define('ENVIRONMENT', 'production');
 define('DEBUG_MODE', false);
-define('TERMII_API_KEY', getenv('TERMII_API_KEY'));
+define('SMS_REMOVED_API_KEY', getenv('SMS_REMOVED_API_KEY'));
 
 // Error handling
 ini_set('display_errors', 0);
@@ -470,9 +470,9 @@ chown www-data:www-data database/webdaddy.db
 ### Issue: OTP Not Sending
 
 ```php
-// Test Termii directly
-require_once 'includes/termii.php';
-$balance = getTermiiBalance();
+// Test SMS Provider (Removed) directly
+require_once 'includes/sms-removed.php';
+$balance = getSMS Provider (Removed)Balance();
 print_r($balance);
 // Check if balance > 0
 ```

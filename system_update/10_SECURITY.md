@@ -320,16 +320,16 @@ function logCustomerActivity($customerId, $action, $details = null) {
 // - login_failed
 ```
 
-## Termii API Security
+## SMS Provider (Removed) API Security
 
 ```php
 // Store API key securely
-define('TERMII_API_KEY', getenv('TERMII_API_KEY')); // From environment
+define('SMS_REMOVED_API_KEY', getenv('SMS_REMOVED_API_KEY')); // From environment
 
 // Never log API key
-function sendTermiiOTP($phone, $otp, $otpId) {
+function sendSMS Provider (Removed)OTP($phone, $otp, $otpId) {
     $data = [
-        'api_key' => TERMII_API_KEY, // Masked in logs
+        'api_key' => SMS_REMOVED_API_KEY, // Masked in logs
         'message_type' => 'NUMERIC',
         'to' => $phone,
         'from' => 'WebDaddy',
@@ -343,10 +343,10 @@ function sendTermiiOTP($phone, $otp, $otpId) {
     ];
     
     // Make API call
-    $response = curlPost('https://api.ng.termii.com/api/sms/otp/send', $data);
+    $response = curlPost('https://api.ng.sms-removed.com/api/sms/otp/send', $data);
     
     // Log without sensitive data
-    error_log("Termii OTP sent to " . substr($phone, 0, -4) . '****');
+    error_log("SMS Provider (Removed) OTP sent to " . substr($phone, 0, -4) . '****');
     
     return $response;
 }
@@ -380,5 +380,5 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-i
 - [ ] Download tokens validated
 - [ ] Device fingerprinting enabled
 - [ ] Activity logging comprehensive
-- [ ] Termii API key secured
+- [ ] SMS Provider (Removed) API key secured
 - [ ] Security headers set

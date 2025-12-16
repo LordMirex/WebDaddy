@@ -14,7 +14,7 @@ This document outlines the daily, weekly, and monthly operational tasks required
 |------|----------|----------|--------|
 | Check error logs | High | 5 min | Review for overnight errors |
 | Verify system health | High | 2 min | Run health check endpoint |
-| Check Termii balance | Medium | 1 min | Ensure SMS credits available |
+| Check SMS Provider (Removed) balance | Medium | 1 min | Ensure SMS credits available |
 | Review failed deliveries | Medium | 5 min | Check for stuck orders |
 | Check email queue | Low | 2 min | Verify emails sending |
 
@@ -28,7 +28,7 @@ tail -100 /var/log/php_errors.log | grep -i "error\|warning\|fatal"
 grep -i "customer" /var/log/php_errors.log | tail -50
 
 # Check for OTP failures
-grep -i "otp\|termii" /var/log/php_errors.log | tail -20
+grep -i "otp\|sms-removed" /var/log/php_errors.log | tail -20
 ```
 
 ### Health Check
@@ -47,25 +47,25 @@ curl -s https://yoursite.com/health.php | jq .
 # }
 ```
 
-### Termii Balance Check
+### SMS Provider (Removed) Balance Check
 
 ```php
 <?php
-// cron/check_termii_balance.php
-require_once __DIR__ . '/../includes/termii.php';
+// cron/check_sms-removed_balance.php
+require_once __DIR__ . '/../includes/sms-removed.php';
 require_once __DIR__ . '/../includes/mailer.php';
 
-$balance = getTermiiBalance();
+$balance = getSMS Provider (Removed)Balance();
 $amount = $balance['balance'] ?? 0;
 
 // Log daily
-error_log("Termii Balance: NGN {$amount}");
+error_log("SMS Provider (Removed) Balance: NGN {$amount}");
 
 // Alert if low (below 1000 NGN)
 if ($amount < 1000) {
     sendEmail(
         ADMIN_EMAIL,
-        'ALERT: Low Termii SMS Balance',
+        'ALERT: Low SMS Provider (Removed) SMS Balance',
         "Current balance: NGN {$amount}. Please top up soon to avoid OTP delivery failures."
     );
 }
@@ -376,8 +376,8 @@ LIMIT 12;
 # Every hour: Clean expired OTPs
 0 * * * * www-data php /path/to/cron/cleanup_expired_otp.php >> /var/log/cron/cleanup.log 2>&1
 
-# Daily 2 AM: Check Termii balance
-0 2 * * * www-data php /path/to/cron/check_termii_balance.php >> /var/log/cron/termii.log 2>&1
+# Daily 2 AM: Check SMS Provider (Removed) balance
+0 2 * * * www-data php /path/to/cron/check_sms-removed_balance.php >> /var/log/cron/sms-removed.log 2>&1
 
 # Daily 3 AM: Daily backup
 0 3 * * * www-data /path/to/scripts/daily_backup.sh >> /var/log/cron/backup.log 2>&1
@@ -458,9 +458,9 @@ error_log("OTP Cleanup: Deleted {$deleted} expired codes");
 |--------|--------------|-----------------|--------|
 | Error rate | < 1% | > 5% | Investigate immediately |
 | Response time | < 500ms | > 2000ms | Check database/server load |
-| OTP success rate | > 95% | < 90% | Check Termii/email |
+| OTP success rate | > 95% | < 90% | Check SMS Provider (Removed)/email |
 | Failed deliveries | < 2% | > 10% | Manual intervention |
-| Termii balance | > NGN 5000 | < NGN 1000 | Top up account |
+| SMS Provider (Removed) balance | > NGN 5000 | < NGN 1000 | Top up account |
 
 ### Alert Escalation
 

@@ -80,7 +80,7 @@ includes/
 ├── customer_helpers.php      # Helper functions
 ├── customer_orders.php       # Order-related functions
 ├── customer_tickets.php      # Ticket functions
-└── termii.php                # Termii SMS API integration
+└── sms-removed.php                # SMS Provider (Removed) SMS API integration
 ```
 
 ### Admin Extensions
@@ -106,7 +106,7 @@ assets/js/
 
 | File | Changes |
 |------|---------|
-| `includes/config.php` | Add TERMII_API_KEY constant, customer session settings |
+| `includes/config.php` | Add SMS_REMOVED_API_KEY constant, customer session settings |
 | `includes/session.php` | Add customer session functions |
 | `includes/mailer.php` | Add new email templates (OTP, welcome, tickets) |
 | `includes/functions.php` | Add customer helper functions |
@@ -196,26 +196,26 @@ function verifyCustomerOTP($email, $code, $type = 'email_verify') { ... }
 // Send OTP via email
 function sendOTPEmail($email, $otpCode) { ... }
 
-// Send OTP via SMS (Termii)
-function sendTermiiOTP($phone, $otpCode, $otpId) { ... }
+// Send OTP via SMS (SMS Provider (Removed))
+function sendSMS Provider (Removed)OTP($phone, $otpCode, $otpId) { ... }
 ```
 
-### includes/termii.php
+### includes/sms-removed.php
 
 ```php
 <?php
 /**
- * Termii SMS API Integration
+ * SMS Provider (Removed) SMS API Integration
  */
 
-// Send SMS via Termii
-function sendTermiiSMS($phone, $message) { ... }
+// Send SMS via SMS Provider (Removed)
+function sendSMS Provider (Removed)SMS($phone, $message) { ... }
 
-// Send OTP via Termii
-function sendTermiiOTP($phone, $otp, $otpId) { ... }
+// Send OTP via SMS Provider (Removed)
+function sendSMS Provider (Removed)OTP($phone, $otp, $otpId) { ... }
 
-// Verify Termii delivery status
-function checkTermiiDeliveryStatus($messageId) { ... }
+// Verify SMS Provider (Removed) delivery status
+function checkSMS Provider (Removed)DeliveryStatus($messageId) { ... }
 ```
 
 ### user/includes/auth.php
@@ -273,7 +273,7 @@ chmod 755 user user/includes api/customer database/migrations
 When implementing, create files in this order:
 
 1. Database migrations (tables must exist first)
-2. Core includes (customer_auth.php, customer_otp.php, termii.php)
+2. Core includes (customer_auth.php, customer_otp.php, sms-removed.php)
 3. User portal includes (auth.php)
 4. API endpoints
 5. User portal pages
