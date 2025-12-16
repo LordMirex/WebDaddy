@@ -391,32 +391,6 @@ require_once __DIR__ . '/includes/header.php';
     <p class="text-gray-600 mt-2">Manage, query, and optimize your database</p>
 </div>
 
-<!-- Important SQLite Notice -->
-<div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-5 rounded-lg">
-    <div class="flex items-start gap-3">
-        <i class="bi bi-info-circle text-blue-600 text-2xl flex-shrink-0 mt-0.5"></i>
-        <div class="flex-1">
-            <h3 class="font-bold text-blue-900 text-lg mb-2">ℹ️ Important: This Project Uses SQLite</h3>
-            <div class="text-blue-800 space-y-2">
-                <p><strong>Why you see "Failed to load schema" in phpMyAdmin:</strong></p>
-                <ul class="list-disc ml-5 space-y-1">
-                    <li>phpMyAdmin is designed for MySQL/MariaDB databases only</li>
-                    <li>This project uses SQLite - a lightweight, file-based database</li>
-                    <li>SQLite stores everything in a single file: <code class="bg-blue-100 px-2 py-0.5 rounded">database/webdaddy.db</code></li>
-                </ul>
-                <p class="font-semibold mt-3">✅ Use this page instead for all database operations:</p>
-                <ul class="list-disc ml-5 space-y-1">
-                    <li>Execute SQL queries directly below</li>
-                    <li>View table structure with: <code class="bg-blue-100 px-2 py-0.5 rounded">PRAGMA table_info(table_name);</code></li>
-                    <li>List all tables with: <code class="bg-blue-100 px-2 py-0.5 rounded">SELECT name FROM sqlite_master WHERE type='table';</code></li>
-                    <li>Optimize database with the VACUUM button</li>
-                    <li>Create backups with one click</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
 <?php if ($successMessage): ?>
 <div class="mb-6 bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded-lg flex items-center gap-3" x-data="{ show: true }" x-show="show">
     <i class="bi bi-check-circle text-xl"></i>
