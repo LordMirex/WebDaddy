@@ -37,7 +37,19 @@ $signingSecret = defined('RESEND_WEBHOOK_SECRET') ? RESEND_WEBHOOK_SECRET : '';
 if (!empty($signingSecret)) {
     $signedContent = "$svixId.$svixTimestamp.$payload";
     
-    $secretBytes = base64_decode(str_replace('whsec_', '', $signingSecret));
+    $secretPart = $signingSecret;
+    if (strpos($signingSecret, 'whsec_') === 0) {
+        $secretPart = substr($signingSecret, 6);
+    }
+    $secretBytes = base64_decode($secretPart);
+    
+    if ($secretBytes === false) {
+        error_log("Resend Webhook: Failed to decode signing secret");
+        http_response_code(500);
+        echo json_encode(['error' => 'Server configuration error']);
+        exit;
+    }
+    
     $computedSignature = base64_encode(hash_hmac('sha256', $signedContent, $secretBytes, true));
     
     $passedSignatures = explode(' ', $signature);
@@ -55,11 +67,13 @@ if (!empty($signingSecret)) {
     
     if (!$signatureValid) {
         http_response_code(400);
-        error_log("Resend Webhook: Invalid signature");
-        logWebhookEvent('signature_invalid', null, null, ['signature' => $signature]);
+        error_log("Resend Webhook: Invalid signature - computed: $computedSignature");
+        logWebhookEvent('signature_invalid', null, null, ['signature' => $signature, 'svix_id' => $svixId]);
         echo json_encode(['error' => 'Invalid signature']);
         exit;
     }
+} else {
+    error_log("Resend Webhook: No signing secret configured - accepting without verification (dev mode)");
 }
 
 $event = json_decode($payload, true);

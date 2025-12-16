@@ -50,8 +50,17 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 - Phone number IS verified via SMS OTP (Termii)
 - full_name field deprecated in favor of username + email
 
+### Resend Email Integration (December 2024)
+- **OTP Emails via Resend**: All OTP verification and password reset emails now use Resend REST API for faster, more reliable delivery
+- **SMTP Fallback**: Automatic fallback to SMTP if Resend fails
+- **Webhook Tracking**: Delivery status tracked via webhooks (sent, delivered, opened, bounced)
+- **Admin Dashboard**: Email delivery logs at `/admin/email-logs.php` with statistics and event tracking
+- **Configuration**: API key in `includes/config.php` (RESEND_API_KEY, RESEND_WEBHOOK_SECRET)
+- **Webhook URL**: `/webhooks/resend.php` - add to Resend dashboard for delivery events
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
-- **Email Service**: Utilized for sending various system notifications.
+- **Email Service**: Utilized for sending various system notifications (SMTP for regular emails, Resend for OTP).
 - **Termii**: Integrated for SMS OTP service for customer verification and notifications.
+- **Resend**: Integrated for fast, reliable OTP email delivery with delivery tracking.

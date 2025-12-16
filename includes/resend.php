@@ -117,8 +117,34 @@ function logResendEmail($emailId, $recipient, $emailType, $subject, $status, $we
  * Update Resend email status from webhook
  */
 function updateResendEmailStatus($emailId, $status, $webhookData = null, $errorMessage = null) {
+    if (empty($emailId)) {
+        error_log("updateResendEmailStatus: No email ID provided, skipping update");
+        return false;
+    }
+    
     try {
         $db = getDb();
+        ensureResendLogsTable($db);
+        
+        $checkStmt = $db->prepare("SELECT id FROM resend_email_logs WHERE resend_email_id = ?");
+        $checkStmt->execute([$emailId]);
+        
+        if (!$checkStmt->fetch()) {
+            $recipient = null;
+            if ($webhookData && isset($webhookData['to'])) {
+                $recipient = is_array($webhookData['to']) ? $webhookData['to'][0] : $webhookData['to'];
+            } elseif ($webhookData && isset($webhookData['email'])) {
+                $recipient = $webhookData['email'];
+            }
+            
+            $stmt = $db->prepare("
+                INSERT INTO resend_email_logs 
+                (resend_email_id, recipient_email, email_type, status, webhook_data, error_message, created_at, updated_at)
+                VALUES (?, ?, 'unknown', ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
+            ");
+            $stmt->execute([$emailId, $recipient, $status, $webhookData ? json_encode($webhookData) : null, $errorMessage]);
+            return true;
+        }
         
         $stmt = $db->prepare("
             UPDATE resend_email_logs 
