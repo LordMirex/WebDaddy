@@ -1706,7 +1706,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                 </div>
                 <?php endif; ?>
                 
-                <form method="POST" action="" id="orderForm" data-validate data-loading onsubmit="handleCheckoutSubmit(event); return false;">
+                <form method="POST" action="" id="orderForm" data-loading onsubmit="handleCheckoutSubmit(event); return false;">
                 <?php echo csrfTokenField(); ?>
                 
                 <!-- Step 1: Your Information -->
@@ -1730,6 +1730,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
                                         @keydown.enter.prevent="checkEmail()"
                                         class="flex-1 px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-0"
                                         placeholder="your@email.com"
+                                        autocomplete="email"
                                     >
                                     <button 
                                         type="button"
