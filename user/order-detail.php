@@ -641,6 +641,15 @@ require_once __DIR__ . '/includes/header.php';
 // Check if user needs to complete account setup
 $needsSetup = empty($customer['account_complete']) || empty($customer['password_hash']);
 $autoUsername = $customer['username'] ?? '';
+
+// Get WhatsApp from customer or fallback to order's customer_phone
+$existingWhatsApp = $customer['whatsapp_number'] ?? '';
+if (empty($existingWhatsApp) && !empty($order['customer_phone'])) {
+    $existingWhatsApp = $order['customer_phone'];
+}
+
+// Determine if WhatsApp step should be skipped (already have valid WhatsApp)
+$skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/', '', $existingWhatsApp)) >= 10;
 ?>
 
 <?php if ($needsSetup): ?>
@@ -654,6 +663,13 @@ $autoUsername = $customer['username'] ?? '';
             
             <div class="relative z-50 w-full max-w-md p-6 mx-auto bg-white rounded-2xl shadow-xl">
                 <!-- Step Indicator -->
+                <?php if ($skipWhatsAppStep): ?>
+                <div class="flex items-center justify-center space-x-3 mb-6">
+                    <div :class="step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                    <div class="w-8 h-0.5 bg-gray-200"></div>
+                    <div :class="step >= 3 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                </div>
+                <?php else: ?>
                 <div class="flex items-center justify-center space-x-3 mb-6">
                     <div :class="step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
                     <div class="w-8 h-0.5 bg-gray-200"></div>
@@ -661,6 +677,7 @@ $autoUsername = $customer['username'] ?? '';
                     <div class="w-8 h-0.5 bg-gray-200"></div>
                     <div :class="step >= 3 ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</div>
                 </div>
+                <?php endif; ?>
                 
                 <div x-show="error" class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
                     <span x-text="error"></span>
@@ -696,7 +713,7 @@ $autoUsername = $customer['username'] ?? '';
                         </div>
                         <button type="submit" :disabled="loading" 
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                            <span x-show="!loading">Continue</span>
+                            <span x-show="!loading"><?= $skipWhatsAppStep ? 'Complete Setup' : 'Continue' ?></span>
                             <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
                         </button>
                     </form>
@@ -757,7 +774,8 @@ function accountSetupModal() {
         username: '<?= htmlspecialchars($autoUsername) ?>',
         password: '',
         confirmPassword: '',
-        whatsappNumber: '<?= htmlspecialchars($customer['whatsapp_number'] ?? '') ?>',
+        whatsappNumber: '<?= htmlspecialchars($existingWhatsApp) ?>',
+        skipWhatsApp: <?= $skipWhatsAppStep ? 'true' : 'false' ?>,
         
         async saveCredentials() {
             if (this.password !== this.confirmPassword) {
@@ -785,7 +803,11 @@ function accountSetupModal() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    this.step = 2;
+                    if (this.skipWhatsApp && this.whatsappNumber) {
+                        await this.autoSaveWhatsApp();
+                    } else {
+                        this.step = 2;
+                    }
                 } else {
                     this.error = data.error || 'Failed to save credentials';
                 }
@@ -794,6 +816,28 @@ function accountSetupModal() {
             }
             
             this.loading = false;
+        },
+        
+        async autoSaveWhatsApp() {
+            try {
+                const response = await fetch('/api/customer/complete-setup.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_whatsapp',
+                        whatsapp_number: this.whatsappNumber
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.step = 3;
+                } else {
+                    this.step = 2;
+                }
+            } catch (e) {
+                this.step = 2;
+            }
         },
         
         async saveWhatsApp() {
