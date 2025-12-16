@@ -62,6 +62,78 @@ if (count($itemNames) > 3) {
     $itemsDescription .= ' + ' . (count($itemNames) - 3) . ' more';
 }
 
+$templateList = '';
+$toolList = '';
+foreach ($orderItems as $item) {
+    $name = $item['product_name'] ?? 'Product';
+    $qty = ($item['quantity'] ?? 1) > 1 ? ' *(x' . $item['quantity'] . ')*' : '';
+    if ($item['product_type'] === 'template') {
+        $templateList .= "  ✅ $name$qty\n";
+    } else {
+        $toolList .= "  ✅ $name$qty\n";
+    }
+}
+
+$discountInfo = '';
+if (!empty($order['discount_percent']) && $order['discount_percent'] > 0) {
+    $discountInfo = "\n🎁 *Discount Applied:* " . $order['discount_percent'] . "% OFF";
+}
+
+$whatsappPaymentMsg = "🛒 *PAYMENT CONFIRMATION*
+━━━━━━━━━━━━━━━━━━━━
+
+📋 *Order ID:* #{$orderId}
+";
+if (!empty($templateList)) {
+    $whatsappPaymentMsg .= "\n🎨 *TEMPLATES* (" . count($templateItems) . "):\n" . trim($templateList) . "\n";
+}
+if (!empty($toolList)) {
+    $whatsappPaymentMsg .= "\n🔧 *TOOLS* (" . count($toolItems) . "):\n" . trim($toolList) . "\n";
+}
+$whatsappPaymentMsg .= "
+━━━━━━━━━━━━━━━━━━━━
+💳 *Amount Paid:* ₦" . number_format($order['final_amount'], 2) . $discountInfo . "
+
+🏦 *PAYMENT DETAILS:*
+Bank: {$bankSettings['bank_name']}
+Account: {$bankSettings['account_number']}
+Name: {$bankSettings['account_name']}
+
+📸 *Attached is the screenshot of my payment receipt*";
+
+$whatsappInquiryMsg = "🛒 *ORDER INQUIRY*
+━━━━━━━━━━━━━━━━━━━━
+
+📋 *Order ID:* #{$orderId}
+";
+if (!empty($templateList)) {
+    $whatsappInquiryMsg .= "\n🎨 *TEMPLATES* (" . count($templateItems) . "):\n" . trim($templateList) . "\n";
+}
+if (!empty($toolList)) {
+    $whatsappInquiryMsg .= "\n🔧 *TOOLS* (" . count($toolItems) . "):\n" . trim($toolList) . "\n";
+}
+$whatsappInquiryMsg .= "
+━━━━━━━━━━━━━━━━━━━━
+💳 *Amount to Pay:* ₦" . number_format($order['final_amount'], 2) . $discountInfo . "
+
+🏦 *PAYMENT DETAILS:*
+Bank: {$bankSettings['bank_name']}
+Account: {$bankSettings['account_number']}
+Name: {$bankSettings['account_name']}
+
+I have some inquiries about these products before I complete the payment. Can you please help me confirm the details and answer any questions I have? Thank you! 🚀";
+
+$whatsappFollowupMsg = "📋 *ORDER FOLLOW-UP*
+━━━━━━━━━━━━━━━━━━━━
+
+*Order ID:* #{$orderId}
+*Amount:* ₦" . number_format($order['final_amount'], 2) . "
+*Email:* " . ($order['customer_email'] ?? '') . "
+
+I sent a payment notification earlier and would like to follow up on the verification status.
+
+Please let me know when my order will be processed. Thank you!";
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -86,233 +158,161 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
-    <!-- Payment Section - Prominent for pending/failed orders -->
-    <div class="bg-white rounded-2xl shadow-lg border-2 border-amber-400 overflow-hidden" x-data="orderPayment()">
-        <div class="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
-            <h2 class="text-white font-bold text-lg flex items-center gap-2">
-                <i class="bi-credit-card-2-front"></i>
-                <?php if ($order['status'] === 'failed'): ?>
-                Payment Failed - Retry Now
-                <?php else: ?>
-                Complete Your Payment
-                <?php endif; ?>
-            </h2>
-            <p class="text-amber-100 text-sm mt-1">
-                <?php if ($order['status'] === 'failed'): ?>
-                Your previous payment attempt didn't go through. You can try again below.
-                <?php else: ?>
-                Choose how you'd like to pay for your order.
-                <?php endif; ?>
-            </p>
+    <!-- Payment Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="orderPayment()">
+        <div class="bg-amber-50 border-b border-amber-100 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="bi-credit-card-2-front text-amber-600"></i>
+                <h2 class="font-semibold text-gray-900">
+                    <?= $order['status'] === 'failed' ? 'Retry Payment' : 'Complete Payment' ?>
+                </h2>
+            </div>
+            <span class="text-lg font-bold text-amber-700">₦<?= number_format($order['final_amount'], 2) ?></span>
         </div>
         
-        <div class="p-4 sm:p-6 space-y-6">
-            <!-- Amount Due -->
-            <div class="text-center py-4 bg-gray-50 rounded-xl">
-                <p class="text-sm text-gray-500 uppercase tracking-wide">Amount Due</p>
-                <p class="text-3xl font-bold text-gray-900 mt-1">₦<?= number_format($order['final_amount'], 2) ?></p>
-            </div>
-            
-            <!-- Payment Options Tabs -->
-            <div class="flex border-b border-gray-200">
+        <div class="p-4 space-y-4">
+            <!-- Payment Tabs -->
+            <div class="flex gap-2 p-1 bg-gray-100 rounded-lg">
                 <button @click="paymentTab = 'card'" 
-                        :class="paymentTab === 'card' ? 'border-amber-500 text-amber-600 bg-amber-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                        class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all flex items-center justify-center gap-2">
+                        :class="paymentTab === 'card' ? 'bg-white shadow-sm text-amber-700' : 'text-gray-500 hover:text-gray-700'"
+                        class="flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2">
                     <i class="bi-credit-card"></i>
-                    Pay with Card
+                    <span class="hidden sm:inline">Pay with</span> Card
                 </button>
                 <button @click="paymentTab = 'bank'" 
-                        :class="paymentTab === 'bank' ? 'border-amber-500 text-amber-600 bg-amber-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                        class="flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-all flex items-center justify-center gap-2">
+                        :class="paymentTab === 'bank' ? 'bg-white shadow-sm text-amber-700' : 'text-gray-500 hover:text-gray-700'"
+                        class="flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2">
                     <i class="bi-bank"></i>
                     Bank Transfer
                 </button>
             </div>
             
-            <!-- Card Payment Option -->
-            <div x-show="paymentTab === 'card'" x-transition class="space-y-4">
-                <div class="bg-green-50 border border-green-200 rounded-xl p-4">
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="bi-shield-check text-green-600 text-lg"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-green-800">Instant & Secure</h4>
-                            <p class="text-sm text-green-700 mt-1">
-                                Pay instantly with your debit/credit card via Paystack. 
-                                Your payment is secured and your order will be processed immediately.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Card Payment -->
+            <div x-show="paymentTab === 'card'" x-transition class="space-y-3">
+                <p class="text-sm text-gray-600">
+                    <i class="bi-shield-check text-green-600 mr-1"></i>
+                    Pay instantly with your card via Paystack. Your order will be processed immediately.
+                </p>
                 
                 <button @click="payWithCard()" :disabled="loading"
-                        class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg hover:from-green-700 hover:to-green-800 transition disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg">
+                        class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
                     <span x-show="!loading">
-                        <i class="bi-credit-card mr-2"></i>
-                        <?= $order['status'] === 'failed' ? 'Retry Payment with Card' : 'Pay ₦' . number_format($order['final_amount'], 2) . ' Now' ?>
+                        <i class="bi-credit-card mr-1"></i>
+                        <?= $order['status'] === 'failed' ? 'Retry Payment' : 'Pay ₦' . number_format($order['final_amount'], 2) ?>
                     </span>
                     <span x-show="loading" class="flex items-center gap-2">
-                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                         </svg>
                         Processing...
                     </span>
                 </button>
                 
-                <p class="text-center text-xs text-gray-500">
-                    <i class="bi-lock-fill mr-1"></i>
-                    Secured by Paystack. We never store your card details.
+                <p class="text-center text-xs text-gray-400">
+                    <i class="bi-lock-fill mr-1"></i>Secured by Paystack
                 </p>
             </div>
             
-            <!-- Bank Transfer Option -->
-            <div x-show="paymentTab === 'bank'" x-transition class="space-y-4">
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="bi-bank text-blue-600 text-lg"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-blue-800">Manual Bank Transfer</h4>
-                            <p class="text-sm text-blue-700 mt-1">
-                                Transfer the exact amount to our account below. 
-                                After transfer, notify us and we'll verify within 1-24 hours.
-                            </p>
+            <!-- Bank Transfer -->
+            <div x-show="paymentTab === 'bank'" x-transition class="space-y-3">
+                <div class="bg-gray-50 rounded-lg p-3 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">Bank</span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-medium text-gray-900 text-sm"><?= htmlspecialchars($bankSettings['bank_name']) ?></span>
+                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['bank_name']) ?>', 'bank')" class="p-1 text-gray-400 hover:text-amber-600">
+                                <i x-show="copied !== 'bank'" class="bi-clipboard text-xs"></i>
+                                <i x-show="copied === 'bank'" class="bi-check text-green-600 text-xs"></i>
+                            </button>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Bank Details Card -->
-                <div class="bg-white border-2 border-gray-200 rounded-xl overflow-hidden">
-                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Transfer to this Account</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">Account</span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-gray-900 font-mono"><?= htmlspecialchars($bankSettings['account_number']) ?></span>
+                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['account_number']) ?>', 'account')" class="p-1 text-gray-400 hover:text-amber-600">
+                                <i x-show="copied !== 'account'" class="bi-clipboard text-xs"></i>
+                                <i x-show="copied === 'account'" class="bi-check text-green-600 text-xs"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="p-4 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-gray-500">Bank Name</p>
-                                <p class="font-semibold text-gray-900"><?= htmlspecialchars($bankSettings['bank_name']) ?></p>
-                            </div>
-                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['bank_name']) ?>', 'bank')" 
-                                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                                <i x-show="copied !== 'bank'" class="bi-clipboard"></i>
-                                <i x-show="copied === 'bank'" class="bi-check text-green-600"></i>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500">Name</span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-medium text-gray-900 text-sm"><?= htmlspecialchars($bankSettings['account_name']) ?></span>
+                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['account_name']) ?>', 'name')" class="p-1 text-gray-400 hover:text-amber-600">
+                                <i x-show="copied !== 'name'" class="bi-clipboard text-xs"></i>
+                                <i x-show="copied === 'name'" class="bi-check text-green-600 text-xs"></i>
                             </button>
                         </div>
-                        
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-gray-500">Account Number</p>
-                                <p class="font-bold text-2xl text-gray-900 font-mono tracking-wide"><?= htmlspecialchars($bankSettings['account_number']) ?></p>
-                            </div>
-                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['account_number']) ?>', 'account')" 
-                                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                                <i x-show="copied !== 'account'" class="bi-clipboard"></i>
-                                <i x-show="copied === 'account'" class="bi-check text-green-600"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-gray-500">Account Name</p>
-                                <p class="font-semibold text-gray-900"><?= htmlspecialchars($bankSettings['account_name']) ?></p>
-                            </div>
-                            <button @click="copyToClipboard('<?= htmlspecialchars($bankSettings['account_name']) ?>', 'name')" 
-                                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition">
-                                <i x-show="copied !== 'name'" class="bi-clipboard"></i>
-                                <i x-show="copied === 'name'" class="bi-check text-green-600"></i>
-                            </button>
-                        </div>
-                        
-                        <hr class="my-2">
-                        
-                        <div class="flex items-center justify-between bg-amber-50 -mx-4 -mb-4 p-4 border-t border-amber-100">
-                            <div>
-                                <p class="text-xs text-amber-600 font-semibold uppercase">Amount to Transfer</p>
-                                <p class="font-bold text-2xl text-amber-700">₦<?= number_format($order['final_amount'], 2) ?></p>
-                            </div>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                        <span class="text-xs text-amber-600 font-medium">Amount</span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-amber-700">₦<?= number_format($order['final_amount'], 2) ?></span>
                             <button @click="copyToClipboard('<?= $order['final_amount'] ?>', 'amount')" 
-                                    class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition text-sm font-medium flex items-center gap-2">
+                                    class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-medium hover:bg-amber-200 transition flex items-center gap-1">
                                 <i x-show="copied !== 'amount'" class="bi-clipboard"></i>
                                 <i x-show="copied === 'amount'" class="bi-check"></i>
-                                Copy Amount
+                                Copy
                             </button>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Reference Note -->
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <p class="text-sm text-amber-800 flex items-start gap-2">
-                        <i class="bi-exclamation-triangle flex-shrink-0 mt-0.5"></i>
-                        <span>
-                            <strong>Important:</strong> Include <span class="font-mono font-bold bg-amber-100 px-2 py-0.5 rounded">Order #<?= $orderId ?></span> 
-                            in your transfer narration/remark so we can identify your payment quickly.
-                        </span>
-                    </p>
-                </div>
+                <p class="text-xs text-amber-700 bg-amber-50 p-2 rounded flex items-start gap-1">
+                    <i class="bi-info-circle flex-shrink-0 mt-0.5"></i>
+                    <span>Use <strong>Order #<?= $orderId ?></strong> as transfer narration/remark.</span>
+                </p>
                 
                 <!-- After Transfer Actions -->
                 <div class="space-y-3 pt-2">
-                    <p class="text-sm font-medium text-gray-700 text-center">After you've made the transfer:</p>
-                    
                     <?php if (empty($order['payment_notified'])): ?>
-                    <!-- Two Action Buttons -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- I Have Sent the Funds Button -->
-                        <button @click="confirmPayment()" :disabled="notifyLoading"
-                                class="bg-green-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
-                            <span x-show="!notifyLoading">
-                                <i class="bi-check-circle mr-1"></i>
-                                I Have Sent the Funds
-                            </span>
-                            <span x-show="notifyLoading" class="flex items-center gap-2">
-                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                </svg>
-                                Sending...
-                            </span>
-                        </button>
-                        
-                        <!-- Process via WhatsApp Button -->
-                        <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode("Hello WebDaddy Empire!\n\nI just made a payment for my order and would like to confirm.\n\n📋 ORDER DETAILS:\n• Order ID: #$orderId\n• Amount Paid: ₦" . number_format($order['final_amount'], 2) . "\n• Items: $itemsDescription\n• Email: " . $order['customer_email'] . "\n\nPlease verify and process my order.\n\nThank you!") ?>" 
+                    <p class="text-xs text-gray-500 text-center">After making the transfer, choose an option:</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode($whatsappPaymentMsg) ?>" 
                            target="_blank"
-                           class="bg-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-600 transition flex items-center justify-center gap-2">
-                            <i class="bi-whatsapp text-lg"></i>
-                            Process via WhatsApp
+                           class="bg-green-600 text-white py-2.5 px-3 rounded-lg font-medium hover:bg-green-700 transition flex items-center justify-center gap-2 text-sm">
+                            <i class="bi-whatsapp"></i>
+                            I Have Sent the Money
+                        </a>
+                        
+                        <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode($whatsappInquiryMsg) ?>" 
+                           target="_blank"
+                           class="bg-amber-600 text-white py-2.5 px-3 rounded-lg font-medium hover:bg-amber-700 transition flex items-center justify-center gap-2 text-sm">
+                            <i class="bi-chat-dots"></i>
+                            I Have Questions
                         </a>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-3 text-xs text-gray-600 space-y-2">
-                        <p class="flex items-start gap-2">
-                            <i class="bi-check-circle text-green-600 flex-shrink-0 mt-0.5"></i>
-                            <span><strong>"I Have Sent the Funds":</strong> Click this to notify our team that you've made the transfer. We'll verify and process your order within 1-24 hours.</span>
-                        </p>
-                        <p class="flex items-start gap-2">
-                            <i class="bi-whatsapp text-green-600 flex-shrink-0 mt-0.5"></i>
-                            <span><strong>"Process via WhatsApp":</strong> Opens WhatsApp with a pre-filled message. Use this for faster verification or if you have questions about your payment.</span>
-                        </p>
-                    </div>
+                    <button @click="confirmPayment()" :disabled="notifyLoading"
+                            class="w-full border border-gray-300 text-gray-700 py-2 px-3 rounded-lg text-sm hover:bg-gray-50 transition disabled:opacity-50 flex items-center justify-center gap-2">
+                        <span x-show="!notifyLoading">
+                            <i class="bi-bell mr-1"></i>
+                            Notify Admin (No WhatsApp)
+                        </span>
+                        <span x-show="notifyLoading" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Sending...
+                        </span>
+                    </button>
                     <?php else: ?>
-                    <!-- Already Notified -->
-                    <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-4">
-                        <div class="flex items-start gap-3">
-                            <i class="bi-clock-history text-blue-600 text-xl flex-shrink-0"></i>
-                            <div>
-                                <p class="font-semibold">Payment Notification Sent!</p>
-                                <p class="text-sm mt-1">We received your payment notification and are verifying it now. This usually takes 1-24 hours.</p>
-                            </div>
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 rounded-lg p-3 text-sm">
+                        <div class="flex items-center gap-2">
+                            <i class="bi-clock-history text-blue-600"></i>
+                            <span><strong>Notification sent!</strong> We're verifying your payment (1-24 hours).</span>
                         </div>
                     </div>
                     
-                    <!-- WhatsApp Follow-up -->
-                    <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode("Hello WebDaddy Empire!\n\nI sent a payment notification for Order #$orderId earlier and would like to follow up on the verification status.\n\n📋 ORDER DETAILS:\n• Order ID: #$orderId\n• Amount: ₦" . number_format($order['final_amount'], 2) . "\n• Email: " . $order['customer_email'] . "\n\nPlease let me know the status.\n\nThank you!") ?>" 
+                    <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode($whatsappFollowupMsg) ?>" 
                        target="_blank"
-                       class="w-full bg-green-500 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-600 transition flex items-center justify-center gap-2">
-                        <i class="bi-whatsapp text-lg"></i>
+                       class="w-full bg-green-500 text-white py-2.5 px-3 rounded-lg font-medium hover:bg-green-600 transition flex items-center justify-center gap-2 text-sm">
+                        <i class="bi-whatsapp"></i>
                         Follow Up via WhatsApp
                     </a>
                     <?php endif; ?>
