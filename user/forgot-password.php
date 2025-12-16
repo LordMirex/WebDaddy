@@ -85,11 +85,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 logCustomerActivity($customerData['id'], 'password_reset_requested', 'Password reset email sent');
                 
-                $success = 'If an account exists with that email, you will receive password reset instructions.';
+                $success = 'Password reset link has been sent to your email. Check your inbox and follow the instructions to reset your password.';
             }
         } else {
-            // No customer found - show generic message for security (don't reveal if email exists)
-            $success = 'If an account exists with that email, you will receive password reset instructions.';
+            // No customer found - show clear error message (just like invalid email)
+            $error = 'No account exists with this email address.';
         }
     }
 }
