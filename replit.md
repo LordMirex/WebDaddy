@@ -34,33 +34,54 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 
 ## Recent Changes (December 2024)
 
+### SMS Removal & Email-Only Verification (December 16, 2024)
+- **SMS/Termii Completely Removed**: All Termii SMS API integration and related functionality removed
+- **Email-Only OTP**: All customer verification now uses email-only OTP via Resend API
+- **Registration Flow Simplified**: Now 3 steps instead of 4:
+  1. Email + OTP Verification (via Resend API)
+  2. Username + Password + WhatsApp Number (mandatory)
+  3. Success + Dashboard Guide
+- **WhatsApp Number Field**: Phone number inputs replaced with WhatsApp number throughout
+- **Email Routing Updated**:
+  - **Resend API**: All user-facing emails (OTP, notifications, deliveries) - from support@webdaddy.online
+  - **SMTP**: Admin-only internal emails - from admin@webdaddy.online
+- **Resend Webhook**: Created at `/api/resend-webhook.php` for email delivery tracking
+- **Removed Files**:
+  - `cron/check_termii_balance.php` - Termii balance monitoring
+  - `api/customer/send-phone-otp.php` - Phone SMS OTP sending
+  - `api/customer/verify-phone-otp.php` - Phone SMS OTP verification
+
+### Email Configuration
+- **Support Email**: support@webdaddy.online (for user communications)
+- **Admin Email**: admin@webdaddy.online (for internal notifications)
+- **Resend Webhook URL**: /api/resend-webhook.php
+
 ### Checkout & Registration Flow Updates
 - **Post-Payment Redirect**: After successful payment, users are redirected to `/user/order-detail.php?id={orderId}` instead of the old confirmation page
 - **Account Completion Modal**: 3-step modal on order detail page for new users:
   1. Username + password setup (username auto-generated from email)
-  2. WhatsApp (mandatory) + phone number
-  3. Phone OTP verification via Termii SMS
+  2. WhatsApp number (mandatory)
+  3. Complete
 - **Manual Payment Section**: Bank transfer details (Opay) with "I Have Paid" button displayed on order detail page for pending orders
 - **Auth Flow**: Incomplete accounts redirected to their order detail page (with modal) instead of register page
 - **Runtime Schema Migration**: Auto-applies database schema changes (payment_notified columns) on first request
 
 ### Design Decisions
 - Username auto-generated format: `emailpart_randomnumber`
-- WhatsApp mandatory but NOT verified via OTP
-- Phone number IS verified via SMS OTP (Termii)
+- WhatsApp number mandatory for order updates and support
+- No phone SMS verification - email-only
 - full_name field deprecated in favor of username + email
 
-### Resend Email Integration (December 2024)
+### Resend Email Integration
 - **OTP Emails via Resend**: All OTP verification and password reset emails now use Resend REST API for faster, more reliable delivery
 - **SMTP Fallback**: Automatic fallback to SMTP if Resend fails
 - **Webhook Tracking**: Delivery status tracked via webhooks (sent, delivered, opened, bounced)
 - **Admin Dashboard**: Email delivery logs at `/admin/email-logs.php` with statistics and event tracking
 - **Configuration**: API key in `includes/config.php` (RESEND_API_KEY, RESEND_WEBHOOK_SECRET)
-- **Webhook URL**: `/webhooks/resend.php` - add to Resend dashboard for delivery events
+- **Webhook URL**: `/api/resend-webhook.php` - add to Resend dashboard for delivery events
 
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
-- **Email Service**: Utilized for sending various system notifications (SMTP for regular emails, Resend for OTP).
-- **Termii**: Integrated for SMS OTP service for customer verification and notifications.
-- **Resend**: Integrated for fast, reliable OTP email delivery with delivery tracking.
+- **Email Service**: SMTP for admin emails, Resend for user-facing emails.
+- **Resend**: Integrated for fast, reliable email delivery with delivery tracking.

@@ -3,13 +3,12 @@
  * Customer OTP System
  * 
  * Handles OTP generation, sending, and verification for customer authentication
- * Supports SMS via Termii and email as fallback
+ * Email-only verification (SMS removed)
  */
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/mailer.php';
-require_once __DIR__ . '/termii.php';
 
 // Use config constants if defined, otherwise use defaults
 if (!defined('OTP_EXPIRY_MINUTES')) {
@@ -108,144 +107,6 @@ function verifyCheckoutEmailOTP($email, $otpCode) {
         'message' => 'Email verified successfully',
         'email' => $email
     ];
-}
-
-function sendPhoneVerificationOTP($customerId, $phoneNumber) {
-    $db = getDb();
-    
-    if (empty($phoneNumber) || strlen($phoneNumber) < 10) {
-        return ['success' => false, 'error' => 'Please enter a valid phone number'];
-    }
-    
-    // Check if Termii API is configured FIRST before any database operations
-    if (empty(TERMII_API_KEY)) {
-        error_log("SMS verification unavailable - TERMII_API_KEY not configured");
-        return ['success' => false, 'error' => 'SMS verification is temporarily unavailable. Please contact support or try again later.'];
-    }
-    
-    $cleanNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
-    
-    $rateLimitCheck = $db->prepare("
-        SELECT COUNT(*) FROM customer_otp_codes 
-        WHERE customer_id = ? 
-        AND otp_type = 'phone_verify'
-        AND created_at > datetime('now', '-1 hour')
-    ");
-    $rateLimitCheck->execute([$customerId]);
-    if ($rateLimitCheck->fetchColumn() >= OTP_RATE_LIMIT_HOUR) {
-        return ['success' => false, 'error' => 'Too many OTP requests. Please wait.'];
-    }
-    
-    $otpCode = generateOTP();
-    $expiresAt = date('Y-m-d H:i:s', strtotime('+' . OTP_EXPIRY_MINUTES . ' minutes'));
-    
-    $stmt = $db->prepare("
-        INSERT INTO customer_otp_codes 
-        (customer_id, phone, otp_code, otp_type, delivery_method, expires_at)
-        VALUES (?, ?, ?, 'phone_verify', 'sms', ?)
-    ");
-    $stmt->execute([$customerId, $cleanNumber, $otpCode, $expiresAt]);
-    $otpId = $db->lastInsertId();
-    
-    $smsSent = sendTermiiSMSOTP($cleanNumber, $otpCode, $otpId);
-    
-    $db->prepare("UPDATE customer_otp_codes SET sms_sent = ? WHERE id = ?")
-       ->execute([$smsSent ? 1 : 0, $otpId]);
-    
-    if (!$smsSent) {
-        return ['success' => false, 'error' => 'Failed to send SMS. Please try again or contact support.'];
-    }
-    
-    return [
-        'success' => true, 
-        'message' => 'SMS OTP sent to your phone number',
-        'phone_masked' => maskPhoneForDisplay($cleanNumber),
-        'expires_in' => OTP_EXPIRY_MINUTES * 60
-    ];
-}
-
-function verifyPhoneOTP($customerId, $phoneNumber, $otpCode) {
-    $db = getDb();
-    
-    $cleanNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
-    
-    $stmt = $db->prepare("
-        SELECT * FROM customer_otp_codes 
-        WHERE customer_id = ? 
-        AND phone = ?
-        AND otp_code = ?
-        AND otp_type = 'phone_verify'
-        AND is_used = 0
-        AND expires_at > datetime('now')
-        AND attempts < max_attempts
-        ORDER BY created_at DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$customerId, $cleanNumber, $otpCode]);
-    $otp = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$otp) {
-        $db->prepare("
-            UPDATE customer_otp_codes 
-            SET attempts = attempts + 1 
-            WHERE customer_id = ? AND phone = ? AND is_used = 0
-        ")->execute([$customerId, $cleanNumber]);
-        
-        // Check if there are ANY OTP records for this customer/phone to give better error
-        $hasAnyOtp = $db->prepare("SELECT COUNT(*) FROM customer_otp_codes WHERE customer_id = ? AND phone = ? AND otp_type = 'phone_verify'");
-        $hasAnyOtp->execute([$customerId, $cleanNumber]);
-        if ($hasAnyOtp->fetchColumn() == 0) {
-            return ['success' => false, 'error' => 'No verification code found. Please request a new code.'];
-        }
-        
-        return ['success' => false, 'error' => 'Invalid or expired verification code. Please check and try again.'];
-    }
-    
-    $db->prepare("UPDATE customer_otp_codes SET is_used = 1, used_at = datetime('now') WHERE id = ?")
-       ->execute([$otp['id']]);
-    
-    return [
-        'success' => true,
-        'message' => 'Phone number verified successfully',
-        'phone' => $cleanNumber
-    ];
-}
-
-
-/**
- * Send SMS OTP via Termii
- * This is the real implementation that connects to Termii API
- * 
- * @param string $phone Phone number
- * @param string $otpCode OTP code
- * @param int $otpId OTP record ID
- * @return bool Success status
- */
-function sendTermiiSMSOTP($phone, $otpCode, $otpId) {
-    // Check if Termii is configured
-    if (empty(TERMII_API_KEY)) {
-        error_log("Termii SMS not configured - TERMII_API_KEY is empty. SMS OTP disabled.");
-        return false;
-    }
-    
-    $result = sendTermiiOTPSMS($phone, $otpCode, $otpId);
-    
-    if (!$result['success']) {
-        // Try voice call as fallback
-        error_log("SMS OTP failed, trying voice fallback for phone: " . maskPhoneForDisplay($phone));
-        $voiceResult = sendTermiiVoiceOTP($phone, $otpCode);
-        return $voiceResult['success'];
-    }
-    
-    return true;
-}
-
-function maskPhoneForDisplay($phone) {
-    $length = strlen($phone);
-    if ($length <= 4) {
-        return str_repeat('*', $length);
-    }
-    return str_repeat('*', $length - 4) . substr($phone, -4);
 }
 
 function cleanupExpiredOTPs() {

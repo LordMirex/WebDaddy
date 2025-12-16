@@ -1,4 +1,9 @@
 <?php
+/**
+ * Complete Registration API
+ * Final step: Username + Password + WhatsApp Number
+ * No SMS verification - email-only
+ */
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/session.php';
@@ -18,78 +23,113 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $email = trim($input['email'] ?? '');
+$username = trim($input['username'] ?? '');
 $password = $input['password'] ?? '';
-$phone = trim($input['phone'] ?? '');
-$fullName = trim($input['full_name'] ?? '');
+$confirmPassword = $input['confirm_password'] ?? '';
+$whatsappNumber = trim($input['whatsapp_number'] ?? '');
 
-if (empty($email) || empty($password)) {
+// Validation
+if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Email and password are required']);
+    echo json_encode(['success' => false, 'error' => 'Valid email is required']);
     exit;
 }
 
-if (strlen($password) < 6) {
+if (empty($username) || strlen($username) < 3) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Username must be at least 3 characters']);
+    exit;
+}
+
+if (empty($password) || strlen($password) < 6) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Password must be at least 6 characters']);
     exit;
 }
 
-if (empty($_SESSION['customer_id']) && empty($_SESSION['customer_session_token'])) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Please verify your email first']);
-    exit;
-}
-
-$db = getDb();
-$customer = getCustomerByEmail($email);
-
-if (!$customer) {
+if ($password !== $confirmPassword) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Please verify your email first']);
+    echo json_encode(['success' => false, 'error' => 'Passwords do not match']);
     exit;
 }
 
-if ((int)$_SESSION['customer_id'] !== (int)$customer['id']) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Session mismatch. Please verify your email again.']);
-    exit;
-}
-
-if (!empty($customer['password_hash'])) {
+if (empty($whatsappNumber) || strlen($whatsappNumber) < 10) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Account already has a password. Please login instead.']);
+    echo json_encode(['success' => false, 'error' => 'Valid WhatsApp number is required']);
     exit;
 }
 
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
-$cleanPhone = !empty($phone) ? preg_replace('/[^0-9+]/', '', $phone) : null;
-
-$stmt = $db->prepare("
-    UPDATE customers 
-    SET password_hash = ?,
-        full_name = COALESCE(?, full_name),
-        whatsapp_number = COALESCE(?, whatsapp_number),
-        phone = COALESCE(?, phone),
-        status = 'active',
-        registration_step = 0,
-        password_changed_at = datetime('now'),
-        updated_at = datetime('now')
-    WHERE id = ?
-");
-$stmt->execute([$passwordHash, $fullName ?: null, $cleanPhone, $cleanPhone, $customer['id']]);
-
-if (!empty($fullName)) {
-    sendCustomerWelcomeEmail($email, $fullName);
+try {
+    $db = getDb();
+    
+    // Find customer by email
+    $customer = getCustomerByEmail($email);
+    
+    if (!$customer) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Please verify your email first']);
+        exit;
+    }
+    
+    // Check if already has password (already registered)
+    if (!empty($customer['password_hash'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Account already has a password. Please login instead.']);
+        exit;
+    }
+    
+    // Check username uniqueness
+    $usernameCheck = $db->prepare("SELECT id FROM customers WHERE username = ? AND id != ?");
+    $usernameCheck->execute([$username, $customer['id']]);
+    if ($usernameCheck->fetch()) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Username already taken. Please choose another.']);
+        exit;
+    }
+    
+    // Complete registration
+    $result = completeRegistrationWithWhatsApp($customer['id'], $username, $password, $whatsappNumber);
+    
+    if (!$result['success']) {
+        http_response_code(400);
+        echo json_encode($result);
+        exit;
+    }
+    
+    // Create session for the user
+    $sessionResult = createCustomerSession($customer['id']);
+    
+    if ($sessionResult['success']) {
+        $_SESSION['customer_id'] = $customer['id'];
+        $_SESSION['customer_session_token'] = $sessionResult['token'];
+        
+        setcookie('customer_session', $sessionResult['token'], [
+            'expires' => strtotime('+1 year'),
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+    }
+    
+    // Send welcome email
+    sendCustomerWelcomeEmail($email, $username);
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'Account created successfully!',
+        'customer' => [
+            'id' => $customer['id'],
+            'email' => $customer['email'],
+            'username' => $username
+        ]
+    ]);
+    
+} catch (PDOException $e) {
+    error_log("Complete Registration DB Error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database error. Please try again.']);
+} catch (Exception $e) {
+    error_log("Complete Registration Error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Server error. Please try again.']);
 }
-
-logCustomerActivity($customer['id'], 'registration_complete', 'Account registration completed with password');
-
-echo json_encode([
-    'success' => true,
-    'message' => 'Account created successfully',
-    'customer' => [
-        'id' => $customer['id'],
-        'email' => $customer['email'],
-        'full_name' => $fullName ?: $customer['full_name']
-    ]
-]);

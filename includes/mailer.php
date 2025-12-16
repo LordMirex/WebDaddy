@@ -288,11 +288,11 @@ function sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName =
     $content .= '</p>';
     
     $emailBody = createEmailTemplate($subject, $content, $customerName);
-    return sendEmail($order['customer_email'], $subject, $emailBody);
+    return sendUserEmail($order['customer_email'], $subject, $emailBody, 'payment_confirmation');
 }
 
 /**
- * Send order confirmation email to customer
+ * Send order confirmation email to customer (via Resend)
  */
 function sendOrderConfirmationEmail($orderId, $customerName, $customerEmail, $templateName, $price) {
     $subject = "Order Received - Order #{$orderId}";
@@ -313,7 +313,7 @@ function sendOrderConfirmationEmail($orderId, $customerName, $customerEmail, $te
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $customerName);
-    return sendEmail($customerEmail, $subject, $emailBody);
+    return sendUserEmail($customerEmail, $subject, $emailBody, 'order_confirmation');
 }
 
 function sendOrderRejectionEmail($orderId, $customerName, $customerEmail, $reason = '') {
@@ -345,7 +345,7 @@ HTML;
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $customerName);
-    $result = sendEmail($customerEmail, $subject, $emailBody);
+    $result = sendUserEmail($customerEmail, $subject, $emailBody, 'order_rejection');
     
     if ($result) {
         error_log("Order rejection email sent successfully for order #{$orderId}");
@@ -391,11 +391,11 @@ function sendPaymentConfirmationEmail($customerEmail, $customerName, $orderId, $
     $body .= 'You will receive another email shortly with download links and delivery details.';
     $body .= '</p>';
     
-    return sendEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName));
+    return sendUserEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName), 'payment_confirmation');
 }
 
 /**
- * Send order success email - simple confirmation
+ * Send order success email - simple confirmation (via Resend)
  * Used for manual payment orders
  */
 function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderItems = [], $affiliateCode = null) {
@@ -428,7 +428,7 @@ function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderIt
     $body .= 'Complete your payment to receive your download links and product access. We will notify you once payment is verified.';
     $body .= '</p>';
     
-    return sendEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName));
+    return sendUserEmail($customerEmail, $subject, createEmailTemplate($subject, $body, $customerName), 'order_success');
 }
 
 function sendNewOrderNotificationToAdmin($orderId, $customerName, $customerPhone, $productNames, $price, $affiliateCode = null, $orderType = 'template') {
@@ -505,11 +505,11 @@ function sendAffiliateWelcomeEmail($affiliateName, $affiliateEmail, $affiliateCo
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'affiliate_welcome');
 }
 
 /**
- * Send commission earned notification to affiliate
+ * Send commission earned notification to affiliate (via Resend)
  * @param string $affiliateName Affiliate name
  * @param string $affiliateEmail Affiliate email
  * @param int $orderId Order ID
@@ -536,7 +536,7 @@ function sendCommissionEarnedEmail($affiliateName, $affiliateEmail, $orderId, $c
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'commission_earned');
 }
 
 /**
@@ -587,11 +587,11 @@ function sendWithdrawalApprovedEmail($affiliateName, $affiliateEmail, $amount, $
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'withdrawal_approved');
 }
 
 /**
- * Send withdrawal rejected notification to affiliate
+ * Send withdrawal rejected notification to affiliate (via Resend)
  */
 function sendWithdrawalRejectedEmail($affiliateName, $affiliateEmail, $amount, $withdrawalId, $reason = '') {
     $subject = "Withdrawal Request Update - ID #{$withdrawalId}";
@@ -614,11 +614,11 @@ function sendWithdrawalRejectedEmail($affiliateName, $affiliateEmail, $amount, $
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'withdrawal_rejected');
 }
 
 /**
- * Send custom email to affiliate (from admin panel)
+ * Send custom email to affiliate (via Resend)
  */
 function sendCustomEmailToAffiliate($affiliateName, $affiliateEmail, $subject, $message) {
     // Sanitize HTML content - remove dangerous attributes while preserving formatting
@@ -633,7 +633,7 @@ HTML;
     
     // Use the affiliate-specific template with crown icon and enhanced styling
     $emailBody = createAffiliateEmailTemplate($subject, $styledMessage, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'custom_email');
 }
 
 /**
@@ -827,11 +827,11 @@ function sendSupportTicketReplyEmail($affiliateName, $affiliateEmail, $ticketId,
 HTML;
     
     $emailBody = createAffiliateEmailTemplate($subject, $content, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'ticket_reply');
 }
 
 /**
- * Send notification when admin replies to customer support ticket
+ * Send notification when admin replies to customer support ticket (via Resend)
  */
 function sendCustomerTicketReplyEmail($customerName, $customerEmail, $ticketId, $ticketSubject, $adminReply) {
     $subject = "Support Ticket Reply - #{$ticketId}";
@@ -861,11 +861,11 @@ function sendCustomerTicketReplyEmail($customerName, $customerEmail, $ticketId, 
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $customerName);
-    return sendEmail($customerEmail, $subject, $emailBody);
+    return sendUserEmail($customerEmail, $subject, $emailBody, 'ticket_reply');
 }
 
 /**
- * Send notification when support ticket is closed
+ * Send notification when support ticket is closed (via Resend)
  */
 function sendSupportTicketClosedEmail($affiliateName, $affiliateEmail, $ticketId, $ticketSubject) {
     $subject = "Support Ticket Closed - #{$ticketId}";
@@ -887,7 +887,7 @@ function sendSupportTicketClosedEmail($affiliateName, $affiliateEmail, $ticketId
 HTML;
     
     $emailBody = createAffiliateEmailTemplate($subject, $content, $affiliateName);
-    return sendEmail($affiliateEmail, $subject, $emailBody);
+    return sendUserEmail($affiliateEmail, $subject, $emailBody, 'ticket_closed');
 }
 
 /**
@@ -967,7 +967,7 @@ function sendAnnouncementEmail($announcementId, $affiliateId, $affiliateName, $a
 HTML;
     
     $emailBody = createAffiliateEmailTemplate($subject, $content, $affiliateName);
-    $success = sendEmail($affiliateEmail, $subject, $emailBody);
+    $success = sendUserEmail($affiliateEmail, $subject, $emailBody, 'announcement');
     
     // Track email delivery in database if connection provided
     if ($db && $announcementId) {
@@ -1195,14 +1195,38 @@ HTML;
 }
 
 /**
- * Send welcome email to new customer (Normal Priority)
+ * Send user-facing email via Resend API with SMTP fallback
+ * All customer emails should use this function for fast, reliable delivery
+ * @param string $email Recipient email address
+ * @param string $subject Email subject
+ * @param string $htmlContent HTML email body
+ * @param string $emailType Type for logging (welcome, notification, etc.)
+ * @return bool Success status
+ */
+function sendUserEmail($email, $subject, $htmlContent, $emailType = 'notification') {
+    require_once __DIR__ . '/resend.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    
+    // Try Resend first (fast, reliable)
+    $result = sendResendEmail($email, $subject, $htmlContent, $siteName, $emailType);
+    
+    if ($result['success']) {
+        return true;
+    }
+    
+    // Fall back to SMTP if Resend fails
+    error_log("Resend failed for {$emailType} email to {$email}, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
+    return sendEmail($email, $subject, $htmlContent);
+}
+
+/**
+ * Send welcome email to new customer (via Resend)
  * @param string $email Customer email
  * @param string $name Customer name
  * @return bool Success status
  */
 function sendCustomerWelcomeEmail($email, $name) {
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
     $subject = "Welcome to " . $siteName . "!";
@@ -1237,18 +1261,16 @@ function sendCustomerWelcomeEmail($email, $name) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
-    return queueEmail($email, 'customer_welcome', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'customer_welcome');
 }
 
 /**
- * Send password set confirmation email (Normal Priority)
+ * Send password set confirmation email (via Resend)
  * @param string $email Customer email
  * @param string $name Customer name
  * @return bool Success status
  */
 function sendPasswordSetEmail($email, $name) {
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $subject = "Password Set Successfully - " . $siteName;
     $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
@@ -1278,19 +1300,17 @@ function sendPasswordSetEmail($email, $name) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
-    return queueEmail($email, 'password_set', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'password_set');
 }
 
 /**
- * Send password reset link email (High Priority)
+ * Send password reset link email (via Resend)
  * @param string $email Customer email
  * @param string $name Customer name
  * @param string $resetLink The password reset URL
  * @return bool Success status
  */
 function sendPasswordResetEmail($email, $name, $resetLink) {
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $subject = "Reset Your Password - " . $siteName;
     $escName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
@@ -1324,25 +1344,17 @@ function sendPasswordResetEmail($email, $name, $resetLink) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
-    $queued = queueHighPriorityEmail($email, 'password_reset', $subject, $emailBody);
-    if ($queued) {
-        processHighPriorityEmails();
-    }
-    return $queued !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'password_reset');
 }
 
 /**
- * Send recovery OTP email for password reset (High Priority via Resend)
+ * Send recovery OTP email for password reset (via Resend)
  * Different styling from regular OTP to indicate security-sensitive action
- * Uses Resend REST API for faster, more reliable delivery
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendRecoveryOTPEmail($email, $otpCode) {
-    require_once __DIR__ . '/resend.php';
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $subject = "Password Reset Code - " . $siteName;
     $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
@@ -1373,23 +1385,11 @@ function sendRecoveryOTPEmail($email, $otpCode) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
-    
-    $result = sendResendEmail($email, $subject, $emailBody, $siteName, 'recovery_otp');
-    
-    if ($result['success']) {
-        return true;
-    }
-    
-    error_log("Resend recovery OTP email failed, falling back to SMTP queue: " . ($result['error'] ?? 'Unknown error'));
-    $queued = queueHighPriorityEmail($email, 'recovery_otp', $subject, $emailBody);
-    if ($queued) {
-        processHighPriorityEmails();
-    }
-    return $queued !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'recovery_otp');
 }
 
 /**
- * Send template delivery notification (Normal Priority)
+ * Send template delivery notification (via Resend)
  * Notifies customer their website is live - credentials in dashboard only for security
  * @param string $email Customer email
  * @param string $name Customer name
@@ -1399,8 +1399,6 @@ HTML;
  * @return bool Success status
  */
 function sendTemplateDeliveryNotification($email, $name, $orderId, $templateName, $websiteUrl) {
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
     $subject = "Your Website Is Live! - " . $siteName;
@@ -1444,11 +1442,11 @@ function sendTemplateDeliveryNotification($email, $name, $orderId, $templateName
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
-    return queueEmail($email, 'template_delivery_notification', $subject, strip_tags($content), $emailBody, $orderId, null, 'normal') !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'template_delivery');
 }
 
 /**
- * Send ticket confirmation email (Normal Priority)
+ * Send ticket confirmation email (via Resend)
  * @param string $email Customer email
  * @param string $name Customer name
  * @param int $ticketId Ticket ID
@@ -1456,8 +1454,6 @@ HTML;
  * @return bool Success status
  */
 function sendTicketConfirmationEmail($email, $name, $ticketId, $ticketSubject) {
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
     $subject = "Support Ticket #" . intval($ticketId) . " Created - " . $siteName;
@@ -1490,11 +1486,11 @@ function sendTicketConfirmationEmail($email, $name, $ticketId, $ticketSubject) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
-    return queueEmail($email, 'ticket_confirmation', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'ticket_confirmation');
 }
 
 /**
- * Send ticket reply notification email (Normal Priority)
+ * Send ticket reply notification email (via Resend)
  * @param string $email Customer email
  * @param string $name Customer name
  * @param int $ticketId Ticket ID
@@ -1502,8 +1498,6 @@ HTML;
  * @return bool Success status
  */
 function sendTicketReplyNotificationEmail($email, $name, $ticketId, $ticketSubject) {
-    require_once __DIR__ . '/email_queue.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
     $subject = "New Reply to Ticket #" . intval($ticketId) . " - " . $siteName;
@@ -1535,7 +1529,7 @@ function sendTicketReplyNotificationEmail($email, $name, $ticketId, $ticketSubje
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
-    return queueEmail($email, 'ticket_reply_notification', $subject, strip_tags($content), $emailBody, null, null, 'normal') !== false;
+    return sendUserEmail($email, $subject, $emailBody, 'ticket_reply');
 }
 
 /**

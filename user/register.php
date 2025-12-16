@@ -1,11 +1,10 @@
 <?php
 /**
  * Customer Registration Page
- * 4-Step Registration Wizard:
+ * 3-Step Registration Wizard:
  * Step 1: Email + OTP Verification
  * Step 2: Username + Password + Confirm Password + WhatsApp (MANDATORY)
- * Step 3: Phone Number + SMS OTP Verification
- * Step 4: Success + Dashboard Guide
+ * Step 3: Success + Dashboard Guide
  */
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
@@ -18,19 +17,15 @@ startSecureSession();
 
 $customer = validateCustomerSession();
 if ($customer) {
-    // Check if this is an incomplete registration redirect from requireCustomer()
-    // If so, allow them to continue registration instead of redirecting
     $isIncomplete = isset($_SESSION['incomplete_registration']) && $_SESSION['incomplete_registration'] === true;
     $registrationStep = (int)($customer['registration_step'] ?? 0);
     $accountComplete = (int)($customer['account_complete'] ?? 0);
     
-    // Only redirect to dashboard if registration is fully complete
     if (!$isIncomplete && $registrationStep === 0 && $accountComplete === 1) {
         header('Location: /user/');
         exit;
     }
     
-    // Clear the incomplete flag so it doesn't persist
     unset($_SESSION['incomplete_registration']);
 }
 
@@ -63,27 +58,22 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
             <p class="text-gray-600 mt-2">Join WebDaddy Empire today</p>
         </div>
         
-        <!-- Step Indicator (4 steps) -->
+        <!-- Step Indicator (3 steps) -->
         <div class="mb-6">
-            <div class="flex items-center justify-center space-x-2">
+            <div class="flex items-center justify-center space-x-4">
                 <div class="flex items-center">
                     <div :class="step >= 1 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
                     <span class="ml-1 text-xs hidden sm:inline" :class="step >= 1 ? 'text-amber-600 font-medium' : 'text-gray-500'">Email</span>
                 </div>
-                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
+                <div class="w-8 sm:w-12 h-px bg-gray-300"></div>
                 <div class="flex items-center">
                     <div :class="step >= 2 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</div>
                     <span class="ml-1 text-xs hidden sm:inline" :class="step >= 2 ? 'text-amber-600 font-medium' : 'text-gray-500'">Account</span>
                 </div>
-                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
+                <div class="w-8 sm:w-12 h-px bg-gray-300"></div>
                 <div class="flex items-center">
                     <div :class="step >= 3 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 3 ? 'text-amber-600 font-medium' : 'text-gray-500'">Phone</span>
-                </div>
-                <div class="w-4 sm:w-8 h-px bg-gray-300"></div>
-                <div class="flex items-center">
-                    <div :class="step >= 4 ? 'bg-amber-600 text-white' : 'bg-gray-300 text-gray-600'" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">4</div>
-                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 4 ? 'text-amber-600 font-medium' : 'text-gray-500'">Done</span>
+                    <span class="ml-1 text-xs hidden sm:inline" :class="step >= 3 ? 'text-amber-600 font-medium' : 'text-gray-500'">Done</span>
                 </div>
             </div>
         </div>
@@ -223,72 +213,14 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     
                     <button type="submit" :disabled="loading" 
                             class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                        <span x-show="!loading">Continue</span>
+                        <span x-show="!loading">Complete Registration</span>
                         <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Saving...</span>
                     </button>
                 </form>
             </div>
             
-            <!-- Step 3: Phone Number + SMS OTP Verification -->
+            <!-- Step 3: Success -->
             <div x-show="step === 3">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="bi-phone text-3xl text-blue-600"></i>
-                    </div>
-                    <p class="text-gray-600">Final step!</p>
-                    <p class="font-semibold text-gray-900">Verify your phone number</p>
-                </div>
-                
-                <!-- Phone Number Input (before sending SMS) -->
-                <div x-show="!phoneSent">
-                    <form @submit.prevent="sendPhoneOTP" class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number (SMS)</label>
-                            <input type="tel" x-model="phoneNumber" required
-                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                                   placeholder="+234 xxx xxx xxxx">
-                            <p class="text-xs text-gray-500 mt-1">We'll send a verification code to this number.</p>
-                        </div>
-                        
-                        <button type="submit" :disabled="loading || !phoneNumber" 
-                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                            <span x-show="!loading">Send Verification Code</span>
-                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Sending...</span>
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Phone OTP Verification (after sending SMS) -->
-                <div x-show="phoneSent">
-                    <form @submit.prevent="verifyPhoneOTP" class="space-y-6">
-                        <div class="text-center mb-4">
-                            <p class="text-gray-600">Enter the code sent to</p>
-                            <p class="font-semibold text-gray-900" x-text="phoneNumber"></p>
-                        </div>
-                        
-                        <div>
-                            <input type="text" x-model="phoneOtpCode" required maxlength="6" pattern="[0-9]{6}"
-                                   class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-center text-2xl tracking-widest"
-                                   placeholder="000000">
-                        </div>
-                        
-                        <button type="submit" :disabled="loading || phoneOtpCode.length !== 6" 
-                                class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition disabled:opacity-50">
-                            <span x-show="!loading">Complete Registration</span>
-                            <span x-show="loading"><i class="bi-arrow-repeat animate-spin mr-2"></i>Verifying...</span>
-                        </button>
-                        
-                        <div class="text-center">
-                            <button type="button" @click="phoneSent = false; phoneOtpCode = ''" class="text-gray-500 hover:text-gray-700 text-sm">
-                                <i class="bi-arrow-left mr-1"></i> Change number
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Step 4: Success -->
-            <div x-show="step === 4">
                 <div class="text-center">
                     <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <i class="bi-check-circle-fill text-4xl text-green-600"></i>
@@ -347,13 +279,10 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
             email: '',
             otpCode: '',
             otpSent: false,
-            username: '', // Pre-filled after OTP verification
+            username: '',
             password: '',
             confirmPassword: '',
-            whatsappNumber: '', // MANDATORY
-            phoneNumber: '',
-            phoneOtpCode: '',
-            phoneSent: false,
+            whatsappNumber: '',
             customerId: null,
             loading: false,
             error: '',
@@ -431,9 +360,8 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     const data = await response.json();
                     
                     if (data.success) {
-                        // Account created, username auto-generated
                         this.customerId = data.customer_id || data.customer?.id;
-                        this.username = data.username || data.customer?.username || ''; // Pre-fill
+                        this.username = data.username || data.customer?.username || '';
                         this.step = 2;
                     } else {
                         this.error = data.message || data.error || 'Invalid verification code';
@@ -451,14 +379,12 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     this.error = 'Passwords do not match';
                     return;
                 }
+                
                 if (this.password.length < 6) {
                     this.error = 'Password must be at least 6 characters';
                     return;
                 }
-                if (!this.username || this.username.length < 3) {
-                    this.error = 'Username must be at least 3 characters';
-                    return;
-                }
+                
                 if (!this.whatsappNumber || this.whatsappNumber.length < 10) {
                     this.error = 'Please enter a valid WhatsApp number';
                     return;
@@ -468,13 +394,14 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 this.error = '';
                 
                 try {
-                    const response = await fetch('/api/customer/set-credentials.php', {
+                    const response = await fetch('/api/customer/complete-registration.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email: this.email,
                             username: this.username,
                             password: this.password,
+                            confirm_password: this.confirmPassword,
                             whatsapp_number: this.whatsappNumber
                         })
                     });
@@ -483,7 +410,7 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     if (data.success) {
                         this.step = 3;
                     } else {
-                        this.error = data.error || data.message || 'Failed to save';
+                        this.error = data.error || data.message || 'Failed to complete registration';
                     }
                 } catch (e) {
                     this.error = 'Connection error. Please try again.';
@@ -492,63 +419,29 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                 this.loading = false;
             },
             
-            async sendPhoneOTP() {
-                if (!this.phoneNumber || this.phoneNumber.length < 10) {
-                    this.error = 'Please enter a valid phone number';
-                    return;
-                }
+            async resendOTP() {
+                if (this.resendCooldown > 0) return;
                 
                 this.loading = true;
                 this.error = '';
                 
                 try {
-                    const response = await fetch('/api/customer/send-phone-otp.php', {
+                    const response = await fetch('/api/customer/request-otp.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
+                        body: JSON.stringify({ 
                             email: this.email,
-                            phone: this.phoneNumber
+                            type: 'email_verify'
                         })
                     });
                     const data = await response.json();
                     
                     if (data.success) {
-                        this.phoneSent = true;
+                        this.success = 'Verification code sent!';
+                        this.startResendCooldown();
+                        setTimeout(() => this.success = '', 3000);
                     } else {
-                        this.error = data.error || data.message || 'Failed to send SMS';
-                    }
-                } catch (e) {
-                    this.error = 'Connection error. Please try again.';
-                }
-                
-                this.loading = false;
-            },
-            
-            async verifyPhoneOTP() {
-                if (this.phoneOtpCode.length !== 6) {
-                    this.error = 'Please enter all 6 digits';
-                    return;
-                }
-                
-                this.loading = true;
-                this.error = '';
-                
-                try {
-                    const response = await fetch('/api/customer/verify-phone-otp.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: this.email,
-                            phone: this.phoneNumber,
-                            code: this.phoneOtpCode
-                        })
-                    });
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        this.step = 4; // Success!
-                    } else {
-                        this.error = data.error || data.message || 'Invalid code';
+                        this.error = data.error || 'Failed to resend code';
                     }
                 } catch (e) {
                     this.error = 'Connection error. Please try again.';
@@ -559,20 +452,14 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
             
             startResendCooldown() {
                 this.resendCooldown = 60;
-                const interval = setInterval(() => {
+                const timer = setInterval(() => {
                     this.resendCooldown--;
                     if (this.resendCooldown <= 0) {
-                        clearInterval(interval);
+                        clearInterval(timer);
                     }
                 }, 1000);
-            },
-            
-            async resendOTP() {
-                if (this.resendCooldown > 0) return;
-                this.otpCode = '';
-                await this.sendEmailOTP();
             }
-        };
+        }
     }
     </script>
 </body>

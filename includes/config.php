@@ -40,12 +40,13 @@ if (!function_exists('logError')) {
 // EDIT VALUES DIRECTLY - NO ENVIRONMENT VARIABLES NEEDED
 // ============================================
 
-// SMTP/Email Configuration - EDIT THESE WITH YOUR DETAILS
-define('SMTP_HOST', 'mail.webdaddy.online');      // Your mail server
-define('SMTP_PORT', 465);                         // Email port
-define('SMTP_SECURE', 'ssl');                     // ssl or tls
-define('SMTP_USER', 'admin@webdaddy.online');     // Your email
-define('SMTP_PASS', 'ItuZq%kF%5oE');              // Your email password
+// SMTP/Email Configuration - FOR ADMIN EMAILS ONLY
+// Admin emails stay on SMTP (admin@webdaddy.online)
+define('SMTP_HOST', 'mail.webdaddy.online');
+define('SMTP_PORT', 465);
+define('SMTP_SECURE', 'ssl');
+define('SMTP_USER', 'admin@webdaddy.online');
+define('SMTP_PASS', 'ItuZq%kF%5oE');
 define('SMTP_FROM_EMAIL', 'admin@webdaddy.online');
 define('SMTP_FROM_NAME', 'WebDaddy Empire');
 
@@ -84,7 +85,7 @@ if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
 }
 define('SITE_URL', $siteUrl);
 define('SITE_NAME', 'WebDaddy Empire');
-define('SUPPORT_EMAIL', 'admin@webdaddy.online');
+define('SUPPORT_EMAIL', 'support@webdaddy.online');
 
 // Upload Settings
 define('UPLOAD_DIR', __DIR__ . '/../uploads');
@@ -117,21 +118,14 @@ define('DELIVERY_RETRY_BASE_DELAY_SECONDS', 60);
 define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 
 // ============================================
-// RESEND EMAIL CONFIGURATION (For OTP Emails)
+// RESEND EMAIL CONFIGURATION (For User Emails)
 // ============================================
-// Resend API for fast, reliable OTP email delivery
+// Resend API for fast, reliable email delivery to users
+// All user-facing emails (OTP, notifications, deliveries) go through Resend
 define('RESEND_API_KEY', 're_FPAp2CGb_6hu6jpqt9rXZTFSeKbAa1bvo');
 define('RESEND_FROM_EMAIL', 'no-reply@webdaddy.online');
 define('RESEND_FROM_NAME', 'WebDaddy Empire');
 define('RESEND_WEBHOOK_SECRET', 'whsec_QurNso4HnYlYc+KCrr1o0KEG4W9oxW85');
-
-// ============================================
-// TERMII SMS CONFIGURATION
-// ============================================
-// Termii API for SMS OTP delivery
-define('TERMII_API_KEY', 'TLvYXAFRFapJDEzBfrEikuPqjgsmqsaDztgfcIdWSdPQSKCoIzaBZYKinbmaKP');
-define('TERMII_SENDER_ID', 'WebDaddy');
-define('TERMII_BASE_URL', 'https://v3.api.termii.com/api');
 
 // Customer Session Settings
 define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions

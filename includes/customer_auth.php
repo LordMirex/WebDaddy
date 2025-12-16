@@ -3,6 +3,7 @@
  * Customer Authentication System
  * 
  * Handles customer login, registration, password management
+ * Email-only verification (SMS removed)
  */
 
 require_once __DIR__ . '/config.php';
@@ -26,7 +27,7 @@ function checkCustomerEmail($email) {
         'has_password' => !empty($customer['password_hash']),
         'customer_id' => $customer['id'],
         'username' => $customer['username'],
-        'full_name' => $customer['full_name'], // Keep for backwards compatibility
+        'full_name' => $customer['full_name'],
         'status' => $customer['status'],
         'registration_step' => $customer['registration_step'],
         'account_complete' => (int)($customer['account_complete'] ?? 0)
@@ -54,42 +55,33 @@ function getCustomerByEmail($email) {
 function generateUsernameFromEmail($email) {
     $db = getDb();
     
-    // Extract part before @
     $baseName = explode('@', strtolower($email))[0];
-    
-    // Remove special characters, keep alphanumeric and underscores
     $baseName = preg_replace('/[^a-z0-9_]/', '', $baseName);
-    
-    // Limit to 15 characters
     $baseName = substr($baseName, 0, 15);
     
-    // Empty base fallback
     if (empty($baseName)) {
         $baseName = 'user';
     }
     
-    // Add random suffix for uniqueness
     $suffix = random_int(100, 999);
     $username = $baseName . '_' . $suffix;
     
-    // Check if exists, regenerate if needed (max 5 attempts)
     $attempts = 0;
     while ($attempts < 5) {
         $stmt = $db->prepare("SELECT id FROM customers WHERE username = ?");
         $stmt->execute([$username]);
         if (!$stmt->fetch()) {
-            return $username; // Unique!
+            return $username;
         }
         $suffix = random_int(100, 999);
         $username = $baseName . '_' . $suffix;
         $attempts++;
     }
     
-    // Fallback with timestamp
     return $baseName . '_' . substr(time(), -4);
 }
 
-function createCustomerAccount($email, $fullName = null, $phone = null) {
+function createCustomerAccount($email, $fullName = null, $whatsappNumber = null) {
     $db = getDb();
     
     $check = checkCustomerEmail($email);
@@ -97,14 +89,16 @@ function createCustomerAccount($email, $fullName = null, $phone = null) {
         return ['success' => false, 'message' => 'Account already exists', 'customer_id' => $check['customer_id']];
     }
     
-    // Generate unique username from email
     $username = generateUsernameFromEmail($email);
     
+    // Clean WhatsApp number if provided
+    $cleanWhatsapp = $whatsappNumber ? preg_replace('/[^0-9+]/', '', $whatsappNumber) : null;
+    
     $stmt = $db->prepare("
-        INSERT INTO customers (email, username, full_name, phone, status, email_verified, registration_step, account_complete)
+        INSERT INTO customers (email, username, full_name, whatsapp_number, status, email_verified, registration_step, account_complete)
         VALUES (?, ?, ?, ?, 'pending_setup', 1, 1, 0)
     ");
-    $stmt->execute([$email, $username, $fullName, $phone]);
+    $stmt->execute([$email, $username, $fullName, $cleanWhatsapp]);
     $customerId = $db->lastInsertId();
     
     logCustomerActivity($customerId, 'account_created', 'Account created via checkout OTP verification');
@@ -154,75 +148,46 @@ function processRegistrationStep1($customerId, $data) {
     return ['success' => true, 'next_step' => 2];
 }
 
-function processRegistrationStep2($customerId, $whatsappNumber) {
+/**
+ * Complete registration with WhatsApp number
+ * This is now the final step (no SMS verification)
+ */
+function completeRegistrationWithWhatsApp($customerId, $username, $password, $whatsappNumber) {
     $db = getDb();
+    
+    // Validate username uniqueness
+    $usernameCheck = $db->prepare("SELECT id FROM customers WHERE username = ? AND id != ?");
+    $usernameCheck->execute([$username, $customerId]);
+    if ($usernameCheck->fetch()) {
+        return ['success' => false, 'error' => 'Username already taken'];
+    }
+    
+    if (strlen($password) < 6) {
+        return ['success' => false, 'error' => 'Password must be at least 6 characters'];
+    }
     
     if (empty($whatsappNumber) || strlen($whatsappNumber) < 10) {
         return ['success' => false, 'error' => 'Please enter a valid WhatsApp number'];
     }
     
-    $cleanNumber = preg_replace('/[^0-9+]/', '', $whatsappNumber);
+    $cleanWhatsapp = preg_replace('/[^0-9+]/', '', $whatsappNumber);
+    $hash = password_hash($password, PASSWORD_DEFAULT);
     
     $stmt = $db->prepare("
         UPDATE customers 
-        SET whatsapp_number = ?, 
-            registration_step = 3,
-            updated_at = datetime('now')
-        WHERE id = ?
-    ");
-    $stmt->execute([$cleanNumber, $customerId]);
-    
-    logCustomerActivity($customerId, 'registration_step2', 'WhatsApp number set');
-    
-    return ['success' => true, 'next_step' => 3];
-}
-
-function verifyPhoneAndCompleteRegistration($customerId, $phoneNumber, $otpCode) {
-    $db = getDb();
-    
-    $cleanNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
-    
-    $stmt = $db->prepare("
-        SELECT * FROM customer_otp_codes 
-        WHERE customer_id = ? 
-        AND phone = ?
-        AND otp_code = ?
-        AND otp_type = 'phone_verify'
-        AND is_used = 0
-        AND expires_at > datetime('now')
-        AND attempts < max_attempts
-        ORDER BY created_at DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$customerId, $cleanNumber, $otpCode]);
-    $otp = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$otp) {
-        $db->prepare("
-            UPDATE customer_otp_codes 
-            SET attempts = attempts + 1 
-            WHERE customer_id = ? AND phone = ? AND is_used = 0
-        ")->execute([$customerId, $cleanNumber]);
-        
-        return ['success' => false, 'error' => 'Invalid or expired OTP code'];
-    }
-    
-    $db->prepare("UPDATE customer_otp_codes SET is_used = 1, used_at = datetime('now') WHERE id = ?")
-       ->execute([$otp['id']]);
-    
-    $stmt = $db->prepare("
-        UPDATE customers 
-        SET phone = ?, 
-            phone_verified = 1,
-            phone_verified_at = datetime('now'),
+        SET username = ?,
+            password_hash = ?, 
+            password_changed_at = datetime('now'),
+            whatsapp_number = ?,
             registration_step = 0,
             status = 'active',
+            account_complete = 1,
             updated_at = datetime('now')
         WHERE id = ?
     ");
-    $stmt->execute([$cleanNumber, $customerId]);
+    $stmt->execute([$username, $hash, $cleanWhatsapp, $customerId]);
     
-    logCustomerActivity($customerId, 'registration_complete', 'Phone verified, registration complete');
+    logCustomerActivity($customerId, 'registration_complete', 'Registration completed with WhatsApp number');
     
     return ['success' => true, 'message' => 'Account registration complete!'];
 }
@@ -282,21 +247,15 @@ function customerLogin($email, $password) {
     ];
 }
 
-function initiatePasswordRecovery($identifier, $method = 'email') {
+function initiatePasswordRecovery($identifier) {
     $db = getDb();
     
-    if ($method === 'email') {
-        $stmt = $db->prepare("SELECT * FROM customers WHERE LOWER(email) = LOWER(?) AND status != 'suspended'");
-        $stmt->execute([$identifier]);
-    } else {
-        $stmt = $db->prepare("SELECT * FROM customers WHERE phone = ? AND phone_verified = 1 AND status != 'suspended'");
-        $stmt->execute([$identifier]);
-    }
-    
+    $stmt = $db->prepare("SELECT * FROM customers WHERE LOWER(email) = LOWER(?) AND status != 'suspended'");
+    $stmt->execute([$identifier]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$customer) {
-        return ['success' => false, 'error' => 'No account found with this ' . $method];
+        return ['success' => false, 'error' => 'No account found with this email'];
     }
     
     $otpCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -304,28 +263,20 @@ function initiatePasswordRecovery($identifier, $method = 'email') {
     
     $stmt = $db->prepare("
         INSERT INTO customer_otp_codes 
-        (customer_id, email, phone, otp_code, otp_type, delivery_method, expires_at)
-        VALUES (?, ?, ?, ?, 'password_reset', ?, ?)
+        (customer_id, email, otp_code, otp_type, delivery_method, expires_at)
+        VALUES (?, ?, ?, 'password_reset', 'email', ?)
     ");
     $stmt->execute([
         $customer['id'], 
         $customer['email'], 
-        $customer['phone'], 
         $otpCode,
-        $method,
         $expiresAt
     ]);
     $otpId = $db->lastInsertId();
     
-    if ($method === 'email') {
-        $sent = sendRecoveryOTPEmail($customer['email'], $otpCode);
-        $db->prepare("UPDATE customer_otp_codes SET email_sent = ? WHERE id = ?")
-           ->execute([$sent ? 1 : 0, $otpId]);
-    } else {
-        $sent = sendTermiiOTP($customer['phone'], $otpCode, $otpId);
-        $db->prepare("UPDATE customer_otp_codes SET sms_sent = ? WHERE id = ?")
-           ->execute([$sent ? 1 : 0, $otpId]);
-    }
+    $sent = sendRecoveryOTPEmail($customer['email'], $otpCode);
+    $db->prepare("UPDATE customer_otp_codes SET email_sent = ? WHERE id = ?")
+       ->execute([$sent ? 1 : 0, $otpId]);
     
     if (!$sent) {
         return ['success' => false, 'error' => 'Failed to send OTP. Please try again.'];
@@ -333,11 +284,9 @@ function initiatePasswordRecovery($identifier, $method = 'email') {
     
     return [
         'success' => true,
-        'message' => 'OTP sent to your ' . $method,
+        'message' => 'OTP sent to your email',
         'customer_id' => $customer['id'],
-        'masked_contact' => $method === 'email' 
-            ? maskEmail($customer['email']) 
-            : maskPhoneNumber($customer['phone'])
+        'masked_contact' => maskEmail($customer['email'])
     ];
 }
 
@@ -432,82 +381,6 @@ function resetCustomerPassword($resetToken, $newPassword, $confirmPassword) {
     return ['success' => true, 'message' => 'Password reset successful. Please login with your new password.'];
 }
 
-function initiateEmailRecovery($phoneNumber) {
-    $db = getDb();
-    
-    $cleanPhone = preg_replace('/[^0-9+]/', '', $phoneNumber);
-    
-    $stmt = $db->prepare("SELECT * FROM customers WHERE phone = ? AND phone_verified = 1 AND status != 'suspended'");
-    $stmt->execute([$cleanPhone]);
-    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$customer) {
-        return ['success' => false, 'error' => 'No account found with this phone number'];
-    }
-    
-    $otpCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-    $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-    
-    $stmt = $db->prepare("
-        INSERT INTO customer_otp_codes 
-        (customer_id, email, phone, otp_code, otp_type, delivery_method, expires_at)
-        VALUES (?, ?, ?, ?, 'login', 'sms', ?)
-    ");
-    $stmt->execute([$customer['id'], $customer['email'], $cleanPhone, $otpCode, $expiresAt]);
-    $otpId = $db->lastInsertId();
-    
-    $sent = sendTermiiOTP($cleanPhone, $otpCode, $otpId);
-    $db->prepare("UPDATE customer_otp_codes SET sms_sent = ? WHERE id = ?")
-       ->execute([$sent ? 1 : 0, $otpId]);
-    
-    if (!$sent) {
-        return ['success' => false, 'error' => 'Failed to send SMS. Please try again.'];
-    }
-    
-    return [
-        'success' => true,
-        'customer_id' => $customer['id'],
-        'message' => 'SMS OTP sent to your phone',
-        'masked_phone' => maskPhoneNumber($cleanPhone)
-    ];
-}
-
-function verifyEmailRecoveryOTP($customerId, $otpCode) {
-    $db = getDb();
-    
-    $stmt = $db->prepare("
-        SELECT * FROM customer_otp_codes 
-        WHERE customer_id = ? 
-        AND otp_code = ?
-        AND otp_type = 'login'
-        AND is_used = 0
-        AND expires_at > datetime('now')
-        AND attempts < max_attempts
-        ORDER BY created_at DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$customerId, $otpCode]);
-    $otp = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$otp) {
-        return ['success' => false, 'error' => 'Invalid or expired OTP code'];
-    }
-    
-    $db->prepare("UPDATE customer_otp_codes SET is_used = 1, used_at = datetime('now') WHERE id = ?")
-       ->execute([$otp['id']]);
-    
-    $customer = getCustomerById($customerId);
-    
-    logCustomerActivity($customerId, 'email_recovery', 'Email recovered via phone OTP');
-    
-    return [
-        'success' => true,
-        'email' => $customer['email'],
-        'masked_email' => maskEmail($customer['email']),
-        'message' => 'Your email is: ' . maskEmail($customer['email'])
-    ];
-}
-
 function maskEmail($email) {
     $parts = explode('@', $email);
     $name = $parts[0];
@@ -528,10 +401,6 @@ if (!function_exists('maskPhoneNumber')) {
         }
         return str_repeat('*', $length - 4) . substr($phone, -4);
     }
-}
-
-function sendTermiiOTP($phone, $otpCode, $otpId) {
-    return true;
 }
 
 function isCustomerRateLimited($email) {
