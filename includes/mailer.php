@@ -90,7 +90,7 @@ function createEmailTemplate($subject, $content, $recipientName = 'Valued Custom
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $whatsapp = defined('WHATSAPP_NUMBER') ? WHATSAPP_NUMBER : '+2349132672126';
     $siteUrl = defined('SITE_URL') ? SITE_URL : 'https://webdaddy.online';
-    $supportEmail = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'admin@webdaddy.online';
+    $supportEmail = defined('SUPPORT_EMAIL') ? SUPPORT_EMAIL : 'support@webdaddy.online';
     $currentYear = date('Y');
     
     $esc_subject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');

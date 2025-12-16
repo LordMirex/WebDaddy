@@ -20,7 +20,7 @@ require_once __DIR__ . '/db.php';
  */
 function sendResendEmail($to, $subject, $htmlContent, $fromName = null, $emailType = 'otp') {
     $apiKey = defined('RESEND_API_KEY') ? RESEND_API_KEY : '';
-    $fromEmail = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : 'no-reply@webdaddy.online';
+    $fromEmail = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : 'support@webdaddy.online';
     $defaultFromName = defined('RESEND_FROM_NAME') ? RESEND_FROM_NAME : 'WebDaddy Empire';
     $fromName = $fromName ?: $defaultFromName;
     
