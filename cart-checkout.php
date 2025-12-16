@@ -26,9 +26,6 @@ $appliedBonusCode = $_SESSION['applied_bonus_code'] ?? null;
 // DO NOT AUTO-APPLY bonus codes - users must manually enter them
 // Bonus codes should only be applied when user explicitly enters them in the form
 
-// Check if this is an order confirmation page
-$confirmedOrderId = isset($_GET['confirmed']) ? (int)$_GET['confirmed'] : null;
-
 // Get cart items
 $cartItems = getCart();
 $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode);
@@ -42,8 +39,8 @@ $isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                   (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false ||
                    isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false));
 
-// If cart is empty and not showing confirmation, redirect to homepage (or return JSON error for AJAX)
-if (empty($cartItems) && !$confirmedOrderId) {
+// If cart is empty, redirect to homepage (or return JSON error for AJAX)
+if (empty($cartItems)) {
     if ($isAjaxRequest || ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount']))) {
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Your cart is empty. Please add items before checkout.']);
@@ -60,20 +57,6 @@ $success = '';
 
 // Track submitted affiliate code for error display
 $submittedAffiliateCode = '';
-
-// Check if showing order confirmation or failure
-$confirmationStatus = 'none';
-if ($confirmedOrderId) {
-    $dbConn = getDb();
-    if ($dbConn) {
-        $statusStmt = $dbConn->prepare("SELECT status FROM pending_orders WHERE id = ?");
-        $statusStmt->execute([$confirmedOrderId]);
-        $orderStatus = $statusStmt->fetch(PDO::FETCH_ASSOC);
-        if ($orderStatus) {
-            $confirmationStatus = $orderStatus['status'];
-        }
-    }
-}
 
 // Handle discount code removal
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_discount'])) {
@@ -491,174 +474,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
     }
 }
 
-// Handle order confirmation page
-$confirmationData = null;
-if ($confirmedOrderId) {
-    $order = getOrderById($confirmedOrderId);
-    
-    // SECURITY: Only allow viewing if this session created the order
-    if ($order && $order['session_id'] === session_id()) {
-        $orderItems = getOrderItems($confirmedOrderId);
-        
-        // Determine order type
-        $hasTemplates = false;
-        $hasTools = false;
-        foreach ($orderItems as $item) {
-            if ($item['product_type'] === 'template') $hasTemplates = true;
-            if ($item['product_type'] === 'tool') $hasTools = true;
-        }
-        
-        $orderTypeText = '';
-        if ($hasTemplates && $hasTools) {
-            $orderTypeText = 'TEMPLATES & TOOLS ORDER';
-        } elseif ($hasTemplates) {
-            $orderTypeText = 'TEMPLATES ORDER';
-        } else {
-            $orderTypeText = 'TOOLS ORDER';
-        }
-        
-        // Categorize items (used for both messages)
-        $templateCount = 0;
-        $toolCount = 0;
-        $templates = [];
-        $tools = [];
-        
-        foreach ($orderItems as $item) {
-            $productType = $item['product_type'];
-            $productName = $productType === 'template' ? ($item['template_name'] ?? 'Product') : ($item['tool_name'] ?? 'Product');
-            $qty = $item['quantity'] > 1 ? ' *(x' . $item['quantity'] . ')*' : '';
-            
-            if ($productType === 'template') {
-                $templateCount++;
-                $templates[] = "  ✅ " . $productName . $qty;
-            } else {
-                $toolCount++;
-                $tools[] = "  ✅ " . $productName . $qty;
-            }
-        }
-        
-        // Get bank details from settings
-        $bankAccountNumber = getSetting('site_account_number', '');
-        $bankName = getSetting('site_bank_name', '');
-        $bankNumber = getSetting('site_bank_number', '');
-        
-        // MESSAGE TYPE 1: Payment Proof Message (I have sent the money)
-        $messagePaymentProof = "🛒 *NEW ORDER REQUEST*\n";
-        $messagePaymentProof .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-        $messagePaymentProof .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
-        
-        if ($templateCount > 0) {
-            $messagePaymentProof .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
-            $messagePaymentProof .= implode("\n", $templates) . "\n";
-            if ($toolCount > 0) {
-                $messagePaymentProof .= "\n";
-            }
-        }
-        
-        if ($toolCount > 0) {
-            $messagePaymentProof .= "🔧 *TOOLS* (" . $toolCount . "):\n";
-            $messagePaymentProof .= implode("\n", $tools) . "\n";
-        }
-        
-        $messagePaymentProof .= "\n━━━━━━━━━━━━━━━━━━━━\n";
-        $messagePaymentProof .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
-        
-        if (!empty($order['discount_amount']) && $order['discount_amount'] > 0) {
-            $discountPct = !empty($order['discount_percent']) ? number_format($order['discount_percent'], 0) : '20';
-            $discountLabel = (!empty($order['discount_type']) && $order['discount_type'] === 'bonus_code') ? 'Bonus Code' : 'Affiliate';
-            $messagePaymentProof .= "\n🎁 *{$discountLabel} Discount:* {$discountPct}% OFF";
-        }
-        
-        $messagePaymentProof .= "\n\n🏦 *PAYMENT DETAILS:*\n";
-        if ($bankName) $messagePaymentProof .= "Bank: " . $bankName . "\n";
-        if ($bankAccountNumber) $messagePaymentProof .= "Account: " . $bankAccountNumber . "\n";
-        if ($bankNumber) $messagePaymentProof .= "Account Name: " . $bankNumber . "\n";
-        $messagePaymentProof .= "\n📸 *Attached is the screenshot of my payment receipt*";
-        
-        // MESSAGE TYPE 2: Proceed with Payment Message (Formal structure with order details)
-        $messageDiscussion = "🛒 *NEW ORDER REQUEST*\n";
-        $messageDiscussion .= "━━━━━━━━━━━━━━━━━━━━\n\n";
-        $messageDiscussion .= "📋 *Order ID:* #" . $order['id'] . "\n\n";
-        
-        if ($templateCount > 0) {
-            $messageDiscussion .= "🎨 *TEMPLATES* (" . $templateCount . "):\n";
-            $messageDiscussion .= implode("\n", $templates) . "\n";
-            if ($toolCount > 0) {
-                $messageDiscussion .= "\n";
-            }
-        }
-        
-        if ($toolCount > 0) {
-            $messageDiscussion .= "🔧 *TOOLS* (" . $toolCount . "):\n";
-            $messageDiscussion .= implode("\n", $tools) . "\n";
-        }
-        
-        $messageDiscussion .= "\n━━━━━━━━━━━━━━━━━━━━\n";
-        $messageDiscussion .= "💳 *Amount to Pay:* " . formatCurrency($order['final_amount']);
-        
-        if (!empty($order['discount_amount']) && $order['discount_amount'] > 0) {
-            $discountPctMsg = !empty($order['discount_percent']) ? number_format($order['discount_percent'], 0) : '20';
-            $discountLabelMsg = (!empty($order['discount_type']) && $order['discount_type'] === 'bonus_code') ? 'Bonus Code' : 'Affiliate';
-            $messageDiscussion .= "\n🎁 *{$discountLabelMsg} Discount:* {$discountPctMsg}% OFF";
-        }
-        
-        $messageDiscussion .= "\n\n🏦 *PAYMENT DETAILS:*\n";
-        if ($bankName) $messageDiscussion .= "Bank: " . $bankName . "\n";
-        if ($bankAccountNumber) $messageDiscussion .= "Account: " . $bankAccountNumber . "\n";
-        if ($bankNumber) $messageDiscussion .= "Account Name: " . $bankNumber . "\n";
-        
-        $messageDiscussion .= "\nI have some inquiries about these products before I complete the payment. Can you please help me confirm the details and answer any questions I have? Thank you! 🚀";
-        
-        // Generate WhatsApp links for both message types
-        $whatsappNumber = preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER));
-        $encodedMessagePaymentProof = rawurlencode($messagePaymentProof);
-        $encodedMessageDiscussion = rawurlencode($messageDiscussion);
-        $whatsappUrlPaymentProof = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessagePaymentProof;
-        $whatsappUrlDiscussion = "https://wa.me/" . $whatsappNumber . "?text=" . $encodedMessageDiscussion;
-        
-        // Get delivery information (including assigned domains)
-        $deliveries = getDeliveryStatus($confirmedOrderId);
-        
-        // Map deliveries by product_id for easy lookup
-        $deliveriesByProductId = [];
-        foreach ($deliveries as $delivery) {
-            $deliveriesByProductId[$delivery['product_id']] = $delivery;
-        }
-        
-        // FETCH AFFILIATE COMMISSION FROM SALES TABLE FOR CONFIRMATION DISPLAY
-        $commissionAmount = 0;
-        $commissionStmt = $dbConn->prepare("SELECT commission_amount FROM sales WHERE pending_order_id = ?");
-        $commissionStmt->execute([$confirmedOrderId]);
-        $commissionRecord = $commissionStmt->fetch(PDO::FETCH_ASSOC);
-        if ($commissionRecord) {
-            $commissionAmount = $commissionRecord['commission_amount'];
-        }
-        
-        $confirmationData = [
-            'order' => $order,
-            'orderItems' => $orderItems,
-            'hasTemplates' => $hasTemplates,
-            'hasTools' => $hasTools,
-            'orderTypeText' => $orderTypeText,
-            'whatsappUrlPaymentProof' => $whatsappUrlPaymentProof,
-            'whatsappUrlDiscussion' => $whatsappUrlDiscussion,
-            'bankAccountNumber' => $bankAccountNumber,
-            'bankName' => $bankName,
-            'bankNumber' => $bankNumber,
-            'deliveries' => $deliveries,
-            'deliveriesByProductId' => $deliveriesByProductId,
-            'commissionAmount' => $commissionAmount
-        ];
-    } else {
-        // Invalid order or unauthorized access - redirect to home
-        if ($confirmedOrderId) {
-            header('Location: /?view=tools#products');
-            exit;
-        }
-    }
-}
-
-$pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SITE_NAME : 'Checkout - ' . SITE_NAME;
+$pageTitle = 'Checkout - ' . SITE_NAME;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -675,9 +491,6 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
-        // Flag to indicate if this is a confirmation page
-        const isConfirmationPage = <?php echo json_encode($confirmedOrderId ? true : false); ?>;
-        
         tailwind.config = {
             theme: {
                 extend: {
@@ -1026,21 +839,7 @@ $pageTitle = $confirmedOrderId && $confirmationData ? 'Order Confirmed - ' . SIT
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div class="max-w-3xl mx-auto">
             
-            <?php if ($confirmedOrderId && $confirmationData): ?>
-                <!-- DETERMINE WHICH CONFIRMATION VIEW TO SHOW -->
-                <?php 
-                $orderStatus = $confirmationData['order']['status'] ?? 'pending';
-                $paymentMethod = $confirmationData['order']['payment_method'] ?? 'manual';
-                $isManualPayment = ($paymentMethod === 'manual' || empty($paymentMethod));
-                $isAutomatic = ($paymentMethod === 'paystack' || $paymentMethod === 'automatic');
-                $isPaid = ($orderStatus === 'paid');
-                $isFailed = ($orderStatus === 'failed');
-                ?>
-                
-                <!-- ========================================
-                     MANUAL PAYMENT CONFIRMATION (Bank Transfer)
-                     ONLY: Bank details + WhatsApp buttons
-                     ======================================== -->
+            <!-- Checkout Form -->
                 <?php if ($isManualPayment): ?>
                     <div class="text-center mb-8">
                         <div class="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-4">
