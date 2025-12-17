@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/mailer.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 startSecureSession();
@@ -32,8 +33,8 @@ if (!$customerId) {
 $db = getDb();
 
 try {
-    // Verify customer exists
-    $stmt = $db->prepare("SELECT id, email, username FROM customers WHERE id = ?");
+    // Verify customer exists and get whatsapp_number
+    $stmt = $db->prepare("SELECT id, email, username, whatsapp_number FROM customers WHERE id = ?");
     $stmt->execute([$customerId]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -69,14 +70,30 @@ try {
     
     $db->beginTransaction();
     
-    // Insert OTP record
+    // STEP 1: Expire all existing active OTPs for this customer (single-use enforcement)
+    $stmt = $db->prepare("
+        UPDATE admin_verification_otps 
+        SET is_used = 1, used_at = datetime('now')
+        WHERE customer_id = ? AND is_used = 0 AND expires_at > datetime('now')
+    ");
+    $stmt->execute([$customerId]);
+    
+    // STEP 2: Mark previous OTP notifications as read
+    $stmt = $db->prepare("
+        UPDATE customer_notifications 
+        SET is_read = 1 
+        WHERE customer_id = ? AND type = 'identity_verification' AND is_read = 0
+    ");
+    $stmt->execute([$customerId]);
+    
+    // STEP 3: Insert new OTP record
     $stmt = $db->prepare("
         INSERT INTO admin_verification_otps (customer_id, admin_id, otp_code, expires_at)
         VALUES (?, ?, ?, ?)
     ");
     $stmt->execute([$customerId, getAdminId(), $otpCode, $expiresAt]);
     
-    // Create notification for customer
+    // STEP 4: Create notification for customer (with expires_at for auto-hide)
     $notificationTitle = 'Identity Verification Code';
     $notificationMessage = "Your identity verification code is: $otpCode. This code expires in 10 minutes. Only share this code with our support team when requested.";
     $notificationData = json_encode([
@@ -86,21 +103,46 @@ try {
     ]);
     
     $stmt = $db->prepare("
-        INSERT INTO customer_notifications (customer_id, type, title, message, data, priority)
-        VALUES (?, 'identity_verification', ?, ?, ?, 'high')
+        INSERT INTO customer_notifications (customer_id, type, title, message, data, priority, expires_at)
+        VALUES (?, 'identity_verification', ?, ?, ?, 'high', ?)
     ");
-    $stmt->execute([$customerId, $notificationTitle, $notificationMessage, $notificationData]);
+    $stmt->execute([$customerId, $notificationTitle, $notificationMessage, $notificationData, $expiresAt]);
     
     $db->commit();
     
-    logActivity('admin_otp_generated', "Generated OTP for customer #$customerId", getAdminId());
+    // STEP 5: Send email notification (outside transaction for reliability)
+    $customerName = $customer['username'] ?? 'Customer';
+    $emailSent = sendIdentityVerificationOTPEmail($customer['email'], $otpCode, $customerName);
+    
+    // STEP 6: Send WhatsApp if customer has whatsapp_number
+    $whatsappSent = false;
+    $whatsappNumber = $customer['whatsapp_number'] ?? null;
+    if ($whatsappNumber) {
+        // WhatsApp API integration placeholder - log for now
+        error_log("WhatsApp OTP would be sent to: {$whatsappNumber} for customer #{$customerId}");
+        // Future: Implement WhatsApp Business API call here
+        // For now, we note WhatsApp number is available
+    }
+    
+    logActivity('admin_otp_generated', "Generated OTP for customer #$customerId (Email: " . ($emailSent ? 'sent' : 'failed') . ")", getAdminId());
+    
+    $message = 'OTP generated successfully';
+    $deliveryMethods = ['In-app notification'];
+    if ($emailSent) {
+        $deliveryMethods[] = 'Email';
+    }
+    if ($whatsappNumber) {
+        $deliveryMethods[] = 'WhatsApp (pending integration)';
+    }
     
     echo json_encode([
         'success' => true,
         'otp_code' => $otpCode,
         'expires_at' => $expiresAt,
         'customer_email' => $customer['email'],
-        'message' => 'OTP generated successfully and notification sent to customer dashboard.'
+        'customer_whatsapp' => $whatsappNumber,
+        'email_sent' => $emailSent,
+        'message' => $message . '. Sent via: ' . implode(', ', $deliveryMethods)
     ]);
     
 } catch (PDOException $e) {

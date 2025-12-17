@@ -46,8 +46,8 @@ $navItems = [
              class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
         
         <!-- Sidebar -->
-        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
-               class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-white z-50 transform transition-transform lg:translate-x-0">
+        <aside x-cloak :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
+               class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-white z-50 transform transition-transform -translate-x-full lg:translate-x-0">
             <div class="p-4 border-b border-slate-700">
                 <a href="/" class="flex items-center space-x-2">
                     <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-8">
@@ -103,18 +103,18 @@ $navItems = [
                             </button>
                             
                             <div x-show="open" x-cloak @click.away="open = false" x-transition
-                                 class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border z-50">
-                                <div class="p-4 border-b">
-                                    <h3 class="font-bold">Notifications</h3>
+                                 class="absolute right-0 mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border z-50">
+                                <div class="p-3 sm:p-4 border-b">
+                                    <h3 class="font-bold text-sm sm:text-base">Notifications</h3>
                                 </div>
-                                <div class="max-h-96 overflow-y-auto">
+                                <div class="max-h-80 sm:max-h-96 overflow-y-auto">
                                     <template x-for="n in notifications" :key="n.id">
-                                        <div class="p-4 border-b hover:bg-gray-50" :class="{'bg-blue-50': n.priority === 'high'}">
-                                            <p class="text-sm font-semibold" x-text="n.title"></p>
-                                            <p class="text-sm text-gray-600 mt-1" x-text="n.message"></p>
+                                        <div class="p-3 sm:p-4 border-b hover:bg-gray-50" :class="{'bg-blue-50': n.priority === 'high'}">
+                                            <p class="text-xs sm:text-sm font-semibold break-words" x-text="n.title"></p>
+                                            <p class="text-xs sm:text-sm text-gray-600 mt-1 break-words" x-text="n.message"></p>
                                         </div>
                                     </template>
-                                    <div x-show="notifications.length === 0" class="p-8 text-center text-gray-500">
+                                    <div x-show="notifications.length === 0" class="p-6 sm:p-8 text-center text-gray-500 text-sm">
                                         No new notifications
                                     </div>
                                 </div>

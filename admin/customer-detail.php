@@ -234,14 +234,16 @@ $sessionsStmt = $db->prepare("
 $sessionsStmt->execute([$customerId]);
 $sessions = $sessionsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get recent OTPs
+// Get only the most recent ACTIVE OTP (not expired, not used)
 $otpStmt = $db->prepare("
     SELECT avo.*, u.name as admin_name
     FROM admin_verification_otps avo
     LEFT JOIN users u ON u.id = avo.admin_id
-    WHERE avo.customer_id = ?
+    WHERE avo.customer_id = ? 
+    AND avo.is_used = 0 
+    AND avo.expires_at > datetime('now')
     ORDER BY avo.created_at DESC
-    LIMIT 5
+    LIMIT 1
 ");
 $otpStmt->execute([$customerId]);
 $recentOtps = $otpStmt->fetchAll(PDO::FETCH_ASSOC);

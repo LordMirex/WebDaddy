@@ -1591,3 +1591,57 @@ HTML;
     $emailBody = createEmailTemplate($subject, $content, 'Admin');
     return sendEmail($adminEmail, $subject, $emailBody);
 }
+
+/**
+ * Send identity verification OTP email (Admin-generated)
+ * Used when admin requests identity verification from customer
+ * @param string $email Customer email
+ * @param string $otpCode The OTP code
+ * @param string $customerName Customer name for personalization
+ * @return bool Success status
+ */
+function sendIdentityVerificationOTPEmail($email, $otpCode, $customerName = 'Customer') {
+    require_once __DIR__ . '/resend.php';
+    
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $subject = "Identity Verification Code - " . $siteName;
+    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
+    $escName = htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">Identity Verification Required</h2>
+    <p style="color: #374151; margin: 0;">Our support team has requested to verify your identity.</p>
+</div>
+
+<div style="text-align: center; margin: 25px 0;">
+    <p style="color: #374151; margin: 0 0 15px 0;">Your verification code is:</p>
+    <div style="display: inline-block; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); padding: 20px 40px; border-radius: 10px;">
+        <span style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', monospace;">{$escOtp}</span>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 20px;">
+    <p style="color: #dc2626; font-size: 14px; margin: 0;">
+        <strong>This code expires in 10 minutes</strong>
+    </p>
+    <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
+        Only share this code with our support team when they request it.
+    </p>
+    <p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 0;">
+        If you didn't request this, please ignore this email.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $escName);
+    
+    $result = sendResendEmail($email, $subject, $emailBody, $siteName, 'identity_verification');
+    
+    if ($result['success']) {
+        return true;
+    }
+    
+    error_log("Resend identity OTP email failed, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
+    return sendEmail($email, $subject, $emailBody);
+}
