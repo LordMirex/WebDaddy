@@ -551,7 +551,22 @@ require_once __DIR__ . '/includes/header.php';
     showStockModal: false,
     stockToolId: null,
     stockToolName: '',
-    currentStock: 0
+    currentStock: 0,
+    resetCreateForm() {
+        const form = document.getElementById('create-tool-form');
+        if (form) {
+            form.reset();
+            // Reset video type UI
+            if (typeof handleToolVideoTypeChange === 'function') handleToolVideoTypeChange('create');
+            // Reset thumbnail mode
+            if (typeof toggleToolThumbnailMode === 'function') toggleToolThumbnailMode('url', 'create');
+            // Clear any hidden fields
+            const croppedData = document.getElementById('tool-thumbnail-cropped-data-create');
+            if (croppedData) croppedData.value = '';
+            const videoUrl = document.getElementById('tool-video-uploaded-url-create');
+            if (videoUrl) videoUrl.value = '';
+        }
+    }
 }">
 
     <!-- Page Header -->
@@ -818,16 +833,16 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <!-- Create Tool Modal -->
-    <div x-show="showCreateModal" x-transition class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
+    <div x-show="showCreateModal" x-transition class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;" @click.self="showCreateModal = false; resetCreateForm()">
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <form method="POST">
+            <form method="POST" id="create-tool-form">
                 <input type="hidden" name="action" value="create_tool">
                 
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                     <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
                         <i class="bi bi-plus-circle text-purple-600"></i> Add New Working Tool
                     </h3>
-                    <button type="button" @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <button type="button" @click="showCreateModal = false; resetCreateForm()" class="text-gray-400 hover:text-gray-600 text-2xl">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -1027,7 +1042,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <button type="button" @click="showCreateModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <button type="button" @click="showCreateModal = false; resetCreateForm()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                         <i class="bi bi-x-circle mr-2"></i> Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-lg transition-colors shadow-lg">
@@ -2094,16 +2109,21 @@ async function uploadFileInChunks(file, toolId, fileType, description) {
 }
 
 // Show/hide file or link input based on file type selection
-document.getElementById('fileType').addEventListener('change', (e) => {
-    const isLink = e.target.value === 'link';
-    document.getElementById('fileInputDiv').classList.toggle('hidden', isLink);
-    document.getElementById('linkInputDiv').classList.toggle('hidden', !isLink);
-    document.getElementById('toolFile').required = !isLink;
-    document.getElementById('externalLink').required = isLink;
-    document.getElementById('uploadStatus').innerHTML = '';
-});
+const fileTypeSelect = document.getElementById('fileType');
+if (fileTypeSelect) {
+    fileTypeSelect.addEventListener('change', (e) => {
+        const isLink = e.target.value === 'link';
+        document.getElementById('fileInputDiv').classList.toggle('hidden', isLink);
+        document.getElementById('linkInputDiv').classList.toggle('hidden', !isLink);
+        document.getElementById('toolFile').required = !isLink;
+        document.getElementById('externalLink').required = isLink;
+        document.getElementById('uploadStatus').innerHTML = '';
+    });
+}
 
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+const uploadFormEl = document.getElementById('uploadForm');
+if (uploadFormEl) {
+    uploadFormEl.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const form = document.getElementById('uploadForm');
@@ -2162,23 +2182,27 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         document.getElementById('uploadBtn').disabled = false;
         document.getElementById('uploadProgress').classList.add('hidden');
     }
-});
+    });
+}
 
-document.getElementById('toolFile').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const sizeInGB = file.size / (1024 * 1024 * 1024);
-        const sizeMB = file.size / (1024 * 1024);
-        if (sizeInGB > 2) {
-            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ File too large (max 2GB). Your file: ' + sizeInGB.toFixed(2) + 'GB</div>';
-            e.target.value = '';
-        } else {
-            const chunks = Math.ceil(file.size / CHUNK_SIZE);
-            const displaySize = sizeMB > 1024 ? (sizeInGB).toFixed(2) + 'GB' : sizeMB.toFixed(1) + 'MB';
-            document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⚡ Ready to upload: ' + displaySize + ' (' + chunks + ' chunk' + (chunks > 1 ? 's' : '') + ')</div>';
+const toolFileInput = document.getElementById('toolFile');
+if (toolFileInput) {
+    toolFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const sizeInGB = file.size / (1024 * 1024 * 1024);
+            const sizeMB = file.size / (1024 * 1024);
+            if (sizeInGB > 2) {
+                document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ File too large (max 2GB). Your file: ' + sizeInGB.toFixed(2) + 'GB</div>';
+                e.target.value = '';
+            } else {
+                const chunks = Math.ceil(file.size / CHUNK_SIZE);
+                const displaySize = sizeMB > 1024 ? (sizeInGB).toFixed(2) + 'GB' : sizeMB.toFixed(1) + 'MB';
+                document.getElementById('uploadStatus').innerHTML = '<div class="p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-lg">⚡ Ready to upload: ' + displaySize + ' (' + chunks + ' chunk' + (chunks > 1 ? 's' : '') + ')</div>';
+            }
         }
-    }
-});
+    });
+}
 
 // AJAX Tool Search
 let searchTimeout;
