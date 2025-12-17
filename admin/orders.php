@@ -1776,10 +1776,7 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     <div class="space-y-2">
                         <p class="text-gray-700"><span class="font-semibold">Name:</span> <?php echo htmlspecialchars($viewOrder['customer_name']); ?></p>
                         <p class="text-gray-700"><span class="font-semibold">Email:</span> <?php echo htmlspecialchars($viewOrder['customer_email']); ?></p>
-                        <p class="text-gray-700"><span class="font-semibold">Phone:</span> <?php echo htmlspecialchars($viewOrder['customer_phone']); ?></p>
-                        <?php if (!empty($viewOrder['business_name'])): ?>
-                        <p class="text-gray-700"><span class="font-semibold">Business:</span> <?php echo htmlspecialchars($viewOrder['business_name']); ?></p>
-                        <?php endif; ?>
+                        <p class="text-gray-700"><span class="font-semibold">WhatsApp:</span> <?php echo htmlspecialchars($viewOrder['customer_phone']); ?></p>
                     </div>
                 </div>
                 <div>

@@ -318,7 +318,7 @@ require_once __DIR__ . '/includes/header.php';
             <thead>
                 <tr class="border-b-2 border-gray-300 bg-gray-50">
                     <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Customer</th>
-                    <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Phone</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">WhatsApp</th>
                     <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Orders</th>
                     <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Total Spent</th>
                     <th class="text-left py-3 px-4 font-semibold text-gray-700 text-sm">Status</th>
@@ -351,7 +351,7 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </td>
                     <td class="py-3 px-4 text-gray-700 text-sm">
-                        <?php echo htmlspecialchars($customer['phone'] ?? '-'); ?>
+                        <?php echo htmlspecialchars($customer['whatsapp_number'] ?? '-'); ?>
                     </td>
                     <td class="py-3 px-4">
                         <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
