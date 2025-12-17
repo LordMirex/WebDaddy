@@ -34,6 +34,22 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 
 ## Recent Changes (December 2024)
 
+### User Campaign Management System (December 17, 2024)
+- **User Announcements**: New system for admins to post announcements visible on user dashboards
+  - Database tables: `user_announcements`, `user_announcement_emails`
+  - Announcement types: info (blue), success (green), warning (yellow), danger (red)
+  - Target options: All users or specific individual user
+  - Duration: Permanent or timed (auto-expire after X days)
+- **Email Campaign**: Bulk email functionality for all active users or individual users
+  - Rich text editor (Quill) for message formatting
+  - Email tracking and delivery statistics
+- **Welcome Announcement**: Automatic 7-day welcome announcement created on user registration
+  - Personalized greeting with username
+  - Quick start tips for new users
+- **Dashboard Display**: User dashboard shows active announcements with proper styling
+- **Admin Page**: `/admin/user-campaign.php` - Full campaign management interface
+- **Files Updated**: includes/db.php, includes/mailer.php, admin/user-campaign.php, admin/includes/header.php, user/index.php, includes/customer_auth.php
+
 ### Admin Modal Form State Fix (December 17, 2024)
 - **Modal State Reset Fixed**: Admin modal forms (templates, domains, tools) now properly reset when closing
 - **Video Type Field Fixed**: Changed `video_type_create` to `video_type` in templates create modal so video type is correctly submitted
