@@ -86,63 +86,63 @@ This document serves as a **step-by-step execution tracker** for implementing th
 
 | Status | Task | Notes |
 |--------|------|-------|
-| ⬜ | Implement `BlogCategory::create()` | Insert new category |
-| ⬜ | Implement `BlogCategory::update()` | Edit category |
-| ⬜ | Implement `BlogCategory::delete()` | Soft/hard delete |
-| ⬜ | Implement `BlogCategory::getAll()` | List all categories |
-| ⬜ | Implement `BlogCategory::getById()` | Single category fetch |
-| ⬜ | Implement `BlogCategory::getBySlug()` | URL-based lookup |
-| ⬜ | Implement parent-child hierarchy | Nested categories support |
-| ⬜ | Auto-generate slugs | From category name |
+| ✅ | Implement `BlogCategory::create()` | Insert new category |
+| ✅ | Implement `BlogCategory::update()` | Edit category |
+| ✅ | Implement `BlogCategory::delete()` | Soft/hard delete |
+| ✅ | Implement `BlogCategory::getAll()` | List all categories |
+| ✅ | Implement `BlogCategory::getById()` | Single category fetch |
+| ✅ | Implement `BlogCategory::getBySlug()` | URL-based lookup |
+| ✅ | Implement parent-child hierarchy | Nested categories support via getChildren, getParent, getHierarchy |
+| ✅ | Auto-generate slugs | From category name via generateSlug() |
 
 ### 2.2 Tag Management
 
 | Status | Task | Notes |
 |--------|------|-------|
-| ⬜ | Implement `BlogTag::create()` | Insert new tag |
-| ⬜ | Implement `BlogTag::delete()` | Remove tag |
-| ⬜ | Implement `BlogTag::getAll()` | List all tags |
-| ⬜ | Implement `BlogTag::getByPost()` | Tags for a specific post |
-| ⬜ | Implement `BlogTag::attachToPost()` | Add tag to post |
-| ⬜ | Implement `BlogTag::detachFromPost()` | Remove tag from post |
+| ✅ | Implement `BlogTag::create()` | Insert new tag |
+| ✅ | Implement `BlogTag::delete()` | Remove tag |
+| ✅ | Implement `BlogTag::getAll()` | List all tags |
+| ✅ | Implement `BlogTag::getByPost()` | Tags for a specific post |
+| ✅ | Implement `BlogTag::attachToPost()` | Add tag to post |
+| ✅ | Implement `BlogTag::detachFromPost()` | Remove tag from post |
 
 ### 2.3 Post Management (Basic)
 
 | Status | Task | Notes |
 |--------|------|-------|
-| ⬜ | Implement `BlogPost::create()` | Insert new post (draft) |
-| ⬜ | Implement `BlogPost::update()` | Edit post metadata |
-| ⬜ | Implement `BlogPost::delete()` | Move to archived/delete |
-| ⬜ | Implement `BlogPost::getById()` | Single post fetch |
-| ⬜ | Implement `BlogPost::getBySlug()` | URL-based lookup |
-| ⬜ | Implement `BlogPost::getPublished()` | List published posts |
-| ⬜ | Implement `BlogPost::getByCategory()` | Posts in category |
-| ⬜ | Implement `BlogPost::getByTag()` | Posts with tag |
-| ⬜ | Implement status transitions | draft → published → archived |
-| ⬜ | Implement scheduled publishing | Auto-publish at date |
-| ⬜ | Implement reading time calculation | Based on content length |
-| ⬜ | Auto-generate slugs | From post title |
+| ✅ | Implement `BlogPost::create()` | Insert new post (draft) |
+| ✅ | Implement `BlogPost::update()` | Edit post metadata |
+| ✅ | Implement `BlogPost::delete()` | Move to archived/delete via archive() method |
+| ✅ | Implement `BlogPost::getById()` | Single post fetch |
+| ✅ | Implement `BlogPost::getBySlug()` | URL-based lookup |
+| ✅ | Implement `BlogPost::getPublished()` | List published posts with pagination |
+| ✅ | Implement `BlogPost::getByCategory()` | Posts in category with pagination |
+| ✅ | Implement `BlogPost::getByTag()` | Posts with tag |
+| ✅ | Implement status transitions | draft → published → archived via publish(), unpublish(), archive() |
+| ✅ | Implement scheduled publishing | schedule() and publishScheduled() methods |
+| ✅ | Implement reading time calculation | updateReadingTime() based on content length |
+| ✅ | Auto-generate slugs | From post title via generateSlug() |
 
 ### 2.4 Basic Routing
 
 | Status | Task | Notes |
 |--------|------|-------|
-| ⬜ | Implement `blog/index.php` routing | Display post list |
-| ⬜ | Implement `blog/post.php` routing | Display single post by slug |
-| ⬜ | Implement `blog/category.php` routing | Display category archive |
-| ⬜ | Implement pagination logic | For post listings |
-| ⬜ | Implement 404 handling | For invalid slugs |
+| ✅ | Implement `blog/index.php` routing | Display post list with full layout, pagination, sidebar |
+| ✅ | Implement `blog/post.php` routing | Display single post by slug with block rendering |
+| ✅ | Implement `blog/category.php` routing | Display category archive with pagination |
+| ✅ | Implement pagination logic | For post listings with page nav |
+| ✅ | Implement 404 handling | For invalid slugs redirects to 404.php |
 
 ### Phase 2 Sign-off
 
-- [ ] Can create/edit/delete categories via code
-- [ ] Can create/edit/delete tags via code
-- [ ] Can create/edit/delete/publish posts via code
-- [ ] Blog listing page shows posts
-- [ ] Single post page displays correctly
-- [ ] Category pages filter correctly
+- [x] Can create/edit/delete categories via code
+- [x] Can create/edit/delete tags via code
+- [x] Can create/edit/delete/publish posts via code
+- [x] Blog listing page shows posts (or empty state)
+- [x] Single post page displays correctly
+- [x] Category pages filter correctly
 
-**Phase 2 Status:** ⬜ Not Started
+**Phase 2 Status:** ✅ Completed
 
 ---
 
@@ -441,7 +441,7 @@ This document serves as a **step-by-step execution tracker** for implementing th
 | Phase | Name | Status | Dependencies |
 |-------|------|--------|--------------|
 | 1 | Foundation Setup | ✅ Completed | None |
-| 2 | Core Blog Engine | ⬜ Not Started | Phase 1 |
+| 2 | Core Blog Engine | ✅ Completed | Phase 1 |
 | 3 | Block System | ⬜ Not Started | Phase 2 |
 | 4 | Admin Interface | ⬜ Not Started | Phase 3 |
 | 5 | Frontend, SEO & Conversion | ⬜ Not Started | Phase 4 |
@@ -465,9 +465,10 @@ This document serves as a **step-by-step execution tracker** for implementing th
 | Date | Phase | Change | Notes |
 |------|-------|--------|-------|
 | 2024-12-17 | 1 | Phase 1 Complete | All database tables, directories, and base classes created |
+| 2024-12-17 | 2 | Phase 2 Complete | Full CRUD for posts/categories/tags, blog public pages (index, post, category), pagination, CSS styling, scheduled publishing |
 
 ---
 
 **Document Created:** 2024-12-17  
 **Last Updated:** 2024-12-17  
-**Current Phase:** Phase 1 - Completed (Ready for Phase 2)
+**Current Phase:** Phase 2 - Completed (Ready for Phase 3)

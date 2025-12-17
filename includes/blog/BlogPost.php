@@ -312,4 +312,53 @@ class BlogPost
         ");
         return $stmt->execute([$readingTime, $id]);
     }
+    
+    public function schedule($id, $publishDate)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE blog_posts 
+            SET status = 'scheduled', 
+                publish_date = ?,
+                updated_at = CURRENT_TIMESTAMP 
+            WHERE id = ?
+        ");
+        return $stmt->execute([$publishDate, $id]);
+    }
+    
+    public function publishScheduled()
+    {
+        $stmt = $this->db->query("
+            UPDATE blog_posts 
+            SET status = 'published', updated_at = CURRENT_TIMESTAMP 
+            WHERE status = 'scheduled' 
+            AND publish_date <= datetime('now', '+1 hour')
+        ");
+        return $stmt->rowCount();
+    }
+    
+    public function getScheduled()
+    {
+        $stmt = $this->db->query("
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM blog_posts p
+            LEFT JOIN blog_categories c ON p.category_id = c.id
+            WHERE p.status = 'scheduled'
+            ORDER BY p.publish_date ASC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function getDrafts($limit = 20)
+    {
+        $stmt = $this->db->prepare("
+            SELECT p.*, c.name as category_name, c.slug as category_slug
+            FROM blog_posts p
+            LEFT JOIN blog_categories c ON p.category_id = c.id
+            WHERE p.status = 'draft'
+            ORDER BY p.updated_at DESC
+            LIMIT ?
+        ");
+        $stmt->execute([$limit]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

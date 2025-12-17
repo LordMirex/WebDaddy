@@ -40,6 +40,29 @@ if ($path === '/sitemap.xml' || $path === '/sitemap') {
     exit;
 }
 
+// Blog routing: /blog/ → blog/index.php
+if ($path === '/blog' || $path === '/blog/') {
+    $_SERVER['SCRIPT_NAME'] = '/blog/index.php';
+    require __DIR__ . '/blog/index.php';
+    exit;
+}
+
+// Blog category routing: /blog/category/slug/ → blog/category.php?category_slug=slug
+if (preg_match('#^/blog/category/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
+    $_GET['category_slug'] = $matches[1];
+    $_SERVER['SCRIPT_NAME'] = '/blog/category.php';
+    require __DIR__ . '/blog/category.php';
+    exit;
+}
+
+// Blog post routing: /blog/slug/ → blog/post.php?slug=slug
+if (preg_match('#^/blog/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
+    $_GET['slug'] = $matches[1];
+    $_SERVER['SCRIPT_NAME'] = '/blog/post.php';
+    require __DIR__ . '/blog/post.php';
+    exit;
+}
+
 // Tool detail page routing: /tool/slug-name → index.php?tool=slug-name
 // Tools open as modals on the index page, not a separate page
 if (preg_match('#^/tool/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
