@@ -188,7 +188,36 @@ function completeRegistrationWithWhatsApp($customerId, $username, $password, $wh
     
     logCustomerActivity($customerId, 'registration_complete', 'Registration completed with WhatsApp number');
     
+    createWelcomeAnnouncementForUser($customerId, $username);
+    
     return ['success' => true, 'message' => 'Account registration complete!'];
+}
+
+function createWelcomeAnnouncementForUser($customerId, $customerName) {
+    try {
+        $db = getDb();
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+        
+        $welcomeTitle = 'Welcome to ' . (defined('SITE_NAME') ? SITE_NAME : 'Our Platform') . '!';
+        $welcomeMessage = '<p>Hello ' . htmlspecialchars($customerName) . ',</p>' .
+            '<p>Thank you for creating an account with us! We\'re excited to have you.</p>' .
+            '<p><strong>Quick tips to get started:</strong></p>' .
+            '<ul><li>Browse our products and find what you need</li>' .
+            '<li>Create a support ticket if you need help</li>' .
+            '<li>Check your downloads after purchase</li></ul>' .
+            '<p>If you have any questions, our support team is here to help!</p>';
+        
+        $stmt = $db->prepare("
+            INSERT INTO user_announcements (title, message, type, is_active, customer_id, expires_at, created_by)
+            VALUES (?, ?, 'success', 1, ?, ?, NULL)
+        ");
+        $stmt->execute([$welcomeTitle, $welcomeMessage, $customerId, $expiresAt]);
+        
+        return true;
+    } catch (Exception $e) {
+        error_log("Failed to create welcome announcement for user {$customerId}: " . $e->getMessage());
+        return false;
+    }
 }
 
 function customerLogin($email, $password) {
