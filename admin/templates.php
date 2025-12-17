@@ -234,16 +234,37 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
     resetCreateForm() {
         const form = document.getElementById('create-template-form');
         if (form) {
+            // Use native form reset first
             form.reset();
-            // Reset video type UI
-            handleVideoTypeChange('create');
-            // Reset banner mode
-            toggleBannerMode('url', 'create');
-            // Clear any cropped data
+            // Reset video type radio to 'none' and trigger UI update
+            const noneRadio = form.querySelector('input[name=video_type][value=none]');
+            if (noneRadio) {
+                noneRadio.checked = true;
+                noneRadio.dispatchEvent(new Event('change'));
+            }
+            // Reset video type UI sections visibility
+            if (typeof handleVideoTypeChange === 'function') handleVideoTypeChange('create');
+            // Reset banner mode to URL
+            if (typeof toggleBannerMode === 'function') toggleBannerMode('url', 'create');
+            // Clear hidden fields
             const croppedData = document.getElementById('banner-cropped-data-create');
             if (croppedData) croppedData.value = '';
             const videoUrl = document.getElementById('video-uploaded-url-create');
             if (videoUrl) videoUrl.value = '';
+            // Reset select dropdowns to first option
+            form.querySelectorAll('select[name=category], select[name=priority_order]').forEach(sel => {
+                sel.selectedIndex = 0;
+            });
+            // Reset Alpine.js nested components (categoryMode)
+            form.querySelectorAll('[x-data]').forEach(el => {
+                if (el._x_dataStack && el._x_dataStack[0]) {
+                    const data = el._x_dataStack[0];
+                    if ('categoryMode' in data) {
+                        data.categoryMode = 'select';
+                        data.customCategory = '';
+                    }
+                }
+            });
         }
     }
 }">
@@ -531,19 +552,19 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                             <p class="text-xs text-gray-500 mb-3">Add a video preview or demo website link for customers to see your template in action.</p>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400 border-primary-600 bg-primary-50" id="video-type-none-label-create">
-                                    <input type="radio" name="video_type_create" value="none" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600" checked>
+                                    <input type="radio" name="video_type" value="none" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600" checked>
                                     <span class="font-medium text-sm">🚫 None</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-video-label-create">
-                                    <input type="radio" name="video_type_create" value="video" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
+                                    <input type="radio" name="video_type" value="video" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
                                     <span class="font-medium text-sm">🎥 Video</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-youtube-label-create">
-                                    <input type="radio" name="video_type_create" value="youtube" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
+                                    <input type="radio" name="video_type" value="youtube" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
                                     <span class="font-medium text-sm">📺 YouTube</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-demo-url-label-create">
-                                    <input type="radio" name="video_type_create" value="demo_url" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
+                                    <input type="radio" name="video_type" value="demo_url" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
                                     <span class="font-medium text-sm">🌐 Demo URL</span>
                                 </label>
                             </div>

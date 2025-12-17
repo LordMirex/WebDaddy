@@ -555,16 +555,38 @@ require_once __DIR__ . '/includes/header.php';
     resetCreateForm() {
         const form = document.getElementById('create-tool-form');
         if (form) {
+            // Use native form reset first (restores default values)
             form.reset();
-            // Reset video type UI
+            // Reset video type radio to 'none' and trigger UI update
+            const noneRadio = form.querySelector('input[name=video_type][value=none]');
+            if (noneRadio) {
+                noneRadio.checked = true;
+                noneRadio.dispatchEvent(new Event('change'));
+            }
+            // Reset video type UI sections
             if (typeof handleToolVideoTypeChange === 'function') handleToolVideoTypeChange('create');
-            // Reset thumbnail mode
+            // Reset thumbnail mode to URL
             if (typeof toggleToolThumbnailMode === 'function') toggleToolThumbnailMode('url', 'create');
-            // Clear any hidden fields
+            // Clear hidden fields
             const croppedData = document.getElementById('tool-thumbnail-cropped-data-create');
             if (croppedData) croppedData.value = '';
             const videoUrl = document.getElementById('tool-video-uploaded-url-create');
             if (videoUrl) videoUrl.value = '';
+            // Reset select dropdowns
+            form.querySelectorAll('select').forEach(sel => {
+                sel.selectedIndex = 0;
+            });
+            // Reset Alpine.js nested components (unlimited stock toggle, toolTypeMode)
+            form.querySelectorAll('[x-data]').forEach(el => {
+                if (el._x_dataStack && el._x_dataStack[0]) {
+                    const data = el._x_dataStack[0];
+                    if ('unlimited' in data) data.unlimited = true;
+                    if ('toolTypeMode' in data) {
+                        data.toolTypeMode = 'select';
+                        data.customToolType = '';
+                    }
+                }
+            });
         }
     }
 }">

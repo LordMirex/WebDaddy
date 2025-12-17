@@ -34,6 +34,12 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 
 ## Recent Changes (December 2024)
 
+### Admin Modal Form State Fix (December 17, 2024)
+- **Modal State Reset Fixed**: Admin modal forms (templates, domains, tools) now properly reset when closing
+- **Video Type Field Fixed**: Changed `video_type_create` to `video_type` in templates create modal so video type is correctly submitted
+- **Enhanced Form Reset**: Improved `resetCreateForm()` functions to comprehensively clear all input fields, checkboxes, radio buttons, selects, and hidden fields when modals are closed
+- **Files Updated**: admin/templates.php, admin/domains.php, admin/tools.php
+
 ### Admin & Payment System Improvements (December 17, 2024)
 - **Admin OTP Generation Fixed**: Replaced failing cURL calls with direct function implementation
 - **OTP Rate Limiting**: 5 OTPs per hour limit per customer to prevent abuse

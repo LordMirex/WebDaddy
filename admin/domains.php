@@ -200,11 +200,30 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
     showBulkModal: false,
     resetCreateForm() {
         const form = this.$el.querySelector('#create-domain-form');
-        if (form) form.reset();
+        if (form) {
+            form.reset();
+            // Reset all text/textarea inputs
+            form.querySelectorAll('input[type=text], textarea').forEach(el => {
+                if (el.name !== 'action') el.value = '';
+            });
+            // Reset select to first option
+            form.querySelectorAll('select').forEach(sel => {
+                sel.selectedIndex = 0;
+            });
+        }
     },
     resetBulkForm() {
         const form = this.$el.querySelector('#bulk-domain-form');
-        if (form) form.reset();
+        if (form) {
+            form.reset();
+            // Reset all inputs and selects
+            form.querySelectorAll('textarea').forEach(el => {
+                el.value = '';
+            });
+            form.querySelectorAll('select').forEach(sel => {
+                sel.selectedIndex = 0;
+            });
+        }
     }
 }">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
