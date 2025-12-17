@@ -87,12 +87,17 @@ $recentOrders = getOrders('pending');
 $recentOrders = array_slice($recentOrders, 0, 5);
 
 // Commission statistics using standardized metrics (single source of truth: sales table)
-$totalCommissionEarned = $revenueMetrics['total_commission'];
+$commissionBreakdown = getCommissionBreakdown($db, '', []);
+$totalAffiliateCommission = $commissionBreakdown['affiliate']['total_commission'];
+$totalUserReferralCommission = $commissionBreakdown['user_referral']['total_commission'];
+$totalCommissionEarned = $totalAffiliateCommission + $totalUserReferralCommission;
+
 $totalPaid = $db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawal_requests WHERE status = 'paid'")->fetchColumn();
-$totalCommissionPaid = (float)$totalPaid;
+$totalUserRefPaid = $db->query("SELECT COALESCE(SUM(amount), 0) FROM user_referral_withdrawals WHERE status = 'paid'")->fetchColumn();
+$totalCommissionPaid = (float)$totalPaid + (float)$totalUserRefPaid;
 $totalCommissionPending = $totalCommissionEarned - $totalCommissionPaid;
 
-// YOUR ACTUAL PROFIT = What customers paid you - What you paid affiliates
+// YOUR ACTUAL PROFIT = What customers paid you - All commissions (affiliate + user referral)
 $yourActualProfit = $totalRevenue - $totalCommissionEarned;
 
 // Customer statistics
@@ -170,8 +175,12 @@ require_once __DIR__ . '/includes/header.php';
             <span class="font-semibold text-gray-900"><?php echo formatCurrency($totalRevenue); ?></span>
         </div>
         <div class="border-t pt-2 flex justify-between">
-            <span class="text-gray-700">Minus Affiliate Commissions:</span>
-            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalCommissionEarned); ?></span>
+            <span class="text-gray-700">Minus Affiliate Commissions (30%):</span>
+            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalAffiliateCommission); ?></span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-700">Minus User Referral Commissions (30%):</span>
+            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalUserReferralCommission); ?></span>
         </div>
         <div class="border-t pt-2 flex justify-between bg-green-50 -mx-3 px-3 py-2 rounded font-bold">
             <span class="text-green-700">= Money You Keep:</span>
@@ -207,7 +216,34 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Commission Statistics -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Affiliate Commission</h6>
+            <i class="bi bi-people text-xl sm:text-2xl text-purple-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalAffiliateCommission); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">30% of final amount</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">User Referral Commission</h6>
+            <i class="bi bi-person-heart text-xl sm:text-2xl text-pink-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalUserReferralCommission); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">30% of final amount</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Total Paid Out</h6>
+            <i class="bi bi-check-circle text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionPaid); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block">Already paid to referrers</small>
+    </div>
+    
     <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between mb-3">
             <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Pending</h6>
@@ -215,24 +251,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionPending); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block">Awaiting payout</small>
-    </div>
-    
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
-        <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Paid</h6>
-            <i class="bi bi-check-circle text-xl sm:text-2xl text-blue-600 flex-shrink-0"></i>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionPaid); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">Already paid to affiliates</small>
-    </div>
-    
-    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
-        <div class="flex items-center justify-between mb-3">
-            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">Commission Earned</h6>
-            <i class="bi bi-graph-up text-xl sm:text-2xl text-orange-600 flex-shrink-0"></i>
-        </div>
-        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatCurrency($totalCommissionEarned); ?></div>
-        <small class="text-xs sm:text-sm text-gray-500 truncate block">Total owed to affiliates</small>
     </div>
 </div>
 
