@@ -151,6 +151,47 @@ function applyPendingMigrations($db) {
             $db->exec("ALTER TABLE pending_orders ADD COLUMN payment_notified_at TEXT");
             error_log("Migration: Added payment_notified_at column to pending_orders");
         }
+        
+        // Create user_announcements table if not exists
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='user_announcements'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE user_announcements (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    type TEXT DEFAULT 'info',
+                    is_active INTEGER DEFAULT 1,
+                    customer_id INTEGER DEFAULT NULL,
+                    created_by INTEGER,
+                    expires_at TEXT DEFAULT NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+            $db->exec("CREATE INDEX idx_user_announcements_active ON user_announcements(is_active)");
+            $db->exec("CREATE INDEX idx_user_announcements_customer ON user_announcements(customer_id)");
+            error_log("Migration: Created user_announcements table");
+        }
+        
+        // Create user_announcement_emails table if not exists
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='user_announcement_emails'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE user_announcement_emails (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    announcement_id INTEGER NOT NULL,
+                    customer_id INTEGER NOT NULL,
+                    email_address TEXT NOT NULL,
+                    failed INTEGER DEFAULT 0,
+                    error_message TEXT,
+                    sent_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+            $db->exec("CREATE INDEX idx_user_announcement_emails_announcement ON user_announcement_emails(announcement_id)");
+            error_log("Migration: Created user_announcement_emails table");
+        }
     } catch (Exception $e) {
         // Log but don't fail - migrations are optional enhancements
         error_log("Migration check error: " . $e->getMessage());
