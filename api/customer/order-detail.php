@@ -39,13 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
         
-        if ($order['status'] !== 'pending') {
+        // Allow both pending and failed orders to use manual payment
+        if (!in_array($order['status'], ['pending', 'failed'])) {
             echo json_encode(['success' => false, 'error' => 'Order is not awaiting payment']);
             exit;
         }
         
-        // Mark order as payment notified
-        $updateStmt = $db->prepare("UPDATE pending_orders SET payment_notified = 1, payment_notified_at = datetime('now') WHERE id = ?");
+        // For failed orders, reset status to pending for manual payment retry
+        if ($order['status'] === 'failed') {
+            $updateStmt = $db->prepare("UPDATE pending_orders SET status = 'pending', payment_method = 'manual', payment_notified = 1, payment_notified_at = datetime('now') WHERE id = ?");
+        } else {
+            // Mark order as payment notified and set method to manual
+            $updateStmt = $db->prepare("UPDATE pending_orders SET payment_method = 'manual', payment_notified = 1, payment_notified_at = datetime('now') WHERE id = ?");
+        }
         $updateStmt->execute([$orderId]);
         
         // Send admin notification email about pending payment

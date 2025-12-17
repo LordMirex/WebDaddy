@@ -615,7 +615,9 @@ function markOrderPaid($orderId, $adminId, $amountPaid, $paymentNotes = '')
             throw new Exception('Order not found');
         }
         
-        $stmt = $db->prepare("UPDATE pending_orders SET status = 'paid', payment_notes = ? WHERE id = ?");
+        // IMPORTANT: Set payment_method to 'manual' when admin approves (not paystack)
+        // This ensures accurate tracking in reports and analytics
+        $stmt = $db->prepare("UPDATE pending_orders SET status = 'paid', payment_method = 'manual', payment_notes = ? WHERE id = ?");
         $stmt->execute([$paymentNotes, $orderId]);
         
         $commissionAmount = 0;

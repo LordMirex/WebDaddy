@@ -48,6 +48,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $errorMessage = 'Database error occurred. Please try again.';
                 }
             }
+        } elseif ($action === 'generate_otp') {
+            // Quick OTP generation from customer list
+            $customerId = intval($_POST['customer_id']);
+            
+            try {
+                // Get customer data
+                $custStmt = $db->prepare("SELECT id, email, username FROM customers WHERE id = ?");
+                $custStmt->execute([$customerId]);
+                $custData = $custStmt->fetch(PDO::FETCH_ASSOC);
+                
+                if (!$custData) {
+                    throw new Exception('Customer not found');
+                }
+                
+                // Rate limiting: max 5 OTPs per customer per hour
+                $rateCheck = $db->prepare("
+                    SELECT COUNT(*) FROM admin_verification_otps 
+                    WHERE customer_id = ? AND created_at > datetime('now', '-1 hour')
+                ");
+                $rateCheck->execute([$customerId]);
+                if ($rateCheck->fetchColumn() >= 5) {
+                    throw new Exception('Rate limit exceeded. Max 5 OTPs per hour.');
+                }
+                
+                // Generate 6-digit OTP
+                $otpCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+                
+                $db->beginTransaction();
+                
+                // Insert OTP record
+                $insertOtp = $db->prepare("
+                    INSERT INTO admin_verification_otps (customer_id, admin_id, otp_code, expires_at)
+                    VALUES (?, ?, ?, ?)
+                ");
+                $insertOtp->execute([$customerId, getAdminId(), $otpCode, $expiresAt]);
+                
+                // Create dashboard notification
+                $notificationTitle = 'Identity Verification Code';
+                $notificationMessage = "Your identity verification code is: $otpCode. This code expires in 10 minutes. Only share this code with our support team when requested.";
+                $notificationData = json_encode([
+                    'type' => 'identity_verification_otp',
+                    'otp_code' => $otpCode,
+                    'expires_at' => $expiresAt
+                ]);
+                
+                $insertNotif = $db->prepare("
+                    INSERT INTO customer_notifications (customer_id, type, title, message, data, priority)
+                    VALUES (?, 'identity_verification', ?, ?, ?, 'high')
+                ");
+                $insertNotif->execute([$customerId, $notificationTitle, $notificationMessage, $notificationData]);
+                
+                // Send OTP via email
+                require_once __DIR__ . '/../includes/mailer.php';
+                $emailSubject = 'Identity Verification Code - ' . (SITE_NAME ?? 'WebDaddy');
+                $emailBody = "
+                    <h2>Identity Verification Code</h2>
+                    <p>Hello,</p>
+                    <p>Your identity verification code is:</p>
+                    <div style='background: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;'>
+                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; font-family: monospace;'>$otpCode</span>
+                    </div>
+                    <p>This code expires in <strong>10 minutes</strong>.</p>
+                    <p>Only share this code with our support team when they request it for identity verification.</p>
+                    <p><strong>If you didn't request this code, please ignore this email.</strong></p>
+                ";
+                sendEmail($custData['email'], $emailSubject, $emailBody);
+                
+                $db->commit();
+                
+                logActivity('admin_otp_generated', "Generated OTP for customer #$customerId from list", getAdminId());
+                $successMessage = "OTP generated for " . htmlspecialchars($custData['email']) . "! Code: <strong class='font-mono'>$otpCode</strong> (expires in 10 min)";
+                
+            } catch (Exception $e) {
+                if ($db->inTransaction()) {
+                    $db->rollBack();
+                }
+                error_log('OTP generation error: ' . $e->getMessage());
+                $errorMessage = $e->getMessage() ?: 'Failed to generate OTP.';
+            }
         }
     }
 }
@@ -185,7 +265,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <?php if ($successMessage): ?>
 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded mb-6">
-    <i class="bi bi-check-circle mr-2"></i><?php echo htmlspecialchars($successMessage); ?>
+    <i class="bi bi-check-circle mr-2"></i><?php echo $successMessage; ?>
 </div>
 <?php endif; ?>
 
@@ -300,18 +380,30 @@ require_once __DIR__ . '/includes/header.php';
                         <?php echo date('M d, Y', strtotime($customer['created_at'])); ?>
                     </td>
                     <td class="py-3 px-4">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                             <a href="/admin/customer-detail.php?id=<?php echo $customer['id']; ?>" 
-                               class="px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm transition-colors">
+                               class="px-3 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm transition-colors"
+                               title="View Customer Details">
                                 <i class="bi bi-eye"></i> View
                             </a>
+                            
+                            <!-- Quick OTP Button -->
+                            <form method="POST" style="display: inline;" onsubmit="return confirm('Generate OTP for this customer? The code will be sent to their email and dashboard.');">
+                                <input type="hidden" name="action" value="generate_otp">
+                                <input type="hidden" name="customer_id" value="<?php echo $customer['id']; ?>">
+                                <button type="submit" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm transition-colors"
+                                        title="Generate Identity Verification OTP">
+                                    <i class="bi bi-key"></i>
+                                </button>
+                            </form>
                             
                             <?php if ($customer['status'] !== 'suspended'): ?>
                             <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to suspend this customer?');">
                                 <input type="hidden" name="action" value="update_status">
                                 <input type="hidden" name="customer_id" value="<?php echo $customer['id']; ?>">
                                 <input type="hidden" name="status" value="suspended">
-                                <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors">
+                                <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors"
+                                        title="Suspend Customer">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             </form>
@@ -320,7 +412,8 @@ require_once __DIR__ . '/includes/header.php';
                                 <input type="hidden" name="action" value="update_status">
                                 <input type="hidden" name="customer_id" value="<?php echo $customer['id']; ?>">
                                 <input type="hidden" name="status" value="active">
-                                <button type="submit" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition-colors">
+                                <button type="submit" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition-colors"
+                                        title="Activate Customer">
                                     <i class="bi bi-check-circle"></i>
                                 </button>
                             </form>

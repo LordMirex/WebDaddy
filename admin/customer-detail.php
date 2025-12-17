@@ -81,37 +81,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errorMessage = 'Failed to revoke sessions.';
             }
         } elseif ($action === 'generate_otp') {
-            // Call the OTP API with proper error handling
-            $ch = curl_init();
-            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $url = "$protocol://$host/admin/api/generate-user-otp.php";
-            
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(['customer_id' => $customerId]));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_COOKIE, session_name() . '=' . session_id());
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-            
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
-            
-            if ($response === false || !empty($curlError)) {
-                error_log("OTP API cURL error: $curlError");
-                $errorMessage = 'Failed to connect to OTP service. Please try again.';
-            } else {
-                $result = json_decode($response, true);
+            try {
+                // Direct OTP generation without cURL (more reliable)
+                $customerData = $db->prepare("SELECT id, email, username FROM customers WHERE id = ?");
+                $customerData->execute([$customerId]);
+                $custData = $customerData->fetch(PDO::FETCH_ASSOC);
                 
-                if ($httpCode === 200 && isset($result['success']) && $result['success']) {
-                    $successMessage = 'OTP generated successfully! Code: ' . $result['otp_code'] . ' (expires in 10 minutes)';
-                } else {
-                    $errorMessage = $result['error'] ?? 'Failed to generate OTP.';
+                if (!$custData) {
+                    throw new Exception('Customer not found');
                 }
+                
+                // Rate limiting: max 5 OTPs per customer per hour
+                $rateCheck = $db->prepare("
+                    SELECT COUNT(*) FROM admin_verification_otps 
+                    WHERE customer_id = ? AND created_at > datetime('now', '-1 hour')
+                ");
+                $rateCheck->execute([$customerId]);
+                if ($rateCheck->fetchColumn() >= 5) {
+                    throw new Exception('Rate limit exceeded. Maximum 5 OTPs per customer per hour.');
+                }
+                
+                // Generate 6-digit OTP
+                $otpCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $expiresAt = date('Y-m-d H:i:s', strtotime('+10 minutes'));
+                
+                $db->beginTransaction();
+                
+                // Insert OTP record
+                $insertOtp = $db->prepare("
+                    INSERT INTO admin_verification_otps (customer_id, admin_id, otp_code, expires_at)
+                    VALUES (?, ?, ?, ?)
+                ");
+                $insertOtp->execute([$customerId, getAdminId(), $otpCode, $expiresAt]);
+                
+                // Create notification for customer
+                $notificationTitle = 'Identity Verification Code';
+                $notificationMessage = "Your identity verification code is: $otpCode. This code expires in 10 minutes. Only share this code with our support team when requested.";
+                $notificationData = json_encode([
+                    'type' => 'identity_verification_otp',
+                    'otp_code' => $otpCode,
+                    'expires_at' => $expiresAt
+                ]);
+                
+                $insertNotif = $db->prepare("
+                    INSERT INTO customer_notifications (customer_id, type, title, message, data, priority)
+                    VALUES (?, 'identity_verification', ?, ?, ?, 'high')
+                ");
+                $insertNotif->execute([$customerId, $notificationTitle, $notificationMessage, $notificationData]);
+                
+                // Send OTP via email
+                require_once __DIR__ . '/../includes/mailer.php';
+                $emailSubject = 'Identity Verification Code - ' . (SITE_NAME ?? 'WebDaddy');
+                $emailBody = "
+                    <h2>Identity Verification Code</h2>
+                    <p>Hello,</p>
+                    <p>Your identity verification code is:</p>
+                    <div style='background: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;'>
+                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; font-family: monospace;'>$otpCode</span>
+                    </div>
+                    <p>This code expires in <strong>10 minutes</strong>.</p>
+                    <p>Only share this code with our support team when they request it for identity verification.</p>
+                    <p><strong>If you didn't request this code, please ignore this email.</strong></p>
+                ";
+                sendEmail($custData['email'], $emailSubject, $emailBody);
+                
+                $db->commit();
+                
+                logActivity('admin_otp_generated', "Generated OTP for customer #$customerId", getAdminId());
+                $successMessage = "OTP generated successfully! Code: <strong class='font-mono text-lg'>$otpCode</strong> (expires in 10 minutes). Email sent to customer.";
+                
+            } catch (Exception $e) {
+                if ($db->inTransaction()) {
+                    $db->rollBack();
+                }
+                error_log('OTP generation error: ' . $e->getMessage());
+                $errorMessage = $e->getMessage() ?: 'Failed to generate OTP.';
             }
         }
     }
@@ -236,7 +280,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <?php if ($successMessage): ?>
 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded mb-6">
-    <i class="bi bi-check-circle mr-2"></i><?php echo htmlspecialchars($successMessage); ?>
+    <i class="bi bi-check-circle mr-2"></i><?php echo $successMessage; ?>
 </div>
 <?php endif; ?>
 
@@ -363,53 +407,53 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     
     <!-- Main Content -->
-    <div class="lg:col-span-2" x-data="{ activeTab: 'orders' }">
+    <div class="lg:col-span-2 min-w-0" x-data="{ activeTab: 'orders' }">
         <!-- Tabs -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
-            <div class="flex border-b border-gray-200">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6 overflow-hidden">
+            <div class="flex border-b border-gray-200 overflow-x-auto scrollbar-hide">
                 <button @click="activeTab = 'orders'" 
                         :class="activeTab === 'orders' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-500 hover:text-gray-700'"
-                        class="px-6 py-4 font-semibold transition-colors">
-                    <i class="bi bi-bag mr-1"></i> Orders (<?php echo count($orders); ?>)
+                        class="px-3 sm:px-6 py-3 sm:py-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base flex-shrink-0">
+                    <i class="bi bi-bag mr-1"></i> <span class="hidden sm:inline">Orders</span> (<?php echo count($orders); ?>)
                 </button>
                 <button @click="activeTab = 'tickets'" 
                         :class="activeTab === 'tickets' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-500 hover:text-gray-700'"
-                        class="px-6 py-4 font-semibold transition-colors">
-                    <i class="bi bi-headset mr-1"></i> Tickets (<?php echo count($tickets); ?>)
+                        class="px-3 sm:px-6 py-3 sm:py-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base flex-shrink-0">
+                    <i class="bi bi-headset mr-1"></i> <span class="hidden sm:inline">Tickets</span> (<?php echo count($tickets); ?>)
                 </button>
                 <button @click="activeTab = 'activity'" 
                         :class="activeTab === 'activity' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-500 hover:text-gray-700'"
-                        class="px-6 py-4 font-semibold transition-colors">
-                    <i class="bi bi-clock-history mr-1"></i> Activity
+                        class="px-3 sm:px-6 py-3 sm:py-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base flex-shrink-0">
+                    <i class="bi bi-clock-history mr-1"></i> <span class="hidden sm:inline">Activity</span>
                 </button>
                 <button @click="activeTab = 'sessions'" 
                         :class="activeTab === 'sessions' ? 'border-b-2 border-primary-600 text-primary-600' : 'text-gray-500 hover:text-gray-700'"
-                        class="px-6 py-4 font-semibold transition-colors">
-                    <i class="bi bi-laptop mr-1"></i> Sessions
+                        class="px-3 sm:px-6 py-3 sm:py-4 font-semibold transition-colors whitespace-nowrap text-sm sm:text-base flex-shrink-0">
+                    <i class="bi bi-laptop mr-1"></i> <span class="hidden sm:inline">Sessions</span>
                 </button>
             </div>
             
             <!-- Orders Tab -->
-            <div x-show="activeTab === 'orders'" class="p-6">
+            <div x-show="activeTab === 'orders'" class="p-3 sm:p-6">
                 <?php if (empty($orders)): ?>
                 <div class="text-center py-8">
                     <i class="bi bi-bag-x text-4xl text-gray-300"></i>
                     <p class="text-gray-500 mt-2">No orders yet</p>
                 </div>
                 <?php else: ?>
-                <div class="space-y-4">
+                <div class="space-y-3 sm:space-y-4">
                     <?php foreach ($orders as $order): ?>
-                    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-                        <div class="flex justify-between items-start">
-                            <div>
+                    <div class="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                            <div class="min-w-0 flex-1">
                                 <div class="font-semibold text-gray-900">Order #<?php echo $order['id']; ?></div>
-                                <div class="text-sm text-gray-500"><?php echo htmlspecialchars($order['items'] ?? 'N/A'); ?></div>
+                                <div class="text-sm text-gray-500 truncate max-w-full"><?php echo htmlspecialchars(substr($order['items'] ?? 'N/A', 0, 50)) . (strlen($order['items'] ?? '') > 50 ? '...' : ''); ?></div>
                                 <div class="text-xs text-gray-400 mt-1"><?php echo getRelativeTime($order['created_at']); ?></div>
                             </div>
-                            <div class="text-right">
+                            <div class="sm:text-right flex sm:flex-col items-center sm:items-end gap-2 flex-wrap">
                                 <div class="font-bold text-green-600"><?php echo formatCurrency($order['final_amount']); ?></div>
                                 <?php echo getStatusBadge($order['status']); ?>
-                                <a href="/admin/orders.php?search=<?php echo $order['id']; ?>" class="block mt-2 text-primary-600 hover:text-primary-700 text-sm">
+                                <a href="/admin/orders.php?search=<?php echo $order['id']; ?>" class="text-primary-600 hover:text-primary-700 text-sm whitespace-nowrap">
                                     View <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
