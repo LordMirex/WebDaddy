@@ -463,9 +463,25 @@ require_once __DIR__ . '/includes/header.php';
                             <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="slug" value="<?php echo htmlspecialchars($editTemplate['slug'] ?? ''); ?>" required>
                             <small class="text-gray-500 text-xs">URL-friendly name (e.g., ecommerce-store)</small>
                         </div>
-                        <div>
+                        <?php 
+                        $currentTemplateCategory = $editTemplate['category'] ?? '';
+                        $isCustomTemplateCategory = !empty($currentTemplateCategory) && !in_array($currentTemplateCategory, $categories);
+                        ?>
+                        <div x-data="{ categoryMode: '<?php echo $isCustomTemplateCategory ? 'custom' : 'select'; ?>', customCategory: '<?php echo $isCustomTemplateCategory ? htmlspecialchars($currentTemplateCategory) : ''; ?>' }">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="category" value="<?php echo htmlspecialchars($editTemplate['category'] ?? ''); ?>" placeholder="e.g., E-commerce, Portfolio, Blog">
+                            <div class="flex gap-2">
+                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
+                                    <option value="">Select Category</option>
+                                    <?php foreach ($categories as $cat): ?>
+                                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (!$isCustomTemplateCategory && $currentTemplateCategory === $cat) ? 'selected' : ''; ?>><?php echo htmlspecialchars($cat); ?></option>
+                                    <?php endforeach; ?>
+                                    <option value="__others__">Others (Type your own)</option>
+                                </select>
+                                <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="Enter custom category">
+                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>

@@ -64,12 +64,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
         $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 10) ? $priorityOrder : null;
         
+        // Default to placeholder if no banner provided
+        if (empty($thumbnailUrl)) {
+            $thumbnailUrl = '/assets/images/placeholder.jpg';
+        }
+        
+        // Handle custom tool type when "Others" is selected
+        if ($toolType === '__others__') {
+            $toolType = sanitizeInput($_POST['tool_type_custom'] ?? 'other');
+        }
+        
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
         } elseif (empty($slug)) {
             $errorMessage = 'Slug is required.';
-        } elseif (empty($thumbnailUrl)) {
-            $errorMessage = 'Product banner image is required.';
         } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
             $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
         } else {
@@ -153,12 +161,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $priorityOrder = isset($_POST['priority_order']) ? intval($_POST['priority_order']) : null;
         $priorityOrder = ($priorityOrder > 0 && $priorityOrder <= 10) ? $priorityOrder : null;
         
+        // Default to placeholder if no banner provided
+        if (empty($thumbnailUrl)) {
+            $thumbnailUrl = '/assets/images/placeholder.jpg';
+        }
+        
+        // Handle custom tool type when "Others" is selected
+        if ($toolType === '__others__') {
+            $toolType = sanitizeInput($_POST['tool_type_custom'] ?? 'other');
+        }
+        
         if (empty($name) || empty($price)) {
             $errorMessage = 'Name and price are required.';
         } elseif (empty($slug)) {
             $errorMessage = 'Slug is required.';
-        } elseif (empty($thumbnailUrl)) {
-            $errorMessage = 'Product banner image is required.';
         } elseif ($videoType === 'youtube' && empty($previewYoutube)) {
             $errorMessage = 'Invalid YouTube URL or video ID. Please provide a valid YouTube link.';
         } else {
@@ -844,15 +860,22 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="grid md:grid-cols-2 gap-4">
-                        <div>
+                        <div x-data="{ toolTypeMode: 'select', customToolType: '' }">
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
-                            <select name="tool_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                <option value="software">Software/License</option>
-                                <option value="api_key">API Key</option>
-                                <option value="subscription">Subscription</option>
-                                <option value="digital_asset">Digital Asset</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <div class="flex gap-2">
+                                <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
+                                    <option value="software">Software/License</option>
+                                    <option value="api_key">API Key</option>
+                                    <option value="subscription">Subscription</option>
+                                    <option value="digital_asset">Digital Asset</option>
+                                    <option value="__others__">Others (Type your own)</option>
+                                </select>
+                                <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
+                                <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
+                                <button x-show="toolTypeMode === 'custom'" type="button" @click="toolTypeMode = 'select'; customToolType = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                            </div>
                         </div>
                         <div x-data="{ categoryMode: 'select', customCategory: '' }">
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
@@ -890,14 +913,14 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <!-- Product Banner Image -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Product Banner Image <span class="text-red-600">*</span></label>
-                        <p class="text-xs text-gray-500 mb-3">Required. This image represents your tool on the marketplace.</p>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Product Banner Image (Optional)</label>
+                        <p class="text-xs text-gray-500 mb-3">Optional. If not provided, a default placeholder will be used.</p>
                         <div class="flex gap-2 mb-3">
                             <button type="button" onclick="toggleToolThumbnailMode('url', 'create')" id="tool-thumbnail-url-btn-create" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'create')" id="tool-thumbnail-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-create">
-                            <input type="text" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required placeholder="https://example.com/image.jpg or /uploads/image.jpg">
+                            <input type="text" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" placeholder="https://example.com/image.jpg or /uploads/image.jpg">
                         </div>
                         <div id="tool-thumbnail-upload-mode-create" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-create" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -1077,16 +1100,28 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
+                    <?php 
+                    $currentToolType = $editTool['tool_type'] ?? '';
+                    $standardToolTypes = ['software', 'api_key', 'subscription', 'digital_asset'];
+                    $isCustomToolType = !empty($currentToolType) && !in_array($currentToolType, $standardToolTypes);
+                    ?>
                     <div class="grid md:grid-cols-2 gap-4">
-                        <div>
+                        <div x-data="{ toolTypeMode: '<?php echo $isCustomToolType ? 'custom' : 'select'; ?>', customToolType: '<?php echo $isCustomToolType ? htmlspecialchars($currentToolType) : ''; ?>' }">
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
-                            <select name="tool_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                <option value="software" <?php echo $editTool['tool_type'] === 'software' ? 'selected' : ''; ?>>Software/License</option>
-                                <option value="api_key" <?php echo $editTool['tool_type'] === 'api_key' ? 'selected' : ''; ?>>API Key</option>
-                                <option value="subscription" <?php echo $editTool['tool_type'] === 'subscription' ? 'selected' : ''; ?>>Subscription</option>
-                                <option value="digital_asset" <?php echo $editTool['tool_type'] === 'digital_asset' ? 'selected' : ''; ?>>Digital Asset</option>
-                                <option value="other" <?php echo $editTool['tool_type'] === 'other' ? 'selected' : ''; ?>>Other</option>
-                            </select>
+                            <div class="flex gap-2">
+                                <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
+                                    <option value="software" <?php echo (!$isCustomToolType && $currentToolType === 'software') ? 'selected' : ''; ?>>Software/License</option>
+                                    <option value="api_key" <?php echo (!$isCustomToolType && $currentToolType === 'api_key') ? 'selected' : ''; ?>>API Key</option>
+                                    <option value="subscription" <?php echo (!$isCustomToolType && $currentToolType === 'subscription') ? 'selected' : ''; ?>>Subscription</option>
+                                    <option value="digital_asset" <?php echo (!$isCustomToolType && $currentToolType === 'digital_asset') ? 'selected' : ''; ?>>Digital Asset</option>
+                                    <option value="__others__">Others (Type your own)</option>
+                                </select>
+                                <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
+                                <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
+                                <button x-show="toolTypeMode === 'custom'" type="button" @click="toolTypeMode = 'select'; customToolType = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                            </div>
                         </div>
                         <?php 
                         $currentCategory = $editTool['category'] ?? '';
@@ -1128,14 +1163,14 @@ require_once __DIR__ . '/includes/header.php';
                     
                     <!-- Product Banner Image -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Product Banner Image <span class="text-red-600">*</span></label>
-                        <p class="text-xs text-gray-500 mb-3">Required. This image represents your tool on the marketplace.</p>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Product Banner Image (Optional)</label>
+                        <p class="text-xs text-gray-500 mb-3">Optional. If not provided, a default placeholder will be used.</p>
                         <div class="flex gap-2 mb-3">
                             <button type="button" onclick="toggleToolThumbnailMode('url', 'edit')" id="tool-thumbnail-url-btn-edit" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium">URL</button>
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'edit')" id="tool-thumbnail-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-edit">
-                            <input type="text" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" required value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg or /uploads/image.jpg">
+                            <input type="text" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg or /uploads/image.jpg">
                         </div>
                         <div id="tool-thumbnail-upload-mode-edit" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-edit" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">

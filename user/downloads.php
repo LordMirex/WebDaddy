@@ -85,13 +85,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="p-4">
                     <div class="flex items-start gap-4 mb-4">
                         <div class="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                            <?php if (!empty($tool['thumbnail'])): ?>
-                            <img src="<?= htmlspecialchars($tool['thumbnail']) ?>" alt="" class="w-full h-full object-cover">
-                            <?php else: ?>
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="bi-tools text-gray-400 text-xl"></i>
-                            </div>
-                            <?php endif; ?>
+                            <img src="<?= htmlspecialchars(!empty($tool['thumbnail']) ? $tool['thumbnail'] : '/assets/images/placeholder.jpg') ?>" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/assets/images/placeholder.jpg';">
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-900"><?= htmlspecialchars($tool['name']) ?></h4>

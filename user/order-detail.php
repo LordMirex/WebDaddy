@@ -451,13 +451,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="border rounded-xl p-4 hover:shadow-md transition">
                     <div class="flex gap-4">
                         <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                            <?php if (!empty($item['product_thumbnail'])): ?>
-                            <img src="<?= htmlspecialchars($item['product_thumbnail']) ?>" alt="" class="w-full h-full object-cover">
-                            <?php else: ?>
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="bi-layout-wtf text-gray-400 text-2xl"></i>
-                            </div>
-                            <?php endif; ?>
+                            <img src="<?= htmlspecialchars(!empty($item['product_thumbnail']) ? $item['product_thumbnail'] : '/assets/images/placeholder.jpg') ?>" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/assets/images/placeholder.jpg';">
                         </div>
                         
                         <div class="flex-1 min-w-0">
@@ -640,13 +634,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="border rounded-xl p-4 hover:shadow-md transition">
                     <div class="flex gap-4">
                         <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                            <?php if (!empty($item['product_thumbnail'])): ?>
-                            <img src="<?= htmlspecialchars($item['product_thumbnail']) ?>" alt="" class="w-full h-full object-cover">
-                            <?php else: ?>
-                            <div class="w-full h-full flex items-center justify-center">
-                                <i class="bi-tools text-gray-400 text-2xl"></i>
-                            </div>
-                            <?php endif; ?>
+                            <img src="<?= htmlspecialchars(!empty($item['product_thumbnail']) ? $item['product_thumbnail'] : '/assets/images/placeholder.jpg') ?>" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/assets/images/placeholder.jpg';">
                         </div>
                         
                         <div class="flex-1 min-w-0">
