@@ -175,6 +175,11 @@
                     <span class="font-semibold">Customer Tickets</span>
                 </a>
 
+                <a href="/admin/user-campaign.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'user-campaign.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-megaphone <?php echo basename($_SERVER['PHP_SELF']) == 'user-campaign.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">User Campaign</span>
+                </a>
+
                 <!-- Payments & Delivery Section -->
                 <div class="pt-4 pb-2">
                     <div class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Payments & Delivery</div>

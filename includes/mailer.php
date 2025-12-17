@@ -1645,3 +1645,149 @@ HTML;
     error_log("Resend identity OTP email failed, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
     return sendEmail($email, $subject, $emailBody);
 }
+
+/**
+ * Send announcement email to a customer/user
+ * @param int $announcementId Announcement ID for tracking
+ * @param int $customerId Customer ID
+ * @param string $customerName Customer name
+ * @param string $customerEmail Customer email
+ * @param string $title Announcement title
+ * @param string $message Announcement message (HTML)
+ * @param string $type Announcement type (info, success, warning, danger)
+ * @param PDO $db Database connection for tracking
+ * @return bool Success status
+ */
+function sendUserAnnouncementEmail($announcementId, $customerId, $customerName, $customerEmail, $title, $message, $type = 'info', $db = null) {
+    $subject = "Important Update: " . $title;
+    
+    $typeConfig = [
+        'success' => ['color' => '#10b981', 'icon' => '&#10004;', 'label' => 'Good News'],
+        'warning' => ['color' => '#f59e0b', 'icon' => '&#9888;', 'label' => 'Notice'],
+        'danger' => ['color' => '#ef4444', 'icon' => '&#9888;', 'label' => 'Important'],
+        'info' => ['color' => '#3b82f6', 'icon' => '&#9432;', 'label' => 'Update']
+    ];
+    
+    $config = $typeConfig[$type] ?? $typeConfig['info'];
+    $sanitizedMessage = sanitizeEmailHtml($message);
+    
+    $content = <<<HTML
+<div style="background:{$config['color']}; color:#ffffff; padding:12px 20px; border-radius:8px; margin-bottom:20px; text-align:center;">
+    <p style="margin:0; font-size:18px; font-weight:700;">
+        {$config['icon']} {$config['label']}: {$title}
+    </p>
+</div>
+<div style="color:#374151; line-height:1.8; font-size:15px;">
+    {$sanitizedMessage}
+</div>
+<div style="margin-top:25px; padding:15px; background:#f3f4f6; border-radius:8px; text-align:center;">
+    <p style="margin:0; color:#6b7280; font-size:13px;">
+        <strong>Check your spam folder</strong> if you're not receiving our emails and add us to your contacts.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $customerName);
+    $success = sendUserEmail($customerEmail, $subject, $emailBody, 'user_announcement');
+    
+    if ($db && $announcementId) {
+        try {
+            $stmt = $db->prepare("
+                INSERT INTO user_announcement_emails 
+                (announcement_id, customer_id, email_address, failed, error_message) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            
+            $failed = $success ? 0 : 1;
+            $errorMsg = $success ? null : 'Email sending failed';
+            
+            $stmt->execute([
+                $announcementId,
+                $customerId,
+                $customerEmail,
+                $failed,
+                $errorMsg
+            ]);
+        } catch (Exception $e) {
+            error_log("Failed to track user announcement email: " . $e->getMessage());
+        }
+    }
+    
+    return $success;
+}
+
+/**
+ * Send announcement emails to multiple customers with batch processing
+ * @param int $announcementId Announcement ID
+ * @param string $title Announcement title
+ * @param string $message Announcement message (HTML)
+ * @param string $type Announcement type
+ * @param array $customers Array of customer data (id, name, email)
+ * @param PDO $db Database connection
+ * @return array Statistics ['total' => int, 'sent' => int, 'failed' => int]
+ */
+function sendUserAnnouncementEmails($announcementId, $title, $message, $type, $customers, $db) {
+    $stats = [
+        'total' => count($customers),
+        'sent' => 0,
+        'failed' => 0
+    ];
+    
+    if (empty($customers)) {
+        return $stats;
+    }
+    
+    $batchSize = 50;
+    $delay = 100000;
+    
+    foreach ($customers as $index => $customer) {
+        $success = sendUserAnnouncementEmail(
+            $announcementId,
+            $customer['id'],
+            $customer['name'] ?? $customer['username'] ?? 'Customer',
+            $customer['email'],
+            $title,
+            $message,
+            $type,
+            $db
+        );
+        
+        if ($success) {
+            $stats['sent']++;
+        } else {
+            $stats['failed']++;
+        }
+        
+        if (($index + 1) % $batchSize === 0 && ($index + 1) < count($customers)) {
+            usleep($delay);
+        }
+    }
+    
+    return $stats;
+}
+
+/**
+ * Send custom email to a single customer
+ * @param string $customerName Customer name
+ * @param string $customerEmail Customer email
+ * @param string $subject Email subject
+ * @param string $message Email message (HTML)
+ * @return bool Success status
+ */
+function sendCustomEmailToCustomer($customerName, $customerEmail, $subject, $message) {
+    $sanitizedMessage = sanitizeEmailHtml($message);
+    
+    $content = <<<HTML
+<div style="color:#374151; line-height:1.8; font-size:15px;">
+    {$sanitizedMessage}
+</div>
+<div style="margin-top:25px; padding:15px; background:#f3f4f6; border-radius:8px; text-align:center;">
+    <p style="margin:0; color:#6b7280; font-size:13px;">
+        <strong>Check your spam folder</strong> if you're not receiving our emails and add us to your contacts.
+    </p>
+</div>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, $customerName);
+    return sendUserEmail($customerEmail, $subject, $emailBody, 'custom_user_email');
+}
