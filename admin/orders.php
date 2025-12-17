@@ -2489,6 +2489,18 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                             <button type="button" onclick="document.getElementById('update-creds-<?php echo $delivery['id']; ?>').classList.toggle('hidden')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
                                 <i class="bi bi-pencil mr-1"></i> Update Credentials
                             </button>
+                            <button type="button" 
+                                class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors copy-whatsapp-template-btn"
+                                data-product-name="<?php echo htmlspecialchars($delivery['product_name'] ?? 'Template', ENT_QUOTES, 'UTF-8'); ?>"
+                                data-website="<?php echo htmlspecialchars($websiteUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-domain="<?php echo htmlspecialchars($delivery['hosted_domain'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                data-admin-url="<?php echo htmlspecialchars($adminLoginUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-username="<?php echo htmlspecialchars($delivery['template_admin_username'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                data-password-b64="<?php echo base64_encode($decryptedPassword ?? ''); ?>"
+                                data-notes="<?php echo htmlspecialchars($delivery['admin_notes'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                title="Copy delivery message for WhatsApp">
+                                <i class="bi bi-whatsapp mr-1"></i> Copy for WhatsApp
+                            </button>
                         </div>
                         
                         <div id="update-creds-<?php echo $delivery['id']; ?>" class="hidden mt-4 pt-4 border-t border-green-200">
@@ -2841,6 +2853,18 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                     </div>
                     <?php endif; ?>
                     
+                    <?php
+                    // Build download links data for WhatsApp copy button
+                    $toolDownloadLinksForWhatsapp = [];
+                    foreach ($tokens as $tok) {
+                        $dlUrl = SITE_URL . '/download.php?token=' . $tok['token'];
+                        $toolDownloadLinksForWhatsapp[] = [
+                            'name' => $tok['file_name'],
+                            'url' => $dlUrl,
+                            'is_link' => ($tok['file_type'] === 'link')
+                        ];
+                    }
+                    ?>
                     <div class="flex gap-3">
                         <form method="POST" class="inline">
                             <input type="hidden" name="action" value="resend_tool_email">
@@ -2851,12 +2875,21 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                                 <i class="bi bi-envelope mr-1"></i> Resend Download Email
                             </button>
                         </form>
+                        <button type="button" 
+                            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors copy-whatsapp-tool-btn"
+                            data-product-name="<?php echo htmlspecialchars($delivery['product_name'] ?? 'Tool', ENT_QUOTES, 'UTF-8'); ?>"
+                            data-download-links-b64="<?php echo base64_encode(json_encode($toolDownloadLinksForWhatsapp, JSON_UNESCAPED_SLASHES)); ?>"
+                            data-instructions="<?php echo htmlspecialchars($toolDeliveryInstructions, ENT_QUOTES, 'UTF-8'); ?>"
+                            title="Copy delivery message for WhatsApp">
+                            <i class="bi bi-whatsapp mr-1"></i> Copy for WhatsApp
+                        </button>
                     </div>
                 </div>
                 <?php endforeach; ?>
             </div>
             
             <script>
+            // Copy individual download link
             document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var url = this.getAttribute('data-url');
@@ -2865,6 +2898,117 @@ document.getElementById('bulkCancelBtnMobile')?.addEventListener('click', functi
                         setTimeout(function() {
                             btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy';
                         }, 2000);
+                    });
+                });
+            });
+            
+            // Copy WhatsApp message for Templates
+            document.querySelectorAll('.copy-whatsapp-template-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var productName = this.getAttribute('data-product-name') || 'Template';
+                    var website = this.getAttribute('data-website') || '';
+                    var domain = this.getAttribute('data-domain') || '';
+                    var adminUrl = this.getAttribute('data-admin-url') || '';
+                    var username = this.getAttribute('data-username') || '';
+                    var passwordB64 = this.getAttribute('data-password-b64') || '';
+                    var notes = this.getAttribute('data-notes') || '';
+                    
+                    // Decode base64 password (handle empty string)
+                    var password = '';
+                    if (passwordB64 && passwordB64.trim()) {
+                        try {
+                            password = atob(passwordB64);
+                        } catch (e) {
+                            console.error('Failed to decode password:', e);
+                        }
+                    }
+                    
+                    var message = "🎉 *Your Website is Ready!*\n\n";
+                    message += "📦 *Product:* " + productName + "\n\n";
+                    
+                    if (domain) {
+                        message += "🌐 *Your Website:*\n" + (website || 'https://' + domain) + "\n\n";
+                    }
+                    
+                    if (adminUrl) {
+                        message += "🔐 *Admin Panel:*\n" + adminUrl + "\n\n";
+                    }
+                    
+                    message += "👤 *Login Credentials:*\n";
+                    message += "• Username: " + (username || 'Not set') + "\n";
+                    message += "• Password: " + (password || 'Not set') + "\n\n";
+                    
+                    if (notes && notes.trim()) {
+                        message += "📝 *Special Instructions:*\n" + notes + "\n\n";
+                    }
+                    
+                    message += "Thank you for your purchase! 🙏";
+                    
+                    navigator.clipboard.writeText(message).then(function() {
+                        var originalHtml = btn.innerHTML;
+                        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                        btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        btn.classList.add('bg-gray-500');
+                        setTimeout(function() {
+                            btn.innerHTML = originalHtml;
+                            btn.classList.remove('bg-gray-500');
+                            btn.classList.add('bg-green-500', 'hover:bg-green-600');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                        alert('Failed to copy. Please try again.');
+                    });
+                });
+            });
+            
+            // Copy WhatsApp message for Tools
+            document.querySelectorAll('.copy-whatsapp-tool-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var productName = this.getAttribute('data-product-name') || 'Tool';
+                    var downloadLinksB64 = this.getAttribute('data-download-links-b64') || '';
+                    var instructions = this.getAttribute('data-instructions') || '';
+                    
+                    // Decode base64 and parse JSON (handle empty string)
+                    var downloadLinks = [];
+                    if (downloadLinksB64 && downloadLinksB64.trim()) {
+                        try {
+                            var jsonStr = atob(downloadLinksB64);
+                            downloadLinks = JSON.parse(jsonStr);
+                        } catch (e) {
+                            console.error('Failed to parse download links:', e);
+                        }
+                    }
+                    
+                    var message = "🎉 *Your Tool is Ready!*\n\n";
+                    message += "📦 *Product:* " + productName + "\n\n";
+                    
+                    if (downloadLinks.length > 0) {
+                        message += "📥 *Download Links:*\n";
+                        downloadLinks.forEach(function(link, index) {
+                            var linkLabel = link.is_link ? " (External Link)" : "";
+                            message += (index + 1) + ". " + link.name + linkLabel + "\n   " + link.url + "\n\n";
+                        });
+                    }
+                    
+                    if (instructions && instructions.trim()) {
+                        message += "📝 *Delivery Instructions:*\n" + instructions + "\n\n";
+                    }
+                    
+                    message += "Thank you for your purchase! 🙏";
+                    
+                    navigator.clipboard.writeText(message).then(function() {
+                        var originalHtml = btn.innerHTML;
+                        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                        btn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                        btn.classList.add('bg-gray-500');
+                        setTimeout(function() {
+                            btn.innerHTML = originalHtml;
+                            btn.classList.remove('bg-gray-500');
+                            btn.classList.add('bg-green-500', 'hover:bg-green-600');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy:', err);
+                        alert('Failed to copy. Please try again.');
                     });
                 });
             });
