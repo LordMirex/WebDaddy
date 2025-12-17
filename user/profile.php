@@ -13,7 +13,8 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
+    $whatsappNumber = trim($_POST['whatsapp_number'] ?? '');
+    $cleanWhatsapp = preg_replace('/[^0-9+]/', '', $whatsappNumber);
     
     if (empty($username)) {
         $error = 'Username is required';
@@ -32,15 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $stmt = $db->prepare("
                 UPDATE customers 
-                SET username = ?, phone = ?, updated_at = datetime('now')
+                SET username = ?, whatsapp_number = ?, updated_at = datetime('now')
                 WHERE id = ?
             ");
-            $stmt->execute([$username, $phone, $customer['id']]);
+            $stmt->execute([$username, $cleanWhatsapp, $customer['id']]);
             
             logCustomerActivity($customer['id'], 'profile_updated', 'Profile information updated');
             
             $customer['username'] = $username;
-            $customer['phone'] = $phone;
+            $customer['whatsapp_number'] = $cleanWhatsapp;
             
             $success = 'Profile updated successfully!';
         }
@@ -88,11 +89,11 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                    <input type="tel" name="phone"
-                           value="<?= htmlspecialchars($customer['phone'] ?? '') ?>"
+                    <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
+                    <input type="tel" name="whatsapp_number"
+                           value="<?= htmlspecialchars($customer['whatsapp_number'] ?? '') ?>"
                            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                           placeholder="Enter your phone number">
+                           placeholder="Enter your WhatsApp number">
                 </div>
                 
                 <div>
