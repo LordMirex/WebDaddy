@@ -16,7 +16,14 @@ $stats = getUserReferralStats($customerId);
 $recentSales = getUserReferralRecentSales($customerId, 10);
 $withdrawalHistory = getUserReferralWithdrawalHistory($customerId);
 
-$referralLink = SITE_URL . '/?ref=' . ($stats['referral']['referral_code'] ?? '');
+// Build referral link with ref code (safe fallback in case stats is null)
+$referralCode = '';
+if ($stats && !empty($stats['referral']['referral_code'])) {
+    $referralCode = $stats['referral']['referral_code'];
+} elseif ($referral && !empty($referral['referral_code'])) {
+    $referralCode = $referral['referral_code'];
+}
+$referralLink = SITE_URL . '/?ref=' . $referralCode;
 
 $savedBankDetails = null;
 if (!empty($customer['bank_details'])) {
