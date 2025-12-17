@@ -453,7 +453,7 @@ require_once __DIR__ . '/includes/header.php';
                             <div class="sm:text-right flex sm:flex-col items-center sm:items-end gap-2 flex-wrap">
                                 <div class="font-bold text-green-600"><?php echo formatCurrency($order['final_amount']); ?></div>
                                 <?php echo getStatusBadge($order['status']); ?>
-                                <a href="/admin/orders.php?search=<?php echo $order['id']; ?>" class="text-primary-600 hover:text-primary-700 text-sm whitespace-nowrap">
+                                <a href="/admin/orders.php?view=<?php echo $order['id']; ?>" class="text-primary-600 hover:text-primary-700 text-sm whitespace-nowrap">
                                     View <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
