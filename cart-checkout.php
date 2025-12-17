@@ -30,7 +30,8 @@ $appliedBonusCode = $_SESSION['applied_bonus_code'] ?? null;
 
 // Get cart items
 $cartItems = getCart();
-$totals = getCartTotal(null, $affiliateCode, $appliedBonusCode);
+// Pass user referral code to getCartTotal - it handles priority (bonus > affiliate > referral)
+$totals = getCartTotal(null, $affiliateCode, $appliedBonusCode, $userReferralCode);
 
 // Check if this is an AJAX request
 $isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
@@ -72,14 +73,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_discount'])) {
         unset($_SESSION['affiliate_code']);
         setcookie('affiliate_code', '', time() - 3600, '/');
         
+        // Clear user referral code
+        $userReferralCode = null;
+        unset($_SESSION['referral_code']);
+        setcookie('referral_code', '', time() - 3600, '/');
+        
         // Recalculate totals without any discount
-        $totals = getCartTotal(null, null, null);
+        $totals = getCartTotal(null, null, null, null);
         
         $success = 'Discount code removed.';
     }
 }
 
-// Handle discount code application (bonus codes or affiliate codes)
+// Handle discount code application (bonus codes, affiliate codes, or user referral codes)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
@@ -101,8 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
                 unset($_SESSION['affiliate_code']);
                 setcookie('affiliate_code', '', time() - 3600, '/');
                 
+                // Clear any referral code
+                $userReferralCode = null;
+                unset($_SESSION['referral_code']);
+                setcookie('referral_code', '', time() - 3600, '/');
+                
                 // Recalculate totals with bonus code
-                $totals = getCartTotal(null, null, $appliedBonusCode);
+                $totals = getCartTotal(null, null, $appliedBonusCode, null);
                 
                 $success = $bonusCodeData['discount_percent'] . '% discount applied with code ' . $submittedAffiliateCode . '!';
                 $submittedAffiliateCode = '';
@@ -116,6 +127,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
                     // Clear any bonus code
                     $appliedBonusCode = null;
                     unset($_SESSION['applied_bonus_code']);
+                    
+                    // Clear any referral code
+                    $userReferralCode = null;
+                    unset($_SESSION['referral_code']);
+                    setcookie('referral_code', '', time() - 3600, '/');
                     
                     $_SESSION['affiliate_code'] = $affiliateCode;
                     setcookie(
@@ -134,12 +150,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
                     }
                     
                     // Recalculate totals with discount
-                    $totals = getCartTotal(null, $affiliateCode, null);
+                    $totals = getCartTotal(null, $affiliateCode, null, null);
                     
                     $success = '20% affiliate discount applied successfully!';
                     $submittedAffiliateCode = '';
                 } else {
-                    $errors[] = 'Invalid or inactive discount code.';
+                    // PRIORITY 3: Check if it's a valid user referral code
+                    $lookupReferral = getUserReferralByCode($submittedAffiliateCode);
+                    
+                    if ($lookupReferral && $lookupReferral['status'] === 'active') {
+                        $userReferralCode = $submittedAffiliateCode;
+                        
+                        // Clear any bonus code
+                        $appliedBonusCode = null;
+                        unset($_SESSION['applied_bonus_code']);
+                        
+                        // Clear any affiliate code
+                        $affiliateCode = null;
+                        unset($_SESSION['affiliate_code']);
+                        setcookie('affiliate_code', '', time() - 3600, '/');
+                        
+                        $_SESSION['referral_code'] = $userReferralCode;
+                        setcookie(
+                            'referral_code',
+                            $userReferralCode,
+                            time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
+                            '/',
+                            '',
+                            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                            true
+                        );
+                        
+                        // Increment referral clicks
+                        if (function_exists('incrementUserReferralClick')) {
+                            incrementUserReferralClick($userReferralCode);
+                        }
+                        
+                        // Recalculate totals with discount
+                        $totals = getCartTotal(null, null, null, $userReferralCode);
+                        
+                        $success = '20% referral discount applied successfully!';
+                        $submittedAffiliateCode = '';
+                    } else {
+                        $errors[] = 'Invalid or inactive discount code.';
+                    }
                 }
             }
         } else {
@@ -253,7 +307,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
         $message .= "Subtotal: " . formatCurrency($totals['subtotal']) . "\n";
         
         if ($totals['has_discount']) {
-            $discountLabel = $totals['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
+            $discountLabel = 'Discount';
+            if ($totals['discount_type'] === 'bonus_code') {
+                $discountLabel = 'Bonus Code';
+            } elseif ($totals['discount_type'] === 'affiliate') {
+                $discountLabel = 'Affiliate';
+            } elseif ($totals['discount_type'] === 'user_referral') {
+                $discountLabel = 'Referral';
+            }
             $message .= $discountLabel . " Discount (" . number_format($totals['discount_percent'], 0) . "%): -" . formatCurrency($totals['discount']) . "\n";
             $message .= "Discount Code: *" . $totals['discount_code'] . "*\n";
         }
@@ -315,6 +376,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             'customer_email' => $customerEmail,
             'customer_phone' => $customerPhone,
             'affiliate_code' => $totals['affiliate_code'],
+            'referral_code' => $totals['referral_code'] ?? null,
             'bonus_code_id' => $totals['bonus_code_id'] ?? null,
             'discount_type' => $totals['discount_type'],
             'discount_code' => $totals['discount_code'],

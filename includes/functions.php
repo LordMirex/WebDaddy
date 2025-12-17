@@ -427,13 +427,24 @@ function createOrderWithItems($orderData, $items = [])
             }
         }
         
+        // Validate referral code exists if provided
+        $referralCode = $orderData['referral_code'] ?? null;
+        if (!empty($referralCode)) {
+            $refCheck = $db->prepare("SELECT id FROM user_referrals WHERE UPPER(referral_code) = UPPER(?) LIMIT 1");
+            $refCheck->execute([$referralCode]);
+            if (!$refCheck->fetch()) {
+                error_log("⚠️  Invalid referral code ignored: $referralCode");
+                $referralCode = null;
+            }
+        }
+        
         $stmt = $db->prepare("
             INSERT INTO pending_orders 
             (template_id, tool_id, order_type, chosen_domain_id, customer_name, customer_email, 
-             customer_phone, business_name, custom_fields, affiliate_code, session_id, 
+             customer_phone, business_name, custom_fields, affiliate_code, referral_code, session_id, 
              message_text, ip_address, status, payment_method, original_price, discount_amount, final_amount, 
              quantity, cart_snapshot, payment_notes, customer_id, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+1 hour'), datetime('now', '+1 hour'))
         ");
         
         $templateId = $orderData['template_id'] ?? null;
@@ -461,6 +472,7 @@ function createOrderWithItems($orderData, $items = [])
             $orderData['business_name'] ?? null,
             $orderData['custom_fields'] ?? null,
             $affiliateCode,
+            $referralCode,
             $orderData['session_id'] ?? session_id(),
             $orderData['message_text'] ?? null,
             $orderData['ip_address'] ?? ($_SERVER['REMOTE_ADDR'] ?? ''),
@@ -1538,11 +1550,19 @@ function processOrderCommission($orderId)
         
         error_log("✅ COMMISSION PROCESSOR: Sales record created for Order #$orderId. Commission: ₦" . number_format($commissionAmount, 2));
         
+        // ALSO PROCESS USER REFERRAL COMMISSION (separate from affiliate)
+        // User referral commissions are processed independently and stored in user_referral_sales table
+        $userReferralResult = processUserReferralCommission($orderId);
+        if ($userReferralResult && $userReferralResult['success'] && isset($userReferralResult['commission_amount'])) {
+            error_log("✅ COMMISSION PROCESSOR: User referral commission also processed for Order #$orderId: ₦" . number_format($userReferralResult['commission_amount'], 2));
+        }
+        
         return [
             'success' => true,
             'order_id' => $orderId,
             'commission_amount' => $commissionAmount,
             'affiliate_id' => $affiliateId,
+            'user_referral_commission' => $userReferralResult['commission_amount'] ?? 0,
             'message' => 'Commission processed successfully'
         ];
         

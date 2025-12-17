@@ -310,18 +310,20 @@ function clearCart($sessionId = null) {
 }
 
 /**
- * Calculate cart total with bonus code or affiliate discount
+ * Calculate cart total with bonus code, affiliate discount, or user referral discount
  * 
- * Priority: Bonus codes take precedence over affiliate codes
- * Bonus codes provide discount with NO affiliate commission
- * Affiliate codes provide 20% discount WITH affiliate commission
+ * Priority: Bonus codes > Affiliate codes > User Referral codes
+ * Bonus codes provide discount with NO commission
+ * Affiliate codes provide 20% discount WITH 30% affiliate commission
+ * User Referral codes provide 20% discount WITH 20% referrer commission
  * 
  * @param string $sessionId Optional session ID
  * @param string $affiliateCode Optional affiliate code for discount
  * @param string $bonusCode Optional bonus code for discount (takes priority)
+ * @param string $userReferralCode Optional user referral code for discount
  * @return array Cart totals with breakdown
  */
-function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = null) {
+function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = null, $userReferralCode = null) {
     if ($sessionId === null) {
         $sessionId = getCartSessionId();
     }
@@ -341,8 +343,9 @@ function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = nul
     $discountCode = null;
     $discountPercent = 0;
     $bonusCodeId = null;
+    $referralCode = null;
     
-    // PRIORITY: Check bonus code first (no affiliate commission when bonus code is used)
+    // PRIORITY 1: Check bonus code first (no commission when bonus code is used)
     if ($bonusCode) {
         require_once __DIR__ . '/bonus_codes.php';
         $bonusCodeData = getBonusCodeByCode($bonusCode);
@@ -356,12 +359,25 @@ function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = nul
         }
     }
     
-    // FALLBACK: Apply affiliate discount if no valid bonus code
+    // PRIORITY 2: Apply affiliate discount if no valid bonus code
     if ($discount == 0 && $affiliateCode) {
         $discount = $subtotal * 0.20; // 20% affiliate discount
         $discountType = 'affiliate';
         $discountCode = $affiliateCode;
         $discountPercent = 20;
+    }
+    
+    // PRIORITY 3: Apply user referral discount if no affiliate or bonus code
+    if ($discount == 0 && $userReferralCode) {
+        require_once __DIR__ . '/functions.php';
+        $userReferral = getUserReferralByCode($userReferralCode);
+        if ($userReferral && $userReferral['status'] === 'active') {
+            $discount = $subtotal * 0.20; // 20% user referral discount
+            $discountType = 'user_referral';
+            $discountCode = $userReferralCode;
+            $discountPercent = 20;
+            $referralCode = $userReferralCode;
+        }
     }
     
     $total = $subtotal - $discount;
@@ -376,7 +392,8 @@ function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = nul
         'discount_code' => $discountCode,
         'discount_percent' => $discountPercent,
         'bonus_code_id' => $bonusCodeId,
-        'affiliate_code' => $discountType === 'affiliate' ? $affiliateCode : null
+        'affiliate_code' => $discountType === 'affiliate' ? $affiliateCode : null,
+        'referral_code' => $discountType === 'user_referral' ? $referralCode : null
     ];
 }
 

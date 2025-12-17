@@ -75,6 +75,10 @@ define('AFFILIATE_COOKIE_DAYS', 30);
 define('AFFILIATE_COMMISSION_RATE', 0.30);
 define('CUSTOMER_DISCOUNT_RATE', 0.20);
 
+// User Referral Settings (customers referring other customers)
+define('USER_REFERRAL_COMMISSION_RATE', 0.20);
+define('USER_REFERRAL_DISCOUNT_RATE', 0.20);
+
 // Site Settings
 if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
     $siteUrl = 'https://webdaddy.online';
