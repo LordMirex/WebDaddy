@@ -228,30 +228,10 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     <h2 class="text-xl font-bold text-gray-900 mb-2">Account Created!</h2>
                     <p class="text-gray-600 mb-6">Welcome to WebDaddy Empire. Your account is ready.</p>
                     
-                    <!-- Quick Guide -->
                     <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
-                        <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <i class="bi-lightbulb text-amber-600"></i>
-                            What You Can Do on Your Dashboard
-                        </h3>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li class="flex items-start">
-                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
-                                <span>Track your order status and delivery details</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
-                                <span>Make payments via bank transfer or card</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
-                                <span>Retry failed payments if needed</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="bi-check text-green-600 mr-2 mt-0.5 font-bold"></i>
-                                <span>Get support via tickets or WhatsApp</span>
-                            </li>
-                        </ul>
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Here you can track your order status, view delivery details, make payment via bank transfer or card, retry failed payments, and get support if needed.
+                        </p>
                     </div>
                     
                     <a href="/user/" class="block w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition text-center">

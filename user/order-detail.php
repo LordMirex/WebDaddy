@@ -1013,7 +1013,14 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
                             <i class="bi-check-lg text-4xl text-green-600"></i>
                         </div>
                         <h2 class="text-xl font-bold text-gray-900 mb-2">You're All Set!</h2>
-                        <p class="text-gray-600 text-sm mb-6">Your account is now complete. You can log in anytime.</p>
+                        <p class="text-gray-600 text-sm mb-4">Your account is now complete.</p>
+                        
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-5 text-left">
+                            <p class="text-sm text-gray-700 leading-relaxed">
+                                Here you can track your order status, view delivery details, make payment via bank transfer or card, retry failed payments, and get support if needed.
+                            </p>
+                        </div>
+                        
                         <button @click="showModal = false; location.reload()" 
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition">
                             View Order Details
@@ -1052,20 +1059,27 @@ function accountSetupModal() {
             this.error = '';
             
             try {
+                const payload = {
+                    action: 'complete_registration_step1',
+                    username: this.username,
+                    password: this.password,
+                    confirm_password: this.confirmPassword
+                };
+                
+                // Include WhatsApp if we're skipping step 2
+                if (this.skipWhatsApp && this.whatsappNumber) {
+                    payload.whatsapp_number = this.whatsappNumber;
+                }
+                
                 const response = await fetch('/api/customer/profile.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'complete_registration_step1',
-                        username: this.username,
-                        password: this.password,
-                        confirm_password: this.confirmPassword
-                    })
+                    body: JSON.stringify(payload)
                 });
                 const data = await response.json();
                 
                 if (data.success) {
-                    if (this.skipWhatsApp) {
+                    if (this.skipWhatsApp || data.account_complete) {
                         this.step = 3;
                     } else {
                         this.step = 2;
