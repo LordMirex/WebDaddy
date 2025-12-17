@@ -1029,6 +1029,386 @@ function incrementAffiliateClick($code)
     }
 }
 
+// ============================================
+// USER REFERRAL SYSTEM FUNCTIONS
+// ============================================
+
+define('USER_REFERRAL_COMMISSION_RATE', 0.20); // Users get 20% commission
+
+function generateUserReferralCode($customerId)
+{
+    $db = getDb();
+    
+    // Get customer username or email
+    $stmt = $db->prepare("SELECT username, email FROM customers WHERE id = ?");
+    $stmt->execute([$customerId]);
+    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$customer) {
+        return null;
+    }
+    
+    // Generate code from username or email prefix + random suffix
+    $base = !empty($customer['username']) ? $customer['username'] : explode('@', $customer['email'])[0];
+    $base = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $base));
+    $base = substr($base, 0, 6);
+    
+    // Add random suffix to ensure uniqueness
+    $code = $base . strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+    
+    // Ensure uniqueness
+    $attempts = 0;
+    while ($attempts < 10) {
+        $check = $db->prepare("SELECT id FROM user_referrals WHERE referral_code = ?");
+        $check->execute([$code]);
+        if (!$check->fetch()) {
+            return $code;
+        }
+        $code = $base . strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
+        $attempts++;
+    }
+    
+    return $code;
+}
+
+function createUserReferral($customerId)
+{
+    $db = getDb();
+    
+    try {
+        // Check if user already has a referral code
+        $stmt = $db->prepare("SELECT id, referral_code FROM user_referrals WHERE customer_id = ?");
+        $stmt->execute([$customerId]);
+        $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($existing) {
+            return $existing;
+        }
+        
+        // Generate new referral code
+        $code = generateUserReferralCode($customerId);
+        if (!$code) {
+            return null;
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO user_referrals (customer_id, referral_code, created_at) 
+            VALUES (?, ?, datetime('now'))
+        ");
+        $stmt->execute([$customerId, $code]);
+        
+        return [
+            'id' => $db->lastInsertId(),
+            'customer_id' => $customerId,
+            'referral_code' => $code
+        ];
+    } catch (PDOException $e) {
+        error_log('Error creating user referral: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function getUserReferralByCode($code)
+{
+    $db = getDb();
+    
+    try {
+        $stmt = $db->prepare("
+            SELECT ur.*, c.email, c.username, c.full_name
+            FROM user_referrals ur
+            JOIN customers c ON ur.customer_id = c.id
+            WHERE ur.referral_code = ? AND ur.status = 'active'
+        ");
+        $stmt->execute([$code]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (PDOException $e) {
+        error_log('Error fetching user referral: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function getUserReferralByCustomerId($customerId)
+{
+    $db = getDb();
+    
+    try {
+        $stmt = $db->prepare("
+            SELECT ur.*, c.email, c.username, c.full_name
+            FROM user_referrals ur
+            JOIN customers c ON ur.customer_id = c.id
+            WHERE ur.customer_id = ?
+        ");
+        $stmt->execute([$customerId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (PDOException $e) {
+        error_log('Error fetching user referral by customer: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function incrementUserReferralClick($code)
+{
+    $db = getDb();
+    
+    try {
+        // First get the referral id
+        $stmt = $db->prepare("SELECT id FROM user_referrals WHERE referral_code = ? AND status = 'active'");
+        $stmt->execute([$code]);
+        $referral = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$referral) {
+            return;
+        }
+        
+        // Update click count
+        $db->prepare("UPDATE user_referrals SET total_clicks = total_clicks + 1 WHERE id = ?")->execute([$referral['id']]);
+        
+        // Log the click
+        $stmt = $db->prepare("
+            INSERT INTO user_referral_clicks (referral_id, ip_address, user_agent, referrer, created_at) 
+            VALUES (?, ?, ?, ?, datetime('now'))
+        ");
+        $stmt->execute([
+            $referral['id'],
+            $_SERVER['REMOTE_ADDR'] ?? null,
+            $_SERVER['HTTP_USER_AGENT'] ?? null,
+            $_SERVER['HTTP_REFERER'] ?? null
+        ]);
+    } catch (PDOException $e) {
+        error_log('Error incrementing user referral click: ' . $e->getMessage());
+    }
+}
+
+function getUserReferralStats($customerId)
+{
+    $db = getDb();
+    
+    try {
+        // Get referral record
+        $referral = getUserReferralByCustomerId($customerId);
+        if (!$referral) {
+            return null;
+        }
+        
+        // Calculate earnings from sales table (source of truth)
+        $stmt = $db->prepare("SELECT COALESCE(SUM(commission_amount), 0) as total_earned FROM user_referral_sales WHERE referrer_id = ?");
+        $stmt->execute([$referral['id']]);
+        $totalEarned = (float)$stmt->fetchColumn();
+        
+        // Get paid withdrawals
+        $stmt = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_paid FROM user_referral_withdrawals WHERE referral_id = ? AND status = 'paid'");
+        $stmt->execute([$referral['id']]);
+        $totalPaid = (float)$stmt->fetchColumn();
+        
+        // Get in-progress withdrawals (pending, approved - not yet paid or rejected)
+        $stmt = $db->prepare("SELECT COALESCE(SUM(amount), 0) as total_in_progress FROM user_referral_withdrawals WHERE referral_id = ? AND status NOT IN ('paid', 'rejected')");
+        $stmt->execute([$referral['id']]);
+        $inProgress = (float)$stmt->fetchColumn();
+        
+        // Available balance = Earned - Paid - In Progress
+        $availableBalance = $totalEarned - $totalPaid - $inProgress;
+        
+        // Get total sales count
+        $stmt = $db->prepare("SELECT COUNT(*) FROM user_referral_sales WHERE referrer_id = ?");
+        $stmt->execute([$referral['id']]);
+        $totalSales = (int)$stmt->fetchColumn();
+        
+        return [
+            'referral' => $referral,
+            'total_clicks' => (int)$referral['total_clicks'],
+            'total_sales' => $totalSales,
+            'total_earned' => $totalEarned,
+            'total_paid' => $totalPaid,
+            'in_progress' => $inProgress,
+            'available_balance' => $availableBalance,
+            'commission_rate' => USER_REFERRAL_COMMISSION_RATE * 100 . '%'
+        ];
+    } catch (PDOException $e) {
+        error_log('Error getting user referral stats: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function processUserReferralCommission($orderId)
+{
+    $db = getDb();
+    error_log("💰 USER REFERRAL COMMISSION: Starting for Order #$orderId");
+    
+    try {
+        // Get order details
+        $orderStmt = $db->prepare("SELECT id, referral_code, final_amount, customer_email FROM pending_orders WHERE id = ?");
+        $orderStmt->execute([$orderId]);
+        $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order) {
+            return ['success' => false, 'message' => 'Order not found'];
+        }
+        
+        if (empty($order['referral_code'])) {
+            return ['success' => true, 'message' => 'No user referral code'];
+        }
+        
+        // Check if already processed
+        $checkStmt = $db->prepare("SELECT id FROM user_referral_sales WHERE pending_order_id = ? LIMIT 1");
+        $checkStmt->execute([$orderId]);
+        if ($checkStmt->fetch()) {
+            return ['success' => true, 'message' => 'User referral commission already processed'];
+        }
+        
+        // Get referral details
+        $referral = getUserReferralByCode($order['referral_code']);
+        if (!$referral) {
+            error_log("⚠️  USER REFERRAL COMMISSION: Invalid referral code '{$order['referral_code']}'");
+            return ['success' => false, 'message' => 'Invalid referral code'];
+        }
+        
+        // Calculate commission (20% of final amount)
+        $commissionAmount = $order['final_amount'] * USER_REFERRAL_COMMISSION_RATE;
+        
+        // Create sales record
+        $stmt = $db->prepare("
+            INSERT INTO user_referral_sales (pending_order_id, referrer_id, amount_paid, commission_amount, payment_confirmed_at, created_at)
+            VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
+        ");
+        $stmt->execute([$orderId, $referral['id'], $order['final_amount'], $commissionAmount]);
+        
+        // Update referral totals
+        $stmt = $db->prepare("
+            UPDATE user_referrals 
+            SET total_sales = total_sales + 1,
+                commission_earned = commission_earned + ?,
+                commission_pending = commission_pending + ?,
+                updated_at = datetime('now')
+            WHERE id = ?
+        ");
+        $stmt->execute([$commissionAmount, $commissionAmount, $referral['id']]);
+        
+        // Update order with referral commission
+        $stmt = $db->prepare("UPDATE pending_orders SET referral_commission = ? WHERE id = ?");
+        $stmt->execute([$commissionAmount, $orderId]);
+        
+        error_log("✅ USER REFERRAL COMMISSION: ₦" . number_format($commissionAmount, 2) . " credited to User Referrer #{$referral['id']}");
+        
+        return [
+            'success' => true,
+            'commission_amount' => $commissionAmount,
+            'referral_id' => $referral['id']
+        ];
+    } catch (PDOException $e) {
+        error_log('Error processing user referral commission: ' . $e->getMessage());
+        return ['success' => false, 'message' => $e->getMessage()];
+    }
+}
+
+function getUserReferralRecentSales($customerId, $limit = 10)
+{
+    $db = getDb();
+    
+    try {
+        $referral = getUserReferralByCustomerId($customerId);
+        if (!$referral) {
+            return [];
+        }
+        
+        $stmt = $db->prepare("
+            SELECT urs.*, po.customer_name, po.customer_email, po.order_type
+            FROM user_referral_sales urs
+            JOIN pending_orders po ON urs.pending_order_id = po.id
+            WHERE urs.referrer_id = ?
+            ORDER BY urs.created_at DESC
+            LIMIT ?
+        ");
+        $stmt->execute([$referral['id'], $limit]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error getting user referral sales: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function getUserReferralWithdrawalHistory($customerId)
+{
+    $db = getDb();
+    
+    try {
+        $referral = getUserReferralByCustomerId($customerId);
+        if (!$referral) {
+            return [];
+        }
+        
+        $stmt = $db->prepare("
+            SELECT * FROM user_referral_withdrawals 
+            WHERE referral_id = ?
+            ORDER BY requested_at DESC
+        ");
+        $stmt->execute([$referral['id']]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error getting user referral withdrawals: ' . $e->getMessage());
+        return [];
+    }
+}
+
+function createUserReferralWithdrawal($customerId, $amount, $bankDetails)
+{
+    $db = getDb();
+    
+    try {
+        $stats = getUserReferralStats($customerId);
+        if (!$stats) {
+            return ['success' => false, 'message' => 'Referral account not found'];
+        }
+        
+        if ($amount <= 0) {
+            return ['success' => false, 'message' => 'Invalid withdrawal amount'];
+        }
+        
+        if ($amount > $stats['available_balance']) {
+            return ['success' => false, 'message' => 'Insufficient balance. Available: ₦' . number_format($stats['available_balance'], 2)];
+        }
+        
+        // Validate bank details
+        if (empty($bankDetails['bank_name']) || empty($bankDetails['account_number']) || empty($bankDetails['account_name'])) {
+            return ['success' => false, 'message' => 'Please provide complete bank details'];
+        }
+        
+        $db->beginTransaction();
+        
+        // Create withdrawal request
+        $stmt = $db->prepare("
+            INSERT INTO user_referral_withdrawals (referral_id, amount, bank_details_json, status, requested_at)
+            VALUES (?, ?, ?, 'pending', datetime('now'))
+        ");
+        $stmt->execute([
+            $stats['referral']['id'],
+            $amount,
+            json_encode($bankDetails)
+        ]);
+        
+        $withdrawalId = $db->lastInsertId();
+        
+        $db->commit();
+        
+        error_log("✅ USER REFERRAL WITHDRAWAL: Request #{$withdrawalId} created for ₦" . number_format($amount, 2));
+        
+        return [
+            'success' => true,
+            'withdrawal_id' => $withdrawalId,
+            'message' => 'Withdrawal request submitted successfully'
+        ];
+    } catch (PDOException $e) {
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        error_log('Error creating user referral withdrawal: ' . $e->getMessage());
+        return ['success' => false, 'message' => 'Database error. Please try again.'];
+    }
+}
+
+// ============================================
+// END USER REFERRAL SYSTEM FUNCTIONS
+// ============================================
+
 /**
  * UNIFIED COMMISSION PROCESSOR: Called for both Paystack and Manual payments
  * Ensures commissions are calculated and credited identically regardless of payment method

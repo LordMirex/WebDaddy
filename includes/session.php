@@ -59,6 +59,38 @@ function getAffiliateCode()
     return $_SESSION['affiliate_code'] ?? $_COOKIE['affiliate_code'] ?? null;
 }
 
+function handleUserReferralTracking()
+{
+    if (isset($_GET['ref']) && !empty($_GET['ref'])) {
+        $referralCode = function_exists('sanitizeInput') ? sanitizeInput($_GET['ref']) : trim($_GET['ref']);
+        
+        $_SESSION['referral_code'] = $referralCode;
+        
+        setcookie(
+            'referral_code',
+            $referralCode,
+            time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
+            '/',
+            '',
+            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+            true
+        );
+        
+        if (function_exists('incrementUserReferralClick')) {
+            incrementUserReferralClick($referralCode);
+        }
+    }
+    
+    if (empty($_SESSION['referral_code']) && isset($_COOKIE['referral_code'])) {
+        $_SESSION['referral_code'] = $_COOKIE['referral_code'];
+    }
+}
+
+function getUserReferralCode()
+{
+    return $_SESSION['referral_code'] ?? $_COOKIE['referral_code'] ?? null;
+}
+
 function isLoggedIn()
 {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);

@@ -13,6 +13,7 @@ header('Expires: 0', false);
 
 startSecureSession();
 handleAffiliateTracking();
+handleUserReferralTracking();
 
 // Accept either slug or ID for backward compatibility
 $slug = $_GET['slug'] ?? null;

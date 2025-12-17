@@ -9,6 +9,7 @@ require_once __DIR__ . '/includes/cart.php';
 
 startSecureSession();
 handleAffiliateTracking();
+handleUserReferralTracking();
 
 $slug = $_GET['slug'] ?? null;
 $toolId = isset($_GET['id']) ? (int)$_GET['id'] : null;

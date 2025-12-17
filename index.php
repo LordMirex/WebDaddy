@@ -14,6 +14,7 @@ header('Expires: 0', false);
 
 startSecureSession();
 handleAffiliateTracking();
+handleUserReferralTracking();
 
 // AUTO-RESTORE SAVED CART FROM PREVIOUS VISIT (if not already loaded)
 if (empty(getCart())) {

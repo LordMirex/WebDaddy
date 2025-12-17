@@ -13,9 +13,11 @@ require_once __DIR__ . '/includes/bonus_codes.php';
 
 startSecureSession();
 handleAffiliateTracking();
+handleUserReferralTracking();
 
-// Get affiliate code
+// Get affiliate code and referral code
 $affiliateCode = getAffiliateCode();
+$userReferralCode = getUserReferralCode();
 
 // Get active bonus code (to display on checkout page)
 $activeBonusCode = getActiveBonusCode();

@@ -18,6 +18,7 @@ $navItems = [
     ['url' => '/user/', 'icon' => 'bi-speedometer2', 'label' => 'Dashboard', 'page' => 'dashboard'],
     ['url' => '/user/orders.php', 'icon' => 'bi-bag', 'label' => 'My Orders', 'page' => 'orders', 'badge' => $pendingOrders > 0 ? $pendingOrders : null],
     ['url' => '/user/downloads.php', 'icon' => 'bi-download', 'label' => 'Downloads', 'page' => 'downloads'],
+    ['url' => '/user/referral.php', 'icon' => 'bi-gift', 'label' => 'Refer & Earn', 'page' => 'referral'],
     ['url' => '/user/support.php', 'icon' => 'bi-chat-dots', 'label' => 'Support', 'page' => 'support', 'badge' => $openTickets > 0 ? $openTickets : null],
     ['url' => '/user/profile.php', 'icon' => 'bi-person', 'label' => 'Profile', 'page' => 'profile'],
     ['url' => '/user/security.php', 'icon' => 'bi-shield-lock', 'label' => 'Security', 'page' => 'security'],
