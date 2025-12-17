@@ -16,7 +16,7 @@ function blogGenerateArticleSchema($post, $blocks = [])
             'name' => 'WebDaddy Empire',
             'logo' => [
                 '@type' => 'ImageObject',
-                'url' => SITE_URL . '/assets/img/logo.png'
+                'url' => SITE_URL . '/assets/images/logo.png'
             ]
         ],
         'datePublished' => $post['publish_date'] ?? $post['created_at'],
