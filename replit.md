@@ -34,6 +34,16 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 
 ## Recent Changes (December 2024)
 
+### Admin & Payment System Improvements (December 17, 2024)
+- **Admin OTP Generation Fixed**: Replaced failing cURL calls with direct function implementation
+- **OTP Rate Limiting**: 5 OTPs per hour limit per customer to prevent abuse
+- **OTP Email Notifications**: Automatic email sent when admin generates OTP for customer verification
+- **Quick OTP Button**: Added OTP generation button directly in customers table for faster access
+- **Customer Detail UI**: Fixed overflow issues with responsive design improvements
+- **Payment Method Tracking**: Manual orders correctly set `payment_method = 'manual'` in database
+- **Failed Order Retry**: Failed orders can now retry with both Paystack and manual bank transfer
+- **Order View Links**: All admin order links now use direct modal view (`?view=`) instead of search
+
 ### SMS Removal & Email-Only Verification (December 16, 2024)
 - **SMS/Termii Completely Removed**: All Termii SMS API integration and related functionality removed
 - **Email-Only OTP**: All customer verification now uses email-only OTP via Resend API
