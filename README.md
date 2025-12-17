@@ -419,7 +419,7 @@ The system manages **14 core data entities**:
 ## 🔄 Business Logic & Workflows
 
 ### Affiliate Commission System
-- **Default Commission**: 30% of sale price (configurable per affiliate)
+- **Default Commission**: 30% of final paid amount (configurable per affiliate)
 - **Customer Discount**: 20% discount for customers using affiliate links
 - **Cookie Duration**: 30-day tracking window (configurable)
 - **Attribution Priority**: Session > Cookie > URL parameter
@@ -428,6 +428,16 @@ The system manages **14 core data entities**:
   - **Pending**: Available for withdrawal (not yet requested)
   - **Paid**: Successfully withdrawn amounts
 - **Real-Time Calculation**: Commission calculated immediately when order marked paid
+
+### User Referral System (Customer Referrals)
+- **Commission Rate**: 30% of final paid amount (same as affiliates)
+- **Customer Discount**: 20% discount for referred customers
+- **How It Works**: Existing customers can share referral links and earn commissions
+- **URL Parameter**: Uses `ref=` parameter (vs `aff=` for affiliates)
+- **Priority**: Bonus codes > Affiliate codes > User referral codes
+- **Database Tables**: user_referrals, user_referral_sales, user_referral_withdrawals
+- **Admin Management**: Dedicated page for managing customer referral withdrawals
+- **Separate Tracking**: Admin dashboard shows affiliate and user referral commissions separately
 
 ### Order Processing Flow (Updated Nov 2025)
 1. **Customer Submission**: Customer selects templates/tools, enters details, creates pending_order record with order_items
@@ -485,7 +495,7 @@ The system manages **14 core data entities**:
 - **Session Timeout**: Auto-logout after inactivity
 
 ### Data Protection
-- **Prepared Statements**: All database queries use PDO prepared statements
+- **Prepared Statements**: All database queries use PDO prepared statements no
 - **Input Sanitization**: `sanitizeInput()` function for user-submitted data
 - **Email Validation**: Server-side email format validation
 - **SQL Injection Prevention**: Parameterized queries throughout
@@ -807,8 +817,9 @@ The system manages **14 core data entities**:
 
 ## 💡 Key Business Numbers
 
-- **Affiliate Commission**: 30% (customizable per affiliate)
-- **Customer Discount**: 20% with affiliate link
+- **Affiliate Commission**: 30% of final paid amount (customizable per affiliate)
+- **User Referral Commission**: 30% of final paid amount
+- **Customer Discount**: 20% off when using affiliate or referral link
 - **Cookie Duration**: 30 days
 - **Setup Time**: 24 hours promised
 - **Support**: 24/7 via WhatsApp
