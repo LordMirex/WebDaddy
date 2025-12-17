@@ -263,8 +263,12 @@ require_once __DIR__ . '/includes/header.php';
             <span class="font-semibold text-gray-900"><?php echo formatCurrency($totalRevenue); ?></span>
         </div>
         <div class="border-t pt-2 flex justify-between">
-            <span class="text-gray-700">Minus Affiliate Commissions:</span>
-            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalCommission); ?></span>
+            <span class="text-gray-700">Minus Affiliate Commissions (30%):</span>
+            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalAffiliateCommission); ?></span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-700">Minus User Referral Commissions (30%):</span>
+            <span class="font-semibold text-red-600">-<?php echo formatCurrency($totalUserReferralCommission); ?></span>
         </div>
         <div class="border-t pt-2 flex justify-between bg-green-50 -mx-3 px-3 py-2 rounded font-bold">
             <span class="text-green-700">= Money You Keep:</span>
