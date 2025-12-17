@@ -141,9 +141,17 @@ if (!$customer) {
 // Get recent orders
 $ordersStmt = $db->prepare("
     SELECT po.*, 
-           GROUP_CONCAT(COALESCE(oi.template_name, oi.tool_name)) as items
+           GROUP_CONCAT(
+               CASE 
+                   WHEN oi.product_type = 'template' THEN t.name
+                   WHEN oi.product_type = 'tool' THEN tl.name
+                   ELSE 'Unknown'
+               END
+           ) as items
     FROM pending_orders po
     LEFT JOIN order_items oi ON oi.pending_order_id = po.id
+    LEFT JOIN templates t ON oi.product_type = 'template' AND oi.product_id = t.id
+    LEFT JOIN tools tl ON oi.product_type = 'tool' AND oi.product_id = tl.id
     WHERE po.customer_id = ?
     GROUP BY po.id
     ORDER BY po.created_at DESC
