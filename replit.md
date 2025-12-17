@@ -38,6 +38,7 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 - **Modal State Reset Fixed**: Admin modal forms (templates, domains, tools) now properly reset when closing
 - **Video Type Field Fixed**: Changed `video_type_create` to `video_type` in templates create modal so video type is correctly submitted
 - **Enhanced Form Reset**: Improved `resetCreateForm()` functions to comprehensively clear all input fields, checkboxes, radio buttons, selects, and hidden fields when modals are closed
+- **Dynamic Tool Types**: Tool type dropdown now works like template categories - when you create a custom type using "Others", it gets saved and appears in the dropdown for future tools
 - **Files Updated**: admin/templates.php, admin/domains.php, admin/tools.php
 
 ### Admin & Payment System Improvements (December 17, 2024)

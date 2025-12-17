@@ -514,6 +514,24 @@ if ($filterStatus === 'active') {
 // Get categories for filter dropdown
 $categories = getToolCategories();
 
+// Get distinct tool types from database (like template categories)
+$defaultToolTypes = [
+    'software' => 'Software/License',
+    'api_key' => 'API Key',
+    'subscription' => 'Subscription',
+    'digital_asset' => 'Digital Asset'
+];
+$customToolTypesQuery = $db->query("SELECT DISTINCT tool_type FROM tools WHERE tool_type IS NOT NULL AND tool_type != '' AND tool_type NOT IN ('software', 'api_key', 'subscription', 'digital_asset') ORDER BY tool_type");
+$customToolTypes = $customToolTypesQuery->fetchAll(PDO::FETCH_COLUMN);
+// Merge: default types first, then custom types from DB
+$allToolTypes = $defaultToolTypes;
+foreach ($customToolTypes as $customType) {
+    $normalizedKey = strtolower(trim($customType));
+    if (!empty($normalizedKey) && !isset($allToolTypes[$normalizedKey])) {
+        $allToolTypes[$normalizedKey] = ucfirst($customType);
+    }
+}
+
 // Get low stock tools for alerts
 $lowStockTools = getLowStockTools();
 $outOfStockTools = getOutOfStockTools();
@@ -891,10 +909,9 @@ require_once __DIR__ . '/includes/header.php';
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
                         <div class="flex gap-2">
                             <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
-                                <option value="software">Software/License</option>
-                                <option value="api_key">API Key</option>
-                                <option value="subscription">Subscription</option>
-                                <option value="digital_asset">Digital Asset</option>
+                                <?php foreach ($allToolTypes as $typeValue => $typeLabel): ?>
+                                <option value="<?php echo htmlspecialchars($typeValue); ?>"><?php echo htmlspecialchars($typeLabel); ?></option>
+                                <?php endforeach; ?>
                                 <option value="__others__">Others (Type your own)</option>
                             </select>
                             <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
@@ -1111,18 +1128,16 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <?php 
-                    $currentToolType = $editTool['tool_type'] ?? '';
-                    $standardToolTypes = ['software', 'api_key', 'subscription', 'digital_asset'];
-                    $isCustomToolType = !empty($currentToolType) && !in_array($currentToolType, $standardToolTypes);
+                    $currentToolType = strtolower(trim($editTool['tool_type'] ?? ''));
+                    $isInDropdown = isset($allToolTypes[$currentToolType]);
                     ?>
-                    <div x-data="{ toolTypeMode: '<?php echo $isCustomToolType ? 'custom' : 'select'; ?>', customToolType: '<?php echo $isCustomToolType ? htmlspecialchars($currentToolType) : ''; ?>' }">
+                    <div x-data="{ toolTypeMode: 'select', customToolType: '' }">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
                         <div class="flex gap-2">
                             <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
-                                <option value="software" <?php echo (!$isCustomToolType && $currentToolType === 'software') ? 'selected' : ''; ?>>Software/License</option>
-                                <option value="api_key" <?php echo (!$isCustomToolType && $currentToolType === 'api_key') ? 'selected' : ''; ?>>API Key</option>
-                                <option value="subscription" <?php echo (!$isCustomToolType && $currentToolType === 'subscription') ? 'selected' : ''; ?>>Subscription</option>
-                                <option value="digital_asset" <?php echo (!$isCustomToolType && $currentToolType === 'digital_asset') ? 'selected' : ''; ?>>Digital Asset</option>
+                                <?php foreach ($allToolTypes as $typeValue => $typeLabel): ?>
+                                <option value="<?php echo htmlspecialchars($typeValue); ?>" <?php echo ($currentToolType === $typeValue) ? 'selected' : ''; ?>><?php echo htmlspecialchars($typeLabel); ?></option>
+                                <?php endforeach; ?>
                                 <option value="__others__">Others (Type your own)</option>
                             </select>
                             <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
