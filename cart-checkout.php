@@ -2475,7 +2475,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 this.customerId = customer.id;
                 this.email = customer.email;
                 this.customerUsername = customer.username || '';
-                this.customerPhone = customer.phone || '';
+                // Use whatsapp_number from API (fallback to phone for compatibility)
+                this.customerPhone = customer.whatsapp_number || customer.phone || '';
                 this.accountComplete = customer.account_complete || false;
                 this.step = 'authenticated';
                 this.error = '';

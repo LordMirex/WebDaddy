@@ -33,7 +33,9 @@ if (!empty($customer['bank_details'])) {
     $savedBankDetails = json_decode($customer['bank_details'], true);
 }
 
-$activeTab = $_GET['tab'] ?? 'overview';
+// Whitelist valid tabs to prevent XSS injection
+$validTabs = ['overview', 'sales', 'withdraw', 'withdrawals'];
+$activeTab = in_array($_GET['tab'] ?? '', $validTabs) ? $_GET['tab'] : 'overview';
 
 $error = '';
 $success = '';
@@ -149,27 +151,26 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden" x-data="{ activeTab: '<?= htmlspecialchars($activeTab) ?>' }">
         <div class="border-b">
             <nav class="flex overflow-x-auto" role="tablist">
-                <a href="?tab=overview" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 <?= $activeTab === 'overview' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900' ?>">
+                <button type="button" @click="activeTab = 'overview'" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors" :class="activeTab === 'overview' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900'">
                     <i class="bi bi-bar-chart mr-2"></i>Overview
-                </a>
-                <a href="?tab=sales" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 <?= $activeTab === 'sales' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900' ?>">
+                </button>
+                <button type="button" @click="activeTab = 'sales'" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors" :class="activeTab === 'sales' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900'">
                     <i class="bi bi-cart-check mr-2"></i>Sales History
-                </a>
-                <a href="?tab=withdraw" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 <?= $activeTab === 'withdraw' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900' ?>">
+                </button>
+                <button type="button" @click="activeTab = 'withdraw'" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors" :class="activeTab === 'withdraw' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900'">
                     <i class="bi bi-cash-stack mr-2"></i>Request Withdrawal
-                </a>
-                <a href="?tab=withdrawals" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 <?= $activeTab === 'withdrawals' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900' ?>">
+                </button>
+                <button type="button" @click="activeTab = 'withdrawals'" class="px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors" :class="activeTab === 'withdrawals' ? 'border-amber-600 text-amber-600' : 'border-transparent text-gray-600 hover:text-gray-900'">
                     <i class="bi bi-clock-history mr-2"></i>Transaction History
-                </a>
+                </button>
             </nav>
         </div>
         
         <div class="p-6">
-            <?php if ($activeTab === 'overview'): ?>
-            <div>
+            <div x-show="activeTab === 'overview'" x-cloak>
                 <h4 class="text-lg font-bold text-gray-900 mb-4">How It Works</h4>
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="text-center p-4">
@@ -201,8 +202,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
-            <?php elseif ($activeTab === 'sales'): ?>
-            <div>
+            <div x-show="activeTab === 'sales'" x-cloak>
                 <h4 class="text-lg font-bold text-gray-900 mb-4">Recent Sales</h4>
                 <?php if (empty($recentSales)): ?>
                 <div class="text-center py-12 text-gray-500">
@@ -237,8 +237,7 @@ require_once __DIR__ . '/includes/header.php';
                 <?php endif; ?>
             </div>
             
-            <?php elseif ($activeTab === 'withdraw'): ?>
-            <div>
+            <div x-show="activeTab === 'withdraw'" x-cloak>
                 <h4 class="text-lg font-bold text-gray-900 mb-4">Request Withdrawal</h4>
                 
                 <div class="grid md:grid-cols-2 gap-6">
@@ -332,8 +331,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
-            <?php elseif ($activeTab === 'withdrawals'): ?>
-            <div>
+            <div x-show="activeTab === 'withdrawals'" x-cloak>
                 <h4 class="text-lg font-bold text-gray-900 mb-4">Transaction History</h4>
                 <?php if (empty($withdrawalHistory)): ?>
                 <div class="text-center py-12 text-gray-500">
@@ -380,7 +378,6 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 <?php endif; ?>
             </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>

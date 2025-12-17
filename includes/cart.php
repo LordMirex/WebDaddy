@@ -368,15 +368,27 @@ function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = nul
     }
     
     // PRIORITY 3: Apply user referral discount if no affiliate or bonus code (20% discount)
+    // SELF-REFERRAL PREVENTION: Users cannot use their own referral code
     if ($discount == 0 && $userReferralCode) {
         require_once __DIR__ . '/functions.php';
+        require_once __DIR__ . '/customer_session.php';
         $userReferral = getUserReferralByCode($userReferralCode);
         if ($userReferral && $userReferral['status'] === 'active') {
-            $discount = $subtotal * CUSTOMER_DISCOUNT_RATE; // 20% user referral discount
-            $discountType = 'user_referral';
-            $discountCode = $userReferralCode;
-            $discountPercent = CUSTOMER_DISCOUNT_RATE * 100;
-            $referralCode = $userReferralCode;
+            // Check if this is the user's own referral code (self-referral prevention)
+            $currentCustomer = getCurrentCustomer();
+            $isSelfReferral = false;
+            if ($currentCustomer && $currentCustomer['id'] == $userReferral['customer_id']) {
+                $isSelfReferral = true;
+                error_log("⚠️  SELF-REFERRAL BLOCKED: Customer #{$currentCustomer['id']} tried to use their own referral code {$userReferralCode}");
+            }
+            
+            if (!$isSelfReferral) {
+                $discount = $subtotal * CUSTOMER_DISCOUNT_RATE; // 20% user referral discount
+                $discountType = 'user_referral';
+                $discountCode = $userReferralCode;
+                $discountPercent = CUSTOMER_DISCOUNT_RATE * 100;
+                $referralCode = $userReferralCode;
+            }
         }
     }
     
