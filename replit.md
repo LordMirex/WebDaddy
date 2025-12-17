@@ -40,6 +40,9 @@ The platform utilizes SQLite for its database, with a schema designed for robust
   - Priority: bonus codes > affiliate codes > user referral codes
   - Customers get 20% discount when using either affiliate or referral codes
   - Affiliates get 30% commission, user referrers get 30% commission (both calculated on final paid amount after 20% customer discount)
+- **Self-Referral Prevention**: Users cannot use their own referral code to get discounts (spam prevention)
+  - Check in `getCartTotal()` compares logged-in customer ID with referral code owner
+  - Blocked attempts are logged for monitoring
 - **Database Tables**: user_referrals, user_referral_sales, user_referral_withdrawals, user_referral_clicks
 - **Admin Management**: New `/admin/user-referral-withdrawals.php` page for managing customer referral withdrawals
 - **Financial Analytics**: Reports now separate affiliate commissions from user referral commissions
@@ -47,7 +50,9 @@ The platform utilizes SQLite for its database, with a schema designed for robust
   - New functions: `getCommissionBreakdown()`, `getUserReferralMetrics()` in finance_metrics.php
 - **Idempotent Processing**: Both `processOrderCommission()` and `processUserReferralCommission()` check for existing records before processing
 - **Constants Added**: `USER_REFERRAL_COMMISSION_RATE` (0.20), `USER_REFERRAL_DISCOUNT_RATE` (0.20)
-- **Files Updated**: includes/config.php, includes/cart.php, cart-checkout.php, includes/functions.php, includes/finance_metrics.php, admin/reports.php, admin/user-referral-withdrawals.php, admin/includes/header.php
+- **Referral Page UX**: Tabs now switch instantly using Alpine.js (no page reload)
+  - Tab values are whitelisted to prevent XSS injection
+- **Files Updated**: includes/config.php, includes/cart.php, cart-checkout.php, includes/functions.php, includes/finance_metrics.php, admin/reports.php, admin/user-referral-withdrawals.php, admin/includes/header.php, user/referral.php
 
 ### User Campaign Management System (December 17, 2024)
 - **User Announcements**: New system for admins to post announcements visible on user dashboards
