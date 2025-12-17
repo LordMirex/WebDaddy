@@ -443,6 +443,107 @@ function getPaymentReconciliation($db) {
 }
 
 /**
+ * Get comprehensive commission metrics (separates affiliate from user referral)
+ * 
+ * @param PDO $db Database connection
+ * @param string $dateFilter SQL WHERE clause for date filtering
+ * @param array $params Parameters for prepared statement
+ * @return array Commission breakdown by type
+ */
+function getCommissionBreakdown($db, $dateFilter = '', $params = []) {
+    // Affiliate commissions (from sales table)
+    $affQuery = "
+        SELECT 
+            COUNT(*) as order_count,
+            COALESCE(SUM(commission_amount), 0) as total_commission
+        FROM sales s
+        WHERE s.commission_amount > 0 $dateFilter
+    ";
+    
+    $stmt = $db->prepare($affQuery);
+    $stmt->execute($params);
+    $affResult = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // User referral commissions (from user_referral_sales table)
+    $refDateFilter = str_replace('s.created_at', 'created_at', $dateFilter);
+    $refQuery = "
+        SELECT 
+            COUNT(*) as order_count,
+            COALESCE(SUM(commission_amount), 0) as total_commission
+        FROM user_referral_sales urs
+        WHERE urs.commission_amount > 0 $refDateFilter
+    ";
+    
+    $stmt = $db->prepare($refQuery);
+    $stmt->execute($params);
+    $refResult = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $affiliateCommission = (float)($affResult['total_commission'] ?? 0);
+    $userReferralCommission = (float)($refResult['total_commission'] ?? 0);
+    
+    return [
+        'affiliate' => [
+            'order_count' => (int)($affResult['order_count'] ?? 0),
+            'total_commission' => $affiliateCommission,
+            'rate' => AFFILIATE_COMMISSION_RATE * 100 . '%'
+        ],
+        'user_referral' => [
+            'order_count' => (int)($refResult['order_count'] ?? 0),
+            'total_commission' => $userReferralCommission,
+            'rate' => (defined('USER_REFERRAL_COMMISSION_RATE') ? USER_REFERRAL_COMMISSION_RATE * 100 : 20) . '%'
+        ],
+        'combined_total' => $affiliateCommission + $userReferralCommission
+    ];
+}
+
+/**
+ * Get user referral metrics
+ * 
+ * @param PDO $db Database connection
+ * @param string $dateFilter SQL WHERE clause for date filtering
+ * @param array $params Parameters for prepared statement
+ * @return array User referral metrics
+ */
+function getUserReferralMetrics($db, $dateFilter = '', $params = []) {
+    $refDateFilter = str_replace('s.created_at', 'created_at', $dateFilter);
+    
+    $query = "
+        SELECT 
+            COUNT(DISTINCT urs.id) as total_sales,
+            COALESCE(SUM(urs.amount_paid), 0) as total_revenue,
+            COALESCE(SUM(urs.commission_amount), 0) as total_commission,
+            COUNT(DISTINCT urs.referrer_id) as unique_referrers
+        FROM user_referral_sales urs
+        WHERE 1=1 $refDateFilter
+    ";
+    
+    $stmt = $db->prepare($query);
+    $stmt->execute($params);
+    $metrics = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Total active referrers
+    $refQuery = $db->query("SELECT COUNT(*) FROM user_referrals WHERE status = 'active'");
+    $activeReferrers = $refQuery->fetchColumn();
+    
+    // Pending withdrawals
+    $pendingQuery = $db->query("
+        SELECT COALESCE(SUM(amount), 0) as pending_total
+        FROM user_referral_withdrawals 
+        WHERE status = 'pending'
+    ");
+    $pendingWithdrawals = $pendingQuery->fetchColumn();
+    
+    return [
+        'total_sales' => (int)($metrics['total_sales'] ?? 0),
+        'total_revenue' => (float)($metrics['total_revenue'] ?? 0),
+        'total_commission' => (float)($metrics['total_commission'] ?? 0),
+        'unique_referrers' => (int)($metrics['unique_referrers'] ?? 0),
+        'active_referrers' => (int)$activeReferrers,
+        'pending_withdrawals' => (float)$pendingWithdrawals
+    ];
+}
+
+/**
  * Get webhook delivery statistics
  * 
  * @param PDO $db Database connection

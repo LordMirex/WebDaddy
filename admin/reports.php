@@ -36,7 +36,7 @@ if ($period === 'today') {
 // Use standardized financial metrics (calculates from sales table - single source of truth)
 $revenueMetrics = getRevenueMetrics($db, $dateFilter, $params);
 $totalRevenue = $revenueMetrics['total_revenue'];
-$totalCommission = $revenueMetrics['total_commission'];
+$totalAffiliateCommission = $revenueMetrics['total_commission'];
 $totalOrders = $revenueMetrics['total_sales'];
 $netRevenue = $revenueMetrics['net_revenue'];
 $avgOrderValue = $revenueMetrics['avg_order_value'];
@@ -45,10 +45,15 @@ $avgOrderValue = $revenueMetrics['avg_order_value'];
 $discountMetrics = getDiscountMetrics($db, $dateFilter, $params);
 $totalDiscount = $discountMetrics['total_discount'];
 
+// Get commission breakdown (affiliate vs user referral)
+$commissionBreakdown = getCommissionBreakdown($db, $dateFilter, $params);
+$totalUserReferralCommission = $commissionBreakdown['user_referral']['total_commission'];
+$totalCommission = $totalAffiliateCommission + $totalUserReferralCommission;
+
 // For display purposes (these are not in standardized metrics yet)
 $totalOriginal = $totalRevenue;
 
-// YOUR ACTUAL PROFIT = What customers paid you - What you paid affiliates
+// YOUR ACTUAL PROFIT = What customers paid you - (affiliate commissions + user referral commissions)
 $yourActualProfit = $totalRevenue - $totalCommission;
 
 // NOTE: All commission amounts use sales table as single source of truth

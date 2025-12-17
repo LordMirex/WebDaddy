@@ -34,6 +34,21 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 
 ## Recent Changes (December 2024)
 
+### User Referral System (December 17, 2024)
+- **Customer Referral Program**: Regular customers can now share referral links and earn 20% commission on sales
+  - User referral codes use `ref=` parameter (vs `aff=` for affiliates)
+  - Priority: bonus codes > affiliate codes > user referral codes
+  - Customers get 20% discount when using either affiliate or referral codes
+  - Affiliates get 30% commission, user referrers get 20% commission
+- **Database Tables**: user_referrals, user_referral_sales, user_referral_withdrawals, user_referral_clicks
+- **Admin Management**: New `/admin/user-referral-withdrawals.php` page for managing customer referral withdrawals
+- **Financial Analytics**: Reports now separate affiliate commissions from user referral commissions
+  - Profit calculation: Revenue - Affiliate Commissions - User Referral Commissions
+  - New functions: `getCommissionBreakdown()`, `getUserReferralMetrics()` in finance_metrics.php
+- **Idempotent Processing**: Both `processOrderCommission()` and `processUserReferralCommission()` check for existing records before processing
+- **Constants Added**: `USER_REFERRAL_COMMISSION_RATE` (0.20), `USER_REFERRAL_DISCOUNT_RATE` (0.20)
+- **Files Updated**: includes/config.php, includes/cart.php, cart-checkout.php, includes/functions.php, includes/finance_metrics.php, admin/reports.php, admin/user-referral-withdrawals.php, admin/includes/header.php
+
 ### User Campaign Management System (December 17, 2024)
 - **User Announcements**: New system for admins to post announcements visible on user dashboards
   - Database tables: `user_announcements`, `user_announcement_emails`
