@@ -32,6 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $thumbnailUrlInput = sanitizeInput($_POST['thumbnail_url'] ?? '');
             $thumbnailUrl = !empty($croppedThumbnailData) ? $croppedThumbnailData : $thumbnailUrlInput;
             $thumbnailUrl = UrlUtils::normalizeUploadUrl($thumbnailUrl);
+            // Default to placeholder if no banner provided
+            if (empty($thumbnailUrl)) {
+                $thumbnailUrl = '/assets/images/placeholder.jpg';
+            }
             
             $videoType = sanitizeInput($_POST['video_type'] ?? 'none');
             $demoUrl = null;
@@ -461,28 +465,28 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="category" value="<?php echo htmlspecialchars($editTemplate['category'] ?? ''); ?>">
+                            <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="category" value="<?php echo htmlspecialchars($editTemplate['category'] ?? ''); ?>" placeholder="e.g., E-commerce, Portfolio, Blog">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="description" rows="3"><?php echo htmlspecialchars($editTemplate['description'] ?? ''); ?></textarea>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="description" rows="3" placeholder="Describe what this template is about, its main purpose and target audience..."><?php echo htmlspecialchars($editTemplate['description'] ?? ''); ?></textarea>
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Features</label>
-                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="features" rows="3"><?php echo htmlspecialchars($editTemplate['features'] ?? ''); ?></textarea>
+                            <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="features" rows="3" placeholder="Responsive Design, SEO Optimized, Contact Form, Gallery, etc."><?php echo htmlspecialchars($editTemplate['features'] ?? ''); ?></textarea>
                             <small class="text-gray-500 text-xs">Comma-separated list of features</small>
                         </div>
                         
-                        <!-- Banner Section (Always Present) -->
+                        <!-- Banner Section (Optional) -->
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Template Banner <span class="text-red-600">*</span></label>
-                            <p class="text-xs text-gray-500 mb-3">Required. This image represents your template on the marketplace.</p>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Template Banner (Optional)</label>
+                            <p class="text-xs text-gray-500 mb-3">Optional. If not provided, a default placeholder will be used.</p>
                             <div class="flex gap-2 mb-3">
                                 <button type="button" onclick="toggleBannerMode('url')" id="banner-url-btn" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">Paste URL</button>
                                 <button type="button" onclick="toggleBannerMode('upload')" id="banner-upload-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                             </div>
                             <div id="banner-url-mode">
-                                <input type="text" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" <?php echo !$editTemplate ? 'required' : ''; ?> placeholder="https://example.com/banner.jpg or /uploads/...">
+                                <input type="text" name="thumbnail_url" id="banner-url-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" value="<?php echo htmlspecialchars($editTemplate['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/banner.jpg or /uploads/...">
                             </div>
                             <div id="banner-upload-mode" style="display: none;">
                                 <input type="file" id="banner-file-input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">

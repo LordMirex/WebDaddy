@@ -23,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($action === 'create_tool') {
         $name = sanitizeInput($_POST['name']);
-        $category = sanitizeInput($_POST['category']);
+        $slug = sanitizeInput($_POST['slug'] ?? '');
+        $category = sanitizeInput($_POST['category'] ?? '');
         $toolType = sanitizeInput($_POST['tool_type']);
         $price = floatval($_POST['price']);
         $shortDescription = sanitizeInput($_POST['short_description']);
@@ -112,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $toolId = intval($_POST['tool_id']);
         $name = sanitizeInput($_POST['name']);
         $slug = sanitizeInput($_POST['slug'] ?? '');
-        $category = sanitizeInput($_POST['category']);
+        $category = sanitizeInput($_POST['category'] ?? '');
         $toolType = sanitizeInput($_POST['tool_type']);
         $price = floatval($_POST['price']);
         $shortDescription = sanitizeInput($_POST['short_description']);
@@ -853,10 +854,27 @@ require_once __DIR__ . '/includes/header.php';
                                 <option value="other">Other</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
-                            <input type="text" name="short_description" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Brief description">
+                        <div x-data="{ categoryMode: 'select', customCategory: '' }">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                            <div class="flex gap-2">
+                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" id="category-select-create" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
+                                    <option value="">Select Category</option>
+                                    <?php foreach ($categories as $cat): ?>
+                                    <option value="<?php echo htmlspecialchars($cat); ?>"><?php echo htmlspecialchars($cat); ?></option>
+                                    <?php endforeach; ?>
+                                    <option value="__others__">Others (Type your own)</option>
+                                </select>
+                                <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom category">
+                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
+                        <input type="text" name="short_description" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Brief description">
                     </div>
                     
                     <div>
@@ -1070,10 +1088,31 @@ require_once __DIR__ . '/includes/header.php';
                                 <option value="other" <?php echo $editTool['tool_type'] === 'other' ? 'selected' : ''; ?>>Other</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
-                            <input type="text" name="short_description" maxlength="200" value="<?php echo htmlspecialchars($editTool['short_description'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <?php 
+                        $currentCategory = $editTool['category'] ?? '';
+                        $isCustomCategory = !empty($currentCategory) && !in_array($currentCategory, $categories);
+                        ?>
+                        <div x-data="{ categoryMode: '<?php echo $isCustomCategory ? 'custom' : 'select'; ?>', customCategory: '<?php echo $isCustomCategory ? htmlspecialchars($currentCategory) : ''; ?>' }">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                            <div class="flex gap-2">
+                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" id="category-select-edit" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
+                                    <option value="">Select Category</option>
+                                    <?php foreach ($categories as $cat): ?>
+                                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (!$isCustomCategory && $currentCategory === $cat) ? 'selected' : ''; ?>><?php echo htmlspecialchars($cat); ?></option>
+                                    <?php endforeach; ?>
+                                    <option value="__others__">Others (Type your own)</option>
+                                </select>
+                                <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom category">
+                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                    <i class="bi bi-arrow-left"></i>
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
+                        <input type="text" name="short_description" maxlength="200" value="<?php echo htmlspecialchars($editTool['short_description'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                     </div>
                     
                     <div>
@@ -1309,9 +1348,6 @@ require_once __DIR__ . '/includes/header.php';
                                         <div class="font-medium text-gray-900 truncate"><?php echo htmlspecialchars($file['file_name']); ?></div>
                                         <div class="text-xs text-gray-500">
                                             <?php echo $isLink ? 'External Link' : number_format($file['file_size'] / 1024, 1) . ' KB'; ?>
-                                            <?php if (!empty($file['file_description'])): ?>
-                                             · <?php echo htmlspecialchars(substr($file['file_description'], 0, 30)); ?><?php echo strlen($file['file_description']) > 30 ? '...' : ''; ?>
-                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -1415,15 +1451,6 @@ require_once __DIR__ . '/includes/header.php';
                                     <option value="video">🎬 Video</option>
                                     <option value="link">🔗 External Link/URL</option>
                                 </select>
-                            </div>
-                            
-                            <!-- Description -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">💬 Description (Optional)</label>
-                                <textarea id="description" name="description" 
-                                          class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-                                          rows="3"
-                                          placeholder="e.g., Main tool files, Updated version 2.0, Installation guide..."></textarea>
                             </div>
                             
                             <!-- Progress Bar (hidden initially) -->
@@ -2097,7 +2124,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     const fileType = document.getElementById('fileType').value;
     // FIX: Use form-scoped selector to get correct tool_id from upload form (not other forms)
     const toolId = form.querySelector('input[name="tool_id"]').value;
-    const description = document.getElementById('description').value;
     const statusDiv = document.getElementById('uploadStatus');
     
     // Handle external link submission
@@ -2113,7 +2139,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         formData.append('action', 'upload_tool_file');
         formData.append('tool_id', toolId);
         formData.append('file_type', fileType);
-        formData.append('description', description);
         formData.append('external_link', externalLink);
         formData.append('upload_mode', 'link');
         formData.append('csrf_token', csrfToken);
@@ -2145,7 +2170,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     statusDiv.innerHTML = '<div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-700 rounded-lg animate-pulse">🔄 Upload starting... sending chunks to server</div>';
     
     try {
-        await uploadFileInChunks(file, toolId, fileType, description);
+        await uploadFileInChunks(file, toolId, fileType, '');
     } catch (error) {
         statusDiv.innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">❌ Upload failed: ' + error.message + '</div>';
         document.getElementById('uploadBtn').disabled = false;
