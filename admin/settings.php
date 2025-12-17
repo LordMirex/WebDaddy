@@ -138,10 +138,10 @@ require_once __DIR__ . '/includes/header.php';
                             </label>
                             <div class="flex">
                                 <input type="number" class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="commission_rate" step="0.01" min="0" max="1"
-                                       value="<?php echo htmlspecialchars($currentSettings['commission_rate'] ?? '0.30'); ?>" required>
+                                       value="<?php echo htmlspecialchars($currentSettings['commission_rate'] ?? '0.20'); ?>" required>
                                 <span class="px-4 py-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-700 font-medium">%</span>
                             </div>
-                            <small class="text-gray-500 text-sm">Commission percentage (0.30 = 30%)</small>
+                            <small class="text-gray-500 text-sm">Commission percentage (0.20 = 20%)</small>
                         </div>
 
                         <div>
@@ -285,7 +285,7 @@ require_once __DIR__ . '/includes/header.php';
 
                     <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
                         <div class="text-sm text-gray-600 mb-1">Commission Rate</div>
-                        <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['commission_rate'] ?? '0.30'); ?> (<?php echo (float)($currentSettings['commission_rate'] ?? '0.30') * 100; ?>%)</div>
+                        <div class="font-semibold text-gray-900"><?php echo htmlspecialchars($currentSettings['commission_rate'] ?? '0.20'); ?> (<?php echo (float)($currentSettings['commission_rate'] ?? '0.20') * 100; ?>%)</div>
                     </div>
 
                     <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">

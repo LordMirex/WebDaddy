@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
                     // Recalculate totals with discount
                     $totals = getCartTotal(null, $affiliateCode, null, null);
                     
-                    $success = '20% affiliate discount applied successfully!';
+                    $success = (CUSTOMER_DISCOUNT_RATE * 100) . '% affiliate discount applied successfully!';
                     $submittedAffiliateCode = '';
                 } else {
                     // PRIORITY 3: Check if it's a valid user referral code
@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
                         // Recalculate totals with discount
                         $totals = getCartTotal(null, null, null, $userReferralCode);
                         
-                        $success = '20% referral discount applied successfully!';
+                        $success = (CUSTOMER_DISCOUNT_RATE * 100) . '% referral discount applied successfully!';
                         $submittedAffiliateCode = '';
                     } else {
                         $errors[] = 'Invalid or inactive discount code.';

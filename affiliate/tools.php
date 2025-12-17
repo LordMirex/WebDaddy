@@ -41,14 +41,14 @@ require_once __DIR__ . '/includes/header.php';
     <div class="flex items-center justify-between flex-wrap gap-4">
         <div>
             <h3 class="text-xl font-bold mb-2">Your Referral Link</h3>
-            <p class="text-white/90 text-sm">Share this link to earn 30% commission on every sale</p>
+            <p class="text-white/90 text-sm">Share this link to earn <?php echo AFFILIATE_COMMISSION_RATE * 100; ?>% commission on every sale</p>
         </div>
         <div class="flex items-center space-x-2">
             <span class="inline-flex items-center px-4 py-2 rounded-lg bg-white/20 text-white font-mono font-bold text-sm">
                 <?php echo $affiliateCode; ?>
             </span>
             <span class="inline-flex items-center px-4 py-2 rounded-lg bg-green-600 text-white font-semibold text-sm">
-                30% Commission
+                <?php echo AFFILIATE_COMMISSION_RATE * 100; ?>% Commission
             </span>
         </div>
     </div>
@@ -143,7 +143,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50" x-data="{ copied: false }">
                 <div class="flex justify-between items-start mb-3">
                     <h6 class="font-semibold text-gray-900">💼 Business Template</h6>
-                    <button @click="navigator.clipboard.writeText(`Looking to grow your business online?\n\n<?php echo SITE_NAME; ?> offers ready-made websites with:\n\n⚡ 24-hour delivery\n🎨 Professional templates\n🌐 Free domain included\n💰 Affordable pricing\n\nGet 20% OFF with my link: <?php echo $referralLink; ?>`).then(() => { copied = true; setTimeout(() => copied = false, 2000); })"
+                    <button @click="navigator.clipboard.writeText(`Looking to grow your business online?\n\n<?php echo SITE_NAME; ?> offers ready-made websites with:\n\n⚡ 24-hour delivery\n🎨 Professional templates\n🌐 Free domain included\n💰 Affordable pricing\n\nGet <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% OFF with my link: <?php echo $referralLink; ?>`).then(() => { copied = true; setTimeout(() => copied = false, 2000); })"
                             class="px-3 py-1 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
                         <i class="bi" :class="copied ? 'bi-check-lg' : 'bi-clipboard'"></i>
                         <span class="ml-1" x-text="copied ? 'Copied!' : 'Copy'">Copy</span>
@@ -153,7 +153,7 @@ require_once __DIR__ . '/includes/header.php';
                     <p>Looking to grow your business online?</p>
                     <p class="mt-2"><?php echo SITE_NAME; ?> offers ready-made websites with:</p>
                     <p class="mt-2">⚡ 24-hour delivery<br>🎨 Professional templates<br>🌐 Free domain included<br>💰 Affordable pricing</p>
-                    <p class="mt-2">Get 20% OFF with my link: <?php echo $referralLink; ?></p>
+                    <p class="mt-2">Get <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% OFF with my link: <?php echo $referralLink; ?></p>
                 </div>
             </div>
         </div>
@@ -175,7 +175,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50" x-data="{ copied: false }">
             <div class="flex justify-between items-start mb-3">
                 <h6 class="font-semibold text-gray-900">Professional Email Template</h6>
-                <button @click="navigator.clipboard.writeText(`Subject: Get Your Professional Website in 24 Hours!\n\nHello!\n\nI wanted to share an amazing service I discovered - <?php echo SITE_NAME; ?>.\n\nThey create professional websites in just 24 hours with:\n\n• Ready-made templates for any business\n• Free domain included\n• Professional design\n• 30-day money-back guarantee\n• 24/7 support\n\nI'm using this link to get 20% off, and I thought you might find it useful too:\n<?php echo $referralLink; ?>\n\nBest regards`).then(() => { copied = true; setTimeout(() => copied = false, 2000); })"
+                <button @click="navigator.clipboard.writeText(`Subject: Get Your Professional Website in 24 Hours!\n\nHello!\n\nI wanted to share an amazing service I discovered - <?php echo SITE_NAME; ?>.\n\nThey create professional websites in just 24 hours with:\n\n• Ready-made templates for any business\n• Free domain included\n• Professional design\n• 30-day money-back guarantee\n• 24/7 support\n\nI'm using this link to get <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% off, and I thought you might find it useful too:\n<?php echo $referralLink; ?>\n\nBest regards`).then(() => { copied = true; setTimeout(() => copied = false, 2000); })"
                         class="px-3 py-1 text-sm bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
                     <i class="bi" :class="copied ? 'bi-check-lg' : 'bi-clipboard'"></i>
                     <span class="ml-1" x-text="copied ? 'Copied!' : 'Copy'">Copy</span>
@@ -193,7 +193,7 @@ require_once __DIR__ . '/includes/header.php';
                     <li>30-day money-back guarantee</li>
                     <li>24/7 support</li>
                 </ul>
-                <p class="mt-3">I'm using this link to get 20% off, and I thought you might find it useful too:</p>
+                <p class="mt-3">I'm using this link to get <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% off, and I thought you might find it useful too:</p>
                 <p class="mt-2 text-primary-600 font-medium"><?php echo $referralLink; ?></p>
                 <p class="mt-3">Best regards</p>
             </div>
@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/header.php';
                 </li>
                 <li class="flex items-start">
                     <i class="bi bi-check2 text-blue-600 mr-2 mt-1 shrink-0"></i>
-                    <span><strong>Highlight the discount:</strong> Always mention the 20% discount customers get with your link</span>
+                    <span><strong>Highlight the discount:</strong> Always mention the <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% discount customers get with your link</span>
                 </li>
             </ul>
         </div>

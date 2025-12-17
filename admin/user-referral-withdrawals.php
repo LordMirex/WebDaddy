@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     JOIN customers c ON ur.customer_id = c.id
                     WHERE ur.id = ?
                 ");
-                $stmt->execute([$request['referrer_id']]);
+                $stmt->execute([$request['referral_id']]);
                 $customerUser = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if ($customerUser) {
@@ -100,7 +100,7 @@ $offset = ($page - 1) * $perPage;
 $countSql = "
     SELECT COUNT(*) 
     FROM user_referral_withdrawals urw
-    JOIN user_referrals ur ON urw.referrer_id = ur.id
+    JOIN user_referrals ur ON urw.referral_id = ur.id
     JOIN customers c ON ur.customer_id = c.id
     $whereClause
 ";
@@ -112,15 +112,16 @@ $totalPages = ceil($totalWithdrawals / $perPage);
 $sql = "
     SELECT 
         urw.*,
+        urw.referral_id,
         ur.referral_code,
         c.email as customer_email,
         c.username as customer_username,
         c.phone as customer_phone
     FROM user_referral_withdrawals urw
-    JOIN user_referrals ur ON urw.referrer_id = ur.id
+    JOIN user_referrals ur ON urw.referral_id = ur.id
     JOIN customers c ON ur.customer_id = c.id
     $whereClause
-    ORDER BY urw.created_at DESC
+    ORDER BY urw.requested_at DESC
     LIMIT ? OFFSET ?
 ";
 
@@ -288,14 +289,17 @@ require_once __DIR__ . '/includes/header.php';
                         <?php echo formatCurrency($withdrawal['amount']); ?>
                     </td>
                     <td class="py-3 px-4 text-sm">
-                        <?php if (!empty($withdrawal['bank_name'])): ?>
-                        <div><strong>Bank:</strong> <?php echo htmlspecialchars($withdrawal['bank_name']); ?></div>
+                        <?php 
+                        $bankDetails = json_decode($withdrawal['bank_details_json'] ?? '{}', true) ?: [];
+                        ?>
+                        <?php if (!empty($bankDetails['bank_name'])): ?>
+                        <div><strong>Bank:</strong> <?php echo htmlspecialchars($bankDetails['bank_name']); ?></div>
                         <?php endif; ?>
-                        <?php if (!empty($withdrawal['account_number'])): ?>
-                        <div><strong>Acct:</strong> <?php echo htmlspecialchars($withdrawal['account_number']); ?></div>
+                        <?php if (!empty($bankDetails['account_number'])): ?>
+                        <div><strong>Acct:</strong> <?php echo htmlspecialchars($bankDetails['account_number']); ?></div>
                         <?php endif; ?>
-                        <?php if (!empty($withdrawal['account_name'])): ?>
-                        <div><strong>Name:</strong> <?php echo htmlspecialchars($withdrawal['account_name']); ?></div>
+                        <?php if (!empty($bankDetails['account_name'])): ?>
+                        <div><strong>Name:</strong> <?php echo htmlspecialchars($bankDetails['account_name']); ?></div>
                         <?php endif; ?>
                     </td>
                     <td class="py-3 px-4">
@@ -312,7 +316,7 @@ require_once __DIR__ . '/includes/header.php';
                         </span>
                     </td>
                     <td class="py-3 px-4 text-sm text-gray-500">
-                        <?php echo date('M j, Y g:ia', strtotime($withdrawal['created_at'])); ?>
+                        <?php echo date('M j, Y g:ia', strtotime($withdrawal['requested_at'])); ?>
                     </td>
                     <td class="py-3 px-4">
                         <?php if ($withdrawal['status'] === 'pending'): ?>

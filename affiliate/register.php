@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="text-center mb-8">
                     <img src="/assets/images/webdaddy-logo.png" alt="<?php echo SITE_NAME; ?>" class="max-w-[120px] mx-auto mb-4">
                     <h2 class="text-3xl font-bold text-gray-900 mb-2">Become an Affiliate</h2>
-                    <p class="text-gray-600 font-medium">Join our affiliate program and start earning 30% commissions</p>
+                    <p class="text-gray-600 font-medium">Join our affiliate program and start earning <?php echo AFFILIATE_COMMISSION_RATE * 100; ?>% commissions</p>
                 </div>
                 
                 <!-- Error Message -->
@@ -330,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="flex-1">
                                 <h4 class="font-bold text-gray-900 text-sm mb-1">Affiliate Benefits</h4>
                                 <ul class="text-xs text-gray-600 space-y-0.5">
-                                    <li class="flex items-center"><i class="bi bi-check2 text-green-600 mr-1"></i> 30% commission on all sales</li>
+                                    <li class="flex items-center"><i class="bi bi-check2 text-green-600 mr-1"></i> <?php echo AFFILIATE_COMMISSION_RATE * 100; ?>% commission on all sales</li>
                                     <li class="flex items-center"><i class="bi bi-check2 text-green-600 mr-1"></i> 30-day cookie tracking</li>
                                     <li class="flex items-center"><i class="bi bi-check2 text-green-600 mr-1"></i> Marketing materials provided</li>
                                 </ul>

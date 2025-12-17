@@ -153,10 +153,10 @@ require_once __DIR__ . '/includes/header.php';
             <div class="flex-1">
                 <h6 class="font-bold text-blue-900 mb-1">💰 How Your Commission Works</h6>
                 <p class="text-sm text-blue-800">
-                    You earn <strong>30% commission</strong> on every sale from your referral link. 
-                    Your commission is calculated from the <strong>discounted price</strong> (what the customer actually pays after the 20% discount), not the original price. 
+                    You earn <strong><?php echo AFFILIATE_COMMISSION_RATE * 100; ?>% commission</strong> on every sale from your referral link. 
+                    Your commission is calculated from the <strong>discounted price</strong> (what the customer actually pays after the <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% discount), not the original price. 
                     This keeps everything transparent and fair! 
-                    <span class="font-semibold">Example:</span> Product costs ₦10,000 → Customer gets 20% off → Pays ₦8,000 → You earn ₦2,400 (30% of ₦8,000).
+                    <span class="font-semibold">Example:</span> Product costs ₦10,000 → Customer gets <?php echo CUSTOMER_DISCOUNT_RATE * 100; ?>% off → Pays ₦<?php echo number_format(10000 * (1 - CUSTOMER_DISCOUNT_RATE)); ?> → You earn ₦<?php echo number_format(10000 * (1 - CUSTOMER_DISCOUNT_RATE) * AFFILIATE_COMMISSION_RATE); ?> (<?php echo AFFILIATE_COMMISSION_RATE * 100; ?>% of ₦<?php echo number_format(10000 * (1 - CUSTOMER_DISCOUNT_RATE)); ?>).
                 </p>
             </div>
         </div>

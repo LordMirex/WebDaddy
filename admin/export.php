@@ -156,7 +156,7 @@ if ($exportType) {
             SELECT a.*,
                    COUNT(po.id) as total_orders,
                    SUM(CASE WHEN po.status = 'paid' THEN po.final_amount ELSE 0 END) as total_revenue,
-                   SUM(CASE WHEN po.status = 'paid' THEN po.final_amount * 0.3 ELSE 0 END) as total_commission
+                   SUM(CASE WHEN po.status = 'paid' THEN po.final_amount * " . AFFILIATE_COMMISSION_RATE . " ELSE 0 END) as total_commission
             FROM affiliates a
             LEFT JOIN pending_orders po ON po.affiliate_code = a.code AND po.created_at BETWEEN ? AND ?
             GROUP BY a.id, a.code, a.name, a.email, a.status, a.total_earnings, a.pending_earnings, a.created_at
@@ -235,7 +235,7 @@ if ($exportType) {
                 COUNT(*) as total_orders,
                 SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid_orders,
                 SUM(CASE WHEN status = 'paid' THEN final_amount ELSE 0 END) as total_revenue,
-                SUM(CASE WHEN status = 'paid' AND affiliate_code IS NOT NULL THEN final_amount * 0.3 ELSE 0 END) as total_commissions,
+                SUM(CASE WHEN status = 'paid' AND affiliate_code IS NOT NULL THEN final_amount * " . AFFILIATE_COMMISSION_RATE . " ELSE 0 END) as total_commissions,
                 SUM(CASE WHEN order_type = 'template' AND status = 'paid' THEN final_amount ELSE 0 END) as template_revenue,
                 SUM(CASE WHEN (order_type = 'tool' OR order_type = 'tools') AND status = 'paid' THEN final_amount ELSE 0 END) as tool_revenue,
                 SUM(CASE WHEN order_type = 'mixed' AND status = 'paid' THEN final_amount ELSE 0 END) as mixed_revenue

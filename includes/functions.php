@@ -1045,42 +1045,37 @@ function incrementAffiliateClick($code)
 // USER REFERRAL SYSTEM FUNCTIONS
 // ============================================
 
-define('USER_REFERRAL_COMMISSION_RATE', 0.20); // Users get 20% commission
-
 function generateUserReferralCode($customerId)
 {
     $db = getDb();
     
-    // Get customer username or email
-    $stmt = $db->prepare("SELECT username, email FROM customers WHERE id = ?");
-    $stmt->execute([$customerId]);
-    $customer = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Generate a random 6-character alphanumeric code (uppercase letters and numbers only)
+    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    $charLength = strlen($characters);
     
-    if (!$customer) {
-        return null;
-    }
-    
-    // Generate code from username or email prefix + random suffix
-    $base = !empty($customer['username']) ? $customer['username'] : explode('@', $customer['email'])[0];
-    $base = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $base));
-    $base = substr($base, 0, 6);
-    
-    // Add random suffix to ensure uniqueness
-    $code = $base . strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
-    
-    // Ensure uniqueness
+    // Ensure uniqueness with multiple attempts
     $attempts = 0;
-    while ($attempts < 10) {
+    while ($attempts < 20) {
+        $code = '';
+        for ($i = 0; $i < 6; $i++) {
+            $code .= $characters[random_int(0, $charLength - 1)];
+        }
+        
+        // Check if code already exists
         $check = $db->prepare("SELECT id FROM user_referrals WHERE referral_code = ?");
         $check->execute([$code]);
         if (!$check->fetch()) {
-            return $code;
+            // Also check affiliates table to avoid conflicts
+            $checkAff = $db->prepare("SELECT id FROM affiliates WHERE code = ?");
+            $checkAff->execute([$code]);
+            if (!$checkAff->fetch()) {
+                return $code;
+            }
         }
-        $code = $base . strtoupper(substr(bin2hex(random_bytes(2)), 0, 4));
         $attempts++;
     }
     
-    return $code;
+    return null;
 }
 
 function createUserReferral($customerId)
