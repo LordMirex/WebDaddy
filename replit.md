@@ -39,7 +39,7 @@ The platform utilizes SQLite for its database, with a schema designed for robust
   - User referral codes use `ref=` parameter (vs `aff=` for affiliates)
   - Priority: bonus codes > affiliate codes > user referral codes
   - Customers get 20% discount when using either affiliate or referral codes
-  - Affiliates get 30% commission, user referrers get 20% commission
+  - Affiliates get 30% commission, user referrers get 30% commission (both calculated on final paid amount after 20% customer discount)
 - **Database Tables**: user_referrals, user_referral_sales, user_referral_withdrawals, user_referral_clicks
 - **Admin Management**: New `/admin/user-referral-withdrawals.php` page for managing customer referral withdrawals
 - **Financial Analytics**: Reports now separate affiliate commissions from user referral commissions

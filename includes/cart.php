@@ -314,8 +314,8 @@ function clearCart($sessionId = null) {
  * 
  * Priority: Bonus codes > Affiliate codes > User Referral codes
  * Bonus codes provide discount with NO commission
- * Affiliate codes provide 30% discount WITH 20% affiliate commission
- * User Referral codes provide 30% discount WITH 20% referrer commission
+ * Affiliate codes provide 20% discount WITH 30% affiliate commission
+ * User Referral codes provide 20% discount WITH 30% referrer commission
  * 
  * @param string $sessionId Optional session ID
  * @param string $affiliateCode Optional affiliate code for discount
@@ -359,20 +359,20 @@ function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = nul
         }
     }
     
-    // PRIORITY 2: Apply affiliate discount if no valid bonus code (30% discount)
+    // PRIORITY 2: Apply affiliate discount if no valid bonus code (20% discount)
     if ($discount == 0 && $affiliateCode) {
-        $discount = $subtotal * CUSTOMER_DISCOUNT_RATE; // 30% affiliate discount
+        $discount = $subtotal * CUSTOMER_DISCOUNT_RATE; // 20% affiliate discount
         $discountType = 'affiliate';
         $discountCode = $affiliateCode;
         $discountPercent = CUSTOMER_DISCOUNT_RATE * 100;
     }
     
-    // PRIORITY 3: Apply user referral discount if no affiliate or bonus code (30% discount)
+    // PRIORITY 3: Apply user referral discount if no affiliate or bonus code (20% discount)
     if ($discount == 0 && $userReferralCode) {
         require_once __DIR__ . '/functions.php';
         $userReferral = getUserReferralByCode($userReferralCode);
         if ($userReferral && $userReferral['status'] === 'active') {
-            $discount = $subtotal * CUSTOMER_DISCOUNT_RATE; // 30% user referral discount
+            $discount = $subtotal * CUSTOMER_DISCOUNT_RATE; // 20% user referral discount
             $discountType = 'user_referral';
             $discountCode = $userReferralCode;
             $discountPercent = CUSTOMER_DISCOUNT_RATE * 100;

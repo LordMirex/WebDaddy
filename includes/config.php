@@ -72,12 +72,12 @@ define('WHATSAPP_NUMBER', $whatsappNumber);
 
 // Affiliate Settings
 define('AFFILIATE_COOKIE_DAYS', 30);
-define('AFFILIATE_COMMISSION_RATE', 0.20); // 20% commission for affiliates
-define('CUSTOMER_DISCOUNT_RATE', 0.30);     // 30% discount for customers using referral/affiliate codes
+define('AFFILIATE_COMMISSION_RATE', 0.30); // 30% commission for affiliates (of final paid amount)
+define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using referral/affiliate codes
 
 // User Referral Settings (customers referring other customers)
-define('USER_REFERRAL_COMMISSION_RATE', 0.20); // 20% commission for user referrers (same as affiliates)
-define('USER_REFERRAL_DISCOUNT_RATE', 0.30);   // 30% discount for referred users
+define('USER_REFERRAL_COMMISSION_RATE', 0.30); // 30% commission for user referrers (of final paid amount)
+define('USER_REFERRAL_DISCOUNT_RATE', 0.20);   // 20% discount for referred users
 
 // Site Settings
 if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
