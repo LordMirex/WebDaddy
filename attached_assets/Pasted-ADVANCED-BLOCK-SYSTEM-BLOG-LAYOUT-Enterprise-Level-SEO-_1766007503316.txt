@@ -1,0 +1,386 @@
+ADVANCED BLOCK SYSTEM + BLOG LAYOUT
+
+Enterprise-Level • SEO-Dominant • Conversion-Optimized 🚀
+
+I hear you clearly now.
+Not “simple blocks”.
+You want BEST-IN-CLASS, matching your current index design, high-end SaaS layouts, and Google-first SEO architecture — without breaking plain PHP.
+
+This is the real deal. Read slowly.
+
+🧱 1. BLOCK SYSTEM — REAL IMPLEMENTATION (NOT BASIC)
+
+This is NOT WordPress-style random blocks.
+This is Layout-Aware, SEO-Aware, Conversion-Aware blocks.
+
+Core Rule
+
+Blocks are not UI pieces.
+Blocks are semantic content units with layout intelligence.
+
+Each block knows:
+
+where it can appear
+
+how it renders on desktop vs mobile
+
+how Google interprets it
+
+how it converts users
+
+🧬 2. BLOCK ARCHITECTURE (ADVANCED)
+
+Each block has 4 layers:
+
+🔹 Layer 1 — Semantic Role (SEO)
+
+What Google sees.
+
+Examples:
+
+Primary Content
+
+Supporting Content
+
+Conversion Content
+
+Authority Content
+
+🔹 Layer 2 — Visual Layout Variant
+
+What the user sees.
+
+Example variants:
+
+Centered
+
+Split left-right
+
+Wide (full bleed)
+
+Contained
+
+Card grid
+
+Timeline
+
+🔹 Layer 3 — Data Payload
+
+What admin edits.
+
+Stored as JSON.
+
+🔹 Layer 4 — Behavior
+
+How it behaves:
+
+sticky
+
+collapsible
+
+lazy loaded
+
+animated
+
+CTA-aware
+
+📰 3. BLOG IS NOT “POSTS” — IT’S A CONTENT ENGINE
+
+Your blog must feel like:
+
+Webflow
+
+Stripe
+
+Framer
+
+Not Nigerian blogs
+
+Not WordPress
+
+Blog Purpose
+
+Rank
+
+Educate
+
+Funnel users back to templates
+
+Support affiliate traffic
+
+🎨 4. BEST-IN-CLASS BLOG LAYOUT (MATCHING YOUR INDEX)
+🧩 BLOG PAGE STRUCTURE (VISUAL)
+[ HERO SECTION ]
+  Big title
+  Sub-headline
+  Reading time
+  Category
+  Share icons
+
+[ CONTENT BODY ]
+  Left: Article content
+  Right: Sticky conversion rail
+
+[ CONTENT SECTIONS ]
+  Advanced typography
+  Visual breaks
+  Embedded CTAs
+
+[ MID-ARTICLE CONVERSION ]
+  Template CTA card
+
+[ AUTHORITY SECTION ]
+  Internal links + proof
+
+[ FAQ (SEO) ]
+
+[ FINAL CTA ]
+
+🧱 5. ADVANCED BLOG BLOCK TYPES (REAL SET)
+🔹 1. Hero Editorial Block
+
+Not a normal hero
+
+Contains:
+
+H1 (single, enforced)
+
+Subtitle (keyword-expanded)
+
+Reading time
+
+Category
+
+Share buttons
+
+SEO:
+
+Structured Article schema
+
+Strong SERP preview
+
+🔹 2. Rich Text Editorial Block
+
+Supports:
+
+Inline highlights
+
+Callouts
+
+Inline links
+
+Smart spacing
+
+Pull quotes
+
+Rendered with:
+
+Perfect line length
+
+Comfortable vertical rhythm
+
+Mobile-first typography
+
+🔹 3. Section Divider Block
+
+Used to:
+
+Reset attention
+
+Improve readability
+
+Increase scroll depth
+
+Variants:
+
+Line
+
+Gradient
+
+Labelled divider (“Step 1”, “Why This Matters”)
+
+🔹 4. Visual Explanation Block
+
+Use when explaining:
+
+Processes
+
+Comparisons
+
+Flows
+
+Layout:
+
+Text left
+
+Image right
+
+Switches on mobile
+
+SEO:
+
+Image alt auto-generated from heading
+
+🔹 5. Inline Conversion Block (CRITICAL)
+
+Appears inside article, not at end.
+
+Looks like:
+
+“Want this done for you?
+Get this website in 24 hours.”
+
+Links to:
+
+Template modal
+
+WhatsApp
+
+This is how blogs make money.
+
+🔹 6. Internal Authority Block
+
+Auto-pulls:
+
+Related blog posts
+
+Related templates
+
+Purpose:
+
+Reduce bounce
+
+Improve crawl depth
+
+Build topical authority
+
+🔹 7. FAQ SEO Block
+
+Mandatory for ranking.
+
+Rules:
+
+Each question = <h3>
+
+Answer concise
+
+Schema ready
+
+This block alone boosts rankings.
+
+🔹 8. Final Conversion Block
+
+Emotion + urgency.
+
+Variants:
+
+WhatsApp CTA
+
+Template selector
+
+Affiliate-aware CTA
+
+📐 6. STICKY CONVERSION RAIL (VERY IMPORTANT)
+
+On desktop, blog has a right rail:
+
+Contains:
+
+“Get a Website”
+
+Template suggestions
+
+WhatsApp button
+
+Affiliate message (if aff present)
+
+On mobile:
+
+Converts into bottom sticky bar
+
+This is high-end UX.
+
+🔍 7. SEO STRUCTURE (PRO LEVEL)
+Blog URL
+/blog/best-business-website-in-nigeria
+
+Automatic SEO
+
+Canonical tags
+
+OpenGraph
+
+Twitter cards
+
+JSON-LD Article schema
+
+Breadcrumb schema
+
+🔗 8. INTERNAL LINKING — SYSTEMATIC
+
+Each blog:
+
+Links up to category
+
+Links sideways to other blogs
+
+Links down to templates
+
+This forms a topic cluster, not random posts.
+
+👨‍💼 9. ADMIN BLOG EXPERIENCE (NOT BASIC)
+
+Admin sees:
+
+Block list
+
+Drag & reorder
+
+Preview desktop / mobile
+
+SEO score indicator
+
+Internal link suggestions
+
+Admin does NOT touch HTML.
+
+🧠 10. HOW THIS MATCHES YOUR INDEX PAGE
+
+Your index already has:
+
+Hero
+
+Sections
+
+CTA rhythm
+
+Trust spacing
+
+The blog reuses the same design tokens:
+
+Fonts
+
+Colors
+
+Buttons
+
+Spacing
+
+Animations
+
+So blog feels like:
+
+“This is part of WebDaddy”
+Not an addon.
+
+🚀 11. WHY THIS IS THE BEST POSSIBLE APPROACH
+
+✅ Plain PHP friendly
+✅ Fast loading
+✅ SEO dominant
+✅ Affiliate aware
+✅ Conversion focused
+✅ Scales to landing pages
+✅ Future-proof
+
+This is how serious SaaS blogs are built, just adapted to your stack.
