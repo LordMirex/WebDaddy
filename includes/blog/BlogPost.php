@@ -183,6 +183,18 @@ class BlogPost
         return (int)$stmt->fetchColumn();
     }
     
+    public function getTagPostCount($tagId)
+    {
+        $stmt = $this->db->prepare("
+            SELECT COUNT(DISTINCT p.id) FROM blog_posts p
+            INNER JOIN blog_post_tags pt ON p.id = pt.post_id
+            WHERE pt.tag_id = ? AND p.status = 'published'
+            AND p.publish_date <= datetime('now', '+1 hour')
+        ");
+        $stmt->execute([$tagId]);
+        return (int)$stmt->fetchColumn();
+    }
+    
     public function getByTag($tagId, $page = 1, $perPage = 10)
     {
         $offset = ($page - 1) * $perPage;
