@@ -377,9 +377,9 @@ This document serves as a **step-by-step execution tracker** for implementing th
 
 | Status | Task | Notes |
 |--------|------|-------|
-| ⬜ | Insert pre-defined blog categories | 8 categories from Content Strategy |
-| ⬜ | Create initial topic cluster tags | Tags matching the 20 clusters |
-| ⬜ | Set up priority content schedule | 8 high-priority posts identified |
+| ⬜ | Insert pre-defined blog categories | 9 categories from Content Strategy (includes Nigeria Business) |
+| ⬜ | Create initial topic cluster tags | Tags matching the 21 clusters (includes Nigeria) |
+| ⬜ | Set up priority content schedule | 10 high-priority posts identified |
 | ⬜ | Create sample pillar post template | Using Cluster 1 as example |
 | ⬜ | Document content creation workflow | For admin content writers |
 
@@ -392,6 +392,7 @@ This document serves as a **step-by-step execution tracker** for implementing th
 - Domain Names
 - Tools & Resources
 - Success Stories
+- **Nigeria Business** (Local SEO boost)
 
 **Priority Posts to Create First:**
 1. How Much Does a Small Business Website Cost in 2025?
@@ -402,6 +403,8 @@ This document serves as a **step-by-step execution tracker** for implementing th
 6. Website Conversion Secrets: Turn Visitors Into Customers
 7. Nigerian Business Success Stories
 8. Start Earning with Affiliate Marketing in Nigeria
+9. **Why Nigerian Businesses Need a Professional Website in 2025** (Nigeria SEO)
+10. **Best Payment Gateways for Nigerian Websites: Paystack, Flutterwave & More** (Nigeria SEO)
 
 ---
 

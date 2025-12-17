@@ -2378,6 +2378,45 @@ Each cluster follows the **pillar-cluster model**:
 
 ---
 
+### Cluster 21: Nigeria & Africa-Specific Content (LOCAL SEO BOOST)
+
+**Purpose:** Target Nigerian and African search queries to dominate local SEO and build authority in the Nigerian digital market.
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Why Nigerian Businesses Need a Professional Website in 2025 | "nigerian business website" | WebDaddy understands Nigerian market |
+| Supporting | Best Payment Gateways for Nigerian Websites: Paystack, Flutterwave & More | "payment gateway nigeria website" | Templates with payment integration |
+| Supporting | How to Register a .ng Domain for Your Nigerian Business | "register ng domain" | Domain sales + .ng options |
+| Supporting | Lagos vs Abuja Business Websites: What Works in Each Market | "website design lagos" "website design abuja" | Regional template recommendations |
+| Supporting | Website Design for Nigerian Banks & Fintech Companies | "fintech website nigeria" | Fintech/banking templates |
+| Supporting | How Nigerian Small Businesses Can Compete Online Against Big Brands | "small business website nigeria" | Affordable template pricing |
+| Supporting | WhatsApp Business Integration for Nigerian E-commerce Websites | "whatsapp ecommerce nigeria" | WhatsApp-enabled templates |
+| Supporting | Building Trust Online: What Nigerian Customers Look For in Websites | "trusted website nigeria" | Trust elements in templates |
+| Supporting | Naira Pricing Display Best Practices for Nigerian E-commerce | "naira pricing website" | E-commerce templates with NGN |
+| Supporting | Nigerian Website Trends: What's Working for Local Businesses Right Now | "website trends nigeria 2025" | Trend-aligned templates |
+
+**Local SEO Keywords to Target:**
+- "website design nigeria"
+- "website design lagos"
+- "website design abuja"
+- "web developer nigeria"
+- "business website nigeria"
+- "ecommerce website nigeria"
+- "website templates nigeria"
+- "buy domain nigeria"
+- "professional website nigeria"
+- "affordable website nigeria"
+
+**Nigeria-Specific Conversion Angles:**
+- Naira pricing (no dollar conversion confusion)
+- Local payment methods (Paystack, Flutterwave, bank transfer)
+- WhatsApp support (primary communication channel)
+- Lagos/Abuja/Port Harcourt local relevance
+- Nigerian business success stories
+- Understanding of Nigerian market challenges
+
+---
+
 ### Pre-Seed Blog Categories
 
 Based on the topic clusters above, create these initial categories in the database:
@@ -2391,7 +2430,8 @@ INSERT INTO blog_categories (name, slug, description, display_order, is_active) 
 ('Industry Guides', 'industry-guides', 'Website guides for specific industries', 5, 1),
 ('Domain Names', 'domain-names', 'Domain selection, branding, and investment', 6, 1),
 ('Tools & Resources', 'tools-resources', 'Digital tools and productivity resources', 7, 1),
-('Success Stories', 'success-stories', 'Customer case studies and success stories', 8, 1);
+('Success Stories', 'success-stories', 'Customer case studies and success stories', 8, 1),
+('Nigeria Business', 'nigeria-business', 'Website guides tailored for Nigerian businesses and African markets', 9, 1);
 ```
 
 ---
