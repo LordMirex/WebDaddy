@@ -373,7 +373,39 @@ This document serves as a **step-by-step execution tracker** for implementing th
 | ⬜ | Implement affiliate tracking in analytics | Log affiliate clicks |
 | ⬜ | Implement affiliate-aware template links | Pass through aff code |
 
-### 5.6 Final Polish & Testing
+### 5.6 Seed Content Setup
+
+| Status | Task | Notes |
+|--------|------|-------|
+| ⬜ | Insert pre-defined blog categories | 8 categories from Content Strategy |
+| ⬜ | Create initial topic cluster tags | Tags matching the 20 clusters |
+| ⬜ | Set up priority content schedule | 8 high-priority posts identified |
+| ⬜ | Create sample pillar post template | Using Cluster 1 as example |
+| ⬜ | Document content creation workflow | For admin content writers |
+
+**Pre-Seed Categories (from blog_implementation.md Section 23):**
+- Getting Started
+- Website Design  
+- SEO & Marketing
+- E-commerce
+- Industry Guides
+- Domain Names
+- Tools & Resources
+- Success Stories
+
+**Priority Posts to Create First:**
+1. How Much Does a Small Business Website Cost in 2025?
+2. Best Website Templates for Nigerian Businesses in 2025
+3. How to Choose the Perfect Domain Name for Your Business
+4. Complete SEO Guide for Small Business Websites
+5. Start Selling Online in Nigeria: Complete E-commerce Guide
+6. Website Conversion Secrets: Turn Visitors Into Customers
+7. Nigerian Business Success Stories
+8. Start Earning with Affiliate Marketing in Nigeria
+
+---
+
+### 5.7 Final Polish & Testing
 
 | Status | Task | Notes |
 |--------|------|-------|

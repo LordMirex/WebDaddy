@@ -2136,6 +2136,302 @@ Add to `admin/includes/header.php`:
 
 ---
 
+## 23. Content Strategy: Top 20 SEO Blog Topic Clusters
+
+This section provides pre-researched, high-SEO-value blog topics tailored to WebDaddy's business. These topics are organized into **topic clusters** with pillar content and supporting articles to maximize search rankings and conversions.
+
+### Topic Cluster Structure
+
+Each cluster follows the **pillar-cluster model**:
+- **Pillar Post**: Comprehensive guide (2,000-3,000 words) targeting a high-volume keyword
+- **Supporting Posts**: Focused articles (1,000-1,500 words) linking back to the pillar
+- **Conversion Hook**: How to funnel readers toward WebDaddy templates/domains
+
+---
+
+### Cluster 1: Website Cost & Investment
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | How Much Does a Small Business Website Cost in 2025? Complete Breakdown | "small business website cost" | Show WebDaddy template pricing as affordable alternative |
+| Supporting | DIY vs Hiring a Web Developer: Which Is Right for Your Business? | "diy website vs developer" | Position templates as middle ground |
+| Supporting | Hidden Website Costs You Need to Budget For | "website hidden costs" | Highlight transparent pricing |
+| Supporting | Website ROI Calculator: Is Your Investment Worth It? | "website roi" | Link to template sales page |
+
+---
+
+### Cluster 2: Industry-Specific Website Guides
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Best Website Templates for Nigerian Businesses in 2025 | "business website templates nigeria" | Direct template category links |
+| Supporting | Restaurant Website Essentials: Features That Drive Bookings | "restaurant website design" | Restaurant template showcase |
+| Supporting | Real Estate Website Features That Convert Visitors to Leads | "real estate website" | Property template links |
+| Supporting | Law Firm Website Design: Building Trust Online | "law firm website design" | Professional services templates |
+| Supporting | E-commerce Website Must-Haves for Nigerian Sellers | "ecommerce website nigeria" | E-commerce template links |
+
+---
+
+### Cluster 3: Website Design Trends
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | 15 Website Design Trends Dominating 2025 (With Examples) | "website design trends 2025" | Show WebDaddy templates following trends |
+| Supporting | Dark Mode Website Design: Best Practices & Examples | "dark mode website design" | Dark theme templates |
+| Supporting | Minimalist Web Design: Less Is More in 2025 | "minimalist website design" | Minimal template category |
+| Supporting | Bold Typography Trends That Make Websites Stand Out | "typography website design" | Templates with modern fonts |
+| Supporting | Mobile-First Design: Why It's Non-Negotiable | "mobile first design" | All templates are responsive |
+
+---
+
+### Cluster 4: SEO for Business Websites
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Complete SEO Guide for Small Business Websites (Beginner Friendly) | "seo for small business website" | Templates built with SEO best practices |
+| Supporting | Local SEO Checklist: Get Found in Your City | "local seo checklist" | Local business templates |
+| Supporting | How to Write Website Content That Ranks on Google | "website content for seo" | Content blocks in templates |
+| Supporting | Website Speed & SEO: Why Fast Sites Rank Higher | "website speed seo" | Templates optimized for speed |
+| Supporting | Google My Business for Websites: Complete Setup Guide | "google my business website" | Integrate GMB with templates |
+
+---
+
+### Cluster 5: Domain Names & Branding
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | How to Choose the Perfect Domain Name for Your Business | "how to choose domain name" | Premium domain listings |
+| Supporting | .com vs .ng vs .com.ng: Which Domain Extension Is Best? | "domain extension nigeria" | Domain sales page |
+| Supporting | Premium Domain Names: Are They Worth the Investment? | "premium domain names" | Premium domain category |
+| Supporting | Domain Name Mistakes That Hurt Your Business | "domain name mistakes" | Curated domain suggestions |
+| Supporting | Brandable Domain Name Ideas for Nigerian Startups | "brandable domain names" | Domain listings |
+
+---
+
+### Cluster 6: Website Conversion Optimization
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Website Conversion Secrets: Turn Visitors Into Customers | "website conversion optimization" | High-converting template designs |
+| Supporting | Call-to-Action Buttons: Psychology & Best Practices | "cta button design" | Templates with optimized CTAs |
+| Supporting | Landing Page Design That Converts (With Examples) | "landing page design" | Landing page templates |
+| Supporting | Trust Signals: Website Elements That Build Credibility | "website trust signals" | Templates with testimonial sections |
+| Supporting | Website Forms That Don't Scare Away Customers | "website form design" | Forms built into templates |
+
+---
+
+### Cluster 7: Getting Started with Websites
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | How to Build a Business Website From Scratch (Complete Guide) | "how to build business website" | Template as starting point |
+| Supporting | Essential Pages Every Business Website Needs | "business website pages" | Templates include all pages |
+| Supporting | Website Hosting Explained: A Beginner's Guide | "website hosting explained" | Offer hosting setup service |
+| Supporting | What Is a Website Template? (And Why You Need One) | "what is website template" | Direct template sales |
+| Supporting | Launching Your Website: Pre-Launch Checklist | "website launch checklist" | Template delivery includes setup |
+
+---
+
+### Cluster 8: E-commerce & Online Selling
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Start Selling Online in Nigeria: Complete E-commerce Guide | "sell online nigeria" | E-commerce templates |
+| Supporting | Paystack vs Flutterwave: Payment Integration Comparison | "paystack flutterwave comparison" | Templates with payment integration |
+| Supporting | Product Photography Tips for Your Online Store | "product photography tips" | E-commerce template features |
+| Supporting | Shipping & Delivery Setup for Nigerian E-commerce | "ecommerce shipping nigeria" | Business tools |
+| Supporting | WhatsApp for Business: Integrate with Your Website | "whatsapp business website" | WhatsApp-enabled templates |
+
+---
+
+### Cluster 9: Website Maintenance & Security
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Website Maintenance Guide: Keep Your Site Running Smoothly | "website maintenance guide" | Offer maintenance as upsell |
+| Supporting | Website Security Basics Every Business Owner Should Know | "website security basics" | Secure template architecture |
+| Supporting | SSL Certificates Explained: Why Your Site Needs HTTPS | "ssl certificate explained" | Security built into hosting |
+| Supporting | Website Backup Strategies: Protect Your Online Investment | "website backup" | Backup service promotion |
+| Supporting | How Often Should You Update Your Website? | "website update frequency" | Template update services |
+
+---
+
+### Cluster 10: Content Marketing for Websites
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Content Marketing for Small Businesses: A Practical Guide | "content marketing small business" | Blog functionality in templates |
+| Supporting | Blog Ideas for Nigerian Businesses (100+ Topics) | "blog ideas business" | Templates with blog sections |
+| Supporting | How to Write About Us Pages That Connect | "about us page writing" | About page in templates |
+| Supporting | Customer Testimonials: How to Collect & Display Them | "customer testimonials website" | Testimonial sections in templates |
+| Supporting | FAQs That Actually Help: Writing Better Help Content | "faq page website" | FAQ blocks in templates |
+
+---
+
+### Cluster 11: Website Speed & Performance
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Website Speed Optimization: The Complete Guide | "website speed optimization" | Fast-loading templates |
+| Supporting | Image Optimization: Reduce Size Without Losing Quality | "image optimization website" | Optimized assets in templates |
+| Supporting | Why Your Website Is Slow (And How to Fix It) | "website slow fix" | Lightweight template code |
+| Supporting | Core Web Vitals: What They Mean for Your Business | "core web vitals explained" | Templates pass CWV tests |
+
+---
+
+### Cluster 12: Social Media & Website Integration
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Connect Your Website & Social Media: Complete Integration Guide | "website social media integration" | Social features in templates |
+| Supporting | Instagram Feed on Your Website: How to Set It Up | "instagram feed website" | Instagram embed blocks |
+| Supporting | Social Proof: Using Social Media to Build Website Trust | "social proof website" | Social proof elements |
+| Supporting | Should I Have a Website or Just Social Media? | "website vs social media" | Importance of owning your platform |
+
+---
+
+### Cluster 13: Email Marketing & Lead Generation
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Email Marketing for Beginners: Build Your List from Your Website | "email marketing website" | Newsletter forms in templates |
+| Supporting | Lead Magnets: Free Offers That Grow Your Email List | "lead magnet ideas" | Lead capture in templates |
+| Supporting | Exit-Intent Popups: Capture Leaving Visitors | "exit intent popup" | Popup functionality |
+| Supporting | Email Signup Forms: Design That Converts | "email signup form design" | Form designs in templates |
+
+---
+
+### Cluster 14: Analytics & Measuring Success
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Website Analytics for Beginners: Track What Matters | "website analytics beginners" | Analytics-ready templates |
+| Supporting | Google Analytics 4 Setup: Step-by-Step Guide | "google analytics 4 setup" | Templates with GA4 integration |
+| Supporting | Key Website Metrics Every Business Should Track | "website metrics track" | Built-in analytics |
+| Supporting | Understanding Bounce Rate (And How to Improve It) | "bounce rate website" | Engaging template designs |
+
+---
+
+### Cluster 15: Competitor Analysis & Positioning
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | How to Analyze Competitor Websites (And Beat Them) | "competitor website analysis" | Premium templates for competitive edge |
+| Supporting | What Makes a Website Look Professional? | "professional website design" | Professional template collection |
+| Supporting | Website Redesign: Signs It's Time for a New Look | "website redesign signs" | Template upgrades |
+| Supporting | Standing Out Online: Differentiate Your Business Website | "website differentiation" | Unique template designs |
+
+---
+
+### Cluster 16: AI & Modern Website Technology
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | AI for Small Business Websites: Practical Applications in 2025 | "ai small business website" | AI-powered features in templates |
+| Supporting | Chatbots for Business Websites: Are They Worth It? | "chatbot website business" | Chatbot integration options |
+| Supporting | Voice Search Optimization for Local Businesses | "voice search optimization" | Voice-search-ready templates |
+| Supporting | Progressive Web Apps: The Future of Business Websites | "progressive web apps business" | Modern template technology |
+
+---
+
+### Cluster 17: Portfolio & Personal Branding
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Build Your Personal Brand Website: Complete Guide | "personal brand website" | Portfolio templates |
+| Supporting | Portfolio Website Examples That Win Clients | "portfolio website examples" | Creative portfolio templates |
+| Supporting | Freelancer Website Essentials: What You Need to Include | "freelancer website" | Freelancer templates |
+| Supporting | CV/Resume Website: Stand Out in Your Job Search | "cv website design" | Resume/CV templates |
+
+---
+
+### Cluster 18: Digital Tools & Productivity
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Essential Digital Tools for Nigerian Entrepreneurs | "digital tools entrepreneurs nigeria" | Tools section promotion |
+| Supporting | Free Tools to Grow Your Online Business | "free business tools" | Free tools in WebDaddy Tools section |
+| Supporting | Productivity Tools for Website Owners | "productivity tools website" | Digital tools sales |
+| Supporting | Design Tools You Can Use Without Being a Designer | "design tools non designers" | Design tools promotion |
+
+---
+
+### Cluster 19: Success Stories & Case Studies
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Nigerian Business Success Stories: How a Great Website Made the Difference | "business website success story" | Customer testimonials |
+| Supporting | Before & After: Website Redesign Results | "website redesign before after" | Template transformation examples |
+| Supporting | How [Client] Increased Sales 200% with a New Website | "website sales increase" | Results-focused template pitch |
+| Supporting | Small Business Website Wins: Lessons Learned | "small business website lessons" | Best practices in templates |
+
+---
+
+### Cluster 20: Affiliate & Partner Marketing
+
+| Type | Title | Target Keyword | Conversion Hook |
+|------|-------|----------------|-----------------|
+| **Pillar** | Start Earning with Affiliate Marketing in Nigeria | "affiliate marketing nigeria" | WebDaddy affiliate program |
+| Supporting | How to Build an Affiliate Website That Makes Money | "affiliate website design" | Affiliate-friendly templates |
+| Supporting | Passive Income Ideas Using Your Website | "passive income website" | Affiliate program signup |
+| Supporting | Referral Programs: Turn Customers Into Promoters | "referral program website" | Customer referral program |
+
+---
+
+### Pre-Seed Blog Categories
+
+Based on the topic clusters above, create these initial categories in the database:
+
+```sql
+INSERT INTO blog_categories (name, slug, description, display_order, is_active) VALUES
+('Getting Started', 'getting-started', 'Beginner guides for building your first website', 1, 1),
+('Website Design', 'website-design', 'Design trends, tips, and best practices', 2, 1),
+('SEO & Marketing', 'seo-marketing', 'Search engine optimization and digital marketing', 3, 1),
+('E-commerce', 'ecommerce', 'Online selling and e-commerce guides', 4, 1),
+('Industry Guides', 'industry-guides', 'Website guides for specific industries', 5, 1),
+('Domain Names', 'domain-names', 'Domain selection, branding, and investment', 6, 1),
+('Tools & Resources', 'tools-resources', 'Digital tools and productivity resources', 7, 1),
+('Success Stories', 'success-stories', 'Customer case studies and success stories', 8, 1);
+```
+
+---
+
+### Content Priority Matrix
+
+**Start with these high-impact posts first:**
+
+| Priority | Post Title | Cluster | Why First |
+|----------|-----------|---------|-----------|
+| 1 | How Much Does a Small Business Website Cost in 2025? | Cost & Investment | High search volume, buyer intent |
+| 2 | Best Website Templates for Nigerian Businesses in 2025 | Industry-Specific | Direct product promotion |
+| 3 | How to Choose the Perfect Domain Name for Your Business | Domain Names | Drives domain sales |
+| 4 | Complete SEO Guide for Small Business Websites | SEO | Establishes authority |
+| 5 | Start Selling Online in Nigeria: Complete E-commerce Guide | E-commerce | E-commerce template sales |
+| 6 | Website Conversion Secrets: Turn Visitors Into Customers | Conversion | Premium template upsell |
+| 7 | Nigerian Business Success Stories | Success Stories | Social proof, trust building |
+| 8 | Start Earning with Affiliate Marketing in Nigeria | Affiliate | Affiliate program growth |
+
+---
+
+### SEO Content Specifications
+
+**For each blog post:**
+
+| Element | Specification |
+|---------|---------------|
+| Word Count | Pillar: 2,000-3,000 words / Supporting: 1,000-1,500 words |
+| Heading Structure | 1x H1 (title), 5-10x H2, 3-5x H3 per H2 |
+| Images | 3-8 images per post with descriptive alt text |
+| Internal Links | 3-5 links to other blog posts + 1-2 links to templates |
+| External Links | 1-3 links to authoritative sources |
+| Meta Title | 50-60 characters, keyword at start |
+| Meta Description | 150-160 characters, includes CTA |
+| Focus Keyword | In title, first paragraph, 2-3 H2s, meta description |
+| FAQ Section | 3-5 questions for FAQ schema |
+| CTA Blocks | 1x mid-article, 1x end-article (Inline Conversion blocks) |
+
+---
+
 ## Summary
 
 This blog system is designed to be:
