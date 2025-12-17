@@ -14,7 +14,7 @@ require_once __DIR__ . '/mailer.php';
 
 function checkCustomerEmail($email) {
     $db = getDb();
-    $stmt = $db->prepare("SELECT id, email, password_hash, username, full_name, status, registration_step, account_complete FROM customers WHERE LOWER(email) = LOWER(?)");
+    $stmt = $db->prepare("SELECT id, email, password_hash, username, status, registration_step, account_complete FROM customers WHERE LOWER(email) = LOWER(?)");
     $stmt->execute([$email]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -27,7 +27,6 @@ function checkCustomerEmail($email) {
         'has_password' => !empty($customer['password_hash']),
         'customer_id' => $customer['id'],
         'username' => $customer['username'],
-        'full_name' => $customer['full_name'],
         'status' => $customer['status'],
         'registration_step' => $customer['registration_step'],
         'account_complete' => (int)($customer['account_complete'] ?? 0)

@@ -119,8 +119,7 @@ try {
             'id' => $customerId,
             'email' => $customer['email'],
             'username' => $customer['username'] ?? null,
-            'full_name' => $customer['full_name'], // Keep for backwards compatibility
-            'phone' => $customer['phone'] ?: ($customer['whatsapp_number'] ?? ''),
+            'whatsapp_number' => $customer['whatsapp_number'] ?? '',
             'account_complete' => $accountComplete
         ],
         'customer_id' => $customerId,

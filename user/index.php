@@ -13,7 +13,7 @@ $pendingDeliveries = getCustomerPendingDeliveries($customer['id']);
 $openTickets = getCustomerOpenTickets($customer['id']);
 $recentOrders = getCustomerOrders($customer['id'], 5);
 
-$profileComplete = !empty($customer['full_name']) && !empty($customer['whatsapp_number']);
+$profileComplete = !empty($customer['whatsapp_number']);
 
 require_once __DIR__ . '/includes/header.php';
 ?>
@@ -31,7 +31,7 @@ require_once __DIR__ . '/includes/header.php';
         <i class="bi-exclamation-triangle-fill text-yellow-600 text-xl mt-0.5"></i>
         <div>
             <h3 class="font-semibold text-yellow-800">Complete Your Profile</h3>
-            <p class="text-sm text-yellow-700 mt-1">Add your name and WhatsApp number for faster checkout and better support.</p>
+            <p class="text-sm text-yellow-700 mt-1">Add your WhatsApp number for faster checkout and better support.</p>
             <a href="/user/profile.php" class="inline-block mt-2 text-sm font-medium text-yellow-800 underline hover:no-underline">Complete Profile &rarr;</a>
         </div>
     </div>

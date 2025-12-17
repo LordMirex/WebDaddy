@@ -97,8 +97,7 @@ echo json_encode([
     'customer' => [
         'id' => $customer['id'],
         'email' => $customer['email'],
-        'full_name' => $customer['full_name'],
-        'phone' => $customer['phone'] ?: $customer['whatsapp_number'],
-        'username' => $customer['username']
+        'username' => $customer['username'],
+        'whatsapp_number' => $customer['whatsapp_number'] ?? ''
     ]
 ]);

@@ -61,8 +61,7 @@ function getCustomerId() {
 function getCustomerName() {
     $customer = getCurrentCustomer();
     if (!$customer) return 'Guest';
-    // Prefer username over full_name
-    return $customer['username'] ?: $customer['full_name'] ?: explode('@', $customer['email'])[0];
+    return $customer['username'] ?: explode('@', $customer['email'])[0];
 }
 
 function getCustomerEmail() {

@@ -2410,7 +2410,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             setAuthenticatedState(customer) {
                 this.customerId = customer.id;
                 this.email = customer.email;
-                this.customerUsername = customer.username || customer.full_name || customer.name || '';
+                this.customerUsername = customer.username || '';
                 this.customerPhone = customer.phone || '';
                 this.accountComplete = customer.account_complete || false;
                 this.step = 'authenticated';
@@ -2435,7 +2435,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                     if (result.success) {
                         if (result.exists && result.has_password) {
                             // Existing user with password - show login
-                            this.customerUsername = result.username || result.full_name || '';
+                            this.customerUsername = result.username || '';
                             this.step = 'password';
                         } else {
                             // New user or user without password - send OTP

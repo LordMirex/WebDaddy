@@ -17,7 +17,7 @@ $db = getDb();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt = $db->prepare("
-        SELECT id, email, full_name, phone, username, created_at
+        SELECT id, email, username, whatsapp_number, created_at
         FROM customers WHERE id = ?
     ");
     $stmt->execute([$customerId]);
@@ -172,9 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $fullName = isset($input['full_name']) ? trim($input['full_name']) : null;
-    $phone = isset($input['phone']) ? trim($input['phone']) : null;
     $username = isset($input['username']) ? trim($input['username']) : null;
+    $whatsappNumber = isset($input['whatsapp_number']) ? trim($input['whatsapp_number']) : null;
     
     if ($username !== null) {
         if (strlen($username) < 3) {
@@ -201,13 +200,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $updates = [];
     $params = [];
     
-    if ($fullName !== null) {
-        $updates[] = "full_name = ?";
-        $params[] = $fullName;
-    }
-    if ($phone !== null) {
-        $updates[] = "phone = ?";
-        $params[] = preg_replace('/[^0-9+]/', '', $phone);
+    if ($whatsappNumber !== null) {
+        $updates[] = "whatsapp_number = ?";
+        $params[] = preg_replace('/[^0-9+]/', '', $whatsappNumber);
     }
     if ($username !== null) {
         $updates[] = "username = ?";
