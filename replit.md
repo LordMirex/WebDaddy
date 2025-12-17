@@ -134,6 +134,42 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 - **Configuration**: API key in `includes/config.php` (RESEND_API_KEY, RESEND_WEBHOOK_SECRET)
 - **Webhook URL**: `/api/resend-webhook.php` - add to Resend dashboard for delivery events
 
+## Blog System (Planning Document Complete)
+
+A comprehensive enterprise-level blog system is planned for WebDaddy Empire. Full implementation blueprint is documented in `blog_implementation.md` (2000+ lines).
+
+**Status:** Planning document complete. Implementation not yet started.
+
+### Key Features
+- **Block-Based Content System**: 8 specialized block types with 4-layer architecture (semantic role, visual layout, data payload, behavior)
+- **SEO-First Design**: Article schema, FAQ schema, breadcrumbs, OpenGraph, Twitter cards, internal linking strategy
+- **Conversion-Optimized**: Inline conversion blocks, sticky conversion rail (desktop), mobile sticky bar
+- **Affiliate-Aware**: CTA blocks detect affiliate codes and display appropriate messaging
+- **Visual Admin Editor**: Drag-and-drop block editor, no HTML editing required, real-time SEO scoring
+
+### Block Types
+1. Hero Editorial Block - Article header with H1, reading time, share buttons
+2. Rich Text Editorial Block - Advanced typography with callouts, highlights, code blocks
+3. Section Divider Block - Visual breaks with optional labels
+4. Visual Explanation Block - Text + image layouts (auto-switches on mobile)
+5. Inline Conversion Block - Mid-article CTAs (critical for conversions)
+6. Internal Authority Block - Related posts and templates (topic clustering)
+7. FAQ SEO Block - FAQPage schema for ranking boost
+8. Final Conversion Block - End-of-article emotional CTA
+
+### Database Tables
+- `blog_categories` - Topic clusters with parent/child hierarchy
+- `blog_posts` - Posts with full SEO fields and affiliate integration
+- `blog_blocks` - JSON-stored block content with ordering
+- `blog_tags` / `blog_post_tags` - Tag system (many-to-many)
+- `blog_internal_links` - Topic cluster link tracking
+- `blog_analytics` - Event tracking (views, scroll depth, CTA clicks)
+
+### URL Structure
+- `/blog/` - Blog index
+- `/blog/category/{slug}/` - Category archive
+- `/blog/{slug}/` - Single post
+
 ## External Dependencies
 - **Paystack**: Integrated for automatic payment processing and webhooks.
 - **PHP ZipArchive Extension**: Used for generating tool bundles.
