@@ -188,7 +188,14 @@ if (isset($_GET['edit'])) {
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<div x-data="{ showModal: <?php echo $editDomain ? 'true' : 'false'; ?>, showBulkModal: false }">
+<?php
+// Build base URL preserving query params except 'edit'
+$closeParams = $_GET;
+unset($closeParams['edit']);
+$closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($closeParams) : '');
+$isEditMode = $editDomain ? 'true' : 'false';
+?>
+<div x-data="{ showModal: <?php echo $isEditMode; ?>, showBulkModal: false, closeModal() { <?php if ($editDomain): ?>window.location.href = '<?php echo htmlspecialchars($closeUrl); ?>';<?php else: ?>this.showModal = false;<?php endif; ?> } }">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
@@ -396,7 +403,7 @@ require_once __DIR__ . '/includes/header.php';
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
          style="display: none;">
-        <div @click.away="showModal = false" 
+        <div @click.away="<?php echo $editDomain ? 'closeModal()' : 'showModal = false'; ?>" 
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 transform scale-95"
              x-transition:enter-end="opacity-100 transform scale-100"
@@ -409,9 +416,15 @@ require_once __DIR__ . '/includes/header.php';
                     <h3 class="text-2xl font-bold text-gray-900">
                         <?php echo $editDomain ? 'Edit Domain' : 'Add New Domain'; ?>
                     </h3>
+                    <?php if ($editDomain): ?>
+                    <a href="<?php echo htmlspecialchars($closeUrl); ?>" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    <?php else: ?>
                     <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
                         <i class="bi bi-x-lg"></i>
                     </button>
+                    <?php endif; ?>
                 </div>
                 <div class="p-6 space-y-4">
                     <input type="hidden" name="action" value="<?php echo $editDomain ? 'edit' : 'add'; ?>">
@@ -450,9 +463,15 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <?php if ($editDomain): ?>
+                    <a href="<?php echo htmlspecialchars($closeUrl); ?>" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        Cancel
+                    </a>
+                    <?php else: ?>
                     <button type="button" @click="showModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                         Cancel
                     </button>
+                    <?php endif; ?>
                     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
                         <i class="bi bi-save mr-2"></i> <?php echo $editDomain ? 'Update' : 'Add'; ?> Domain
                     </button>

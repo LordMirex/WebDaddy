@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create_tool') {
         $name = sanitizeInput($_POST['name']);
         $slug = sanitizeInput($_POST['slug'] ?? '');
-        $category = sanitizeInput($_POST['category'] ?? '');
+        $category = ''; // Category field removed from UI
         $toolType = sanitizeInput($_POST['tool_type']);
         $price = floatval($_POST['price']);
         $shortDescription = sanitizeInput($_POST['short_description']);
@@ -121,7 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $toolId = intval($_POST['tool_id']);
         $name = sanitizeInput($_POST['name']);
         $slug = sanitizeInput($_POST['slug'] ?? '');
-        $category = sanitizeInput($_POST['category'] ?? '');
+        // Category field removed from UI - preserve existing value
+        $existingTool = getToolById($toolId);
+        $category = $existingTool['category'] ?? '';
         $toolType = sanitizeInput($_POST['tool_type']);
         $price = floatval($_POST['price']);
         $shortDescription = sanitizeInput($_POST['short_description']);
@@ -859,39 +861,21 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div x-data="{ toolTypeMode: 'select', customToolType: '' }">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
-                            <div class="flex gap-2">
-                                <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
-                                    <option value="software">Software/License</option>
-                                    <option value="api_key">API Key</option>
-                                    <option value="subscription">Subscription</option>
-                                    <option value="digital_asset">Digital Asset</option>
-                                    <option value="__others__">Others (Type your own)</option>
-                                </select>
-                                <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
-                                <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
-                                <button x-show="toolTypeMode === 'custom'" type="button" @click="toolTypeMode = 'select'; customToolType = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
-                                    <i class="bi bi-arrow-left"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div x-data="{ categoryMode: 'select', customCategory: '' }">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                            <div class="flex gap-2">
-                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" id="category-select-create" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
-                                    <option value="">Select Category</option>
-                                    <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo htmlspecialchars($cat); ?>"><?php echo htmlspecialchars($cat); ?></option>
-                                    <?php endforeach; ?>
-                                    <option value="__others__">Others (Type your own)</option>
-                                </select>
-                                <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom category">
-                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
-                                    <i class="bi bi-arrow-left"></i>
-                                </button>
-                            </div>
+                    <div x-data="{ toolTypeMode: 'select', customToolType: '' }">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
+                        <div class="flex gap-2">
+                            <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
+                                <option value="software">Software/License</option>
+                                <option value="api_key">API Key</option>
+                                <option value="subscription">Subscription</option>
+                                <option value="digital_asset">Digital Asset</option>
+                                <option value="__others__">Others (Type your own)</option>
+                            </select>
+                            <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
+                            <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
+                            <button x-show="toolTypeMode === 'custom'" type="button" @click="toolTypeMode = 'select'; customToolType = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
                         </div>
                     </div>
                     
@@ -1105,43 +1089,21 @@ require_once __DIR__ . '/includes/header.php';
                     $standardToolTypes = ['software', 'api_key', 'subscription', 'digital_asset'];
                     $isCustomToolType = !empty($currentToolType) && !in_array($currentToolType, $standardToolTypes);
                     ?>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div x-data="{ toolTypeMode: '<?php echo $isCustomToolType ? 'custom' : 'select'; ?>', customToolType: '<?php echo $isCustomToolType ? htmlspecialchars($currentToolType) : ''; ?>' }">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
-                            <div class="flex gap-2">
-                                <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
-                                    <option value="software" <?php echo (!$isCustomToolType && $currentToolType === 'software') ? 'selected' : ''; ?>>Software/License</option>
-                                    <option value="api_key" <?php echo (!$isCustomToolType && $currentToolType === 'api_key') ? 'selected' : ''; ?>>API Key</option>
-                                    <option value="subscription" <?php echo (!$isCustomToolType && $currentToolType === 'subscription') ? 'selected' : ''; ?>>Subscription</option>
-                                    <option value="digital_asset" <?php echo (!$isCustomToolType && $currentToolType === 'digital_asset') ? 'selected' : ''; ?>>Digital Asset</option>
-                                    <option value="__others__">Others (Type your own)</option>
-                                </select>
-                                <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
-                                <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
-                                <button x-show="toolTypeMode === 'custom'" type="button" @click="toolTypeMode = 'select'; customToolType = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
-                                    <i class="bi bi-arrow-left"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <?php 
-                        $currentCategory = $editTool['category'] ?? '';
-                        $isCustomCategory = !empty($currentCategory) && !in_array($currentCategory, $categories);
-                        ?>
-                        <div x-data="{ categoryMode: '<?php echo $isCustomCategory ? 'custom' : 'select'; ?>', customCategory: '<?php echo $isCustomCategory ? htmlspecialchars($currentCategory) : ''; ?>' }">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                            <div class="flex gap-2">
-                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" id="category-select-edit" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
-                                    <option value="">Select Category</option>
-                                    <?php foreach ($categories as $cat): ?>
-                                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (!$isCustomCategory && $currentCategory === $cat) ? 'selected' : ''; ?>><?php echo htmlspecialchars($cat); ?></option>
-                                    <?php endforeach; ?>
-                                    <option value="__others__">Others (Type your own)</option>
-                                </select>
-                                <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom category">
-                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
-                                    <i class="bi bi-arrow-left"></i>
-                                </button>
-                            </div>
+                    <div x-data="{ toolTypeMode: '<?php echo $isCustomToolType ? 'custom' : 'select'; ?>', customToolType: '<?php echo $isCustomToolType ? htmlspecialchars($currentToolType) : ''; ?>' }">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
+                        <div class="flex gap-2">
+                            <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="if($event.target.value === '__others__') { toolTypeMode = 'custom'; $event.target.value = ''; }">
+                                <option value="software" <?php echo (!$isCustomToolType && $currentToolType === 'software') ? 'selected' : ''; ?>>Software/License</option>
+                                <option value="api_key" <?php echo (!$isCustomToolType && $currentToolType === 'api_key') ? 'selected' : ''; ?>>API Key</option>
+                                <option value="subscription" <?php echo (!$isCustomToolType && $currentToolType === 'subscription') ? 'selected' : ''; ?>>Subscription</option>
+                                <option value="digital_asset" <?php echo (!$isCustomToolType && $currentToolType === 'digital_asset') ? 'selected' : ''; ?>>Digital Asset</option>
+                                <option value="__others__">Others (Type your own)</option>
+                            </select>
+                            <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
+                            <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
+                            <button x-show="toolTypeMode === 'custom'" type="button" @click="toolTypeMode = 'select'; customToolType = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
                         </div>
                     </div>
                     
