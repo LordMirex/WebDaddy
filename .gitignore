@@ -47,3 +47,8 @@ coverage/
 composer.lock
 package-lock.json
 
+# Root-level database files (use database/webdaddy.db instead)
+/webdaddy.db
+/webdaddy.db-shm
+/webdaddy.db-wal
+
