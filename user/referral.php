@@ -116,7 +116,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="flex flex-col sm:flex-row gap-3">
                 <input type="text" id="referral-link" value="<?= htmlspecialchars($referralLink) ?>" readonly
                        class="flex-1 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-700 focus:outline-none">
-                <button onclick="copyReferralLink()" 
+                <button onclick="copyReferralLink(event)" 
                         class="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-semibold">
                     <i class="bi bi-clipboard mr-2"></i>Copy Link
                 </button>
@@ -383,13 +383,13 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-function copyReferralLink() {
+function copyReferralLink(e) {
     const linkInput = document.getElementById('referral-link');
     linkInput.select();
     linkInput.setSelectionRange(0, 99999);
     
     navigator.clipboard.writeText(linkInput.value).then(() => {
-        const btn = event.target.closest('button');
+        const btn = e.target.closest('button');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="bi bi-check mr-2"></i>Copied!';
         btn.classList.add('bg-green-600');
