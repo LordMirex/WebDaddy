@@ -193,9 +193,8 @@ require_once __DIR__ . '/includes/header.php';
 $closeParams = $_GET;
 unset($closeParams['edit']);
 $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($closeParams) : '');
-$isEditMode = $editDomain ? 'true' : 'false';
 ?>
-<div x-data="{ showModal: <?php echo $isEditMode; ?>, showBulkModal: false, closeModal() { <?php if ($editDomain): ?>window.location.href = '<?php echo htmlspecialchars($closeUrl); ?>';<?php else: ?>this.showModal = false;<?php endif; ?> } }">
+<div x-data="{ showCreateModal: false, showEditModal: <?php echo $editDomain ? 'true' : 'false'; ?>, showBulkModal: false }">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
@@ -206,7 +205,7 @@ $isEditMode = $editDomain ? 'true' : 'false';
             <button @click="showBulkModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition-all shadow-lg whitespace-nowrap">
                 <i class="bi bi-plus-circle-dotted mr-2"></i> Bulk Add Domains
             </button>
-            <button @click="showModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg whitespace-nowrap">
+            <button @click="showCreateModal = true" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg whitespace-nowrap">
                 <i class="bi bi-plus-circle mr-2"></i> Add Domain
             </button>
         </div>
@@ -393,8 +392,8 @@ $isEditMode = $editDomain ? 'true' : 'false';
         <?php endif; ?>
     </div>
 
-    <!-- Domain Modal -->
-    <div x-show="showModal" 
+    <!-- Create Domain Modal -->
+    <div x-show="showCreateModal" 
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -403,7 +402,7 @@ $isEditMode = $editDomain ? 'true' : 'false';
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
          style="display: none;">
-        <div @click.away="<?php echo $editDomain ? 'closeModal()' : 'showModal = false'; ?>" 
+        <div @click.away="showCreateModal = false" 
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 transform scale-95"
              x-transition:enter-end="opacity-100 transform scale-100"
@@ -413,24 +412,75 @@ $isEditMode = $editDomain ? 'true' : 'false';
              class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
             <form method="POST">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-2xl font-bold text-gray-900">
-                        <?php echo $editDomain ? 'Edit Domain' : 'Add New Domain'; ?>
-                    </h3>
-                    <?php if ($editDomain): ?>
+                    <h3 class="text-2xl font-bold text-gray-900">Add New Domain</h3>
+                    <button type="button" @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Domain Name <span class="text-red-600">*</span></label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="domain_name" placeholder="example.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Template <span class="text-red-600">*</span></label>
+                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template_id" required>
+                            <option value="">Select Template</option>
+                            <?php foreach ($templates as $tpl): ?>
+                            <option value="<?php echo $tpl['id']; ?>">
+                                <?php echo htmlspecialchars($tpl['name']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
+                        <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                    <button type="button" @click="showCreateModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
+                        <i class="bi bi-save mr-2"></i> Add Domain
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Domain Modal -->
+    <?php if ($editDomain): ?>
+    <div x-show="showEditModal" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
+         style="display: none;">
+        <div @click.away="window.location.href = '<?php echo htmlspecialchars($closeUrl); ?>'" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <form method="POST">
+                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900">Edit Domain</h3>
                     <a href="<?php echo htmlspecialchars($closeUrl); ?>" class="text-gray-400 hover:text-gray-600 text-2xl">
                         <i class="bi bi-x-lg"></i>
                     </a>
-                    <?php else: ?>
-                    <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                    <?php endif; ?>
                 </div>
                 <div class="p-6 space-y-4">
-                    <input type="hidden" name="action" value="<?php echo $editDomain ? 'edit' : 'add'; ?>">
-                    <?php if ($editDomain): ?>
+                    <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" value="<?php echo $editDomain['id']; ?>">
-                    <?php endif; ?>
                     
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Domain Name <span class="text-red-600">*</span></label>
@@ -441,13 +491,12 @@ $isEditMode = $editDomain ? 'true' : 'false';
                         <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="template_id" required>
                             <option value="">Select Template</option>
                             <?php foreach ($templates as $tpl): ?>
-                            <option value="<?php echo $tpl['id']; ?>" <?php echo ($editDomain && $editDomain['template_id'] == $tpl['id']) ? 'selected' : ''; ?>>
+                            <option value="<?php echo $tpl['id']; ?>" <?php echo ($editDomain['template_id'] == $tpl['id']) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($tpl['name']); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <?php if ($editDomain): ?>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
                         <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="status">
@@ -456,29 +505,23 @@ $isEditMode = $editDomain ? 'true' : 'false';
                             <option value="suspended" <?php echo $editDomain['status'] === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
                         </select>
                     </div>
-                    <?php endif; ?>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">Notes</label>
                         <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="notes" rows="3"><?php echo htmlspecialchars($editDomain['notes'] ?? ''); ?></textarea>
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <?php if ($editDomain): ?>
                     <a href="<?php echo htmlspecialchars($closeUrl); ?>" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                         Cancel
                     </a>
-                    <?php else: ?>
-                    <button type="button" @click="showModal = false" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
-                        Cancel
-                    </button>
-                    <?php endif; ?>
                     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
-                        <i class="bi bi-save mr-2"></i> <?php echo $editDomain ? 'Update' : 'Add'; ?> Domain
+                        <i class="bi bi-save mr-2"></i> Update Domain
                     </button>
                 </div>
             </form>
         </div>
     </div>
+    <?php endif; ?>
 
     <!-- Bulk Add Modal -->
     <div x-show="showBulkModal" 
