@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $emailBody .= '<p style="color: #374151;"><strong>Category:</strong> ' . ucfirst($category) . '</p>';
         
         $emailSubject = "Support Ticket #$ticketId Created - " . substr($subject, 0, 50);
-        $emailHtml = createEmailTemplate($emailSubject, $emailBody, $customer['full_name'] ?? 'Customer');
+        $emailHtml = createEmailTemplate($emailSubject, $emailBody, $customer['username'] ?? 'Customer');
         
         queueEmail(
             $customer['email'],

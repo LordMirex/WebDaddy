@@ -80,7 +80,7 @@ function generateUsernameFromEmail($email) {
     return $baseName . '_' . substr(time(), -4);
 }
 
-function createCustomerAccount($email, $fullName = null, $whatsappNumber = null) {
+function createCustomerAccount($email, $whatsappNumber = null) {
     $db = getDb();
     
     $check = checkCustomerEmail($email);
@@ -94,10 +94,10 @@ function createCustomerAccount($email, $fullName = null, $whatsappNumber = null)
     $cleanWhatsapp = $whatsappNumber ? preg_replace('/[^0-9+]/', '', $whatsappNumber) : null;
     
     $stmt = $db->prepare("
-        INSERT INTO customers (email, username, full_name, whatsapp_number, status, email_verified, registration_step, account_complete)
-        VALUES (?, ?, ?, ?, 'pending_setup', 1, 1, 0)
+        INSERT INTO customers (email, username, whatsapp_number, status, email_verified, registration_step, account_complete)
+        VALUES (?, ?, ?, 'pending_setup', 1, 1, 0)
     ");
-    $stmt->execute([$email, $username, $fullName, $cleanWhatsapp]);
+    $stmt->execute([$email, $username, $cleanWhatsapp]);
     $customerId = $db->lastInsertId();
     
     logCustomerActivity($customerId, 'account_created', 'Account created via checkout OTP verification');
@@ -202,7 +202,7 @@ function customerLogin($email, $password) {
         ];
     }
     
-    $stmt = $db->prepare("SELECT id, email, password_hash, full_name, status, registration_step FROM customers WHERE LOWER(email) = LOWER(?)");
+    $stmt = $db->prepare("SELECT id, email, password_hash, username, status, registration_step FROM customers WHERE LOWER(email) = LOWER(?)");
     $stmt->execute([$email]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -239,7 +239,7 @@ function customerLogin($email, $password) {
         'customer' => [
             'id' => $customer['id'],
             'email' => $customer['email'],
-            'full_name' => $customer['full_name'],
+            'username' => $customer['username'],
             'registration_step' => $customer['registration_step']
         ],
         'token' => $token

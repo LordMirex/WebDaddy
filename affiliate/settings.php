@@ -171,7 +171,7 @@ require_once __DIR__ . '/includes/header.php';
         <div class="p-6">
             <form method="POST" x-data="{ submitting: false }" @submit="submitting = true">
                 <div class="mb-4">
-                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">Name</label>
                     <input type="text" 
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
                            id="name" 

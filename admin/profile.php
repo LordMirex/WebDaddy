@@ -157,7 +157,7 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="hidden" name="action" value="update_profile">
                     
                     <div class="mb-5">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name <span class="text-red-600">*</span></label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Name <span class="text-red-600">*</span></label>
                         <input 
                             type="text" 
                             name="name" 

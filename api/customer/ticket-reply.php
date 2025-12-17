@@ -62,7 +62,7 @@ if (in_array($ticket['status'], ['closed', 'resolved'])) {
     exit;
 }
 
-$customerName = $customer['full_name'] ?? 'Customer';
+$customerName = $customer['username'] ?? 'Customer';
 
 $stmt = $db->prepare("
     INSERT INTO customer_ticket_replies 

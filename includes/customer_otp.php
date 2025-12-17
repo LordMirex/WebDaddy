@@ -25,7 +25,7 @@ function generateOTP() {
     return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 }
 
-function sendCheckoutEmailOTP($email, $fullName = null) {
+function sendCheckoutEmailOTP($email) {
     $db = getDb();
     
     $rateLimitCheck = $db->prepare("

@@ -299,11 +299,11 @@ function addTicketReply($ticketId, $customerId, $message) {
         return false;
     }
     
-    // Get customer username for the reply (prefer username over full_name)
-    $customerStmt = $db->prepare("SELECT username, full_name, email FROM customers WHERE id = ?");
+    // Get customer username for the reply
+    $customerStmt = $db->prepare("SELECT username, email FROM customers WHERE id = ?");
     $customerStmt->execute([$customerId]);
     $customerData = $customerStmt->fetch(PDO::FETCH_ASSOC);
-    $authorName = $customerData['username'] ?: $customerData['full_name'] ?: $customerData['email'] ?? 'Customer';
+    $authorName = $customerData['username'] ?: $customerData['email'] ?? 'Customer';
     
     $stmt = $db->prepare("
         INSERT INTO customer_ticket_replies 
@@ -329,14 +329,12 @@ function updateCustomerProfile($customerId, $data) {
     
     $stmt = $db->prepare("
         UPDATE customers 
-        SET full_name = ?,
-            phone = ?,
+        SET whatsapp_number = ?,
             updated_at = datetime('now')
         WHERE id = ?
     ");
     $stmt->execute([
-        $data['full_name'] ?? null,
-        $data['phone'] ?? null,
+        $data['whatsapp_number'] ?? null,
         $customerId
     ]);
     

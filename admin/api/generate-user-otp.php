@@ -33,7 +33,7 @@ $db = getDb();
 
 try {
     // Verify customer exists
-    $stmt = $db->prepare("SELECT id, email, full_name FROM customers WHERE id = ?");
+    $stmt = $db->prepare("SELECT id, email, username FROM customers WHERE id = ?");
     $stmt->execute([$customerId]);
     $customer = $stmt->fetch(PDO::FETCH_ASSOC);
     

@@ -71,7 +71,7 @@ The platform utilizes SQLite for its database, with a schema designed for robust
 - Username auto-generated format: `emailpart_randomnumber`
 - WhatsApp number mandatory for order updates and support
 - No phone SMS verification - email-only
-- full_name field deprecated in favor of username + email
+- Customer accounts only require: Username, Password, WhatsApp number (no full_name field)
 
 ### Resend Email Integration
 - **OTP Emails via Resend**: All OTP verification and password reset emails now use Resend REST API for faster, more reliable delivery

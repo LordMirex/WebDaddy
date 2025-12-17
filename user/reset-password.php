@@ -26,7 +26,7 @@ if (empty($token)) {
     $db = getDb();
     
     $stmt = $db->prepare("
-        SELECT pr.*, c.id as customer_id, c.email, c.full_name, c.status
+        SELECT pr.*, c.id as customer_id, c.email, c.username, c.status
         FROM customer_password_resets pr
         JOIN customers c ON pr.customer_id = c.id
         WHERE pr.reset_token = ?

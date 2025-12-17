@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $db = getDb();
         
-        $stmt = $db->prepare("SELECT id, email, full_name, status FROM customers WHERE LOWER(email) = LOWER(?)");
+        $stmt = $db->prepare("SELECT id, email, username, status FROM customers WHERE LOWER(email) = LOWER(?)");
         $stmt->execute([$email]);
         $customerData = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 
                 $resetLink = SITE_URL . '/user/reset-password.php?token=' . $token;
-                $customerName = $customerData['full_name'] ?: explode('@', $customerData['email'])[0];
+                $customerName = $customerData['username'] ?: explode('@', $customerData['email'])[0];
                 
                 $emailContent = "
                 <h2>Password Reset Request</h2>

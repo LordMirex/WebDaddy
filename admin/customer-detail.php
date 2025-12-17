@@ -245,10 +245,10 @@ require_once __DIR__ . '/includes/header.php';
             <div class="text-center mb-6">
                 <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span class="text-primary-600 font-bold text-3xl">
-                        <?php echo strtoupper(substr($customer['full_name'] ?? $customer['email'], 0, 1)); ?>
+                        <?php echo strtoupper(substr($customer['username'] ?? $customer['email'], 0, 1)); ?>
                     </span>
                 </div>
-                <h2 class="text-xl font-bold text-gray-900"><?php echo htmlspecialchars($customer['full_name'] ?? 'Not set'); ?></h2>
+                <h2 class="text-xl font-bold text-gray-900"><?php echo htmlspecialchars($customer['username'] ?? 'Not set'); ?></h2>
                 <p class="text-gray-500"><?php echo htmlspecialchars($customer['email']); ?></p>
                 
                 <?php

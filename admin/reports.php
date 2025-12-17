@@ -204,7 +204,7 @@ $customerLTV = $db->query("
     SELECT 
         c.id,
         c.email,
-        c.full_name,
+        c.username,
         COUNT(po.id) as order_count,
         COALESCE(SUM(po.final_amount), 0) as total_spent,
         MIN(po.created_at) as first_order,
@@ -866,7 +866,7 @@ new Chart(ctx, {
                             <tr class="hover:bg-gray-50">
                                 <td class="py-2 px-2">
                                     <a href="/admin/customer-detail.php?id=<?php echo $customer['id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium">
-                                        <?php echo htmlspecialchars($customer['full_name'] ?: $customer['email']); ?>
+                                        <?php echo htmlspecialchars($customer['username'] ?: $customer['email']); ?>
                                     </a>
                                 </td>
                                 <td class="py-2 px-2 text-center">
