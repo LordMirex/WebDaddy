@@ -192,6 +192,194 @@ function applyPendingMigrations($db) {
             $db->exec("CREATE INDEX idx_user_announcement_emails_announcement ON user_announcement_emails(announcement_id)");
             error_log("Migration: Created user_announcement_emails table");
         }
+        
+        // ============================================
+        // BLOG SYSTEM TABLES
+        // ============================================
+        
+        // Create blog_categories table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_categories'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_categories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    slug TEXT NOT NULL UNIQUE,
+                    description TEXT,
+                    meta_title TEXT,
+                    meta_description TEXT,
+                    parent_id INTEGER DEFAULT NULL,
+                    display_order INTEGER DEFAULT 0,
+                    is_active INTEGER DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (parent_id) REFERENCES blog_categories(id) ON DELETE SET NULL
+                )
+            ");
+            error_log("Migration: Created blog_categories table");
+        }
+        
+        // Create blog_posts table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_posts'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    slug TEXT NOT NULL UNIQUE,
+                    excerpt TEXT,
+                    featured_image TEXT,
+                    featured_image_alt TEXT,
+                    category_id INTEGER,
+                    author_name TEXT DEFAULT 'WebDaddy Team',
+                    author_avatar TEXT,
+                    status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'published', 'scheduled', 'archived')),
+                    publish_date DATETIME,
+                    reading_time_minutes INTEGER DEFAULT 5,
+                    meta_title TEXT,
+                    meta_description TEXT,
+                    canonical_url TEXT,
+                    focus_keyword TEXT,
+                    seo_score INTEGER DEFAULT 0,
+                    og_title TEXT,
+                    og_description TEXT,
+                    og_image TEXT,
+                    twitter_title TEXT,
+                    twitter_description TEXT,
+                    twitter_image TEXT,
+                    view_count INTEGER DEFAULT 0,
+                    share_count INTEGER DEFAULT 0,
+                    primary_template_id INTEGER,
+                    show_affiliate_ctas INTEGER DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (category_id) REFERENCES blog_categories(id) ON DELETE SET NULL
+                )
+            ");
+            $db->exec("CREATE INDEX idx_blog_posts_status ON blog_posts(status)");
+            $db->exec("CREATE INDEX idx_blog_posts_category ON blog_posts(category_id)");
+            $db->exec("CREATE INDEX idx_blog_posts_publish_date ON blog_posts(publish_date)");
+            $db->exec("CREATE INDEX idx_blog_posts_slug ON blog_posts(slug)");
+            error_log("Migration: Created blog_posts table");
+        }
+        
+        // Create blog_blocks table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_blocks'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_blocks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    post_id INTEGER NOT NULL,
+                    block_type TEXT NOT NULL,
+                    display_order INTEGER NOT NULL,
+                    semantic_role TEXT DEFAULT 'primary_content' CHECK(semantic_role IN (
+                        'primary_content', 'supporting_content', 'conversion_content', 'authority_content'
+                    )),
+                    layout_variant TEXT DEFAULT 'default',
+                    data_payload TEXT NOT NULL,
+                    behavior_config TEXT,
+                    is_visible INTEGER DEFAULT 1,
+                    visibility_conditions TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE
+                )
+            ");
+            $db->exec("CREATE INDEX idx_blog_blocks_post ON blog_blocks(post_id)");
+            $db->exec("CREATE INDEX idx_blog_blocks_order ON blog_blocks(post_id, display_order)");
+            error_log("Migration: Created blog_blocks table");
+        }
+        
+        // Create blog_tags table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_tags'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_tags (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    slug TEXT NOT NULL UNIQUE,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+            error_log("Migration: Created blog_tags table");
+        }
+        
+        // Create blog_post_tags junction table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_post_tags'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_post_tags (
+                    post_id INTEGER NOT NULL,
+                    tag_id INTEGER NOT NULL,
+                    PRIMARY KEY (post_id, tag_id),
+                    FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+                    FOREIGN KEY (tag_id) REFERENCES blog_tags(id) ON DELETE CASCADE
+                )
+            ");
+            error_log("Migration: Created blog_post_tags table");
+        }
+        
+        // Create blog_internal_links table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_internal_links'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_internal_links (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source_post_id INTEGER NOT NULL,
+                    target_post_id INTEGER NOT NULL,
+                    anchor_text TEXT,
+                    link_type TEXT DEFAULT 'related' CHECK(link_type IN ('related', 'series', 'prerequisite', 'followup')),
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (source_post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+                    FOREIGN KEY (target_post_id) REFERENCES blog_posts(id) ON DELETE CASCADE
+                )
+            ");
+            error_log("Migration: Created blog_internal_links table");
+        }
+        
+        // Create blog_analytics table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_analytics'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_analytics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    post_id INTEGER NOT NULL,
+                    event_type TEXT NOT NULL CHECK(event_type IN ('view', 'scroll_25', 'scroll_50', 'scroll_75', 'scroll_100', 'cta_click', 'share', 'template_click')),
+                    session_id TEXT,
+                    referrer TEXT,
+                    affiliate_code TEXT,
+                    user_agent TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE
+                )
+            ");
+            $db->exec("CREATE INDEX idx_blog_analytics_post ON blog_analytics(post_id)");
+            $db->exec("CREATE INDEX idx_blog_analytics_date ON blog_analytics(created_at)");
+            error_log("Migration: Created blog_analytics table");
+        }
+        
+        // Create blog_comments table
+        $tableCheck = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='blog_comments'")->fetch();
+        if (!$tableCheck) {
+            $db->exec("
+                CREATE TABLE blog_comments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    post_id INTEGER NOT NULL,
+                    customer_id INTEGER,
+                    author_name TEXT,
+                    author_email TEXT,
+                    content TEXT NOT NULL,
+                    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'spam', 'deleted')),
+                    parent_id INTEGER,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+                    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL,
+                    FOREIGN KEY (parent_id) REFERENCES blog_comments(id) ON DELETE CASCADE
+                )
+            ");
+            error_log("Migration: Created blog_comments table");
+        }
+        
     } catch (Exception $e) {
         // Log but don't fail - migrations are optional enhancements
         error_log("Migration check error: " . $e->getMessage());
