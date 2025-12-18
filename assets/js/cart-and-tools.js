@@ -804,6 +804,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Expose switchView globally so it can be called from inline onclick handlers (hero buttons)
+    window.switchView = switchView;
+    
     function updateActiveTab(view) {
         document.querySelectorAll('a[href*="view="]').forEach(tab => {
             const tabUrl = new URL(tab.href, window.location.origin);
