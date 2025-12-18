@@ -152,7 +152,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
             <p style="color: #9ca3af; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mb-10" data-templates-grid>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6 mb-10" data-templates-grid>
             <?php foreach ($templates as $idx => $template): ?>
             <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;">
                 <div style="position: relative; overflow: hidden; height: 150px; background: #0f172a;">
@@ -252,7 +252,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
             <p style="color: #9ca3af; margin: 0;">Please check back later or contact us on WhatsApp.</p>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-tools-grid>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6 mb-10" data-tools-grid>
             <?php foreach ($tools as $idx => $tool): ?>
             <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;" data-tool-id="<?php echo $tool['id']; ?>">
                 <div style="position: relative; overflow: hidden; height: 140px; background: #0f172a;">
