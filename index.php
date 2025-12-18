@@ -764,86 +764,11 @@ if ($autoOpenTool) {
         </div>
     </div>
     
-    <!-- Navigation -->
-    <nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50" x-data="{ open: false }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="/" class="flex items-center">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mr-3" loading="eager" decoding="async" onerror="this.classList.add('image-broken'); this.style.display='none'; this.style.visibility='hidden';" onload="this.classList.remove('image-broken');">
-                        <span class="text-xl font-bold text-white"><?php echo SITE_NAME; ?></span>
-                    </a>
-                </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="/faq.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
-                    <a href="/about.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">About</a>
-                    <a href="/contact.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">Contact</a>
-                    <div x-data="customerNav()" class="relative">
-                        <template x-if="customer">
-                            <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors py-4">
-                                <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                                </svg>
-                                <span x-text="customer.name ? customer.name.split(' ')[0] : 'My Account'"></span>
-                            </a>
-                        </template>
-                        <template x-if="!customer">
-                            <a href="/user/login.php" class="inline-flex items-center border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">
-                                <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                                </svg>
-                                Login
-                            </a>
-                        </template>
-                    </div>
-                    <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative inline-flex items-center justify-center text-gray-300 hover:text-gold font-medium transition-colors py-4">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                        <span id="cart-count" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
-                    </a>
-                    <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy transition-all">
-                        Become an Affiliate
-                    </a>
-                </div>
-                <div class="md:hidden flex items-center gap-4">
-                    <a href="#" id="cart-button-mobile-icon" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                        <span id="cart-count-mobile-icon" class="<?php echo $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?php echo $cartCount; ?></span>
-                    </a>
-                    <button @click="open = !open" class="text-gray-300 hover:text-gold focus:outline-none">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="open" style="display: none;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
-            <div class="px-2 pt-2 pb-4 space-y-1">
-                <a href="/faq.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
-                <a href="/about.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">About</a>
-                <a href="/contact.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">Contact</a>
-                <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
-                <div class="border-t border-navy-light/50 pt-3 mt-3" x-data="customerNav()">
-                    <a :href="customer ? '/user/' : '/user/login.php'" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                        </svg>
-                        <span x-text="customer ? (customer.name ? customer.name.split(' ')[0] : 'My Account') : 'Login'"></span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <?php 
+    $activeNav = 'home';
+    $showCart = true;
+    include 'includes/layout/header.php'; 
+    ?>
 
     <!-- Hero Section - Full 100vh with Stats -->
     <header class="relative bg-navy text-white min-h-[auto] sm:min-h-[calc(100vh-64px)] lg:h-[calc(100vh-64px)] flex flex-col justify-between overflow-hidden">
