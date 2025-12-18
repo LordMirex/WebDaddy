@@ -69,8 +69,10 @@ Shared navigation components in `includes/layout/` provide consistent header and
   - Mobile Nav Items: Home, Blog, About, **Contact**, Login, Become an Affiliate
   - Cart Features: Real-time badge updates (5-sec polling), instant pre-loaded display, no empty cart delay
 - **footer.php**: Premium footer with Organization schema, social links, legal links, WhatsApp CTA. Footer sections: Support, Company, Get Connected
-  - Footer links: FAQ, Contact, Blog | About, Careers, Affiliate | WhatsApp
+  - Main Footer links: FAQ, Contact, Blog | About, Careers, Affiliate | WhatsApp
+  - Legal/Meta links: Privacy, Terms, Status
 - Public pages using shared components: index.php, about.php, contact.php, faq.php, careers.php, cart-checkout.php, blog/index.php, blog/post.php, blog/category.php
+- Additional Legal Pages: privacy.php, terms.php, status.php
 - Cart System: Fully functional on all pages with instant pre-loading, zero-delay product display, real-time badge counter
 
 ### Technical Implementations
