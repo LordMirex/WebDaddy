@@ -1130,8 +1130,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                localStorage.removeItem('cartCache');
-                updateCartBadge();
+                // Clear all cache
+                localStorage.removeItem('cartBadgeCount');
+                localStorage.removeItem('cartBadgeTime');
+                
+                // Update badge to 0
+                updateBadgeElement('cart-count', 0);
+                updateBadgeElement('cart-count-mobile-icon', 0);
+                
+                // Reload cart items (will show empty)
                 loadCartItems();
                 showNotification('🗑️ Cart cleared', 'success', false);
                 
@@ -1204,17 +1211,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const notificationMessage = productName ? `${productName} added to cart!` : (data.message || 'Added to cart!');
                 showNotification(notificationMessage, 'success');
                 
-                // Cache the updated cart immediately with timestamp
-                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                // Update badge immediately with the new count
                 const now = Date.now();
-                localStorage.setItem('cartCache', JSON.stringify(cacheData));
-                localStorage.setItem('cartCacheTime', now.toString());
-                
-                // Batch badge update with debouncing (avoid redundant API calls)
                 lastCartBadgeUpdate = now;
                 const cartCount = parseInt(data.count) || 0;
                 updateBadgeElement('cart-count', cartCount);
                 updateBadgeElement('cart-count-mobile-icon', cartCount);
+                
+                // Store count only (not items) for quick badge updates
+                localStorage.setItem('cartBadgeCount', cartCount.toString());
+                localStorage.setItem('cartBadgeTime', now.toString());
                 
                 // Animate cart button
                 animateCartBadge();
@@ -1222,8 +1228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // TRIGGER CHECKOUT GUIDE ON INDEX PAGE - SHOW AT 1st, 4th, 7th, 10th item, etc (every 3 items)
                 if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
                     try {
-                        const cartCache = JSON.parse(localStorage.getItem('cartCache') || '{"items":[]}');
-                        const totalItems = cartCache.items ? cartCache.items.length : 0;
+                        const totalItems = parseInt(data.count) || 0;
                         
                         // Show guide when: 1st item (1), 4th item (4), 7th item (7), 10th item (10), etc.
                         // This is when (totalItems - 1) % 3 === 0
@@ -1299,41 +1304,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function loadCartItems() {
-        // INSTANT: Show cached data first
-        const cached = localStorage.getItem('cartCache');
-        const cacheTimestamp = localStorage.getItem('cartCacheTime');
-        const now = Date.now();
-        const isCacheFresh = cacheTimestamp && (now - parseInt(cacheTimestamp)) < CACHE_VALIDITY;
-        
-        if (cached) {
-            try {
-                const cachedData = JSON.parse(cached);
-                displayCartItems(cachedData.items || [], cachedData.totals || 0);
-            } catch (e) {
-                console.error('Failed to parse cached cart:', e);
-            }
-        }
-        
-        // BACKGROUND: Only fetch if cache is stale or doesn't exist
-        if (!isCacheFresh) {
-            try {
-                const response = await fetch('/api/cart.php?action=get');
-                const data = await response.json();
+        // Always fetch fresh cart items from server - never use stale cache
+        try {
+            const response = await fetch('/api/cart.php?action=get');
+            const data = await response.json();
+            
+            if (data.success) {
+                const items = data.items || [];
+                const totals = data.totals || data.total || 0;
                 
-                const badgeDrawer = document.getElementById('cart-badge-drawer');
-                if (badgeDrawer && data.count !== undefined) {
-                    badgeDrawer.textContent = data.count || 0;
-                }
+                // Display the fresh cart data
+                displayCartItems(items, totals);
                 
-                if (data.success) {
-                    const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
-                    localStorage.setItem('cartCache', JSON.stringify(cacheData));
-                    localStorage.setItem('cartCacheTime', now.toString());
-                    displayCartItems(cacheData.items, cacheData.totals);
-                }
-            } catch (error) {
-                console.error('Failed to load cart:', error);
+                // Update badge with fresh count
+                const count = parseInt(data.count) || 0;
+                updateBadgeElement('cart-count', count);
+                updateBadgeElement('cart-count-mobile-icon', count);
+                
+                // Store count only for quick badge updates (not items)
+                const now = Date.now();
+                localStorage.setItem('cartBadgeCount', count.toString());
+                localStorage.setItem('cartBadgeTime', now.toString());
+            } else {
+                displayCartItems([], 0);
             }
+        } catch (error) {
+            console.error('Failed to load cart:', error);
+            displayCartItems([], 0);
         }
     }
     
