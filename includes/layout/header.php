@@ -55,19 +55,19 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
             
             <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center gap-0.5 lg:gap-1 flex-shrink-0">
+            <div class="hidden md:flex items-center gap-0.5 lg:gap-1 overflow-visible">
                 <a href="/blog/" 
-                   class="px-1.5 py-1 text-xs font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-1 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
                 <a href="/about.php" 
-                   class="px-1.5 py-1 text-xs font-medium transition-colors border-b-2 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-1 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">About</a>
                 <a href="/contact.php" 
-                   class="px-1.5 py-1 text-xs font-medium transition-colors border-b-2 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-1 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Company</a>
                 
                 <!-- Login Link -->
-                <a href="/user/login.php" class="px-1 py-1 text-xs font-medium text-gray-300 hover:text-gold transition-colors inline-flex items-center gap-0.5">
+                <a href="/user/login.php" class="px-2 py-1 text-sm font-medium text-gray-300 hover:text-gold transition-colors inline-flex items-center gap-0.5">
                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
@@ -86,7 +86,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 <?php endif; ?>
                 
                 <!-- Affiliate CTA -->
-                <a href="/affiliate/register.php" class="btn-gold-shine px-2 py-1 text-xs font-semibold rounded-md text-navy transition-all whitespace-nowrap">
+                <a href="/affiliate/register.php" class="btn-gold-shine px-3 py-1 text-sm font-semibold rounded-md text-navy transition-all whitespace-nowrap ml-1">
                     Become an Affiliate
                 </a>
             </div>
