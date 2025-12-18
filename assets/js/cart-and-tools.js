@@ -71,9 +71,11 @@ function showNotification(message, type = 'success') {
     const container = document.createElement('div');
     container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
     
-    // Trigger the checkout guide
-    if (type === 'success' && window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
-        window.dispatchEvent(new Event('cart-updated'));
+    // Trigger the checkout guide with delay
+    if (type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
+        setTimeout(() => {
+            window.dispatchEvent(new Event('cart-updated'));
+        }, 4500);
     }
     
     // Create notification element
@@ -1028,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cartDrawer.className = 'fixed inset-0 z-50 hidden';
         cartDrawer.innerHTML = `
             <div class="absolute inset-0 bg-gray-900 bg-opacity-50" onclick="toggleCartDrawer()"></div>
-            <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
+            <div class="absolute right-0 top-0 h-full w-80 sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
                 <div class="h-full flex flex-col">
                     <!-- Header with Close Button -->
                     <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-900">
@@ -1119,7 +1121,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                showNotification('🗑️ Cart cleared', 'success');
                 updateCartBadge();
                 loadCartItems();
                 localStorage.removeItem('cartCache');
