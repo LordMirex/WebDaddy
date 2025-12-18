@@ -50,16 +50,14 @@ if (!$isIndexPage) return;
     <div class="guide-card text-gray-900 p-4 max-w-xs">
         <!-- Content -->
         <div class="flex items-start gap-3">
-            <!-- Icon with Badge -->
-            <div class="flex-shrink-0 relative">
+            <!-- Icon -->
+            <div class="flex-shrink-0">
                 <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
                     <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1h7a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3z"/>
                         <path d="M16 16a2 2 0 11-4 0 2 2 0 014 0zM4 12a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                 </div>
-                <!-- New Badge -->
-                <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">New</div>
             </div>
             
             <!-- Text & Button -->
