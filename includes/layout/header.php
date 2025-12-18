@@ -55,52 +55,45 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
             
             <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center space-x-4">
+            <div class="hidden lg:flex items-center gap-2 lg:gap-3">
                 <a href="/blog/" 
-                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
                 <a href="/about.php" 
-                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">About</a>
                 <a href="/contact.php" 
-                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Company</a>
                 
                 <!-- Customer Account -->
                 <div x-data="customerNav()" class="relative">
                     <template x-if="customer">
-                        <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors py-4">
-                            <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
+                        <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors px-2 py-2">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                                 <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                             </svg>
-                            <span x-text="customer.name ? customer.name.split(' ')[0] : 'My Account'"></span>
                         </a>
                     </template>
                     <template x-if="!customer">
-                        <a href="/user/login.php" class="inline-flex items-center border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">
-                            <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                            </svg>
-                            Login
-                        </a>
+                        <a href="/user/login.php" class="inline-flex items-center px-2 py-2 text-xs font-medium text-gray-300 hover:text-gold transition-colors">Login</a>
                     </template>
                 </div>
                 
                 <?php if ($showCart): ?>
                 <!-- Cart Button -->
-                <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative inline-flex items-center justify-center text-gray-300 hover:text-gold font-medium transition-colors py-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative inline-flex items-center justify-center text-gray-300 hover:text-gold font-medium transition-colors px-2 py-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span id="cart-count" class="<?= $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?= $cartCount; ?></span>
+                    <span id="cart-count" class="<?= $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-2 -right-2 bg-gold text-navy text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center text-xxs"><?= $cartCount; ?></span>
                 </a>
                 <?php endif; ?>
                 
                 <!-- Affiliate CTA -->
-                <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-4 py-2 text-xs lg:text-sm font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
-                    Become an Affiliate
+                <a href="/affiliate/register.php" class="btn-gold-shine px-3 py-1.5 text-xs font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
+                    Affiliate
                 </a>
             </div>
             
