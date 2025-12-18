@@ -1212,8 +1212,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Batch badge update with debouncing (avoid redundant API calls)
                 lastCartBadgeUpdate = now;
-                updateBadgeElement('cart-count', data.count || 0);
-                updateBadgeElement('cart-count-mobile-icon', data.count || 0);
+                const cartCount = parseInt(data.count) || 0;
+                updateBadgeElement('cart-count', cartCount);
+                updateBadgeElement('cart-count-mobile-icon', cartCount);
                 
                 // Animate cart button
                 animateCartBadge();
@@ -1271,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                const count = data.count || 0;
+                const count = parseInt(data.count) || 0;
                 updateBadgeElement('cart-count', count);
                 updateBadgeElement('cart-count-mobile-icon', count);
             }
@@ -1282,17 +1283,18 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateBadgeElement(id, count) {
         const badge = document.getElementById(id);
-        if (badge) {
-            const numCount = parseInt(count) || 0;
-            badge.textContent = numCount;
-            if (numCount > 0) {
-                badge.classList.remove('hidden');
-                // Ensure it's visible
-                badge.style.display = 'flex';
-            } else {
-                badge.classList.add('hidden');
-                badge.style.display = 'none';
-            }
+        if (!badge) return;
+        
+        const numCount = parseInt(count) || 0;
+        
+        // Always update the text content
+        badge.textContent = numCount || '0';
+        
+        // Simple class toggle - no inline styles
+        if (numCount > 0) {
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
         }
     }
     
