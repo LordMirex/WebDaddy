@@ -1152,16 +1152,14 @@ HTML;
 // ============================================================================
 
 /**
- * Send OTP verification email (High Priority via Resend)
+ * Send OTP verification email (High Priority - Queued)
  * Used for email verification during registration/login
- * Uses Resend REST API for faster, more reliable delivery
+ * Queued for immediate processing to provide instant user feedback
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendOTPEmail($email, $otpCode) {
-    require_once __DIR__ . '/resend.php';
-    
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     $subject = "Your Verification Code - " . $siteName;
     $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
@@ -1190,19 +1188,14 @@ HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
     
-    $result = sendResendEmail($email, $subject, $emailBody, $siteName, 'otp');
-    
-    if ($result['success']) {
-        return true;
-    }
-    
-    error_log("Resend OTP email failed, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
-    return sendEmail($email, $subject, $emailBody);
+    // Use queue-based async sending for instant user feedback
+    return sendUserEmail($email, $subject, $emailBody, 'otp');
 }
 
 /**
- * Send user-facing email via Resend API with SMTP fallback
- * All customer emails should use this function for fast, reliable delivery
+ * Send user-facing email via queue (async) for fast user experience
+ * Critical emails (OTP, password reset) are queued and processed immediately
+ * Non-critical emails (welcome, notifications) can use normal priority
  * @param string $email Recipient email address
  * @param string $subject Email subject
  * @param string $htmlContent HTML email body
@@ -1210,20 +1203,26 @@ HTML;
  * @return bool Success status
  */
 function sendUserEmail($email, $subject, $htmlContent, $emailType = 'notification') {
-    require_once __DIR__ . '/resend.php';
+    require_once __DIR__ . '/email_queue.php';
     
-    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    // Determine priority based on email type
+    // Critical emails (security-related) get HIGH priority and are processed immediately
+    $criticalTypes = ['otp', 'recovery_otp', 'password_reset', 'password_set'];
+    $priority = in_array($emailType, $criticalTypes) ? 'high' : 'normal';
     
-    // Try Resend first (fast, reliable)
-    $result = sendResendEmail($email, $subject, $htmlContent, $siteName, $emailType);
+    // Queue the email (instant DB write = user gets immediate response)
+    $queueId = queueEmail($email, $emailType, $subject, 'HTML email', $htmlContent, null, null, $priority);
     
-    if ($result['success']) {
+    if ($queueId) {
+        // If high priority, process immediately in background
+        if ($priority === 'high') {
+            processHighPriorityEmails();
+        }
         return true;
     }
     
-    // Fall back to SMTP if Resend fails
-    error_log("Resend failed for {$emailType} email to {$email}, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
-    return sendEmail($email, $subject, $htmlContent);
+    error_log("Failed to queue {$emailType} email to {$email}");
+    return false;
 }
 
 /**
@@ -1310,7 +1309,7 @@ HTML;
 }
 
 /**
- * Send password reset link email (via Resend)
+ * Send password reset link email (High Priority - Queued)
  * @param string $email Customer email
  * @param string $name Customer name
  * @param string $resetLink The password reset URL
@@ -1350,12 +1349,14 @@ function sendPasswordResetEmail($email, $name, $resetLink) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, $escName);
+    // Use queue-based async sending for instant user feedback
     return sendUserEmail($email, $subject, $emailBody, 'password_reset');
 }
 
 /**
- * Send recovery OTP email for password reset (via Resend)
+ * Send recovery OTP email for password reset (High Priority - Queued)
  * Different styling from regular OTP to indicate security-sensitive action
+ * Queued for immediate processing for instant user feedback
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
@@ -1397,6 +1398,7 @@ function sendRecoveryOTPEmail($email, $otpCode) {
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
+    // Use queue-based async sending for instant user feedback
     return sendUserEmail($email, $subject, $emailBody, 'recovery_otp');
 }
 
