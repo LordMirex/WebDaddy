@@ -1030,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cartDrawer.className = 'fixed inset-0 z-50 hidden';
         cartDrawer.innerHTML = `
             <div class="absolute inset-0 bg-gray-900 bg-opacity-50" onclick="toggleCartDrawer()"></div>
-            <div class="absolute right-0 top-0 h-full w-80 sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
+            <div class="absolute right-0 top-0 h-full w-64 sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
                 <div class="h-full flex flex-col">
                     <!-- Header with Close Button -->
                     <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-900">
