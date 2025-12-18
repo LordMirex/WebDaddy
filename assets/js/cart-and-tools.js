@@ -1150,6 +1150,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Animate cart button
                 animateCartBadge();
                 
+                // TRIGGER CHECKOUT GUIDE ON INDEX PAGE
+                if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
+                    window.dispatchEvent(new Event('cart-updated'));
+                }
+                
                 return true;
             } else {
                 showNotification(data.message || data.error || 'Failed to add to cart', 'error');
