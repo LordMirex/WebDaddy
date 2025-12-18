@@ -692,6 +692,7 @@ if ($autoOpenTool) {
         /* ========== END CUSTOMER AUTH STYLES ========== */
     </style>
     <script src="/assets/js/loader-controller.js"></script>
+    <script src="/assets/js/nav-smartness.js"></script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <script src="/assets/js/lazy-load.js" defer></script>
