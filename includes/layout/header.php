@@ -151,3 +151,18 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
         </div>
     </div>
 </nav>
+
+<script>
+function customerNav() {
+    return {
+        customer: null,
+        init() {
+            if (typeof checkCustomerSession === 'function') {
+                checkCustomerSession().then(customer => {
+                    this.customer = customer;
+                });
+            }
+        }
+    };
+}
+</script>
