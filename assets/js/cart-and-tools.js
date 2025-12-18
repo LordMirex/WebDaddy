@@ -67,7 +67,7 @@ function formatCurrency(amount) {
     });
 }
 
-function showNotification(message, type = 'success') {
+function showNotification(message, type = 'success', shouldShowGuide = true) {
     // Create notification container
     const container = document.createElement('div');
     container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
@@ -110,7 +110,7 @@ function showNotification(message, type = 'success') {
     // For 1-3 items: show every time
     // For 4-9 items: show twice total (on 1st and 5th item)
     // For 10+ items: show once more only (on first item of larger batch)
-    if (type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
+    if (shouldShowGuide && type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
         try {
             const cartCache = JSON.parse(localStorage.getItem('cartCache') || '{"items":[]}');
             const totalItems = cartCache.items ? cartCache.items.length : 0;
@@ -1151,7 +1151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                showNotification('🗑️ Cart cleared', 'success');
+                showNotification('🗑️ Cart cleared', 'success', false);
                 updateCartBadge();
                 loadCartItems();
                 localStorage.removeItem('cartCache');
