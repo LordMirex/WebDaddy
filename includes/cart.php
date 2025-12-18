@@ -321,9 +321,10 @@ function clearCart($sessionId = null) {
  * @param string $affiliateCode Optional affiliate code for discount
  * @param string $bonusCode Optional bonus code for discount (takes priority)
  * @param string $userReferralCode Optional user referral code for discount
+ * @param string $customerEmail Optional customer email to prevent self-referral
  * @return array Cart totals with breakdown
  */
-function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = null, $userReferralCode = null) {
+function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = null, $userReferralCode = null, $customerEmail = null) {
     if ($sessionId === null) {
         $sessionId = getCartSessionId();
     }
@@ -375,11 +376,19 @@ function getCartTotal($sessionId = null, $affiliateCode = null, $bonusCode = nul
         $userReferral = getUserReferralByCode($userReferralCode);
         if ($userReferral && $userReferral['status'] === 'active') {
             // Check if this is the user's own referral code (self-referral prevention)
-            $currentCustomer = getCurrentCustomer();
             $isSelfReferral = false;
+            
+            // Check by logged-in customer ID
+            $currentCustomer = getCurrentCustomer();
             if ($currentCustomer && $currentCustomer['id'] == $userReferral['customer_id']) {
                 $isSelfReferral = true;
                 error_log("⚠️  SELF-REFERRAL BLOCKED: Customer #{$currentCustomer['id']} tried to use their own referral code {$userReferralCode}");
+            }
+            
+            // Also check by email (for guest checkout or email-based comparison)
+            if (!$isSelfReferral && $customerEmail && strtolower($customerEmail) === strtolower($userReferral['customer_email'] ?? '')) {
+                $isSelfReferral = true;
+                error_log("⚠️  SELF-REFERRAL BLOCKED: Email '{$customerEmail}' tried to use their own referral code {$userReferralCode}");
             }
             
             if (!$isSelfReferral) {
