@@ -85,7 +85,7 @@ if ($customerSession && !empty($customerSession['id'])) {
                    style="background: none !important;">About</a>
                 <a href="/contact.php" 
                    class="px-2 py-1 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
-                   style="background: none !important;">Company</a>
+                   style="background: none !important;">Contact</a>
                 
                 <!-- Login Link -->
                 <a href="<?= $isLoggedIn ? '/user/' : '/user/login.php'; ?>" class="px-2 py-1 text-sm font-medium text-gray-300 hover:text-gold transition-colors inline-flex items-center gap-1">
@@ -149,9 +149,9 @@ if ($customerSession && !empty($customerSession['id'])) {
             <a href="/about.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'about' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">About</a>
             
-            <!-- Company -->
+            <!-- Contact -->
             <a href="/contact.php" @click="open = false" 
-               class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Company</a>
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Contact</a>
             
             <!-- Login/My Account -->
             <a href="<?= $isLoggedIn ? '/user/' : '/user/login.php'; ?>" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
