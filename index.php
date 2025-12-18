@@ -1771,8 +1771,43 @@ if ($autoOpenTool) {
         }
     </script>
     
-    <!-- Premium Loader Controller - 3 breathing cycles with exit on 3rd -->
+    <!-- Premium Loader Controller -->
     <script>
+        (function() {
+            const LOADER_SHOWN_KEY = 'webdaddy_loader_shown';
+            const loader = document.getElementById('page-loader');
+            if (!loader) return;
+
+            // Check if loader already shown
+            const loaderShown = sessionStorage.getItem(LOADER_SHOWN_KEY);
+            
+            // Skip loader on back button or repeat visits
+            if (loaderShown === 'true' || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+                document.body.classList.remove('loader-active');
+                loader.style.display = 'none';
+                return;
+            }
+
+            // Mark loader as shown
+            sessionStorage.setItem(LOADER_SHOWN_KEY, 'true');
+
+            // Dismiss loader after 1.5 seconds
+            let loaderDismissed = false;
+            function dismissLoader() {
+                if (loaderDismissed) return;
+                loaderDismissed = true;
+                
+                loader.classList.add('loader-exit');
+                document.body.classList.remove('loader-active');
+                
+                setTimeout(() => {
+                    loader.classList.add('loader-hidden');
+                    loader.remove();
+                }, 300);
+            }
+
+            setTimeout(dismissLoader, 1500);
+        })();
         
         // Global image error handler - hide broken images completely
         document.addEventListener('error', function(event) {
