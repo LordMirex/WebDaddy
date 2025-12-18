@@ -1017,7 +1017,15 @@ document.addEventListener('DOMContentLoaded', function() {
                                 Message on WhatsApp
                             </a>
                         </div>
-                        <p class="text-sm text-gray-500">✨ We love creating custom solutions! Let's chat!</p>
+                        <p class="text-sm text-gray-500 mb-6">✨ We love creating custom solutions! Let's chat!</p>
+                        <div class="text-center p-4 bg-gray-800/50 border border-gray-700 rounded-lg max-w-md mx-auto">
+                            <p class="text-gray-400 text-sm mb-2">💬 Don't have WhatsApp?</p>
+                            <p class="text-gray-300 text-sm">
+                                <a href="https://wa.me/2349132672126" target="_blank" rel="noopener noreferrer" class="text-green-400 hover:text-green-300 font-semibold transition-colors">
+                                    Call or WhatsApp: +2349132672126
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 `;
                 updateCounterDisplay(0);
