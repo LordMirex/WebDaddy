@@ -72,7 +72,9 @@ $toc = blogExtractTableOfContents($blocks);
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">
     <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/premium.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <?php if ($post['focus_keyword']): ?>
     <meta name="keywords" content="<?= htmlspecialchars($post['focus_keyword']) ?>">
     <?php endif; ?>
@@ -110,20 +112,39 @@ $toc = blogExtractTableOfContents($blocks);
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
     <link rel="stylesheet" href="/assets/css/blog/affiliate.css">
 </head>
-<body class="blog-page blog-post-page" data-post-id="<?= $post['id'] ?>" <?= $affiliateCode ? 'data-affiliate-code="' . htmlspecialchars($affiliateCode) . '"' : '' ?>>
-    <header class="blog-header">
-        <div class="blog-header-container">
-            <a href="/" class="blog-logo">
-                <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" width="180">
-            </a>
-            <nav class="blog-nav">
-                <a href="/">Templates</a>
-                <a href="/blog/" class="active">Blog</a>
-                <a href="/?view=tools">Tools</a>
-            </nav>
-            <a href="/#templates" class="btn-premium btn-premium-gold btn-premium-sm">Get Started</a>
+<body class="bg-navy-dark" data-post-id="<?= $post['id'] ?>" <?= $affiliateCode ? 'data-affiliate-code="' . htmlspecialchars($affiliateCode) . '"' : '' ?>>
+    <nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50" x-data="{ open: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="/" class="flex-shrink-0">
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-10 w-auto">
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/?view=templates" class="text-gray-300 hover:text-gold text-sm font-medium transition-colors">Templates</a>
+                    <a href="/blog/" class="text-gold hover:text-gold-light text-sm font-medium transition-colors">Blog</a>
+                    <a href="/?view=tools" class="text-gray-300 hover:text-gold text-sm font-medium transition-colors">Tools</a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy transition-all">Affiliate</a>
+                </div>
+                
+                <button @click="open = !open" class="md:hidden p-2 rounded-md text-gold hover:bg-navy-light">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
-    </header>
+        
+        <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50">
+            <a href="/?view=templates" class="block px-4 py-3 text-gray-300 hover:text-gold hover:bg-navy-light font-medium">Templates</a>
+            <a href="/blog/" class="block px-4 py-3 text-gold bg-gold/10 border-l-3 border-gold font-medium">Blog</a>
+            <a href="/?view=tools" class="block px-4 py-3 text-gray-300 hover:text-gold hover:bg-navy-light font-medium">Tools</a>
+            <a href="/affiliate/register.php" class="block px-4 py-3 text-navy bg-gold font-medium text-center mt-2">Become Affiliate</a>
+        </div>
+    </nav>
 
     <main class="blog-main">
         <article class="blog-article">
