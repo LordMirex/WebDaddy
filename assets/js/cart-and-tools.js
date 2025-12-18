@@ -1283,11 +1283,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateBadgeElement(id, count) {
         const badge = document.getElementById(id);
         if (badge) {
-            badge.textContent = count;
-            if (count > 0) {
+            const numCount = parseInt(count) || 0;
+            badge.textContent = numCount;
+            if (numCount > 0) {
                 badge.classList.remove('hidden');
+                // Ensure it's visible
+                badge.style.display = 'flex';
             } else {
                 badge.classList.add('hidden');
+                badge.style.display = 'none';
             }
         }
     }
