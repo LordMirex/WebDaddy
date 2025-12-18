@@ -1236,7 +1236,8 @@ if ($autoOpenTool) {
                                     <?php echo htmlspecialchars($template['category']); ?>
                                 </span>
                             </div>
-                            <p class="text-gray-400 text-[11px] md:text-xs mb-2 md:mb-3 line-clamp-2 min-h-[24px] md:min-h-[32px] flex-1"><?php echo htmlspecialchars(substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : '')); ?></p>
+                            <?php $descText = substr($template['description'] ?? '', 0, 80) . (strlen($template['description'] ?? '') > 80 ? '...' : ''); ?>
+                            <p class="text-gray-400 text-[11px] md:text-xs <?php echo !empty($descText) ? 'mb-2 md:mb-3' : ''; ?> line-clamp-2 <?php echo !empty($descText) ? 'min-h-[24px] md:min-h-[32px]' : ''; ?> flex-1"><?php echo htmlspecialchars($descText); ?></p>
                             <div class="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-700/50 mt-auto">
                                 <div class="flex flex-col">
                                     <span class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-wider font-medium">PRICE</span>
