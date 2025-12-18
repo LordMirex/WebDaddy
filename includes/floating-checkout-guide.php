@@ -28,9 +28,6 @@ if (!$isIndexPage) return;
                         inset 0 1px 1px rgba(255, 255, 255, 0.5);
         }
         
-        #floating-checkout-guide .arrow-pointer {
-            opacity: 0.7;
-        }
         
         @keyframes slideInGuide {
             from {
@@ -85,15 +82,6 @@ if (!$isIndexPage) return;
                     </svg>
                 </button>
             </div>
-        </div>
-        
-        <!-- Smooth Curved Arrow Pointer - Blended -->
-        <div class="arrow-pointer absolute top-[-10px] left-1/2 transform -translate-x-1/2">
-            <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Smooth curved arrow tip pointing up -->
-                <path d="M10 0C10 0 15 8 19 11M10 0C10 0 5 8 1 11" stroke="rgba(255, 193, 7, 0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <circle cx="10" cy="1" r="1.5" fill="rgba(255, 193, 7, 0.7)"/>
-            </svg>
         </div>
     </div>
 </div>
