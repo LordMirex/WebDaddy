@@ -13,7 +13,6 @@ handleAffiliateTracking();
 
 $activeNav = 'contact';
 $affiliateCode = getAffiliateCode();
-$cartCount = getCartCount();
 $whatsappNumber = WHATSAPP_NUMBER;
 
 // Meta tags

@@ -13,7 +13,6 @@ handleAffiliateTracking();
 
 $activeNav = 'about';
 $affiliateCode = getAffiliateCode();
-$cartCount = getCartCount();
 
 // Meta tags
 $pageTitle = 'About ' . SITE_NAME . ' - Professional Website Templates & Digital Tools';
