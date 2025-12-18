@@ -210,7 +210,7 @@ $pageUrl = SITE_URL . '/contact.php';
                         <p class="text-gray-400 text-sm">Absolutely! We provide free technical support for all our products.</p>
                     </div>
                     
-                    <a href="/#faq" class="inline-block w-full text-center px-4 py-3 bg-primary-600 hover:bg-primary-700 text-navy font-semibold rounded-lg transition-colors">
+                    <a href="/faq.php" class="inline-block w-full text-center px-4 py-3 bg-primary-600 hover:bg-primary-700 text-navy font-semibold rounded-lg transition-colors">
                         View All FAQs
                     </a>
                 </div>
