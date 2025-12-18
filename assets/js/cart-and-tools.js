@@ -403,6 +403,7 @@ window.toggleCartDrawer = function() {
     if (drawer.classList.contains('hidden')) {
         drawer.classList.remove('hidden');
         content.classList.remove('translate-x-full');
+        // Always load fresh cart items when opening drawer
         loadCartItems();
     } else {
         content.classList.add('translate-x-full');
@@ -586,23 +587,36 @@ function updateBadgeElement(id, count) {
 
 async function loadCartItems() {
     try {
-        const response = await fetch('/api/cart.php?action=get');
+        // Add cache-busting to ensure fresh data from server
+        const timestamp = Date.now();
+        const response = await fetch(`/api/cart.php?action=get&t=${timestamp}`);
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.items && data.items.length > 0) {
             const items = data.items || [];
             const totals = data.totals || data.total || 0;
             
+            // Display the fresh cart data
             displayCartItems(items, totals);
             
+            // Update badge with fresh count
             const count = parseInt(data.count) || 0;
             updateBadgeElement('cart-count', count);
             updateBadgeElement('cart-count-mobile-icon', count);
+            updateBadgeElement('cart-badge-drawer', count);
             
+            // Store count only for quick badge updates (not items)
             const now = Date.now();
             localStorage.setItem('cartBadgeCount', count.toString());
             localStorage.setItem('cartBadgeTime', now.toString());
+        } else if (data.success) {
+            // Empty cart - still display it properly
+            displayCartItems([], data.totals || 0);
+            updateBadgeElement('cart-count', 0);
+            updateBadgeElement('cart-count-mobile-icon', 0);
+            updateBadgeElement('cart-badge-drawer', 0);
         } else {
+            console.warn('Cart load failed:', data.message);
             displayCartItems([], 0);
         }
     } catch (error) {
