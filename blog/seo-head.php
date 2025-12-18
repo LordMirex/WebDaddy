@@ -2,33 +2,38 @@
 /**
  * Blog SEO Head - Include in <head> tag of all blog pages
  * Handles meta tags, schema markup, analytics, and OG tags
+ * Requires: includes/blog/schema.php to be loaded
  */
 
-if (!function_exists('blogInitSEO')) {
-    function blogInitSEO($post = null, $pageType = 'blog-index', $customMeta = []) {
-        global $seoData, $pageTitle, $pageDescription, $pageImage;
-        
-        if ($post && $pageType === 'post') {
-            $seoData = blogGenerateSEOData($post);
-            $pageTitle = $seoData['title'];
-            $pageDescription = $seoData['description'];
-            $pageImage = $seoData['og']['image'];
-        } elseif ($pageType === 'category' && isset($customMeta['title'])) {
-            $seoData = $customMeta;
-            $pageTitle = $customMeta['title'];
-            $pageDescription = $customMeta['description'];
-            $pageImage = $customMeta['image'] ?? '';
-        } else {
-            $seoData = $customMeta ?? [];
-            $pageTitle = $customMeta['title'] ?? 'WebDaddy Blog';
-            $pageDescription = $customMeta['description'] ?? 'Enterprise SEO-first blog for Nigerian businesses';
-            $pageImage = $customMeta['image'] ?? SITE_URL . '/assets/images/og-blog.jpg';
-        }
-    }
+// Ensure functions are available
+require_once __DIR__ . '/../includes/blog/schema.php';
+
+// Initialize SEO data - global variable for use in page templates
+global $seoData;
+if (!isset($seoData) || empty($seoData)) {
+    // Default SEO for blog index/list pages
+    $seoData = [
+        'title' => 'WebDaddy Blog | Enterprise SEO & Digital Tips for Nigerian Businesses',
+        'description' => 'Industry insights, SEO strategies, and digital marketing tips for Nigerian businesses. Premium content from WebDaddy Empire.',
+        'canonical' => SITE_URL . '/blog/',
+        'og' => [
+            'title' => 'WebDaddy Blog',
+            'description' => 'Enterprise SEO-first blog for Nigerian businesses',
+            'image' => SITE_URL . '/assets/images/og-blog.jpg',
+            'type' => 'website',
+            'url' => SITE_URL . '/blog/'
+        ],
+        'twitter' => [
+            'card' => 'summary_large_image',
+            'title' => 'WebDaddy Blog',
+            'description' => 'SEO & digital marketing insights for Nigerian businesses',
+            'image' => SITE_URL . '/assets/images/og-blog.jpg'
+        ]
+    ];
 }
 
-// Render SEO meta tags
-echo blogRenderMetaTags($seoData ?? []);
+// Render all SEO meta tags
+echo blogRenderMetaTags($seoData);
 
 // Initialize analytics with session
 if (!isset($_SESSION['session_id'])) {
