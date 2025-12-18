@@ -29,7 +29,7 @@ if (!$isIndexPage) return;
         }
         
         #floating-checkout-guide .arrow-pointer {
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+            opacity: 0.7;
         }
         
         @keyframes slideInGuide {
@@ -87,11 +87,12 @@ if (!$isIndexPage) return;
             </div>
         </div>
         
-        <!-- Premium Arrow Pointer - Pointing UP to checkout icon -->
-        <div class="arrow-pointer absolute top-[-16px] right-[55px]">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Arrow pointing upward -->
-                <path d="M14 0L28 14L14 28L0 14Z" fill="rgba(255, 193, 7, 0.95)"/>
+        <!-- Smooth Curved Arrow Pointer - Blended -->
+        <div class="arrow-pointer absolute top-[-10px] left-1/2 transform -translate-x-1/2">
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Smooth curved arrow tip pointing up -->
+                <path d="M10 0C10 0 15 8 19 11M10 0C10 0 5 8 1 11" stroke="rgba(255, 193, 7, 0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <circle cx="10" cy="1" r="1.5" fill="rgba(255, 193, 7, 0.7)"/>
             </svg>
         </div>
     </div>
