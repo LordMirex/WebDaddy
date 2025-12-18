@@ -56,15 +56,15 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center space-x-6">
-                <a href="/faq.php" 
-                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'faq' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
-                   style="background: none !important;">FAQ</a>
+                <a href="/blog/" 
+                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">Blog</a>
                 <a href="/about.php" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">About</a>
                 <a href="/contact.php" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
-                   style="background: none !important;">Contact</a>
+                   style="background: none !important;">Company</a>
                 
                 <!-- Customer Account -->
                 <div x-data="customerNav()" class="relative">
@@ -129,12 +129,12 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
     <!-- Mobile Navigation Menu -->
     <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
         <div class="px-2 pt-2 pb-4 space-y-1">
-            <a href="/faq.php" @click="open = false" 
-               class="block px-4 py-3 rounded-lg <?= $activeNav === 'faq' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">FAQ</a>
+            <a href="/blog/" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'blog' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Blog</a>
             <a href="/about.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'about' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">About</a>
             <a href="/contact.php" @click="open = false" 
-               class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Contact</a>
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Company</a>
             <a href="/careers.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'careers' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Careers</a>
             <a href="/security.php" @click="open = false" 

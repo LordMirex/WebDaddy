@@ -52,8 +52,8 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 <!-- Premium Footer -->
 <footer class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white border-t border-blue-500/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <!-- Footer Grid - 5 Columns on Desktop, 2 on Tablet, 1 on Mobile -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+        <!-- Footer Grid - 5 Columns on Desktop, 2 on Tablet and Mobile -->
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
             <!-- Brand Column -->
             <div class="lg:col-span-1">
                 <div class="flex items-center gap-2 mb-4">
