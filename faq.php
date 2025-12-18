@@ -30,7 +30,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
     <link rel="canonical" href="<?php echo $pageUrl; ?>">
     <meta property="og:title" content="<?php echo $pageTitle; ?>">
     <meta property="og:description" content="<?php echo $pageDescription; ?>">
-    <meta property="og:url" content="<?php echo $pageUrl; ?>"
+    <meta property="og:url" content="<?php echo $pageUrl; ?>">
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
