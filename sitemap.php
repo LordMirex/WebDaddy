@@ -113,4 +113,51 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
+    
+    <!-- Blog Posts -->
+    <?php 
+    require_once __DIR__ . '/includes/blog/helpers.php';
+    $blogDb = getDb();
+    $blogPosts = $blogDb->query("
+        SELECT id, slug, updated_at, featured_image 
+        FROM blog_posts 
+        WHERE status = 'published'
+        ORDER BY updated_at DESC
+        LIMIT 50000
+    ");
+    
+    while ($post = $blogPosts->fetch_assoc()): 
+    ?>
+    <url>
+        <loc><?php echo SITE_URL; ?>/blog/<?php echo htmlspecialchars($post['slug']); ?>/</loc>
+        <lastmod><?php echo date('Y-m-d', strtotime($post['updated_at'])); ?></lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <?php if (!empty($post['featured_image'])): ?>
+        <image:image>
+            <image:loc><?php echo htmlspecialchars($post['featured_image']); ?></image:loc>
+        </image:image>
+        <?php endif; ?>
+    </url>
+    <?php endwhile; ?>
+    
+    <!-- Blog Categories -->
+    <?php 
+    $blogCats = $blogDb->query("
+        SELECT slug, updated_at 
+        FROM blog_categories 
+        WHERE status = 'active'
+        ORDER BY updated_at DESC
+    ");
+    
+    while ($cat = $blogCats->fetch_assoc()): 
+    ?>
+    <url>
+        <loc><?php echo SITE_URL; ?>/blog/category/<?php echo htmlspecialchars($cat['slug']); ?>/</loc>
+        <lastmod><?php echo date('Y-m-d', strtotime($cat['updated_at'])); ?></lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <?php endwhile; ?>
+    
 </urlset>
