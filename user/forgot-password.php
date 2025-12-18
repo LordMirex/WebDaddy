@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // SECURITY: Verify email before sending - prevent accidental sends to invalid addresses
                 if (filter_var($customerData['email'], FILTER_VALIDATE_EMAIL)) {
-                    $emailSent = sendEmail($customerData['email'], 'Reset Your Password - WebDaddy Empire', $emailHtml);
+                    $emailSent = sendUserEmail($customerData['email'], 'Reset Your Password - WebDaddy Empire', $emailHtml, 'password_reset');
                     
                     if (!$emailSent) {
                         error_log("Password reset email failed for customer ID: {$customerData['id']}, email: {$customerData['email']}");

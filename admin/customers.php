@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Only share this code with our support team when they request it for identity verification.</p>
                     <p><strong>If you didn't request this code, please ignore this email.</strong></p>
                 ";
-                sendEmail($custData['email'], $emailSubject, $emailBody);
+                sendUserEmail($custData['email'], $emailSubject, $emailBody, 'identity_verification_otp');
                 
                 $db->commit();
                 

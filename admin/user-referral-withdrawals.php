@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         " . ($adminNotes ? "<p><strong>Admin notes:</strong> " . htmlspecialchars($adminNotes) . "</p>" : "") . "
                         <p>Thank you for being a valued referrer!</p>
                     ";
-                    sendEmail($customerUser['email'], $subject, $body);
+                    sendUserEmail($customerUser['email'], $subject, $body, 'withdrawal_update');
                 }
                 
                 $successMessage = "Withdrawal request #$requestId has been $withdrawalStatus.";

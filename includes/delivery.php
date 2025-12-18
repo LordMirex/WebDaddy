@@ -252,7 +252,7 @@ function sendToolDeliveryEmail($order, $item, $downloadLinks, $orderId) {
     $body .= '</p>';
     
     require_once __DIR__ . '/mailer.php';
-    return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+    return sendUserEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']), 'tool_delivery');
 }
 
 /**
@@ -825,7 +825,7 @@ function sendTemplateDeliveryEmail($order, $delivery, $hostedDomain, $hostedUrl,
     $body .= '<p style="color: #374151; margin: 15px 0 0 0;">Your website is now live. If you have any questions, please reach out to us via WhatsApp.</p>';
     
     require_once __DIR__ . '/mailer.php';
-    sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+    sendUserEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']), 'template_delivery');
 }
 
 /**
@@ -1050,7 +1050,7 @@ function sendTemplateDeliveryEmailWithCredentials($order, $delivery, $decryptedP
     $body .= '<p style="color: #374151; margin: 15px 0 0 0;">Your website is now live. If you have any questions, please reach out to us via WhatsApp.</p>';
     
     require_once __DIR__ . '/mailer.php';
-    return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+    return sendUserEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']), 'template_with_credentials');
 }
 
 /**
@@ -1301,7 +1301,7 @@ function sendMixedOrderDeliverySummaryEmail($orderId) {
     
     require_once __DIR__ . '/mailer.php';
     $emailBody = createEmailTemplate($subject, $body, $order['customer_name']);
-    $result = sendEmail($order['customer_email'], $subject, $emailBody);
+    $result = sendUserEmail($order['customer_email'], $subject, $emailBody, 'delivery_summary');
     
     return [
         'success' => $result,
@@ -1496,7 +1496,7 @@ function sendOrderDeliveryUpdateEmail($orderId, $trigger = 'delivery_update') {
     
     require_once __DIR__ . '/mailer.php';
     $emailBody = createEmailTemplate($subject, $body, $order['customer_name']);
-    $result = sendEmail($order['customer_email'], $subject, $emailBody);
+    $result = sendUserEmail($order['customer_email'], $subject, $emailBody, 'delivery_update');
     
     // Record email event with delivery_state for idempotency check
     recordEmailEvent($orderId, $isFullyDelivered ? 'delivery_complete' : 'delivery_update', [
@@ -1984,7 +1984,7 @@ function sendAllToolDeliveryEmailsForOrder($orderId) {
             }
             
             // Send individual email for this tool
-            $emailSent = sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+            $emailSent = sendUserEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']), 'tool_delivery');
             
             if ($emailSent) {
                 $successCount++;
@@ -2341,7 +2341,7 @@ function sendToolUpdateEmail($order, $item, $downloadLinks, $orderId) {
     $body .= '<p style="color: #374151; margin: 15px 0 0 0;">Links expire on ' . $expiryDate . ' (' . $expiryDays . ' days). Max ' . $maxDownloads . ' downloads per link.</p>';
     
     require_once __DIR__ . '/mailer.php';
-    return sendEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']));
+    return sendUserEmail($order['customer_email'], $subject, createEmailTemplate($subject, $body, $order['customer_name']), 'new_files_added');
 }
 
 /**

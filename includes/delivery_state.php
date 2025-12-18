@@ -401,7 +401,7 @@ function sendDelayNotification($deliveryId) {
     $content .= '<p>You can track progress in real-time from your dashboard:</p>';
     $content .= '<a href="' . $dashboardLink . '" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none;">View Order Status</a>';
     
-    return sendEmail($delivery['customer_email'], $subject, createEmailTemplate($subject, $content, $delivery['customer_name']));
+    return sendUserEmail($delivery['customer_email'], $subject, createEmailTemplate($subject, $content, $delivery['customer_name']), 'delivery_delay_notification');
 }
 
 /**
