@@ -25,15 +25,18 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 $isLoggedIn = false;
 $customerName = null;
 
-// Import customer session functions if not already imported
+// Import customer session functions - must be done after session is started
 if (!function_exists('getCustomerFromSession')) {
     require_once __DIR__ . '/../customer_session.php';
 }
 
-$customerSession = getCustomerFromSession();
-if ($customerSession && isset($customerSession['name'])) {
+// Use the cookie-based session system
+$customerSession = @getCustomerFromSession();
+if ($customerSession && !empty($customerSession['id'])) {
     $isLoggedIn = true;
-    $customerName = $customerSession['name'];
+    if (!empty($customerSession['name'])) {
+        $customerName = $customerSession['name'];
+    }
 }
 ?>
 <!-- Navigation Schema for SEO -->
