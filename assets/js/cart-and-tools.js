@@ -1193,12 +1193,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Animate cart button
                 animateCartBadge();
                 
-                // TRIGGER CHECKOUT GUIDE ON INDEX PAGE - ONLY FOR FIRST 2 ADDITIONS
-                if ((window.location.pathname === '/' || window.location.pathname.includes('index.php')) && guideDisplayCount < 2) {
-                    guideDisplayCount++;
-                    setTimeout(() => {
-                        window.dispatchEvent(new Event('cart-updated'));
-                    }, 4800);
+                // TRIGGER CHECKOUT GUIDE ON INDEX PAGE - SHOW AT 1st, 4th, 7th, 10th item, etc (every 3 items)
+                if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
+                    try {
+                        const cartCache = JSON.parse(localStorage.getItem('cartCache') || '{"items":[]}');
+                        const totalItems = cartCache.items ? cartCache.items.length : 0;
+                        
+                        // Show guide when: 1st item (1), 4th item (4), 7th item (7), 10th item (10), etc.
+                        // This is when (totalItems - 1) % 3 === 0
+                        if ((totalItems - 1) % 3 === 0) {
+                            setTimeout(() => {
+                                window.dispatchEvent(new Event('cart-updated'));
+                            }, 4800);
+                        }
+                    } catch (err) {
+                        console.error('Guide logic error:', err);
+                    }
                 }
                 
                 return true;
