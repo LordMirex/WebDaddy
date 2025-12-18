@@ -246,7 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
     if (empty($errors)) {
         // Re-fetch cart items and totals after validation to ensure we have fresh data
         $cartItems = getCart();
-        $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode);
+        $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode, $userReferralCode);
         
         // Double-check cart is still not empty
         if (empty($cartItems)) {

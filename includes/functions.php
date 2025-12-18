@@ -2764,3 +2764,99 @@ function getEncryptionKey() {
     return hash('sha256', implode(':', $keyComponents), true);
 }
 
+function getUserReferralByCode($code) {
+    if (empty($code)) {
+        return null;
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            SELECT ur.*, c.id as customer_id, c.email as customer_email 
+            FROM user_referrals ur
+            JOIN customers c ON ur.customer_id = c.id
+            WHERE UPPER(ur.code) = UPPER(?) AND ur.status = 'active'
+            LIMIT 1
+        ");
+        $stmt->execute([$code]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error getting user referral by code: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function getCurrentCustomer() {
+    if (isset($_SESSION['user_id'])) {
+        $db = getDb();
+        try {
+            $stmt = $db->prepare("SELECT id, email, name FROM customers WHERE id = ? LIMIT 1");
+            $stmt->execute([$_SESSION['user_id']]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('Error getting current customer: ' . $e->getMessage());
+        }
+    }
+    
+    if (isset($_SESSION['customer_email'])) {
+        $db = getDb();
+        try {
+            $stmt = $db->prepare("SELECT id, email, name FROM customers WHERE email = ? LIMIT 1");
+            $stmt->execute([$_SESSION['customer_email']]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('Error getting customer by email: ' . $e->getMessage());
+        }
+    }
+    
+    return null;
+}
+
+function incrementUserReferralClick($referralCode) {
+    if (empty($referralCode)) {
+        return false;
+    }
+    
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("SELECT id FROM user_referrals WHERE UPPER(code) = UPPER(?) LIMIT 1");
+        $stmt->execute([$referralCode]);
+        $referral = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$referral) {
+            return false;
+        }
+        
+        $stmt = $db->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='referral_clicks'");
+        $stmt->execute();
+        $tableExists = $stmt->fetch();
+        
+        if (!$tableExists) {
+            $db->exec("
+                CREATE TABLE referral_clicks (
+                    id INTEGER PRIMARY KEY,
+                    referral_id INTEGER NOT NULL,
+                    ip_address TEXT,
+                    user_agent TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY(referral_id) REFERENCES user_referrals(id)
+                )
+            ");
+        }
+        
+        $stmt = $db->prepare("
+            INSERT INTO referral_clicks (referral_id, ip_address, user_agent)
+            VALUES (?, ?, ?)
+        ");
+        $stmt->execute([
+            $referral['id'],
+            $_SERVER['REMOTE_ADDR'] ?? '',
+            $_SERVER['HTTP_USER_AGENT'] ?? ''
+        ]);
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log('Error incrementing referral click: ' . $e->getMessage());
+        return false;
+    }
+}
