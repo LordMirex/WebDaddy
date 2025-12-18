@@ -1,4 +1,6 @@
 <?php
+$pageTitle = 'Blog Posts';
+
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/functions.php';
@@ -7,10 +9,12 @@ require_once __DIR__ . '/../../includes/blog/Blog.php';
 require_once __DIR__ . '/../../includes/blog/BlogPost.php';
 require_once __DIR__ . '/../../includes/blog/BlogCategory.php';
 require_once __DIR__ . '/../../includes/blog/helpers.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 header('Cache-Control: no-cache, no-store, must-revalidate', false);
 
 startSecureSession();
+requireAdmin();
 
 $db = getDb();
 $blogPost = new BlogPost($db);
@@ -93,121 +97,52 @@ $archivedCount = $blogPost->getAllCount('archived');
 // Get categories for filter
 $categories = $blogCategory->getAll();
 
-$pageTitle = 'Blog Posts';
+require_once __DIR__ . '/../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($pageTitle); ?> - WebDaddy Admin</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333; }
-        .header { background: white; border-bottom: 1px solid #e1e8ed; padding: 20px; }
-        .header h1 { font-size: 28px; margin-bottom: 10px; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #0066cc; }
-        .stat-card.draft { border-left-color: #999; }
-        .stat-card.published { border-left-color: #28a745; }
-        .stat-card.scheduled { border-left-color: #ffc107; }
-        .stat-card.archived { border-left-color: #dc3545; }
-        .stat-label { font-size: 12px; color: #666; text-transform: uppercase; }
-        .stat-value { font-size: 28px; font-weight: bold; color: #0066cc; margin-top: 5px; }
-        
-        .filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; }
-        .filter-group { display: flex; flex-direction: column; }
-        .filter-group label { font-size: 12px; color: #666; margin-bottom: 5px; text-transform: uppercase; }
-        .filter-group input,
-        .filter-group select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        .filter-group input:focus,
-        .filter-group select:focus { outline: none; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
-        
-        .btn { padding: 10px 16px; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-        .btn-primary { background: #0066cc; color: white; }
-        .btn-primary:hover { background: #0052a3; }
-        .btn-secondary { background: #e1e8ed; color: #333; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-sm { padding: 6px 10px; font-size: 12px; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
-        
-        .table-container { background: white; border-radius: 8px; overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background: #f5f7fa; }
-        th { padding: 15px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; color: #666; }
-        td { padding: 15px; border-top: 1px solid #e1e8ed; }
-        tbody tr:hover { background: #f9fafb; }
-        
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-        .status-draft { background: #e2e3e5; color: #666; }
-        .status-published { background: #d4edda; color: #155724; }
-        .status-scheduled { background: #fff3cd; color: #856404; }
-        .status-archived { background: #f8d7da; color: #721c24; }
-        
-        .title-cell { font-weight: 500; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .category-badge { background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .category-badge { display: inline-block; }
-        
-        .actions { display: flex; gap: 8px; }
-        .actions a { padding: 6px 10px; border-radius: 4px; background: #e1e8ed; color: #333; text-decoration: none; font-size: 12px; transition: all 0.2s; }
-        .actions a:hover { background: #cbd5e0; }
-        .actions a.delete { background: #ffe0e6; color: #721c24; }
-        .actions a.delete:hover { background: #f8d7da; }
-        
-        .empty-state { padding: 60px 20px; text-align: center; }
-        .empty-state h3 { margin-bottom: 10px; }
-        .empty-state p { color: #666; margin-bottom: 20px; }
-        
-        .pagination-container { padding: 20px; text-align: center; }
-        .pagination { display: flex; gap: 8px; justify-content: center; }
-        .pagination a, .pagination span { padding: 8px 12px; border-radius: 4px; background: #e1e8ed; color: #333; text-decoration: none; }
-        .pagination a:hover { background: #cbd5e0; }
-        .pagination .active { background: #0066cc; color: white; }
-        
-        .bulk-actions { display: flex; gap: 10px; align-items: center; padding: 15px; background: #f9fafb; border-bottom: 1px solid #e1e8ed; }
-        .bulk-actions input[type="checkbox"] { margin-right: 10px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1><?php echo htmlspecialchars($pageTitle); ?></h1>
-        <p>Manage your blog posts, categories, and content</p>
-    </div>
-    
-    <div class="container">
-        <!-- Quick Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Posts</div>
-                <div class="stat-value"><?php echo $allCount; ?></div>
-            </div>
-            <div class="stat-card draft">
-                <div class="stat-label">Drafts</div>
-                <div class="stat-value"><?php echo $draftCount; ?></div>
-            </div>
-            <div class="stat-card published">
-                <div class="stat-label">Published</div>
-                <div class="stat-value"><?php echo $publishedCount; ?></div>
-            </div>
-            <div class="stat-card scheduled">
-                <div class="stat-label">Scheduled</div>
-                <div class="stat-value"><?php echo $scheduledCount; ?></div>
-            </div>
-            <div class="stat-card archived">
-                <div class="stat-label">Archived</div>
-                <div class="stat-value"><?php echo $archivedCount; ?></div>
-            </div>
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Blog Posts</h1>
+            <p class="text-gray-600 mt-1">Manage your blog content</p>
         </div>
-        
-        <!-- Filters -->
-        <div class="filters">
-            <form method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; width: 100%;">
-                <div class="filter-group">
-                    <label for="status">Status</label>
-                    <select name="status" id="status">
+        <a href="editor.php" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2">
+            <i class="bi bi-plus-lg"></i>
+            New Post
+        </a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-white rounded-lg p-4 border-l-4 border-primary-600">
+            <div class="text-xs text-gray-500 uppercase font-semibold">Total</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1"><?php echo $allCount; ?></div>
+        </div>
+        <div class="bg-white rounded-lg p-4 border-l-4 border-gray-400">
+            <div class="text-xs text-gray-500 uppercase font-semibold">Drafts</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1"><?php echo $draftCount; ?></div>
+        </div>
+        <div class="bg-white rounded-lg p-4 border-l-4 border-green-500">
+            <div class="text-xs text-gray-500 uppercase font-semibold">Published</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1"><?php echo $publishedCount; ?></div>
+        </div>
+        <div class="bg-white rounded-lg p-4 border-l-4 border-yellow-500">
+            <div class="text-xs text-gray-500 uppercase font-semibold">Scheduled</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1"><?php echo $scheduledCount; ?></div>
+        </div>
+        <div class="bg-white rounded-lg p-4 border-l-4 border-red-500">
+            <div class="text-xs text-gray-500 uppercase font-semibold">Archived</div>
+            <div class="text-2xl font-bold text-gray-900 mt-1"><?php echo $archivedCount; ?></div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg p-6 shadow-sm">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                         <option value="all">All Statuses</option>
                         <option value="draft" <?php echo $status === 'draft' ? 'selected' : ''; ?>>Draft</option>
                         <option value="published" <?php echo $status === 'published' ? 'selected' : ''; ?>>Published</option>
@@ -215,10 +150,9 @@ $pageTitle = 'Blog Posts';
                         <option value="archived" <?php echo $status === 'archived' ? 'selected' : ''; ?>>Archived</option>
                     </select>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="category">Category</label>
-                    <select name="category" id="category">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select name="category" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                         <option value="all">All Categories</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>" <?php echo $category == $cat['id'] ? 'selected' : ''; ?>>
@@ -227,106 +161,114 @@ $pageTitle = 'Blog Posts';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
-                <div class="filter-group">
-                    <label for="search">Search</label>
-                    <input type="text" name="search" id="search" placeholder="Title or excerpt..." value="<?php echo htmlspecialchars($search); ?>">
-                </div>
-                
-                <div class="filter-group">
-                    <label for="sort">Sort By</label>
-                    <select name="sort" id="sort">
-                        <option value="date" <?php echo $sortBy === 'date' ? 'selected' : ''; ?>>Newest First</option>
-                        <option value="title" <?php echo $sortBy === 'title' ? 'selected' : ''; ?>>Title A-Z</option>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                    <select name="sort" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="date" <?php echo $sortBy === 'date' ? 'selected' : ''; ?>>Newest</option>
+                        <option value="title" <?php echo $sortBy === 'title' ? 'selected' : ''; ?>>Title</option>
                         <option value="views" <?php echo $sortBy === 'views' ? 'selected' : ''; ?>>Most Viewed</option>
                     </select>
                 </div>
-                
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="index.php" class="btn btn-secondary">Reset</a>
-            </form>
-        </div>
-        
-        <!-- Posts Table -->
-        <div class="table-container">
-            <?php if (empty($posts)): ?>
-                <div class="empty-state">
-                    <h3>No posts found</h3>
-                    <p>Try adjusting your filters or create a new post to get started.</p>
-                    <a href="editor.php" class="btn btn-primary">Create New Post</a>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" name="search" placeholder="Title or excerpt..." value="<?php echo htmlspecialchars($search); ?>" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 </div>
-            <?php else: ?>
-                <table>
-                    <thead>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors">Filter</button>
+                <a href="index.php" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Posts Table -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <?php if (empty($posts)): ?>
+            <div class="p-12 text-center">
+                <i class="bi bi-inbox text-4xl text-gray-300 block mb-3"></i>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">No posts found</h3>
+                <p class="text-gray-600 mb-4">Try adjusting your filters or create a new post to get started.</p>
+                <a href="editor.php" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-2">
+                    <i class="bi bi-plus-lg"></i>
+                    Create New Post
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th style="width: 35%;">Title</th>
-                            <th style="width: 15%;">Category</th>
-                            <th style="width: 12%;">Status</th>
-                            <th style="width: 12%;">Views</th>
-                            <th style="width: 15%;">Date</th>
-                            <th style="width: 11%;">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Views</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-200">
                         <?php foreach ($posts as $post): ?>
-                            <tr>
-                                <td>
-                                    <div class="title-cell" title="<?php echo htmlspecialchars($post['title']); ?>">
-                                        <?php echo htmlspecialchars($post['title']); ?>
-                                    </div>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900 truncate max-w-xs" title="<?php echo htmlspecialchars($post['title']); ?>">
+                                    <?php echo htmlspecialchars($post['title']); ?>
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 text-sm">
                                     <?php if ($post['category_name']): ?>
-                                        <span class="category-badge"><?php echo htmlspecialchars($post['category_name']); ?></span>
+                                        <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                                            <?php echo htmlspecialchars($post['category_name']); ?>
+                                        </span>
                                     <?php else: ?>
-                                        <span style="color: #999;">—</span>
+                                        <span class="text-gray-400">—</span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
-                                    <span class="status-badge status-<?php echo htmlspecialchars($post['status']); ?>">
+                                <td class="px-6 py-4 text-sm">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
+                                        <?php echo match($post['status']) {
+                                            'draft' => 'bg-gray-200 text-gray-700',
+                                            'published' => 'bg-green-100 text-green-700',
+                                            'scheduled' => 'bg-yellow-100 text-yellow-700',
+                                            'archived' => 'bg-red-100 text-red-700',
+                                            default => 'bg-gray-100 text-gray-700'
+                                        }; ?>">
                                         <?php echo ucfirst(htmlspecialchars($post['status'])); ?>
                                     </span>
                                 </td>
-                                <td><?php echo number_format($post['view_count']); ?></td>
-                                <td><?php echo date('M d, Y', strtotime($post['created_at'])); ?></td>
-                                <td>
-                                    <div class="actions">
-                                        <a href="editor.php?post_id=<?php echo $post['id']; ?>">Edit</a>
-                                        <a href="/blog/<?php echo htmlspecialchars($post['slug']); ?>/" target="_blank">View</a>
-                                        <a href="#" class="delete" onclick="if(confirm('Delete this post?')) location.href='#delete-post-<?php echo $post['id']; ?>'; return false;">Delete</a>
-                                    </div>
+                                <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($post['view_count']); ?></td>
+                                <td class="px-6 py-4 text-sm text-gray-600"><?php echo date('M d, Y', strtotime($post['created_at'])); ?></td>
+                                <td class="px-6 py-4 text-sm space-x-2">
+                                    <a href="editor.php?post_id=<?php echo $post['id']; ?>" class="text-primary-600 hover:text-primary-700 font-medium">Edit</a>
+                                    <a href="/blog/<?php echo htmlspecialchars($post['slug']); ?>/" target="_blank" class="text-gray-600 hover:text-gray-700 font-medium">View</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            <?php endif; ?>
-        </div>
-        
-        <!-- Pagination -->
-        <?php if ($totalPages > 1): ?>
-            <div class="pagination-container">
-                <div class="pagination">
+            </div>
+
+            <!-- Pagination -->
+            <?php if ($totalPages > 1): ?>
+                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-center gap-2">
                     <?php if ($page > 1): ?>
-                        <a href="?page=1&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>">« First</a>
-                        <a href="?page=<?php echo $page - 1; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>">‹ Prev</a>
+                        <a href="?page=1&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>" class="px-3 py-1 rounded border border-gray-300 hover:bg-gray-50">« First</a>
+                        <a href="?page=<?php echo $page - 1; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>" class="px-3 py-1 rounded border border-gray-300 hover:bg-gray-50">‹ Prev</a>
                     <?php endif; ?>
                     
                     <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
                         <?php if ($i == $page): ?>
-                            <span class="active"><?php echo $i; ?></span>
+                            <span class="px-3 py-1 rounded bg-primary-600 text-white font-medium"><?php echo $i; ?></span>
                         <?php else: ?>
-                            <a href="?page=<?php echo $i; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>"><?php echo $i; ?></a>
+                            <a href="?page=<?php echo $i; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>" class="px-3 py-1 rounded border border-gray-300 hover:bg-gray-50"><?php echo $i; ?></a>
                         <?php endif; ?>
                     <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
-                        <a href="?page=<?php echo $page + 1; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>">Next ›</a>
-                        <a href="?page=<?php echo $totalPages; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>">Last »</a>
+                        <a href="?page=<?php echo $page + 1; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>" class="px-3 py-1 rounded border border-gray-300 hover:bg-gray-50">Next ›</a>
+                        <a href="?page=<?php echo $totalPages; ?>&status=<?php echo htmlspecialchars($status); ?>&category=<?php echo htmlspecialchars($category); ?>&search=<?php echo htmlspecialchars($search); ?>&sort=<?php echo htmlspecialchars($sortBy); ?>" class="px-3 py-1 rounded border border-gray-300 hover:bg-gray-50">Last »</a>
                     <?php endif; ?>
                 </div>
-            </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
-</body>
-</html>
+</div>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

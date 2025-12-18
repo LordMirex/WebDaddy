@@ -1,14 +1,18 @@
 <?php
+$pageTitle = 'Blog Categories';
+
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/blog/Blog.php';
 require_once __DIR__ . '/../../includes/blog/BlogCategory.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 header('Cache-Control: no-cache, no-store, must-revalidate', false);
 
 startSecureSession();
+requireAdmin();
 
 $db = getDb();
 $blogCategory = new BlogCategory($db);
@@ -95,241 +99,136 @@ $parentOptions = $blogCategory->getAll(false);
 $editingId = $_GET['edit'] ?? null;
 $editingCategory = $editingId ? $blogCategory->getById($editingId) : null;
 
-$pageTitle = 'Blog Categories';
+require_once __DIR__ . '/../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($pageTitle); ?> - WebDaddy Admin</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: #f5f7fa; color: #333; }
-        
-        .header { background: white; border-bottom: 1px solid #e1e8ed; padding: 20px; margin-bottom: 30px; }
-        .header h1 { font-size: 28px; margin-bottom: 5px; }
-        .header p { color: #666; }
-        
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-        
-        .alert { padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .alert-icon { font-weight: bold; font-size: 18px; }
-        
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
-        
-        .form-card { background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
-        .form-group input,
-        .form-group textarea,
-        .form-group select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus { 
-            outline: none; 
-            border-color: #0066cc; 
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
-        
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        
-        .checkbox-group { display: flex; align-items: center; gap: 10px; }
-        .checkbox-group input { width: auto; }
-        .checkbox-group label { margin: 0; }
-        
-        .form-hint { font-size: 12px; color: #666; margin-top: 5px; }
-        
-        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-primary { background: #0066cc; color: white; }
-        .btn-primary:hover { background: #0052a3; }
-        .btn-secondary { background: #e1e8ed; color: #333; }
-        .btn-secondary:hover { background: #cbd5e0; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
-        .btn-sm { padding: 8px 16px; font-size: 12px; }
-        
-        .button-group { display: flex; gap: 10px; margin-top: 30px; }
-        
-        .form-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
-        
-        .categories-list { display: flex; flex-direction: column; gap: 12px; }
-        .category-item { background: white; border: 1px solid #e1e8ed; border-radius: 8px; padding: 16px; transition: all 0.2s; }
-        .category-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .category-item.parent { border-left: 4px solid #0066cc; }
-        
-        .category-header { display: flex; justify-content: space-between; align-items: start; }
-        .category-name { font-weight: 600; color: #333; }
-        .category-slug { font-size: 12px; color: #999; margin-top: 3px; }
-        .category-meta { display: flex; gap: 15px; margin-top: 10px; font-size: 12px; }
-        .category-badge { background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px; }
-        .category-status { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-        .status-active { background: #d4edda; color: #155724; }
-        .status-inactive { background: #e2e3e5; color: #666; }
-        
-        .category-actions { display: flex; gap: 8px; }
-        .category-actions a { padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; transition: all 0.2s; }
-        .category-actions a.edit { background: #e3f2fd; color: #1565c0; }
-        .category-actions a.edit:hover { background: #bbdefb; }
-        .category-actions a.delete { background: #ffe0e6; color: #721c24; }
-        .category-actions a.delete:hover { background: #f8d7da; }
-        
-        .empty-state { text-align: center; padding: 40px 20px; }
-        .empty-state h3 { margin-bottom: 10px; color: #666; }
-        .empty-state p { color: #999; margin-bottom: 20px; }
-        
-        .category-indent { padding-left: 30px; border-left: 2px solid #e1e8ed; margin-left: 0; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1><?php echo htmlspecialchars($pageTitle); ?></h1>
-        <p>Create and manage your blog categories and hierarchies</p>
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Blog Categories</h1>
+        <p class="text-gray-600 mt-1">Create and manage your blog categories</p>
     </div>
-    
-    <div class="container">
-        <?php if ($message): ?>
-            <div class="alert alert-<?php echo htmlspecialchars($messageType); ?>">
-                <div class="alert-icon"><?php echo $messageType === 'success' ? '✓' : '✕'; ?></div>
-                <div><?php echo htmlspecialchars($message); ?></div>
-            </div>
-        <?php endif; ?>
-        
-        <div class="grid">
-            <!-- Form Section -->
-            <div>
-                <div class="form-card">
-                    <div class="form-title">
-                        <?php echo $editingCategory ? 'Edit Category' : 'Create New Category'; ?>
+
+    <?php if ($message): ?>
+        <div class="p-4 rounded-lg <?php echo $messageType === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?> flex items-start gap-3">
+            <i class="bi <?php echo $messageType === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'; ?> text-xl flex-shrink-0 mt-0.5"></i>
+            <div><?php echo htmlspecialchars($message); ?></div>
+        </div>
+    <?php endif; ?>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Form -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">
+                    <?php echo $editingCategory ? 'Edit Category' : 'Create New Category'; ?>
+                </h2>
+                
+                <form method="POST" class="space-y-4">
+                    <input type="hidden" name="action" value="<?php echo $editingCategory ? 'update' : 'create'; ?>">
+                    <?php if ($editingCategory): ?>
+                        <input type="hidden" name="id" value="<?php echo $editingCategory['id']; ?>">
+                    <?php endif; ?>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
+                        <input type="text" name="name" placeholder="e.g., Website Design" value="<?php echo htmlspecialchars($editingCategory['name'] ?? ''); ?>" required class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <p class="text-xs text-gray-500 mt-1">Used for display and URL</p>
                     </div>
                     
-                    <form method="POST">
-                        <input type="hidden" name="action" value="<?php echo $editingCategory ? 'update' : 'create'; ?>">
-                        <?php if ($editingCategory): ?>
-                            <input type="hidden" name="id" value="<?php echo $editingCategory['id']; ?>">
-                        <?php endif; ?>
-                        
-                        <div class="form-group">
-                            <label for="name">Category Name *</label>
-                            <input type="text" id="name" name="name" placeholder="e.g., Website Design" value="<?php echo htmlspecialchars($editingCategory['name'] ?? ''); ?>" required>
-                            <div class="form-hint">Used for display and URL</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" placeholder="Brief description of this category..."><?php echo htmlspecialchars($editingCategory['description'] ?? ''); ?></textarea>
-                            <div class="form-hint">Shown on category archive pages</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="parent_id">Parent Category</label>
-                            <select id="parent_id" name="parent_id">
-                                <option value="">None (Top-level)</option>
-                                <?php foreach ($parentOptions as $cat): ?>
-                                    <?php if (!$editingCategory || $cat['id'] !== $editingCategory['id']): ?>
-                                        <option value="<?php echo $cat['id']; ?>" 
-                                            <?php echo ($editingCategory && $cat['id'] === $editingCategory['parent_id']) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($cat['name']); ?>
-                                        </option>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="form-hint">Create subcategories by selecting a parent</div>
-                        </div>
-                        
-                        <div style="border-top: 1px solid #e1e8ed; padding-top: 20px; margin-top: 20px;">
-                            <div class="form-title" style="font-size: 16px; margin: 0 0 15px 0; padding: 0; border: none;">SEO Settings</div>
-                            
-                            <div class="form-group">
-                                <label for="meta_title">Meta Title</label>
-                                <input type="text" id="meta_title" name="meta_title" placeholder="For search results (60 chars)" maxlength="60" value="<?php echo htmlspecialchars($editingCategory['meta_title'] ?? ''); ?>">
-                                <div class="form-hint">Leave blank to auto-generate</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="meta_description">Meta Description</label>
-                                <textarea id="meta_description" name="meta_description" placeholder="For search results (160 chars)" maxlength="160" style="min-height: 60px;"><?php echo htmlspecialchars($editingCategory['meta_description'] ?? ''); ?></textarea>
-                                <div class="form-hint">Leave blank to auto-generate</div>
-                            </div>
-                        </div>
-                        
-                        <?php if ($editingCategory): ?>
-                            <div class="form-group" style="margin-top: 20px; border-top: 1px solid #e1e8ed; padding-top: 20px;">
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="is_active" name="is_active" <?php echo $editingCategory['is_active'] ? 'checked' : ''; ?>>
-                                    <label for="is_active">Active (visible in listings)</label>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="button-group">
-                            <button type="submit" class="btn btn-primary">
-                                <?php echo $editingCategory ? 'Update Category' : 'Create Category'; ?>
-                            </button>
-                            <?php if ($editingCategory): ?>
-                                <a href="categories.php" class="btn btn-secondary">Cancel</a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Categories List Section -->
-            <div>
-                <div class="form-card">
-                    <div class="form-title">All Categories (<?php echo count($categories); ?>)</div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea name="description" placeholder="Brief description..." class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500" rows="3"><?php echo htmlspecialchars($editingCategory['description'] ?? ''); ?></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Shown on category pages</p>
+                    </div>
                     
-                    <?php if (empty($categories)): ?>
-                        <div class="empty-state">
-                            <h3>No categories yet</h3>
-                            <p>Create your first category using the form on the left.</p>
-                        </div>
-                    <?php else: ?>
-                        <div class="categories-list">
-                            <?php foreach ($categories as $cat): ?>
-                                <div class="category-item <?php echo $cat['parent_id'] ? 'category-indent' : 'parent'; ?>">
-                                    <div class="category-header">
-                                        <div>
-                                            <div class="category-name"><?php echo htmlspecialchars($cat['name']); ?></div>
-                                            <div class="category-slug">/blog/category/<?php echo htmlspecialchars($cat['slug']); ?>/</div>
-                                            <div class="category-meta">
-                                                <span class="category-badge"><?php echo (int)$cat['post_count']; ?> post<?php echo $cat['post_count'] !== 1 ? 's' : ''; ?></span>
-                                                <span class="category-status <?php echo $cat['is_active'] ? 'status-active' : 'status-inactive'; ?>">
-                                                    <?php echo $cat['is_active'] ? 'Active' : 'Inactive'; ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="category-actions" style="margin-top: 10px;">
-                                        <a href="?edit=<?php echo $cat['id']; ?>" class="edit">Edit</a>
-                                        <a href="#" class="delete" onclick="if(confirm('Delete this category? Posts will be unassigned.')) { 
-                                            const form = document.createElement('form'); 
-                                            form.method='POST'; 
-                                            form.innerHTML='<input type=hidden name=action value=delete><input type=hidden name=id value=<?php echo $cat['id']; ?>>'; 
-                                            document.body.appendChild(form); 
-                                            form.submit(); 
-                                        } return false;">Delete</a>
-                                    </div>
-                                </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Parent Category</label>
+                        <select name="parent_id" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <option value="">None (Top-level)</option>
+                            <?php foreach ($parentOptions as $cat): ?>
+                                <?php if (!$editingCategory || $cat['id'] !== $editingCategory['id']): ?>
+                                    <option value="<?php echo $cat['id']; ?>" <?php echo ($editingCategory && $cat['id'] === $editingCategory['parent_id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($cat['name']); ?>
+                                    </option>
+                                <?php endif; ?>
                             <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-4">
+                        <h3 class="font-medium text-gray-900 mb-3">SEO Settings</h3>
+                        
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                            <input type="text" name="meta_title" placeholder="60 characters" maxlength="60" value="<?php echo htmlspecialchars($editingCategory['meta_title'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <p class="text-xs text-gray-500 mt-1">Leave blank to auto-generate</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                            <textarea name="meta_description" placeholder="160 characters" maxlength="160" class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500" rows="2"><?php echo htmlspecialchars($editingCategory['meta_description'] ?? ''); ?></textarea>
+                            <p class="text-xs text-gray-500 mt-1">Leave blank to auto-generate</p>
+                        </div>
+                    </div>
+
+                    <?php if ($editingCategory): ?>
+                        <div class="border-t border-gray-200 pt-4">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" name="is_active" <?php echo $editingCategory['is_active'] ? 'checked' : ''; ?> class="rounded">
+                                <span class="text-sm font-medium text-gray-700">Active (visible in listings)</span>
+                            </label>
                         </div>
                     <?php endif; ?>
-                </div>
+                    
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
+                            <?php echo $editingCategory ? 'Update' : 'Create'; ?>
+                        </button>
+                        <?php if ($editingCategory): ?>
+                            <a href="categories.php" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors font-medium text-center">Cancel</a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- List -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-200">All Categories (<?php echo count($categories); ?>)</h2>
+                
+                <?php if (empty($categories)): ?>
+                    <div class="text-center py-12">
+                        <i class="bi bi-inbox text-3xl text-gray-300 block mb-3"></i>
+                        <p class="text-gray-600">No categories yet. Create your first one using the form.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="space-y-3">
+                        <?php foreach ($categories as $cat): ?>
+                            <div class="flex items-start justify-between p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-all <?php echo !$cat['parent_id'] ? 'border-l-4 border-l-primary-600' : ''; ?>">
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-900"><?php echo htmlspecialchars($cat['name']); ?></div>
+                                    <div class="text-xs text-gray-500 mt-1">/blog/category/<?php echo htmlspecialchars($cat['slug']); ?>/</div>
+                                    <div class="flex gap-2 mt-2">
+                                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                                            <?php echo (int)$cat['post_count']; ?> post<?php echo $cat['post_count'] !== 1 ? 's' : ''; ?>
+                                        </span>
+                                        <span class="inline-block <?php echo $cat['is_active'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'; ?> px-2 py-1 rounded text-xs font-medium">
+                                            <?php echo $cat['is_active'] ? 'Active' : 'Inactive'; ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 ml-4">
+                                    <a href="?edit=<?php echo $cat['id']; ?>" class="text-primary-600 hover:text-primary-700 text-sm font-medium">Edit</a>
+                                    <a href="#" onclick="if(confirm('Delete this category? Posts will be unassigned.')) { const form = document.createElement('form'); form.method='POST'; form.innerHTML='<input type=hidden name=action value=delete><input type=hidden name=id value=<?php echo $cat['id']; ?>>'; document.body.appendChild(form); form.submit(); } return false;" class="text-red-600 hover:text-red-700 text-sm font-medium">Delete</a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

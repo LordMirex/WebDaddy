@@ -1,26 +1,18 @@
 <?php
-/**
- * Blog Analytics Dashboard
- * Admin interface for viewing blog performance metrics
- */
+$pageTitle = 'Blog Analytics';
 
 require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/blog/helpers.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 startSecureSession();
-
-// Verify admin access
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: /admin/login.php');
-    exit;
-}
+requireAdmin();
 
 $db = getDb();
-$filter = $_GET['filter'] ?? '7days'; // 7days, 30days, 90days, all
-$sortBy = $_GET['sort'] ?? 'views'; // views, shares, cta_clicks, engagement
-$postId = $_GET['post'] ?? null;
+$filter = $_GET['filter'] ?? '7days';
+$sortBy = $_GET['sort'] ?? 'views';
 
 // Calculate date range
 $dateRange = match($filter) {
@@ -121,285 +113,141 @@ while ($aff = $affiliateQuery->fetch_assoc()) {
     $affiliates[] = $aff;
 }
 
-?><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Analytics - Admin | WebDaddy</title>
-    <link rel="stylesheet" href="/assets/css/premium.css">
-    <style>
-        .admin-analytics {
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .analytics-header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .analytics-header h1 {
-            margin: 0 0 15px 0;
-            font-size: 24px;
-        }
-        .filter-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .filter-controls select,
-        .filter-controls button {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .filter-controls button:hover {
-            background: #f0f0f0;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .stat-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-        }
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #d4af37;
-        }
-        .stat-card .subtext {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
-        .table-container {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .table-container h2 {
-            padding: 20px 20px 10px;
-            margin: 0;
-            font-size: 18px;
-            border-bottom: 1px solid #eee;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th {
-            background: #f9f9f9;
-            padding: 12px 15px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #666;
-            border-bottom: 2px solid #eee;
-        }
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-        tr:hover {
-            background: #f9f9f9;
-        }
-        .post-title {
-            max-width: 400px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .bar {
-            height: 20px;
-            background: linear-gradient(90deg, #d4af37 0%, #c89c3c 100%);
-            border-radius: 3px;
-            display: inline-block;
-            min-width: 30px;
-            color: white;
-            font-size: 11px;
-            padding: 2px 5px;
-        }
-        .scroll-chart {
-            display: flex;
-            align-items: flex-end;
-            height: 200px;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .scroll-bar {
-            flex: 1;
-            background: #d4af37;
-            border-radius: 4px 4px 0 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 10px 0;
-            min-height: 50px;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="admin-analytics">
-        <div class="analytics-header">
-            <h1>📊 Blog Analytics Dashboard</h1>
-            <div class="filter-controls">
-                <select onchange="location.href='?filter=' + this.value + '&sort=<?= htmlspecialchars($sortBy) ?>'">
-                    <option value="7days" <?= $filter === '7days' ? 'selected' : '' ?>>Last 7 Days</option>
-                    <option value="30days" <?= $filter === '30days' ? 'selected' : '' ?>>Last 30 Days</option>
-                    <option value="90days" <?= $filter === '90days' ? 'selected' : '' ?>>Last 90 Days</option>
-                    <option value="all" <?= $filter === 'all' ? 'selected' : '' ?>>All Time</option>
-                </select>
-                <select onchange="location.href='?filter=<?= htmlspecialchars($filter) ?>&sort=' + this.value">
-                    <option value="views" <?= $sortBy === 'views' ? 'selected' : '' ?>>Sort by Views</option>
-                    <option value="shares" <?= $sortBy === 'shares' ? 'selected' : '' ?>>Sort by Shares</option>
-                    <option value="cta_clicks" <?= $sortBy === 'cta_clicks' ? 'selected' : '' ?>>Sort by CTA Clicks</option>
-                    <option value="engagement" <?= $sortBy === 'engagement' ? 'selected' : '' ?>>Sort by Engagement</option>
-                </select>
-            </div>
-        </div>
+require_once __DIR__ . '/../includes/header.php';
+?>
 
-        <!-- Overall Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Views</h3>
-                <div class="value"><?= number_format($stats['total_views'] ?? 0) ?></div>
-                <div class="subtext"><?= number_format($stats['posts_viewed'] ?? 0) ?> posts viewed</div>
-            </div>
-            <div class="stat-card">
-                <h3>Unique Visitors</h3>
-                <div class="value"><?= number_format($stats['unique_visitors'] ?? 0) ?></div>
-                <div class="subtext">New sessions</div>
-            </div>
-            <div class="stat-card">
-                <h3>Full Reads</h3>
-                <div class="value"><?= number_format($stats['full_reads'] ?? 0) ?></div>
-                <div class="subtext"><?= $stats['total_views'] ? round(($stats['full_reads'] ?? 0) / $stats['total_views'] * 100, 1) : 0 ?>% read rate</div>
-            </div>
-            <div class="stat-card">
-                <h3>CTA Clicks</h3>
-                <div class="value"><?= number_format($stats['cta_clicks'] ?? 0) ?></div>
-                <div class="subtext">Conversions</div>
-            </div>
-            <div class="stat-card">
-                <h3>Shares</h3>
-                <div class="value"><?= number_format($stats['shares'] ?? 0) ?></div>
-                <div class="subtext">Social engagement</div>
-            </div>
-            <div class="stat-card">
-                <h3>Affiliate Hits</h3>
-                <div class="value"><?= number_format($stats['affiliate_referrers'] ?? 0) ?></div>
-                <div class="subtext">Partner referrers</div>
-            </div>
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">📊 Blog Analytics</h1>
+            <p class="text-gray-600 mt-1">Track blog performance and engagement</p>
         </div>
-
-        <!-- Scroll Depth Chart -->
-        <div class="table-container">
-            <h2>Scroll Depth Analysis</h2>
-            <div style="padding: 20px;">
-                <div class="scroll-chart">
-                    <?php foreach ($scrollData as $depth): ?>
-                    <div style="flex: 1; text-align: center;">
-                        <div class="scroll-bar" style="height: <?= max(50, ($depth['count'] / max(array_column($scrollData, 'count'), 1)) * 180) ?>px">
-                            <?= $depth['count'] ?>
-                        </div>
-                        <div style="margin-top: 10px; font-size: 12px; color: #666;">
-                            <?= htmlspecialchars($depth['depth']) ?>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
+        <div class="flex gap-3">
+            <select onchange="location.href='?filter=' + this.value + '&sort=<?php echo htmlspecialchars($sortBy); ?>'" class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="7days" <?php echo $filter === '7days' ? 'selected' : ''; ?>>Last 7 Days</option>
+                <option value="30days" <?php echo $filter === '30days' ? 'selected' : ''; ?>>Last 30 Days</option>
+                <option value="90days" <?php echo $filter === '90days' ? 'selected' : ''; ?>>Last 90 Days</option>
+                <option value="all" <?php echo $filter === 'all' ? 'selected' : ''; ?>>All Time</option>
+            </select>
+            <select onchange="location.href='?filter=<?php echo htmlspecialchars($filter); ?>&sort=' + this.value" class="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="views" <?php echo $sortBy === 'views' ? 'selected' : ''; ?>>Sort by Views</option>
+                <option value="shares" <?php echo $sortBy === 'shares' ? 'selected' : ''; ?>>Sort by Shares</option>
+                <option value="cta_clicks" <?php echo $sortBy === 'cta_clicks' ? 'selected' : ''; ?>>Sort by CTAs</option>
+                <option value="engagement" <?php echo $sortBy === 'engagement' ? 'selected' : ''; ?>>Sort by Engagement</option>
+            </select>
         </div>
-
-        <!-- Top Posts Table -->
-        <div class="table-container">
-            <h2>Top Performing Posts</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Post</th>
-                        <th>Views</th>
-                        <th>Unique Visitors</th>
-                        <th>Read Rate</th>
-                        <th>CTA Clicks</th>
-                        <th>Shares</th>
-                        <th>Affiliate Hits</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($topPosts as $post): ?>
-                    <tr>
-                        <td class="post-title">
-                            <a href="/admin/blog/editor.php?id=<?= $post['id'] ?>" style="color: #333; text-decoration: none;">
-                                <?= htmlspecialchars($post['title']) ?>
-                            </a>
-                        </td>
-                        <td><?= number_format($post['view_count']) ?></td>
-                        <td><?= number_format($post['unique_visitors'] ?? 0) ?></td>
-                        <td><?= $post['read_rate'] ?? 0 ?>%</td>
-                        <td><span class="bar"><?= $post['cta_clicks'] ?? 0 ?></span></td>
-                        <td><?= number_format($post['shares'] ?? 0) ?></td>
-                        <td><?= number_format($post['affiliate_hits'] ?? 0) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Affiliate Performance -->
-        <?php if (!empty($affiliates)): ?>
-        <div class="table-container">
-            <h2>Top Affiliate Referrers</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Affiliate Code</th>
-                        <th>Sessions</th>
-                        <th>Posts Clicked</th>
-                        <th>CTA Conversions</th>
-                        <th>Conversion Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($affiliates as $aff): ?>
-                    <tr>
-                        <td><code><?= htmlspecialchars($aff['affiliate_code']) ?></code></td>
-                        <td><?= number_format($aff['sessions']) ?></td>
-                        <td><?= number_format($aff['posts_clicked']) ?></td>
-                        <td><span class="bar"><?= $aff['cta_conversions'] ?></span></td>
-                        <td><?= $aff['sessions'] ? round($aff['cta_conversions'] / $aff['sessions'] * 100, 1) : 0 ?>%</td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php endif; ?>
-
     </div>
-</body>
-</html>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-l-primary-600">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Total Views</h3>
+            <div class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['total_views'] ?? 0); ?></div>
+            <p class="text-xs text-gray-500 mt-2"><?php echo number_format($stats['posts_viewed'] ?? 0); ?> posts viewed</p>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-l-blue-500">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Unique Visitors</h3>
+            <div class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['unique_visitors'] ?? 0); ?></div>
+            <p class="text-xs text-gray-500 mt-2">New sessions</p>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-l-green-500">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Full Reads</h3>
+            <div class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['full_reads'] ?? 0); ?></div>
+            <p class="text-xs text-gray-500 mt-2"><?php echo $stats['total_views'] ? round(($stats['full_reads'] ?? 0) / $stats['total_views'] * 100, 1) : 0; ?>% read rate</p>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-l-yellow-500">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">CTA Clicks</h3>
+            <div class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['cta_clicks'] ?? 0); ?></div>
+            <p class="text-xs text-gray-500 mt-2">Conversions</p>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-l-purple-500">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Shares</h3>
+            <div class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['shares'] ?? 0); ?></div>
+            <p class="text-xs text-gray-500 mt-2">Social engagement</p>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm border-l-4 border-l-red-500">
+            <h3 class="text-sm font-semibold text-gray-600 uppercase mb-2">Affiliate Hits</h3>
+            <div class="text-3xl font-bold text-gray-900"><?php echo number_format($stats['affiliate_referrers'] ?? 0); ?></div>
+            <p class="text-xs text-gray-500 mt-2">Partner referrers</p>
+        </div>
+    </div>
+
+    <!-- Top Posts -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Top Performing Posts</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Post Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Views</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Visitors</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Read Rate</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">CTAs</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Shares</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Aff Hits</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php foreach ($topPosts as $post): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs truncate">
+                                <a href="editor.php?post_id=<?php echo $post['id']; ?>" class="text-primary-600 hover:text-primary-700">
+                                    <?php echo htmlspecialchars($post['title']); ?>
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($post['view_count']); ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($post['unique_visitors'] ?? 0); ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo $post['read_rate'] ?? 0; ?>%</td>
+                            <td class="px-6 py-4 text-sm"><span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-medium"><?php echo $post['cta_clicks'] ?? 0; ?></span></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($post['shares'] ?? 0); ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($post['affiliate_hits'] ?? 0); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Affiliate Performance -->
+    <?php if (!empty($affiliates)): ?>
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Top Affiliate Referrers</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Affiliate Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Sessions</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Posts Clicked</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">CTA Conversions</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Rate</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <?php foreach ($affiliates as $aff): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-mono text-gray-900"><?php echo htmlspecialchars($aff['affiliate_code']); ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($aff['sessions']); ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo number_format($aff['posts_clicked']); ?></td>
+                            <td class="px-6 py-4 text-sm"><span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded font-medium"><?php echo $aff['cta_conversions']; ?></span></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><?php echo $aff['sessions'] ? round($aff['cta_conversions'] / $aff['sessions'] * 100, 1) : 0; ?>%</td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

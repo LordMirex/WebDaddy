@@ -8,10 +8,12 @@ require_once __DIR__ . '/../../includes/blog/BlogPost.php';
 require_once __DIR__ . '/../../includes/blog/BlogCategory.php';
 require_once __DIR__ . '/../../includes/blog/BlogTag.php';
 require_once __DIR__ . '/../../includes/blog/BlogBlock.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 header('Cache-Control: no-cache, no-store, must-revalidate', false);
 
 startSecureSession();
+requireAdmin();
 
 $db = getDb();
 $blogPost = new BlogPost($db);
@@ -65,8 +67,11 @@ $layoutVariants = ['default', 'split_left', 'split_right', 'wide', 'contained', 
         
         .editor-header { background: white; border-bottom: 1px solid #e1e8ed; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .editor-header h1 { font-size: 18px; display: flex; align-items: center; gap: 10px; }
-        .editor-header h1 a { color: #666; text-decoration: none; }
+        .editor-header h1 a { color: #0066cc; text-decoration: none; font-weight: 600; }
+        .editor-header h1 a:hover { color: #0052a3; }
         .editor-header h1 span { color: #ccc; }
+        .back-btn { color: #666; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+        .back-btn:hover { color: #0066cc; }
         .header-actions { display: flex; gap: 10px; }
         
         .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
