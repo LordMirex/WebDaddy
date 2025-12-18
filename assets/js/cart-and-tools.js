@@ -1233,9 +1233,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Show guide when: 1st item (1), 4th item (4), 7th item (7), 10th item (10), etc.
                         // This is when (totalItems - 1) % 3 === 0
                         if ((totalItems - 1) % 3 === 0) {
+                            // Timeout: 4100ms = 4000ms notification + 100ms buffer to start showing right as notification fades
                             setTimeout(() => {
                                 window.dispatchEvent(new Event('cart-updated'));
-                            }, 4800);
+                            }, 4100);
                         }
                     } catch (err) {
                         console.error('Guide logic error:', err);
