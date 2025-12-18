@@ -181,6 +181,7 @@ function getToolBySlug($slug) {
 
 /**
  * Get all unique template categories (for filtering/dropdown)
+ * Only returns categories that have active templates
  * 
  * @return array Array of template category names
  */
@@ -201,6 +202,7 @@ function getTemplateCategories() {
 
 /**
  * Get all unique tool types (for filtering/dropdown)
+ * Only returns tool types that have active, in-stock tools
  * 
  * @return array Array of tool type names
  */
@@ -213,6 +215,7 @@ function getToolTypes() {
         WHERE tool_type IS NOT NULL 
           AND tool_type != '' 
           AND active = 1
+          AND (stock_unlimited = 1 OR stock_quantity > 0)
         ORDER BY tool_type
     ");
     
