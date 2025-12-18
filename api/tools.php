@@ -70,8 +70,9 @@ try {
     // Get query parameters with response limiting
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
     $limit = isset($_GET['limit']) ? min(25, max(1, (int)$_GET['limit'])) : 18;
-    $category = isset($_GET['category']) ? trim($_GET['category']) : null;
-    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : null;
+    $category = isset($_GET['category']) ? trim(urldecode($_GET['category'])) : null;
+    $category = ($category === '') ? null : $category;
+    $searchQuery = isset($_GET['search']) ? trim(urldecode($_GET['search'])) : null;
     
     $offset = ($page - 1) * $limit;
     

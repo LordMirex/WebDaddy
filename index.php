@@ -90,10 +90,13 @@ if ($currentView === 'templates') {
     // Get ALL template categories from database (not just from current page)
     $templateCategories = getTemplateCategories();
     
-    if ($category = $_GET['category'] ?? null) {
-        $allTemplates = array_filter($allTemplates, function($t) use ($category) {
-            return $t['category'] === $category;
-        });
+    if ($category = isset($_GET['category']) ? trim(urldecode($_GET['category'])) : null) {
+        if ($category === '') $category = null;
+        if ($category) {
+            $allTemplates = array_filter($allTemplates, function($t) use ($category) {
+                return $t['category'] === $category;
+            });
+        }
     }
     
     // Sort by priority first (null=999), then by newest date
@@ -116,7 +119,8 @@ if ($currentView === 'templates') {
 } else {
     // TOOLS VIEW
     $perPage = 18;
-    $toolType = $_GET['category'] ?? null;  // Note: URL still uses 'category' param for consistency, but it filters by tool_type
+    $toolType = isset($_GET['category']) ? trim(urldecode($_GET['category'])) : null;
+    $toolType = ($toolType === '') ? null : $toolType;  // Convert empty string to null
     
     // Get all tools first to sort by priority (filter by tool_type, not category)
     $db = getDb();
@@ -1124,7 +1128,10 @@ if ($autoOpenTool) {
                                 $categories = $currentView === 'templates' ? $templateCategories : $toolCategories;
                                 foreach ($categories as $cat): 
                                 ?>
-                                <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (isset($_GET['category']) && $_GET['category'] === $cat) ? 'selected' : ''; ?>>
+                                <option value="<?php echo htmlspecialchars($cat); ?>" <?php 
+                                    $currentCat = isset($_GET['category']) ? trim(urldecode($_GET['category'])) : null;
+                                    echo ($currentCat === $cat) ? 'selected' : ''; 
+                                ?>>
                                     <?php echo htmlspecialchars($cat); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -1296,7 +1303,7 @@ if ($autoOpenTool) {
                     <?php
                     $paginationParams = ['view' => $currentView];
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
-                    if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
+                    if ($category) $paginationParams['category'] = $category;
                     ?>
                     
                     <?php if ($page > 1): ?>
@@ -1444,7 +1451,7 @@ if ($autoOpenTool) {
                     <?php
                     $paginationParams = ['view' => 'tools'];
                     if ($affiliateCode) $paginationParams['aff'] = $affiliateCode;
-                    if (isset($_GET['category'])) $paginationParams['category'] = $_GET['category'];
+                    if ($toolType) $paginationParams['category'] = $toolType;
                     ?>
                     
                     <?php if ($page > 1): ?>

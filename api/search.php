@@ -21,8 +21,8 @@ if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
 startSecureSession();
 handleAffiliateTracking();
 
-$searchTerm = trim($_GET['q'] ?? '');
-$searchType = trim($_GET['type'] ?? 'all');
+$searchTerm = trim(urldecode($_GET['q'] ?? ''));
+$searchType = trim(urldecode($_GET['type'] ?? 'all'));
 
 if (!in_array($searchType, ['template', 'tool', 'all'])) {
     $searchType = 'all';
