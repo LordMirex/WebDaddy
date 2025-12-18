@@ -876,7 +876,7 @@ if ($autoOpenTool) {
                 </div>
                 
             <!-- Mobile Laptop Mockup Slider - Shows on mobile only -->
-            <div class="lg:hidden w-full order-2 lg:order-2" x-data="{ 
+            <div class="md:hidden w-full order-2 md:order-2" x-data="{ 
                     currentSlide: 0,
                     slides: [
                         { image: '/assets/images/mockups/viralcuts.jpg', title: 'Viralcuts' },
