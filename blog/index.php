@@ -34,7 +34,6 @@ if ($affiliateCode && !isset($_SESSION['affiliate_code'])) {
 
 $pageTitle = 'Blog | ' . SITE_NAME;
 $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digital marketing for Nigerian businesses. Learn how to grow your online presence.';
-$cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -58,47 +57,25 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/assets/css/premium.css">
     <link rel="stylesheet" href="/assets/css/blog/main.css">
     <link rel="stylesheet" href="/assets/css/blog/blocks.css">
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-navy-dark">
-    <!-- Main Navigation -->
-    <nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50" x-data="{ open: false }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="/" class="flex-shrink-0">
-                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-10 w-auto">
-                </a>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="/?view=templates" class="text-gold hover:text-gold-light text-sm font-medium transition-colors">Templates</a>
-                    <a href="/blog/" class="text-gold hover:text-gold-light text-sm font-medium transition-colors">Blog</a>
-                    <a href="/?view=tools" class="text-gray-300 hover:text-gold text-sm font-medium transition-colors">Tools</a>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy transition-all">Affiliate</a>
-                </div>
-                
-                <button @click="open = !open" class="md:hidden p-2 rounded-md text-gold hover:bg-navy-light">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
+<body class="blog-page">
+    <header class="blog-header">
+        <div class="blog-header-container">
+            <a href="/" class="blog-logo">
+                <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" width="180">
+            </a>
+            <nav class="blog-nav">
+                <a href="/">Templates</a>
+                <a href="/blog/" class="active">Blog</a>
+                <a href="/?view=tools">Tools</a>
+            </nav>
+            <a href="/#templates" class="btn-premium btn-premium-gold btn-premium-sm">Get Started</a>
         </div>
-        
-        <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50">
-            <a href="/?view=templates" class="block px-4 py-3 text-gold hover:bg-navy-light font-medium">Templates</a>
-            <a href="/blog/" class="block px-4 py-3 text-gold bg-gold/10 border-l-3 border-gold font-medium">Blog</a>
-            <a href="/?view=tools" class="block px-4 py-3 text-gray-300 hover:text-gold hover:bg-navy-light font-medium">Tools</a>
-            <a href="/affiliate/register.php" class="block px-4 py-3 text-navy bg-gold font-medium text-center mt-2">Become Affiliate</a>
-        </div>
-    </nav>
+    </header>
 
     <main class="blog-main">
         <section class="blog-hero">
@@ -145,100 +122,138 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
                     <article class="blog-card <?= $index === 0 && $page === 1 ? 'blog-card-featured' : '' ?>">
                         <a href="<?= blogGetPostUrl($post, $affiliateCode) ?>" class="blog-card-image-link">
                             <?php if ($post['featured_image']): ?>
-                            <img src="<?= htmlspecialchars($post['featured_image']) ?>" alt="<?= htmlspecialchars($post['featured_image_alt'] ?? $post['title']) ?>" class="blog-card-image" loading="lazy">
+                            <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
+                                 alt="<?= htmlspecialchars(blogGetFeaturedImageAlt($post)) ?>"
+                                 class="blog-card-image"
+                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>">
                             <?php else: ?>
                             <div class="blog-card-image-placeholder">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-                                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                    <path d="M21 15l-5-5L5 21"></path>
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
                                 </svg>
                             </div>
                             <?php endif; ?>
                         </a>
-                        
                         <div class="blog-card-content">
-                            <?php if ($post['category_id']): ?>
-                            <a href="<?= blogGetCategoryUrl($post, $affiliateCode) ?>" class="blog-card-category">
-                                <?= htmlspecialchars($post['category_name'] ?? 'Uncategorized') ?>
+                            <?php if ($post['category_name']): ?>
+                            <a href="<?= blogGetCategoryUrl(['slug' => $post['category_slug']], $affiliateCode) ?>" class="blog-card-category">
+                                <?= htmlspecialchars($post['category_name']) ?>
                             </a>
                             <?php endif; ?>
-                            
-                            <h3 class="blog-card-title">
+                            <h2 class="blog-card-title">
                                 <a href="<?= blogGetPostUrl($post, $affiliateCode) ?>">
                                     <?= htmlspecialchars($post['title']) ?>
                                 </a>
-                            </h3>
-                            
-                            <p class="blog-card-excerpt">
-                                <?= htmlspecialchars($post['excerpt'] ?: blogTruncate(strip_tags($post['title']), 120)) ?>
-                            </p>
-                            
+                            </h2>
+                            <?php if ($post['excerpt']): ?>
+                            <p class="blog-card-excerpt"><?= htmlspecialchars(blogTruncate($post['excerpt'], 120)) ?></p>
+                            <?php endif; ?>
                             <div class="blog-card-meta">
-                                <span><?= date('M d, Y', strtotime($post['publish_date'] ?? $post['created_at'])) ?></span>
-                                <span class="blog-card-divider">•</span>
-                                <span><?= $post['reading_time_minutes'] ?? 5 ?> min read</span>
+                                <span class="blog-card-date"><?= blogFormatDate($post['publish_date']) ?></span>
+                                <span class="blog-card-divider">·</span>
+                                <span class="blog-card-reading-time"><?= $post['reading_time_minutes'] ?> min read</span>
                             </div>
                         </div>
                     </article>
                     <?php endforeach; ?>
                 </div>
-                <?php endif; ?>
-                
+
                 <?php if ($totalPages > 1): ?>
-                <div class="blog-pagination">
+                <nav class="blog-pagination" aria-label="Blog pagination">
                     <?php if ($page > 1): ?>
-                    <a href="/blog/?page=<?= $page - 1 ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-btn">
-                        <span>← Previous</span>
+                    <a href="/blog/?page=<?= $page - 1 ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-btn blog-pagination-prev">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                        Previous
                     </a>
                     <?php endif; ?>
                     
                     <div class="blog-pagination-numbers">
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <?php if ($i === 1 || $i === $totalPages || ($i >= $page - 1 && $i <= $page + 1)): ?>
-                                <?php if ($i > 1 && $i !== 2 && $i !== $page - 1): ?>
-                                <span class="blog-pagination-dots">...</span>
-                                <?php endif; ?>
-                                <a href="/blog/?page=<?= $i ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-num <?= $i === $page ? 'active' : '' ?>">
-                                    <?= $i ?>
-                                </a>
-                            <?php endif; ?>
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($totalPages, $page + 2);
+                        
+                        if ($start > 1): ?>
+                        <a href="/blog/?page=1<?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-num">1</a>
+                        <?php if ($start > 2): ?>
+                        <span class="blog-pagination-dots">...</span>
+                        <?php endif; ?>
+                        <?php endif; ?>
+                        
+                        <?php for ($i = $start; $i <= $end; $i++): ?>
+                        <a href="/blog/?page=<?= $i ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" 
+                           class="blog-pagination-num <?= $i === $page ? 'active' : '' ?>">
+                            <?= $i ?>
+                        </a>
                         <?php endfor; ?>
+                        
+                        <?php if ($end < $totalPages): ?>
+                        <?php if ($end < $totalPages - 1): ?>
+                        <span class="blog-pagination-dots">...</span>
+                        <?php endif; ?>
+                        <a href="/blog/?page=<?= $totalPages ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-num"><?= $totalPages ?></a>
+                        <?php endif; ?>
                     </div>
                     
                     <?php if ($page < $totalPages): ?>
-                    <a href="/blog/?page=<?= $page + 1 ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-btn">
-                        <span>Next →</span>
+                    <a href="/blog/?page=<?= $page + 1 ?><?= $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '' ?>" class="blog-pagination-btn blog-pagination-next">
+                        Next
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
                     </a>
                     <?php endif; ?>
-                </div>
+                </nav>
+                <?php endif; ?>
                 <?php endif; ?>
             </section>
-            
+
             <aside class="blog-sidebar">
                 <div class="blog-sidebar-sticky">
                     <div class="blog-cta-card">
                         <h3>Get a Professional Website</h3>
-                        <p>Browse our premium templates and get started today</p>
-                        <a href="/#templates" class="btn-premium btn-premium-gold btn-premium-full">View Templates</a>
+                        <p>Browse our premium templates and launch your business online in 24 hours.</p>
+                        <a href="/#templates" class="btn-premium btn-premium-gold">View Templates</a>
                     </div>
                     
                     <?php if (!empty($popularPosts)): ?>
                     <div class="blog-sidebar-section">
                         <h4 class="blog-sidebar-title">Popular Posts</h4>
                         <div class="blog-sidebar-posts">
-                            <?php foreach ($popularPosts as $popular): ?>
-                            <a href="<?= blogGetPostUrl($popular, $affiliateCode) ?>" class="blog-sidebar-post">
-                                <?php if ($popular['featured_image']): ?>
-                                <img src="<?= htmlspecialchars($popular['featured_image']) ?>" alt="" class="blog-sidebar-post-img">
+                            <?php foreach ($popularPosts as $popPost): ?>
+                            <a href="<?= blogGetPostUrl($popPost, $affiliateCode) ?>" class="blog-sidebar-post">
+                                <?php if ($popPost['featured_image']): ?>
+                                <img src="<?= htmlspecialchars($popPost['featured_image']) ?>" 
+                                     alt="" class="blog-sidebar-post-img" loading="lazy">
                                 <?php endif; ?>
                                 <div class="blog-sidebar-post-content">
-                                    <div class="blog-sidebar-post-title"><?= htmlspecialchars($popular['title']) ?></div>
-                                    <div class="blog-sidebar-post-meta"><?= $popular['reading_time_minutes'] ?? 5 ?> min read</div>
+                                    <span class="blog-sidebar-post-title"><?= htmlspecialchars($popPost['title']) ?></span>
+                                    <span class="blog-sidebar-post-meta"><?= $popPost['reading_time_minutes'] ?> min read</span>
                                 </div>
                             </a>
                             <?php endforeach; ?>
                         </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="blog-sidebar-section">
+                        <h4 class="blog-sidebar-title">Need Help?</h4>
+                        <a href="https://wa.me/<?= str_replace('+', '', WHATSAPP_NUMBER) ?>?text=Hi%20WebDaddy%2C%20I%20have%20a%20question" 
+                           class="blog-whatsapp-btn" target="_blank" rel="noopener">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                            Chat on WhatsApp
+                        </a>
+                    </div>
+                    
+                    <?php if ($affiliateCode): ?>
+                    <div class="blog-affiliate-notice">
+                        <span class="blog-affiliate-badge">Referred by Partner</span>
+                        <p>You're shopping with a partner code! Special offers may apply.</p>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -246,19 +261,47 @@ $cartCount = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
         </div>
     </main>
 
-    <footer class="bg-navy-dark border-t border-navy-light/50 text-gray-400 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p>&copy; 2025 <?= SITE_NAME ?>. All rights reserved.</p>
+    <footer class="blog-footer">
+        <div class="blog-container">
+            <div class="blog-footer-content">
+                <div class="blog-footer-brand">
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" width="140">
+                    <p>Premium website templates and tools for Nigerian businesses.</p>
+                </div>
+                <div class="blog-footer-links">
+                    <div class="blog-footer-column">
+                        <h5>Quick Links</h5>
+                        <a href="/">Templates</a>
+                        <a href="/?view=tools">Tools</a>
+                        <a href="/blog/">Blog</a>
+                    </div>
+                    <div class="blog-footer-column">
+                        <h5>Support</h5>
+                        <a href="https://wa.me/<?= str_replace('+', '', WHATSAPP_NUMBER) ?>" target="_blank" rel="noopener">WhatsApp</a>
+                        <a href="mailto:<?= SUPPORT_EMAIL ?>">Email Us</a>
+                    </div>
+                </div>
+            </div>
+            <div class="blog-footer-bottom">
+                <p>&copy; <?= date('Y') ?> <?= SITE_NAME ?>. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
-    <script>
-        // Mobile nav alpine integration
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.Alpine) {
-                Alpine.start();
-            }
-        });
-    </script>
+    <div class="blog-mobile-cta" <?= isset($_SESSION['affiliate_code']) ? 'data-affiliate-code="' . htmlspecialchars($_SESSION['affiliate_code']) . '"' : '' ?>>
+        <a href="https://wa.me/<?= str_replace('+', '', WHATSAPP_NUMBER) ?>" class="blog-mobile-cta-btn blog-mobile-cta-whatsapp" target="_blank" rel="noopener">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+        </a>
+        <a href="/#templates<?= isset($_SESSION['affiliate_code']) ? '?aff=' . urlencode($_SESSION['affiliate_code']) : '' ?>" class="blog-mobile-cta-btn blog-mobile-cta-templates">
+            View Templates
+        </a>
+        <?php if (isset($_SESSION['affiliate_code'])): ?>
+        <div class="blog-mobile-cta-badge">Partner Link</div>
+        <?php endif; ?>
+    </div>
+
+    <script src="/assets/js/blog/interactions.js"></script>
 </body>
 </html>
