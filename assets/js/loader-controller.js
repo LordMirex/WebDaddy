@@ -1,33 +1,25 @@
 // Smart Loader Controller - Only show on first visit, skip on all navigation
 (function() {
   const LOADER_SHOWN_KEY = 'webdaddy_loader_shown';
-  const loader = document.getElementById('page-loader');
-  if (!loader) return;
-
-  // Check if we should show loader
-  const shouldShowLoader = () => {
-    // Check if loader was already shown in this session
-    const loaderShown = sessionStorage.getItem(LOADER_SHOWN_KEY);
-    
-    // If loader has been shown in this session (tab), never show it again
-    if (loaderShown === 'true') {
-      return false;
-    }
-    
-    // First visit - show loader
-    return true;
-  };
-
-  // If we shouldn't show loader, hide it immediately
-  if (!shouldShowLoader()) {
+  
+  // Immediately check and hide loader BEFORE DOM rendering
+  const loaderShown = sessionStorage.getItem(LOADER_SHOWN_KEY);
+  
+  // If loader was shown before, immediately remove the class and hide loader on THIS page load
+  if (loaderShown === 'true') {
     document.body.classList.remove('loader-active');
-    loader.style.display = 'none';
-    loader.classList.add('loader-hidden');
+    // Hide via CSS override at highest priority
+    const style = document.createElement('style');
+    style.textContent = '#page-loader { display: none !important; visibility: hidden !important; opacity: 0 !important; }';
+    document.head.appendChild(style);
     return;
   }
 
-  // Mark that we've shown the loader - do this BEFORE we show it
+  // First visit - mark that loader will be shown
   sessionStorage.setItem(LOADER_SHOWN_KEY, 'true');
+  
+  const loader = document.getElementById('page-loader');
+  if (!loader) return;
 
   // Original loader logic
   let loaderDismissed = false;
