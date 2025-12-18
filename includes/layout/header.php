@@ -1,0 +1,151 @@
+<?php
+/**
+ * WebDaddy Empire - Shared Premium Header/Navigation Component
+ * 
+ * Usage: Include this file after setting the following variables:
+ * - $activeNav: string ('home', 'templates', 'tools', 'blog', 'faq')
+ * - $affiliateCode: string|null (affiliate tracking code)
+ * - $cartCount: int (number of items in cart, default 0)
+ * - $showCart: bool (whether to show cart icon, default true)
+ * - $pageType: string ('home', 'blog', 'legal', 'user') for SEO schema
+ */
+
+// Set defaults
+$activeNav = $activeNav ?? 'home';
+$affiliateCode = $affiliateCode ?? ($_SESSION['affiliate_code'] ?? null);
+$cartCount = $cartCount ?? (isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0);
+$showCart = $showCart ?? true;
+$pageType = $pageType ?? 'page';
+
+// Build affiliate query string
+$affQuery = $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '';
+$affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
+?>
+<!-- Navigation Schema for SEO -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SiteNavigationElement",
+    "name": ["Templates", "Tools", "Blog", "FAQ", "Affiliate Program"],
+    "url": [
+        "<?= SITE_URL ?>/?view=templates",
+        "<?= SITE_URL ?>/?view=tools",
+        "<?= SITE_URL ?>/blog/",
+        "<?= SITE_URL ?>/#faq",
+        "<?= SITE_URL ?>/affiliate/register.php"
+    ]
+}
+</script>
+
+<!-- Premium Navigation -->
+<nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50" x-data="{ open: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a href="/" class="flex items-center" aria-label="<?= SITE_NAME ?> Home">
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3" loading="eager" decoding="async">
+                    <span class="text-xl font-bold text-white hidden sm:inline"><?= SITE_NAME ?></span>
+                </a>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="/?view=templates<?= $affQuery ?>#products" 
+                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">Templates</a>
+                <a href="/?view=tools<?= $affQuery ?>#products" 
+                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">Tools</a>
+                <a href="/blog/<?= $affQueryStart ?>" 
+                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">Blog</a>
+                <a href="/#faq" 
+                   class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4 <?= $activeNav === 'faq' ? 'text-gold border-gold' : ''; ?>">FAQ</a>
+                
+                <!-- Customer Account -->
+                <div x-data="customerNav()" class="relative">
+                    <template x-if="customer">
+                        <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors py-4">
+                            <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                            </svg>
+                            <span x-text="customer.name ? customer.name.split(' ')[0] : 'My Account'"></span>
+                        </a>
+                    </template>
+                    <template x-if="!customer">
+                        <a href="/user/login.php" class="inline-flex items-center border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">
+                            <svg class="w-5 h-5 mr-1.5" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                            </svg>
+                            Login
+                        </a>
+                    </template>
+                </div>
+                
+                <?php if ($showCart): ?>
+                <!-- Cart Button -->
+                <a href="#" id="cart-button" onclick="toggleCartDrawer(); return false;" class="relative inline-flex items-center justify-center text-gray-300 hover:text-gold font-medium transition-colors py-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <span id="cart-count" class="<?= $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?= $cartCount; ?></span>
+                </a>
+                <?php endif; ?>
+                
+                <!-- Affiliate CTA -->
+                <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy transition-all">
+                    Become an Affiliate
+                </a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center gap-4">
+                <?php if ($showCart): ?>
+                <a href="#" id="cart-button-mobile-icon" onclick="toggleCartDrawer(); return false;" class="relative text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <span id="cart-count-mobile-icon" class="<?= $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?= $cartCount; ?></span>
+                </a>
+                <?php endif; ?>
+                <button @click="open = !open" class="text-gray-300 hover:text-gold focus:outline-none" aria-label="Toggle menu">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="open" style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation Menu -->
+    <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
+        <div class="px-2 pt-2 pb-4 space-y-1">
+            <a href="/?view=templates<?= $affQuery ?>#products" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'templates' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Templates</a>
+            <a href="/?view=tools<?= $affQuery ?>#products" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'tools' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Tools</a>
+            <a href="/blog/<?= $affQueryStart ?>" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'blog' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Blog</a>
+            <a href="/#faq" @click="open = false" 
+               class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
+            <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
+            
+            <!-- Mobile Customer Account -->
+            <div class="border-t border-navy-light/50 pt-3 mt-3" x-data="customerNav()">
+                <a :href="customer ? '/user/' : '/user/login.php'" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                    <span x-text="customer ? (customer.name ? customer.name.split(' ')[0] : 'My Account') : 'Login'"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

@@ -20,6 +20,13 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 ### UI/UX Decisions
 The platform features a clean, professional UI with consistent design elements, including a vibrant luxury gold and navy color palette. Admin dashboards provide real-time updates and clear visualizations. A premium page loader with a centered logo, glowing animations, and aggressive image preloading enhances the user experience. The index page includes a portfolio image slider and enhanced mobile responsiveness.
 
+### Centralized Navigation Architecture
+Shared navigation components in `includes/layout/` provide consistent header and footer across all public pages:
+- **header.php**: Premium nav with Tailwind CSS, gold/navy styling, SEO SiteNavigationElement schema, mobile hamburger menu (Alpine.js), cart icon, customer login state, and affiliate tracking. Accepts parameters: `$activeNav`, `$affiliateCode`, `$cartCount`, `$showCart`.
+- **footer.php**: Premium footer with Organization schema, social links, legal links, WhatsApp CTA, and optional mobile sticky CTA. Accepts parameters: `$affiliateCode`, `$showMobileCTA`.
+- Blog pages (blog/index.php, blog/post.php, blog/category.php) use these shared components with Tailwind CDN for styling consistency.
+- Cart button on blog pages redirects to templates (since blog doesn't have full cart drawer markup).
+
 ### Technical Implementations
 The system includes a production-grade chunked file upload system (up to 2GB) with retry logic, manifest tracking, and duplicate prevention. Template delivery uses AES-256-GCM encryption with dynamic assignment. Tools delivery supports ZIP bundles, configurable download link expiry, and regeneration. An idempotent 30% commission affiliate system is implemented, alongside a customer referral program offering 30% commission and a 20% customer discount. Security features include CSRF token validation, secure token generation, file existence validation, download limits, and enterprise-grade webhook security. Payment processing ensures idempotency. Order completion locks prevent file modifications. A comprehensive version control and enhanced HTML email system handles notifications. Admin-managed bonus codes are supported. A payment verification recovery system includes a frontend API, `PaymentManager` with session storage backup, and a recovery modal. A bulletproof delivery system incorporates a state machine, SLA tracking, auto-recovery, and self-service APIs. Customer accounts feature robust authentication, a full user dashboard with order management, downloads, and support tickets, and extensive customer-facing API endpoints. Infrastructure improvements include caching, a job queue for background processing, a centralized error logger, and an automated backup manager. User announcements and bulk email campaigns are managed via an admin interface. Customer verification uses an email-only OTP system via Resend API.
 
@@ -29,7 +36,7 @@ The system includes a production-grade chunked file upload system (up to 2GB) wi
 - **Analytics & Reporting**: Admin dashboard with delivery KPIs, overdue alerts, CSV export, and real-time logs.
 - **Commission Management**: Automated calculation, reconciliation tools, and audit trails for both affiliates and user referrals.
 - **User Campaign Management**: Admin system for posting announcements and sending bulk emails to users.
-- **Blog System (Planned)**: Block-based content system, SEO-first design (article, FAQ schema, OpenGraph), conversion-optimized with inline CTAs, and an affiliate-aware design.
+- **Blog System**: Block-based content system with 8 block types (hero, rich_text, divider, visual, inline_conversion, internal_authority, faq_seo, final_conversion). SEO-first design with Article, FAQPage, and BreadcrumbList schemas. 107 posts, 555+ strategic internal links for topic clustering. Centralized navigation via shared header.php/footer.php components.
 
 ### System Design Choices
 The platform utilizes SQLite for its database, with a schema designed for robust tracking of orders, deliveries, downloads, commissions, user referrals, and user campaigns. Key parameters are defined as constants. Data integrity functions maintain consistency. All datetime queries consistently use a `+1 hour` offset for Nigeria time. The authentication flow is simplified to 3 steps: Email + OTP Verification, Username + Password + WhatsApp Number, and Success. All customer verification is email-only via Resend API.
