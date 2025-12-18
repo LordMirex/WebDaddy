@@ -333,6 +333,11 @@ function showToolModal(tool) {
     document.body.style.overflow = 'hidden';
 }
 
+// CRITICAL: Initialize cart on ALL pages IMMEDIATELY (before DOMContentLoaded)
+// This ensures cart works on pages without products sections
+setupCartDrawer();
+updateCartBadge();
+
 document.addEventListener('DOMContentLoaded', function() {
     const affiliateCode = new URLSearchParams(window.location.search).get('aff') || '';
     let currentView = new URLSearchParams(window.location.search).get('view') || 'templates';
@@ -346,8 +351,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         setupAJAXTabs();
         setupToolPopup();
-        setupCartDrawer();
-        updateCartBadge();
         setupSearch();
         setupCategoryDropdown();
         setupPaginationHandlers();
@@ -1044,6 +1047,10 @@ document.addEventListener('DOMContentLoaded', function() {
         window.open(twitterUrl, '_blank', 'width=600,height=400');
     };
     
+    // Proceed to checkout - go directly to checkout page, NOT back to homepage
+    window.proceedToCheckout = function() {
+        window.location.href = '/cart-checkout.php';
+    };
     
     // Cart Drawer
     function setupCartDrawer() {
@@ -1501,11 +1508,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Failed to remove item:', error);
             showNotification('Failed to remove item', 'error');
         }
-    };
-    
-    window.proceedToCheckout = function() {
-        const checkoutUrl = `/cart-checkout.php${affiliateCode ? '?aff=' + affiliateCode : ''}`;
-        window.location.href = checkoutUrl;
     };
     
     
