@@ -180,6 +180,26 @@ function getToolBySlug($slug) {
 }
 
 /**
+ * Get all unique template categories (for filtering/dropdown)
+ * 
+ * @return array Array of template category names
+ */
+function getTemplateCategories() {
+    $db = getDb();
+    
+    $stmt = $db->query("
+        SELECT DISTINCT category 
+        FROM templates 
+        WHERE category IS NOT NULL 
+          AND category != '' 
+          AND active = 1
+        ORDER BY category
+    ");
+    
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+/**
  * Get all unique tool types (for filtering/dropdown)
  * 
  * @return array Array of tool type names

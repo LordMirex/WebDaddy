@@ -81,10 +81,8 @@ if ($action === 'load_view') {
         $stmt->execute($params);
         $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Get categories (cached in memory during request)
-        $catStmt = $db->prepare("SELECT DISTINCT category FROM templates WHERE active = 1 ORDER BY category ASC");
-        $catStmt->execute();
-        $templateCategories = array_column($catStmt->fetchAll(PDO::FETCH_ASSOC), 'category');
+        // Get categories from database for dropdown
+        $templateCategories = getTemplateCategories();
         
         // Render templates grid
         renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $category, $affiliateCode);

@@ -87,8 +87,8 @@ if ($currentView === 'templates') {
     // TEMPLATES VIEW
     $perPage = 18;
     $allTemplates = getTemplates(true);
-    $templateCategories = array_unique(array_column($allTemplates, 'category'));
-    sort($templateCategories);
+    // Get ALL template categories from database (not just from current page)
+    $templateCategories = getTemplateCategories();
     
     if ($category = $_GET['category'] ?? null) {
         $allTemplates = array_filter($allTemplates, function($t) use ($category) {
