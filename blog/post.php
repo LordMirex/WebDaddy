@@ -103,6 +103,8 @@ $toc = blogExtractTableOfContents($blocks);
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/premium.css">
     <link rel="stylesheet" href="/assets/css/blog/main.css">
+    <link rel="stylesheet" href="/assets/css/blog/blocks.css">
+    <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
 </head>
 <body class="blog-page blog-post-page">
     <header class="blog-header">
@@ -501,5 +503,7 @@ $toc = blogExtractTableOfContents($blocks);
         });
     }
     </script>
+
+    <script src="/assets/js/blog/interactions.js"></script>
 </body>
 </html>
