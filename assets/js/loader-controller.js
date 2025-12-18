@@ -1,4 +1,4 @@
-// Smart Loader Controller - Only show on first visit, skip on back/navigation
+// Smart Loader Controller - Only show on first visit, skip on all navigation
 (function() {
   const LOADER_SHOWN_KEY = 'webdaddy_loader_shown';
   const loader = document.getElementById('page-loader');
@@ -9,15 +9,7 @@
     // Check if loader was already shown in this session
     const loaderShown = sessionStorage.getItem(LOADER_SHOWN_KEY);
     
-    // If navigation type is back, always skip loader
-    if (window.performance && window.performance.navigation) {
-      if (window.performance.navigation.type === 2) {
-        // type 2 = back button
-        return false;
-      }
-    }
-    
-    // If coming from another page in same session, skip loader
+    // If loader has been shown in this session (tab), never show it again
     if (loaderShown === 'true') {
       return false;
     }
@@ -34,7 +26,7 @@
     return;
   }
 
-  // Mark that we've shown the loader
+  // Mark that we've shown the loader - do this BEFORE we show it
   sessionStorage.setItem(LOADER_SHOWN_KEY, 'true');
 
   // Original loader logic
