@@ -980,7 +980,7 @@ if ($autoOpenTool) {
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">10k+</div>
+                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">4k+</div>
                                 <div class="text-[8px] md:text-xs text-gray-400">Users</div>
                             </div>
                         </div>
@@ -991,7 +991,7 @@ if ($autoOpenTool) {
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">4.9/5</div>
+                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">4.5/5</div>
                                 <div class="text-[8px] md:text-xs text-gray-400">Rating</div>
                             </div>
                         </div>
