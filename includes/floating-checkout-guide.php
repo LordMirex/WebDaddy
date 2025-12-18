@@ -87,13 +87,11 @@ if (!$isIndexPage) return;
             </div>
         </div>
         
-        <!-- Premium Arrow Pointer - High Contrast -->
-        <div class="arrow-pointer absolute bottom-[-14px] right-[55px]">
+        <!-- Premium Arrow Pointer - Pointing UP to checkout icon -->
+        <div class="arrow-pointer absolute top-[-16px] right-[55px]">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Outer shadow arrow -->
-                <path d="M14 28L0 14L14 0L28 14Z" fill="rgba(255, 193, 7, 0.9)" opacity="0.8"/>
-                <!-- Inner highlight -->
-                <path d="M14 24L4 14L14 4L24 14Z" fill="rgba(255, 193, 7, 0.95)"/>
+                <!-- Arrow pointing upward -->
+                <path d="M14 0L28 14L14 28L0 14Z" fill="rgba(255, 193, 7, 0.95)"/>
             </svg>
         </div>
     </div>
