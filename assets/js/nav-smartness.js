@@ -21,7 +21,9 @@
       width: 0%;
       opacity: 0;
     `;
-    document.body.appendChild(bar);
+    if (document.body) {
+      document.body.appendChild(bar);
+    }
     return bar;
   };
 

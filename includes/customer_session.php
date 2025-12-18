@@ -103,24 +103,7 @@ function requireCustomerLogin($redirectUrl = '/user/login.php') {
     }
 }
 
-function getCurrentCustomer() {
-    static $customer = null;
-    
-    if ($customer === null) {
-        $session = getCustomerFromSession();
-        if ($session && isset($session['customer_id'])) {
-            // Fetch full customer data
-            $db = getDb();
-            $stmt = $db->prepare("SELECT * FROM customers WHERE id = ?");
-            $stmt->execute([$session['customer_id']]);
-            $customer = $stmt->fetch(PDO::FETCH_ASSOC);
-        } else {
-            $customer = false;
-        }
-    }
-    
-    return $customer ?: null;
-}
+// getCurrentCustomer() is defined in includes/functions.php - no need to redefine here
 
 function getCurrentCustomerId() {
     $customer = getCurrentCustomer();

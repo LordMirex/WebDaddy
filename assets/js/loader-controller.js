@@ -7,11 +7,15 @@
   
   // If loader was shown before, immediately remove the class and hide loader on THIS page load
   if (loaderShown === 'true') {
-    document.body.classList.remove('loader-active');
+    if (document.body) {
+      document.body.classList.remove('loader-active');
+    }
     // Hide via CSS override at highest priority
     const style = document.createElement('style');
     style.textContent = '#page-loader { display: none !important; visibility: hidden !important; opacity: 0 !important; }';
-    document.head.appendChild(style);
+    if (document.head) {
+      document.head.appendChild(style);
+    }
     return;
   }
 
