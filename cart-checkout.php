@@ -855,16 +855,27 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     </style>
     
     <script>
-        // Determine back URL based on referrer or default to home
+        // Determine back URL based on referrer or stored session value - persists through form submissions
         window.getBackUrl = function() {
+            // First check if we already stored the referrer in this session
+            const storedReferrer = sessionStorage.getItem('checkout_referrer_url');
+            if (storedReferrer) {
+                return storedReferrer;
+            }
+            
+            // If not stored yet, get from document.referrer
             const referrer = document.referrer;
             if (referrer && referrer.includes(window.location.hostname)) {
+                // Store it for future form submissions on this page
+                sessionStorage.setItem('checkout_referrer_url', referrer);
                 return referrer;
             }
+            
+            // Default to home if no referrer found
             return '/';
         };
         
-        // Store for cart drawer to use
+        // Store for cart drawer to use - will be updated on every page load
         window.previousPageUrl = window.getBackUrl();
     </script>
     
