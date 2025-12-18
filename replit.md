@@ -16,11 +16,16 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 - Proper spacing on admin pages for pagination visibility
 
 ## Recent Changes (Dec 18, 2025)
-- Added **about.php** with company story, values, and 6 key benefits with schema markup
-- Added **contact.php** with multiple contact methods (WhatsApp, Email, Live Chat), business hours, and FAQ preview with schema markup
-- Updated header navigation to include About, Contact, and expanded SEO SiteNavigationElement schema
-- Updated mobile navigation menu for all new pages
-- Footer links updated to include About and Contact pages
+- Added **pricing.php** - Templates and tools pricing with 3 pricing tiers
+- Added **faq.php** - Dedicated FAQ page with 12+ questions, schema.org FAQPage markup
+- Added **security.php** - Security, privacy, and trust certifications page
+- Added **careers.php** - Careers page with job listings and team benefits
+- Updated **about.php** with company story, values, and 6 key benefits
+- Updated **contact.php** with multiple contact methods and business hours
+- Updated header navigation to include: Templates, Tools, Pricing, FAQ, Blog, About, Contact
+- Updated footer navigation with all new pages and proper linking
+- Updated mobile navigation menu with all 10+ pages
+- Enhanced SEO schema with comprehensive SiteNavigationElement markup
 
 ## System Architecture
 

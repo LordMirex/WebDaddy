@@ -26,14 +26,17 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 {
     "@context": "https://schema.org",
     "@type": "SiteNavigationElement",
-    "name": ["Templates", "Tools", "Blog", "About", "Contact", "FAQ", "Affiliate Program"],
+    "name": ["Templates", "Tools", "Pricing", "FAQ", "Blog", "About", "Contact", "Careers", "Security", "Affiliate Program"],
     "url": [
         "<?= SITE_URL ?>/?view=templates",
         "<?= SITE_URL ?>/?view=tools",
+        "<?= SITE_URL ?>/pricing.php",
+        "<?= SITE_URL ?>/faq.php",
         "<?= SITE_URL ?>/blog/",
         "<?= SITE_URL ?>/about.php",
         "<?= SITE_URL ?>/contact.php",
-        "<?= SITE_URL ?>/#faq",
+        "<?= SITE_URL ?>/careers.php",
+        "<?= SITE_URL ?>/security.php",
         "<?= SITE_URL ?>/affiliate/register.php"
     ]
 }
@@ -52,13 +55,19 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
             
             <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center space-x-8">
+            <div class="hidden md:flex items-center space-x-6">
                 <a href="/?view=templates<?= $affQuery ?>#products" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Templates</a>
                 <a href="/?view=tools<?= $affQuery ?>#products" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Tools</a>
+                <a href="/pricing.php" 
+                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'pricing' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">Pricing</a>
+                <a href="/faq.php" 
+                   class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'faq' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">FAQ</a>
                 <a href="/blog/<?= $affQueryStart ?>" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
@@ -68,8 +77,6 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 <a href="/contact.php" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Contact</a>
-                <a href="/#faq" 
-                   class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4 <?= $activeNav === 'faq' ? 'text-gold border-gold' : ''; ?>">FAQ</a>
                 
                 <!-- Customer Account -->
                 <div x-data="customerNav()" class="relative">
@@ -138,14 +145,20 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'templates' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Templates</a>
             <a href="/?view=tools<?= $affQuery ?>#products" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'tools' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Tools</a>
+            <a href="/pricing.php" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'pricing' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Pricing</a>
+            <a href="/faq.php" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'faq' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">FAQ</a>
             <a href="/blog/<?= $affQueryStart ?>" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'blog' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Blog</a>
             <a href="/about.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'about' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">About</a>
             <a href="/contact.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Contact</a>
-            <a href="/#faq" @click="open = false" 
-               class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
+            <a href="/careers.php" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'careers' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Careers</a>
+            <a href="/security.php" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'security' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Security</a>
             <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
             
             <!-- Mobile Customer Account -->

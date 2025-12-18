@@ -87,10 +87,13 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 <div class="flex flex-wrap gap-x-4 gap-y-1">
                     <a href="/?view=templates<?= $affQuery ?>" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Templates</a>
                     <a href="/?view=tools<?= $affQuery ?>" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Tools</a>
+                    <a href="/pricing.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Pricing</a>
+                    <a href="/faq.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
                     <a href="/blog/<?= $affQueryStart ?>" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Blog</a>
                     <a href="/about.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">About</a>
                     <a href="/contact.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Contact</a>
-                    <a href="/#faq" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
+                    <a href="/careers.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Careers</a>
+                    <a href="/security.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Security</a>
                     <a href="/affiliate/register.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Affiliate</a>
                 </div>
                 <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER)); ?>" 
