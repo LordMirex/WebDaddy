@@ -67,7 +67,7 @@ if (!$isIndexPage) return;
                 
                 <!-- Action Button -->
                 <button onclick="toggleCartDrawer(); document.getElementById('floating-checkout-guide').style.display='none';" class="mt-3 w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2 px-3 rounded-lg transition-all text-sm">
-                    Got it!
+                    View Cart
                 </button>
             </div>
             
