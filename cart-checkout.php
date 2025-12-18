@@ -881,13 +881,13 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     </div>
 
     <!-- Navigation -->
-    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+    <nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50 overflow-visible">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
+            <div class="flex justify-between h-16 overflow-visible">
                 <div class="flex items-center">
-                    <a href="/" class="flex items-center">
-                        <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-14 mr-3" onerror="this.style.display='none'">
-                        <span class="text-xl font-bold text-primary-900 dark:text-white"><?php echo SITE_NAME; ?></span>
+                    <a href="/" class="flex items-center group" aria-label="<?= SITE_NAME ?> Home">
+                        <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3 group-hover:scale-110 transition-transform duration-300" loading="eager" decoding="async">
+                        <span class="text-lg sm:text-2xl font-black bg-gradient-to-r from-yellow-300 via-gold to-yellow-400 bg-clip-text text-transparent tracking-wider" style="letter-spacing: 0.08em; text-shadow: 0 4px 12px rgba(217, 119, 6, 0.4), 0 0 20px rgba(217, 119, 6, 0.2); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));"><?= SITE_NAME ?></span>
                     </a>
                 </div>
                 <div class="flex items-center">
@@ -1382,7 +1382,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             💳 Try Payment Again
                         </button>
                         
-                        <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                        <a href="#" onclick="window.location.href = window.previousPageUrl; return false;" 
                            class="inline-flex items-center justify-center px-4 py-3 text-white bg-gray-700 hover:bg-gray-600 font-bold rounded-lg transition-colors">
                             ← Back to Shop
                         </a>
@@ -1397,7 +1397,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             <i class="bi-person-badge"></i>
                             <span>Go to My Account</span>
                         </a>
-                        <a href="/?<?php echo $affiliateCode ? 'aff=' . urlencode($affiliateCode) : ''; ?>#products" 
+                        <a href="#" onclick="window.location.href = window.previousPageUrl; return false;" 
                            class="inline-flex items-center justify-center gap-2 px-4 py-3 text-gray-100 bg-gray-700 hover:bg-gray-600 font-semibold rounded-lg transition-colors">
                             <i class="bi-shop"></i>
                             <span>Continue Shopping</span>
@@ -1886,7 +1886,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 
                 </form>
                 
-                <a href="/<?php echo $affiliateCode ? '?aff=' . urlencode($affiliateCode) : ''; ?>" 
+                <a href="#" onclick="window.location.href = window.previousPageUrl; return false;" 
                    class="block text-center text-primary-600 hover:text-primary-700 font-medium py-3 mt-2">
                     ← Continue Shopping
                 </a>
