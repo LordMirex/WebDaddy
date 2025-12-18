@@ -365,7 +365,7 @@ function setupCartDrawer() {
                     </button>
                 </div>
                 <div id="cart-items" class="flex-1 overflow-y-auto p-4">
-                    <p class="text-gray-400 text-center py-8">Your cart is empty</p>
+                    <p class="text-gray-400 text-center py-8">Loading your cart...</p>
                 </div>
                 <div id="cart-footer" class="hidden border-t border-gray-700 p-4 bg-gray-900 space-y-3">
                     <div id="cart-totals-container" class="space-y-2 pb-3 border-b border-gray-700">
@@ -412,17 +412,14 @@ window.toggleCartDrawer = function() {
         drawer.classList.remove('hidden');
         content.classList.remove('translate-x-full');
         
-        // Use cached data if available and fresh (less than 2 seconds old)
-        const now = Date.now();
-        if (cartDataCache.loaded && (now - cartDataCache.timestamp) < 2000) {
-            // Display cached data immediately
+        // ALWAYS display cached data first if available (even if >2s old)
+        if (cartDataCache.loaded && cartDataCache.items && cartDataCache.items.length > 0) {
+            // Display cached products immediately - NO delay!
             displayCartItems(cartDataCache.items, cartDataCache.totals);
-            // Refresh in background
-            loadCartItems();
-        } else {
-            // Load fresh data
-            loadCartItems();
         }
+        
+        // Then refresh in background (always, regardless of cache)
+        loadCartItems();
     } else {
         content.classList.add('translate-x-full');
         drawer.classList.add('hidden');
@@ -666,7 +663,7 @@ function displayCartItems(items, totals) {
     const container = document.getElementById('cart-items');
     const footer = document.getElementById('cart-footer');
     
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
         container.innerHTML = '<p class="text-gray-200 text-center py-8">Your cart is empty</p>';
         footer.classList.add('hidden');
         return;
@@ -1550,3 +1547,14 @@ window.addEventListener('load', function() {
         loadCartItems().catch(err => {});
     }, 100);
 });
+
+// IMMEDIATE cart preload - start as soon as script loads (no waiting)
+(function() {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => { loadCartItems().catch(err => {}); }, 50);
+        });
+    } else {
+        setTimeout(() => { loadCartItems().catch(err => {}); }, 50);
+    }
+})();
