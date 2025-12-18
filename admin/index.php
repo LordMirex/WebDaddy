@@ -29,6 +29,10 @@ $totalRevenue = $revenueMetrics['total_revenue'];
 $totalAffiliates = $db->query("SELECT COUNT(*) FROM affiliates WHERE status = 'active'")->fetchColumn();
 $pendingWithdrawals = $db->query("SELECT COUNT(*) FROM withdrawal_requests WHERE status = 'pending'")->fetchColumn();
 
+// User request payment statistics
+$pendingUserPaymentRequests = $db->query("SELECT COUNT(*) FROM user_referral_withdrawals WHERE status = 'pending'")->fetchColumn();
+$totalUserPaymentPending = $db->query("SELECT COALESCE(SUM(amount), 0) FROM user_referral_withdrawals WHERE status = 'pending'")->fetchColumn();
+
 // Query from sales table (source of truth) for ALL payment methods
 $paystackPaymentsCount = $db->query("
     SELECT COUNT(*) FROM sales WHERE id IN (
@@ -159,6 +163,15 @@ require_once __DIR__ . '/includes/header.php';
         </div>
         <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($totalAffiliates); ?></div>
         <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatNumber($pendingWithdrawals); ?> pending withdrawals</small>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 border border-gray-100 overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h6 class="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide truncate">User Payments</h6>
+            <i class="bi bi-wallet2 text-xl sm:text-2xl text-orange-600 flex-shrink-0"></i>
+        </div>
+        <div class="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 truncate"><?php echo formatNumber($pendingUserPaymentRequests); ?></div>
+        <small class="text-xs sm:text-sm text-gray-500 truncate block"><?php echo formatCurrency($totalUserPaymentPending); ?> pending</small>
     </div>
 </div>
 
