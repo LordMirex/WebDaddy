@@ -635,8 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">${formatCurrency(tool.price)}</span>
                                     </div>
                                     <div style="display: flex; gap: 4px;">
-                                        <button type="button" data-tool-id="${tool.id}" 
-                                                class="tool-preview-btn"
+                                        <button type="button" onclick="openToolModal(${tool.id}); return false;"
                                                 style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                             Details
                                         </button>
@@ -899,7 +898,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('tool-modal');
         if (modal) {
             modal.remove();
-            document.body.style.overflow = 'auto';
             document.body.style.overflow = '';
         }
     };
