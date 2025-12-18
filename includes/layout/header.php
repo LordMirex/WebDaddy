@@ -55,7 +55,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
             
             <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center space-x-6">
+            <div class="hidden md:flex items-center space-x-4">
                 <a href="/blog/" 
                    class="inline-block border-b-2 font-medium transition-colors py-4 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
@@ -99,7 +99,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 <?php endif; ?>
                 
                 <!-- Affiliate CTA -->
-                <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg text-navy transition-all">
+                <a href="/affiliate/register.php" class="btn-gold-shine inline-flex items-center px-4 py-2 text-xs lg:text-sm font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
                     Become an Affiliate
                 </a>
             </div>
