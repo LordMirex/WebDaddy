@@ -368,24 +368,31 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Pre-cache both views on initial load for instant tab switching
     async function preCacheBothViews() {
-        const viewToCache = currentView === 'templates' ? 'tools' : 'templates';
+        const views = ['templates', 'tools'];
+        let cachedCount = 0;
         
-        try {
-            const params = new URLSearchParams();
-            params.set('action', 'load_view');
-            params.set('view', viewToCache);
-            params.set('page', 1);
-            if (affiliateCode) params.set('aff', affiliateCode);
-            
-            const response = await fetch(`/api/ajax-products.php?${params.toString()}`);
-            const data = await response.json();
-            
-            if (data.success && data.html) {
-                viewCache[viewToCache] = data.html;
-                console.log(`✅ Pre-cached ${viewToCache} view for instant switching`);
+        for (const viewToCache of views) {
+            try {
+                const params = new URLSearchParams();
+                params.set('action', 'load_view');
+                params.set('view', viewToCache);
+                params.set('page', 1);
+                if (affiliateCode) params.set('aff', affiliateCode);
+                
+                const response = await fetch(`/api/ajax-products.php?${params.toString()}`);
+                const data = await response.json();
+                
+                if (data.success && data.html) {
+                    viewCache[viewToCache] = data.html;
+                    cachedCount++;
+                }
+            } catch (err) {
+                // Silently skip errors for individual view pre-caching
             }
-        } catch (err) {
-            console.log(`ℹ️ Pre-cache for ${viewToCache} skipped - will load on demand`);
+        }
+        
+        if (cachedCount > 0) {
+            console.log(`✅ Pre-cached ${cachedCount} views for instant switching`);
         }
     }
     
@@ -705,8 +712,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (viewCache[view] && !category && page === 1) {
             if (contentArea) {
                 contentArea.innerHTML = viewCache[view];
-                contentArea.style.opacity = '1';
-                contentArea.style.pointerEvents = 'auto';
             }
             updateActiveTab(view);
             const newUrl = new URL(window.location);
@@ -727,10 +732,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Show loading state
-        if (contentArea) {
-            contentArea.style.opacity = '0.5';
-            contentArea.style.pointerEvents = 'none';
+        // Only show minimal loading state for uncached views, with quick restore
+        let showedLoadingState = false;
+        if (contentArea && !viewCache[view]) {
+            contentArea.style.opacity = '0.7';
+            showedLoadingState = true;
+            // Set a timeout to restore opacity if it takes too long
+            setTimeout(() => {
+                if (showedLoadingState && contentArea) {
+                    contentArea.style.opacity = '1';
+                }
+            }, 300);
         }
         
         // Build URL
@@ -755,7 +767,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (contentArea) {
                     contentArea.innerHTML = data.html;
                     contentArea.style.opacity = '1';
-                    contentArea.style.pointerEvents = 'auto';
+                    showedLoadingState = false;
                 }
                 
                 // Update tabs
@@ -787,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Failed to load view:', error);
             if (contentArea) {
                 contentArea.style.opacity = '1';
-                contentArea.style.pointerEvents = 'auto';
+                showedLoadingState = false;
             }
         }
     }
