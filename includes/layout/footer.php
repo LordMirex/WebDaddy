@@ -88,6 +88,8 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                     <a href="/?view=templates<?= $affQuery ?>" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Templates</a>
                     <a href="/?view=tools<?= $affQuery ?>" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Tools</a>
                     <a href="/blog/<?= $affQueryStart ?>" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Blog</a>
+                    <a href="/about.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">About</a>
+                    <a href="/contact.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Contact</a>
                     <a href="/#faq" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
                     <a href="/affiliate/register.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Affiliate</a>
                 </div>

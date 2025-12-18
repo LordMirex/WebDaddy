@@ -15,6 +15,13 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 - No duplicate or confusing card displays
 - Proper spacing on admin pages for pagination visibility
 
+## Recent Changes (Dec 18, 2025)
+- Added **about.php** with company story, values, and 6 key benefits with schema markup
+- Added **contact.php** with multiple contact methods (WhatsApp, Email, Live Chat), business hours, and FAQ preview with schema markup
+- Updated header navigation to include About, Contact, and expanded SEO SiteNavigationElement schema
+- Updated mobile navigation menu for all new pages
+- Footer links updated to include About and Contact pages
+
 ## System Architecture
 
 ### UI/UX Decisions
@@ -22,9 +29,9 @@ The platform features a clean, professional UI with consistent design elements, 
 
 ### Centralized Navigation Architecture
 Shared navigation components in `includes/layout/` provide consistent header and footer across all public pages:
-- **header.php**: Premium nav with Tailwind CSS, gold/navy styling, SEO SiteNavigationElement schema, mobile hamburger menu (Alpine.js), cart icon, customer login state, and affiliate tracking. Accepts parameters: `$activeNav`, `$affiliateCode`, `$cartCount`, `$showCart`.
-- **footer.php**: Premium footer with Organization schema, social links, legal links, WhatsApp CTA, and optional mobile sticky CTA. Accepts parameters: `$affiliateCode`, `$showMobileCTA`.
-- Blog pages (blog/index.php, blog/post.php, blog/category.php) use these shared components with Tailwind CDN for styling consistency.
+- **header.php**: Premium nav with Tailwind CSS, gold/navy styling, SEO SiteNavigationElement schema, mobile hamburger menu (Alpine.js), cart icon, customer login state, and affiliate tracking. Accepts parameters: `$activeNav`, `$affiliateCode`, `$cartCount`, `$showCart`. Navigation includes: Templates, Tools, Blog, About, Contact, FAQ, Affiliate Program.
+- **footer.php**: Premium footer with Organization schema, social links, legal links, WhatsApp CTA, and optional mobile sticky CTA. Accepts parameters: `$affiliateCode`, `$showMobileCTA`. Footer links: Templates, Tools, Blog, About, Contact, FAQ, Affiliate.
+- Public pages using shared components: index.php, about.php, contact.php, blog/index.php, blog/post.php, blog/category.php
 - Cart button on blog pages redirects to templates (since blog doesn't have full cart drawer markup).
 
 ### Technical Implementations
