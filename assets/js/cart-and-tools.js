@@ -106,29 +106,11 @@ function showNotification(message, type = 'success', shouldShowGuide = true) {
         setTimeout(() => container.remove(), 300);
     }, 4000);
     
-    // Smart guide display: Show guide intelligently based on cart size
-    // 1-3 items: Show on every addition (frequent reminders for small carts)
-    // 4-9 items: Show twice total (1st item + 5th item onwards)
-    // 10+ items: Show at most twice (not spamming for large carts)
+    // Smart guide display: Show guide only on first two cart additions (not every time)
     if (shouldShowGuide && type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
         try {
-            const cartCache = JSON.parse(localStorage.getItem('cartCache') || '{"items":[]}');
-            const totalItems = cartCache.items ? cartCache.items.length : 0;
-            
-            let displayGuide = false;
-            
-            if (totalItems <= 3) {
-                // Small cart: Show on every addition
-                displayGuide = true;
-            } else if (totalItems >= 4 && totalItems <= 9) {
-                // Medium cart: Show only on 1st item and 5th+ item
-                displayGuide = (guideDisplayCount === 0) || (totalItems >= 5 && guideDisplayCount === 1);
-            } else if (totalItems >= 10) {
-                // Large cart: Show max twice only
-                displayGuide = guideDisplayCount < 2;
-            }
-            
-            if (displayGuide) {
+            // Show guide only for first 2 additions total in the session
+            if (guideDisplayCount < 2) {
                 guideDisplayCount++;
                 setTimeout(() => {
                     window.dispatchEvent(new Event('cart-updated'));
