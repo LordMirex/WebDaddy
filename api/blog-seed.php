@@ -7,7 +7,7 @@ require_once '../includes/db.php';
 $db = getDb();
 
 // Check if already seeded
-$check = $db->query("SELECT COUNT(*) cnt FROM blog_posts")->fetch_assoc()['cnt'];
+$check = $db->query("SELECT COUNT(*) as cnt FROM blog_posts")->fetch(PDO::FETCH_ASSOC)['cnt'] ?? 0;
 if ($check > 0) {
     echo json_encode(['status' => 'already_seeded', 'posts' => $check]);
     exit;
@@ -23,13 +23,14 @@ $categories = [
 ];
 
 foreach ($categories as [$name, $slug]) {
-    $db->query("INSERT INTO blog_categories (name, slug, status) VALUES ('$name', '$slug', 'active')");
+    $stmt = $db->prepare("INSERT INTO blog_categories (name, slug, status) VALUES (?, ?, 'active')");
+    $stmt->execute([$name, $slug]);
 }
 
 // Get category IDs
 $cats = [];
 $result = $db->query("SELECT id, slug FROM blog_categories");
-while ($row = $result->fetch_assoc()) {
+while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
     $cats[$row['slug']] = $row['id'];
 }
 
@@ -42,17 +43,16 @@ $posts = [
     ['10 Web Design Mistakes That Kill Conversions', 'web-design-mistakes', $cats['web-design-development'], 'Avoid costly design pitfalls', 'https://images.unsplash.com/photo-1561070791-2526d30994b5']
 ];
 
-$now = date('Y-m-d H:i:s');
 $created = 0;
 
 foreach ($posts as [$title, $slug, $cat_id, $excerpt, $img]) {
-    $t = $db->real_escape_string($title);
-    $e = $db->real_escape_string($excerpt);
+    $stmt = $db->prepare("
+        INSERT INTO blog_posts 
+        (title, slug, excerpt, meta_description, featured_image, featured_image_alt, author_name, status, category_id, created_at, updated_at, publish_date)
+        VALUES (?, ?, ?, ?, ?, 'Blog image', 'WebDaddy Team', 'published', ?, datetime('now'), datetime('now'), datetime('now'))
+    ");
     
-    $q = "INSERT INTO blog_posts (title, slug, excerpt, content, meta_description, featured_image, featured_image_alt, author_name, status, category_id, created_at, updated_at, publish_date)
-          VALUES ('$t', '$slug', '$e', '<p>Professional blog content</p>', '$e', '$img?w=800', 'Blog image', 'WebDaddy Team', 'published', $cat_id, '$now', '$now', '$now')";
-    
-    if ($db->query($q)) {
+    if ($stmt->execute([$title, $slug, $excerpt, $excerpt, $img . '?w=800', $cat_id])) {
         $created++;
     }
 }

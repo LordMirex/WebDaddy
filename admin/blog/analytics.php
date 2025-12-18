@@ -38,7 +38,7 @@ $statsQuery = $db->query("
     FROM blog_analytics ba
     WHERE 1=1 $dateCondition
 ");
-$stats = $statsQuery ? $statsQuery->fetch_assoc() : null;
+$stats = $statsQuery ? $statsQuery->fetch(PDO::FETCH_ASSOC) : null;
 if (!$stats) $stats = ['unique_visitors' => 0, 'posts_viewed' => 0, 'total_views' => 0, 'full_reads' => 0, 'cta_clicks' => 0, 'shares' => 0, 'affiliate_referrers' => 0];
 
 // Build order clause for SQLite
@@ -48,7 +48,7 @@ if ($sortBy === 'shares') {
 } elseif ($sortBy === 'cta_clicks') {
     $orderBy = 'COUNT(DISTINCT CASE WHEN ba.event_type = "cta_click" THEN 1 END) DESC';
 } elseif ($sortBy === 'engagement') {
-    $orderBy = '(COALESCE(SUM(CASE WHEN ba.event_type = "scroll_100" THEN 1 END), 0) * 1.5 + COALESCE(COUNT(DISTINCT CASE WHEN ba.event_type = "cta_click" THEN 1 END), 0) * 3 + COALESCE(bp.share_count, 0)) DESC';
+    $orderBy = '(COALESCE(SUM(CASE WHEN ba.event_type = "scroll_100" THEN 1 ELSE 0 END), 0) * 1.5 + COALESCE(COUNT(DISTINCT CASE WHEN ba.event_type = "cta_click" THEN 1 ELSE 0 END), 0) * 3 + COALESCE(bp.share_count, 0)) DESC';
 }
 
 // Get top posts
@@ -75,7 +75,7 @@ $topPostsQuery = $db->query("
 ");
 $topPosts = [];
 if ($topPostsQuery) {
-    while ($post = $topPostsQuery->fetch_assoc()) {
+    while ($post = $topPostsQuery->fetch(PDO::FETCH_ASSOC)) {
         $topPosts[] = $post;
     }
 }
@@ -99,7 +99,7 @@ $scrollQuery = $db->query("
 ");
 
 if ($scrollQuery) {
-    while ($row = $scrollQuery->fetch_assoc()) {
+    while ($row = $scrollQuery->fetch(PDO::FETCH_ASSOC)) {
         $map = ['view' => 0, 'scroll_25' => 1, 'scroll_50' => 2, 'scroll_75' => 3, 'scroll_100' => 4];
         if (isset($map[$row['event_type']])) {
             $scrollData[$map[$row['event_type']]]['count'] = $row['count'];
@@ -123,7 +123,7 @@ $affiliateQuery = $db->query("
 ");
 
 if ($affiliateQuery) {
-    while ($aff = $affiliateQuery->fetch_assoc()) {
+    while ($aff = $affiliateQuery->fetch(PDO::FETCH_ASSOC)) {
         $affiliates[] = $aff;
     }
 }

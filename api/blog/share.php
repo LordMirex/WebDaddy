@@ -16,7 +16,7 @@ try {
     switch ($action) {
         case 'update':
             $post_id = $input['post_id'] ?? null;
-            $platform = $input['platform'] ?? null; // whatsapp, twitter, facebook, linkedin, copy
+            $platform = $input['platform'] ?? null;
 
             if (!$post_id) {
                 throw new Exception('Post ID required');
@@ -27,7 +27,6 @@ try {
                 throw new Exception('Invalid platform');
             }
 
-            // Log share event
             $session_id = session_id();
             $referrer = $_SERVER['HTTP_REFERER'] ?? null;
             $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
@@ -39,27 +38,20 @@ try {
                 VALUES (?, ?, ?, ?, ?)
             ');
 
-            $stmt->bind_param(
-                'issss',
+            $stmt->execute([
                 $post_id,
                 $event_type,
                 $session_id,
                 $referrer,
                 $user_agent
-            );
+            ]);
 
-            if (!$stmt->execute()) {
-                throw new Exception('Failed to record share');
-            }
-
-            // Update share count
             $updateStmt = $db->prepare('
                 UPDATE blog_posts 
-                SET share_count = share_count + 1, updated_at = NOW()
+                SET share_count = share_count + 1
                 WHERE id = ?
             ');
-            $updateStmt->bind_param('i', $post_id);
-            $updateStmt->execute();
+            $updateStmt->execute([$post_id]);
 
             echo json_encode([
                 'success' => true,
@@ -75,24 +67,24 @@ try {
                 throw new Exception('Post ID required');
             }
 
-            $stmt = $db->prepare('
-                SELECT view_count, share_count FROM blog_posts WHERE id = ?
-            ');
-            $stmt->bind_param('i', $post_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $counts = $result->fetch_assoc();
+            $stmt = $db->prepare('SELECT view_count, share_count FROM blog_posts WHERE id = ?');
+            $stmt->execute([$post_id]);
+            $counts = $stmt->fetch(PDO::FETCH_ASSOC);
 
             echo json_encode([
                 'success' => true,
-                'counts' => $counts
+                'counts' => $counts ?? ['view_count' => 0, 'share_count' => 0]
             ]);
             break;
 
         default:
-            throw new Exception('Invalid action: ' . $action);
+            throw new Exception('Invalid action');
     }
 } catch (Exception $e) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+    ]);
 }
+?>
