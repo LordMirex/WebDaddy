@@ -105,8 +105,9 @@ $toc = blogExtractTableOfContents($blocks);
     <link rel="stylesheet" href="/assets/css/blog/main.css">
     <link rel="stylesheet" href="/assets/css/blog/blocks.css">
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
+    <link rel="stylesheet" href="/assets/css/blog/affiliate.css">
 </head>
-<body class="blog-page blog-post-page" data-post-id="<?= $post['id'] ?>">
+<body class="blog-page blog-post-page" data-post-id="<?= $post['id'] ?>" <?= $affiliateCode ? 'data-affiliate-code="' . htmlspecialchars($affiliateCode) . '"' : '' ?>>
     <header class="blog-header">
         <div class="blog-header-container">
             <a href="/" class="blog-logo">
@@ -390,10 +391,10 @@ $toc = blogExtractTableOfContents($blocks);
 
                 <aside class="blog-sidebar blog-article-sidebar">
                     <div class="blog-sidebar-sticky">
-                        <div class="blog-cta-card">
+                        <div class="blog-cta-card <?= $affiliateCode ? 'affiliate-referred' : '' ?>">
                             <h3>Get a Professional Website</h3>
                             <p>Browse our premium templates and launch your business online in 24 hours.</p>
-                            <a href="/#templates<?= $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '' ?>" class="btn-premium btn-premium-gold" data-cta-type="sidebar-templates">View Templates</a>
+                            <a href="/#templates<?= $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '' ?>" class="btn-premium btn-premium-gold" data-cta-type="sidebar-templates" <?= $affiliateCode ? 'data-affiliate="yes"' : '' ?>>View Templates</a>
                         </div>
                         
                         <div class="blog-sidebar-section">
@@ -409,8 +410,8 @@ $toc = blogExtractTableOfContents($blocks);
                         
                         <?php if ($affiliateCode): ?>
                         <div class="blog-affiliate-notice">
-                            <span class="blog-affiliate-badge">Referred by Partner</span>
-                            <p>You're shopping with a partner code! Special offers may apply.</p>
+                            <span class="blog-affiliate-badge">✓ Referred by Partner</span>
+                            <p>You're browsing with a verified partner code: <strong><?= htmlspecialchars(substr($affiliateCode, 0, 15)) ?></strong>. Your template purchases support this partner!</p>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -423,7 +424,7 @@ $toc = blogExtractTableOfContents($blocks);
                     <h2>Related Articles</h2>
                     <div class="blog-related-grid">
                         <?php foreach ($relatedPosts as $related): ?>
-                        <article class="blog-card">
+                        <article class="blog-card <?= $affiliateCode ? 'affiliate-aware' : '' ?>">
                             <a href="<?= blogGetPostUrl($related, $affiliateCode) ?>" class="blog-card-image-link">
                                 <?php if ($related['featured_image']): ?>
                                 <img src="<?= htmlspecialchars($related['featured_image']) ?>" 
