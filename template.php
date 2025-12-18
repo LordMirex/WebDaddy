@@ -631,5 +631,6 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     </script>
     
     <?php include __DIR__ . '/includes/floating-cart-widget.php'; ?>
+    <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

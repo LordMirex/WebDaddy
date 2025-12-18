@@ -410,5 +410,6 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>"></script>
     
     <?php include __DIR__ . '/includes/floating-cart-widget.php'; ?>
+    <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

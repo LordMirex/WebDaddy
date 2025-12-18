@@ -237,6 +237,7 @@ $pageUrl = SITE_URL . '/about.php';
     </main>
     
     <?php include 'includes/layout/footer.php'; ?>
+    <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
     <script src="/assets/js/nav-smartness.js"></script>
 </body>
 </html>
