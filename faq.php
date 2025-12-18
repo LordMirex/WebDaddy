@@ -451,6 +451,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
     </main>
     
     <?php include 'includes/layout/footer.php'; ?>
+    <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
     <script src="/assets/js/nav-smartness.js"></script>
 </body>
