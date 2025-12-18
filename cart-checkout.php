@@ -854,6 +854,20 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
         }
     </style>
     
+    <script>
+        // Determine back URL based on referrer or default to home
+        window.getBackUrl = function() {
+            const referrer = document.referrer;
+            if (referrer && referrer.includes(window.location.hostname)) {
+                return referrer;
+            }
+            return '/';
+        };
+        
+        // Store for cart drawer to use
+        window.previousPageUrl = window.getBackUrl();
+    </script>
+    
     <div id="payment-processing-overlay">
         <div class="payment-modal">
             <div class="spinner-container">
@@ -877,7 +891,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                     </a>
                 </div>
                 <div class="flex items-center">
-                    <a href="/" 
+                    <a id="backBtn" href="/" 
                        class="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-100 bg-gray-800 hover:bg-gray-900 transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -885,6 +899,9 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                         Back
                     </a>
                 </div>
+                <script>
+                    document.getElementById('backBtn').href = window.getBackUrl();
+                </script>
             </div>
         </div>
     </nav>
@@ -1459,13 +1476,16 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                 </div>
                                 <?php endforeach; ?>
                             </div>
-                            <a href="/" 
+                            <a id="returnLink" href="/" 
                                class="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-semibold mt-4">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                                 </svg>
                                 Return to shopping
                             </a>
+                            <script>
+                                document.getElementById('returnLink').href = window.getBackUrl();
+                            </script>
                         </div>
                     </div>
                 </div>

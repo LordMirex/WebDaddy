@@ -386,7 +386,7 @@ function setupCartDrawer() {
                         Proceed to Checkout
                     </button>
                     <div class="flex gap-2">
-                        <button onclick="toggleCartDrawer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors">
+                        <button onclick="continueShopping()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors">
                             Continue Shopping
                         </button>
                         <button onclick="clearCartConfirm()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1" title="Clear all items">
@@ -403,6 +403,16 @@ function setupCartDrawer() {
     
     document.body.appendChild(cartDrawer);
 }
+
+window.continueShopping = function() {
+    // If we stored a previous page URL (on checkout page), navigate there
+    if (typeof window.previousPageUrl !== 'undefined' && window.previousPageUrl) {
+        window.location.href = window.previousPageUrl;
+    } else {
+        // Otherwise just close the cart drawer
+        toggleCartDrawer();
+    }
+};
 
 window.toggleCartDrawer = function() {
     const drawer = document.getElementById('cart-drawer');

@@ -16,11 +16,12 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 - Proper spacing on admin pages for pagination visibility
 
 ## Recent Changes (Dec 18, 2025)
-- **UPDATED: Checkout Page Navigation** - Back button now goes to root `/`:
+- **UPDATED: Checkout Page Navigation** - Back button now returns to previous page:
   - Logo and site name match index page styling
-  - "Back" button changed from `/?view=tools#products` to `/`
-  - "Return to shopping" link changed from `/?view=tools#products` to `/`
-  - Consistent affiliate code handling (preserved when navigating)
+  - "Back" button uses `document.referrer` to return to the page user came from
+  - "Return to shopping" link also returns to previous page (or `/` as fallback)
+  - "Continue Shopping" button in cart drawer also navigates back to previous page
+  - Supports navigation from any page (index, blog, about, contact, etc.) and returns there
 - **FIXED: "Proceed to Checkout" Button Styling on Blog** - Now uses `.btn-premium-gold` class:
   - Applied across all cart drawer instances on all pages (index, about, contact, faq, careers, cart-checkout, blog)
   - Consistent gold gradient background: `linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%)`
