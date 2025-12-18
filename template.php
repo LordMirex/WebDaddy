@@ -124,35 +124,78 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     </script>
     
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Premium Fonts - Inter and Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Premium UI/UX Styles -->
+    <link rel="stylesheet" href="/assets/css/premium.css">
+    
+    <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    },
                     colors: {
                         primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                            50: '#FDF9ED',
+                            100: '#FAF0D4',
+                            200: '#F5E1A8',
+                            300: '#EFCF72',
+                            400: '#E8BB45',
+                            500: '#D4AF37',
+                            600: '#B8942E',
+                            700: '#9A7B26',
+                            800: '#7D6320',
+                            900: '#604B18',
                         },
-                        gold: '#d4af37',
-                        navy: '#0f172a'
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            50: '#FDF9ED',
+                            100: '#FAF0D4',
+                            200: '#F5E1A8',
+                            300: '#EFCF72',
+                            400: '#E8BB45',
+                            500: '#D4AF37',
+                            600: '#B8942E',
+                            700: '#9A7B26',
+                            800: '#7D6320',
+                            900: '#604B18',
+                        },
+                        navy: {
+                            DEFAULT: '#0f172a',
+                            dark: '#0a1929',
+                            light: '#1e293b',
+                        }
                     }
                 }
             }
         }
         }
+        document.documentElement.classList.add('dark');
     </script>
+    <style>
+        .btn-gold-shine {
+            background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%);
+            box-shadow: 0 4px 15px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+        }
+        .btn-gold-shine:hover {
+            background: linear-gradient(135deg, #FADE7A 0%, #E8BB45 50%, #D4AF37 100%);
+            box-shadow: 0 6px 25px rgba(212,175,55,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: translateY(-1px);
+        }
+    </style>
     <script src="/assets/js/forms.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/share.js?v=<?php echo time(); ?>" defer></script>
@@ -493,7 +536,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
 
                             <div class="space-y-3 mb-6">
                                 <button onclick="addTemplateToCart(<?php echo $template['id']; ?>, '<?php echo htmlspecialchars($template['name'], ENT_QUOTES); ?>', this)" 
-                                   class="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                                   class="btn-gold-shine w-full inline-flex items-center justify-center px-6 py-4 text-lg font-bold rounded-lg text-navy transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                     </svg>
