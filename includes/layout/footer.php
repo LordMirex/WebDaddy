@@ -117,7 +117,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                     </a>
                     <div class="text-center lg:text-left">
                         <p class="text-gray-400 text-xs md:text-sm">
-                            <span class="block text-gray-500 text-xs mb-1">Phone</span>
+                            <span class="block text-gray-500 text-xs mb-1">WhatsApp</span>
                             <a href="tel:<?= getSetting('whatsapp_number', WHATSAPP_NUMBER); ?>" class="text-green-400 hover:text-green-300 font-medium transition-colors">
                                 <?= getSetting('whatsapp_number', WHATSAPP_NUMBER); ?>
                             </a>
