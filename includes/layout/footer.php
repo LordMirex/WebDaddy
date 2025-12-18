@@ -52,16 +52,15 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 <!-- Premium Footer -->
 <footer class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white border-t border-blue-500/10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <!-- Footer Grid - 5 Columns on Desktop, 2 on Tablet and Mobile -->
-        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
-            <!-- Brand Column -->
-            <div class="lg:col-span-1">
-                <div class="flex items-center gap-2 mb-4">
+        <!-- Brand Section - Centered on Mobile, Left on Desktop -->
+        <div class="mb-8 lg:mb-0 lg:grid lg:grid-cols-5 lg:gap-8 lg:items-start">
+            <div class="lg:col-span-1 text-center lg:text-left mb-8 lg:mb-0">
+                <div class="flex items-center gap-2 mb-4 justify-center lg:justify-start">
                     <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-8 md:h-10" loading="lazy" decoding="async">
-                    <span class="text-lg font-bold"><?= SITE_NAME ?></span>
+                    <span class="text-lg font-bold hidden sm:inline"><?= SITE_NAME ?></span>
                 </div>
                 <p class="text-gray-400 text-xs md:text-sm mb-4 font-medium">Professional websites & digital tools. Launch in 24 hours.</p>
-                <div class="flex gap-2 flex-wrap">
+                <div class="flex gap-2 flex-wrap justify-center lg:justify-start">
                     <?php 
                     $socials = [
                         ['facebook', 'Facebook', '<svg class="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'],
@@ -83,30 +82,33 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 </div>
             </div>
 
-            <!-- Support Column -->
-            <div>
-                <h4 class="text-white font-semibold text-sm mb-4">Support</h4>
-                <ul class="space-y-2.5">
-                    <li><a href="/faq.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a></li>
-                    <li><a href="/contact.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Contact</a></li>
-                    <li><a href="/blog/<?= $affQueryStart ?>" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Blog</a></li>
-                </ul>
+            <!-- Links Section - 2 Balanced Columns on Mobile, 3 on Desktop -->
+            <div class="lg:col-span-3 grid grid-cols-2 gap-8 mb-8 lg:mb-0">
+                <!-- Support Column -->
+                <div class="text-center lg:text-left">
+                    <h4 class="text-white font-semibold text-sm mb-4">Support</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="/faq.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a></li>
+                        <li><a href="/contact.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Contact</a></li>
+                        <li><a href="/blog/<?= $affQueryStart ?>" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company Column -->
+                <div class="text-center lg:text-left">
+                    <h4 class="text-white font-semibold text-sm mb-4">Company</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="/about.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">About</a></li>
+                        <li><a href="/careers.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Careers</a></li>
+                        <li><a href="/security.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Security</a></li>
+                        <li><a href="/affiliate/register.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Affiliate</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Company Column -->
-            <div>
-                <h4 class="text-white font-semibold text-sm mb-4">Company</h4>
-                <ul class="space-y-2.5">
-                    <li><a href="/about.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">About</a></li>
-                    <li><a href="/careers.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Careers</a></li>
-                    <li><a href="/security.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Security</a></li>
-                    <li><a href="/affiliate/register.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Affiliate</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact Column -->
-            <div>
-                <h4 class="text-white font-semibold text-sm mb-4">Get Connected</h4>
+            <!-- WhatsApp Column -->
+            <div class="lg:col-span-1">
+                <h4 class="text-white font-semibold text-sm mb-4 text-center lg:text-left">Get Connected</h4>
                 <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER)); ?>" 
                    target="_blank" rel="noopener noreferrer"
                    class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 rounded-lg text-xs md:text-sm font-medium transition-colors w-full">
