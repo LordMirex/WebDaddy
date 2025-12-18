@@ -484,6 +484,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!contentArea) return;
             
             if (results.length === 0) {
+                const whatsappNum = window.whatsappNumber || '2349132672126';
+                const messageText = `Hi! I couldn't find what I'm looking for in your catalog. Can you help me find or create a custom ${currentView === 'templates' ? 'website template' : 'digital tool'}?`;
+                const whatsappUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(messageText)}`;
+                
                 contentArea.innerHTML = `
                     <div class="bg-gradient-to-br from-navy via-navy-light to-navy border-2 border-gold/30 rounded-2xl p-8 md:p-12 text-center shadow-lg">
                         <div class="mb-6">
@@ -499,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </svg>
                                 Clear Search
                             </button>
-                            <a href="https://wa.me/?text=${encodeURIComponent('Hi! I couldn\'t find what I\'m looking for in your catalog. Can you help me find or create a custom ' + (currentView === 'templates' ? 'website template' : 'digital tool') + '?')}" 
+                            <a href="${whatsappUrl}" 
                                target="_blank"
                                class="inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:scale-105">
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">

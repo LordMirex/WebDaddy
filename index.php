@@ -16,6 +16,9 @@ startSecureSession();
 handleAffiliateTracking();
 handleUserReferralTracking();
 
+// Expose WhatsApp number to JavaScript for dynamic links
+$whatsappNumberForJs = preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER);
+
 // AUTO-RESTORE SAVED CART FROM PREVIOUS VISIT (if not already loaded)
 if (empty(getCart())) {
     $db = getDb();
@@ -262,6 +265,9 @@ if ($autoOpenTool) {
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
+        // Store WhatsApp number for JavaScript use in dynamic messages
+        window.whatsappNumber = '<?php echo $whatsappNumberForJs; ?>';
+        
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
             darkMode: 'class',
