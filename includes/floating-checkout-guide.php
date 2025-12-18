@@ -88,18 +88,44 @@ if (!$isIndexPage) return;
     const guide = document.getElementById('floating-checkout-guide');
     const guideCard = guide.querySelector('.guide-card');
     
-    function positionGuide() {
-        if (guide.style.display === 'none') return;
-        
-        // Find cart badge/icon
-        const cartBadge = document.querySelector('[id*="cart"]') || document.querySelector('[class*="cart"]');
-        const navBar = document.getElementById('mainNav') || document.querySelector('nav');
-        
+    function calculatePointerPosition() {
         // Get viewport width
         const viewportWidth = window.innerWidth;
         const isMobile = viewportWidth < 768;
         
-        // Default positioning - below cart icon in top right
+        // Find the cart button
+        let cartButton;
+        if (isMobile) {
+            cartButton = document.getElementById('cart-button-mobile-icon');
+        } else {
+            cartButton = document.getElementById('cart-button');
+        }
+        
+        if (!cartButton) return isMobile ? 65 : 80; // Fallback
+        
+        // Get cart button center position
+        const cartRect = cartButton.getBoundingClientRect();
+        const cartCenterX = cartRect.left + cartRect.width / 2;
+        
+        // Get guide position
+        const guideRect = guide.getBoundingClientRect();
+        
+        // Calculate pointer position as percentage of guide width
+        const relativeX = cartCenterX - guideRect.left;
+        const pointerPercentage = (relativeX / guideRect.width) * 100;
+        
+        // Clamp between 10% and 90% to keep pointer visible
+        return Math.max(10, Math.min(90, pointerPercentage));
+    }
+    
+    function positionGuide() {
+        if (guide.style.display === 'none') return;
+        
+        const viewportWidth = window.innerWidth;
+        const isMobile = viewportWidth < 768;
+        const navBar = document.getElementById('mainNav') || document.querySelector('nav');
+        
+        // Default positioning - below navbar
         const padding = isMobile ? 10 : 15;
         const navHeight = navBar ? navBar.offsetHeight : 64;
         
@@ -115,35 +141,15 @@ if (!$isIndexPage) return;
             guide.style.left = padding + 'px';
         }
         
-        // Adjust pointer position based on pointer offset
-        // Get guide card width
-        const cardWidth = guideCard ? guideCard.offsetWidth : 280;
-        
-        // Calculate pointer alignment: point it towards the right (cart icon area)
-        if (isMobile) {
-            // On mobile, point slightly right of center towards cart icon
-            guideCard.style.setProperty('--pointer-left', '70%');
-        } else {
-            // On desktop, point slightly right of center towards cart icon  
-            guideCard.style.setProperty('--pointer-left', '75%');
-        }
+        // Calculate and set pointer position to point at cart icon
+        const pointerPosition = calculatePointerPosition();
+        guideCard.style.setProperty('--pointer-left', pointerPosition + '%');
     }
     
     function showGuide() {
         guide.style.display = 'block';
-        // Allow browser to render first
-        setTimeout(() => positionGuide(), 0);
-        
-        setTimeout(() => {
-            if (guide.style.display !== 'none') {
-                guide.style.opacity = '0';
-                guide.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => {
-                    guide.style.display = 'none';
-                    guide.style.opacity = '1';
-                }, 300);
-            }
-        }, 8000);
+        // Position after render
+        setTimeout(() => positionGuide(), 10);
     }
     
     window.addEventListener('cart-updated', showGuide);
