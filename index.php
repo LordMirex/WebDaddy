@@ -347,7 +347,7 @@ if ($autoOpenTool) {
         /* Animated word swapping styles */
         .animate-word-swap {
             display: inline-block;
-            min-width: 180px;
+            min-width: 120px;
             position: relative;
             vertical-align: baseline;
         }
@@ -799,13 +799,13 @@ if ($autoOpenTool) {
                 
                 <!-- Desktop CTA Buttons - Hidden on mobile -->
                 <div class="hidden lg:flex flex-row gap-3 lg:gap-4">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-navy transition-all whitespace-nowrap flex-1">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
                         <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
                         Browse Templates
                     </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all whitespace-nowrap flex-1">
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all whitespace-nowrap">
                         <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
