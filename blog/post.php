@@ -106,7 +106,7 @@ $toc = blogExtractTableOfContents($blocks);
     <link rel="stylesheet" href="/assets/css/blog/blocks.css">
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
 </head>
-<body class="blog-page blog-post-page">
+<body class="blog-page blog-post-page" data-post-id="<?= $post['id'] ?>">
     <header class="blog-header">
         <div class="blog-header-container">
             <a href="/" class="blog-logo">
@@ -393,7 +393,7 @@ $toc = blogExtractTableOfContents($blocks);
                         <div class="blog-cta-card">
                             <h3>Get a Professional Website</h3>
                             <p>Browse our premium templates and launch your business online in 24 hours.</p>
-                            <a href="/#templates<?= $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '' ?>" class="btn-premium btn-premium-gold">View Templates</a>
+                            <a href="/#templates<?= $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '' ?>" class="btn-premium btn-premium-gold" data-cta-type="sidebar-templates">View Templates</a>
                         </div>
                         
                         <div class="blog-sidebar-section">
@@ -505,5 +505,6 @@ $toc = blogExtractTableOfContents($blocks);
     </script>
 
     <script src="/assets/js/blog/interactions.js"></script>
+    <script src="/assets/js/blog/tracking.js"></script>
 </body>
 </html>
