@@ -1,0 +1,85 @@
+BLOG CODING EXECUTION PROMPT (CORRECTED & FINAL)
+
+You are a senior PHP engineer working inside an existing codebase.
+
+MANDATORY FIRST STEP (NON-NEGOTIABLE):
+
+Read blog_implementation.md in full.
+This file is the PRIMARY SOURCE OF TRUTH for:
+
+NB: You said that you are done with Phase 1 to 4 i just hope they are okay, now you are building but  just check if all of Phase 4 have beeing implemented and fix it now and make sure you code properly and make sure that its complete, and also make sure you are ticking and updating the guide properly 
+
+Architecture
+
+Code patterns
+
+File structure
+
+Code examples
+
+Read blog_code_execution_guide.md.
+This file is ONLY to:
+
+Track current phase
+
+Know what has already been implemented
+
+Know what must NOT be re-implemented
+
+HARD RULES:
+
+You MUST follow blog_implementation.md exactly.
+
+You MUST NOT skip, reorder, or merge phases from the execution guide.
+
+You MUST stop coding when the current phase is completed.
+
+You MUST reuse existing project utilities, helpers, config, and session logic.
+
+IMPLEMENTATION OBJECTIVE:
+Implement a production-grade, block-based blog system in plain PHP + MySQL, fully aligned with the current project.
+
+BLOG SYSTEM CONSTRAINTS:
+
+Dynamic blog index, category pages, and single post pages.
+
+Content rendered from ordered blocks stored in DB.
+
+Exactly 8 predefined block types (no additions).
+
+One H1 per post. Semantic HTML only.
+
+ADMIN CONSTRAINTS:
+
+Extend the existing admin system.
+
+Do NOT create parallel admin logic.
+
+Admin manages posts and blocks using patterns defined in blog_implementation.md.
+
+SEO & CONVERSION CONSTRAINTS:
+
+Follow SEO rules and layouts from blog_implementation.md.
+
+Sticky conversion rail and mobile CTA must match existing site design.
+
+AFFILIATE CONSTRAINTS:
+
+Blog pages must respect existing ?aff=CODE session/cookie logic.
+
+Affiliate context must persist across blog → CTA → order.
+
+No registration dependency.
+
+FAIL CONDITIONS (STOP IMMEDIATELY IF ANY OCCUR):
+
+Treating blog_code_execution_guide.md as a coding reference.
+
+Deviating from examples in blog_implementation.md.
+
+Implementing future phases early.
+
+Refactoring unrelated parts of the system.
+
+Code cleanly, minimally, and deliberately.
+This blog system must be SEO-dominant, fast, and maintainable
