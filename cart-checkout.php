@@ -2677,5 +2677,12 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
         };
     }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCartDrawer();
+            updateCartBadge();
+            setInterval(updateCartBadge, 5000);
+        });
+    </script>
 </body>
 </html>

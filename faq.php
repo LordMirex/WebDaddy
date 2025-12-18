@@ -454,5 +454,12 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
     <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
     <script src="/assets/js/nav-smartness.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCartDrawer();
+            updateCartBadge();
+            setInterval(updateCartBadge, 5000);
+        });
+    </script>
 </body>
 </html>

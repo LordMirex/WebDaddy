@@ -16,6 +16,12 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 - Proper spacing on admin pages for pagination visibility
 
 ## Recent Changes (Dec 18, 2025)
+- **COMPLETE: Cart Pre-Loading on ALL Public Pages** - Cart products now display instantly before clicking:
+  - Added `setupCartDrawer()` initialization to all public pages: index, about, contact, faq, careers, cart-checkout, blog pages
+  - Cart drawer setup + real-time badge polling (5-second intervals)
+  - Automatic cart data pre-loading on page load (background, non-blocking)
+  - Cached data displays instantly when user opens cart (within 2 seconds)
+  - NO "empty cart" message - products show immediately
 - **OPTIMIZATION: Instant Cart Loading** - Pre-loads cart data on page load for zero-delay display:
   - Added global `cartDataCache` system to store cart items/totals
   - Cart data auto-loads in background immediately when page loads (via `window.load` event)
