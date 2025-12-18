@@ -451,5 +451,6 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
     </main>
     
     <?php include 'includes/layout/footer.php'; ?>
+    <script src="/assets/js/nav-smartness.js"></script>
 </body>
 </html>
