@@ -55,7 +55,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
             
             <!-- Desktop Navigation -->
-            <div class="hidden lg:flex items-center gap-2 lg:gap-3">
+            <div class="hidden md:flex items-center gap-2 lg:gap-3">
                 <a href="/blog/" 
                    class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
@@ -68,16 +68,8 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 
                 <!-- Customer Account -->
                 <div x-data="customerNav()" class="relative">
-                    <template x-if="customer">
-                        <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors px-2 py-2">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                            </svg>
-                        </a>
-                    </template>
                     <template x-if="!customer">
-                        <a href="/user/login.php" class="inline-flex items-center px-2 py-2 text-xs font-medium text-gray-300 hover:text-gold transition-colors">Login</a>
+                        <a href="/user/login.php" class="px-1.5 py-2 text-xs font-medium text-gray-300 hover:text-gold transition-colors">Login</a>
                     </template>
                 </div>
                 
@@ -93,7 +85,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 
                 <!-- Affiliate CTA -->
                 <a href="/affiliate/register.php" class="btn-gold-shine px-3 py-1.5 text-xs font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
-                    Affiliate
+                    Become an Affiliate
                 </a>
             </div>
             
