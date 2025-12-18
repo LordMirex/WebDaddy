@@ -21,31 +21,19 @@ $pageType = $pageType ?? 'page';
 $affQuery = $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '';
 $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 
-// Check customer session from PHP
-$isLoggedIn = isset($_SESSION['customer_id']) && !empty($_SESSION['customer_id']);
+// Check customer session using the new cookie-based system
+$isLoggedIn = false;
 $customerName = null;
 
-if ($isLoggedIn) {
-    if (isset($_SESSION['customer_name']) && !empty($_SESSION['customer_name'])) {
-        $customerName = $_SESSION['customer_name'];
-    } else {
-        // Fallback: query database if name not in session
-        try {
-            if (!isset($db)) {
-                require_once __DIR__ . '/db.php';
-                $db = getDb();
-            }
-            $stmt = $db->prepare("SELECT name, email FROM customers WHERE id = ? LIMIT 1");
-            $stmt->execute([$_SESSION['customer_id']]);
-            $cust = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($cust) {
-                $customerName = $cust['name'] ?? explode('@', $cust['email'] ?? '')[0];
-                $_SESSION['customer_name'] = $customerName; // Cache it
-            }
-        } catch (Exception $e) {
-            $customerName = null;
-        }
-    }
+// Import customer session functions if not already imported
+if (!function_exists('getCustomerFromSession')) {
+    require_once __DIR__ . '/../customer_session.php';
+}
+
+$customerSession = getCustomerFromSession();
+if ($customerSession && isset($customerSession['name'])) {
+    $isLoggedIn = true;
+    $customerName = $customerSession['name'];
 }
 ?>
 <!-- Navigation Schema for SEO -->
@@ -102,7 +90,7 @@ if ($isLoggedIn) {
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                         <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                     </svg>
-                    <span><?= $isLoggedIn && $customerName ? explode(' ', $customerName)[0] : 'Login'; ?></span>
+                    <span><?= $isLoggedIn ? 'My Account' : 'Login'; ?></span>
                 </a>
                 
                 <?php if ($showCart): ?>
@@ -168,7 +156,7 @@ if ($isLoggedIn) {
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                 </svg>
-                <span><?= $isLoggedIn && $customerName ? explode(' ', $customerName)[0] : 'Login'; ?></span>
+                <span><?= $isLoggedIn ? 'My Account' : 'Login'; ?></span>
             </a>
             
             <!-- Become an Affiliate -->
