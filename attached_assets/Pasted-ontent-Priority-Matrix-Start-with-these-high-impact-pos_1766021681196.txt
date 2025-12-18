@@ -1,0 +1,30 @@
+ontent Priority Matrix
+Start with these high-impact posts first:
+
+Priority	Post Title	Cluster	Why First
+1	How Much Does a Small Business Website Cost in 2025?	Cost & Investment	High search volume, buyer intent
+2	Best Website Templates for Nigerian Businesses in 2025	Industry-Specific	Direct product promotion
+3	How to Choose the Perfect Domain Name for Your Business	Domain Names	Drives domain sales
+4	Complete SEO Guide for Small Business Websites	SEO	Establishes authority
+5	Start Selling Online in Nigeria: Complete E-commerce Guide	E-commerce	E-commerce template sales
+6	Website Conversion Secrets: Turn Visitors Into Customers	Conversion	Premium template upsell
+7	Nigerian Business Success Stories	Success Stories	Social proof, trust building
+8	Start Earning with Affiliate Marketing in Nigeria	Affiliate	Affiliate program growth
+SEO Content Specifications
+For each blog post:
+
+Element	Specification
+Word Count	Pillar: 2,000-3,000 words / Supporting: 1,000-1,500 words
+Heading Structure	1x H1 (title), 5-10x H2, 3-5x H3 per H2
+Images	3-8 images per post with descriptive alt text
+Internal Links	3-5 links to other blog posts + 1-2 links to templates
+External Links	1-3 links to authoritative sources
+Meta Title	50-60 characters, keyword at start
+Meta Description	150-160 characters, includes CTA
+Focus Keyword	In title, first paragraph, 2-3 H2s, meta description
+FAQ Section	3-5 questions for FAQ schema
+CTA Blocks	1x mid-article, 1x end-article (Inline Conversion blocks)
+Summary
+This blog system is designed to be:
+
+✅ SEO Dominant — Schema markup, internal linking, keyword optimization, sitemap integration ✅ Conversion Focused — CTAs throughout, affiliate-aware, template funneling ✅ Plain PHP Friendly — No complex frameworks, SQLite database ✅ Design Consistent — Matches WebDaddy premium aesthetic ✅ Admin Friendly — Visual block editor, no HTML touching ✅ Performance Optimized — Caching, lazy loading, indexed queries ✅ Well-Integrated — Works with existing router, affiliates, templates ✅ Future-Proof — Extensible block system, scalable architecture
