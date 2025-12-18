@@ -48,9 +48,9 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
         <div class="flex justify-between h-16 overflow-visible">
             <!-- Logo -->
             <div class="flex items-center">
-                <a href="/" class="flex items-center" aria-label="<?= SITE_NAME ?> Home">
-                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3" loading="eager" decoding="async">
-                    <span class="text-lg sm:text-2xl font-black bg-gradient-to-r from-gold via-yellow-300 to-gold bg-clip-text text-transparent drop-shadow-lg tracking-wide" style="letter-spacing: 0.05em;"><?= SITE_NAME ?></span>
+                <a href="/" class="flex items-center group" aria-label="<?= SITE_NAME ?> Home">
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3 group-hover:scale-110 transition-transform duration-300" loading="eager" decoding="async">
+                    <span class="text-lg sm:text-2xl font-black bg-gradient-to-r from-yellow-300 via-gold to-yellow-400 bg-clip-text text-transparent tracking-wider" style="letter-spacing: 0.08em; text-shadow: 0 4px 12px rgba(217, 119, 6, 0.4), 0 0 20px rgba(217, 119, 6, 0.2); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));"><?= SITE_NAME ?></span>
                 </a>
             </div>
             
