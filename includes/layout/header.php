@@ -107,7 +107,7 @@ if ($customerSession && !empty($customerSession['id'])) {
                 <?php endif; ?>
                 
                 <!-- Affiliate CTA -->
-                <a href="/affiliate/register.php" class="btn-gold-shine px-3 py-1 text-sm font-semibold rounded-md text-navy transition-all whitespace-nowrap ml-1">
+                <a href="/affiliate/register.php" class="btn-premium-gold px-3 py-1 text-sm font-semibold rounded-md text-navy transition-all whitespace-nowrap ml-1">
                     Become an Affiliate
                 </a>
             </div>
@@ -163,7 +163,7 @@ if ($customerSession && !empty($customerSession['id'])) {
             </a>
             
             <!-- Become an Affiliate -->
-            <a href="/affiliate/register.php" @click="open = false" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
+            <a href="/affiliate/register.php" @click="open = false" class="btn-premium-gold block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
         </div>
     </div>
 </nav>
