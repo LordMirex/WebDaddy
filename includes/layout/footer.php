@@ -152,3 +152,5 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ez8Mcp8KO4jxRoLVY0U0ZsxaZVB1AvZuCy8qX3qMF4Yh+Q5A" crossorigin="anonymous"></script>
 <!-- Scroll Position Restoration - Remembers where you were on each page -->
 <script src="/assets/js/scroll-restoration.js" defer></script>
+<!-- Aggressive Network & Cache Optimization - Desktop & Mobile Speed -->
+<script src="/assets/js/network-optimization.js" defer></script>
