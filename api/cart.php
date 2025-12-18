@@ -37,8 +37,12 @@ startSecureSession();
 // Track affiliate if present
 handleAffiliateTracking();
 
-// Get affiliate code from session for discount calculation
+// Track referral if present
+handleUserReferralTracking();
+
+// Get affiliate and referral codes from session for discount calculation
 $affiliateCode = $_SESSION['affiliate_code'] ?? null;
+$userReferralCode = $_SESSION['referral_code'] ?? null;
 
 try {
     // Get action from GET parameter for GET requests
@@ -59,7 +63,7 @@ try {
             case 'get':
                 // Get cart contents
                 $cartItems = getCart();
-                $totals = getCartTotal(null, $affiliateCode);
+                $totals = getCartTotal(null, $affiliateCode, null, $userReferralCode);
                 
                 echo json_encode([
                     'success' => true,
@@ -67,7 +71,8 @@ try {
                     'count' => $totals['item_count'],
                     'total' => $totals['total'],
                     'totals' => $totals,
-                    'affiliate_code' => $affiliateCode
+                    'affiliate_code' => $affiliateCode,
+                    'referral_code' => $userReferralCode
                 ]);
                 break;
                 
@@ -186,7 +191,7 @@ try {
                 
                 if ($result['success']) {
                     // Get updated totals
-                    $totals = getCartTotal(null, $affiliateCode);
+                    $totals = getCartTotal(null, $affiliateCode, null, $userReferralCode);
                     $count = getCartCount();
                     echo json_encode([
                         'success' => true,
@@ -217,7 +222,7 @@ try {
                 
                 if ($result['success']) {
                     $count = getCartCount();
-                    $totals = getCartTotal(null, $affiliateCode);
+                    $totals = getCartTotal(null, $affiliateCode, null, $userReferralCode);
                     echo json_encode([
                         'success' => true,
                         'message' => $result['message'],
