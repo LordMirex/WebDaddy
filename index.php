@@ -691,15 +691,15 @@ if ($autoOpenTool) {
         }
         /* ========== END CUSTOMER AUTH STYLES ========== */
     </style>
-    <script src="/assets/js/loader-controller.js"></script>
-    <script src="/assets/js/nav-smartness.js"></script>
-    <script src="/assets/js/forms.js" defer></script>
-    <script src="/assets/js/cart-and-tools.js" defer></script>
-    <script src="/assets/js/lazy-load.js" defer></script>
-    <script src="/assets/js/performance.js" defer></script>
-    <script src="/assets/js/video-preloader.js" defer></script>
-    <script src="/assets/js/video-modal.js" defer></script>
-    <script src="/assets/js/share.js"></script>
+    <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/nav-smartness.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/forms.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/lazy-load.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/performance.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/video-preloader.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/share.js?v=<?php echo time(); ?>"></script>
     <?php if ($autoOpenTool): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

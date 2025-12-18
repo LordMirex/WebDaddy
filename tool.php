@@ -143,10 +143,10 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
         }
         }
     </script>
-    <script src="/assets/js/cart-and-tools.js" defer></script>
-    <script src="/assets/js/share.js" defer></script>
-    <script src="/assets/js/lazy-load.js" defer></script>
-    <script src="/assets/js/performance.js" defer></script>
+    <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/share.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/lazy-load.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/performance.js?v=<?php echo time(); ?>" defer></script>
 </head>
 <body class="bg-gray-900">
     <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
@@ -364,7 +364,7 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
         </div>
     </div>
 
-    <script src="/assets/js/video-modal.js"></script>
+    <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>"></script>
     
     <?php include __DIR__ . '/includes/floating-cart-widget.php'; ?>
 </body>
