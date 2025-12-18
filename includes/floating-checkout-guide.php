@@ -22,6 +22,17 @@ if (!$isIndexPage) return;
                 transform: scale(1) translateY(0);
             }
         }
+
+        @keyframes slideOutGuide {
+            from {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.9) translateY(-10px);
+            }
+        }
         
         #floating-checkout-guide .guide-card {
             animation: slideInGuide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -29,6 +40,10 @@ if (!$isIndexPage) return;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
             border-radius: 16px;
             position: relative;
+        }
+
+        #floating-checkout-guide .guide-card.fade-out {
+            animation: slideOutGuide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
         
         /* Speech bubble pointer - positioned towards cart icon */
@@ -66,13 +81,13 @@ if (!$isIndexPage) return;
                 <p class="text-xs text-gray-600 mt-0.5 md:mt-1">Click to view and checkout</p>
                 
                 <!-- Action Button -->
-                <button onclick="toggleCartDrawer(); document.getElementById('floating-checkout-guide').style.display='none';" class="mt-2 md:mt-3 w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-1.5 md:py-2 px-2 md:px-3 rounded-lg transition-all text-xs md:text-sm">
+                <button onclick="toggleCartDrawer(); hideCheckoutGuide();" class="mt-2 md:mt-3 w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-1.5 md:py-2 px-2 md:px-3 rounded-lg transition-all text-xs md:text-sm">
                     View Cart
                 </button>
             </div>
             
             <!-- Close X -->
-            <button onclick="document.getElementById('floating-checkout-guide').style.display='none';" class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-0.5">
+            <button onclick="hideCheckoutGuide();" class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-0.5">
                 <svg class="w-3 md:w-4 h-3 md:h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                 </svg>
@@ -144,11 +159,36 @@ if (!$isIndexPage) return;
         guideCard.style.setProperty('--pointer-left', pointerPosition + '%');
     }
     
+    let hideTimer = null;
+
     function showGuide() {
+        // Clear any pending hide
+        if (hideTimer) clearTimeout(hideTimer);
+        
         guide.style.display = 'block';
+        guideCard.classList.remove('fade-out');
+        
         // Position after render
         setTimeout(() => positionGuide(), 10);
+        
+        // Auto-hide after 6 seconds with fade-out animation
+        hideTimer = setTimeout(() => {
+            guideCard.classList.add('fade-out');
+            setTimeout(() => {
+                guide.style.display = 'none';
+                guideCard.classList.remove('fade-out');
+            }, 400);
+        }, 6000);
     }
+
+    window.hideCheckoutGuide = function() {
+        if (hideTimer) clearTimeout(hideTimer);
+        guideCard.classList.add('fade-out');
+        setTimeout(() => {
+            guide.style.display = 'none';
+            guideCard.classList.remove('fade-out');
+        }, 400);
+    };
     
     window.addEventListener('cart-updated', showGuide);
     
