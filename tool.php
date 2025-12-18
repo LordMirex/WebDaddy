@@ -301,23 +301,25 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
                     <div class="mb-6">
                         <div class="flex justify-between items-baseline mb-2">
                             <span class="text-gray-300">Price:</span>
-                            <span class="text-3xl font-extrabold text-primary-600"><?php echo formatCurrency($tool['price']); ?></span>
+                            <span class="text-3xl font-extrabold text-gold"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                     </div>
 
-                    <?php if ($isInStock): ?>
-                    <button onclick="addToolToCart(<?php echo $tool['id']; ?>)" 
-                            class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-lg transition-all shadow-md hover:shadow-xl flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                        Add to Cart
-                    </button>
-                    <?php else: ?>
-                    <button disabled class="w-full bg-gray-400 text-white font-bold py-4 px-6 rounded-lg cursor-not-allowed">
-                        Out of Stock
-                    </button>
-                    <?php endif; ?>
+                    <div style="display: flex; gap: 4px;">
+                        <?php if ($isInStock): ?>
+                        <button onclick="addToolToCart(<?php echo $tool['id']; ?>, '<?php echo htmlspecialchars($tool['name'], ENT_QUOTES); ?>')" 
+                                style="display: inline-flex; align-items: center; justify-content: center; flex: 1; padding: 8px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #0f172a; background: linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%); box-shadow: 0 2px 8px rgba(212,175,55,0.4); cursor: pointer; transition: all 0.2s; white-space: nowrap;">
+                            <svg style="width: 12px; height: 12px; margin-right: 3px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            Add to Cart
+                        </button>
+                        <?php else: ?>
+                        <button disabled style="display: inline-flex; align-items: center; justify-content: center; flex: 1; padding: 8px 12px; border: none; font-size: 11px; font-weight: 600; border-radius: 6px; color: #9ca3af; background: #374151; cursor: not-allowed; white-space: nowrap;">
+                            Out of Stock
+                        </button>
+                        <?php endif; ?>
+                    </div>
 
                     <div class="mt-6 pt-6 border-t border-gray-700">
                         <h4 class="font-semibold text-white mb-3">What you get:</h4>
