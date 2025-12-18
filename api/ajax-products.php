@@ -314,7 +314,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                             <span style="font-size: 14px; font-weight: 800; color: #D4AF37;"><?php echo formatCurrency($tool['price']); ?></span>
                         </div>
                         <div style="display: flex; gap: 4px;">
-                            <button onclick="window.location.href='<?php echo htmlspecialchars(getToolUrl($tool, $affiliateCode)); ?>'" 
+                            <button onclick="openToolModal(<?php echo $tool['id']; ?>)" 
                                style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border: 1px solid #4b5563; font-size: 10px; font-weight: 600; border-radius: 5px; color: #d1d5db; background: transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
                                 Details
                             </button>
