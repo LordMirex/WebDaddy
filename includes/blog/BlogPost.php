@@ -137,8 +137,8 @@ class BlogPost
             FROM blog_posts p
             LEFT JOIN blog_categories c ON p.category_id = c.id
             WHERE p.status = 'published'
-            AND p.publish_date <= datetime('now', '+1 hour')
-            ORDER BY p.publish_date DESC
+            AND (p.publish_date IS NULL OR p.publish_date <= datetime('now'))
+            ORDER BY p.publish_date DESC, p.created_at DESC
             LIMIT ? OFFSET ?
         ");
         $stmt->execute([$perPage, $offset]);
@@ -150,7 +150,7 @@ class BlogPost
         $stmt = $this->db->query("
             SELECT COUNT(*) FROM blog_posts
             WHERE status = 'published'
-            AND publish_date <= datetime('now', '+1 hour')
+            AND (publish_date IS NULL OR publish_date <= datetime('now'))
         ");
         return (int)$stmt->fetchColumn();
     }
@@ -164,8 +164,8 @@ class BlogPost
             FROM blog_posts p
             LEFT JOIN blog_categories c ON p.category_id = c.id
             WHERE p.category_id = ? AND p.status = 'published'
-            AND p.publish_date <= datetime('now', '+1 hour')
-            ORDER BY p.publish_date DESC
+            AND (p.publish_date IS NULL OR p.publish_date <= datetime('now'))
+            ORDER BY p.publish_date DESC, p.created_at DESC
             LIMIT ? OFFSET ?
         ");
         $stmt->execute([$categoryId, $perPage, $offset]);
@@ -189,7 +189,7 @@ class BlogPost
             SELECT COUNT(DISTINCT p.id) FROM blog_posts p
             INNER JOIN blog_post_tags pt ON p.id = pt.post_id
             WHERE pt.tag_id = ? AND p.status = 'published'
-            AND p.publish_date <= datetime('now', '+1 hour')
+            AND (p.publish_date IS NULL OR p.publish_date <= datetime('now'))
         ");
         $stmt->execute([$tagId]);
         return (int)$stmt->fetchColumn();
@@ -205,8 +205,8 @@ class BlogPost
             LEFT JOIN blog_categories c ON p.category_id = c.id
             INNER JOIN blog_post_tags pt ON p.id = pt.post_id
             WHERE pt.tag_id = ? AND p.status = 'published'
-            AND p.publish_date <= datetime('now', '+1 hour')
-            ORDER BY p.publish_date DESC
+            AND (p.publish_date IS NULL OR p.publish_date <= datetime('now'))
+            ORDER BY p.publish_date DESC, p.created_at DESC
             LIMIT ? OFFSET ?
         ");
         $stmt->execute([$tagId, $perPage, $offset]);
