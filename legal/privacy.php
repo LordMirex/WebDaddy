@@ -6,7 +6,7 @@ require_once __DIR__ . '/../includes/functions.php';
 
 startSecureSession();
 $siteName = SITE_NAME;
-$lastUpdated = 'December 2024';
+$lastUpdated = 'December 2025';
 ?>
 <!DOCTYPE html>
 <html lang="en">
