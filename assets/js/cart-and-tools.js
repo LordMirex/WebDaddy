@@ -1104,12 +1104,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Clear cart with confirmation
+    // Clear cart immediately
     window.clearCartConfirm = async function() {
-        if (!confirm('Are you sure you want to clear your entire cart? This cannot be undone.')) {
-            return;
-        }
-        
         try {
             const params = new URLSearchParams();
             params.set('action', 'clear');
@@ -1123,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                showNotification('🗑️ Cart cleared successfully', 'success');
+                showNotification('🗑️ Cart cleared', 'success');
                 updateCartBadge();
                 loadCartItems();
                 localStorage.removeItem('cartCache');
