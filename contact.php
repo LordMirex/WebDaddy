@@ -173,9 +173,7 @@ $pageUrl = SITE_URL . '/contact.php';
                 <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
                     <h3 class="text-lg font-semibold text-white mb-4">Business Hours</h3>
                     <ul class="space-y-2 text-gray-300">
-                        <li class="flex justify-between"><span>Monday - Friday:</span> <span class="font-medium">8:00 AM - 6:00 PM WAT</span></li>
-                        <li class="flex justify-between"><span>Saturday:</span> <span class="font-medium">10:00 AM - 4:00 PM WAT</span></li>
-                        <li class="flex justify-between"><span>Sunday:</span> <span class="font-medium">Emergency Support Only</span></li>
+                        <li class="flex justify-between"><span>Monday - Sunday:</span> <span class="font-medium">24/7 Always Open</span></li>
                     </ul>
                 </div>
             </div>
