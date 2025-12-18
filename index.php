@@ -788,26 +788,26 @@ if ($autoOpenTool) {
         </svg>
         
         <!-- Main Content Area -->
-        <div class="relative flex-1 flex flex-col lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-1 gap-4 lg:gap-8">
+        <div class="relative flex-1 flex flex-col md:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-1 gap-4 md:gap-8">
             <!-- Left Side (60%) - Text Content Only -->
-            <div class="lg:w-3/5 order-1 lg:order-1">
-                <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-4xl xl:text-5xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
+            <div class="md:w-3/5 order-1 md:order-1">
+                <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-4xl xl:text-5xl font-extrabold mb-2 sm:mb-4 md:mb-6 leading-tight">
                     Launch Your Business Online with <span class="text-gold animate-word-swap" id="animatedWord">Confidence.</span>
                 </h1>
-                <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-400 mb-3 sm:mb-4 lg:mb-8 max-w-xl">
+                <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-400 mb-3 sm:mb-4 md:mb-8 max-w-xl">
                     Professional website templates and digital tools built for African entrepreneurs. Get online in 24 hours, scale your business faster, dominate your market.
                 </p>
                 
                 <!-- Desktop CTA Buttons - Hidden on mobile -->
-                <div class="hidden lg:flex flex-row gap-3 lg:gap-4">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
-                        <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="hidden md:flex flex-row gap-3 md:gap-4">
+                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="btn-gold-shine flex items-center justify-center px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
                         </svg>
                         Browse Templates
                     </a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 lg:px-6 py-2.5 lg:py-3 text-sm lg:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all whitespace-nowrap">
-                        <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="flex items-center justify-center px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-semibold rounded-lg text-gold border-2 border-gold-shine hover:bg-gold hover:text-navy transition-all whitespace-nowrap">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                         </svg>
                         Explore Tools
@@ -816,7 +816,7 @@ if ($autoOpenTool) {
             </div>
                 
             <!-- Right Side (40%) - Animated Website Mockup Slideshow with Portfolio Images -->
-            <div class="lg:w-2/5 hidden lg:block order-2 lg:order-2" x-data="{ 
+            <div class="md:w-2/5 hidden md:block order-2 md:order-2" x-data="{ 
                     currentSlide: 0,
                     slides: [
                         { image: '/assets/images/mockups/viralcuts.jpg', title: 'Viralcuts' },
