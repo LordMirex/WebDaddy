@@ -15,7 +15,8 @@ $action = $_GET['action'] ?? '';
 if ($action === 'load_view') {
     $view = $_GET['view'] ?? 'templates';
     $page = max(1, (int)($_GET['page'] ?? 1));
-    $category = $_GET['category'] ?? null;
+    $category = isset($_GET['category']) ? trim(urldecode($_GET['category'])) : null;
+    $category = ($category === '') ? null : $category;  // Convert empty string to null
     $affiliateCode = $_GET['aff'] ?? '';
     
     // Try cache for templates list
