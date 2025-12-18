@@ -2,8 +2,8 @@ let toolPopupBound = false;
 let guideDisplayCount = 0;  // Track how many times guide has been shown in this session
 let lastCartBadgeUpdate = 0;  // Debounce cart badge updates
 let badgeUpdateTimeout = null;  // Debounce timer
-const BADGE_UPDATE_DELAY = 100;  // ms - debounce cart badge updates (faster counting)
-const CACHE_VALIDITY = 30000;  // 30 seconds - faster cache refresh
+const BADGE_UPDATE_DELAY = 250;  // ms - debounce cart badge updates (smooth & responsive)
+const CACHE_VALIDITY = 60000;  // 1 minute - stable cache with fewer API calls
 
 // Global function to open tool modal - accessible from HTML onclick attributes
 async function openToolModal(toolId) {
