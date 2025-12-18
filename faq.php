@@ -13,7 +13,6 @@ handleAffiliateTracking();
 
 $activeNav = 'faq';
 $affiliateCode = getAffiliateCode();
-$cartCount = getCartCount();
 
 $pageTitle = 'FAQ - Frequently Asked Questions - ' . SITE_NAME;
 $pageDescription = 'Find answers to common questions about WebDaddy Empire templates, tools, pricing, delivery, refunds, and support.';

@@ -13,7 +13,6 @@ handleAffiliateTracking();
 
 $activeNav = 'pricing';
 $affiliateCode = getAffiliateCode();
-$cartCount = getCartCount();
 
 $pageTitle = 'Pricing - ' . SITE_NAME;
 $pageDescription = 'Affordable website templates and digital tools. Transparent pricing with no hidden fees. Get premium templates from ₦2,000 or digital tools from ₦1,000.';

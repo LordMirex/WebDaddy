@@ -10,7 +10,6 @@ handleAffiliateTracking();
 
 $activeNav = 'security';
 $affiliateCode = getAffiliateCode();
-$cartCount = getCartCount();
 
 $pageTitle = 'Security & Trust - ' . SITE_NAME;
 $pageDescription = 'Learn about our security measures, data protection, and trust certifications at WebDaddy Empire.';

@@ -10,7 +10,6 @@ handleAffiliateTracking();
 
 $activeNav = 'careers';
 $affiliateCode = getAffiliateCode();
-$cartCount = getCartCount();
 
 $pageTitle = 'Careers - Join ' . SITE_NAME;
 $pageDescription = 'Join our team! We\'re hiring talented individuals to help us serve African entrepreneurs.';
