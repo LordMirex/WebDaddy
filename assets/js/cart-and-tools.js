@@ -333,6 +333,420 @@ function showToolModal(tool) {
     document.body.style.overflow = 'hidden';
 }
 
+// Cart Drawer - Move BEFORE initialization calls
+function setupCartDrawer() {
+    const existingDrawer = document.getElementById('cart-drawer');
+    if (existingDrawer) return;
+    
+    const cartDrawer = document.createElement('div');
+    cartDrawer.id = 'cart-drawer';
+    cartDrawer.className = 'fixed inset-0 z-50 hidden';
+    cartDrawer.innerHTML = `
+        <div class="absolute inset-0 bg-gray-900 bg-opacity-50" onclick="toggleCartDrawer()"></div>
+        <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
+            <div class="h-full flex flex-col">
+                <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-900">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-lg font-bold text-white">Your Cart</h3>
+                        <span id="cart-badge-drawer" class="bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+                    </div>
+                    <button onclick="toggleCartDrawer()" class="text-gray-200 hover:text-gray-100 transition-colors p-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="cart-items" class="flex-1 overflow-y-auto p-4">
+                    <p class="text-gray-400 text-center py-8">Your cart is empty</p>
+                </div>
+                <div id="cart-footer" class="hidden border-t border-gray-700 p-4 bg-gray-900 space-y-3">
+                    <div id="cart-totals-container" class="space-y-2 pb-3 border-b border-gray-700">
+                        <div class="flex justify-between text-sm text-gray-300">
+                            <span>Subtotal</span>
+                            <span id="cart-subtotal">₦0</span>
+                        </div>
+                        <div id="cart-discount-row" class="hidden flex justify-between text-sm text-green-400">
+                            <span>Discount</span>
+                            <span id="cart-discount-amount">-₦0</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold text-white pt-2">
+                            <span>Total</span>
+                            <span id="cart-total">₦0</span>
+                        </div>
+                    </div>
+                    <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-3 rounded-lg transition-all shadow-lg">
+                        Proceed to Checkout
+                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="toggleCartDrawer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors">
+                            Continue Shopping
+                        </button>
+                        <button onclick="clearCartConfirm()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1" title="Clear all items">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(cartDrawer);
+}
+
+window.toggleCartDrawer = function() {
+    const drawer = document.getElementById('cart-drawer');
+    const content = document.getElementById('cart-drawer-content');
+    
+    if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        content.classList.remove('translate-x-full');
+        loadCartItems();
+    } else {
+        content.classList.add('translate-x-full');
+        drawer.classList.add('hidden');
+    }
+};
+
+window.clearCartConfirm = async function() {
+    try {
+        const params = new URLSearchParams();
+        params.set('action', 'clear');
+        
+        const response = await fetch('/api/cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.removeItem('cartBadgeCount');
+            localStorage.removeItem('cartBadgeTime');
+            updateBadgeElement('cart-count', 0);
+            updateBadgeElement('cart-count-mobile-icon', 0);
+            loadCartItems();
+            showNotification('🗑️ Cart cleared', 'success', false);
+            
+            const drawer = document.getElementById('cart-drawer');
+            if (drawer && !drawer.classList.contains('hidden')) {
+                const content = document.getElementById('cart-drawer-content');
+                content.classList.add('translate-x-full');
+                drawer.classList.add('hidden');
+            }
+        }
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+    }
+};
+
+window.addToCartFromModal = async function(toolId, toolName, price) {
+    return await addProductToCart('tool', toolId, toolName, 1);
+};
+
+window.addToolToCart = async function(toolId, toolName, button) {
+    if (button) button.disabled = true;
+    const result = await addProductToCart('tool', toolId, toolName, 1);
+    if (button) button.disabled = false;
+    return result;
+};
+
+window.addTemplateToCart = async function(templateId, templateName, button) {
+    if (button) button.disabled = true;
+    const result = await addProductToCart('template', templateId, templateName, 1);
+    if (button) button.disabled = false;
+    return result;
+};
+
+async function addProductToCart(productType, productId, productName, quantity = 1) {
+    try {
+        const params = new URLSearchParams();
+        params.set('action', 'add');
+        params.set('product_type', productType);
+        params.set('product_id', productId);
+        params.set('quantity', quantity);
+        
+        const response = await fetch('/api/cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        });
+        
+        if (!response.ok) {
+            const text = await response.text();
+            let errorMessage = 'Failed to add to cart';
+            try {
+                const errorData = JSON.parse(text);
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch (e) {
+                console.error('Server returned non-JSON error:', text);
+            }
+            showNotification(errorMessage, 'error');
+            return false;
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (window.closeToolModal) closeToolModal();
+            const notificationMessage = productName ? `${productName} added to cart!` : (data.message || 'Added to cart!');
+            showNotification(notificationMessage, 'success');
+            
+            const now = Date.now();
+            lastCartBadgeUpdate = now;
+            const cartCount = parseInt(data.count) || 0;
+            updateBadgeElement('cart-count', cartCount);
+            updateBadgeElement('cart-count-mobile-icon', cartCount);
+            
+            localStorage.setItem('cartBadgeCount', cartCount.toString());
+            localStorage.setItem('cartBadgeTime', now.toString());
+            
+            animateCartBadge();
+            
+            if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
+                try {
+                    const totalItems = parseInt(data.count) || 0;
+                    if ((totalItems - 1) % 3 === 0) {
+                        setTimeout(() => {
+                            window.dispatchEvent(new Event('cart-updated'));
+                        }, 4100);
+                    }
+                } catch (err) {
+                    console.error('Guide logic error:', err);
+                }
+            }
+            
+            return true;
+        } else {
+            showNotification(data.message || data.error || 'Failed to add to cart', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Add to cart error:', error);
+        showNotification('Failed to add to cart', 'error');
+        return false;
+    }
+}
+
+function animateCartBadge() {
+    const floatingCart = document.getElementById('floating-cart');
+    if (floatingCart) {
+        floatingCart.classList.add('animate-bounce');
+        setTimeout(() => floatingCart.classList.remove('animate-bounce'), 500);
+    }
+}
+
+async function updateCartBadge() {
+    const now = Date.now();
+    if (now - lastCartBadgeUpdate < BADGE_UPDATE_DELAY) {
+        if (badgeUpdateTimeout) clearTimeout(badgeUpdateTimeout);
+        badgeUpdateTimeout = setTimeout(updateCartBadge, BADGE_UPDATE_DELAY);
+        return;
+    }
+    lastCartBadgeUpdate = now;
+    
+    try {
+        const response = await fetch('/api/cart.php?action=get');
+        const data = await response.json();
+        
+        if (data.success) {
+            const count = parseInt(data.count) || 0;
+            updateBadgeElement('cart-count', count);
+            updateBadgeElement('cart-count-mobile-icon', count);
+        }
+    } catch (error) {
+        console.error('Failed to update cart badge:', error);
+    }
+}
+
+function updateBadgeElement(id, count) {
+    const badge = document.getElementById(id);
+    if (!badge) return;
+    
+    const numCount = parseInt(count) || 0;
+    badge.textContent = numCount || '0';
+    
+    if (numCount > 0) {
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+async function loadCartItems() {
+    try {
+        const response = await fetch('/api/cart.php?action=get');
+        const data = await response.json();
+        
+        if (data.success) {
+            const items = data.items || [];
+            const totals = data.totals || data.total || 0;
+            
+            displayCartItems(items, totals);
+            
+            const count = parseInt(data.count) || 0;
+            updateBadgeElement('cart-count', count);
+            updateBadgeElement('cart-count-mobile-icon', count);
+            
+            const now = Date.now();
+            localStorage.setItem('cartBadgeCount', count.toString());
+            localStorage.setItem('cartBadgeTime', now.toString());
+        } else {
+            displayCartItems([], 0);
+        }
+    } catch (error) {
+        console.error('Failed to load cart:', error);
+        displayCartItems([], 0);
+    }
+}
+
+function displayCartItems(items, totals) {
+    const container = document.getElementById('cart-items');
+    const footer = document.getElementById('cart-footer');
+    
+    if (items.length === 0) {
+        container.innerHTML = '<p class="text-gray-200 text-center py-8">Your cart is empty</p>';
+        footer.classList.add('hidden');
+        return;
+    }
+    
+    container.innerHTML = items.map(item => {
+        const itemTotal = (item.price_at_add || item.price) * item.quantity;
+        const productType = item.product_type || 'tool';
+        const isTemplate = productType === 'template';
+        
+        return `
+        <div class="flex items-start gap-2 py-2 px-3 bg-gray-800 rounded-lg border border-gray-700">
+            <img src="${escapeHtml(item.thumbnail_url || '/assets/images/placeholder.jpg')}" 
+                 alt="${escapeHtml(item.name)}"
+                 class="w-14 h-14 object-cover rounded flex-shrink-0"
+                 onerror="this.src='/assets/images/placeholder.jpg'">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                    <h4 class="font-medium text-sm text-white truncate">${escapeHtml(item.name)}</h4>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded ${isTemplate ? 'bg-gold/20 text-gold' : 'bg-green-900 text-green-100'}">${isTemplate ? 'Template' : 'Tool'}</span>
+                </div>
+                <p class="text-xs text-gray-300">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity} = <span class="font-semibold text-white">${formatCurrency((item.price_at_add || item.price) * item.quantity)}</span></p>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                ${!isTemplate ? `
+                    <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" 
+                            class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-gray-200 font-bold text-sm transition-colors">−</button>
+                    <span class="w-6 text-center font-semibold text-gray-100 text-sm">${item.quantity}</span>
+                    <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" 
+                            class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-gray-200 font-bold text-sm transition-colors">+</button>
+                ` : ''}
+            </div>
+            <button onclick="removeFromCart(${item.id})" 
+                    class="text-red-500 hover:text-red-700 transition-colors flex-shrink-0 p-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        `;
+    }).join('');
+    
+    const subtotalEl = document.getElementById('cart-subtotal');
+    const totalEl = document.getElementById('cart-total');
+    const discountRow = document.getElementById('cart-discount-row');
+    const discountAmount = document.getElementById('cart-discount-amount');
+    
+    if (totals && typeof totals === 'object') {
+        subtotalEl.textContent = formatCurrency(totals.subtotal || 0);
+        
+        if (totals.has_discount && totals.discount > 0) {
+            if (discountRow && discountAmount) {
+                discountAmount.textContent = '-' + formatCurrency(totals.discount);
+                discountRow.classList.remove('hidden');
+            }
+        } else {
+            if (discountRow) {
+                discountRow.classList.add('hidden');
+            }
+        }
+        
+        totalEl.textContent = formatCurrency(totals.total || 0);
+    } else {
+        const total = typeof totals === 'number' ? totals : 0;
+        subtotalEl.textContent = formatCurrency(total);
+        totalEl.textContent = formatCurrency(total);
+        if (discountRow) {
+            discountRow.classList.add('hidden');
+        }
+    }
+    
+    footer.classList.remove('hidden');
+}
+
+window.updateCartQuantity = async function(cartId, newQuantity) {
+    if (newQuantity < 1) {
+        removeFromCart(cartId);
+        return;
+    }
+    
+    try {
+        const params = new URLSearchParams();
+        params.set('action', 'update');
+        params.set('cart_id', cartId);
+        params.set('quantity', newQuantity);
+        
+        const response = await fetch('/api/cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+            localStorage.setItem('cartCache', JSON.stringify(cacheData));
+            
+            await loadCartItems();
+            await updateCartBadge();
+        } else {
+            showNotification(data.message || 'Failed to update quantity', 'error');
+        }
+    } catch (error) {
+        console.error('Failed to update quantity:', error);
+        showNotification('Failed to update quantity', 'error');
+    }
+};
+
+window.removeFromCart = async function(cartId) {
+    try {
+        const params = new URLSearchParams();
+        params.set('action', 'remove');
+        params.set('cart_id', cartId);
+        
+        const response = await fetch('/api/cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+            localStorage.setItem('cartCache', JSON.stringify(cacheData));
+            
+            await loadCartItems();
+            await updateCartBadge();
+            showNotification('Item removed from cart', 'success');
+        } else {
+            showNotification(data.message || 'Failed to remove item', 'error');
+        }
+    } catch (error) {
+        console.error('Failed to remove item:', error);
+        showNotification('Failed to remove item', 'error');
+    }
+};
+
 // CRITICAL: Initialize cart on ALL pages IMMEDIATELY (before DOMContentLoaded)
 // This ensures cart works on pages without products sections
 setupCartDrawer();
@@ -1050,464 +1464,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Proceed to checkout - go directly to checkout page, NOT back to homepage
     window.proceedToCheckout = function() {
         window.location.href = '/cart-checkout.php';
-    };
-    
-    // Cart Drawer
-    function setupCartDrawer() {
-        const existingDrawer = document.getElementById('cart-drawer');
-        if (existingDrawer) return;
-        
-        const cartDrawer = document.createElement('div');
-        cartDrawer.id = 'cart-drawer';
-        cartDrawer.className = 'fixed inset-0 z-50 hidden';
-        cartDrawer.innerHTML = `
-            <div class="absolute inset-0 bg-gray-900 bg-opacity-50" onclick="toggleCartDrawer()"></div>
-            <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
-                <div class="h-full flex flex-col">
-                    <!-- Header with Close Button -->
-                    <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-900">
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-lg font-bold text-white">Your Cart</h3>
-                            <span id="cart-badge-drawer" class="bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
-                        </div>
-                        <button onclick="toggleCartDrawer()" class="text-gray-200 hover:text-gray-100 transition-colors p-1">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <!-- Cart Items Container -->
-                    <div id="cart-items" class="flex-1 overflow-y-auto p-4">
-                        <p class="text-gray-400 text-center py-8">Your cart is empty</p>
-                    </div>
-                    
-                    <!-- Cart Footer - Totals & Buttons -->
-                    <div id="cart-footer" class="hidden border-t border-gray-700 p-4 bg-gray-900 space-y-3">
-                        <!-- Totals Section -->
-                        <div id="cart-totals-container" class="space-y-2 pb-3 border-b border-gray-700">
-                            <div class="flex justify-between text-sm text-gray-300">
-                                <span>Subtotal</span>
-                                <span id="cart-subtotal">₦0</span>
-                            </div>
-                            <div id="cart-discount-row" class="hidden flex justify-between text-sm text-green-400">
-                                <span>Discount</span>
-                                <span id="cart-discount-amount">-₦0</span>
-                            </div>
-                            <div class="flex justify-between text-lg font-bold text-white pt-2">
-                                <span>Total</span>
-                                <span id="cart-total">₦0</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Action Buttons -->
-                        <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-3 rounded-lg transition-all shadow-lg">
-                            Proceed to Checkout
-                        </button>
-                        
-                        <div class="flex gap-2">
-                            <button onclick="toggleCartDrawer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors">
-                                Continue Shopping
-                            </button>
-                            <button onclick="clearCartConfirm()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1" title="Clear all items">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(cartDrawer);
-    }
-    
-    window.toggleCartDrawer = function() {
-        const drawer = document.getElementById('cart-drawer');
-        const content = document.getElementById('cart-drawer-content');
-        
-        if (drawer.classList.contains('hidden')) {
-            drawer.classList.remove('hidden');
-            content.classList.remove('translate-x-full');
-            loadCartItems();
-        } else {
-            content.classList.add('translate-x-full');
-            drawer.classList.add('hidden');
-        }
-    };
-    
-    // Clear cart immediately - no confirmation needed
-    window.clearCartConfirm = async function() {
-        try {
-            const params = new URLSearchParams();
-            params.set('action', 'clear');
-            
-            const response = await fetch('/api/cart.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Clear all cache
-                localStorage.removeItem('cartBadgeCount');
-                localStorage.removeItem('cartBadgeTime');
-                
-                // Update badge to 0
-                updateBadgeElement('cart-count', 0);
-                updateBadgeElement('cart-count-mobile-icon', 0);
-                
-                // Reload cart items (will show empty)
-                loadCartItems();
-                showNotification('🗑️ Cart cleared', 'success', false);
-                
-                // Close cart drawer
-                const drawer = document.getElementById('cart-drawer');
-                if (drawer && !drawer.classList.contains('hidden')) {
-                    const content = document.getElementById('cart-drawer-content');
-                    content.classList.add('translate-x-full');
-                    drawer.classList.add('hidden');
-                }
-            }
-        } catch (error) {
-            console.error('Error clearing cart:', error);
-        }
-    };
-    
-    // Add to Cart (for Tools)
-    window.addToCartFromModal = async function(toolId, toolName, price) {
-        return await addProductToCart('tool', toolId, toolName, 1);
-    };
-    
-    // Add Tool to Cart
-    window.addToolToCart = async function(toolId, toolName, button) {
-        if (button) button.disabled = true;
-        const result = await addProductToCart('tool', toolId, toolName, 1);
-        if (button) button.disabled = false;
-        return result;
-    };
-    
-    // Add Template to Cart
-    window.addTemplateToCart = async function(templateId, templateName, button) {
-        if (button) button.disabled = true;
-        const result = await addProductToCart('template', templateId, templateName, 1);
-        if (button) button.disabled = false;
-        return result;
-    };
-    
-    // Unified Add Product to Cart function
-    async function addProductToCart(productType, productId, productName, quantity = 1) {
-        try {
-            const params = new URLSearchParams();
-            params.set('action', 'add');
-            params.set('product_type', productType);
-            params.set('product_id', productId);
-            params.set('quantity', quantity);
-            
-            const response = await fetch('/api/cart.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            });
-            
-            if (!response.ok) {
-                const text = await response.text();
-                let errorMessage = 'Failed to add to cart';
-                try {
-                    const errorData = JSON.parse(text);
-                    errorMessage = errorData.message || errorData.error || errorMessage;
-                } catch (e) {
-                    console.error('Server returned non-JSON error:', text);
-                }
-                showNotification(errorMessage, 'error');
-                return false;
-            }
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                if (window.closeToolModal) closeToolModal();
-                const notificationMessage = productName ? `${productName} added to cart!` : (data.message || 'Added to cart!');
-                showNotification(notificationMessage, 'success');
-                
-                // Update badge immediately with the new count
-                const now = Date.now();
-                lastCartBadgeUpdate = now;
-                const cartCount = parseInt(data.count) || 0;
-                updateBadgeElement('cart-count', cartCount);
-                updateBadgeElement('cart-count-mobile-icon', cartCount);
-                
-                // Store count only (not items) for quick badge updates
-                localStorage.setItem('cartBadgeCount', cartCount.toString());
-                localStorage.setItem('cartBadgeTime', now.toString());
-                
-                // Animate cart button
-                animateCartBadge();
-                
-                // TRIGGER CHECKOUT GUIDE ON INDEX PAGE - SHOW AT 1st, 4th, 7th, 10th item, etc (every 3 items)
-                if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
-                    try {
-                        const totalItems = parseInt(data.count) || 0;
-                        
-                        // Show guide when: 1st item (1), 4th item (4), 7th item (7), 10th item (10), etc.
-                        // This is when (totalItems - 1) % 3 === 0
-                        if ((totalItems - 1) % 3 === 0) {
-                            // Timeout: 4100ms = 4000ms notification + 100ms buffer to start showing right as notification fades
-                            setTimeout(() => {
-                                window.dispatchEvent(new Event('cart-updated'));
-                            }, 4100);
-                        }
-                    } catch (err) {
-                        console.error('Guide logic error:', err);
-                    }
-                }
-                
-                return true;
-            } else {
-                showNotification(data.message || data.error || 'Failed to add to cart', 'error');
-                return false;
-            }
-        } catch (error) {
-            console.error('Add to cart error:', error);
-            showNotification('Failed to add to cart', 'error');
-            return false;
-        }
-    }
-    
-    function animateCartBadge() {
-        const floatingCart = document.getElementById('floating-cart');
-        if (floatingCart) {
-            floatingCart.classList.add('animate-bounce');
-            setTimeout(() => floatingCart.classList.remove('animate-bounce'), 500);
-        }
-    }
-    
-    async function updateCartBadge() {
-        // DEBOUNCE: Skip if update happened recently to prevent redundant API calls
-        const now = Date.now();
-        if (now - lastCartBadgeUpdate < BADGE_UPDATE_DELAY) {
-            if (badgeUpdateTimeout) clearTimeout(badgeUpdateTimeout);
-            badgeUpdateTimeout = setTimeout(updateCartBadge, BADGE_UPDATE_DELAY);
-            return;
-        }
-        lastCartBadgeUpdate = now;
-        
-        try {
-            const response = await fetch('/api/cart.php?action=get');
-            const data = await response.json();
-            
-            if (data.success) {
-                const count = parseInt(data.count) || 0;
-                updateBadgeElement('cart-count', count);
-                updateBadgeElement('cart-count-mobile-icon', count);
-            }
-        } catch (error) {
-            console.error('Failed to update cart badge:', error);
-        }
-    }
-    
-    function updateBadgeElement(id, count) {
-        const badge = document.getElementById(id);
-        if (!badge) return;
-        
-        const numCount = parseInt(count) || 0;
-        
-        // Always update the text content
-        badge.textContent = numCount || '0';
-        
-        // Simple class toggle - no inline styles
-        if (numCount > 0) {
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
-    }
-    
-    async function loadCartItems() {
-        // Always fetch fresh cart items from server - never use stale cache
-        try {
-            const response = await fetch('/api/cart.php?action=get');
-            const data = await response.json();
-            
-            if (data.success) {
-                const items = data.items || [];
-                const totals = data.totals || data.total || 0;
-                
-                // Display the fresh cart data
-                displayCartItems(items, totals);
-                
-                // Update badge with fresh count
-                const count = parseInt(data.count) || 0;
-                updateBadgeElement('cart-count', count);
-                updateBadgeElement('cart-count-mobile-icon', count);
-                
-                // Store count only for quick badge updates (not items)
-                const now = Date.now();
-                localStorage.setItem('cartBadgeCount', count.toString());
-                localStorage.setItem('cartBadgeTime', now.toString());
-            } else {
-                displayCartItems([], 0);
-            }
-        } catch (error) {
-            console.error('Failed to load cart:', error);
-            displayCartItems([], 0);
-        }
-    }
-    
-    function displayCartItems(items, totals) {
-        const container = document.getElementById('cart-items');
-        const footer = document.getElementById('cart-footer');
-        
-        if (items.length === 0) {
-            container.innerHTML = '<p class="text-gray-200 text-center py-8">Your cart is empty</p>';
-            footer.classList.add('hidden');
-            return;
-        }
-        
-        container.innerHTML = items.map(item => {
-            const itemTotal = (item.price_at_add || item.price) * item.quantity;
-            const productType = item.product_type || 'tool';
-            const isTemplate = productType === 'template';
-            
-            return `
-            <div class="flex items-start gap-2 py-2 px-3 bg-gray-800 rounded-lg border border-gray-700">
-                <img src="${escapeHtml(item.thumbnail_url || '/assets/images/placeholder.jpg')}" 
-                     alt="${escapeHtml(item.name)}"
-                     class="w-14 h-14 object-cover rounded flex-shrink-0"
-                     onerror="this.src='/assets/images/placeholder.jpg'">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-0.5">
-                        <h4 class="font-medium text-sm text-white truncate">${escapeHtml(item.name)}</h4>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded ${isTemplate ? 'bg-gold/20 text-gold' : 'bg-green-900 text-green-100'}">${isTemplate ? 'Template' : 'Tool'}</span>
-                    </div>
-                    <p class="text-xs text-gray-300">${formatCurrency(item.price_at_add || item.price)}${isTemplate ? '' : ' × ' + item.quantity} = <span class="font-semibold text-white">${formatCurrency((item.price_at_add || item.price) * item.quantity)}</span></p>
-                </div>
-                <div class="flex items-center gap-1 flex-shrink-0">
-                    ${!isTemplate ? `
-                        <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" 
-                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-gray-200 font-bold text-sm transition-colors">−</button>
-                        <span class="w-6 text-center font-semibold text-gray-100 text-sm">${item.quantity}</span>
-                        <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" 
-                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-gray-200 font-bold text-sm transition-colors">+</button>
-                    ` : ''}
-                </div>
-                <button onclick="removeFromCart(${item.id})" 
-                        class="text-red-500 hover:text-red-700 transition-colors flex-shrink-0 p-0.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-        `;
-        }).join('');
-        
-        // Display totals properly with discount if applicable
-        const subtotalEl = document.getElementById('cart-subtotal');
-        const totalEl = document.getElementById('cart-total');
-        const discountRow = document.getElementById('cart-discount-row');
-        const discountAmount = document.getElementById('cart-discount-amount');
-        
-        if (totals && typeof totals === 'object') {
-            subtotalEl.textContent = formatCurrency(totals.subtotal || 0);
-            
-            // Show/hide discount row if applicable
-            if (totals.has_discount && totals.discount > 0) {
-                if (discountRow && discountAmount) {
-                    discountAmount.textContent = '-' + formatCurrency(totals.discount);
-                    discountRow.classList.remove('hidden');
-                }
-            } else {
-                if (discountRow) {
-                    discountRow.classList.add('hidden');
-                }
-            }
-            
-            totalEl.textContent = formatCurrency(totals.total || 0);
-        } else {
-            // Fallback to simple total
-            const total = typeof totals === 'number' ? totals : 0;
-            subtotalEl.textContent = formatCurrency(total);
-            totalEl.textContent = formatCurrency(total);
-            if (discountRow) {
-                discountRow.classList.add('hidden');
-            }
-        }
-        
-        footer.classList.remove('hidden');
-    }
-    
-    window.updateCartQuantity = async function(cartId, newQuantity) {
-        if (newQuantity < 1) {
-            // If quantity goes to 0, remove the item
-            removeFromCart(cartId);
-            return;
-        }
-        
-        try {
-            const params = new URLSearchParams();
-            params.set('action', 'update');
-            params.set('cart_id', cartId);
-            params.set('quantity', newQuantity);
-            
-            const response = await fetch('/api/cart.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Cache updated cart immediately for instant display
-                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
-                localStorage.setItem('cartCache', JSON.stringify(cacheData));
-                
-                // Reload cart with fresh data from server
-                await loadCartItems();
-                await updateCartBadge();
-            } else {
-                showNotification(data.message || 'Failed to update quantity', 'error');
-            }
-        } catch (error) {
-            console.error('Failed to update quantity:', error);
-            showNotification('Failed to update quantity', 'error');
-        }
-    };
-    
-    window.removeFromCart = async function(cartId) {
-        try {
-            const params = new URLSearchParams();
-            params.set('action', 'remove');
-            params.set('cart_id', cartId);
-            
-            const response = await fetch('/api/cart.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                // Cache updated cart immediately for instant display
-                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
-                localStorage.setItem('cartCache', JSON.stringify(cacheData));
-                
-                // Reload cart with fresh data from server
-                await loadCartItems();
-                await updateCartBadge();
-                showNotification('Item removed from cart', 'success');
-            } else {
-                showNotification(data.message || 'Failed to remove item', 'error');
-            }
-        } catch (error) {
-            console.error('Failed to remove item:', error);
-            showNotification('Failed to remove item', 'error');
-        }
     };
     
     
