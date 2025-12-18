@@ -428,6 +428,7 @@ window.clearCartConfirm = async function() {
             localStorage.removeItem('cartBadgeTime');
             updateBadgeElement('cart-count', 0);
             updateBadgeElement('cart-count-mobile-icon', 0);
+            updateBadgeElement('cart-badge-drawer', 0);
             loadCartItems();
             showNotification('🗑️ Cart cleared', 'success', false);
             
@@ -498,8 +499,11 @@ async function addProductToCart(productType, productId, productName, quantity = 
             const now = Date.now();
             lastCartBadgeUpdate = now;
             const cartCount = parseInt(data.count) || 0;
+            
+            // Update ALL cart badge elements
             updateBadgeElement('cart-count', cartCount);
             updateBadgeElement('cart-count-mobile-icon', cartCount);
+            updateBadgeElement('cart-badge-drawer', cartCount);
             
             localStorage.setItem('cartBadgeCount', cartCount.toString());
             localStorage.setItem('cartBadgeTime', now.toString());
@@ -556,6 +560,7 @@ async function updateCartBadge() {
             const count = parseInt(data.count) || 0;
             updateBadgeElement('cart-count', count);
             updateBadgeElement('cart-count-mobile-icon', count);
+            updateBadgeElement('cart-badge-drawer', count);
         }
     } catch (error) {
         console.error('Failed to update cart badge:', error);
@@ -564,15 +569,18 @@ async function updateCartBadge() {
 
 function updateBadgeElement(id, count) {
     const badge = document.getElementById(id);
-    if (!badge) return;
+    if (!badge) return; // Element may not exist on all pages
     
-    const numCount = parseInt(count) || 0;
-    badge.textContent = numCount || '0';
+    const numCount = Math.max(0, parseInt(count) || 0);
+    badge.textContent = numCount.toString();
     
+    // Toggle visibility based on count
     if (numCount > 0) {
         badge.classList.remove('hidden');
+        badge.style.display = ''; // Ensure display is not overridden
     } else {
         badge.classList.add('hidden');
+        badge.style.display = 'none'; // Force hide
     }
 }
 
