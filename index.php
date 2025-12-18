@@ -774,10 +774,13 @@ if ($autoOpenTool) {
                         <span class="text-xl font-bold text-white"><?php echo SITE_NAME; ?></span>
                     </a>
                 </div>
-                <div class="hidden md:flex items-center space-x-8">
+                <div class="hidden md:flex items-center space-x-6">
                     <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Templates</a>
                     <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Tools</a>
-                    <a href="#faq" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
+                    <a href="/pricing.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">Pricing</a>
+                    <a href="/faq.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
+                    <a href="/about.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">About</a>
+                    <a href="/contact.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">Contact</a>
                     <div x-data="customerNav()" class="relative">
                         <template x-if="customer">
                             <a href="/user/" class="inline-flex items-center border-b-2 border-transparent text-gold hover:text-gold-400 font-medium transition-colors py-4">
@@ -830,7 +833,10 @@ if ($autoOpenTool) {
             <div class="px-2 pt-2 pb-4 space-y-1">
                 <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" @click="open = false" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'templates' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Templates</a>
                 <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" @click="open = false" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Tools</a>
-                <a href="#faq" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
+                <a href="/pricing.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">Pricing</a>
+                <a href="/faq.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
+                <a href="/about.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">About</a>
+                <a href="/contact.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">Contact</a>
                 <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
                 <div class="border-t border-navy-light/50 pt-3 mt-3" x-data="customerNav()">
                     <a :href="customer ? '/user/' : '/user/login.php'" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
@@ -1797,7 +1803,10 @@ if ($autoOpenTool) {
                     <div class="flex flex-wrap gap-x-4 gap-y-1">
                         <a href="/?view=templates" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Templates</a>
                         <a href="/?view=tools" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Tools</a>
-                        <a href="#faq" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
+                        <a href="/pricing.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Pricing</a>
+                        <a href="/faq.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
+                        <a href="/about.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">About</a>
+                        <a href="/contact.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Contact</a>
                         <a href="/affiliate/register.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Affiliate</a>
                     </div>
                     <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', '+2349132672126')); ?>" 
