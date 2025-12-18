@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
         function renderTemplates(templates) {
             const contentArea = document.getElementById('products-content-area');
             const html = `
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mb-10" data-templates-grid>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10" data-templates-grid>
                     ${templates.map(template => {
                         const templateSlug = template.slug || template.id;
                         const mediaType = template.media_type || 'banner';
@@ -536,14 +536,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         return `
                         <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;" data-template-id="${template.id}">
-                            <div style="position: relative; overflow: hidden; height: 150px; background: #0f172a;">
+                            <div style="position: relative; overflow: hidden; height: 140px; background: #0f172a;">
                                 <img src="${escapeHtml(template.thumbnail_url || '/assets/images/placeholder.jpg')}" 
                                      alt="${escapeHtml(template.name)}"
                                      style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
                                      onerror="this.src='/assets/images/placeholder.jpg'">
                                 ${hasDemo ? `
                                 <button onclick="event.stopPropagation(); ${isYoutube ? `openYoutubeModal('${escapeJsString(template.preview_youtube)}', '${escapeJsString(template.name)}')` : isVideo ? `openVideoModal('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')` : `openDemoFullscreen('${escapeJsString(demoUrl)}', '${escapeJsString(template.name)}')`}"
-                                        style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: none; cursor: pointer; z-index: 10; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">
+                                        style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
                                     <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -552,19 +552,19 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                                 ` : ''}
                             </div>
-                            <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 4px;">
-                                    <h3 style="font-size: 13px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 4px; line-height: 1.3;">${escapeHtml(template.name)}</h3>
-                                    <span style="display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 9999px; font-size: 10px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
+                            <div style="padding: 10px; flex-grow: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; gap: 4px;">
+                                    <h3 style="font-size: 12px; font-weight: bold; color: #ffffff; flex: 1; padding-right: 4px; line-height: 1.2;">${escapeHtml(template.name)}</h3>
+                                    <span style="display: inline-flex; align-items: center; padding: 2px 5px; border-radius: 9999px; font-size: 9px; font-weight: 500; background: rgba(212,175,55,0.2); color: #D4AF37; white-space: nowrap;">
                                         ${escapeHtml(template.category || '')}
                                     </span>
                                 </div>
-                                ${descText ? `<p style="color: #9ca3af; font-size: 11px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">${escapeHtml(descText)}</p>` : ''}
-                                <div style="flex-grow: 1;"></div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(55,65,81,0.5);">
+                                ${descText ? `<p style="color: #9ca3af; font-size: 10px; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3;">${escapeHtml(descText)}</p>` : ''}
+                                <div style="flex-grow: 1; min-height: 4px;"></div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid rgba(55,65,81,0.5);">
                                     <div style="display: flex; flex-direction: column;">
-                                        <span style="font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
-                                        <span style="font-size: 16px; font-weight: 800; color: #D4AF37;">${formatCurrency(template.price)}</span>
+                                        <span style="font-size: 8px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">PRICE</span>
+                                        <span style="font-size: 14px; font-weight: 800; color: #D4AF37;">${formatCurrency(template.price)}</span>
                                     </div>
                                     <div style="display: flex; gap: 4px;">
                                         <a href="${detailsUrl}" 
