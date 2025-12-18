@@ -538,17 +538,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         function updateCounterDisplay(count) {
-            const counterSelectors = [
-                'a[href*="view=templates"] .text-primary-600',
-                'a[href*="view=tools"] .text-primary-600'
-            ];
+            // Try multiple selectors to find counter elements
+            const counterElements = document.querySelectorAll('[data-product-count], .product-count-badge, [data-view-count]');
+            counterElements.forEach(el => {
+                if (el.textContent.match(/\d+/)) {
+                    el.textContent = count > 0 ? count : '0';
+                }
+            });
             
-            const activeSelector = currentView === 'templates' ? counterSelectors[0] : counterSelectors[1];
-            const counterElement = document.querySelector(activeSelector);
-            
-            if (counterElement) {
-                counterElement.textContent = count;
-            }
+            // Also update any text showing product count
+            document.querySelectorAll('span').forEach(span => {
+                if (span.textContent.includes('products') || span.textContent.includes('results')) {
+                    const match = span.textContent.match(/\d+/);
+                    if (match) {
+                        span.textContent = span.textContent.replace(/\d+/, count);
+                    }
+                }
+            });
         }
         
         function renderTemplates(templates) {
@@ -1109,13 +1115,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Clear cart with confirmation
+    // Clear cart immediately - no confirmation needed
     window.clearCartConfirm = async function() {
-        // Show confirmation dialog
-        if (!confirm('⚠️ Are you sure you want to clear all items from your cart? This action cannot be undone.')) {
-            return;
-        }
-        
         try {
             const params = new URLSearchParams();
             params.set('action', 'clear');
@@ -1129,10 +1130,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                showNotification('🗑️ Cart cleared successfully', 'success', false);
+                localStorage.removeItem('cartCache');
                 updateCartBadge();
                 loadCartItems();
-                localStorage.removeItem('cartCache');
+                showNotification('🗑️ Cart cleared', 'success', false);
+                
                 // Close cart drawer
                 const drawer = document.getElementById('cart-drawer');
                 if (drawer && !drawer.classList.contains('hidden')) {
@@ -1140,12 +1142,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     content.classList.add('translate-x-full');
                     drawer.classList.add('hidden');
                 }
-            } else {
-                showNotification('Failed to clear cart: ' + (data.message || data.error), 'error');
             }
         } catch (error) {
             console.error('Error clearing cart:', error);
-            showNotification('Error clearing cart', 'error');
         }
     };
     
