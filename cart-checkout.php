@@ -1017,6 +1017,18 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             <span>Pay via WhatsApp</span>
                         </a>
                     </div>
+                    
+                    <!-- WhatsApp Number Display for Non-WhatsApp Users -->
+                    <div class="text-center p-3 bg-gray-900/50 rounded-lg border border-green-600/30">
+                        <p class="text-gray-400 text-sm mb-1">💬 Don't have WhatsApp?</p>
+                        <p class="text-gray-300 text-sm">
+                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" 
+                               target="_blank" rel="noopener noreferrer"
+                               class="text-green-400 hover:text-green-300 font-semibold transition-colors">
+                                Call or WhatsApp: <?= WHATSAPP_NUMBER ?>
+                            </a>
+                        </p>
+                    </div>
                 
                 <!-- ========================================
                      AUTOMATIC PAYMENT - PAID (Success)
@@ -1386,6 +1398,18 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                            class="inline-flex items-center justify-center px-4 py-3 text-white bg-gray-700 hover:bg-gray-600 font-bold rounded-lg transition-colors">
                             ← Back to Shop
                         </a>
+                    </div>
+                    
+                    <!-- WhatsApp Number Display for Non-WhatsApp Users -->
+                    <div class="text-center p-3 bg-gray-900/50 rounded-lg border border-green-600/30">
+                        <p class="text-gray-400 text-sm mb-1">💬 Don't have WhatsApp?</p>
+                        <p class="text-gray-300 text-sm">
+                            <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" 
+                               target="_blank" rel="noopener noreferrer"
+                               class="text-green-400 hover:text-green-300 font-semibold transition-colors">
+                                Call or WhatsApp: <?= WHATSAPP_NUMBER ?>
+                            </a>
+                        </p>
                     </div>
                 
                 <!-- Navigation Links with User Dashboard Option -->
@@ -1890,6 +1914,18 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                    class="block text-center text-primary-600 hover:text-primary-700 font-medium py-3 mt-2">
                     ← Continue Shopping
                 </a>
+                
+                <!-- Need Help? Contact Section -->
+                <div class="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-xl text-center">
+                    <p class="text-gray-400 text-sm mb-2">💬 Need Help With Your Order?</p>
+                    <p class="text-gray-300 text-sm">
+                        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="text-green-400 hover:text-green-300 font-semibold transition-colors">
+                            WhatsApp: <?= WHATSAPP_NUMBER ?>
+                        </a>
+                    </p>
+                </div>
             <?php endif; ?>
         </div>
     </div>
