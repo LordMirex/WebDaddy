@@ -237,8 +237,12 @@
     const href = link.getAttribute('href');
     if (!shouldUseSmoothNav(href)) return;
     
-    // Don't interfere with special handlers
+    // Don't interfere with special handlers or buttons with onclick
     if (link.onclick || link.target) return;
+    if (link.hasAttribute('onclick')) return;
+    
+    // Skip cart buttons and other special UI elements
+    if (link.id && (link.id.includes('cart') || link.id.includes('toggle') || link.id.includes('modal'))) return;
     
     e.preventDefault();
     
