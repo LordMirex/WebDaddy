@@ -38,10 +38,7 @@ class AffiliateFraudDetector {
             $flags[] = ['type' => 'bot_detected', 'severity' => 'high'];
         }
         
-        // Check for VPN/Proxy
-        if ($this->isVpnOrProxy($ipAddress)) {
-            $flags[] = ['type' => 'vpn_proxy_detected', 'severity' => 'low'];
-        }
+        // VPN/Proxy check disabled - users are free to use VPN, no restrictions
         
         // Log flags
         if (!empty($flags)) {
