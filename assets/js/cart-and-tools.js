@@ -449,18 +449,26 @@ window.addToCartFromModal = async function(toolId, toolName, price) {
     return await addProductToCart('tool', toolId, toolName, 1);
 };
 
-window.addToolToCart = async function(toolId, toolName, button) {
+window.addToolToCart = function(toolId, toolName, button) {
     if (button) button.disabled = true;
-    const result = await addProductToCart('tool', toolId, toolName, 1);
-    if (button) button.disabled = false;
-    return result;
+    addProductToCart('tool', toolId, toolName, 1).then(result => {
+        if (button) button.disabled = false;
+        return result;
+    }).catch(err => {
+        if (button) button.disabled = false;
+        console.error('Cart error:', err);
+    });
 };
 
-window.addTemplateToCart = async function(templateId, templateName, button) {
+window.addTemplateToCart = function(templateId, templateName, button) {
     if (button) button.disabled = true;
-    const result = await addProductToCart('template', templateId, templateName, 1);
-    if (button) button.disabled = false;
-    return result;
+    addProductToCart('template', templateId, templateName, 1).then(result => {
+        if (button) button.disabled = false;
+        return result;
+    }).catch(err => {
+        if (button) button.disabled = false;
+        console.error('Cart error:', err);
+    });
 };
 
 async function addProductToCart(productType, productId, productName, quantity = 1) {
@@ -704,69 +712,61 @@ function displayCartItems(items, totals) {
     footer.classList.remove('hidden');
 }
 
-window.updateCartQuantity = async function(cartId, newQuantity) {
+window.updateCartQuantity = function(cartId, newQuantity) {
     if (newQuantity < 1) {
         removeFromCart(cartId);
         return;
     }
     
-    try {
-        const params = new URLSearchParams();
-        params.set('action', 'update');
-        params.set('cart_id', cartId);
-        params.set('quantity', newQuantity);
-        
-        const response = await fetch('/api/cart.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-        });
-        
-        const data = await response.json();
-        
+    const params = new URLSearchParams();
+    params.set('action', 'update');
+    params.set('cart_id', cartId);
+    params.set('quantity', newQuantity);
+    
+    fetch('/api/cart.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-            const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
-            localStorage.setItem('cartCache', JSON.stringify(cacheData));
-            
-            await loadCartItems();
-            await updateCartBadge();
+            loadCartItems();
+            updateCartBadge();
         } else {
             showNotification(data.message || 'Failed to update quantity', 'error');
         }
-    } catch (error) {
+    })
+    .catch(error => {
         console.error('Failed to update quantity:', error);
         showNotification('Failed to update quantity', 'error');
-    }
+    });
 };
 
-window.removeFromCart = async function(cartId) {
-    try {
-        const params = new URLSearchParams();
-        params.set('action', 'remove');
-        params.set('cart_id', cartId);
-        
-        const response = await fetch('/api/cart.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-        });
-        
-        const data = await response.json();
-        
+window.removeFromCart = function(cartId) {
+    const params = new URLSearchParams();
+    params.set('action', 'remove');
+    params.set('cart_id', cartId);
+    
+    fetch('/api/cart.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.success) {
-            const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
-            localStorage.setItem('cartCache', JSON.stringify(cacheData));
-            
-            await loadCartItems();
-            await updateCartBadge();
+            loadCartItems();
+            updateCartBadge();
             showNotification('Item removed from cart', 'success');
         } else {
             showNotification(data.message || 'Failed to remove item', 'error');
         }
-    } catch (error) {
+    })
+    .catch(error => {
         console.error('Failed to remove item:', error);
         showNotification('Failed to remove item', 'error');
-    }
+    });
 };
 
 // CRITICAL: Initialize cart on ALL pages IMMEDIATELY (before DOMContentLoaded)

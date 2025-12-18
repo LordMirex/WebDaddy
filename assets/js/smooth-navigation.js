@@ -10,6 +10,8 @@
   // Pages that should NOT use smooth navigation (require full reload)
   const EXCLUDE_PATTERNS = [
     '/user/',
+    '/blog/',
+    '/blog',
     '/cart-checkout.php',
     '/api/',
     '/admin/',
