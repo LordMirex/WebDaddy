@@ -56,6 +56,9 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center gap-0.5 lg:gap-1 overflow-visible">
+                <a href="/" 
+                   class="px-2 py-1 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'home' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   style="background: none !important;">Home</a>
                 <a href="/blog/" 
                    class="px-2 py-1 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
@@ -116,6 +119,10 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
     <!-- Mobile Navigation Menu -->
     <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
         <div class="px-2 pt-2 pb-4 space-y-1">
+            <!-- Home -->
+            <a href="/" @click="open = false" 
+               class="block px-4 py-3 rounded-lg <?= $activeNav === 'home' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Home</a>
+            
             <!-- Blog -->
             <a href="/blog/" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'blog' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Blog</a>
