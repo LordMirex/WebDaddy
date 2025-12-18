@@ -90,7 +90,8 @@ if ($action === 'load_view') {
         renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $category, $affiliateCode);
     } else {
         $perPage = 18;
-        $allTools = getTools(true, $category, null, null, true);
+        // Use getToolsByType to filter by tool_type instead of category
+        $allTools = getToolsByType(true, $category, null, null, true);
         
         // Sort by priority first (null=999), then by date
         usort($allTools, function($a, $b) {
@@ -109,7 +110,8 @@ if ($action === 'load_view') {
         $page = max(1, min($page, $totalPages));
         $offset = ($page - 1) * $perPage;
         $tools = array_slice($allTools, $offset, $perPage);
-        $toolCategories = getToolCategories();
+        // Get tool types for the dropdown (not categories)
+        $toolCategories = getToolTypes();
         
         // Render tools grid
         renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $category, $affiliateCode);
