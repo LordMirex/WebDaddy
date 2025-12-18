@@ -100,7 +100,6 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                     <ul class="space-y-2.5">
                         <li><a href="/about.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">About</a></li>
                         <li><a href="/careers.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Careers</a></li>
-                        <li><a href="/security.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Security</a></li>
                         <li><a href="/affiliate/register.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Affiliate</a></li>
                     </ul>
                 </div>
