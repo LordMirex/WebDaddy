@@ -129,20 +129,20 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
     <!-- Mobile Navigation Menu -->
     <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
         <div class="px-2 pt-2 pb-4 space-y-1">
+            <!-- Blog -->
             <a href="/blog/" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'blog' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Blog</a>
+            
+            <!-- About -->
             <a href="/about.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'about' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">About</a>
+            
+            <!-- Company -->
             <a href="/contact.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Company</a>
-            <a href="/careers.php" @click="open = false" 
-               class="block px-4 py-3 rounded-lg <?= $activeNav === 'careers' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Careers</a>
-            <a href="/security.php" @click="open = false" 
-               class="block px-4 py-3 rounded-lg <?= $activeNav === 'security' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Security</a>
-            <a href="/affiliate/register.php" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
             
-            <!-- Mobile Customer Account -->
-            <div class="border-t border-navy-light/50 pt-3 mt-3" x-data="customerNav()">
+            <!-- Login/My Account -->
+            <div x-data="customerNav()">
                 <a :href="customer ? '/user/' : '/user/login.php'" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
@@ -151,6 +151,22 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                     <span x-text="customer ? (customer.name ? customer.name.split(' ')[0] : 'My Account') : 'Login'"></span>
                 </a>
             </div>
+            
+            <!-- Cart -->
+            <?php if ($showCart): ?>
+            <a href="#" onclick="toggleCartDrawer(); return false;" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                </svg>
+                Cart
+                <?php if ($cartCount > 0): ?>
+                <span class="ml-auto bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?= $cartCount; ?></span>
+                <?php endif; ?>
+            </a>
+            <?php endif; ?>
+            
+            <!-- Become an Affiliate -->
+            <a href="/affiliate/register.php" @click="open = false" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
         </div>
     </div>
 </nav>
