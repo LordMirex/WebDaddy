@@ -55,9 +55,9 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
         <!-- Brand Section - Centered on Mobile, Left on Desktop -->
         <div class="mb-8 lg:mb-0 lg:grid lg:grid-cols-5 lg:gap-8 lg:items-start">
             <div class="lg:col-span-1 text-center lg:text-left mb-8 lg:mb-0">
-                <div class="flex items-center gap-2 mb-4 justify-center lg:justify-start">
-                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-8 md:h-10" loading="lazy" decoding="async">
-                    <span class="text-lg font-bold hidden sm:inline"><?= SITE_NAME ?></span>
+                <div class="flex items-center gap-3 mb-4 justify-center lg:justify-start">
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-10 md:h-12" loading="lazy" decoding="async">
+                    <span class="text-xl md:text-lg font-bold"><?= SITE_NAME ?></span>
                 </div>
                 <p class="text-gray-400 text-xs md:text-sm mb-4 font-medium">Professional websites & digital tools. Launch in 24 hours.</p>
                 <div class="flex gap-2 flex-wrap justify-center lg:justify-start">
