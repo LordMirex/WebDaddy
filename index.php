@@ -775,7 +775,6 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="/pricing.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">Pricing</a>
                     <a href="/faq.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
                     <a href="/about.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">About</a>
                     <a href="/contact.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">Contact</a>
@@ -829,7 +828,6 @@ if ($autoOpenTool) {
         </div>
         <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
             <div class="px-2 pt-2 pb-4 space-y-1">
-                <a href="/pricing.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">Pricing</a>
                 <a href="/faq.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
                 <a href="/about.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">About</a>
                 <a href="/contact.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">Contact</a>
@@ -1797,7 +1795,6 @@ if ($autoOpenTool) {
                 <!-- Links & Support -->
                 <div class="flex flex-col items-start md:items-end gap-3">
                     <div class="flex flex-wrap gap-x-4 gap-y-1">
-                        <a href="/pricing.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Pricing</a>
                         <a href="/faq.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
                         <a href="/about.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">About</a>
                         <a href="/contact.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Contact</a>
