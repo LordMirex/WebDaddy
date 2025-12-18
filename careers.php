@@ -112,7 +112,7 @@ $pageUrl = SITE_URL . '/careers.php';
         <section id="apply" class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg p-8 sm:p-12 text-center">
             <h2 class="text-3xl font-bold text-navy mb-4">Interested in Joining Us?</h2>
             <p class="text-navy/90 mb-6">Check back soon for more job openings, or contact us to learn about opportunities.</p>
-            <a href="mailto:careers@webdaddyempire.com?subject=Career%20Inquiry" class="inline-flex items-center gap-2 px-8 py-3 bg-navy hover:bg-navy/80 text-white font-semibold rounded-lg transition-colors">
+            <a href="mailto:admin@webdaddyempire.com?subject=Career%20Inquiry%20-%20Resume" class="inline-flex items-center gap-2 px-8 py-3 bg-navy hover:bg-navy/80 text-white font-semibold rounded-lg transition-colors">
                 Email Your Resume
             </a>
         </section>
