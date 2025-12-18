@@ -106,21 +106,6 @@ function showNotification(message, type = 'success', shouldShowGuide = true) {
         setTimeout(() => container.remove(), 300);
     }, 4000);
     
-    // Smart guide display: Show guide only on first two cart additions (not every time)
-    if (shouldShowGuide && type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
-        try {
-            // Show guide only for first 2 additions total in the session
-            if (guideDisplayCount < 2) {
-                guideDisplayCount++;
-                setTimeout(() => {
-                    window.dispatchEvent(new Event('cart-updated'));
-                }, 4800);
-            }
-        } catch (err) {
-            console.error('Guide logic error:', err);
-            // Fail silently - don't show guide on error
-        }
-    }
 }
 
 // Track tool view from preview modal
@@ -1208,9 +1193,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Animate cart button
                 animateCartBadge();
                 
-                // TRIGGER CHECKOUT GUIDE ON INDEX PAGE
-                if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
-                    window.dispatchEvent(new Event('cart-updated'));
+                // TRIGGER CHECKOUT GUIDE ON INDEX PAGE - ONLY FOR FIRST 2 ADDITIONS
+                if ((window.location.pathname === '/' || window.location.pathname.includes('index.php')) && guideDisplayCount < 2) {
+                    guideDisplayCount++;
+                    setTimeout(() => {
+                        window.dispatchEvent(new Event('cart-updated'));
+                    }, 4800);
                 }
                 
                 return true;
