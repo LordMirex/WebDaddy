@@ -147,3 +147,6 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
     <?php endif; ?>
 </div>
 <?php endif; ?>
+
+<!-- Instant Page Load - Prefetches pages on hover for instant navigation -->
+<script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ez8Mcp8KO4jxRoLVY0U0ZsxaZVB1AvZuCy8qX3qMF4Yh+Q5A" crossorigin="anonymous"></script>
