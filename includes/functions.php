@@ -215,6 +215,23 @@ function getTemplateCategories()
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
+function getToolTypes()
+{
+    $db = getDb();
+    
+    $stmt = $db->query("
+        SELECT DISTINCT tool_type 
+        FROM tools 
+        WHERE tool_type IS NOT NULL 
+          AND tool_type != '' 
+          AND active = 1
+          AND (stock_unlimited = 1 OR stock_quantity > 0)
+        ORDER BY tool_type
+    ");
+    
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
 function getTemplateById($id)
 {
     $db = getDb();

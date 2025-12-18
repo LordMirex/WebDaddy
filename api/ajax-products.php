@@ -20,7 +20,7 @@ if ($action === 'load_view') {
     
     // Try cache for templates list
     if ($view === 'templates') {
-        $cacheKey = 'templates_list_' . $page . '_' . ($category ?? 'all');
+        $cacheKey = 'templates_list_v2_' . $page . '_' . ($category ?? 'all');
         $cachedResponse = ProductCache::get($cacheKey);
         if ($cachedResponse !== null) {
             echo json_encode($cachedResponse);
@@ -33,7 +33,7 @@ if ($action === 'load_view') {
     
     // Try cache for tools list
     if ($view === 'tools') {
-        $cacheKey = 'tools_list_ajax_' . $page . '_' . ($category ?? 'all');
+        $cacheKey = 'tools_list_v2_' . $page . '_' . ($category ?? 'all');
         $cachedResponse = ProductCache::get($cacheKey);
         if ($cachedResponse !== null) {
             echo json_encode($cachedResponse);
@@ -128,12 +128,12 @@ if ($action === 'load_view') {
         'categories' => $categories  // Return categories for dropdown update
     ];
     
-    // Cache the response
+    // Cache the response with new categories
     if ($view === 'templates') {
-        $cacheKey = 'templates_list_' . $page . '_' . ($category ?? 'all');
+        $cacheKey = 'templates_list_v2_' . $page . '_' . ($category ?? 'all');
         ProductCache::set($cacheKey, $response);
     } elseif ($view === 'tools') {
-        $cacheKey = 'tools_list_ajax_' . $page . '_' . ($category ?? 'all');
+        $cacheKey = 'tools_list_v2_' . $page . '_' . ($category ?? 'all');
         ProductCache::set($cacheKey, $response);
     }
     

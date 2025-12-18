@@ -179,56 +179,19 @@ function getToolBySlug($slug) {
     return $tool ?: null;
 }
 
-/**
- * Get all unique template categories (for filtering/dropdown)
- * Only returns categories that have active templates
- * 
- * @return array Array of template category names
- */
-function getTemplateCategories() {
-    $db = getDb();
-    
-    $stmt = $db->query("
-        SELECT DISTINCT category 
-        FROM templates 
-        WHERE category IS NOT NULL 
-          AND category != '' 
-          AND active = 1
-        ORDER BY category
-    ");
-    
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
-
-/**
- * Get all unique tool types (for filtering/dropdown)
- * Only returns tool types that have active, in-stock tools
- * 
- * @return array Array of tool type names
- */
-function getToolTypes() {
-    $db = getDb();
-    
-    $stmt = $db->query("
-        SELECT DISTINCT tool_type 
-        FROM tools 
-        WHERE tool_type IS NOT NULL 
-          AND tool_type != '' 
-          AND active = 1
-          AND (stock_unlimited = 1 OR stock_quantity > 0)
-        ORDER BY tool_type
-    ");
-    
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
 
 /**
  * Get all unique tool categories (deprecated - use getToolTypes instead)
+ * Redirects to getToolTypes for backwards compatibility
  * 
  * @return array Array of category names
  */
 function getToolCategories() {
-    return getToolTypes();
+    // Note: getToolTypes() is now defined in functions.php
+    if (function_exists('getToolTypes')) {
+        return getToolTypes();
+    }
+    return [];
 }
 
 /**
