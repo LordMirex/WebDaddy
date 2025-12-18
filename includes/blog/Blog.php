@@ -41,15 +41,73 @@ class Blog
     
     public function getRelatedPosts($postId, $categoryId, $limit = 3)
     {
+        // Get posts from internal links table first (strategic linking)
         $stmt = $this->db->prepare("
-            SELECT p.id, p.title, p.slug, p.excerpt, p.featured_image, p.reading_time_minutes
+            SELECT DISTINCT p.id, p.title, p.slug, p.excerpt, p.featured_image, p.reading_time_minutes
             FROM blog_posts p
-            WHERE p.id != ? AND p.category_id = ? AND p.status = 'published'
+            INNER JOIN blog_internal_links bil ON p.id = bil.target_post_id
+            WHERE bil.source_post_id = ? AND p.status = 'published'
             AND p.publish_date <= datetime('now', '+1 hour')
             ORDER BY p.publish_date DESC
             LIMIT ?
         ");
-        $stmt->execute([$postId, $categoryId, $limit]);
+        $stmt->execute([$postId, $limit]);
+        $relatedByLink = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // If not enough from internal links, fallback to category matching
+        if (count($relatedByLink) < $limit) {
+            $remaining = $limit - count($relatedByLink);
+            $linkedIds = array_column($relatedByLink, 'id');
+            $placeholders = implode(',', array_fill(0, count($linkedIds) + 1, '?'));
+            
+            $stmt = $this->db->prepare("
+                SELECT p.id, p.title, p.slug, p.excerpt, p.featured_image, p.reading_time_minutes
+                FROM blog_posts p
+                WHERE p.id NOT IN ($placeholders) AND p.category_id = ? AND p.status = 'published'
+                AND p.publish_date <= datetime('now', '+1 hour')
+                ORDER BY p.view_count DESC
+                LIMIT ?
+            ");
+            $params = array_merge([$postId], $linkedIds, [$categoryId, $remaining]);
+            $stmt->execute($params);
+            $relatedByLink = array_merge($relatedByLink, $stmt->fetchAll(PDO::FETCH_ASSOC));
+        }
+        
+        return array_slice($relatedByLink, 0, $limit);
+    }
+    
+    public function getTopPerformers($limit = 5, $days = 30)
+    {
+        $stmt = $this->db->prepare("
+            SELECT p.id, p.title, p.slug, p.view_count, p.share_count, 
+                   COUNT(DISTINCT ba.session_id) as unique_visitors,
+                   SUM(CASE WHEN ba.event_type = 'scroll_100' THEN 1 ELSE 0 END) as full_reads
+            FROM blog_posts p
+            LEFT JOIN blog_analytics ba ON p.id = ba.post_id 
+            WHERE p.status = 'published' 
+            AND ba.created_at >= datetime('now', '-' || ? || ' days')
+            GROUP BY p.id
+            ORDER BY p.view_count DESC
+            LIMIT ?
+        ");
+        $stmt->execute([$days, $limit]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function getAffiliatePerformance()
+    {
+        $stmt = $this->db->query("
+            SELECT 
+                ba.affiliate_code,
+                COUNT(DISTINCT CASE WHEN ba.event_type = 'cta_click' THEN ba.session_id END) as clicks,
+                COUNT(DISTINCT ba.post_id) as posts_referred,
+                COUNT(DISTINCT ba.session_id) as unique_visitors
+            FROM blog_analytics ba
+            WHERE ba.affiliate_code IS NOT NULL
+            GROUP BY ba.affiliate_code
+            ORDER BY clicks DESC
+            LIMIT 20
+        ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     

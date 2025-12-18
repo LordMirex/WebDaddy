@@ -52,6 +52,9 @@ if ($affiliateCode && !isset($_SESSION['affiliate_code'])) {
 
 blogTrackView($db, $post['id']);
 
+// Get related posts from new smart linking system
+$relatedPosts = $blog->getRelatedPosts($post['id'], $post['category_id'], 3);
+
 $pageTitle = $post['meta_title'] ?: $post['title'] . ' | WebDaddy Blog';
 $pageDescription = $post['meta_description'] ?: ($post['excerpt'] ?: blogTruncate(strip_tags($post['title']), 160));
 $canonicalUrl = $post['canonical_url'] ?: (SITE_URL . '/blog/' . $post['slug'] . '/');
@@ -455,6 +458,31 @@ $toc = blogExtractTableOfContents($blocks);
             </section>
             <?php endif; ?>
         </article>
+
+        <!-- Related Posts Section (Phase 3: Internal Linking) -->
+        <?php if (!empty($relatedPosts)): ?>
+        <section class="blog-related-posts mt-16 pt-12 border-t border-gray-200">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">Keep Reading</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <?php foreach ($relatedPosts as $related): ?>
+                    <a href="/blog/<?= htmlspecialchars($related['slug']) ?>/" class="group block h-full bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                        <?php if ($related['featured_image']): ?>
+                        <div class="h-40 bg-gray-200 overflow-hidden">
+                            <img src="<?= htmlspecialchars($related['featured_image']) ?>" alt="<?= htmlspecialchars($related['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform" loading="lazy">
+                        </div>
+                        <?php endif; ?>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-2 group-hover:text-blue-600 transition-colors"><?= htmlspecialchars($related['title']) ?></h3>
+                            <p class="text-sm text-gray-600 line-clamp-2"><?= htmlspecialchars($related['excerpt'] ?? '') ?></p>
+                            <p class="text-xs text-gray-500 mt-2"><?= $related['reading_time_minutes'] ?> min read</p>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+        <?php endif; ?>
     </main>
 
     <footer class="blog-footer">
