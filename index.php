@@ -775,8 +775,6 @@ if ($autoOpenTool) {
                     </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'templates' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Templates</a>
-                    <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" class="inline-block border-b-2 font-medium transition-colors py-4 <?php echo $currentView === 'tools' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" style="background: none !important;">Tools</a>
                     <a href="/pricing.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">Pricing</a>
                     <a href="/faq.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">FAQ</a>
                     <a href="/about.php" class="inline-block border-b-2 border-transparent text-gray-300 hover:text-gold font-medium transition-colors py-4">About</a>
@@ -831,8 +829,6 @@ if ($autoOpenTool) {
         </div>
         <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
             <div class="px-2 pt-2 pb-4 space-y-1">
-                <a href="?view=templates<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" @click="open = false" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'templates' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Templates</a>
-                <a href="?view=tools<?php echo $affiliateCode ? '&aff=' . urlencode($affiliateCode) : ''; ?>#products" @click="open = false" class="block px-4 py-3 rounded-lg <?php echo $currentView === 'tools' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Tools</a>
                 <a href="/pricing.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">Pricing</a>
                 <a href="/faq.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">FAQ</a>
                 <a href="/about.php" @click="open = false" class="block px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">About</a>
@@ -1801,8 +1797,6 @@ if ($autoOpenTool) {
                 <!-- Links & Support -->
                 <div class="flex flex-col items-start md:items-end gap-3">
                     <div class="flex flex-wrap gap-x-4 gap-y-1">
-                        <a href="/?view=templates" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Templates</a>
-                        <a href="/?view=tools" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Tools</a>
                         <a href="/pricing.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">Pricing</a>
                         <a href="/faq.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">FAQ</a>
                         <a href="/about.php" class="text-gray-300 hover:text-gold text-xs md:text-sm transition-colors">About</a>
