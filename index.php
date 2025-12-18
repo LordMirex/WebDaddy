@@ -691,6 +691,7 @@ if ($autoOpenTool) {
         }
         /* ========== END CUSTOMER AUTH STYLES ========== */
     </style>
+    <script src="/assets/js/loader-controller.js"></script>
     <script src="/assets/js/forms.js" defer></script>
     <script src="/assets/js/cart-and-tools.js" defer></script>
     <script src="/assets/js/lazy-load.js" defer></script>
@@ -1772,49 +1773,6 @@ if ($autoOpenTool) {
     
     <!-- Premium Loader Controller - 3 breathing cycles with exit on 3rd -->
     <script>
-        (function() {
-            const loader = document.getElementById('page-loader');
-            if (!loader) return;
-            
-            let loaderDismissed = false;
-            const BREATHING_CYCLES = 2;
-            const CYCLE_DURATION = 600;
-            const DISPLAY_TIME = (BREATHING_CYCLES * CYCLE_DURATION) + 300;
-            
-            // Critical assets to preload during loader display
-            const criticalAssets = [
-                '/assets/images/webdaddy-logo.png',
-                '/assets/images/mockups/viralcuts.jpg',
-                '/assets/images/mockups/jasper-ai.jpg',
-                '/assets/images/mockups/webflow.jpg'
-            ];
-            
-            // Preload critical images
-            function preloadCriticalAssets() {
-                criticalAssets.forEach(src => {
-                    const img = new Image();
-                    img.src = src;
-                });
-            }
-            
-            preloadCriticalAssets();
-            
-            function dismissLoader() {
-                if (loaderDismissed) return;
-                loaderDismissed = true;
-                
-                loader.classList.add('loader-exit');
-                document.body.classList.remove('loader-active');
-                
-                setTimeout(() => {
-                    loader.classList.add('loader-hidden');
-                    loader.remove();
-                }, 300);
-            }
-            
-            // Dismiss after 2 normal breaths + 3rd breath zoom/evaporate
-            setTimeout(dismissLoader, DISPLAY_TIME);
-        })();
         
         // Global image error handler - hide broken images completely
         document.addEventListener('error', function(event) {

@@ -1,6 +1,7 @@
 // Enhanced Scroll Position Restoration for Instant Navigation
 (function() {
   const SCROLL_KEY = 'webdaddy_scroll_pos';
+  const LOADER_SHOWN_KEY = 'webdaddy_loader_shown';
   
   // Save scroll position before page unload
   window.addEventListener('beforeunload', () => {
@@ -10,7 +11,7 @@
     sessionStorage.setItem(SCROLL_KEY, JSON.stringify(scrollPositions));
   });
 
-  // Restore scroll position after page load
+  // Restore scroll position after page load (for back button)
   window.addEventListener('load', () => {
     const pageUrl = window.location.pathname;
     const scrollPositions = JSON.parse(sessionStorage.getItem(SCROLL_KEY) || '{}');
@@ -30,14 +31,6 @@
     
     if (savedScroll !== undefined && savedScroll > 0) {
       setTimeout(() => window.scrollTo(0, savedScroll), 50);
-    }
-  });
-
-  // Clear scroll position on normal link click to prevent jank
-  document.addEventListener('click', (e) => {
-    const link = e.target.closest('a');
-    if (link && link.href && !link.target && !link.hasAttribute('data-instant-loading')) {
-      // Link will navigate, scroll will be saved by beforeunload
     }
   });
 })();
