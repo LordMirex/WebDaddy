@@ -20,6 +20,33 @@ $pageType = $pageType ?? 'page';
 // Build affiliate query string
 $affQuery = $affiliateCode ? '&aff=' . urlencode($affiliateCode) : '';
 $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
+
+// Check customer session from PHP
+$isLoggedIn = isset($_SESSION['customer_id']) && !empty($_SESSION['customer_id']);
+$customerName = null;
+
+if ($isLoggedIn) {
+    if (isset($_SESSION['customer_name']) && !empty($_SESSION['customer_name'])) {
+        $customerName = $_SESSION['customer_name'];
+    } else {
+        // Fallback: query database if name not in session
+        try {
+            if (!isset($db)) {
+                require_once __DIR__ . '/db.php';
+                $db = getDb();
+            }
+            $stmt = $db->prepare("SELECT name, email FROM customers WHERE id = ? LIMIT 1");
+            $stmt->execute([$_SESSION['customer_id']]);
+            $cust = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($cust) {
+                $customerName = $cust['name'] ?? explode('@', $cust['email'] ?? '')[0];
+                $_SESSION['customer_name'] = $customerName; // Cache it
+            }
+        } catch (Exception $e) {
+            $customerName = null;
+        }
+    }
+}
 ?>
 <!-- Navigation Schema for SEO -->
 <script type="application/ld+json">
@@ -70,15 +97,13 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                    style="background: none !important;">Company</a>
                 
                 <!-- Login Link -->
-                <div x-data="customerNav()">
-                    <a :href="customer ? '/user/' : '/user/login.php'" class="px-2 py-1 text-sm font-medium text-gray-300 hover:text-gold transition-colors inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                        </svg>
-                        <span x-text="customer ? (customer.name ? customer.name.split(' ')[0] : 'My Account') : 'Login'"></span>
-                    </a>
-                </div>
+                <a href="<?= $isLoggedIn ? '/user/' : '/user/login.php'; ?>" class="px-2 py-1 text-sm font-medium text-gray-300 hover:text-gold transition-colors inline-flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                    <span><?= $isLoggedIn && $customerName ? explode(' ', $customerName)[0] : 'Login'; ?></span>
+                </a>
                 
                 <?php if ($showCart): ?>
                 <!-- Cart Button -->
@@ -138,15 +163,13 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Company</a>
             
             <!-- Login/My Account -->
-            <div x-data="customerNav()">
-                <a :href="customer ? '/user/' : '/user/login.php'" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                    </svg>
-                    <span x-text="customer ? (customer.name ? customer.name.split(' ')[0] : 'My Account') : 'Login'"></span>
-                </a>
-            </div>
+            <a href="<?= $isLoggedIn ? '/user/' : '/user/login.php'; ?>" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                </svg>
+                <span><?= $isLoggedIn && $customerName ? explode(' ', $customerName)[0] : 'Login'; ?></span>
+            </a>
             
             <!-- Become an Affiliate -->
             <a href="/affiliate/register.php" @click="open = false" class="btn-gold-shine block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
@@ -154,25 +177,3 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
     </div>
 </nav>
 
-<script>
-function customerNav() {
-    return {
-        customer: null,
-        async init() {
-            if (typeof checkCustomerSession === 'function') {
-                try {
-                    const customer = await checkCustomerSession();
-                    if (customer) {
-                        this.customer = customer;
-                        this.$nextTick(() => {
-                            this.$dispatch('customer-loaded');
-                        });
-                    }
-                } catch (e) {
-                    console.error('Failed to load customer session:', e);
-                }
-            }
-        }
-    };
-}
-</script>

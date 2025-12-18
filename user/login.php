@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($sessionResult['success']) {
                 $_SESSION['customer_id'] = $customer['id'];
                 $_SESSION['customer_session_token'] = $sessionResult['token'];
+                $_SESSION['customer_name'] = $customer['name'] ?? $customer['email'];
                 
                 setcookie('customer_session', $sessionResult['token'], [
                     'expires' => strtotime('+1 year'),
