@@ -116,11 +116,11 @@ if ($currentView === 'templates') {
 } else {
     // TOOLS VIEW
     $perPage = 18;
-    $category = $_GET['category'] ?? null;
+    $toolType = $_GET['category'] ?? null;  // Note: URL still uses 'category' param for consistency, but it filters by tool_type
     
-    // Get all tools first to sort by priority
+    // Get all tools first to sort by priority (filter by tool_type, not category)
     $db = getDb();
-    $allTools = getTools(true, $category, null, null, true);
+    $allTools = getToolsByType(true, $toolType, null, null, true);
     
     // Sort by priority first (null=999), then by newest date
     usort($allTools, function($a, $b) {
@@ -139,7 +139,7 @@ if ($currentView === 'templates') {
     $page = max(1, min($page, $totalPages));
     $offset = ($page - 1) * $perPage;
     $tools = array_slice($allTools, $offset, $perPage);
-    $toolCategories = getToolCategories();
+    $toolCategories = getToolTypes();  // Get tool types for dropdown
 }
 
 // Prepare meta tags - use tool data if sharing a tool, otherwise use default homepage

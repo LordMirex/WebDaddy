@@ -9,7 +9,7 @@
 require_once __DIR__ . '/db.php';
 
 /**
- * Get all active working tools with optional filtering
+ * Get all active working tools with optional filtering by category
  * 
  * @param bool $activeOnly If true, only return active tools
  * @param string $category Optional category filter
@@ -31,6 +31,54 @@ function getTools($activeOnly = true, $category = null, $limit = null, $offset =
     if ($category !== null && $category !== '') {
         $sql .= " AND category = ?";
         $params[] = $category;
+    }
+    
+    // Additional filter: only show tools with stock available (for customer-facing views)
+    if ($inStockOnly) {
+        $sql .= " AND (stock_unlimited = 1 OR stock_quantity > 0)";
+    }
+    
+    $sql .= " ORDER BY created_at DESC";
+    
+    if ($limit !== null) {
+        $sql .= " LIMIT ?";
+        $params[] = (int)$limit;
+        
+        if ($offset !== null) {
+            $sql .= " OFFSET ?";
+            $params[] = (int)$offset;
+        }
+    }
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Get all active working tools with optional filtering by tool_type
+ * 
+ * @param bool $activeOnly If true, only return active tools
+ * @param string $toolType Optional tool_type filter
+ * @param int $limit Optional result limit
+ * @param int $offset Optional result offset for pagination
+ * @param bool $inStockOnly If true, only return tools with stock (default true for customer view)
+ * @return array Array of tool records
+ */
+function getToolsByType($activeOnly = true, $toolType = null, $limit = null, $offset = null, $inStockOnly = true) {
+    $db = getDb();
+    
+    $sql = "SELECT * FROM tools WHERE 1=1";
+    $params = [];
+    
+    if ($activeOnly) {
+        $sql .= " AND active = 1";
+    }
+    
+    if ($toolType !== null && $toolType !== '') {
+        $sql .= " AND tool_type = ?";
+        $params[] = $toolType;
     }
     
     // Additional filter: only show tools with stock available (for customer-facing views)
@@ -132,23 +180,32 @@ function getToolBySlug($slug) {
 }
 
 /**
- * Get all unique tool categories
+ * Get all unique tool types (for filtering/dropdown)
+ * 
+ * @return array Array of tool type names
+ */
+function getToolTypes() {
+    $db = getDb();
+    
+    $stmt = $db->query("
+        SELECT DISTINCT tool_type 
+        FROM tools 
+        WHERE tool_type IS NOT NULL 
+          AND tool_type != '' 
+          AND active = 1
+        ORDER BY tool_type
+    ");
+    
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+/**
+ * Get all unique tool categories (deprecated - use getToolTypes instead)
  * 
  * @return array Array of category names
  */
 function getToolCategories() {
-    $db = getDb();
-    
-    $stmt = $db->query("
-        SELECT DISTINCT category 
-        FROM tools 
-        WHERE category IS NOT NULL 
-          AND category != '' 
-          AND active = 1
-        ORDER BY category
-    ");
-    
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    return getToolTypes();
 }
 
 /**
