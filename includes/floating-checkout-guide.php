@@ -31,12 +31,12 @@ if (!$isIndexPage) return;
             position: relative;
         }
         
-        /* Speech bubble pointer */
+        /* Speech bubble pointer - positioned towards cart icon */
         #floating-checkout-guide .guide-card::before {
             content: '';
             position: absolute;
             top: -10px;
-            left: 50%;
+            left: var(--pointer-left, 75%);
             transform: translateX(-50%);
             width: 0;
             height: 0;
@@ -86,28 +86,53 @@ if (!$isIndexPage) return;
 <script>
 (function() {
     const guide = document.getElementById('floating-checkout-guide');
+    const guideCard = guide.querySelector('.guide-card');
     
     function positionGuide() {
         if (guide.style.display === 'none') return;
         
-        const isDesktop = window.innerWidth >= 768;
+        // Find cart badge/icon
+        const cartBadge = document.querySelector('[id*="cart"]') || document.querySelector('[class*="cart"]');
+        const navBar = document.getElementById('mainNav') || document.querySelector('nav');
         
-        if (isDesktop) {
-            guide.style.top = '75px';
-            guide.style.right = '15px';
-            guide.style.left = 'auto';
-            guide.style.bottom = 'auto';
+        // Get viewport width
+        const viewportWidth = window.innerWidth;
+        const isMobile = viewportWidth < 768;
+        
+        // Default positioning - below cart icon in top right
+        const padding = isMobile ? 10 : 15;
+        const navHeight = navBar ? navBar.offsetHeight : 64;
+        
+        // Position below navbar with padding
+        guide.style.top = (navHeight + 12) + 'px';
+        guide.style.right = padding + 'px';
+        guide.style.left = 'auto';
+        guide.style.bottom = 'auto';
+        
+        // For mobile, check if guide would go off-screen on right side
+        if (isMobile && guide.offsetLeft + guide.offsetWidth > viewportWidth) {
+            guide.style.right = 'auto';
+            guide.style.left = padding + 'px';
+        }
+        
+        // Adjust pointer position based on pointer offset
+        // Get guide card width
+        const cardWidth = guideCard ? guideCard.offsetWidth : 280;
+        
+        // Calculate pointer alignment: point it towards the right (cart icon area)
+        if (isMobile) {
+            // On mobile, point slightly right of center towards cart icon
+            guideCard.style.setProperty('--pointer-left', '70%');
         } else {
-            guide.style.top = '75px';
-            guide.style.right = '12px';
-            guide.style.left = 'auto';
-            guide.style.bottom = 'auto';
+            // On desktop, point slightly right of center towards cart icon  
+            guideCard.style.setProperty('--pointer-left', '75%');
         }
     }
     
     function showGuide() {
         guide.style.display = 'block';
-        positionGuide();
+        // Allow browser to render first
+        setTimeout(() => positionGuide(), 0);
         
         setTimeout(() => {
             if (guide.style.display !== 'none') {
