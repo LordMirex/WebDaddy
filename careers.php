@@ -63,23 +63,23 @@ $pageUrl = SITE_URL . '/careers.php';
                 <ul class="space-y-4 text-gray-300">
                     <li class="flex items-start gap-3">
                         <span class="text-primary-400 font-bold text-xl">✓</span>
-                        <span><strong class="text-white">Meaningful Impact:</strong> Help thousands of African entrepreneurs build their digital presence</span>
+                        <span><strong class="text-white">Meaningful Impact:</strong> Help thousands of African entrepreneurs build their digital presence and grow their businesses</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="text-primary-400 font-bold text-xl">✓</span>
-                        <span><strong class="text-white">Growth Opportunities:</strong> Learn and grow in a fast-paced, innovative environment</span>
+                        <span><strong class="text-white">Growth Opportunities:</strong> Learn and grow in a fast-paced, innovative environment with mentorship from industry experts</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="text-primary-400 font-bold text-xl">✓</span>
-                        <span><strong class="text-white">Flexible Work:</strong> Remote-first culture with flexible working hours</span>
+                        <span><strong class="text-white">Remote-First Culture:</strong> Work from anywhere with flexible hours that suit your lifestyle</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="text-primary-400 font-bold text-xl">✓</span>
-                        <span><strong class="text-white">Competitive Compensation:</strong> Fair salaries and performance bonuses</span>
+                        <span><strong class="text-white">Competitive Compensation:</strong> Fair salaries, performance bonuses, and incentive programs</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="text-primary-400 font-bold text-xl">✓</span>
-                        <span><strong class="text-white">Collaborative Team:</strong> Work with talented professionals who are passionate about our mission</span>
+                        <span><strong class="text-white">Passionate Team:</strong> Collaborate with talented professionals who are dedicated to our mission of empowering African entrepreneurs</span>
                     </li>
                 </ul>
             </div>
@@ -88,20 +88,26 @@ $pageUrl = SITE_URL . '/careers.php';
                 <h2 class="text-3xl font-bold text-white mb-6">Current Openings</h2>
                 <div class="space-y-4">
                     <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-primary-500 transition-colors">
-                        <h3 class="text-xl font-semibold text-white mb-2">Customer Support Specialist</h3>
-                        <p class="text-gray-400 text-sm mb-4">Help our customers succeed with our products. Respond to inquiries, troubleshoot issues, and provide excellent support.</p>
+                        <h3 class="text-xl font-semibold text-white mb-2">Web Developer</h3>
+                        <p class="text-gray-400 text-sm mb-4">Build and maintain our web platforms. Work with modern technologies like PHP, JavaScript, and responsive design. Help create seamless experiences for our users.</p>
+                        <button onclick="document.location='#apply'" class="text-primary-400 hover:text-primary-300 font-medium text-sm">Learn More →</button>
+                    </div>
+                    
+                    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-primary-500 transition-colors">
+                        <h3 class="text-xl font-semibold text-white mb-2">Customer Care Specialist</h3>
+                        <p class="text-gray-400 text-sm mb-4">Be the voice of our customers. Provide exceptional support via WhatsApp, email, and live chat. Solve problems and ensure customer satisfaction at the highest level.</p>
                         <button onclick="document.location='#apply'" class="text-primary-400 hover:text-primary-300 font-medium text-sm">Learn More →</button>
                     </div>
                     
                     <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-primary-500 transition-colors">
                         <h3 class="text-xl font-semibold text-white mb-2">Content Creator</h3>
-                        <p class="text-gray-400 text-sm mb-4">Create compelling blog posts, case studies, and marketing content that resonates with our audience.</p>
+                        <p class="text-gray-400 text-sm mb-4">Create compelling blog posts, case studies, tutorials, and marketing content. Tell stories that inspire and educate African entrepreneurs about digital transformation.</p>
                         <button onclick="document.location='#apply'" class="text-primary-400 hover:text-primary-300 font-medium text-sm">Learn More →</button>
                     </div>
                     
                     <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 hover:border-primary-500 transition-colors">
                         <h3 class="text-xl font-semibold text-white mb-2">Marketing Manager</h3>
-                        <p class="text-gray-400 text-sm mb-4">Drive our marketing strategy and help us reach more African entrepreneurs with our solutions.</p>
+                        <p class="text-gray-400 text-sm mb-4">Drive our marketing strategy and campaigns. Reach more African entrepreneurs, build brand awareness, and grow our community through innovative marketing initiatives.</p>
                         <button onclick="document.location='#apply'" class="text-primary-400 hover:text-primary-300 font-medium text-sm">Learn More →</button>
                     </div>
                 </div>
@@ -109,13 +115,79 @@ $pageUrl = SITE_URL . '/careers.php';
         </section>
         
         <!-- Application Section -->
-        <section id="apply" class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg p-8 sm:p-12 text-center">
-            <h2 class="text-3xl font-bold text-navy mb-4">Interested in Joining Us?</h2>
-            <p class="text-navy/90 mb-6">Check back soon for more job openings, or contact us to learn about opportunities.</p>
-            <a href="mailto:admin@webdaddyempire.com?subject=Career%20Inquiry%20-%20Resume" class="inline-flex items-center gap-2 px-8 py-3 bg-navy hover:bg-navy/80 text-white font-semibold rounded-lg transition-colors">
-                Email Your Resume
-            </a>
+        <section id="apply" class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg p-8 sm:p-12">
+            <h2 class="text-3xl font-bold text-navy mb-2 text-center">Interested in Joining Us?</h2>
+            <p class="text-navy/90 mb-8 text-center">Submit your resume and tell us which role interests you. We review all applications and contact promising candidates.</p>
+            
+            <form id="careersForm" class="max-w-2xl mx-auto bg-navy/20 rounded-lg p-6 sm:p-8">
+                <div class="space-y-4">
+                    <div>
+                        <label for="fullName" class="block text-navy font-semibold mb-2">Full Name *</label>
+                        <input type="text" id="fullName" name="fullName" required class="w-full px-4 py-3 rounded-lg bg-navy text-white border border-primary-400/30 focus:border-primary-400 focus:outline-none transition-colors" placeholder="Your full name">
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-navy font-semibold mb-2">Email Address *</label>
+                        <input type="email" id="email" name="email" required class="w-full px-4 py-3 rounded-lg bg-navy text-white border border-primary-400/30 focus:border-primary-400 focus:outline-none transition-colors" placeholder="your@email.com">
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-navy font-semibold mb-2">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 rounded-lg bg-navy text-white border border-primary-400/30 focus:border-primary-400 focus:outline-none transition-colors" placeholder="Your phone number">
+                    </div>
+                    
+                    <div>
+                        <label for="position" class="block text-navy font-semibold mb-2">Position Interested In *</label>
+                        <select id="position" name="position" required class="w-full px-4 py-3 rounded-lg bg-navy text-white border border-primary-400/30 focus:border-primary-400 focus:outline-none transition-colors">
+                            <option value="">-- Select a position --</option>
+                            <option value="Web Developer">Web Developer</option>
+                            <option value="Customer Care Specialist">Customer Care Specialist</option>
+                            <option value="Content Creator">Content Creator</option>
+                            <option value="Marketing Manager">Marketing Manager</option>
+                            <option value="Other">Other (please specify in message)</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="message" class="block text-navy font-semibold mb-2">Message (Tell us about yourself)</label>
+                        <textarea id="message" name="message" rows="4" class="w-full px-4 py-3 rounded-lg bg-navy text-white border border-primary-400/30 focus:border-primary-400 focus:outline-none transition-colors resize-none" placeholder="Why are you interested in joining us? What makes you a great fit?"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="resumeUrl" class="block text-navy font-semibold mb-2">Resume Link or Google Drive URL *</label>
+                        <input type="url" id="resumeUrl" name="resumeUrl" required class="w-full px-4 py-3 rounded-lg bg-navy text-white border border-primary-400/30 focus:border-primary-400 focus:outline-none transition-colors" placeholder="https://drive.google.com/... or your resume link">
+                        <p class="text-navy/70 text-xs mt-2">You can share a link to your resume on Google Drive, Dropbox, or your portfolio</p>
+                    </div>
+                    
+                    <button type="submit" class="w-full px-8 py-3 bg-navy hover:bg-navy/80 text-white font-semibold rounded-lg transition-colors mt-6">
+                        Submit Your Application
+                    </button>
+                </div>
+            </form>
         </section>
+        
+        <script>
+            document.getElementById('careersForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value || 'Not provided';
+                const position = document.getElementById('position').value;
+                const message = document.getElementById('message').value || 'No additional message';
+                const resumeUrl = document.getElementById('resumeUrl').value;
+                
+                const mailtoLink = `mailto:admin@webdaddyempire.com?subject=Career%20Application%20-%20${encodeURIComponent(position)}&body=${encodeURIComponent(
+                    `Name: ${fullName}\nEmail: ${email}\nPhone: ${phone}\n\nPosition Applied For: ${position}\n\nResume Link: ${resumeUrl}\n\nMessage:\n${message}`
+                )}`;
+                
+                window.location.href = mailtoLink;
+                
+                setTimeout(() => {
+                    alert('Thank you for your application! Please make sure to send the email. If your email client didn\'t open, you can also reach us at admin@webdaddyempire.com');
+                }, 500);
+            });
+        </script>
     </main>
     
     <?php include 'includes/layout/footer.php'; ?>
