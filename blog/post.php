@@ -519,12 +519,18 @@ $toc = blogExtractTableOfContents($blocks);
     }
     </script>
 
+    <script src="/assets/js/cart-and-tools.js"></script>
     <script src="/assets/js/blog/interactions.js"></script>
     <script src="/assets/js/blog/tracking.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCartDrawer();
+            updateCartBadge();
+            setInterval(updateCartBadge, 5000);
+        });
         document.addEventListener('alpine:init', () => {
             Alpine.data('customerNav', () => ({
                 customer: null,
@@ -533,9 +539,6 @@ $toc = blogExtractTableOfContents($blocks);
                 }
             }));
         });
-        function toggleCartDrawer() {
-            window.location.href = '/?view=templates#products';
-        }
     </script>
 </body>
 </html>
