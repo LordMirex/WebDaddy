@@ -591,6 +591,26 @@ async function updateCartBadge() {
     }
 }
 
+// IMMEDIATE badge update for page load (NO debounce delay)
+async function updateCartBadgeImmediate() {
+    try {
+        const response = await fetch('/api/cart.php?action=get');
+        const data = await response.json();
+        
+        if (data.success) {
+            const count = parseInt(data.count) || 0;
+            updateBadgeElement('cart-count', count);
+            updateBadgeElement('cart-count-mobile-icon', count);
+            updateBadgeElement('cart-badge-drawer', count);
+            
+            // Set as the last update time so next update respects debounce
+            lastCartBadgeUpdate = Date.now();
+        }
+    } catch (error) {
+        console.error('Failed to update cart badge immediately:', error);
+    }
+}
+
 function updateBadgeElement(id, count) {
     const badge = document.getElementById(id);
     if (!badge) return; // Element may not exist on all pages
@@ -798,7 +818,7 @@ window.removeFromCart = function(cartId) {
 // CRITICAL: Initialize cart on ALL pages IMMEDIATELY (before DOMContentLoaded)
 // This ensures cart works on pages without products sections
 setupCartDrawer();
-updateCartBadge();
+updateCartBadgeImmediate(); // Use immediate update for page load (NO debounce delay)
 
 document.addEventListener('DOMContentLoaded', function() {
     const affiliateCode = new URLSearchParams(window.location.search).get('aff') || '';
