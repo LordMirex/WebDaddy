@@ -1,5 +1,9 @@
 let toolPopupBound = false;
 let guideDisplayCount = 0;  // Track how many times guide has been shown in this session
+let lastCartBadgeUpdate = 0;  // Debounce cart badge updates
+let badgeUpdateTimeout = null;  // Debounce timer
+const BADGE_UPDATE_DELAY = 300;  // ms - debounce cart badge updates
+const CACHE_VALIDITY = 60000;  // 1 minute - cache validity period
 
 // Global function to open tool modal - accessible from HTML onclick attributes
 async function openToolModal(toolId) {
@@ -368,33 +372,37 @@ document.addEventListener('DOMContentLoaded', function() {
         preCacheBothViews();
     }
     
-    // Pre-cache both views on initial load for instant tab switching
+    // Pre-cache both views on initial load for instant tab switching - PARALLEL FETCHES
     async function preCacheBothViews() {
         const views = ['templates', 'tools'];
-        let cachedCount = 0;
         
-        for (const viewToCache of views) {
-            try {
+        try {
+            const fetchPromises = views.map(viewToCache => {
                 const params = new URLSearchParams();
                 params.set('action', 'load_view');
                 params.set('view', viewToCache);
                 params.set('page', 1);
                 if (affiliateCode) params.set('aff', affiliateCode);
                 
-                const response = await fetch(`/api/ajax-products.php?${params.toString()}`);
-                const data = await response.json();
-                
-                if (data.success && data.html) {
-                    viewCache[viewToCache] = data.html;
-                    cachedCount++;
-                }
-            } catch (err) {
-                // Silently skip errors for individual view pre-caching
+                return fetch(`/api/ajax-products.php?${params.toString()}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success && data.html) {
+                            viewCache[viewToCache] = data.html;
+                            return 1;
+                        }
+                        return 0;
+                    })
+                    .catch(() => 0);
+            });
+            
+            const results = await Promise.all(fetchPromises);
+            const cachedCount = results.reduce((a, b) => a + b, 0);
+            if (cachedCount > 0) {
+                console.log(`✅ Pre-cached ${cachedCount} views for instant switching`);
             }
-        }
-        
-        if (cachedCount > 0) {
-            console.log(`✅ Pre-cached ${cachedCount} views for instant switching`);
+        } catch (err) {
+            console.error('Error pre-caching views:', err);
         }
     }
     
@@ -1184,11 +1192,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (window.closeToolModal) closeToolModal();
                 const notificationMessage = productName ? `${productName} added to cart!` : (data.message || 'Added to cart!');
                 showNotification(notificationMessage, 'success');
-                updateCartBadge();
                 
-                // Cache the updated cart immediately
+                // Cache the updated cart immediately with timestamp
                 const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                const now = Date.now();
                 localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                localStorage.setItem('cartCacheTime', now.toString());
+                
+                // Batch badge update with debouncing (avoid redundant API calls)
+                lastCartBadgeUpdate = now;
+                updateBadgeElement('cart-count', data.count || 0);
+                updateBadgeElement('cart-count-mobile-icon', data.count || 0);
                 
                 // Animate cart button
                 animateCartBadge();
@@ -1232,14 +1246,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function updateCartBadge() {
+        // DEBOUNCE: Skip if update happened recently to prevent redundant API calls
+        const now = Date.now();
+        if (now - lastCartBadgeUpdate < BADGE_UPDATE_DELAY) {
+            if (badgeUpdateTimeout) clearTimeout(badgeUpdateTimeout);
+            badgeUpdateTimeout = setTimeout(updateCartBadge, BADGE_UPDATE_DELAY);
+            return;
+        }
+        lastCartBadgeUpdate = now;
+        
         try {
             const response = await fetch('/api/cart.php?action=get');
             const data = await response.json();
             
             if (data.success) {
                 const count = data.count || 0;
-                
-                // Update all cart badges
                 updateBadgeElement('cart-count', count);
                 updateBadgeElement('cart-count-mobile-icon', count);
             }
@@ -1263,6 +1284,10 @@ document.addEventListener('DOMContentLoaded', function() {
     async function loadCartItems() {
         // INSTANT: Show cached data first
         const cached = localStorage.getItem('cartCache');
+        const cacheTimestamp = localStorage.getItem('cartCacheTime');
+        const now = Date.now();
+        const isCacheFresh = cacheTimestamp && (now - parseInt(cacheTimestamp)) < CACHE_VALIDITY;
+        
         if (cached) {
             try {
                 const cachedData = JSON.parse(cached);
@@ -1272,24 +1297,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // BACKGROUND: Fetch fresh data to keep in sync
-        try {
-            const response = await fetch('/api/cart.php?action=get');
-            const data = await response.json();
-            
-            // Update badge count in drawer
-            const badgeDrawer = document.getElementById('cart-badge-drawer');
-            if (badgeDrawer) {
-                badgeDrawer.textContent = data.count || 0;
+        // BACKGROUND: Only fetch if cache is stale or doesn't exist
+        if (!isCacheFresh) {
+            try {
+                const response = await fetch('/api/cart.php?action=get');
+                const data = await response.json();
+                
+                const badgeDrawer = document.getElementById('cart-badge-drawer');
+                if (badgeDrawer && data.count !== undefined) {
+                    badgeDrawer.textContent = data.count || 0;
+                }
+                
+                if (data.success) {
+                    const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
+                    localStorage.setItem('cartCache', JSON.stringify(cacheData));
+                    localStorage.setItem('cartCacheTime', now.toString());
+                    displayCartItems(cacheData.items, cacheData.totals);
+                }
+            } catch (error) {
+                console.error('Failed to load cart:', error);
             }
-            
-            if (data.success) {
-                const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
-                localStorage.setItem('cartCache', JSON.stringify(cacheData));
-                displayCartItems(cacheData.items, cacheData.totals);
-            }
-        } catch (error) {
-            console.error('Failed to load cart:', error);
         }
     }
     
