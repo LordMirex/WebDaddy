@@ -5,6 +5,14 @@ let badgeUpdateTimeout = null;  // Debounce timer
 const BADGE_UPDATE_DELAY = 250;  // ms - debounce cart badge updates (smooth & responsive)
 const CACHE_VALIDITY = 60000;  // 1 minute - stable cache with fewer API calls
 
+// Global cart data cache for instant display
+let cartDataCache = {
+    items: [],
+    totals: null,
+    loaded: false,
+    timestamp: 0
+};
+
 // Global function to open tool modal - accessible from HTML onclick attributes
 async function openToolModal(toolId) {
     try {
@@ -403,8 +411,18 @@ window.toggleCartDrawer = function() {
     if (drawer.classList.contains('hidden')) {
         drawer.classList.remove('hidden');
         content.classList.remove('translate-x-full');
-        // Always load fresh cart items when opening drawer
-        loadCartItems();
+        
+        // Use cached data if available and fresh (less than 2 seconds old)
+        const now = Date.now();
+        if (cartDataCache.loaded && (now - cartDataCache.timestamp) < 2000) {
+            // Display cached data immediately
+            displayCartItems(cartDataCache.items, cartDataCache.totals);
+            // Refresh in background
+            loadCartItems();
+        } else {
+            // Load fresh data
+            loadCartItems();
+        }
     } else {
         content.classList.add('translate-x-full');
         drawer.classList.add('hidden');
@@ -604,6 +622,12 @@ async function loadCartItems() {
             const items = data.items || [];
             const totals = data.totals || data.total || 0;
             
+            // Cache the data for instant display
+            cartDataCache.items = items;
+            cartDataCache.totals = totals;
+            cartDataCache.loaded = true;
+            cartDataCache.timestamp = Date.now();
+            
             // Display the fresh cart data
             displayCartItems(items, totals);
             
@@ -619,6 +643,11 @@ async function loadCartItems() {
             localStorage.setItem('cartBadgeTime', now.toString());
         } else if (data.success) {
             // Empty cart - still display it properly
+            cartDataCache.items = [];
+            cartDataCache.totals = data.totals || 0;
+            cartDataCache.loaded = true;
+            cartDataCache.timestamp = Date.now();
+            
             displayCartItems([], data.totals || 0);
             updateBadgeElement('cart-count', 0);
             updateBadgeElement('cart-count-mobile-icon', 0);
@@ -1514,4 +1543,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     };
+});
+// Pre-load cart data on page load for instant display (non-blocking)
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        loadCartItems().catch(err => {});
+    }, 100);
 });
