@@ -16,6 +16,11 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 - Proper spacing on admin pages for pagination visibility
 
 ## Recent Changes (Dec 18, 2025)
+- **FIXED: "Proceed to Checkout" Button Styling on Blog** - Now uses `.btn-premium-gold` class:
+  - Applied across all cart drawer instances on all pages (index, about, contact, faq, careers, cart-checkout, blog)
+  - Consistent gold gradient background: `linear-gradient(135deg, #F5D669 0%, #D4AF37 50%, #B8942E 100%)`
+  - Navy text color matches design system
+  - Proper hover effects and shadows
 - **IMMEDIATE Badge Counter Sync** - Cart badge shows exact correct number on page load (no scroll needed):
   - Created `updateCartBadgeImmediate()` function that bypasses debounce delay
   - Called at script initialization (before DOMContentLoaded) on all pages

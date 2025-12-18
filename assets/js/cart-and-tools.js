@@ -382,7 +382,7 @@ function setupCartDrawer() {
                             <span id="cart-total">₦0</span>
                         </div>
                     </div>
-                    <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-gold to-yellow-400 hover:from-yellow-400 hover:to-gold text-navy font-bold py-3 rounded-lg transition-all shadow-lg">
+                    <button onclick="proceedToCheckout()" class="w-full btn-premium btn-premium-gold" style="padding: 0.75rem 1.5rem; font-size: 0.9375rem;">
                         Proceed to Checkout
                     </button>
                     <div class="flex gap-2">
