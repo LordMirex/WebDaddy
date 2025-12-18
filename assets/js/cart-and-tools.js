@@ -741,7 +741,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (previousView !== view) {
             category = '';
             currentCategory = '';
-            if (categoryFilter) categoryFilter.value = '';
+            if (categoryFilter) {
+                categoryFilter.value = '';
+                // CRITICAL: Clear all category options when switching views to prevent stale categories
+                // Keep only the default "Category" option
+                while (categoryFilter.options.length > 1) {
+                    categoryFilter.remove(1);
+                }
+            }
         }
         
         const contentArea = productsSection.querySelector('.max-w-7xl > div:last-child');
@@ -766,7 +773,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             setupCategoryFilters();
-            setupCategoryDropdown();
+            // Fetch categories for the current view even from cache
+            // Make a lightweight API call to get just the categories
+            fetch(`/api/ajax-products.php?action=get_categories&view=${view}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.categories) {
+                        setupCategoryDropdown(data.categories);
+                    }
+                })
+                .catch(() => setupCategoryDropdown());
             return;
         }
         

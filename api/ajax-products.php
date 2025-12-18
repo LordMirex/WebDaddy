@@ -12,6 +12,15 @@ header('Content-Type: application/json');
 $startTime = microtime(true);
 $action = $_GET['action'] ?? '';
 
+// Quick endpoint to get categories/tool types for dropdown updates
+if ($action === 'get_categories') {
+    $view = $_GET['view'] ?? 'templates';
+    header('Content-Type: application/json');
+    $categories = $view === 'templates' ? getTemplateCategories() : getToolTypes();
+    echo json_encode(['success' => true, 'categories' => $categories]);
+    exit;
+}
+
 if ($action === 'load_view') {
     $view = $_GET['view'] ?? 'templates';
     $page = max(1, (int)($_GET['page'] ?? 1));
