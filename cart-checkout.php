@@ -426,7 +426,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
                     $toolId = $item['product_id'];
                     
                     // Check if tool is marked as upload_complete before generating tokens
-                    $checkTool = getToolById($toolId);
+                    $checkTool = getToolById($toolId, false);
                     $isToolComplete = ($checkTool && !empty($checkTool['upload_complete']));
                     
                     if ($isToolComplete) {
@@ -1136,7 +1136,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                         $toolsWithoutFilesCount = 0;
                         foreach ($tools as $checkItem) {
                             // CRITICAL FIX: Check upload_complete status first - only show if tool is marked complete
-                            $checkTool = getToolById($checkItem['product_id']);
+                            $checkTool = getToolById($checkItem['product_id'], false);
                             $isUploadComplete = ($checkTool && !empty($checkTool['upload_complete']));
                             
                             if ($isUploadComplete) {
@@ -1181,7 +1181,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             <?php endif; ?>
                             <?php foreach ($tools as $item): 
                                 // CRITICAL FIX: Check if tool is marked as upload_complete
-                                $toolInfo = getToolById($item['product_id']);
+                                $toolInfo = getToolById($item['product_id'], false);
                                 $isToolUploadComplete = ($toolInfo && !empty($toolInfo['upload_complete']));
                                 
                                 $toolFiles = getToolFiles($item['product_id']);

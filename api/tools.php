@@ -48,7 +48,7 @@ try {
             $tool = ProductCache::get($cacheKey);
             
             if ($tool === null) {
-                $tool = getToolById($toolId);
+                $tool = getToolById($toolId, true);
                 if ($tool) {
                     ProductCache::set($cacheKey, $tool);
                 }

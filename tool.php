@@ -17,7 +17,7 @@ $toolId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 if (!empty($slug)) {
     $tool = getToolBySlug($slug);
 } elseif ($toolId) {
-    $tool = getToolById($toolId);
+    $tool = getToolById($toolId, true);
     
     if ($tool && !empty($tool['slug'])) {
         $affiliateParam = isset($_GET['aff']) ? '?aff=' . urlencode($_GET['aff']) : '';

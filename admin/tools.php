@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = sanitizeInput($_POST['name']);
         $slug = sanitizeInput($_POST['slug'] ?? '');
         // Category field removed from UI - preserve existing value
-        $existingTool = getToolById($toolId);
+        $existingTool = getToolById($toolId, false);
         $category = $existingTool['category'] ?? '';
         $toolType = sanitizeInput($_POST['tool_type']);
         $price = floatval($_POST['price']);
@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $toolId = intval($_POST['tool_id']);
         
         try {
-            $tool = getToolById($toolId);
+            $tool = getToolById($toolId, false);
             if ($tool) {
                 $result = deleteTool($toolId);
                 if ($result) {
@@ -241,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $adjustment = intval($_POST['adjustment']);
         
         try {
-            $tool = getToolById($toolId);
+            $tool = getToolById($toolId, false);
             if (!$tool) {
                 $errorMessage = 'Tool not found.';
             } elseif ($tool['stock_unlimited'] == 1) {
@@ -278,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once __DIR__ . '/../includes/delivery.php';
             require_once __DIR__ . '/../includes/email_queue.php';
             
-            $tool = getToolById($toolId);
+            $tool = getToolById($toolId, false);
             if (!$tool) {
                 throw new Exception('Tool not found.');
             }
@@ -385,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $successMessage = 'File uploaded successfully!';
             }
             
-            $tool = getToolById($toolId);
+            $tool = getToolById($toolId, false);
             
             // CRITICAL FIX: Send update emails if tool is already marked as complete
             // This notifies customers who already received the tool about new files
@@ -557,7 +557,7 @@ while ($row = $priorityQuery->fetch(PDO::FETCH_ASSOC)) {
 // Get tool for editing
 $editTool = null;
 if (isset($_GET['edit'])) {
-    $editTool = getToolById(intval($_GET['edit']));
+    $editTool = getToolById(intval($_GET['edit']), false);
 }
 
 require_once __DIR__ . '/includes/header.php';

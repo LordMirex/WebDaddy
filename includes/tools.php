@@ -95,13 +95,21 @@ function getToolsCount($activeOnly = true, $category = null, $inStockOnly = true
  * Get single tool by ID
  * 
  * @param int $id Tool ID
+ * @param bool $checkActive If true, only return active tools (default true for customer view)
  * @return array|null Tool record or null if not found
  */
-function getToolById($id) {
+function getToolById($id, $checkActive = true) {
     $db = getDb();
     
-    $stmt = $db->prepare("SELECT * FROM tools WHERE id = ?");
-    $stmt->execute([(int)$id]);
+    $sql = "SELECT * FROM tools WHERE id = ?";
+    $params = [(int)$id];
+    
+    if ($checkActive) {
+        $sql .= " AND active = 1";
+    }
+    
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
     
     $tool = $stmt->fetch(PDO::FETCH_ASSOC);
     return $tool ?: null;
