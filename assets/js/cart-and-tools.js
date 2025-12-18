@@ -71,6 +71,11 @@ function showNotification(message, type = 'success') {
     const container = document.createElement('div');
     container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
     
+    // Trigger the checkout guide
+    if (type === 'success' && window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
+        window.dispatchEvent(new Event('cart-updated'));
+    }
+    
     // Create notification element
     const notification = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-gold/60 border-gold/40' : 'bg-red-600/60 border-red-500/40';

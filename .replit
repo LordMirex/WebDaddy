@@ -27,7 +27,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -S 0.0.0.0:5000 -t /home/runner/workspace"
+args = "cd / && php -S 0.0.0.0:5000"
 waitForPort = 5000
 
 [[ports]]

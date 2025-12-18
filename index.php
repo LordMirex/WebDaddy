@@ -1895,6 +1895,6 @@ if ($autoOpenTool) {
         });
     </script>
     
-    <?php include __DIR__ . '/includes/floating-cart-widget.php'; ?>
+    <?php include __DIR__ . '/includes/floating-checkout-guide.php'; ?>
 </body>
 </html>
