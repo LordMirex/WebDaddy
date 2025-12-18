@@ -948,41 +948,41 @@ if ($autoOpenTool) {
         </div>
         
         <!-- Stats Bar - Inside Hero for 100vh -->
-        <div class="relative py-4 lg:py-6 bg-navy/50 backdrop-blur-sm mb-8 lg:mb-12">
+        <div class="relative py-4 md:py-6 bg-navy/50 backdrop-blur-sm mb-8 md:mb-12">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-1.5 lg:py-3 px-2 lg:px-6">
-                    <div class="grid grid-cols-3 gap-1 lg:gap-4 text-center">
-                        <div class="flex items-center justify-center gap-1 lg:gap-3">
-                            <div class="w-6 h-6 lg:w-9 lg:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3 h-3 lg:w-4 lg:h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-navy-light/80 border border-gray-700/80 rounded-full py-1.5 md:py-3 px-2 md:px-6">
+                    <div class="grid grid-cols-3 gap-1 md:gap-4 text-center">
+                        <div class="flex items-center justify-center gap-1 md:gap-3">
+                            <div class="w-6 h-6 md:w-9 md:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-[10px] sm:text-xs lg:text-lg font-bold text-white">500+</div>
-                                <div class="text-[8px] lg:text-xs text-gray-400">Websites</div>
+                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">500+</div>
+                                <div class="text-[8px] md:text-xs text-gray-400">Websites</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-1 lg:gap-3 border-x border-gray-700/50">
-                            <div class="w-6 h-6 lg:w-9 lg:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3 h-3 lg:w-4 lg:h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex items-center justify-center gap-1 md:gap-3 border-x border-gray-700/50">
+                            <div class="w-6 h-6 md:w-9 md:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-[10px] sm:text-xs lg:text-lg font-bold text-white">10k+</div>
-                                <div class="text-[8px] lg:text-xs text-gray-400">Users</div>
+                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">10k+</div>
+                                <div class="text-[8px] md:text-xs text-gray-400">Users</div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-1 lg:gap-3">
-                            <div class="w-6 h-6 lg:w-9 lg:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3 h-3 lg:w-4 lg:h-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                        <div class="flex items-center justify-center gap-1 md:gap-3">
+                            <div class="w-6 h-6 md:w-9 md:h-9 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3 h-3 md:w-4 md:h-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-[10px] sm:text-xs lg:text-lg font-bold text-white">4.9/5</div>
-                                <div class="text-[8px] lg:text-xs text-gray-400">Rating</div>
+                                <div class="text-[10px] sm:text-xs md:text-lg font-bold text-white">4.9/5</div>
+                                <div class="text-[8px] md:text-xs text-gray-400">Rating</div>
                             </div>
                         </div>
                     </div>
@@ -1322,7 +1322,7 @@ if ($autoOpenTool) {
                 <p class="text-gray-400 mb-0">Please check back later or <a href="https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>" class="font-semibold text-gold hover:text-gold-500">contact us on WhatsApp</a>.</p>
             </div>
             <?php else: ?>
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-6">
                 <?php foreach ($tools as $tool): ?>
                 <div class="tool-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" 
                      data-tool-id="<?php echo $tool['id']; ?>">
