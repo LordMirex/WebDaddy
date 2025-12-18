@@ -815,7 +815,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Re-attach event listeners for AJAX-replaced elements
                 setupCategoryFilters();
-                setupCategoryDropdown();
+                // Update dropdown with new categories for the view
+                setupCategoryDropdown(data.categories || []);
             }
         } catch (error) {
             console.error('Failed to load view:', error);
@@ -886,10 +887,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function setupCategoryDropdown() {
+    function setupCategoryDropdown(categories = null) {
         const categoryDropdown = document.getElementById('category-filter');
         
         if (categoryDropdown) {
+            // If new categories provided, update the dropdown options
+            if (categories && Array.isArray(categories)) {
+                const currentValue = categoryDropdown.value;
+                const currentLabel = categoryDropdown.options[categoryDropdown.selectedIndex]?.textContent;
+                
+                // Clear existing options except the first one (Category label)
+                while (categoryDropdown.options.length > 1) {
+                    categoryDropdown.remove(1);
+                }
+                
+                // Add new options
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    categoryDropdown.appendChild(option);
+                });
+                
+                // Reset dropdown to empty
+                categoryDropdown.value = '';
+            }
+            
             // Update dropdown value to match current category from URL/state
             if (currentCategory) {
                 categoryDropdown.value = currentCategory;

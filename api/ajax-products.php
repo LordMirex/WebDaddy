@@ -117,11 +117,15 @@ if ($action === 'load_view') {
     
     $html = ob_get_clean();
     
+    // Get the correct categories/tool types for the current view
+    $categories = $view === 'templates' ? getTemplateCategories() : getToolTypes();
+    
     $response = [
         'success' => true,
         'html' => $html,
         'view' => $view,
-        'page' => $page
+        'page' => $page,
+        'categories' => $categories  // Return categories for dropdown update
     ];
     
     // Cache the response
