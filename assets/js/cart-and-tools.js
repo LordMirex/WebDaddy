@@ -1,4 +1,5 @@
 let toolPopupBound = false;
+let guideDisplayCount = 0;  // Track how many times guide has been shown in this session
 
 // Global function to open tool modal - accessible from HTML onclick attributes
 async function openToolModal(toolId) {
@@ -105,12 +106,40 @@ function showNotification(message, type = 'success') {
         setTimeout(() => container.remove(), 300);
     }, 4000);
     
-    // Trigger the checkout guide AFTER notification is completely finished
-    // Notification fades out at 4000ms, disappears at 4300ms, guide appears at 4800ms
+    // Smart guide display: Show guide periodically based on cart size
+    // For 1-3 items: show every time
+    // For 4-9 items: show twice total (on 1st and 5th item)
+    // For 10+ items: show once more only (on first item of larger batch)
     if (type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
-        setTimeout(() => {
-            window.dispatchEvent(new Event('cart-updated'));
-        }, 4800);
+        try {
+            const cartCache = JSON.parse(localStorage.getItem('cartCache') || '{"items":[]}');
+            const totalItems = cartCache.items ? cartCache.items.length : 0;
+            
+            let shouldShowGuide = false;
+            
+            if (totalItems <= 3) {
+                // Show on every item for small carts
+                shouldShowGuide = true;
+            } else if (totalItems <= 9) {
+                // Show twice for medium carts: on items 1-3 and around 5-6
+                shouldShowGuide = guideDisplayCount === 0 || (totalItems >= 5 && guideDisplayCount === 1);
+            } else {
+                // Show once more for large carts on first time seeing them
+                shouldShowGuide = guideDisplayCount <= 1;
+            }
+            
+            if (shouldShowGuide) {
+                guideDisplayCount++;
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('cart-updated'));
+                }, 4800);
+            }
+        } catch (err) {
+            // Fallback: show guide if there's an error reading cart
+            setTimeout(() => {
+                window.dispatchEvent(new Event('cart-updated'));
+            }, 4800);
+        }
     }
 }
 
