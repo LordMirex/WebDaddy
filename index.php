@@ -791,7 +791,7 @@ if ($autoOpenTool) {
         <div class="relative flex-1 flex flex-col lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-1 gap-4 lg:gap-8">
             <!-- Left Side (60%) - Text Content Only -->
             <div class="lg:w-3/5 order-1 lg:order-1">
-                <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
+                <h1 class="text-xl sm:text-2xl md:text-4xl lg:text-4xl xl:text-5xl font-extrabold mb-2 sm:mb-4 lg:mb-6 leading-tight">
                     Launch Your Business Online with <span class="text-gold animate-word-swap" id="animatedWord">Confidence.</span>
                 </h1>
                 <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-400 mb-3 sm:mb-4 lg:mb-8 max-w-xl">
