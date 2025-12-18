@@ -1109,8 +1109,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Clear cart immediately
+    // Clear cart with confirmation
     window.clearCartConfirm = async function() {
+        // Show confirmation dialog
+        if (!confirm('⚠️ Are you sure you want to clear all items from your cart? This action cannot be undone.')) {
+            return;
+        }
+        
         try {
             const params = new URLSearchParams();
             params.set('action', 'clear');
@@ -1124,12 +1129,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data.success) {
-                showNotification('🗑️ Cart cleared', 'success', false);
+                showNotification('🗑️ Cart cleared successfully', 'success', false);
                 updateCartBadge();
                 loadCartItems();
                 localStorage.removeItem('cartCache');
+                // Close cart drawer
+                const drawer = document.getElementById('cart-drawer');
+                if (drawer && !drawer.classList.contains('hidden')) {
+                    const content = document.getElementById('cart-drawer-content');
+                    content.classList.add('translate-x-full');
+                    drawer.classList.add('hidden');
+                }
             } else {
-                showNotification('Failed to clear cart', 'error');
+                showNotification('Failed to clear cart: ' + (data.message || data.error), 'error');
             }
         } catch (error) {
             console.error('Error clearing cart:', error);
