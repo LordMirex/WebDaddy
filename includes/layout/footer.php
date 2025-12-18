@@ -94,9 +94,9 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                     </ul>
                 </div>
 
-                <!-- Contact Column -->
+                <!-- Company Column -->
                 <div class="text-center lg:text-left">
-                    <h4 class="text-white font-semibold text-sm mb-4">Contact</h4>
+                    <h4 class="text-white font-semibold text-sm mb-4">Company</h4>
                     <ul class="space-y-2.5">
                         <li><a href="/about.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">About</a></li>
                         <li><a href="/careers.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Careers</a></li>
