@@ -1030,40 +1030,58 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="absolute inset-0 bg-gray-900 bg-opacity-50" onclick="toggleCartDrawer()"></div>
             <div class="absolute right-0 top-0 h-full w-full sm:w-96 bg-gray-800 shadow-2xl transform translate-x-full transition-transform duration-0" id="cart-drawer-content">
                 <div class="h-full flex flex-col">
-                    <div class="flex items-center justify-between p-4 border-b border-gray-700">
-                        <h3 class="text-lg font-bold text-white">Your Cart</h3>
-                        <button onclick="toggleCartDrawer()" class="text-gray-200 hover:text-gray-100">
+                    <!-- Header with Close Button -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-900">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg font-bold text-white">Your Cart</h3>
+                            <span id="cart-badge-drawer" class="bg-primary-600 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+                        </div>
+                        <button onclick="toggleCartDrawer()" class="text-gray-200 hover:text-gray-100 transition-colors p-1">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>
                     
+                    <!-- Cart Items Container -->
                     <div id="cart-items" class="flex-1 overflow-y-auto p-4">
-                        <p class="text-gray-200 text-center py-8">Your cart is empty</p>
+                        <p class="text-gray-400 text-center py-8">Your cart is empty</p>
                     </div>
                     
-                    <div id="cart-footer" class="hidden border-t border-gray-700 p-4 bg-gray-900">
-                        <div class="mb-4" id="cart-totals-container">
-                            <div class="flex justify-between text-sm text-gray-100 mb-1">
+                    <!-- Cart Footer - Totals & Buttons -->
+                    <div id="cart-footer" class="hidden border-t border-gray-700 p-4 bg-gray-900 space-y-3">
+                        <!-- Totals Section -->
+                        <div id="cart-totals-container" class="space-y-2 pb-3 border-b border-gray-700">
+                            <div class="flex justify-between text-sm text-gray-300">
                                 <span>Subtotal</span>
                                 <span id="cart-subtotal">₦0</span>
                             </div>
-                            <div id="cart-discount-row" class="hidden flex justify-between text-sm text-green-600 mb-1">
-                                <span>Discount (20%)</span>
+                            <div id="cart-discount-row" class="hidden flex justify-between text-sm text-green-400">
+                                <span>Discount</span>
                                 <span id="cart-discount-amount">-₦0</span>
                             </div>
-                            <div class="flex justify-between text-lg font-bold text-white pt-2 border-t border-gray-700">
+                            <div class="flex justify-between text-lg font-bold text-white pt-2">
                                 <span>Total</span>
                                 <span id="cart-total">₦0</span>
                             </div>
                         </div>
-                        <button onclick="proceedToCheckout()" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg transition-colors">
+                        
+                        <!-- Action Buttons -->
+                        <button onclick="proceedToCheckout()" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-3 rounded-lg transition-all shadow-lg">
                             Proceed to Checkout
                         </button>
-                        <button onclick="toggleCartDrawer()" class="w-full mt-2 text-primary-600 hover:text-primary-700 font-medium py-2">
-                            Continue Shopping
-                        </button>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="toggleCartDrawer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 rounded-lg transition-colors">
+                                Continue Shopping
+                            </button>
+                            <button onclick="clearCartConfirm()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1" title="Clear all items">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Clear
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1083,6 +1101,38 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             content.classList.add('translate-x-full');
             drawer.classList.add('hidden');
+        }
+    };
+    
+    // Clear cart with confirmation
+    window.clearCartConfirm = async function() {
+        if (!confirm('Are you sure you want to clear your entire cart? This cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            const params = new URLSearchParams();
+            params.set('action', 'clear');
+            
+            const response = await fetch('/api/cart.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showNotification('🗑️ Cart cleared successfully', 'success');
+                updateCartBadge();
+                loadCartItems();
+                localStorage.removeItem('cartCache');
+            } else {
+                showNotification('Failed to clear cart', 'error');
+            }
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+            showNotification('Error clearing cart', 'error');
         }
     };
     
@@ -1220,6 +1270,12 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const response = await fetch('/api/cart.php?action=get');
             const data = await response.json();
+            
+            // Update badge count in drawer
+            const badgeDrawer = document.getElementById('cart-badge-drawer');
+            if (badgeDrawer) {
+                badgeDrawer.textContent = data.count || 0;
+            }
             
             if (data.success) {
                 const cacheData = { items: data.items || [], totals: data.totals || data.total || 0 };
