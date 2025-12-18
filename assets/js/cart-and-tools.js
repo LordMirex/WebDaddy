@@ -71,11 +71,6 @@ function showNotification(message, type = 'success') {
     const container = document.createElement('div');
     container.className = 'fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none';
     
-    // Trigger the checkout guide
-    if (type === 'success' && window.location.pathname === '/' || window.location.pathname.includes('index.php')) {
-        window.dispatchEvent(new Event('cart-updated'));
-    }
-    
     // Create notification element
     const notification = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-gold/60 border-gold/40' : 'bg-red-600/60 border-red-500/40';
@@ -109,6 +104,14 @@ function showNotification(message, type = 'success') {
         notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
         setTimeout(() => container.remove(), 300);
     }, 4000);
+    
+    // Trigger the checkout guide AFTER notification is completely finished
+    // Notification fades out at 4000ms, disappears at 4300ms, guide appears at 4800ms
+    if (type === 'success' && (window.location.pathname === '/' || window.location.pathname.includes('index.php'))) {
+        setTimeout(() => {
+            window.dispatchEvent(new Event('cart-updated'));
+        }, 4800);
+    }
 }
 
 // Track tool view from preview modal
