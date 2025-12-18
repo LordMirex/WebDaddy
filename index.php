@@ -703,6 +703,7 @@ if ($autoOpenTool) {
     </style>
     <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
     <script src="/assets/js/nav-smartness.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/smooth-navigation.js?v=<?php echo time(); ?>"></script>
     <script src="/assets/js/forms.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/lazy-load.js?v=<?php echo time(); ?>" defer></script>
