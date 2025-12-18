@@ -58,10 +58,14 @@ The platform features a clean, professional UI with consistent design elements, 
 
 ### Centralized Navigation Architecture
 Shared navigation components in `includes/layout/` provide consistent header and footer across all public pages:
-- **header.php**: Premium nav with Tailwind CSS, gold/navy styling, SEO SiteNavigationElement schema, mobile hamburger menu (Alpine.js), cart icon, customer login state, and affiliate tracking. Accepts parameters: `$activeNav`, `$affiliateCode`, `$cartCount`, `$showCart`. Navigation includes: Templates, Tools, Blog, About, Contact, FAQ, Affiliate Program.
-- **footer.php**: Premium footer with Organization schema, social links, legal links, WhatsApp CTA, and optional mobile sticky CTA. Accepts parameters: `$affiliateCode`, `$showMobileCTA`. Footer links: Templates, Tools, Blog, About, Contact, FAQ, Affiliate.
-- Public pages using shared components: index.php, about.php, contact.php, blog/index.php, blog/post.php, blog/category.php
-- Cart button on blog pages redirects to templates (since blog doesn't have full cart drawer markup).
+- **header.php**: Premium nav with Tailwind CSS, gold/navy styling, SEO SiteNavigationElement schema, mobile hamburger menu (Alpine.js), real-time cart icon, customer login state, and affiliate tracking. Accepts parameters: `$activeNav`, `$affiliateCode`, `$cartCount`, `$showCart`. 
+  - Desktop Nav Items: Home, Blog, About, **Contact** (updated from Company), Login, Cart Icon, Become an Affiliate
+  - Mobile Nav Items: Home, Blog, About, **Contact**, Login, Become an Affiliate
+  - Cart Features: Real-time badge updates (5-sec polling), instant pre-loaded display, no empty cart delay
+- **footer.php**: Premium footer with Organization schema, social links, legal links, WhatsApp CTA. Footer sections: Support, Company, Get Connected
+  - Footer links: FAQ, Contact, Blog | About, Careers, Affiliate | WhatsApp
+- Public pages using shared components: index.php, about.php, contact.php, faq.php, careers.php, cart-checkout.php, blog/index.php, blog/post.php, blog/category.php
+- Cart System: Fully functional on all pages with instant pre-loading, zero-delay product display, real-time badge counter
 
 ### Technical Implementations
 The system includes a production-grade chunked file upload system (up to 2GB) with retry logic, manifest tracking, and duplicate prevention. Template delivery uses AES-256-GCM encryption with dynamic assignment. Tools delivery supports ZIP bundles, configurable download link expiry, and regeneration. An idempotent 30% commission affiliate system is implemented, alongside a customer referral program offering 30% commission and a 20% customer discount. Security features include CSRF token validation, secure token generation, file existence validation, download limits, and enterprise-grade webhook security. Payment processing ensures idempotency. Order completion locks prevent file modifications. A comprehensive version control and enhanced HTML email system handles notifications. Admin-managed bonus codes are supported. A payment verification recovery system includes a frontend API, `PaymentManager` with session storage backup, and a recovery modal. A bulletproof delivery system incorporates a state machine, SLA tracking, auto-recovery, and self-service APIs. Customer accounts feature robust authentication, a full user dashboard with order management, downloads, and support tickets, and extensive customer-facing API endpoints. Infrastructure improvements include caching, a job queue for background processing, a centralized error logger, and an automated backup manager. User announcements and bulk email campaigns are managed via an admin interface. Customer verification uses an email-only OTP system via Resend API.
