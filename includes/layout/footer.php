@@ -83,16 +83,6 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 </div>
             </div>
 
-            <!-- Products Column -->
-            <div>
-                <h4 class="text-white font-semibold text-sm mb-4">Products</h4>
-                <ul class="space-y-2.5">
-                    <li><a href="/?view=templates<?= $affQuery ?>" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Templates</a></li>
-                    <li><a href="/?view=tools<?= $affQuery ?>" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Tools</a></li>
-                    <li><a href="/pricing.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors">Pricing</a></li>
-                </ul>
-            </div>
-
             <!-- Support Column -->
             <div>
                 <h4 class="text-white font-semibold text-sm mb-4">Support</h4>
