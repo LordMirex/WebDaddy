@@ -160,6 +160,36 @@
                     <span class="font-semibold">Commissions</span>
                 </a>
 
+                <!-- Blog Section -->
+                <div class="pt-4 pb-2">
+                    <div class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Blog</div>
+                </div>
+
+                <a href="/admin/blog/index.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-file-text <?php echo basename($_SERVER['PHP_SELF']) == 'index.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">All Posts</span>
+                </a>
+
+                <a href="/admin/blog/editor.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'editor.php' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-pencil-square <?php echo basename($_SERVER['PHP_SELF']) == 'editor.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">New Post</span>
+                </a>
+
+                <a href="/admin/blog/categories.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'categories.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-folder <?php echo basename($_SERVER['PHP_SELF']) == 'categories.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Categories</span>
+                </a>
+
+                <a href="/admin/blog/tags.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'tags.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-tag <?php echo basename($_SERVER['PHP_SELF']) == 'tags.php' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Tags</span>
+                </a>
+
+                <a href="/admin/blog/analytics.php" class="flex items-center space-x-2 px-3 py-2.5 rounded-lg transition-all group text-sm <?php echo basename($_SERVER['PHP_SELF']) == 'analytics.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md' : 'text-gray-700 hover:bg-primary-50 hover:text-primary-700'; ?>">
+                    <i class="bi bi-graph-up-arrow <?php echo basename($_SERVER['PHP_SELF']) == 'analytics.php' && dirname($_SERVER['PHP_SELF']) === '/admin/blog' ? 'text-gold' : 'group-hover:text-primary-600'; ?>"></i>
+                    <span class="font-semibold">Blog Analytics</span>
+                </a>
+
                 <!-- Customer Section -->
                 <div class="pt-4 pb-2">
                     <div class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customers</div>
