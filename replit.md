@@ -16,6 +16,7 @@ WebDaddy Empire is a PHP/SQLite marketplace platform for selling website templat
 - Proper spacing on admin pages for pagination visibility
 
 ## Recent Changes (Dec 18, 2025)
+- **CRITICAL FIX: Cart Display Bug** - Fixed API response inconsistency where POST endpoints returned `cart_count` but JavaScript expected `count`, causing cart to show 0 products after adding items. All POST responses (add/update/remove/clear) now consistently use `count` field matching GET responses.
 - Added **pricing.php** - Templates and tools pricing with 3 pricing tiers
 - Added **faq.php** - Dedicated FAQ page with 12+ questions, schema.org FAQPage markup
 - Added **security.php** - Security, privacy, and trust certifications page

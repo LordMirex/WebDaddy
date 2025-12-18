@@ -160,7 +160,7 @@ try {
                         'success' => true,
                         'message' => $result['message'],
                         'action' => $result['action'],
-                        'cart_count' => $count
+                        'count' => $count
                     ]);
                 } else {
                     http_response_code(400);
@@ -187,9 +187,11 @@ try {
                 if ($result['success']) {
                     // Get updated totals
                     $totals = getCartTotal(null, $affiliateCode);
+                    $count = getCartCount();
                     echo json_encode([
                         'success' => true,
                         'message' => $result['message'],
+                        'count' => $count,
                         'totals' => $totals
                     ]);
                 } else {
@@ -219,7 +221,7 @@ try {
                     echo json_encode([
                         'success' => true,
                         'message' => $result['message'],
-                        'cart_count' => $count,
+                        'count' => $count,
                         'totals' => $totals
                     ]);
                 } else {
@@ -234,7 +236,7 @@ try {
                 echo json_encode([
                     'success' => $success,
                     'message' => $success ? 'Cart cleared' : 'Failed to clear cart',
-                    'cart_count' => 0
+                    'count' => 0
                 ]);
                 break;
                 
