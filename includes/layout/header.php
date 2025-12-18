@@ -55,23 +55,25 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
             
             <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center gap-2 lg:gap-3">
+            <div class="hidden md:flex items-center gap-1 lg:gap-2 flex-wrap">
                 <a href="/blog/" 
-                   class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-2 text-xs lg:text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'blog' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Blog</a>
                 <a href="/about.php" 
-                   class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-2 text-xs lg:text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'about' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">About</a>
                 <a href="/contact.php" 
-                   class="px-2 py-2 text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
+                   class="px-2 py-2 text-xs lg:text-sm font-medium transition-colors border-b-2 <?= $activeNav === 'contact' ? 'text-gold border-gold' : 'text-gray-300 border-transparent hover:text-gold'; ?>" 
                    style="background: none !important;">Company</a>
                 
-                <!-- Customer Account -->
-                <div x-data="customerNav()" class="relative">
-                    <template x-if="!customer">
-                        <a href="/user/login.php" class="px-1.5 py-2 text-xs font-medium text-gray-300 hover:text-gold transition-colors">Login</a>
-                    </template>
-                </div>
+                <!-- Login Link -->
+                <a href="/user/login.php" class="px-2 py-2 text-xs lg:text-sm font-medium text-gray-300 hover:text-gold transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                    Login
+                </a>
                 
                 <?php if ($showCart): ?>
                 <!-- Cart Button -->
@@ -84,7 +86,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 <?php endif; ?>
                 
                 <!-- Affiliate CTA -->
-                <a href="/affiliate/register.php" class="btn-gold-shine px-3 py-1.5 text-xs font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
+                <a href="/affiliate/register.php" class="btn-gold-shine px-2 lg:px-3 py-1.5 text-xs font-semibold rounded-lg text-navy transition-all whitespace-nowrap">
                     Become an Affiliate
                 </a>
             </div>
