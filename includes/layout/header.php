@@ -50,7 +50,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             <div class="flex items-center">
                 <a href="/" class="flex items-center" aria-label="<?= SITE_NAME ?> Home">
                     <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3" loading="eager" decoding="async">
-                    <span class="text-lg sm:text-xl font-bold text-white"><?= SITE_NAME ?></span>
+                    <span class="text-lg sm:text-2xl font-black bg-gradient-to-r from-gold via-yellow-300 to-gold bg-clip-text text-transparent drop-shadow-lg tracking-wide" style="letter-spacing: 0.05em;"><?= SITE_NAME ?></span>
                 </a>
             </div>
             
