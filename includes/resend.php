@@ -20,7 +20,7 @@ require_once __DIR__ . '/db.php';
  */
 function sendResendEmail($to, $subject, $htmlContent, $fromName = null, $emailType = 'otp') {
     $apiKey = defined('RESEND_API_KEY') ? RESEND_API_KEY : '';
-    $fromEmail = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : 'no-reply@webdaddy.online';
+    $fromEmail = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : 'hello@webdaddy.online';
     $defaultFromName = defined('RESEND_FROM_NAME') ? RESEND_FROM_NAME : 'WebDaddy Empire';
     $fromName = $fromName ?: $defaultFromName;
     
@@ -29,11 +29,20 @@ function sendResendEmail($to, $subject, $htmlContent, $fromName = null, $emailTy
         return ['success' => false, 'error' => 'Resend API key not configured'];
     }
     
+    // Build request data with headers for maximum inbox delivery
     $data = [
         'from' => "$fromName <$fromEmail>",
         'to' => [$to],
         'subject' => $subject,
-        'html' => $htmlContent
+        'html' => $htmlContent,
+        // Headers for inbox delivery (prevent spam filtering)
+        'headers' => [
+            'X-Priority' => '3',
+            'Importance' => 'normal',
+            'X-Mailer' => 'WebDaddy-Resend/1.0',
+            'Precedence' => 'bulk',
+            'List-Unsubscribe' => '<mailto:' . $fromEmail . '>'
+        ]
     ];
     
     $ch = curl_init('https://api.resend.com/emails');
