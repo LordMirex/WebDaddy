@@ -1174,14 +1174,14 @@ function sendOTPEmailViaGmail($email, $otpCode) {
     $mail = new PHPMailer(true);
     
     try {
-        // Gmail SMTP Configuration (Port 465 with SSL)
+        // Gmail SMTP Configuration (Port 587 with TLS - proper setup for app passwords)
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
         $mail->Username = GMAIL_OTP_USER;
         $mail->Password = GMAIL_OTP_APP_PASSWORD;
-        $mail->Port = 465;
-        $mail->SMTPSecure = 'ssl';  // SSL
+        $mail->Port = 587;
+        $mail->SMTPSecure = 'tls';  // STARTTLS for port 587
         
         $mail->SMTPOptions = [
             'ssl' => [
