@@ -9,6 +9,14 @@ require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/customer_auth.php';
 require_once __DIR__ . '/../../includes/customer_session.php';
 
+/**
+ * Get the currently logged-in customer from session
+ * @return array|null Customer data or null if not authenticated
+ */
+function getCurrentCustomer() {
+    return validateCustomerSession();
+}
+
 function requireCustomer($allowIncomplete = false) {
     $customer = validateCustomerSession();
     
