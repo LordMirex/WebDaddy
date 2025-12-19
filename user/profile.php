@@ -119,8 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Handle email change cancellation
 if (isset($_GET['reset']) && $_GET['reset'] === 'email') {
     unset($_SESSION['email_change_pending']);
-    header('Location: ' . $_SERVER['REQUEST_URI']);
-    header('Location: ?');
+    header('Location: ' . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
     exit;
 }
 
@@ -202,11 +201,12 @@ require_once __DIR__ . '/includes/header.php';
                 const otp = otpInput.value.trim();
                 
                 if (!/^\d{6}$/.test(otp)) {
-                    showEmailError('Please enter a valid 6-digit code');
+                    showEmailError('Please enter a valid 6-digit verification code');
                     return;
                 }
                 
                 verifyBtn.disabled = true;
+                otpInput.disabled = true;
                 const originalText = verifyBtn.innerHTML;
                 verifyBtn.innerHTML = '<i class="bi-hourglass-split"></i><span>Verifying...</span>';
                 
@@ -223,20 +223,34 @@ require_once __DIR__ . '/includes/header.php';
                     if (response.ok && text.includes('Email address updated successfully')) {
                         verifyBtn.innerHTML = '<i class="bi-check-circle"></i><span>Verified!</span>';
                         verifyBtn.className = 'px-6 py-3 bg-green-600 text-white rounded-lg font-semibold whitespace-nowrap flex items-center gap-2';
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else if (text.includes('Invalid or expired OTP code')) {
-                        throw new Error('The code you entered is invalid or has expired. Please request a new one.');
-                    } else if (text.includes('Session expired')) {
-                        throw new Error('Your session expired. Please start over.');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else if (text.includes('Invalid or expired OTP')) {
+                        throw new Error('This code is invalid or has expired. Please request a new one.');
+                    } else if (text.includes('No email change request found') || text.includes('Session expired')) {
+                        throw new Error('Your session expired. Please start the email change process again.');
+                    } else if (text.includes('Please enter the OTP')) {
+                        throw new Error('Please enter the 6-digit code sent to your email.');
                     } else {
                         throw new Error('Verification failed. Please check the code and try again.');
                     }
                 } catch (err) {
                     verifyBtn.disabled = false;
+                    otpInput.disabled = false;
                     verifyBtn.innerHTML = originalText;
                     showEmailError(err.message || 'Verification failed. Please try again.');
                     otpInput.focus();
+                    otpInput.select();
                 }
+            });
+            
+            // Auto-focus next field after 6 digits
+            document.getElementById('otpInput').addEventListener('input', function(e) {
+                if (this.value.length === 6) {
+                    document.getElementById('verifyBtn').focus();
+                }
+                // Clear error on new input
+                const errorDiv = document.getElementById('emailErrorMsg');
+                if (errorDiv) errorDiv.remove();
             });
             
             function showEmailError(message) {
@@ -270,16 +284,17 @@ require_once __DIR__ . '/includes/header.php';
                         <!-- Email Change Input Form (Hidden by default) -->
                         <div id="emailChangeForm" class="hidden mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                             <label class="block text-sm font-medium text-gray-700 mb-3">Enter New Email Address</label>
+                            <p class="text-xs text-gray-600 mb-4">We'll send a 6-digit verification code to confirm the change.</p>
                             <div class="space-y-3">
                                 <div class="flex gap-2">
                                     <input type="email" id="newEmailInput" placeholder="your.new.email@example.com"
-                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                                           required>
-                                    <button type="button" id="sendEmailOtpBtn" onclick="sendEmailOTP()" class="px-4 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap flex items-center gap-2">
+                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                                           autocomplete="off" required>
+                                    <button type="button" id="sendEmailOtpBtn" onclick="sendEmailOTP()" class="px-4 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap flex items-center gap-2 disabled:opacity-50">
                                         <i class="bi-send"></i><span>Send Code</span>
                                     </button>
                                 </div>
-                                <button type="button" onclick="document.getElementById('emailChangeForm').classList.add('hidden')"
+                                <button type="button" onclick="document.getElementById('emailChangeForm').classList.add('hidden'); document.getElementById('emailChangeError')?.remove();"
                                         class="text-xs text-gray-500 hover:text-gray-700 font-medium">✕ Cancel</button>
                             </div>
                             <script>
@@ -288,8 +303,10 @@ require_once __DIR__ . '/includes/header.php';
                                 const email = emailInput.value.trim();
                                 const btn = document.getElementById('sendEmailOtpBtn');
                                 
-                                if (!email || !email.includes('@')) {
-                                    alert('Please enter a valid email address');
+                                // Validate email format
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                if (!email || !emailRegex.test(email)) {
+                                    showEmailChangeError('Please enter a valid email address (e.g., name@example.com)');
                                     emailInput.focus();
                                     return;
                                 }
@@ -297,6 +314,7 @@ require_once __DIR__ . '/includes/header.php';
                                 btn.disabled = true;
                                 const originalText = btn.innerHTML;
                                 btn.innerHTML = '<i class="bi-hourglass-split"></i><span>Sending...</span>';
+                                emailInput.disabled = true;
                                 
                                 const formData = new FormData();
                                 formData.append('action', 'request_email_otp');
@@ -308,31 +326,47 @@ require_once __DIR__ . '/includes/header.php';
                                 })
                                 .then(r => r.text())
                                 .then(text => {
-                                    if (text.includes('Email address updated successfully') || text.includes('OTP has been sent')) {
+                                    if (text.includes('OTP has been sent')) {
                                         btn.innerHTML = '<i class="bi-check-circle"></i><span>Code Sent!</span>';
                                         btn.className = 'px-4 py-3 bg-green-600 text-white rounded-lg font-semibold whitespace-nowrap flex items-center gap-2';
-                                        setTimeout(() => window.location.reload(), 1500);
+                                        document.getElementById('emailChangeForm').classList.add('hidden');
+                                        setTimeout(() => window.location.reload(), 2000);
                                     } else if (text.includes('Too many OTP requests')) {
-                                        alert('Too many requests. Please wait before trying again.');
-                                        btn.disabled = false;
-                                        btn.innerHTML = originalText;
+                                        throw new Error('Too many requests. Please wait a few minutes before trying again.');
                                     } else if (text.includes('Please enter a different email')) {
-                                        alert('This is already your email address.');
-                                        btn.disabled = false;
-                                        btn.innerHTML = originalText;
-                                        emailInput.focus();
+                                        throw new Error('This email is already your current email address.');
+                                    } else if (text.includes('Please enter a valid email address')) {
+                                        throw new Error('The email address format is invalid.');
+                                    } else if (text.includes('Failed to send OTP')) {
+                                        throw new Error('Unable to send verification code. Please check your email address.');
                                     } else {
-                                        alert('Failed to send code. Please try again.');
-                                        btn.disabled = false;
-                                        btn.innerHTML = originalText;
+                                        throw new Error('Failed to send code. Please try again.');
                                     }
                                 })
                                 .catch(err => {
-                                    alert('Error: ' + err.message);
+                                    showEmailChangeError(err.message || 'Error sending code. Please try again.');
                                     btn.disabled = false;
                                     btn.innerHTML = originalText;
+                                    emailInput.disabled = false;
                                 });
                             }
+                            
+                            function showEmailChangeError(message) {
+                                let errorDiv = document.getElementById('emailChangeError');
+                                if (!errorDiv) {
+                                    errorDiv = document.createElement('div');
+                                    errorDiv.id = 'emailChangeError';
+                                    document.getElementById('emailChangeForm').insertAdjacentElement('beforeend', errorDiv);
+                                }
+                                errorDiv.className = 'mt-3 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex items-start gap-2 text-sm animate-in fade-in duration-300';
+                                errorDiv.innerHTML = '<i class="bi-exclamation-circle-fill flex-shrink-0 mt-0.5"></i><div>' + message + '</div>';
+                            }
+                            
+                            // Clear error when user starts typing
+                            document.getElementById('newEmailInput').addEventListener('input', function() {
+                                const errorDiv = document.getElementById('emailChangeError');
+                                if (errorDiv) errorDiv.remove();
+                            });
                             </script>
                         </div>
                     <?php endif; ?>
