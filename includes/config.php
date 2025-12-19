@@ -133,11 +133,20 @@ define('RESEND_FROM_NAME', 'WebDaddy Empire');
 define('RESEND_WEBHOOK_SECRET', 'whsec_Ysf6QzDo72obRyZymdLUDF2+1xXoA2ul');
 // Webhook URL: https://webdaddy.online/api/resend-webhook.php
 
+// ============================================
+// GMAIL SMTP CONFIGURATION (For User OTP Emails)
+// ============================================
+// Gmail SMTP for instant OTP delivery to users
+// OTP emails only - all other user emails remain on Resend
+define('GMAIL_OTP_USER', 'webdaddyotp@gmail.com');
+define('GMAIL_OTP_APP_PASSWORD', 'yDz7q7XY4].wN8');
+
 // Customer Session Settings
 define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions
-define('CUSTOMER_OTP_EXPIRY_MINUTES', 10);
+define('CUSTOMER_OTP_EXPIRY_MINUTES', 5);       // OTP expires in 5 minutes
 define('CUSTOMER_OTP_MAX_ATTEMPTS', 5);
 define('CUSTOMER_OTP_RATE_LIMIT_HOUR', 3);
+define('CUSTOMER_OTP_RATE_LIMIT_MINUTE', 1);    // Max 1 OTP per minute per user
 
 // API Rate Limiting Settings
 define('API_RATE_LIMIT_CHECK_EMAIL', 10);        // 10 requests per minute per IP
