@@ -13,7 +13,7 @@ function requireAdmin()
     }
 }
 
-function loginAdmin($email, $password)
+function verifyAdminPassword($email, $password)
 {
     $db = getDb();
     
@@ -36,15 +36,7 @@ function loginAdmin($email, $password)
             }
             
             if ($passwordMatch) {
-                session_regenerate_id(true);
-                $_SESSION['admin_id'] = $user['id'];
-                $_SESSION['admin_email'] = $user['email'];
-                $_SESSION['admin_name'] = $user['name'];
-                $_SESSION['admin_role'] = $user['role'];
-                
-                logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
-                
-                return true;
+                return $user;
             }
         }
         
@@ -53,6 +45,25 @@ function loginAdmin($email, $password)
         error_log('Login error: ' . $e->getMessage());
         return false;
     }
+}
+
+function loginAdmin($email, $password)
+{
+    // This now requires OTP verification - see admin/login.php
+    // This function kept for backwards compatibility
+    $user = verifyAdminPassword($email, $password);
+    if ($user) {
+        session_regenerate_id(true);
+        $_SESSION['admin_id'] = $user['id'];
+        $_SESSION['admin_email'] = $user['email'];
+        $_SESSION['admin_name'] = $user['name'];
+        $_SESSION['admin_role'] = $user['role'];
+        
+        logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
+        
+        return true;
+    }
+    return false;
 }
 
 function logoutAdmin()
