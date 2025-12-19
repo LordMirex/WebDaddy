@@ -138,8 +138,8 @@ define('RESEND_WEBHOOK_SECRET', 'whsec_Ysf6QzDo72obRyZymdLUDF2+1xXoA2ul');
 // ============================================
 // Gmail SMTP for instant OTP delivery to users
 // OTP emails only - all other user emails remain on Resend
-define('GMAIL_OTP_USER', 'webdaddyempire@gmail.com');
-define('GMAIL_OTP_APP_PASSWORD', 'webdaddy1234567890#');
+define('GMAIL_OTP_USER', 'oghoghoobianke@gmail.com');
+define('GMAIL_OTP_APP_PASSWORD', 'nsme hhba yvsg ddeq');
 
 // Customer Session Settings
 define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions

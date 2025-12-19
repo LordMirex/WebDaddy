@@ -1180,7 +1180,7 @@ function sendOTPEmailViaGmail($email, $otpCode) {
         $mail->Host = 'smtp.gmail.com';
         $mail->Port = 587;
         $mail->SMTPAuth = true;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->SMTPSecure = 'tls';
         
         // Set credentials - app password as-is
         $mail->Username = GMAIL_OTP_USER;
