@@ -14,7 +14,7 @@ startSecureSession();
 
 $db = getDb();
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$perPage = 12;
+$perPage = 8;
 
 $blogPost = new BlogPost($db);
 $blogCategory = new BlogCategory($db);
@@ -101,26 +101,27 @@ $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digi
 
     <main class="blog-main">
         <section class="blog-hero">
-            <div class="blog-hero-content">
-                <h1>WebDaddy Blog</h1>
-                <p class="blog-hero-subtitle">Expert insights on building successful websites and growing your online business in Nigeria</p>
+            <div class="blog-container">
+                <div class="blog-hero-content">
+                    <h1>WebDaddy Blog</h1>
+                    <p class="blog-hero-subtitle">Expert insights on website design, SEO, e-commerce, and digital marketing</p>
+                    <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
+                </div>
             </div>
         </section>
 
         <?php if (!empty($categories)): ?>
         <section class="blog-categories-bar">
-            <div class="blog-container">
-                <div class="blog-categories-scroll">
-                    <a href="/blog/" class="blog-category-pill active">All Posts</a>
-                    <?php foreach ($categories as $cat): ?>
-                    <a href="<?= blogGetCategoryUrl($cat, $affiliateCode) ?>" class="blog-category-pill">
-                        <?= htmlspecialchars($cat['name']) ?>
-                        <?php if ($cat['post_count'] > 0): ?>
-                        <span class="blog-category-count"><?= $cat['post_count'] ?></span>
-                        <?php endif; ?>
-                    </a>
-                    <?php endforeach; ?>
-                </div>
+            <div class="blog-categories-scroll">
+                <a href="/blog/" class="blog-category-pill active">All Posts</a>
+                <?php foreach ($categories as $cat): ?>
+                <a href="<?= blogGetCategoryUrl($cat, $affiliateCode) ?>" class="blog-category-pill">
+                    <?= htmlspecialchars($cat['name']) ?>
+                    <?php if ($cat['post_count'] > 0): ?>
+                    <span class="blog-category-count"><?= $cat['post_count'] ?></span>
+                    <?php endif; ?>
+                </a>
+                <?php endforeach; ?>
             </div>
         </section>
         <?php endif; ?>
