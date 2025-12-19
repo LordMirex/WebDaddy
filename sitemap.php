@@ -11,6 +11,8 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/tools.php';
+require_once __DIR__ . '/includes/blog/Blog.php';
+require_once __DIR__ . '/includes/blog/BlogPost.php';
 
 header('Content-Type: application/xml; charset=utf-8');
 header('X-Robots-Tag: noindex');
@@ -22,6 +24,10 @@ $templates = getTemplates(true);
 
 // Get all active tools (including out of stock for SEO)
 $tools = getTools(true, null, null, null, false);
+
+// Get all published blog posts (Phase 3 SEO)
+$blogPost = new BlogPost($db);
+$allBlogPosts = $db->query("SELECT id, slug, updated_at, publish_date FROM blog_posts WHERE status = 'published' ORDER BY publish_date DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 // Get unique template categories
 $templateCategories = [];
@@ -89,6 +95,24 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
             <image:title><?php echo htmlspecialchars($tool['name']); ?></image:title>
         </image:image>
         <?php endif; ?>
+    </url>
+    <?php endforeach; ?>
+    
+    <!-- Blog Index Page - Phase 3 SEO -->
+    <url>
+        <loc><?php echo SITE_URL; ?>/blog/</loc>
+        <lastmod><?php echo date('Y-m-d'); ?></lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.95</priority>
+    </url>
+    
+    <!-- Blog Posts - Phase 3 SEO (400+ Internal Links) -->
+    <?php foreach ($allBlogPosts as $post): ?>
+    <url>
+        <loc><?php echo SITE_URL . '/blog/' . htmlspecialchars($post['slug']) . '/'; ?></loc>
+        <lastmod><?php echo date('Y-m-d', strtotime($post['updated_at'] ?? $post['publish_date'])); ?></lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
     </url>
     <?php endforeach; ?>
     

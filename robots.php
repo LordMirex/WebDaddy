@@ -17,6 +17,7 @@ header('Cache-Control: public, max-age=86400');
 User-agent: *
 Allow: /
 Allow: /tool/
+Allow: /blog/
 Allow: /cart-checkout.php
 Allow: /customer/login.php
 
@@ -47,11 +48,13 @@ Disallow: /trigger-email-processing.php
 # Crawl delay (be nice to the server)
 Crawl-delay: 1
 
-# Specific rules for Googlebot
+# Specific rules for Googlebot (prioritize blog for SEO)
 User-agent: Googlebot
 Allow: /
+Allow: /blog/
 Disallow: /admin/
 Disallow: /api/
+Crawl-delay: 0
 
 # Specific rules for Bingbot
 User-agent: Bingbot

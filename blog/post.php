@@ -10,6 +10,7 @@ require_once __DIR__ . '/../includes/blog/BlogCategory.php';
 require_once __DIR__ . '/../includes/blog/BlogTag.php';
 require_once __DIR__ . '/../includes/blog/helpers.php';
 require_once __DIR__ . '/../includes/blog/schema.php';
+require_once __DIR__ . '/../includes/blog/internal-linking.php';
 
 header('Cache-Control: no-cache, no-store, must-revalidate', false);
 
