@@ -1178,9 +1178,8 @@ HTML;
 }
 
 /**
- * Send user-facing email via queue (async) for fast user experience
- * Critical emails (OTP, password reset) are queued and processed immediately
- * Non-critical emails (welcome, notifications) can use normal priority
+ * Send user-facing email via Resend API with SMTP fallback
+ * All customer emails should use this function for fast, reliable delivery
  * @param string $email Recipient email address
  * @param string $subject Email subject
  * @param string $htmlContent HTML email body
@@ -1188,26 +1187,20 @@ HTML;
  * @return bool Success status
  */
 function sendUserEmail($email, $subject, $htmlContent, $emailType = 'notification') {
-    require_once __DIR__ . '/email_queue.php';
+    require_once __DIR__ . '/resend.php';
     
-    // Determine priority based on email type
-    // Critical emails (security-related) get HIGH priority and are processed immediately
-    $criticalTypes = ['otp', 'recovery_otp', 'password_reset', 'password_set'];
-    $priority = in_array($emailType, $criticalTypes) ? 'high' : 'normal';
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     
-    // Queue the email (instant DB write = user gets immediate response)
-    $queueId = queueEmail($email, $emailType, $subject, 'HTML email', $htmlContent, null, null, $priority);
+    // Try Resend first (fast, reliable)
+    $result = sendResendEmail($email, $subject, $htmlContent, $siteName, $emailType);
     
-    if ($queueId) {
-        // If high priority, process immediately in background
-        if ($priority === 'high') {
-            processHighPriorityEmails();
-        }
+    if ($result['success']) {
         return true;
     }
     
-    error_log("Failed to queue {$emailType} email to {$email}");
-    return false;
+    // Fall back to SMTP if Resend fails
+    error_log("Resend failed for {$emailType} email to {$email}, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
+    return sendEmail($email, $subject, $htmlContent);
 }
 
 /**
