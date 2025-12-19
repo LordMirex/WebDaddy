@@ -1619,7 +1619,7 @@ HTML;
 }
 
 /**
- * Send identity verification OTP email (Admin-generated)
+ * Send identity verification OTP email (Admin-generated) - Via Gmail for instant delivery
  * Used when admin requests identity verification from customer
  * @param string $email Customer email
  * @param string $otpCode The OTP code
@@ -1627,49 +1627,77 @@ HTML;
  * @return bool Success status
  */
 function sendIdentityVerificationOTPEmail($email, $otpCode, $customerName = 'Customer') {
-    require_once __DIR__ . '/resend.php';
-    
-    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
-    $subject = "Identity Verification Code - " . $siteName;
-    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
-    $escName = htmlspecialchars($customerName, ENT_QUOTES, 'UTF-8');
-    
-    $content = <<<HTML
-<div style="text-align: center; margin-bottom: 20px;">
-    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">Identity Verification Required</h2>
-    <p style="color: #374151; margin: 0;">Our support team has requested to verify your identity.</p>
-</div>
+    // Send via Gmail SMTP for instant delivery
+    return sendOTPEmailViaGmail($email, $otpCode);
+}
 
-<div style="text-align: center; margin: 25px 0;">
-    <p style="color: #374151; margin: 0 0 15px 0;">Your verification code is:</p>
-    <div style="display: inline-block; background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%); padding: 20px 40px; border-radius: 10px;">
-        <span style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', monospace;">{$escOtp}</span>
-    </div>
-</div>
-
-<div style="text-align: center; margin-top: 20px;">
-    <p style="color: #dc2626; font-size: 14px; margin: 0;">
-        <strong>This code expires in 10 minutes</strong>
-    </p>
-    <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
-        Only share this code with our support team when they request it.
-    </p>
-    <p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 0;">
-        If you didn't request this, please ignore this email.
-    </p>
-</div>
-HTML;
-    
-    $emailBody = createEmailTemplate($subject, $content, $escName);
-    
-    $result = sendResendEmail($email, $subject, $emailBody, $siteName, 'identity_verification');
-    
-    if ($result['success']) {
-        return true;
+/**
+ * Send admin login OTP email via Gmail - Instant delivery
+ * @param string $email Admin email
+ * @param string $otpCode The OTP code
+ * @return bool Success status
+ */
+function sendAdminLoginOTPEmail($email, $otpCode) {
+    // Validate email
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        error_log("Admin Login OTP: Invalid email - " . ($email ?? 'empty'));
+        return false;
     }
     
-    error_log("Resend identity OTP email failed, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
-    return sendEmail($email, $subject, $emailBody);
+    // Validate Gmail credentials are configured
+    if (!defined('GMAIL_OTP_USER') || !defined('GMAIL_OTP_APP_PASSWORD')) {
+        error_log("Admin Login OTP: Credentials not configured");
+        return false;
+    }
+    
+    $mail = new PHPMailer(true);
+    $mail->SMTPDebug = 0;
+    
+    try {
+        // Gmail SMTP Configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 587;
+        $mail->SMTPAuth = true;
+        $mail->SMTPSecure = 'tls';
+        
+        $mail->Username = GMAIL_OTP_USER;
+        $mail->Password = GMAIL_OTP_APP_PASSWORD;
+        
+        $mail->Timeout = 15;
+        $mail->SMTPKeepAlive = false;
+        
+        $mail->SMTPOptions = [
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            ]
+        ];
+        
+        $mail->isHTML(false);
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = '8bit';
+        
+        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy Admin');
+        $mail->addAddress($email);
+        $mail->addReplyTo(GMAIL_OTP_USER);
+        
+        $mail->Subject = 'Admin Login Verification Code';
+        $mail->Body = "Your admin login verification code is: {$otpCode}\n\nThis code expires in 10 minutes.\n\nIf you didn't request this, please ignore this email.";
+        
+        if ($mail->send()) {
+            error_log("✅ Admin Login OTP sent via Gmail to {$email}");
+            return true;
+        } else {
+            error_log("❌ Admin Login OTP failed to {$email}: " . $mail->ErrorInfo);
+            return false;
+        }
+        
+    } catch (Exception $e) {
+        error_log("❌ Admin Login OTP exception for {$email}: " . $e->getMessage());
+        return false;
+    }
 }
 
 /**
