@@ -238,10 +238,34 @@ html, body { margin: 0; padding: 0; }
 .blog-final-cta-content h2 { font-family: var(--font-display); font-size: 36px; font-weight: 800; margin: 0 0 16px 0; color: white; }
 .blog-final-cta-content p { font-size: 18px; color: rgba(255, 255, 255, 0.9); margin: 0 0 24px 0; max-width: 600px; margin-left: auto; margin-right: auto; }
 
+/* Author Bio - Phase 2 */
+.blog-author-bio { background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%); border: 1px solid var(--blog-accent-light); border-radius: 8px; padding: 30px; margin: 40px 0; display: flex; gap: 24px; align-items: flex-start; }
+.blog-author-bio-avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 3px solid var(--blog-accent); }
+.blog-author-bio-avatar-placeholder { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--blog-accent) 0%, rgba(212, 175, 55, 0.7) 100%); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; color: white; flex-shrink: 0; border: 3px solid var(--blog-accent); }
+.blog-author-bio-content { flex: 1; }
+.blog-author-bio-name { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin: 0 0 8px 0; color: var(--blog-text); }
+.blog-author-bio-title { font-size: 14px; color: var(--blog-accent); font-weight: 600; margin: 0 0 12px 0; }
+.blog-author-bio-bio { font-size: 15px; line-height: 1.7; color: var(--blog-text); margin: 0; }
+
+/* Related Posts - Phase 2 */
+.blog-related-posts { background-color: var(--blog-bg); padding: 60px 20px; margin-top: 60px; }
+.blog-related-posts .blog-container { max-width: 1200px; }
+.blog-related-posts h2 { font-family: var(--font-display); font-size: 32px; font-weight: 800; margin: 0 0 40px 0; color: var(--blog-text); }
+.blog-related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.blog-related-posts .blog-card { border-radius: 12px; overflow: hidden; box-shadow: var(--blog-shadow); transition: all 0.3s ease; }
+.blog-related-posts .blog-card:hover { transform: translateY(-6px); box-shadow: var(--blog-shadow-lg); border-color: var(--blog-accent); }
+.blog-related-posts .blog-card-reading-time { font-size: 13px; color: var(--blog-text-light); font-weight: 500; }
+
 /* Related Section */
 .blog-related-section { background-color: var(--blog-bg); padding: 30px; border-radius: 8px; margin: 40px 0; }
 .blog-related-section h3 { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin: 0 0 16px 0; }
 .blog-related-coming-soon { color: var(--blog-text-light); font-style: italic; }
+
+/* Tags Section - Phase 2 */
+.blog-tags { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 20px 0; border-top: 1px solid var(--blog-border); margin-top: 30px; }
+.blog-tags-label { font-size: 14px; font-weight: 600; color: var(--blog-text); }
+.blog-tag { display: inline-block; padding: 6px 12px; background-color: var(--blog-accent-light); color: var(--blog-primary); font-size: 13px; font-weight: 500; border-radius: 20px; transition: all 0.3s ease; }
+.blog-tag:hover { background-color: var(--blog-accent); }
 
 /* Footer */
 .blog-footer { background-color: var(--blog-primary); color: white; padding: 60px 20px 30px; margin-top: 60px; }
@@ -303,6 +327,9 @@ html, body { margin: 0; padding: 0; }
     .blog-share-buttons { justify-content: center; }
     .blog-categories-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     .blog-categories-scroll::-webkit-scrollbar { display: none; }
+    .blog-related-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .blog-author-bio { flex-direction: column; text-align: center; }
+    .blog-author-bio-avatar, .blog-author-bio-avatar-placeholder { margin: 0 auto; }
 }
 
 @media (max-width: 480px) {
@@ -326,6 +353,11 @@ html, body { margin: 0; padding: 0; }
     .blog-pagination { gap: 6px; }
     .blog-pagination-btn { padding: 8px 12px; font-size: 12px; }
     .blog-pagination-num { width: 32px; height: 32px; font-size: 12px; }
+    .blog-related-grid { grid-template-columns: 1fr; gap: 16px; }
+    .blog-related-posts h2 { font-size: 24px; margin-bottom: 24px; }
+    .blog-author-bio { padding: 20px; }
+    .blog-author-bio-avatar, .blog-author-bio-avatar-placeholder { width: 100px; height: 100px; }
+    .blog-author-bio-name { font-size: 18px; }
 }
 
 @media print {

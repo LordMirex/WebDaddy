@@ -412,6 +412,22 @@ $toc = blogExtractTableOfContents($blocks);
                         <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
+                    
+                    <!-- Author Bio Section - Phase 2 -->
+                    <div class="blog-author-bio">
+                        <?php if ($post['author_avatar']): ?>
+                        <img src="<?= htmlspecialchars($post['author_avatar']) ?>" alt="<?= htmlspecialchars($post['author_name']) ?>" class="blog-author-bio-avatar">
+                        <?php else: ?>
+                        <div class="blog-author-bio-avatar-placeholder">
+                            <?= strtoupper(substr($post['author_name'], 0, 1)) ?>
+                        </div>
+                        <?php endif; ?>
+                        <div class="blog-author-bio-content">
+                            <h3 class="blog-author-bio-name"><?= htmlspecialchars($post['author_name']) ?></h3>
+                            <p class="blog-author-bio-title">WebDaddy Content Expert</p>
+                            <p class="blog-author-bio-bio">Expert insights on web design, e-commerce, and digital marketing. Helping Nigerian businesses build powerful online presence with strategic solutions and proven methodologies.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <aside class="blog-sidebar blog-article-sidebar">
