@@ -270,19 +270,70 @@ require_once __DIR__ . '/includes/header.php';
                         <!-- Email Change Input Form (Hidden by default) -->
                         <div id="emailChangeForm" class="hidden mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                             <label class="block text-sm font-medium text-gray-700 mb-3">Enter New Email Address</label>
-                            <form method="POST" class="space-y-3">
-                                <input type="hidden" name="action" value="request_email_otp">
+                            <div class="space-y-3">
                                 <div class="flex gap-2">
-                                    <input type="email" name="new_email" placeholder="your.new.email@example.com"
+                                    <input type="email" id="newEmailInput" placeholder="your.new.email@example.com"
                                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                                            required>
-                                    <button type="submit" class="px-4 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap flex items-center gap-2">
+                                    <button type="button" id="sendEmailOtpBtn" onclick="sendEmailOTP()" class="px-4 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap flex items-center gap-2">
                                         <i class="bi-send"></i><span>Send Code</span>
                                     </button>
                                 </div>
                                 <button type="button" onclick="document.getElementById('emailChangeForm').classList.add('hidden')"
                                         class="text-xs text-gray-500 hover:text-gray-700 font-medium">✕ Cancel</button>
-                            </form>
+                            </div>
+                            <script>
+                            function sendEmailOTP() {
+                                const emailInput = document.getElementById('newEmailInput');
+                                const email = emailInput.value.trim();
+                                const btn = document.getElementById('sendEmailOtpBtn');
+                                
+                                if (!email || !email.includes('@')) {
+                                    alert('Please enter a valid email address');
+                                    emailInput.focus();
+                                    return;
+                                }
+                                
+                                btn.disabled = true;
+                                const originalText = btn.innerHTML;
+                                btn.innerHTML = '<i class="bi-hourglass-split"></i><span>Sending...</span>';
+                                
+                                const formData = new FormData();
+                                formData.append('action', 'request_email_otp');
+                                formData.append('new_email', email);
+                                
+                                fetch('?', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(r => r.text())
+                                .then(text => {
+                                    if (text.includes('Email address updated successfully') || text.includes('OTP has been sent')) {
+                                        btn.innerHTML = '<i class="bi-check-circle"></i><span>Code Sent!</span>';
+                                        btn.className = 'px-4 py-3 bg-green-600 text-white rounded-lg font-semibold whitespace-nowrap flex items-center gap-2';
+                                        setTimeout(() => window.location.reload(), 1500);
+                                    } else if (text.includes('Too many OTP requests')) {
+                                        alert('Too many requests. Please wait before trying again.');
+                                        btn.disabled = false;
+                                        btn.innerHTML = originalText;
+                                    } else if (text.includes('Please enter a different email')) {
+                                        alert('This is already your email address.');
+                                        btn.disabled = false;
+                                        btn.innerHTML = originalText;
+                                        emailInput.focus();
+                                    } else {
+                                        alert('Failed to send code. Please try again.');
+                                        btn.disabled = false;
+                                        btn.innerHTML = originalText;
+                                    }
+                                })
+                                .catch(err => {
+                                    alert('Error: ' + err.message);
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalText;
+                                });
+                            }
+                            </script>
                         </div>
                     <?php endif; ?>
                 </div>
