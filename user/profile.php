@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = verifyCheckoutEmailOTP($newEmail, $otpCode);
             
             if ($result['success']) {
-                // Update email in database
+                // Update email in database immediately
                 $db = getDb();
                 $stmt = $db->prepare("
                     UPDATE customers 
@@ -96,13 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ");
                 $stmt->execute([$newEmail, $customer['id']]);
                 
+                // Update session with new email immediately
+                if (isset($_SESSION['customer_email'])) {
+                    $_SESSION['customer_email'] = $newEmail;
+                }
+                
                 logCustomerActivity($customer['id'], 'email_changed', 'Email address changed to ' . $newEmail);
                 
+                // Update local variable for immediate display
                 $customer['email'] = $newEmail;
                 $customer['email_verified'] = 1;
                 unset($_SESSION['email_change_pending']);
                 
-                $success = 'Email address updated successfully!';
+                $success = 'Email address updated successfully! Your email is now ' . htmlspecialchars($newEmail);
             } else {
                 $error = $result['error'] ?? 'Invalid OTP code';
             }
@@ -130,78 +136,141 @@ require_once __DIR__ . '/includes/header.php';
         
         <div class="p-6">
             <?php if ($success): ?>
-            <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg p-4 mb-6">
-                <i class="bi-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
+            <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg p-4 mb-6 flex items-center gap-3 animate-in fade-in duration-300">
+                <i class="bi-check-circle-fill text-lg flex-shrink-0"></i>
+                <div>
+                    <p class="font-semibold"><?= strpos($success, 'Email address updated') !== false ? 'Email Updated Successfully!' : htmlspecialchars($success) ?></p>
+                    <?php if (strpos($success, 'Your email is now') !== false): ?>
+                        <p class="text-sm mt-1 font-mono text-green-800"><?= htmlspecialchars($customer['email']) ?></p>
+                    <?php endif; ?>
+                </div>
             </div>
             <?php endif; ?>
             
             <?php if ($error): ?>
-            <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">
-                <i class="bi-exclamation-circle mr-2"></i><?= htmlspecialchars($error) ?>
+            <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6 flex items-center gap-3">
+                <i class="bi-exclamation-circle-fill text-lg flex-shrink-0"></i>
+                <p class="font-semibold"><?= htmlspecialchars($error) ?></p>
             </div>
             <?php endif; ?>
             
-            <!-- Email Change Form (Separate from Profile) -->
+            <!-- Email Change Modal/Section -->
             <?php if (isset($_SESSION['email_change_pending'])): ?>
-            <form method="POST" class="mb-6">
-                <div class="bg-white rounded-xl shadow-sm border">
-                    <div class="p-6 border-b bg-amber-50">
-                        <h3 class="text-lg font-bold text-gray-900">Verify New Email</h3>
-                        <p class="text-sm text-gray-600 mt-1">Enter the OTP sent to <?= htmlspecialchars($_SESSION['email_change_pending']['new_email']) ?></p>
-                    </div>
-                    <div class="p-6">
-                        <input type="hidden" name="action" value="verify_email_otp">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">OTP Code</label>
-                                <input type="text" name="otp_code" placeholder="Enter 6-digit code" maxlength="6"
-                                       class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-2xl tracking-widest text-center"
-                                       pattern="[0-9]{6}" required autocomplete="off">
-                                <p class="text-xs text-gray-500 mt-1">Check your email for the code</p>
+            <div class="mb-6 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl shadow-sm border border-amber-200 overflow-hidden" id="emailVerificationSection">
+                <div class="p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center justify-center h-12 w-12 rounded-lg bg-amber-100">
+                                <i class="bi-shield-check text-amber-600 text-lg"></i>
                             </div>
                         </div>
-                        <div class="pt-4 border-t mt-4 flex gap-3">
-                            <button type="submit" class="flex-1 px-6 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition">
-                                <i class="bi-check-lg mr-2"></i>Verify Email
-                            </button>
-                            <button type="button" onclick="window.location.href='?reset=email'"
-                                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition">
-                                Cancel
-                            </button>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Verify Your New Email</h3>
+                            <p class="text-sm text-gray-600 mb-4">We sent a 6-digit code to <strong><?= htmlspecialchars($_SESSION['email_change_pending']['new_email']) ?></strong></p>
+                            
+                            <form id="emailOtpForm" class="space-y-4">
+                                <div>
+                                    <input type="hidden" name="action" value="verify_email_otp">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Verification Code</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" name="otp_code" placeholder="000000" maxlength="6"
+                                               class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-2xl tracking-widest text-center font-mono"
+                                               pattern="[0-9]{6}" required autocomplete="off" id="otpInput">
+                                        <button type="submit" id="verifyBtn" class="px-6 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap flex items-center gap-2">
+                                            <i class="bi-check-lg"></i><span>Verify</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-4 pt-4 border-t border-amber-200 flex gap-3">
+                                <button type="button" onclick="window.location.href='?reset=email'" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium">
+                                    Cancel & Start Over
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
+            
+            <script>
+            document.getElementById('emailOtpForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const otpInput = document.getElementById('otpInput');
+                const verifyBtn = document.getElementById('verifyBtn');
+                const otp = otpInput.value.trim();
+                
+                if (!/^\d{6}$/.test(otp)) {
+                    alert('Please enter a valid 6-digit code');
+                    return;
+                }
+                
+                verifyBtn.disabled = true;
+                const originalText = verifyBtn.innerHTML;
+                verifyBtn.innerHTML = '<i class="bi-hourglass-split"></i><span>Verifying...</span>';
+                
+                try {
+                    const response = await fetch('?', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'action=verify_email_otp&otp_code=' + encodeURIComponent(otp)
+                    });
+                    
+                    const text = await response.text();
+                    
+                    if (response.ok && text.includes('Email address updated successfully')) {
+                        verifyBtn.innerHTML = '<i class="bi-check-circle"></i><span>Verified!</span>';
+                        verifyBtn.className = 'px-6 py-3 bg-green-600 text-white rounded-lg font-semibold whitespace-nowrap flex items-center gap-2';
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error('Verification failed');
+                    }
+                } catch (err) {
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = originalText;
+                    alert('Verification failed. Please try again.');
+                    otpInput.focus();
+                }
+            });
+            </script>
             <?php endif; ?>
 
             <!-- Main Profile Form -->
-            <form method="POST" class="space-y-6" id="profileForm">
+            <form method="POST" class="space-y-6" id="profileForm" <?= isset($_SESSION['email_change_pending']) ? 'style="display:none;"' : '' ?>>
                 <!-- Email Change Section -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                    <input type="email" value="<?= htmlspecialchars($customer['email']) ?>" disabled
-                           class="w-full px-4 py-3 border rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
+                    <div class="flex gap-2 items-center">
+                        <input type="email" value="<?= htmlspecialchars($customer['email']) ?>" disabled
+                               class="flex-1 px-4 py-3 border rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
+                        <button type="button" onclick="document.getElementById('emailChangeForm').classList.toggle('hidden'); this.blur();"
+                                class="px-4 py-3 text-amber-600 hover:bg-amber-50 border border-amber-200 rounded-lg font-semibold transition flex items-center gap-2 whitespace-nowrap">
+                            <i class="bi-pencil"></i><span>Change</span>
+                        </button>
+                    </div>
                     
                     <?php if (!isset($_SESSION['email_change_pending'])): ?>
-                        <button type="button" onclick="document.getElementById('emailChangeForm').classList.toggle('hidden')"
-                                class="text-xs text-amber-600 hover:text-amber-700 mt-2 font-semibold">
-                            <i class="bi-pencil mr-1"></i>Change Email
-                        </button>
-                        
                         <!-- Email Change Input Form (Hidden by default) -->
                         <div id="emailChangeForm" class="hidden mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">New Email Address</label>
-                            <input type="hidden" name="action" value="request_email_otp">
-                            <div class="flex gap-2">
-                                <input type="email" name="new_email" placeholder="Enter new email address"
-                                       class="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                                       required>
-                                <button type="submit" class="px-4 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap">
-                                    Send OTP
-                                </button>
-                            </div>
-                            <button type="button" onclick="document.getElementById('emailChangeForm').classList.add('hidden')"
-                                    class="text-xs text-gray-500 hover:text-gray-700 mt-2">Cancel</button>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Enter New Email Address</label>
+                            <form method="POST" class="space-y-3">
+                                <input type="hidden" name="action" value="request_email_otp">
+                                <div class="flex gap-2">
+                                    <input type="email" name="new_email" placeholder="your.new.email@example.com"
+                                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                           required>
+                                    <button type="submit" class="px-4 py-3 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition whitespace-nowrap flex items-center gap-2">
+                                        <i class="bi-send"></i><span>Send Code</span>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="document.getElementById('emailChangeForm').classList.add('hidden')"
+                                        class="text-xs text-gray-500 hover:text-gray-700 font-medium">✕ Cancel</button>
+                            </form>
                         </div>
                     <?php endif; ?>
                 </div>
