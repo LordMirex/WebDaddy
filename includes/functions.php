@@ -2763,29 +2763,3 @@ function getEncryptionKey() {
     
     return hash('sha256', implode(':', $keyComponents), true);
 }
-
-function getCurrentCustomer() {
-    if (isset($_SESSION['user_id'])) {
-        $db = getDb();
-        try {
-            $stmt = $db->prepare("SELECT id, email, name FROM customers WHERE id = ? LIMIT 1");
-            $stmt->execute([$_SESSION['user_id']]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log('Error getting current customer: ' . $e->getMessage());
-        }
-    }
-    
-    if (isset($_SESSION['customer_email'])) {
-        $db = getDb();
-        try {
-            $stmt = $db->prepare("SELECT id, email, name FROM customers WHERE email = ? LIMIT 1");
-            $stmt->execute([$_SESSION['customer_email']]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log('Error getting customer by email: ' . $e->getMessage());
-        }
-    }
-    
-    return null;
-}
