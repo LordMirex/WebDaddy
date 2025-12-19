@@ -126,10 +126,10 @@ define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 // ============================================
 // Resend API for fast, reliable email delivery to users
 // All user-facing emails (OTP, notifications, deliveries) go through Resend
-// no-reply@ for sending - users cannot reply to these system emails
+// Using support@ for better deliverability (avoids "no-reply" spam filter triggers)
 define('RESEND_API_KEY', 're_FPAp2CGb_6hu6jpqt9rXZTFSeKbAa1bvo');
-define('RESEND_FROM_EMAIL', 'no-reply@webdaddy.online');
-define('RESEND_FROM_NAME', 'WebDaddy Empire');
+define('RESEND_FROM_EMAIL', 'support@webdaddy.online');
+define('RESEND_FROM_NAME', 'WebDaddy Empire Support');
 define('RESEND_WEBHOOK_SECRET', 'whsec_Ysf6QzDo72obRyZymdLUDF2+1xXoA2ul');
 // Webhook URL: https://webdaddy.online/api/resend-webhook.php
 
