@@ -185,14 +185,14 @@ function checkLoginRateLimit($email) {
 }
 
 /**
- * OTP request rate limiting - 1 request per minute per email (strict limit for instant delivery)
+ * OTP request rate limiting - 3 OTP requests per hour per email
  * 
  * @param string $email Email address
  * @return bool True if allowed
  */
 function checkOTPRateLimit($email) {
-    $limit = defined('CUSTOMER_OTP_RATE_LIMIT_MINUTE') ? CUSTOMER_OTP_RATE_LIMIT_MINUTE : 1;
-    $window = defined('API_RATE_LIMIT_WINDOW_MINUTE') ? API_RATE_LIMIT_WINDOW_MINUTE : 60;
+    $limit = defined('API_RATE_LIMIT_REQUEST_OTP') ? API_RATE_LIMIT_REQUEST_OTP : 3;
+    $window = defined('API_RATE_LIMIT_WINDOW_HOUR') ? API_RATE_LIMIT_WINDOW_HOUR : 3600;
     return checkRateLimit($email, 'otp_request', $limit, $window);
 }
 
