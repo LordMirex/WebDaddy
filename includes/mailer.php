@@ -1161,28 +1161,36 @@ HTML;
 function sendOTPEmailViaGmail($email, $otpCode) {
     // Validate email
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        error_log("OTP email blocked: Invalid email - " . ($email ?? 'empty'));
+        error_log("OTP Gmail: Invalid email - " . ($email ?? 'empty'));
         return false;
     }
     
     // Validate Gmail credentials are configured
     if (!defined('GMAIL_OTP_USER') || !defined('GMAIL_OTP_APP_PASSWORD')) {
-        error_log("OTP email failed: Gmail credentials not configured");
+        error_log("OTP Gmail: Credentials not configured");
         return false;
     }
     
     $mail = new PHPMailer(true);
+    $mail->SMTPDebug = 0; // Disable debug for production
     
     try {
-        // Gmail SMTP Configuration (Port 587 with TLS - proper setup for app passwords)
+        // Gmail SMTP Configuration - Correct setup for app passwords
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 587;
         $mail->SMTPAuth = true;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        
+        // Set credentials - app password as-is
         $mail->Username = GMAIL_OTP_USER;
         $mail->Password = GMAIL_OTP_APP_PASSWORD;
-        $mail->Port = 587;
-        $mail->SMTPSecure = 'tls';  // STARTTLS for port 587
         
+        // Timeout
+        $mail->Timeout = 15;
+        $mail->SMTPKeepAlive = false;
+        
+        // Disable peer verification for self-signed issues
         $mail->SMTPOptions = [
             'ssl' => [
                 'verify_peer' => false,
@@ -1191,65 +1199,46 @@ function sendOTPEmailViaGmail($email, $otpCode) {
             ]
         ];
         
-        // Set timeout to prevent hanging
-        $mail->Timeout = 10;
-        
-        // Plain text only - no HTML
+        // Plain text only - no HTML for faster delivery
         $mail->isHTML(false);
         $mail->CharSet = 'UTF-8';
+        $mail->Encoding = '8bit';
         
         // Email configuration
-        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy Empire');
+        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy');
         $mail->addAddress($email);
         $mail->addReplyTo(GMAIL_OTP_USER);
         
-        // Plain text subject and body only
+        // Simple plain text subject and body
         $mail->Subject = 'Your WebDaddy OTP';
-        $mail->Body = "Your OTP is {$otpCode}. Expires in 5 minutes.";
+        $mail->Body = "Your OTP is {$otpCode}. Expires in 10 minutes.";
         
         // Send email
-        $result = $mail->send();
-        
-        if ($result) {
-            error_log("OTP sent via Gmail to {$email}");
+        if ($mail->send()) {
+            error_log("✅ OTP sent via Gmail to {$email}");
+            return true;
         } else {
-            error_log("OTP send failed to {$email}: " . $mail->ErrorInfo);
+            error_log("❌ OTP Gmail send failed to {$email}: " . $mail->ErrorInfo);
+            return false;
         }
         
-        return $result;
-        
     } catch (Exception $e) {
-        error_log("OTP Gmail exception for {$email}: " . $e->getMessage());
+        error_log("❌ OTP Gmail exception for {$email}: " . $e->getMessage());
         return false;
     }
 }
 
 /**
- * Send OTP verification email (High Priority - Queued)
+ * Send OTP verification email (High Priority - Gmail for instant delivery)
  * Used for email verification during registration/login
- * Queued for immediate processing to provide instant user feedback
+ * Routes OTP emails to Gmail SMTP for instant delivery
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendOTPEmail($email, $otpCode) {
-    // REVERTED: Use Resend for OTP delivery (Gmail authentication failing)
-    // Gmail function sendOTPEmailViaGmail() still available if Gmail creds are fixed
-    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
-    $subject = "Your Verification Code";
-    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
-    
-    $content = <<<HTML
-<p>Your verification code is:</p>
-<p style="font-size: 18px; font-weight: bold; font-family: monospace; letter-spacing: 2px;">{$escOtp}</p>
-<p>This code expires in 10 minutes.</p>
-<p>If you didn't request this, please ignore this email.</p>
-HTML;
-    
-    $emailBody = createEmailTemplate($subject, $content, 'Customer');
-    
-    // Use Resend for reliable delivery
-    return sendUserEmail($email, $subject, $emailBody, 'otp');
+    // Send OTP via Gmail SMTP for instant delivery
+    return sendOTPEmailViaGmail($email, $otpCode);
 }
 
 /**
