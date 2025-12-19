@@ -1161,29 +1161,14 @@ HTML;
  */
 function sendOTPEmail($email, $otpCode) {
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
-    $subject = "Your Verification Code - " . $siteName;
+    $subject = "Your Verification Code";
     $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
     
     $content = <<<HTML
-<div style="text-align: center; margin-bottom: 20px;">
-    <h2 style="color: #1e3a8a; margin: 0 0 10px 0; font-size: 22px;">Email Verification</h2>
-    <p style="color: #374151; margin: 0;">Use the code below to verify your email address.</p>
-</div>
-
-<div style="text-align: center; margin: 25px 0;">
-    <div style="display: inline-block; background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 20px 40px; border-radius: 10px;">
-        <span style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', monospace;">{$escOtp}</span>
-    </div>
-</div>
-
-<div style="text-align: center; margin-top: 20px;">
-    <p style="color: #dc2626; font-size: 14px; margin: 0;">
-        <strong>⏱️ This code expires in 10 minutes</strong>
-    </p>
-    <p style="color: #6b7280; font-size: 13px; margin: 10px 0 0 0;">
-        If you didn't request this code, please ignore this email.
-    </p>
-</div>
+<p>Your verification code is:</p>
+<p style="font-size: 18px; font-weight: bold; font-family: monospace; letter-spacing: 2px;">{$escOtp}</p>
+<p>This code expires in 10 minutes.</p>
+<p>If you didn't request this, please ignore this email.</p>
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
@@ -1369,32 +1354,14 @@ function sendRecoveryOTPEmail($email, $otpCode) {
     }
     
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
-    $subject = "Password Reset Code - " . $siteName;
+    $subject = "Password Reset Code";
     $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
     
     $content = <<<HTML
-<div style="text-align: center; margin-bottom: 20px;">
-    <h2 style="color: #dc2626; margin: 0 0 10px 0; font-size: 22px;">🔐 Password Reset</h2>
-    <p style="color: #374151; margin: 0;">Use this code to reset your password.</p>
-</div>
-
-<div style="text-align: center; margin: 25px 0;">
-    <div style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 20px 40px; border-radius: 10px;">
-        <span style="font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'Courier New', monospace;">{$escOtp}</span>
-    </div>
-</div>
-
-<div style="text-align: center; margin: 20px 0;">
-    <p style="color: #dc2626; font-size: 14px; margin: 0;">
-        <strong>⏱️ This code expires in 10 minutes</strong>
-    </p>
-</div>
-
-<div style="background: #fef2f2; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #dc2626;">
-    <p style="color: #991b1b; margin: 0; font-size: 14px;">
-        <strong>🚨 Security Alert:</strong> If you did not request this password reset, someone may be trying to access your account. Please ignore this email and consider changing your password.
-    </p>
-</div>
+<p>Your password reset code is:</p>
+<p style="font-size: 18px; font-weight: bold; font-family: monospace; letter-spacing: 2px;">{$escOtp}</p>
+<p>This code expires in 10 minutes.</p>
+<p>If you did not request this, please ignore this email.</p>
 HTML;
     
     $emailBody = createEmailTemplate($subject, $content, 'Customer');
