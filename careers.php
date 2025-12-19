@@ -11,8 +11,9 @@ handleAffiliateTracking();
 $activeNav = 'careers';
 $affiliateCode = getAffiliateCode();
 
-$pageTitle = 'Careers - Join ' . SITE_NAME;
-$pageDescription = 'Join our team! We\'re hiring talented individuals to help us serve African entrepreneurs.';
+$pageTitle = 'Careers - Join ' . SITE_NAME . ' | Web Developer, Customer Care, Content Creator';
+$pageDescription = 'Join our team at ' . SITE_NAME . '! We\'re hiring passionate professionals to help us empower African entrepreneurs. Web developers, customer care specialists, content creators welcome. Remote-first, competitive pay.';
+$pageKeywords = 'careers, jobs, web developer, customer care, content creator, remote work, African startup jobs, entrepreneurship';
 $pageUrl = SITE_URL . '/careers.php';
 ?>
 <!DOCTYPE html>
@@ -22,11 +23,41 @@ $pageUrl = SITE_URL . '/careers.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
     <meta name="description" content="<?php echo $pageDescription; ?>">
+    <meta name="keywords" content="<?php echo $pageKeywords; ?>">
+    <meta name="author" content="<?php echo SITE_NAME; ?>">
+    <meta name="robots" content="index, follow">
     <link rel="canonical" href="<?php echo $pageUrl; ?>">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<?php echo $pageTitle; ?>">
+    <meta property="og:description" content="<?php echo $pageDescription; ?>">
+    <meta property="og:url" content="<?php echo $pageUrl; ?>">
+    <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.jpg">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo $pageTitle; ?>">
+    <meta name="twitter:description" content="<?php echo $pageDescription; ?>">
+    <meta name="twitter:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.jpg">
+    
+    <!-- Structured Data (Schema.org) for Organization Jobs -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "<?php echo SITE_NAME; ?>",
+      "url": "<?php echo SITE_URL; ?>",
+      "logo": "<?php echo SITE_URL; ?>/assets/images/webdaddy-logo.png",
+      "description": "Professional website templates and digital tools for African entrepreneurs",
+      "jobsPage": "<?php echo $pageUrl; ?>"
+    }
+    </script>
+    
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/premium.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

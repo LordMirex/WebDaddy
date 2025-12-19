@@ -13,7 +13,17 @@ $lastUpdated = 'December 2025';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - <?php echo $siteName; ?></title>
+    <title>Terms of Service - <?php echo $siteName; ?> | Legal Terms & Conditions</title>
+    <meta name="description" content="Terms of Service for <?php echo $siteName; ?>. Read our complete terms and conditions for using our website, templates, tools, and services. Updated December 2025.">
+    <meta name="keywords" content="terms of service, terms and conditions, legal terms, service agreement, conditions of use">
+    <meta name="author" content="<?php echo $siteName; ?>">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?php echo SITE_URL; ?>/legal/terms.php">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Terms of Service - <?php echo $siteName; ?>">
+    <meta property="og:description" content="Terms of Service for <?php echo $siteName; ?>. Read our complete terms and conditions.">
+    <meta property="og:url" content="<?php echo SITE_URL; ?>/legal/terms.php">
+    <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

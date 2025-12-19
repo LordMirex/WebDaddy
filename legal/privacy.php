@@ -13,7 +13,17 @@ $lastUpdated = 'December 2025';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - <?php echo $siteName; ?></title>
+    <title>Privacy Policy - <?php echo $siteName; ?> | Data Protection & Security</title>
+    <meta name="description" content="Privacy Policy for <?php echo $siteName; ?>. Learn how we collect, use, and protect your personal data. GDPR compliant. Updated December 2025.">
+    <meta name="keywords" content="privacy policy, data protection, GDPR, personal data, security, website privacy">
+    <meta name="author" content="<?php echo $siteName; ?>">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?php echo SITE_URL; ?>/legal/privacy.php">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Privacy Policy - <?php echo $siteName; ?>">
+    <meta property="og:description" content="Privacy Policy for <?php echo $siteName; ?>. Learn how we collect, use, and protect your personal data.">
+    <meta property="og:url" content="<?php echo SITE_URL; ?>/legal/privacy.php">
+    <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {

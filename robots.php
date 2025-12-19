@@ -44,6 +44,14 @@ Disallow: /500.php
 Disallow: /cron.php
 Disallow: /health.php
 Disallow: /trigger-email-processing.php
+Disallow: /test_gmail_otp.php
+
+# Allow public content pages (no .php extension required)
+Allow: /about.php
+Allow: /contact.php
+Allow: /faq.php
+Allow: /careers.php
+Allow: /legal/
 
 # Crawl delay (be nice to the server)
 Crawl-delay: 1
