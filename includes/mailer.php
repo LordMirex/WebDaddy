@@ -1153,7 +1153,7 @@ HTML;
 
 /**
  * Send OTP via Gmail SMTP for instant delivery
- * Plain text only - no HTML, no links
+ * Plain text only - no HTML, no links, professional format
  * @param string $email Recipient email
  * @param string $otpCode The 6-digit OTP code
  * @return bool Success status
@@ -1205,13 +1205,21 @@ function sendOTPEmailViaGmail($email, $otpCode) {
         $mail->Encoding = '8bit';
         
         // Email configuration
-        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy');
+        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy Empire');
         $mail->addAddress($email);
         $mail->addReplyTo(GMAIL_OTP_USER);
         
-        // Simple plain text subject and body
-        $mail->Subject = 'Your WebDaddy OTP';
-        $mail->Body = "Your OTP is {$otpCode}. Expires in 10 minutes.";
+        // Professional plain text subject and body - no links, no styling
+        $mail->Subject = 'Your WebDaddy Verification Code';
+        $mail->Body = <<<TEXT
+Your WebDaddy verification code is:
+
+{$otpCode}
+
+This code expires in 10 minutes.
+
+If you did not request this code, please ignore this email.
+TEXT;
         
         // Send email
         if ($mail->send()) {
@@ -1396,34 +1404,15 @@ HTML;
 }
 
 /**
- * Send recovery OTP email for password reset (High Priority - Queued)
- * Different styling from regular OTP to indicate security-sensitive action
- * Queued for immediate processing for instant user feedback
+ * Send recovery OTP email for password reset - Via Gmail for instant delivery
+ * Plain text format with no links or styling
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendRecoveryOTPEmail($email, $otpCode) {
-    // SECURITY: Validate email before sending
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        error_log("Recovery OTP email blocked: Invalid recipient email - " . ($email ?? 'empty'));
-        return false;
-    }
-    
-    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
-    $subject = "Password Reset Code";
-    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
-    
-    $content = <<<HTML
-<p>Your password reset code is:</p>
-<p style="font-size: 18px; font-weight: bold; font-family: monospace; letter-spacing: 2px;">{$escOtp}</p>
-<p>This code expires in 10 minutes.</p>
-<p>If you did not request this, please ignore this email.</p>
-HTML;
-    
-    $emailBody = createEmailTemplate($subject, $content, 'Customer');
-    // Use queue-based async sending for instant user feedback
-    return sendUserEmail($email, $subject, $emailBody, 'recovery_otp');
+    // Send via Gmail SMTP for instant delivery to ensure password reset works immediately
+    return sendOTPEmailViaGmail($email, $otpCode);
 }
 
 /**
@@ -1633,6 +1622,7 @@ function sendIdentityVerificationOTPEmail($email, $otpCode, $customerName = 'Cus
 
 /**
  * Send admin login OTP email via Gmail - Instant delivery
+ * Plain text format with no links or styling
  * @param string $email Admin email
  * @param string $otpCode The OTP code
  * @return bool Success status
@@ -1679,12 +1669,20 @@ function sendAdminLoginOTPEmail($email, $otpCode) {
         $mail->CharSet = 'UTF-8';
         $mail->Encoding = '8bit';
         
-        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy Admin');
+        $mail->setFrom(GMAIL_OTP_USER, 'WebDaddy Empire');
         $mail->addAddress($email);
         $mail->addReplyTo(GMAIL_OTP_USER);
         
-        $mail->Subject = 'Admin Login Verification Code';
-        $mail->Body = "Your admin login verification code is: {$otpCode}\n\nThis code expires in 10 minutes.\n\nIf you didn't request this, please ignore this email.";
+        $mail->Subject = 'Your WebDaddy Verification Code';
+        $mail->Body = <<<TEXT
+Your WebDaddy verification code is:
+
+{$otpCode}
+
+This code expires in 10 minutes.
+
+If you did not request this code, please ignore this email.
+TEXT;
         
         if ($mail->send()) {
             error_log("✅ Admin Login OTP sent via Gmail to {$email}");
