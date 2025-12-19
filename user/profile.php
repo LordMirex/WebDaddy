@@ -198,10 +198,11 @@ require_once __DIR__ . '/includes/header.php';
                 e.preventDefault();
                 const otpInput = document.getElementById('otpInput');
                 const verifyBtn = document.getElementById('verifyBtn');
+                const form = e.target;
                 const otp = otpInput.value.trim();
                 
                 if (!/^\d{6}$/.test(otp)) {
-                    alert('Please enter a valid 6-digit code');
+                    showEmailError('Please enter a valid 6-digit code');
                     return;
                 }
                 
@@ -210,33 +211,44 @@ require_once __DIR__ . '/includes/header.php';
                 verifyBtn.innerHTML = '<i class="bi-hourglass-split"></i><span>Verifying...</span>';
                 
                 try {
+                    const formData = new FormData(form);
                     const response = await fetch('?', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: 'action=verify_email_otp&otp_code=' + encodeURIComponent(otp)
+                        body: formData
                     });
                     
                     const text = await response.text();
                     
+                    // Check if response contains success message in HTML
                     if (response.ok && text.includes('Email address updated successfully')) {
                         verifyBtn.innerHTML = '<i class="bi-check-circle"></i><span>Verified!</span>';
                         verifyBtn.className = 'px-6 py-3 bg-green-600 text-white rounded-lg font-semibold whitespace-nowrap flex items-center gap-2';
-                        
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else if (text.includes('Invalid or expired OTP code')) {
+                        throw new Error('The code you entered is invalid or has expired. Please request a new one.');
+                    } else if (text.includes('Session expired')) {
+                        throw new Error('Your session expired. Please start over.');
                     } else {
-                        throw new Error('Verification failed');
+                        throw new Error('Verification failed. Please check the code and try again.');
                     }
                 } catch (err) {
                     verifyBtn.disabled = false;
                     verifyBtn.innerHTML = originalText;
-                    alert('Verification failed. Please try again.');
+                    showEmailError(err.message || 'Verification failed. Please try again.');
                     otpInput.focus();
                 }
             });
+            
+            function showEmailError(message) {
+                let errorDiv = document.getElementById('emailErrorMsg');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.id = 'emailErrorMsg';
+                    document.getElementById('emailVerificationSection').insertAdjacentElement('beforeend', errorDiv);
+                }
+                errorDiv.className = 'mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 flex items-start gap-3 animate-in fade-in duration-300';
+                errorDiv.innerHTML = '<i class="bi-exclamation-circle-fill text-lg flex-shrink-0 mt-0.5"></i><div><p class="font-semibold">Verification Error</p><p class="text-sm mt-1">' + message + '</p></div>';
+            }
             </script>
             <?php endif; ?>
 

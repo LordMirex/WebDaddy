@@ -74,6 +74,7 @@ function sendCheckoutEmailOTP($email) {
 function verifyCheckoutEmailOTP($email, $otpCode) {
     $db = getDb();
     
+    // Get the most recent valid OTP (SQLite compatible)
     $stmt = $db->prepare("
         SELECT * FROM customer_otp_codes 
         WHERE email = ?
@@ -81,20 +82,28 @@ function verifyCheckoutEmailOTP($email, $otpCode) {
         AND otp_type = 'email_verify'
         AND is_used = 0
         AND expires_at > datetime('now')
-        AND attempts < max_attempts
+        AND attempts < ?
         ORDER BY created_at DESC
         LIMIT 1
     ");
-    $stmt->execute([$email, $otpCode]);
+    $stmt->execute([$email, $otpCode, OTP_MAX_ATTEMPTS]);
     $otp = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$otp) {
-        $db->prepare("
-            UPDATE customer_otp_codes 
-            SET attempts = attempts + 1 
+        // Increment attempts for the most recent OTP (SQLite compatible)
+        $updateStmt = $db->prepare("
+            SELECT id FROM customer_otp_codes 
             WHERE email = ? AND otp_type = 'email_verify' AND is_used = 0
-            ORDER BY created_at DESC LIMIT 1
-        ")->execute([$email]);
+            ORDER BY created_at DESC
+            LIMIT 1
+        ");
+        $updateStmt->execute([$email]);
+        $recordToUpdate = $updateStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($recordToUpdate) {
+            $db->prepare("UPDATE customer_otp_codes SET attempts = attempts + 1 WHERE id = ?")
+               ->execute([$recordToUpdate['id']]);
+        }
         
         return ['success' => false, 'error' => 'Invalid or expired OTP code'];
     }
