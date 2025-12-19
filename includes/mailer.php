@@ -1225,16 +1225,31 @@ function sendOTPEmailViaGmail($email, $otpCode) {
 }
 
 /**
- * Send OTP verification email (High Priority - Via Gmail for instant delivery)
+ * Send OTP verification email (High Priority - Queued)
  * Used for email verification during registration/login
- * Routes only OTP emails to Gmail, keeps other emails on Resend
+ * Queued for immediate processing to provide instant user feedback
  * @param string $email Customer email
  * @param string $otpCode The OTP code
  * @return bool Success status
  */
 function sendOTPEmail($email, $otpCode) {
-    // Send OTP via Gmail SMTP for instant delivery
-    return sendOTPEmailViaGmail($email, $otpCode);
+    // REVERTED: Use Resend for OTP delivery (Gmail authentication failing)
+    // Gmail function sendOTPEmailViaGmail() still available if Gmail creds are fixed
+    $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
+    $subject = "Your Verification Code";
+    $escOtp = htmlspecialchars($otpCode, ENT_QUOTES, 'UTF-8');
+    
+    $content = <<<HTML
+<p>Your verification code is:</p>
+<p style="font-size: 18px; font-weight: bold; font-family: monospace; letter-spacing: 2px;">{$escOtp}</p>
+<p>This code expires in 10 minutes.</p>
+<p>If you didn't request this, please ignore this email.</p>
+HTML;
+    
+    $emailBody = createEmailTemplate($subject, $content, 'Customer');
+    
+    // Use Resend for reliable delivery
+    return sendUserEmail($email, $subject, $emailBody, 'otp');
 }
 
 /**
