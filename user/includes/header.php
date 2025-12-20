@@ -123,12 +123,12 @@ $navItems = [
                         </div>
                         
                         <!-- User -->
-                        <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold">
+                        <a href="/user/profile.php" class="flex items-center space-x-2 hover:opacity-75 transition">
+                            <div class="w-8 h-8 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold cursor-pointer">
                                 <?= strtoupper(substr(getCustomerName(), 0, 1)) ?>
                             </div>
                             <span class="hidden sm:block text-sm font-medium text-gray-700"><?= htmlspecialchars(getCustomerName()) ?></span>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </header>

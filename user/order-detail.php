@@ -879,6 +879,18 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
             
+            <?php if ($order['status'] === 'paid' || $order['status'] === 'completed'): ?>
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-4">
+                <h3 class="font-bold text-gray-900 mb-2">✨ Customize Your Products</h3>
+                <p class="text-sm text-gray-600 mb-4">Setting up your website or need customization? Let's discuss your requirements on WhatsApp.</p>
+                <a href="https://wa.me/2348033330233?text=Hi%20WebDaddy,%20I%27d%20like%20to%20customize%20my%20order.%20Order%20ID:%20%23<?= $orderId ?>%20|%20Amount:%20₦<?= number_format($order['final_amount'], 2) ?>%20|%20Items:%20<?= urlencode($itemsDescription) ?>" 
+                   target="_blank"
+                   class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                    <i class="bi-whatsapp mr-2"></i>Customize on WhatsApp
+                </a>
+            </div>
+            <?php endif; ?>
+            
             <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-4">
                 <h3 class="font-bold text-gray-900 mb-2">Need Help?</h3>
                 <p class="text-sm text-gray-600 mb-4">Having issues with this order? We're here to help.</p>

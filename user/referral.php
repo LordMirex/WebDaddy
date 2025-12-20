@@ -404,7 +404,13 @@ require_once __DIR__ . '/includes/header.php';
                                     </span>
                                 </td>
                                 <td class="py-3 px-2 text-sm text-gray-600">
-                                    <?= $withdrawal['admin_notes'] ? htmlspecialchars($withdrawal['admin_notes']) : '-' ?>
+                                    <div class="flex items-center gap-2">
+                                        <span><?= $withdrawal['admin_notes'] ? htmlspecialchars($withdrawal['admin_notes']) : '-' ?></span>
+                                        <a href="https://wa.me/2348033330233?text=Hi%20WebDaddy,%20I%27m%20inquiring%20about%20my%20withdrawal.%20User%20ID:%20<?= $customerId ?>%20|%20Amount:%20₦<?= number_format($withdrawal['amount'], 2) ?>%20|%20Status:%20<?= htmlspecialchars($withdrawal['status']) ?>" 
+                                           target="_blank" class="text-xs text-green-600 hover:text-green-700 font-medium whitespace-nowrap">
+                                            <i class="bi-whatsapp mr-1"></i>Get Update
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

@@ -97,8 +97,7 @@ require_once __DIR__ . '/includes/header.php';
                         <?php foreach ($tool['files'] as $file): ?>
                         <?php
                             $isExpired = strtotime($file['expires_at']) < time();
-                            $remainingDownloads = $file['max_downloads'] - $file['download_count'];
-                            $canDownload = !$isExpired && $remainingDownloads > 0;
+                            $canDownload = !$isExpired;
                         ?>
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg">
                             <div class="flex items-center gap-3">
@@ -111,8 +110,8 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php if ($file['file_size']): ?>
                                         <span><i class="bi-hdd mr-1"></i><?= formatFileSize($file['file_size']) ?></span>
                                         <?php endif; ?>
-                                        <span class="<?= $remainingDownloads > 0 ? 'text-gray-500' : 'text-red-600' ?>">
-                                            <i class="bi-arrow-down-circle mr-1"></i><?= $remainingDownloads ?>/<?= $file['max_downloads'] ?> downloads
+                                        <span class="text-gray-500">
+                                            <i class="bi-infinity mr-1"></i>Unlimited downloads
                                         </span>
                                         <span class="<?= $isExpired ? 'text-red-600' : 'text-gray-500' ?>">
                                             <i class="bi-clock mr-1"></i><?= $isExpired ? 'Expired' : 'Expires ' . date('M j, Y', strtotime($file['expires_at'])) ?>
@@ -151,8 +150,8 @@ require_once __DIR__ . '/includes/header.php';
         <div class="flex items-start gap-3">
             <i class="bi-info-circle text-blue-600 text-xl"></i>
             <div>
-                <h4 class="font-semibold text-blue-800">Download Limits</h4>
-                <p class="text-sm text-blue-700 mt-1">Each file has a limited number of downloads and expiry date. If you need additional downloads, please contact support.</p>
+                <h4 class="font-semibold text-blue-800">Unlimited Downloads</h4>
+                <p class="text-sm text-blue-700 mt-1">You have unlimited downloads for all your purchased files. Files expire on the date shown above, but until then you can download them as many times as you need.</p>
             </div>
         </div>
     </div>
