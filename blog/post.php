@@ -222,6 +222,15 @@ $toc = blogExtractTableOfContents($blocks);
                             </svg>
                         </button>
                     </div>
+                    
+                    <!-- Monetization CTA: Above Content -->
+                    <div class="blog-inline-cta blog-inline-cta-banner" style="margin: 32px 0; padding: 32px; border-radius: 12px;">
+                        <div class="blog-inline-cta-content">
+                            <h3 style="font-size: 22px; font-weight: 800; margin: 0 0 12px 0;">Ready to Build Your Online Presence?</h3>
+                            <p style="font-size: 16px; margin: 0 0 20px 0;">Explore our premium website templates and launch your business in 24 hours.</p>
+                            <a href="/#templates" style="display: inline-block; background: white; color: var(--blog-accent); padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: 700; transition: all 0.3s ease;">Browse Templates</a>
+                        </div>
+                    </div>
                 </div>
                 
                 <?php if ($post['featured_image']): ?>
