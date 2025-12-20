@@ -5,12 +5,23 @@
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
                     <p class="text-sm text-gray-500">&copy; <?= date('Y') ?> WebDaddy Empire. All rights reserved.</p>
                     <div class="flex items-center gap-4">
-                        <a href="https://wa.me/2348033330233?text=Hi,%20I%20need%20support%20with%20my%20WebDaddy%20account" target="_blank" 
+                        <?php
+                        $whatsappNumber = '';
+                        $whatsappClean = '';
+                        try {
+                            $whatsappNumber = getDb()->query("SELECT setting_value FROM settings WHERE setting_key = 'whatsapp_number'")->fetchColumn() ?: '+2349132672126';
+                            $whatsappClean = preg_replace('/[^0-9]/', '', $whatsappNumber);
+                        } catch (Exception $e) {
+                            $whatsappNumber = '+2349132672126';
+                            $whatsappClean = '2349132672126';
+                        }
+                        ?>
+                        <a href="https://wa.me/<?= htmlspecialchars($whatsappClean) ?>?text=Hi,%20I%20need%20support%20with%20my%20WebDaddy%20account" target="_blank" 
                            class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition">
                             <i class="bi-whatsapp"></i>
                             <span>WhatsApp Support</span>
                         </a>
-                        <span class="text-gray-500 text-sm">📱 <a href="tel:+2348033330233" class="text-amber-600 hover:underline font-medium">+234 803 333 0233</a></span>
+                        <span class="text-gray-500 text-sm">📱 <a href="tel:<?= htmlspecialchars($whatsappNumber) ?>" class="text-amber-600 hover:underline font-medium"><?= htmlspecialchars($whatsappNumber) ?></a></span>
                     </div>
                 </div>
             </footer>
