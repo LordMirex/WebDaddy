@@ -190,10 +190,11 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                             <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
                                  alt="<?= htmlspecialchars(blogGetFeaturedImageAlt($post)) ?>"
                                  class="blog-card-image"
-                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>"
-                                 onerror="this.style.display='none'; this.parentElement.classList.add('blog-card-image-broken');">
+                                 data-validate-image
+                                 data-placeholder-id="placeholder-<?= $post['id'] ?>"
+                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>">
                             <?php endif; ?>
-                            <div class="blog-card-image-placeholder">
+                            <div class="blog-card-image-placeholder" id="placeholder-<?= $post['id'] ?>" style="display:none;">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                     <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -294,8 +295,17 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                             <?php if ($popPost['featured_image']): ?>
                             <img src="<?= htmlspecialchars($popPost['featured_image']) ?>" 
                                  alt="<?= htmlspecialchars($popPost['title']) ?>" 
-                                 class="blog-sidebar-post-img" loading="lazy"
-                                 onerror="this.style.display='none'">
+                                 class="blog-sidebar-post-img" 
+                                 data-validate-image
+                                 data-placeholder-id="sidebar-placeholder-<?= $popPost['id'] ?>"
+                                 loading="lazy">
+                            <div class="blog-card-image-placeholder" id="sidebar-placeholder-<?= $popPost['id'] ?>" style="display:none; min-height:150px;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                            </div>
                             <?php endif; ?>
                             <div class="blog-sidebar-post-content">
                                 <span class="blog-sidebar-post-title"><?= htmlspecialchars($popPost['title']) ?></span>
@@ -333,6 +343,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
     <script src="/assets/js/cart-and-tools.js"></script>
     <script src="/assets/js/blog/interactions.js"></script>
     <script src="/assets/js/blog/search-autocomplete.js"></script>
+    <script src="/assets/js/blog/image-validator.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
