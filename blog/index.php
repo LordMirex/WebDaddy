@@ -125,16 +125,21 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                     <p class="blog-hero-subtitle">Expert insights on website design, SEO, e-commerce, and digital marketing</p>
                     <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
                     
-                    <!-- Search Bar -->
-                    <form method="GET" class="blog-search-form mt-6 max-w-md mx-auto">
+                    <!-- Search Bar with Autocomplete -->
+                    <form method="GET" class="blog-search-form mt-6 max-w-md mx-auto" id="blogSearchForm">
                         <div class="relative">
                             <input type="text" 
                                    name="search" 
                                    placeholder="Search blog posts..." 
                                    value="<?= htmlspecialchars($searchQuery) ?>"
                                    class="w-full px-4 py-3 pl-12 rounded-lg bg-white/95 text-navy-dark placeholder-gray-500 focus:ring-2 focus:ring-gold focus:outline-none"
-                                   aria-label="Search blog posts">
+                                   aria-label="Search blog posts"
+                                   id="blogSearchInput"
+                                   autocomplete="off">
                             <i class="bi bi-search absolute left-4 top-3.5 text-gray-400"></i>
+                            
+                            <!-- Autocomplete Dropdown -->
+                            <div class="blog-search-suggestions" id="blogSearchSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px; max-height: 400px; overflow-y: auto; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.1);"></div>
                         </div>
                     </form>
                     
@@ -185,7 +190,8 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                             <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
                                  alt="<?= htmlspecialchars(blogGetFeaturedImageAlt($post)) ?>"
                                  class="blog-card-image"
-                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>">
+                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>"
+                                 onerror="this.parentElement.innerHTML='<div class=\"blog-card-image-placeholder\"><svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><circle cx=\"8.5\" cy=\"8.5\" r=\"1.5\"/><polyline points=\"21 15 16 10 5 21\"/></svg></div>'">
                             <?php else: ?>
                             <div class="blog-card-image-placeholder">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -287,7 +293,8 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                             <a href="<?= blogGetPostUrl($popPost, $affiliateCode) ?>" class="blog-sidebar-post">
                                 <?php if ($popPost['featured_image']): ?>
                                 <img src="<?= htmlspecialchars($popPost['featured_image']) ?>" 
-                                     alt="" class="blog-sidebar-post-img" loading="lazy">
+                                     alt="" class="blog-sidebar-post-img" loading="lazy"
+                                     onerror="this.style.display='none'">
                                 <?php endif; ?>
                                 <div class="blog-sidebar-post-content">
                                     <span class="blog-sidebar-post-title"><?= htmlspecialchars($popPost['title']) ?></span>
@@ -325,6 +332,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
 
     <script src="/assets/js/cart-and-tools.js"></script>
     <script src="/assets/js/blog/interactions.js"></script>
+    <script src="/assets/js/blog/search-autocomplete.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

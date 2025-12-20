@@ -287,6 +287,24 @@ html, body { margin: 0; padding: 0; }
 .blog-mobile-cta-templates { background-color: var(--blog-accent); color: var(--blog-primary); }
 .blog-mobile-cta-templates:hover { background-color: #c89c3c; }
 
+/* Search Autocomplete */
+.blog-search-suggestions {
+    border: 1px solid #ddd;
+    border-top: none;
+    background: white;
+}
+
+.blog-suggestion-item {
+    cursor: pointer;
+}
+
+.blog-suggestion-item mark {
+    background-color: #f5d669;
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
 /* Buttons */
 .btn-premium { display: inline-block; padding: 12px 24px; background-color: var(--blog-accent); color: var(--blog-primary); text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.3s ease; text-align: center; }
 .btn-premium:hover { background-color: #c89c3c; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
