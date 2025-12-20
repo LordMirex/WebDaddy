@@ -6,6 +6,7 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/blog/Blog.php';
 require_once __DIR__ . '/../includes/blog/BlogPost.php';
 require_once __DIR__ . '/../includes/blog/BlogCategory.php';
+require_once __DIR__ . '/../includes/blog/BlogValidator.php';
 require_once __DIR__ . '/../includes/blog/helpers.php';
 
 header('Cache-Control: no-cache, no-store, must-revalidate', false);
@@ -19,8 +20,10 @@ $perPage = 8;
 $blogPost = new BlogPost($db);
 $blogCategory = new BlogCategory($db);
 $blog = new Blog($db);
+$validator = new BlogValidator($db);
 
-$posts = $blogPost->getPublished($page, $perPage);
+$allPosts = $blogPost->getPublished($page, $perPage);
+$posts = $validator->filterValidPosts($allPosts);
 $totalPosts = $blogPost->getPublishedCount();
 $totalPages = ceil($totalPosts / $perPage);
 
@@ -52,7 +55,8 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
         LIMIT 50
     ");
     $stmt->execute([$search, $search]);
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $searchPosts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $posts = $validator->filterValidPosts($searchPosts);
     $totalPosts = count($posts);
     $totalPages = 1;
 }
@@ -183,8 +187,10 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                 </div>
                 <?php else: ?>
                 <div class="blog-posts-grid">
-                    <?php foreach ($posts as $index => $post): ?>
-                    <article class="blog-card <?= $index === 0 && $page === 1 ? 'blog-card-featured' : '' ?>">
+                    <?php foreach ($posts as $index => $post): 
+                        $validationClass = $validator->getValidationClass($post);
+                    ?>
+                    <article class="blog-card <?= $index === 0 && $page === 1 ? 'blog-card-featured' : '' ?> <?= $validationClass ?>">
                         <a href="<?= blogGetPostUrl($post, $affiliateCode) ?>" class="blog-card-image-link">
                             <?php if ($post['featured_image']): ?>
                             <img src="<?= htmlspecialchars($post['featured_image']) ?>" 

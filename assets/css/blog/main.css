@@ -449,3 +449,9 @@ html, body { margin: 0; padding: 0; }
     .blog-article { background: white; box-shadow: none; }
     .blog-article-content-wrapper { grid-template-columns: 1fr; }
 }
+
+/* Post Quality Indicators */
+.post-invalid { opacity: 0.5; border: 2px dashed #ff6b6b !important; }
+.post-invalid::after { content: 'DRAFT - Incomplete'; position: absolute; top: 10px; right: 10px; background: #ff6b6b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 10; }
+.post-warning { border: 2px dashed #ffd43b !important; }
+.post-valid { /* No special styling for valid posts */ }
