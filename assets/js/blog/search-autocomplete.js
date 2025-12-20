@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentIndex = -1;
         
         if (query.length < 2) {
-            suggestionsBox.style.display = 'none';
+            suggestionsBox.classList.remove('active');
             suggestionsBox.innerHTML = '';
             return;
         }
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Keyboard navigation
     searchInput.addEventListener('keydown', function(e) {
-        if (suggestionsBox.style.display === 'none') return;
+        if (!suggestionsBox.classList.contains('active')) return;
         
         const items = suggestionsBox.querySelectorAll('.blog-suggestion-item');
         
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
             case 'Escape':
-                suggestionsBox.style.display = 'none';
+                suggestionsBox.classList.remove('active');
                 break;
         }
     });
@@ -69,32 +69,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function displaySuggestions(data, query) {
         if (data.length === 0) {
-            suggestionsBox.innerHTML = '<div style="padding: 12px 16px; color: #999; text-align: center;">No results found</div>';
-            suggestionsBox.style.display = 'block';
+            suggestionsBox.innerHTML = '<div style="padding: 12px 16px; color: #666; text-align: center; font-size: 13px;">No results found</div>';
+            suggestionsBox.classList.add('active');
             return;
         }
         
         suggestionsBox.innerHTML = data.map(item => `
-            <a href="/blog/${item.slug}/" class="blog-suggestion-item" style="
-                display: block;
-                padding: 12px 16px;
-                border-bottom: 1px solid #f0f0f0;
-                text-decoration: none;
-                color: #1a1a1a;
-                transition: background-color 0.2s ease;
-            "
-                onmouseover="this.style.backgroundColor='#f9f9f9'"
-                onmouseout="this.style.backgroundColor='transparent'">
-                <div style="font-weight: 600; margin-bottom: 4px;">
+            <a href="/blog/${item.slug}/" class="blog-suggestion-item">
+                <div class="blog-suggestion-item-title">
                     ${highlightMatch(item.title, query)}
                 </div>
-                <div style="font-size: 13px; color: #666;">
-                    ${item.excerpt}
+                <div class="blog-suggestion-item-excerpt">
+                    ${item.excerpt || 'No preview available'}
                 </div>
             </a>
         `).join('');
         
-        suggestionsBox.style.display = 'block';
+        suggestionsBox.classList.add('active');
     }
     
     function highlightMatch(text, query) {
@@ -115,15 +106,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Close suggestions when clicking outside
     document.addEventListener('click', function(e) {
-        if (e.target !== searchInput && e.target !== suggestionsBox) {
-            suggestionsBox.style.display = 'none';
+        if (e.target !== searchInput && !suggestionsBox.contains(e.target)) {
+            suggestionsBox.classList.remove('active');
         }
     });
     
     // Show suggestions on focus if input has text
     searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2 && suggestionsBox.innerHTML) {
-            suggestionsBox.style.display = 'block';
+        if (this.value.trim().length >= 2 && suggestionsBox.innerHTML && suggestionsBox.classList.contains('active')) {
+            suggestionsBox.classList.add('active');
         }
     });
 });

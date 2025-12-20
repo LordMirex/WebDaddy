@@ -126,20 +126,20 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                     <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
                     
                     <!-- Search Bar with Autocomplete -->
-                    <form method="GET" class="blog-search-form mt-6 max-w-md mx-auto" id="blogSearchForm">
-                        <div class="relative">
+                    <form method="GET" class="blog-search-form" id="blogSearchForm">
+                        <div class="blog-search-wrapper">
                             <input type="text" 
                                    name="search" 
                                    placeholder="Search blog posts..." 
                                    value="<?= htmlspecialchars($searchQuery) ?>"
-                                   class="w-full px-4 py-3 pl-12 rounded-lg bg-white/95 text-navy-dark placeholder-gray-500 focus:ring-2 focus:ring-gold focus:outline-none"
+                                   class="blog-search-input"
                                    aria-label="Search blog posts"
                                    id="blogSearchInput"
                                    autocomplete="off">
-                            <i class="bi bi-search absolute left-4 top-3.5 text-gray-400"></i>
+                            <i class="bi bi-search blog-search-icon"></i>
                             
                             <!-- Autocomplete Dropdown -->
-                            <div class="blog-search-suggestions" id="blogSearchSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px; max-height: 400px; overflow-y: auto; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.1);"></div>
+                            <div class="blog-search-suggestions" id="blogSearchSuggestions"></div>
                         </div>
                     </form>
                     
@@ -191,8 +191,8 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                                  alt="<?= htmlspecialchars(blogGetFeaturedImageAlt($post)) ?>"
                                  class="blog-card-image"
                                  loading="<?= $index < 4 ? 'eager' : 'lazy' ?>"
-                                 onerror="this.parentElement.innerHTML='<div class=\"blog-card-image-placeholder\"><svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"/><circle cx=\"8.5\" cy=\"8.5\" r=\"1.5\"/><polyline points=\"21 15 16 10 5 21\"/></svg></div>'">
-                            <?php else: ?>
+                                 onerror="this.style.display='none'; this.parentElement.classList.add('blog-card-image-broken');">
+                            <?php endif; ?>
                             <div class="blog-card-image-placeholder">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
@@ -200,7 +200,6 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                                     <polyline points="21 15 16 10 5 21"/>
                                 </svg>
                             </div>
-                            <?php endif; ?>
                         </a>
                         <div class="blog-card-content">
                             <?php if ($post['category_name']): ?>
