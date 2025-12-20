@@ -373,10 +373,11 @@ require_once __DIR__ . '/includes/header.php';
                                              :class="index === selectedIndex ? 'bg-primary-100' : 'hover:bg-gray-50'"
                                              class="px-4 py-2 cursor-pointer border-b last:border-b-0">
                                             <p class="font-medium text-gray-900" x-text="bank.name"></p>
-                                            <p class="text-xs text-gray-500" x-text="'Code: ' + bank.code"></p>
+                                            <p class="text-xs text-gray-500" x-text="bank.type || ''"></p>
                                         </div>
                                     </template>
                                 </div>
+                                <p class="text-xs text-gray-500 mt-1"><i class="bi bi-info-circle mr-1"></i>Can't find your bank? Type it below to add custom entry</p>
                             </div>
                         </div>
                         
@@ -580,7 +581,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-// Bank Dropdown Component
+// Bank Dropdown Component with Custom Entry Support
 function bankSearch() {
     return {
         banks: [],
