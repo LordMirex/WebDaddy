@@ -344,30 +344,62 @@ require_once __DIR__ . '/includes/header.php';
                             </p>
                         </div>
                         
-                        <div>
+                        <div x-data="bankSearch()">
                             <label for="bank_name" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                                 <i class="bi bi-bank mr-2"></i> Bank Name
                             </label>
-                            <input type="text" 
-                                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
-                                   id="bank_name" 
-                                   name="bank_name" 
-                                   placeholder="e.g., First Bank"
-                                   value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
-                                   required>
+                            <div class="relative">
+                                <input type="text" 
+                                       x-model="searchQuery"
+                                       @input="filterBanks()"
+                                       @focus="showDropdown = true"
+                                       @blur="setTimeout(() => showDropdown = false, 200)"
+                                       @keydown.down="selectedIndex = Math.min(selectedIndex + 1, filteredBanks.length - 1)"
+                                       @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
+                                       @keydown.enter="selectBank()"
+                                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                                       id="bank_name" 
+                                       name="bank_name" 
+                                       placeholder="Search for your bank..."
+                                       value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
+                                       required>
+                                <i class="bi bi-search absolute right-3 top-2.5 text-gray-400"></i>
+                                
+                                <!-- Dropdown List -->
+                                <div x-show="showDropdown && filteredBanks.length > 0" 
+                                     class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 mt-1">
+                                    <template x-for="(bank, index) in filteredBanks" :key="index">
+                                        <div @click="selectBankItem(bank)"
+                                             :class="index === selectedIndex ? 'bg-primary-100' : 'hover:bg-gray-50'"
+                                             class="px-4 py-2 cursor-pointer border-b last:border-b-0">
+                                            <p class="font-medium text-gray-900" x-text="bank.name"></p>
+                                            <p class="text-xs text-gray-500" x-text="'Code: ' + bank.code"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div>
+                        <div x-data="accountValidator()">
                             <label for="account_number" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                                 <i class="bi bi-credit-card mr-2"></i> Account Number
                             </label>
                             <input type="text" 
-                                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                                   class="w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                   :class="validationError ? 'border-red-500' : 'border-gray-300'"
                                    id="account_number" 
                                    name="account_number" 
-                                   placeholder="Enter account number"
+                                   placeholder="Enter 10 digit account number"
+                                   @input="validateAccount($event)"
+                                   @blur="checkAccount()"
+                                   inputmode="numeric"
                                    value="<?php echo htmlspecialchars($_POST['account_number'] ?? ''); ?>"
+                                   maxlength="10"
+                                   pattern="[0-9]{10}"
                                    required>
+                            <div x-show="validationError" class="mt-2 p-2 bg-red-50 rounded-lg border border-red-200">
+                                <p class="text-sm text-red-700"><i class="bi bi-exclamation-circle mr-1"></i><span x-text="validationError"></span></p>
+                            </div>
                         </div>
                         
                         <div>
@@ -546,5 +578,91 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+// Bank Dropdown Component
+function bankSearch() {
+    return {
+        banks: [],
+        filteredBanks: [],
+        searchQuery: '',
+        showDropdown: false,
+        selectedIndex: 0,
+        
+        async init() {
+            try {
+                const response = await fetch('/assets/data/banks.json');
+                this.banks = await response.json();
+                this.filteredBanks = this.banks;
+            } catch (e) {
+                console.error('Error loading banks:', e);
+            }
+        },
+        
+        filterBanks() {
+            const query = this.searchQuery.toLowerCase().trim();
+            this.selectedIndex = 0;
+            if (!query) {
+                this.filteredBanks = this.banks;
+            } else {
+                this.filteredBanks = this.banks.filter(bank => 
+                    bank.name.toLowerCase().includes(query) || 
+                    bank.code.includes(query)
+                );
+            }
+        },
+        
+        selectBankItem(bank) {
+            this.searchQuery = bank.name;
+            this.showDropdown = false;
+            this.filteredBanks = [];
+        },
+        
+        selectBank() {
+            if (this.filteredBanks.length > 0 && this.selectedIndex >= 0) {
+                this.selectBankItem(this.filteredBanks[this.selectedIndex]);
+            }
+        }
+    };
+}
+
+// Account Number Validator Component
+function accountValidator() {
+    return {
+        validationError: '',
+        
+        validateAccount(event) {
+            const input = event.target;
+            // Only allow numbers
+            input.value = input.value.replace(/[^0-9]/g, '');
+            
+            if (input.value.length > 0 && input.value.length < 10) {
+                this.validationError = '';
+            }
+        },
+        
+        checkAccount() {
+            const accountNumber = document.querySelector('input[name="account_number"]').value;
+            if (!accountNumber) {
+                this.validationError = '';
+                return;
+            }
+            
+            if (accountNumber.length !== 10) {
+                this.validationError = `Account number must be 10 digits (currently ${accountNumber.length})`;
+            } else if (!/^[0-9]{10}$/.test(accountNumber)) {
+                this.validationError = 'Account number must contain only digits';
+            } else {
+                this.validationError = '';
+            }
+        }
+    };
+}
+
+// Initialize on DOM ready
+document.addEventListener('alpine:init', () => {
+    console.log('Bank dropdown initialized');
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
