@@ -46,13 +46,13 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="icon" href="/assets/images/favicon.png" type="image/png">
+    <link rel="icon" href="<?php echo BASE_PATH; ?>assets/images/favicon.png" type="image/png">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md" x-data="registrationFlow()">
         <div class="text-center mb-8">
             <a href="/">
-                <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mx-auto mb-4">
+                <img src="<?php echo BASE_PATH; ?>assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mx-auto mb-4">
             </a>
             <h1 class="text-2xl font-bold text-gray-900">Create Your Account</h1>
             <p class="text-gray-600 mt-2">Join WebDaddy Empire today</p>

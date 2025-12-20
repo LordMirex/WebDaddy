@@ -219,13 +219,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     </script>
-    <script src="/assets/js/forms.js" defer></script>
+    <script src="<?php echo BASE_PATH; ?>assets/js/forms.js" defer></script>
 </head>
 <body class="bg-gradient-to-br from-primary-900 via-primary-800 to-navy min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <div class="bg-white rounded-2xl shadow-2xl p-8">
             <div class="text-center mb-8">
-                <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="max-w-[120px] mx-auto mb-4">
+                <img src="<?php echo BASE_PATH; ?>assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="max-w-[120px] mx-auto mb-4">
                 <h2 class="text-3xl font-bold text-primary-900 mt-3">
                     <?php echo $step === 'otp' ? 'Verify Code' : 'Admin Login'; ?>
                 </h2>

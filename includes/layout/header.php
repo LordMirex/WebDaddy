@@ -67,7 +67,7 @@ if ($customerSession && !empty($customerSession['id'])) {
             <!-- Logo -->
             <div class="flex items-center">
                 <a href="/" class="flex items-center group" aria-label="<?= SITE_NAME ?> Home">
-                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3 group-hover:scale-110 transition-transform duration-300" loading="eager" decoding="async">
+                    <img src="<?php echo BASE_PATH; ?>assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-12 mr-3 group-hover:scale-110 transition-transform duration-300" loading="eager" decoding="async">
                     <span class="text-lg sm:text-2xl font-black bg-gradient-to-r from-yellow-300 via-gold to-yellow-400 bg-clip-text text-transparent tracking-wider" style="letter-spacing: 0.08em; text-shadow: 0 4px 12px rgba(217, 119, 6, 0.4), 0 0 20px rgba(217, 119, 6, 0.2); filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));"><?= SITE_NAME ?></span>
                 </a>
             </div>
