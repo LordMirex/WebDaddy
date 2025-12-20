@@ -87,15 +87,18 @@ $navItems = [
             <!-- Top bar -->
             <header class="bg-white shadow-sm border-b px-4 lg:px-6 py-4">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-4 flex-1">
                         <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 hover:text-gray-900">
                             <i class="bi-list text-2xl"></i>
                         </button>
-                        <a href="/" class="hidden sm:flex items-center space-x-2 hover:opacity-75 transition mr-2 pr-4 border-r border-gray-200">
-                            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-6">
-                            <span class="text-sm font-bold text-amber-600">WebDaddy</span>
+                        <a href="/" class="flex items-center space-x-1.5 hover:opacity-75 transition flex-shrink-0">
+                            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-6 w-6">
+                            <span class="text-xs sm:text-sm font-bold text-amber-600 whitespace-nowrap">Back to Store</span>
                         </a>
-                        <h1 class="text-xl font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
+                        <div class="hidden sm:block border-l border-gray-200 pl-4 flex-1">
+                            <h1 class="text-lg sm:text-xl font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
+                        </div>
+                        <h1 class="text-sm sm:hidden font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
                     </div>
                     
                     <div class="flex items-center space-x-4">
