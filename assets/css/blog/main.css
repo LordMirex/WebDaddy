@@ -33,7 +33,7 @@ html, body { margin: 0; padding: 0; }
 .blog-hero-count { font-size: 13px; color: rgba(212, 175, 55, 0.9); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
 
 /* Categories Bar - Sticky */
-.blog-categories-bar { background-color: var(--blog-bg-light); border-bottom: 1px solid var(--blog-border); padding: 0; margin-bottom: 50px; overflow-x: auto; position: sticky; top: 70px; z-index: 50; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); }
+.blog-categories-bar { background-color: var(--blog-bg-light); border-bottom: 1px solid var(--blog-border); padding: 0; margin-bottom: 50px; overflow-x: auto; position: sticky; top: 70px; z-index: 10; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); }
 .blog-categories-scroll { display: flex; gap: 0; overflow-x: auto; scroll-behavior: smooth; padding: 0 20px; max-width: 1300px; margin: 0 auto; }
 .blog-categories-scroll::-webkit-scrollbar { height: 3px; }
 .blog-categories-scroll::-webkit-scrollbar-thumb { background: var(--blog-accent); border-radius: 2px; }
