@@ -352,7 +352,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <input type="text" 
                                        x-model="searchQuery"
                                        @input="filterBanks()"
-                                       @focus="showDropdown = true"
+                                       @focus="showDropdown = true; filterBanks();"
                                        @blur="setTimeout(() => showDropdown = false, 200)"
                                        @keydown.down="selectedIndex = Math.min(selectedIndex + 1, filteredBanks.length - 1)"
                                        @keydown.up="selectedIndex = Math.max(selectedIndex - 1, 0)"
@@ -360,7 +360,7 @@ require_once __DIR__ . '/includes/header.php';
                                        class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
                                        id="bank_name" 
                                        name="bank_name" 
-                                       placeholder="Search for your bank..."
+                                       placeholder="Click to see all banks or search..."
                                        value="<?php echo htmlspecialchars($_POST['bank_name'] ?? ''); ?>"
                                        required>
                                 <i class="bi bi-search absolute right-3 top-2.5 text-gray-400"></i>
@@ -615,7 +615,8 @@ function bankSearch() {
         selectBankItem(bank) {
             this.searchQuery = bank.name;
             this.showDropdown = false;
-            this.filteredBanks = [];
+            // Keep filteredBanks populated so dropdown can be opened again
+            this.filterBanks();
         },
         
         selectBank() {
