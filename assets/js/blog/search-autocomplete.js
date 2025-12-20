@@ -71,33 +71,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.length === 0) {
             suggestionsBox.innerHTML = '<div style="padding: 12px 16px; color: #666; text-align: center; font-size: 13px;">No results found</div>';
             suggestionsBox.classList.add('active');
-            positionDropdown();
             return;
         }
         
         suggestionsBox.innerHTML = data.map(item => `
             <a href="/blog/${item.slug}/" class="blog-suggestion-item">
-                <div class="blog-suggestion-item-title">
-                    ${highlightMatch(item.title, query)}
-                </div>
-                <div class="blog-suggestion-item-excerpt">
-                    ${item.excerpt || 'No preview available'}
-                </div>
+                <div class="blog-suggestion-item-title">${highlightMatch(item.title, query)}</div>
+                <div class="blog-suggestion-item-excerpt">${item.excerpt ? item.excerpt.substring(0, 80) + '...' : ''}</div>
             </a>
         `).join('');
         
         suggestionsBox.classList.add('active');
-        positionDropdown();
-    }
-    
-    function positionDropdown() {
-        const rect = searchInput.getBoundingClientRect();
-        const scrollLeft = window.scrollX;
-        const scrollTop = window.scrollY;
-        
-        suggestionsBox.style.left = (rect.left + scrollLeft) + 'px';
-        suggestionsBox.style.top = (rect.bottom + scrollTop + 4) + 'px';
-        suggestionsBox.style.width = rect.width + 'px';
     }
     
     function highlightMatch(text, query) {

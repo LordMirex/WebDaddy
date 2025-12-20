@@ -117,26 +117,32 @@ html, body { margin: 0; padding: 0; }
 .blog-affiliate-badge { display: inline-block; background-color: var(--blog-accent); color: var(--blog-primary); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
 .blog-affiliate-notice p { font-size: 13px; color: var(--blog-text); margin: 8px 0 0 0; }
 
-/* Search Bar */
+/* Search Bar & Dropdown */
 .blog-search-form { margin: 24px 0 0 0; }
-.blog-search-wrapper { position: relative; }
-.blog-search-input { width: 100%; padding: 14px 18px 14px 44px; background-color: rgba(255, 255, 255, 0.98); border: 2px solid rgba(212, 175, 55, 0.3); border-radius: 10px; font-size: 15px; color: var(--blog-text); font-family: var(--font-body); transition: all 0.3s ease; }
-.blog-search-input:focus { outline: none; border-color: var(--blog-accent); background-color: white; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
-.blog-search-input::placeholder { color: rgba(0, 0, 0, 0.45); }
-.blog-search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(0, 0, 0, 0.4); font-size: 18px; pointer-events: none; }
-.blog-search-suggestions { position: fixed; background-color: white; border: 1px solid #ddd; border-radius: 0 0 10px 10px; max-height: 450px; overflow-y: auto; z-index: 99999; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); display: none; width: 80vw; max-width: 900px; }
+.blog-search-wrapper { position: relative; z-index: 100; }
+.blog-search-input { width: 100%; padding: 14px 44px 14px 44px; background-color: white; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; color: var(--blog-text); font-family: var(--font-body); transition: border-color 0.3s ease; }
+.blog-search-input:focus { outline: none; border-color: var(--blog-accent); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
+.blog-search-input::placeholder { color: #999; }
+.blog-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; font-size: 16px; pointer-events: none; }
+
+/* Dropdown Container */
+.blog-search-suggestions { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 380px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: none; }
 .blog-search-suggestions.active { display: block; }
+
+/* Scrollbar */
 .blog-search-suggestions::-webkit-scrollbar { width: 6px; }
 .blog-search-suggestions::-webkit-scrollbar-track { background: transparent; }
 .blog-search-suggestions::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
 
-/* Search Suggestion Items */
-.blog-suggestion-item { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-bottom: 1px solid #f5f5f5; text-decoration: none; color: var(--blog-text); transition: background-color 0.15s ease; }
-.blog-suggestion-item:hover { background-color: #fafafa; }
-.blog-suggestion-item:last-child { border-bottom: none; border-radius: 0 0 10px 10px; }
-.blog-suggestion-item-title { font-size: 14px; font-weight: 600; line-height: 1.4; }
-.blog-suggestion-item-title mark { background-color: #f5d669; padding: 1px 4px; border-radius: 2px; font-weight: 700; }
-.blog-suggestion-item-excerpt { font-size: 12px; color: #888; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+/* Suggestion Items */
+.blog-suggestion-item { display: block; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; text-decoration: none; color: var(--blog-text); transition: background-color 0.2s ease; }
+.blog-suggestion-item:hover { background-color: #f9f9f9; }
+.blog-suggestion-item:last-child { border-bottom: none; }
+
+.blog-suggestion-item-title { font-size: 14px; font-weight: 600; margin: 0 0 4px 0; }
+.blog-suggestion-item-title mark { background-color: #f5d669; padding: 2px 4px; border-radius: 2px; font-weight: 700; }
+
+.blog-suggestion-item-excerpt { font-size: 12px; color: #888; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Responsive Design */
 @media (max-width: 768px) {
