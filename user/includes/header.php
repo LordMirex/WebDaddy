@@ -91,6 +91,10 @@ $navItems = [
                         <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 hover:text-gray-900">
                             <i class="bi-list text-2xl"></i>
                         </button>
+                        <a href="/" class="hidden sm:flex items-center space-x-2 hover:opacity-75 transition mr-2 pr-4 border-r border-gray-200">
+                            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-6">
+                            <span class="text-sm font-bold text-amber-600">WebDaddy</span>
+                        </a>
                         <h1 class="text-xl font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
                     </div>
                     
