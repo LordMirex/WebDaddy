@@ -13,8 +13,11 @@ if (isset($_SESSION['admin_id'])) {
     exit;
 }
 
+// ⏸️ TESTING MODE: Always reset to password step (OTP disabled)
+unset($_SESSION['login_step'], $_SESSION['pending_admin_email'], $_SESSION['pending_admin_id'], $_SESSION['otp_expires_at']);
+
 $error = '';
-$step = $_SESSION['login_step'] ?? 'password'; // 'password' or 'otp'
+$step = 'password'; // Always password step when OTP is disabled
 $pending_email = $_SESSION['pending_admin_email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -268,38 +271,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 
                 <?php elseif ($step === 'otp'): ?>
-                    <!-- OTP STEP -->
-                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
-                        <p class="text-sm">
-                            <i class="bi bi-info-circle mr-2"></i>
-                            We've sent a 6-digit code to <strong><?php echo htmlspecialchars($pending_email); ?></strong>
-                        </p>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label for="otp_code" class="block text-sm font-semibold text-gray-700 mb-2">Verification Code</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="bi bi-shield-check text-gray-400"></i>
-                            </div>
-                            <input type="text" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-center text-2xl tracking-widest font-mono" id="otp_code" name="otp_code" placeholder="000000" maxlength="6" inputmode="numeric" required autofocus>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">Code expires in 10 minutes</p>
-                    </div>
-                    
-                    <button type="submit" class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl" data-loading-text="Verifying...">
-                        <i class="bi bi-check-circle mr-2"></i> Verify Code
-                    </button>
-                    
-                    <div class="mt-4 text-center">
-                        <form method="POST" action="" style="display:inline;">
-                            <?php echo csrfTokenField(); ?>
-                            <input type="hidden" name="restart_login" value="1">
-                            <button type="submit" class="text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors">
-                                <i class="bi bi-arrow-left mr-1"></i> Back to Login
-                            </button>
-                        </form>
-                    </div>
+                    <!-- OTP STEP - DISABLED FOR TESTING -->
+                    <!-- This section is hidden because OTP is paused -->
                 <?php endif; ?>
             </form>
             
