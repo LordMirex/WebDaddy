@@ -142,8 +142,8 @@ require_once __DIR__ . '/includes/header.php';
     <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-4 sm:p-6">
         <div class="flex items-start justify-between flex-wrap gap-4">
             <div>
-                <a href="/user/orders.php" class="text-amber-700 hover:text-amber-800 inline-flex items-center text-lg sm:text-xl font-bold mb-3 px-6 py-3 bg-amber-100 rounded-xl hover:bg-amber-200 transition shadow-sm">
-                    <i class="bi-arrow-left mr-3 text-xl"></i>Back to Orders
+                <a href="/user/orders.php" class="text-amber-700 hover:text-amber-800 inline-flex items-center text-2xl sm:text-3xl font-bold mb-3 px-8 py-4 bg-amber-100 rounded-xl hover:bg-amber-200 transition shadow-md">
+                    <i class="bi-arrow-left mr-4 text-2xl sm:text-3xl"></i>Back to Orders
                 </a>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Order #<?= $orderId ?></h1>
                 <p class="text-sm text-gray-600 mt-1"><?= date('F j, Y \a\t g:i A', strtotime($order['created_at'])) ?></p>

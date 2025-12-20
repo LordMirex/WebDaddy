@@ -50,9 +50,9 @@ $navItems = [
         <aside x-cloak :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" 
                class="fixed lg:static inset-y-0 left-0 w-64 bg-slate-900 text-white z-50 transform transition-transform -translate-x-full lg:translate-x-0">
             <div class="p-4 border-b border-slate-700">
-                <a href="/" class="flex items-center space-x-2">
-                    <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-8">
-                    <span class="font-bold text-lg">My Account</span>
+                <a href="/" class="flex items-center space-x-3">
+                    <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="h-12">
+                    <span class="font-bold text-xl">My Account</span>
                 </a>
             </div>
             
