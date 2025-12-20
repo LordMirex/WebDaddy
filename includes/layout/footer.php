@@ -130,6 +130,11 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
             </div>
         </div>
 
+        <!-- Newsletter Widget - Phase 4 Monetization -->
+        <div class="mt-8 pt-8 pb-8 border-t border-gray-700/50">
+            <?php include __DIR__ . '/newsletter-widget.php'; ?>
+        </div>
+
         <!-- Bottom bar -->
         <div class="mt-8 pt-6 border-t border-gray-700/50 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
             <p>&copy; <?= date('Y') ?> <?= SITE_NAME ?></p>
