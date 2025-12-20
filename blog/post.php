@@ -264,7 +264,7 @@ $toc = blogExtractTableOfContents($blocks);
                         </div>
                         <?php else: ?>
                         <?php foreach ($blocks as $block): 
-                            $data = $block['data_payload'];
+                            $data = is_string($block['data_payload']) ? json_decode($block['data_payload'], true) : $block['data_payload'];
                             $layout = $block['layout_variant'] ?? 'default';
                             $blockClass = 'blog-block blog-block-' . $block['block_type'] . ' blog-block-layout-' . $layout;
                         ?>
@@ -273,8 +273,10 @@ $toc = blogExtractTableOfContents($blocks);
                             switch ($block['block_type']) {
                                 case 'rich_text':
                                     $content = $data['content'] ?? '';
-                                    $content = blogAddHeadingAnchors($content);
-                                    echo '<div class="blog-rich-text">' . $content . '</div>';
+                                    if (function_exists('blogAddHeadingAnchors')) {
+                                        $content = blogAddHeadingAnchors($content);
+                                    }
+                                    echo '<div class="blog-rich-text">' . htmlspecialchars_decode($content) . '</div>';
                                     break;
                                     
                                 case 'section_divider':
