@@ -71,4 +71,4 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: <?php echo SITE_URL; ?>/sitemap.xml
+Sitemap: <?php echo SITE_URL . BASE_PATH; ?>sitemap.xml

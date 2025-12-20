@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/blog/Blog.php';
 require_once __DIR__ . '/includes/blog/BlogPost.php';
 
 header('Content-Type: application/xml; charset=utf-8');
-header('X-Robots-Tag: noindex');
+header('Cache-Control: public, max-age=3600');
 
 $db = getDb();
 
@@ -194,7 +194,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         LIMIT 50000
     ");
     
-    while ($post = $blogPosts->fetch_assoc()): 
+    while ($post = $blogPosts->fetch(PDO::FETCH_ASSOC)): 
     ?>
     <url>
         <loc><?php echo SITE_URL; ?>/blog/<?php echo htmlspecialchars($post['slug']); ?>/</loc>
@@ -218,7 +218,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         ORDER BY updated_at DESC
     ");
     
-    while ($cat = $blogCats->fetch_assoc()): 
+    while ($cat = $blogCats->fetch(PDO::FETCH_ASSOC)): 
     ?>
     <url>
         <loc><?php echo SITE_URL; ?>/blog/category/<?php echo htmlspecialchars($cat['slug']); ?>/</loc>
