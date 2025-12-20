@@ -124,7 +124,7 @@ html, body { margin: 0; padding: 0; }
 .blog-search-input:focus { outline: none; border-color: var(--blog-accent); background-color: white; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); }
 .blog-search-input::placeholder { color: rgba(0, 0, 0, 0.45); }
 .blog-search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(0, 0, 0, 0.4); font-size: 18px; pointer-events: none; }
-.blog-search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background-color: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 10px 10px; max-height: 450px; overflow-y: auto; z-index: 10000; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); margin-top: -2px; display: none; }
+.blog-search-suggestions { position: fixed; background-color: white; border: 1px solid #ddd; border-radius: 0 0 10px 10px; max-height: 450px; overflow-y: auto; z-index: 99999; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); display: none; width: 80vw; max-width: 900px; }
 .blog-search-suggestions.active { display: block; }
 .blog-search-suggestions::-webkit-scrollbar { width: 6px; }
 .blog-search-suggestions::-webkit-scrollbar-track { background: transparent; }

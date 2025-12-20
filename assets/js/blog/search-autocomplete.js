@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.length === 0) {
             suggestionsBox.innerHTML = '<div style="padding: 12px 16px; color: #666; text-align: center; font-size: 13px;">No results found</div>';
             suggestionsBox.classList.add('active');
+            positionDropdown();
             return;
         }
         
@@ -86,6 +87,17 @@ document.addEventListener('DOMContentLoaded', function() {
         `).join('');
         
         suggestionsBox.classList.add('active');
+        positionDropdown();
+    }
+    
+    function positionDropdown() {
+        const rect = searchInput.getBoundingClientRect();
+        const scrollLeft = window.scrollX;
+        const scrollTop = window.scrollY;
+        
+        suggestionsBox.style.left = (rect.left + scrollLeft) + 'px';
+        suggestionsBox.style.top = (rect.bottom + scrollTop + 4) + 'px';
+        suggestionsBox.style.width = rect.width + 'px';
     }
     
     function highlightMatch(text, query) {
