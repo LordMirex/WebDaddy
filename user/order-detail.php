@@ -157,25 +157,6 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <?php if ($order['status'] === 'paid' || $order['status'] === 'completed'): ?>
-    <!-- Post-Payment Customization Section -->
-    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200 p-6">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-2">
-                    <i class="bi-check-circle text-green-600"></i>Setting up your website
-                </h2>
-                <p class="text-gray-600">Customize your website on WhatsApp with our support team. Share your preferences and we'll help you set everything up perfectly.</p>
-            </div>
-            <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode("Hello! I just completed payment for Order #$orderId (₦" . number_format($order['final_amount'], 2) . "). I'd like to discuss customization options for my website. Here are my order details:\n\nOrder ID: #$orderId\nAmount: ₦" . number_format($order['final_amount'], 2) . "\nItems: " . implode(', ', array_column($orderItems, 'product_name')) . "\n\nPlease help me get started with the setup process!") ?>" 
-               target="_blank"
-               class="flex-shrink-0 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2 whitespace-nowrap">
-                <i class="bi-whatsapp"></i>Customize on WhatsApp
-            </a>
-        </div>
-    </div>
-    <?php endif; ?>
-
     <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
     <!-- Payment Section -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="orderPayment()">
@@ -902,7 +883,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-4">
                 <h3 class="font-bold text-gray-900 mb-2">✨ Customize Your Products</h3>
                 <p class="text-sm text-gray-600 mb-4">Setting up your website or need customization? Let's discuss your requirements on WhatsApp.</p>
-                <a href="https://wa.me/2348033330233?text=Hi%20WebDaddy,%20I%27d%20like%20to%20customize%20my%20order.%20Order%20ID:%20%23<?= $orderId ?>%20|%20Amount:%20₦<?= number_format($order['final_amount'], 2) ?>%20|%20Items:%20<?= urlencode($itemsDescription) ?>" 
+                <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=Hi%20WebDaddy,%20I%27d%20like%20to%20customize%20my%20order.%20Order%20ID:%20%23<?= $orderId ?>%20|%20Amount:%20₦<?= number_format($order['final_amount'], 2) ?>%20|%20Items:%20<?= urlencode($itemsDescription) ?>" 
                    target="_blank"
                    class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium">
                     <i class="bi-whatsapp mr-2"></i>Customize on WhatsApp
