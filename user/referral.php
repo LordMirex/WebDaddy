@@ -151,19 +151,19 @@ require_once __DIR__ . '/includes/header.php';
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden" x-data="{ activeTab: '<?= htmlspecialchars($activeTab) ?>' }">
-        <div class="border-b bg-gradient-to-r from-gray-50 to-gray-100">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden" x-data="{ activeTab: '<?= htmlspecialchars($activeTab) ?>' }">
+        <div class="border-b bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50">
             <nav class="flex overflow-x-auto" role="tablist">
-                <button type="button" @click="activeTab = 'overview'" class="px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-3 transition-all" :class="activeTab === 'overview' ? 'border-amber-600 text-amber-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-900'">
+                <button type="button" @click="activeTab = 'overview'" class="px-8 py-5 text-base font-bold whitespace-nowrap border-b-4 transition-all duration-300" :class="activeTab === 'overview' ? 'border-amber-600 text-amber-700 bg-white shadow-md' : 'border-transparent text-gray-600 hover:text-amber-600 hover:bg-amber-50'">
                     <i class="bi bi-bar-chart mr-2"></i>Overview
                 </button>
-                <button type="button" @click="activeTab = 'sales'" class="px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-3 transition-all" :class="activeTab === 'sales' ? 'border-amber-600 text-amber-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-900'">
+                <button type="button" @click="activeTab = 'sales'" class="px-8 py-5 text-base font-bold whitespace-nowrap border-b-4 transition-all duration-300" :class="activeTab === 'sales' ? 'border-amber-600 text-amber-700 bg-white shadow-md' : 'border-transparent text-gray-600 hover:text-amber-600 hover:bg-amber-50'">
                     <i class="bi bi-cart-check mr-2"></i>Sales History
                 </button>
-                <button type="button" @click="activeTab = 'withdraw'" class="px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-3 transition-all" :class="activeTab === 'withdraw' ? 'border-amber-600 text-amber-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-900'">
+                <button type="button" @click="activeTab = 'withdraw'" class="px-8 py-5 text-base font-bold whitespace-nowrap border-b-4 transition-all duration-300" :class="activeTab === 'withdraw' ? 'border-amber-600 text-amber-700 bg-white shadow-md' : 'border-transparent text-gray-600 hover:text-amber-600 hover:bg-amber-50'">
                     <i class="bi bi-cash-stack mr-2"></i>Request Withdrawal
                 </button>
-                <button type="button" @click="activeTab = 'withdrawals'" class="px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-3 transition-all" :class="activeTab === 'withdrawals' ? 'border-amber-600 text-amber-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-900'">
+                <button type="button" @click="activeTab = 'withdrawals'" class="px-8 py-5 text-base font-bold whitespace-nowrap border-b-4 transition-all duration-300" :class="activeTab === 'withdrawals' ? 'border-amber-600 text-amber-700 bg-white shadow-md' : 'border-transparent text-gray-600 hover:text-amber-600 hover:bg-amber-50'">
                     <i class="bi bi-clock-history mr-2"></i>Transaction History
                 </button>
             </nav>
@@ -203,32 +203,32 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <div x-show="activeTab === 'sales'" x-cloak>
-                <h4 class="text-lg font-bold text-gray-900 mb-4">Recent Sales</h4>
+                <h4 class="text-xl font-bold text-gray-900 mb-6">Recent Sales</h4>
                 <?php if (empty($recentSales)): ?>
-                <div class="text-center py-12 text-gray-500">
-                    <i class="bi bi-cart-x text-5xl mb-4 block"></i>
-                    <p>No sales yet. Share your referral link to start earning!</p>
+                <div class="text-center py-16 text-gray-500">
+                    <i class="bi bi-cart-x text-6xl mb-4 block text-gray-300"></i>
+                    <p class="text-lg">No sales yet. Share your referral link to start earning!</p>
                 </div>
                 <?php else: ?>
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full">
                         <thead>
-                            <tr class="border-b">
-                                <th class="text-left py-3 px-2 text-sm font-semibold text-gray-700">Date</th>
-                                <th class="text-left py-3 px-2 text-sm font-semibold text-gray-700">Customer</th>
-                                <th class="text-right py-3 px-2 text-sm font-semibold text-gray-700">Amount</th>
-                                <th class="text-right py-3 px-2 text-sm font-semibold text-gray-700">Commission</th>
+                            <tr class="bg-gradient-to-r from-amber-50 to-orange-50 border-b-2 border-amber-200">
+                                <th class="text-left py-4 px-4 text-sm font-bold text-amber-900">Date</th>
+                                <th class="text-left py-4 px-4 text-sm font-bold text-amber-900">Customer</th>
+                                <th class="text-right py-4 px-4 text-sm font-bold text-amber-900">Amount</th>
+                                <th class="text-right py-4 px-4 text-sm font-bold text-amber-900">Commission</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y">
+                        <tbody class="divide-y divide-gray-200">
                             <?php foreach ($recentSales as $sale): ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-3 px-2 text-sm"><?= date('M d, Y', strtotime($sale['created_at'])) ?></td>
-                                <td class="py-3 px-2 text-sm">
+                            <tr class="hover:bg-amber-50 transition-colors">
+                                <td class="py-4 px-4 text-sm text-gray-700"><?= date('M d, Y', strtotime($sale['created_at'])) ?></td>
+                                <td class="py-4 px-4 text-sm text-gray-700">
                                     <?= htmlspecialchars(substr($sale['customer_name'], 0, 3) . '***') ?>
                                 </td>
-                                <td class="py-3 px-2 text-sm text-right">₦<?= number_format($sale['amount_paid'], 2) ?></td>
-                                <td class="py-3 px-2 text-sm text-right font-semibold text-green-600">+₦<?= number_format($sale['commission_amount'], 2) ?></td>
+                                <td class="py-4 px-4 text-sm text-right font-semibold text-gray-900">₦<?= number_format($sale['amount_paid'], 2) ?></td>
+                                <td class="py-4 px-4 text-sm text-right font-bold text-green-600">+₦<?= number_format($sale['commission_amount'], 2) ?></td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -367,30 +367,30 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <div x-show="activeTab === 'withdrawals'" x-cloak>
-                <h4 class="text-lg font-bold text-gray-900 mb-4">Transaction History</h4>
+                <h4 class="text-xl font-bold text-gray-900 mb-6">Transaction History</h4>
                 <?php if (empty($withdrawalHistory)): ?>
-                <div class="text-center py-12 text-gray-500">
-                    <i class="bi bi-clock-history text-5xl mb-4 block"></i>
-                    <p>No withdrawal history yet.</p>
+                <div class="text-center py-16 text-gray-500">
+                    <i class="bi bi-clock-history text-6xl mb-4 block text-gray-300"></i>
+                    <p class="text-lg">No withdrawal history yet.</p>
                 </div>
                 <?php else: ?>
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full">
                         <thead>
-                            <tr class="border-b bg-gray-50">
-                                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700">Date</th>
-                                <th class="text-right py-4 px-4 text-sm font-semibold text-gray-700">Amount</th>
-                                <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">Status</th>
-                                <th class="text-left py-4 px-4 text-sm font-semibold text-gray-700">Notes</th>
-                                <th class="text-center py-4 px-4 text-sm font-semibold text-gray-700">Action</th>
+                            <tr class="bg-gradient-to-r from-amber-50 to-orange-50 border-b-2 border-amber-200">
+                                <th class="text-left py-4 px-4 text-sm font-bold text-amber-900">Date</th>
+                                <th class="text-right py-4 px-4 text-sm font-bold text-amber-900">Amount</th>
+                                <th class="text-center py-4 px-4 text-sm font-bold text-amber-900">Status</th>
+                                <th class="text-left py-4 px-4 text-sm font-bold text-amber-900">Notes</th>
+                                <th class="text-center py-4 px-4 text-sm font-bold text-amber-900">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y">
+                        <tbody class="divide-y divide-gray-200">
                             <?php foreach ($withdrawalHistory as $withdrawal): ?>
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="py-4 px-4 text-sm text-gray-700"><?= date('M d, Y', strtotime($withdrawal['requested_at'])) ?></td>
-                                <td class="py-4 px-4 text-sm text-right font-bold text-gray-900">₦<?= number_format($withdrawal['amount'], 2) ?></td>
-                                <td class="py-4 px-4 text-center">
+                            <tr class="hover:bg-amber-50 transition-colors">
+                                <td class="py-5 px-4 text-sm font-medium text-gray-800"><?= date('M d, Y', strtotime($withdrawal['requested_at'])) ?></td>
+                                <td class="py-5 px-4 text-sm text-right font-bold text-gray-900">₦<?= number_format($withdrawal['amount'], 2) ?></td>
+                                <td class="py-5 px-4 text-center">
                                     <?php
                                     $statusColors = [
                                         'pending' => 'bg-yellow-100 text-yellow-800',
@@ -400,21 +400,21 @@ require_once __DIR__ . '/includes/header.php';
                                     ];
                                     $color = $statusColors[$withdrawal['status']] ?? 'bg-gray-100 text-gray-800';
                                     ?>
-                                    <span class="px-3 py-1.5 text-xs font-bold rounded-full <?= $color ?>">
+                                    <span class="px-4 py-2 text-sm font-bold rounded-full <?= $color ?>">
                                         <?= ucfirst($withdrawal['status']) ?>
                                     </span>
                                 </td>
-                                <td class="py-4 px-4 text-sm text-gray-600">
-                                    <?= $withdrawal['admin_notes'] ? htmlspecialchars($withdrawal['admin_notes']) : '-' ?>
+                                <td class="py-5 px-4 text-sm text-gray-700">
+                                    <?= $withdrawal['admin_notes'] ? htmlspecialchars($withdrawal['admin_notes']) : '<span class="text-gray-400">-</span>' ?>
                                 </td>
-                                <td class="py-4 px-4 text-center">
+                                <td class="py-5 px-4 text-center">
                                     <?php 
                                     $whatsappNum = preg_replace('/[^0-9]/', '', $db->query("SELECT setting_value FROM settings WHERE setting_key = 'whatsapp_number'")->fetchColumn() ?: '+2349132672126');
                                     $withdrawMsg = "Hi, I'm inquiring about my withdrawal request.\n\nUser ID: " . $customerId . "\nWithdrawal Amount: ₦" . number_format($withdrawal['amount'], 2) . "\nStatus: " . ucfirst($withdrawal['status']) . "\nTransaction Reference: " . $withdrawal['id'] . "\n\nAccount Details on file.\nCould you please provide an update on this?";
                                     ?>
                                     <a href="https://wa.me/<?= $whatsappNum ?>?text=<?= urlencode($withdrawMsg) ?>" 
-                                       target="_blank" class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition">
-                                        <i class="bi-whatsapp mr-1"></i>Get Update
+                                       target="_blank" class="inline-flex items-center justify-center px-5 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg text-base whitespace-nowrap">
+                                        <i class="bi-whatsapp mr-2 text-xl"></i>Withdraw via WhatsApp
                                     </a>
                                 </td>
                             </tr>
