@@ -113,9 +113,6 @@ require_once __DIR__ . '/includes/header.php';
                                         <span class="text-gray-500">
                                             <i class="bi-infinity mr-1"></i>Unlimited downloads
                                         </span>
-                                        <span class="<?= $isExpired ? 'text-red-600' : 'text-gray-500' ?>">
-                                            <i class="bi-clock mr-1"></i><?= $isExpired ? 'Expired' : 'Expires ' . date('M j, Y', strtotime($file['expires_at'])) ?>
-                                        </span>
                                     </div>
                                 </div>
                             </div>

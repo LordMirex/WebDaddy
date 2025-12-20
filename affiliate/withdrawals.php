@@ -458,6 +458,7 @@ require_once __DIR__ . '/includes/header.php';
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Bank Details</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Processed Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -503,6 +504,12 @@ require_once __DIR__ . '/includes/header.php';
                                 <?php else: ?>
                                     <span class="text-gray-400">-</span>
                                 <?php endif; ?>
+                            </td>
+                            <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $db->query("SELECT setting_value FROM settings WHERE setting_key = 'whatsapp_number'")->fetchColumn() ?: '+2349132672126') ?>?text=<?= urlencode("Hi, I'm inquiring about my withdrawal request.\n\nUser ID: " . $affiliateId . "\nWithdrawal Amount: ₦" . number_format($request['amount'], 2) . "\nReference: WD#" . $request['id'] . "\nStatus: " . ucfirst($request['status']) . "\n\nCould you please provide an update on this?") ?>" 
+                                   target="_blank" class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition">
+                                    <i class="bi-whatsapp mr-1"></i>Get Update
+                                </a>
                             </td>
                         </tr>
                         <?php if (!empty($request['admin_notes'])): ?>

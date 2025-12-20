@@ -142,7 +142,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-4 sm:p-6">
         <div class="flex items-start justify-between flex-wrap gap-4">
             <div>
-                <a href="/user/orders.php" class="text-amber-600 hover:text-amber-700 inline-flex items-center text-sm font-medium mb-2">
+                <a href="/user/orders.php" class="text-amber-600 hover:text-amber-700 inline-flex items-center text-base font-semibold mb-2 px-4 py-2 bg-amber-100 rounded-lg hover:bg-amber-200 transition">
                     <i class="bi-arrow-left mr-2"></i>Back to Orders
                 </a>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Order #<?= $orderId ?></h1>
@@ -156,6 +156,25 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
     </div>
+
+    <?php if ($order['status'] === 'paid' || $order['status'] === 'completed'): ?>
+    <!-- Post-Payment Customization Section -->
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200 p-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div class="flex-1">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2 mb-2">
+                    <i class="bi-check-circle text-green-600"></i>Setting up your website
+                </h2>
+                <p class="text-gray-600">Customize your website on WhatsApp with our support team. Share your preferences and we'll help you set everything up perfectly.</p>
+            </div>
+            <a href="https://wa.me/<?= $whatsappNumberClean ?>?text=<?= urlencode("Hello! I just completed payment for Order #$orderId (₦" . number_format($order['final_amount'], 2) . "). I'd like to discuss customization options for my website. Here are my order details:\n\nOrder ID: #$orderId\nAmount: ₦" . number_format($order['final_amount'], 2) . "\nItems: " . implode(', ', array_column($orderItems, 'product_name')) . "\n\nPlease help me get started with the setup process!") ?>" 
+               target="_blank"
+               class="flex-shrink-0 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2 whitespace-nowrap">
+                <i class="bi-whatsapp"></i>Customize on WhatsApp
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
     <!-- Payment Section -->
