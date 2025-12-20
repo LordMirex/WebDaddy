@@ -126,7 +126,7 @@ html, body { margin: 0; padding: 0; }
 .blog-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; font-size: 16px; pointer-events: none; }
 
 /* Dropdown Container */
-.blog-search-suggestions { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 380px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: none; z-index: 1000; }
+.blog-search-suggestions { position: fixed; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 380px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); display: none; z-index: 99999; }
 .blog-search-suggestions.active { display: block; }
 
 /* Scrollbar */
