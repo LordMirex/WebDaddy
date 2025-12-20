@@ -39,6 +39,23 @@ $showMobileCTA = true;
 
 $pageTitle = 'Blog | ' . SITE_NAME;
 $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digital marketing for Nigerian businesses. Learn how to grow your online presence.';
+
+// Search functionality
+$searchQuery = $_GET['search'] ?? '';
+if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
+    $search = '%' . $searchQuery . '%';
+    $stmt = $db->prepare("
+        SELECT * FROM blog_posts 
+        WHERE status = 'published' 
+        AND (title LIKE ? OR excerpt LIKE ?)
+        ORDER BY publish_date DESC
+        LIMIT 50
+    ");
+    $stmt->execute([$search, $search]);
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $totalPosts = count($posts);
+    $totalPages = 1;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,6 +83,7 @@ $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digi
     <link rel="stylesheet" href="/assets/css/blog/main.css">
     <link rel="stylesheet" href="/assets/css/blog/blocks.css">
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
@@ -106,6 +124,25 @@ $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digi
                     <h1>WebDaddy Blog</h1>
                     <p class="blog-hero-subtitle">Expert insights on website design, SEO, e-commerce, and digital marketing</p>
                     <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
+                    
+                    <!-- Search Bar -->
+                    <form method="GET" class="blog-search-form mt-6 max-w-md mx-auto">
+                        <div class="relative">
+                            <input type="text" 
+                                   name="search" 
+                                   placeholder="Search blog posts..." 
+                                   value="<?= htmlspecialchars($searchQuery) ?>"
+                                   class="w-full px-4 py-3 pl-12 rounded-lg bg-white/95 text-navy-dark placeholder-gray-500 focus:ring-2 focus:ring-gold focus:outline-none"
+                                   aria-label="Search blog posts">
+                            <i class="bi bi-search absolute left-4 top-3.5 text-gray-400"></i>
+                        </div>
+                    </form>
+                    
+                    <?php if (!empty($searchQuery)): ?>
+                    <p class="text-center text-sm text-gray-400 mt-3">
+                        Found <strong><?= count($posts) ?></strong> result<?= count($posts) !== 1 ? 's' : '' ?> for "<strong><?= htmlspecialchars($searchQuery) ?></strong>"
+                    </p>
+                    <?php endif; ?>
                 </div>
             </div>
         </section>
