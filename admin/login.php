@@ -32,6 +32,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user) {
                 clearLoginAttempts($email, 'admin');
                 
+                // ⏸️ TESTING MODE: Skip OTP and login directly (for speed)
+                // Uncomment the OTP section below when returning to production
+                
+                // Direct login without OTP verification
+                session_regenerate_id(true);
+                $_SESSION['admin_id'] = $user['id'];
+                $_SESSION['admin_email'] = $user['email'];
+                $_SESSION['admin_name'] = $user['name'];
+                $_SESSION['admin_role'] = $user['role'];
+                
+                logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
+                error_log("✅ Admin logged in WITHOUT OTP (TESTING MODE): {$email}");
+                
+                header('Location: /admin/');
+                exit;
+                
+                /*
+                // ⏸️ PAUSED OTP CODE - Uncomment to enable
                 // Password verified - now request OTP
                 $db = getDb();
                 
@@ -81,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $error = 'Failed to send OTP email. Please try again.';
                     }
                 }
+                */
             } else {
                 trackLoginAttempt($email, 'admin');
                 $error = 'Invalid email or password.';
