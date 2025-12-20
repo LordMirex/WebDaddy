@@ -45,16 +45,27 @@ $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digi
 
 // Search functionality
 $searchQuery = $_GET['search'] ?? '';
-if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
+if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     $search = '%' . $searchQuery . '%';
+    
+    // Improved search with relevance ranking
     $stmt = $db->prepare("
-        SELECT * FROM blog_posts 
+        SELECT *,
+               CASE 
+                   WHEN LOWER(title) LIKE LOWER(?) THEN 3
+                   WHEN LOWER(excerpt) LIKE LOWER(?) THEN 2
+                   ELSE 0
+               END as relevance
+        FROM blog_posts 
         WHERE status = 'published' 
-        AND (title LIKE ? OR excerpt LIKE ?)
-        ORDER BY publish_date DESC
-        LIMIT 50
+        AND (
+            LOWER(title) LIKE LOWER(?) 
+            OR LOWER(excerpt) LIKE LOWER(?)
+        )
+        ORDER BY relevance DESC, publish_date DESC
+        LIMIT 100
     ");
-    $stmt->execute([$search, $search]);
+    $stmt->execute([$search, $search, $search, $search]);
     $searchPosts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $posts = $validator->filterValidPosts($searchPosts);
     $totalPosts = count($posts);
@@ -130,7 +141,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 2) {
                     <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
                     
                     <!-- Search Bar with Autocomplete -->
-                    <form method="GET" class="blog-search-form" id="blogSearchForm">
+                    <form method="GET" action="/blog/" class="blog-search-form" id="blogSearchForm">
                         <div class="blog-search-wrapper">
                             <input type="text" 
                                    name="search" 

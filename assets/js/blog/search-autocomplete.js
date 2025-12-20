@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const query = this.value.trim();
         currentIndex = -1;
         
-        if (query.length < 2) {
+        if (query.length < 1) {
             suggestionsBox.classList.remove('active');
             suggestionsBox.innerHTML = '';
             return;
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         debounceTimer = setTimeout(function() {
             fetchSuggestions(query);
-        }, 300);
+        }, 250);
     });
     
     // Keyboard navigation
@@ -58,13 +58,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function fetchSuggestions(query) {
-        fetch('/admin/api/suggestions.php?q=' + encodeURIComponent(query))
-            .then(response => response.json())
-            .then(data => {
-                suggestions = data;
-                displaySuggestions(data, query);
+        fetch('/admin/api/suggestions.php?q=' + encodeURIComponent(query), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Search failed');
+                return response.json();
             })
-            .catch(error => console.error('Search error:', error));
+            .then(data => {
+                suggestions = Array.isArray(data) ? data : [];
+                displaySuggestions(suggestions, query);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                suggestionsBox.innerHTML = '<div style="padding: 12px 16px; color: #666; text-align: center; font-size: 13px;">Search unavailable</div>';
+                suggestionsBox.classList.add('active');
+            });
     }
     
     function displaySuggestions(data, query) {
