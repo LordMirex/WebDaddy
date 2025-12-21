@@ -33,7 +33,7 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 overflow-hidden" x-data="{ sidebarOpen: false, userMenuOpen: false }">
+<body class="bg-gray-50 overflow-hidden" x-data="sidebarManager">
     <!-- Top Navigation Bar -->
     <nav class="bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 text-white shadow-lg fixed top-0 left-0 right-0 z-40 h-[61px]">
         <div class="px-4 py-3">
@@ -161,3 +161,11 @@
         <!-- Main Content Area -->
         <main class="flex-1 lg:ml-64 overflow-y-auto overflow-x-hidden">
             <div class="p-4 md:p-6 lg:p-8">
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('sidebarManager', () => ({
+                sidebarOpen: false,
+                userMenuOpen: false
+            }));
+        });
+    </script>
