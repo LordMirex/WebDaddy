@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <title><?php echo $pageTitle ?? 'Admin Panel'; ?> - <?php echo SITE_NAME; ?></title>
+    <title><?php echo $pageTitle ?? 'Admin Panel'; ?> - <?php echo defined('SITE_NAME') ? SITE_NAME : 'WebDaddy'; ?></title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -96,10 +96,10 @@
         </div>
     </nav>
 
-    <div class="flex h-screen pt-[61px]">
+    <div class="flex h-screen pt-[61px] overflow-hidden">
         <aside 
             x-bind:class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }"
-            class="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] -translate-x-full overflow-y-auto">
+            class="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 z-30 shadow-xl lg:shadow-none top-[61px] overflow-y-auto">
             
             <div class="lg:hidden flex justify-end p-4">
                 <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100">

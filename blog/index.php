@@ -166,44 +166,70 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <?php require_once __DIR__ . '/../includes/layout/header.php'; ?>
 
     <main class="blog-main">
-        <section class="blog-hero">
-            <div class="blog-container">
-                <div class="blog-hero-content">
-                    <h1>WebDaddy Blog</h1>
-                    <p class="blog-hero-subtitle">Expert insights on website design, SEO, e-commerce, and digital marketing</p>
-                    <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
+        <section class="blog-hero py-20 lg:py-32 relative overflow-hidden bg-navy-dark">
+            <!-- Decorative Background Elements -->
+            <div class="absolute inset-0 opacity-20">
+                <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold/20 rounded-full blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s"></div>
+            </div>
+
+            <div class="blog-container relative z-10">
+                <div class="max-w-4xl mx-auto text-center">
+                    <span class="inline-block px-4 py-1.5 mb-6 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm font-bold tracking-wider uppercase animate-fade-in">
+                        Insights & Excellence
+                    </span>
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight leading-tight">
+                        WebDaddy <span class="bg-gradient-to-r from-gold via-yellow-300 to-gold bg-clip-text text-transparent">Knowledge Hub</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                        Expert strategies on conversion optimization, SEO, and digital growth specifically tailored for Nigerian businesses.
+                    </p>
                     
-                    <!-- Modern Search UI -->
-                    <form method="GET" action="/blog/" class="blog-search-form-modern" id="blogSearchForm">
-                        <div class="blog-search-modern-wrapper">
-                            <svg class="blog-search-modern-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <polyline points="21 21 11 11"></polyline>
-                            </svg>
-                            <input type="text" 
-                                   name="search" 
-                                   placeholder="Search articles..." 
-                                   value="<?= htmlspecialchars($searchQuery) ?>"
-                                   class="blog-search-modern-input"
-                                   aria-label="Search blog posts"
-                                   id="blogSearchInput"
-                                   autocomplete="off">
-                            <button type="button" class="blog-search-modern-clear" aria-label="Clear search" style="display: none;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
+                    <!-- Professional Search UI -->
+                    <div class="relative max-w-2xl mx-auto group">
+                        <form method="GET" action="/blog/" class="relative" id="blogSearchForm">
+                            <div class="relative flex items-center bg-white/5 backdrop-blur-xl border-2 border-white/10 group-focus-within:border-gold/50 rounded-2xl p-1 transition-all duration-300 shadow-2xl">
+                                <div class="pl-4 pr-2 text-gray-400">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </div>
+                                <input type="text" 
+                                       name="search" 
+                                       placeholder="Search 100+ expert articles..." 
+                                       value="<?= htmlspecialchars($searchQuery) ?>"
+                                       class="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-gray-400 py-4 text-lg font-medium"
+                                       aria-label="Search blog posts"
+                                       id="blogSearchInput"
+                                       autocomplete="off">
+                                <button type="submit" class="btn-gold-shine px-8 py-4 rounded-xl text-navy font-bold text-lg transition-all hover:scale-105 active:scale-95 ml-2">
+                                    Search
+                                </button>
+                            </div>
                             
                             <!-- Search Suggestions Dropdown -->
-                            <div class="blog-search-suggestions-modern" id="blogSearchSuggestions"></div>
-                        </div>
-                    </form>
+                            <div class="absolute top-full left-0 right-0 mt-4 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 transform origin-top transition-all duration-300 scale-y-0 opacity-0 group-focus-within:scale-y-100 group-focus-within:opacity-100" id="blogSearchSuggestions"></div>
+                        </form>
+                    </div>
                     
+                    <div class="mt-8 flex flex-wrap justify-center gap-4 text-sm font-medium text-gray-400">
+                        <span class="flex items-center gap-2">
+                            <i class="bi bi-check2-circle text-gold"></i> <?= $totalPosts ?> Articles
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <i class="bi bi-check2-circle text-gold"></i> Updated Daily
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <i class="bi bi-check2-circle text-gold"></i> Expert Insights
+                        </span>
+                    </div>
+
                     <?php if (!empty($searchQuery)): ?>
-                    <p class="text-center text-sm text-gray-400 mt-3">
-                        Found <strong><?= count($posts) ?></strong> result<?= count($posts) !== 1 ? 's' : '' ?> for "<strong><?= htmlspecialchars($searchQuery) ?></strong>"
-                    </p>
+                    <div class="mt-8 animate-fade-in">
+                        <p class="text-gray-400">
+                            Showing <span class="text-gold font-bold"><?= count($posts) ?></span> result<?= count($posts) !== 1 ? 's' : '' ?> for "<span class="text-white italic"><?= htmlspecialchars($searchQuery) ?></span>"
+                        </p>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
