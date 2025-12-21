@@ -195,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <link rel="stylesheet" href="/assets/css/tailwind-fallback.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="/assets/css/cdn-fix.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/premium.css?v=<?php echo time(); ?>">
     <script defer src="/assets/js/alpine.min.js"></script>
     <script>
         tailwind.config = {
