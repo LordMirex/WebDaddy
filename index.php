@@ -197,6 +197,8 @@ if ($autoOpenTool) {
     <link rel="preload" as="image" href="/assets/images/mockups/glide-apps.jpg">
     <link rel="preload" as="image" href="/assets/images/mockups/notion.jpg">
     <link rel="preload" as="image" href="/assets/images/mockups/runway.jpg">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="<?php echo $ogType; ?>">
@@ -261,13 +263,11 @@ if ($autoOpenTool) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Premium UI/UX Styles -->
-    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="/assets/css/cdn-fix.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="/assets/css/premium.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/premium.css">
     
-    <!-- Local Alpine.js - No CDN Dependency -->
-    <script defer src="/assets/js/alpine-collapse.min.js"></script>
-    <script defer src="/assets/js/alpine.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         // Store WhatsApp number for JavaScript use in dynamic messages
         window.whatsappNumber = '<?php echo $whatsappNumberForJs; ?>';
@@ -711,37 +711,6 @@ if ($autoOpenTool) {
     <script src="/assets/js/video-preloader.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/share.js?v=<?php echo time(); ?>"></script>
-    <script src="/assets/js/alpine-fallback.js?v=<?php echo time(); ?>" defer></script>
-    <script>
-        // Fallback functions for menu and cart toggles if Alpine.js fails
-        let mobileMenuOpen = false;
-        function toggleMobileMenu() {
-            const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
-            const menu = document.querySelector('[x-show="open"]')?.parentElement;
-            if (menu) {
-                mobileMenuOpen = !mobileMenuOpen;
-                menu.style.display = mobileMenuOpen ? 'block' : 'none';
-                const svg1 = menuBtn?.querySelector('svg:first-of-type');
-                const svg2 = menuBtn?.querySelector('svg:last-of-type');
-                if (svg1) svg1.style.display = mobileMenuOpen ? 'none' : 'block';
-                if (svg2) svg2.style.display = mobileMenuOpen ? 'block' : 'none';
-            }
-        }
-        function toggleCartDrawer() {
-            const drawer = document.getElementById('cart-drawer') || document.querySelector('[id*="cart-drawer"]');
-            if (drawer) {
-                const isVisible = drawer.style.display !== 'none';
-                drawer.style.display = isVisible ? 'none' : 'block';
-            }
-        }
-        function closeMenuOnNavClick(e) {
-            if (e && e.closest('a[href]')) {
-                mobileMenuOpen = false;
-                const menu = document.querySelector('[x-show="open"]')?.parentElement;
-                if (menu) menu.style.display = 'none';
-            }
-        }
-    </script>
     <?php if ($autoOpenTool): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

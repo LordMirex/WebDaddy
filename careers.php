@@ -59,7 +59,7 @@ $pageUrl = SITE_URL . '/careers.php';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/premium.css">
-    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         document.documentElement.classList.add('dark');
         if (typeof tailwind !== 'undefined') {
@@ -76,8 +76,8 @@ $pageUrl = SITE_URL . '/careers.php';
             }
         }
     </script>
-    <script defer src="/assets/js/alpine-collapse.min.js"></script>
-    <script defer src="/assets/js/alpine.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-navy">
     <?php include 'includes/layout/header.php'; ?>

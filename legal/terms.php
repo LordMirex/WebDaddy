@@ -24,7 +24,7 @@ $lastUpdated = 'December 2025';
     <meta property="og:description" content="Terms of Service for <?php echo $siteName; ?>. Read our complete terms and conditions.">
     <meta property="og:url" content="<?php echo SITE_URL; ?>/legal/terms.php">
     <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.jpg">
-    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {

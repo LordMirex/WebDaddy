@@ -122,7 +122,7 @@ if ($customerSession && !empty($customerSession['id'])) {
                     <span id="cart-count-mobile-icon" class="<?= $cartCount > 0 ? '' : 'hidden'; ?> absolute -top-1 -right-1 bg-gold text-navy text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"><?= $cartCount; ?></span>
                 </a>
                 <?php endif; ?>
-                <button @click="open = !open" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-gold focus:outline-none" aria-label="Toggle menu">
+                <button @click="open = !open" class="text-gray-300 hover:text-gold focus:outline-none" aria-label="Toggle menu">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="!open">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -138,23 +138,23 @@ if ($customerSession && !empty($customerSession['id'])) {
     <div x-show="open" class="md:hidden bg-navy border-t border-navy-light/50" style="display: none;">
         <div class="px-2 pt-2 pb-4 space-y-1">
             <!-- Home -->
-            <a href="/" @click="open = false" onclick="closeMenuOnNavClick(event)" 
+            <a href="/" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'home' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Home</a>
             
             <!-- Blog -->
-            <a href="/blog/" @click="open = false" onclick="closeMenuOnNavClick(event)"
+            <a href="/blog/" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'blog' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Blog</a>
             
             <!-- About -->
-            <a href="/about.php" @click="open = false" onclick="closeMenuOnNavClick(event)"
+            <a href="/about.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'about' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">About</a>
             
             <!-- Contact -->
-            <a href="/contact.php" @click="open = false" onclick="closeMenuOnNavClick(event)"
+            <a href="/contact.php" @click="open = false" 
                class="block px-4 py-3 rounded-lg <?= $activeNav === 'contact' ? 'text-gold bg-gold/10 border-l-3 border-gold' : 'text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold'; ?> font-medium transition-all">Contact</a>
             
             <!-- Login/My Account -->
-            <a href="<?= $isLoggedIn ? '/user/' : '/user/login.php'; ?>" @click="open = false" onclick="closeMenuOnNavClick(event)" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
+            <a href="<?= $isLoggedIn ? '/user/' : '/user/login.php'; ?>" @click="open = false" class="flex items-center px-4 py-3 rounded-lg text-gray-300 border-l-3 border-transparent hover:bg-navy-light hover:text-gold font-medium transition-all">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
                     <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
@@ -163,7 +163,7 @@ if ($customerSession && !empty($customerSession['id'])) {
             </a>
             
             <!-- Become an Affiliate -->
-            <a href="/affiliate/register.php" @click="open = false" onclick="closeMenuOnNavClick(event)" class="btn-premium-gold block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
+            <a href="/affiliate/register.php" @click="open = false" class="btn-premium-gold block px-4 py-3 rounded-lg text-navy font-semibold text-center transition-all mt-2">Become an Affiliate</a>
         </div>
     </div>
 </nav>
