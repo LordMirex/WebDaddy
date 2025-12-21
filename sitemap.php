@@ -194,44 +194,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <priority>0.5</priority>
     </url>
     
-    <!-- Blog Posts -->
-    <?php 
-    try {
-        $blogPosts = $db->query("
-            SELECT id, slug, updated_at, featured_image 
-            FROM blog_posts 
-            WHERE status = 'published'
-            ORDER BY updated_at DESC
-            LIMIT 50000
-        ");
-        
-        if ($blogPosts) {
-            while ($post = $blogPosts->fetch(PDO::FETCH_ASSOC)): 
-    ?>
-    <url>
-        <loc><?php echo SITE_URL . '/blog/' . htmlspecialchars($post['slug']) . '/'; ?></loc>
-        <lastmod><?php echo date('Y-m-d', strtotime($post['updated_at'])); ?></lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-        <?php if (!empty($post['featured_image'])): ?>
-        <image:image>
-            <image:loc><?php 
-                $imgUrl = $post['featured_image'];
-                if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, '//') !== 0) {
-                    $imgUrl = SITE_URL . $imgUrl;
-                }
-                echo htmlspecialchars($imgUrl); 
-            ?></image:loc>
-        </image:image>
-        <?php endif; ?>
-    </url>
-            <?php endwhile;
-        }
-    } catch (Exception $e) {
-        // Silently skip blog posts if there's an error
-    }
-    ?>
-    
     <!-- Blog Categories -->
     <?php 
     try {
