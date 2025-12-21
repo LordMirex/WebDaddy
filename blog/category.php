@@ -293,7 +293,7 @@ $breadcrumbSchema = blogGenerateBreadcrumbSchema(['title' => $category['name']],
     <script src="/assets/js/blog/interactions.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/assets/alpine.csp.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             setupCartDrawer();

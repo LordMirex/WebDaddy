@@ -1,11 +1,11 @@
-a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-10" data-templates-grid>
+a:5:{s:7:"success";b:1;s:4:"html";s:75782:"        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-10" data-templates-grid>
                         <div style="background: #1e293b; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid rgba(55,65,81,0.5); transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;">
                 <div style="position: relative; overflow: hidden; height: 150px; background: #0f172a;">
                     <img loading="eager"                         src="/uploads/templates/images/image_1764945785_b56be720_thumbnail.jpg"
                          alt="New Military Format"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                                             <button onclick="event.stopPropagation(); openVideoModal('/uploads/templates/videos/video_1764946209_7cf0f93a_87ffc8ece9c89f2f3410df3e1a11f18a_1759453447903.mp4', 'New Military Format')"
                             style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: none; cursor: pointer; z-index: 10; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">
@@ -51,7 +51,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Tesla Live Support"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                                             <button onclick="event.stopPropagation(); openYoutubeModal('XeL6smmO_gg', 'Tesla Live Support')"
                             style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: rgba(15,23,42,0.9); color: white; font-size: 12px; font-weight: 600; border-radius: 9999px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: none; cursor: pointer; z-index: 10; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">
@@ -97,7 +97,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Travel Agency"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -135,7 +135,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Tyhh"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -173,7 +173,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Test 11"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -210,7 +210,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Tesla Live Support 2"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -248,7 +248,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Tesla Live Supphort"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -286,7 +286,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="E-Commerce Shop"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -324,7 +324,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Blog Platform"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -362,7 +362,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Portfolio Gallery"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -400,7 +400,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="SaaS Landing"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -438,7 +438,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Restaurant Site"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -476,7 +476,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Real Estate"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -514,7 +514,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Medical Clinic"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -552,7 +552,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Education Hub"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -590,7 +590,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Tech Startup"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -628,7 +628,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Fitness Studio"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
@@ -666,7 +666,7 @@ a:5:{s:7:"success";b:1;s:4:"html";s:75422:"        <div class="grid grid-cols-1 
                          alt="Fashion Shop"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                                     </div>
                 <div style="padding: 12px; flex-grow: 1; display: flex; flex-direction: column;">
