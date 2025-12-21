@@ -190,9 +190,16 @@ $isInStock = $tool['stock_unlimited'] || $tool['stock_quantity'] > 0;
     <script src="/assets/js/share.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/lazy-load.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/performance.js?v=<?php echo time(); ?>" defer></script>
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('toolNav', () => ({
+            open: false
+        }));
+    });
+    </script>
 </head>
 <body class="bg-gray-900">
-    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
+    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="toolNav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">

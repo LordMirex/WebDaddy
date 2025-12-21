@@ -33,7 +33,7 @@ $navItems = [
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/css/premium.css?v=<?= time() ?>">
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/assets/alpine.csp.min.js"></script>
     <link rel="icon" href="/assets/images/favicon.png" type="image/png">
     <style>
         [x-cloak] { display: none !important; }
@@ -41,7 +41,7 @@ $navItems = [
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <div x-data="{ sidebarOpen: false }" class="flex min-h-screen">
+    <div x-data="userSidebar" class="flex min-h-screen">
         <!-- Mobile sidebar backdrop -->
         <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" 
              class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
@@ -81,6 +81,15 @@ $navItems = [
                 </a>
             </nav>
         </aside>
+        
+        <!-- Alpine.js CSP User Sidebar -->
+        <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('userSidebar', () => ({
+                sidebarOpen: false
+            }));
+        });
+        </script>
         
         <!-- Main content -->
         <div class="flex-1 flex flex-col min-w-0">

@@ -202,10 +202,17 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <script src="/assets/js/performance.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/video-preloader.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>" defer></script>
+    <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('templateNav', () => ({
+            open: false
+        }));
+    });
+    </script>
 </head>
 <body class="bg-gray-900">
     <!-- Navigation -->
-    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="{ open: false }">
+    <nav id="mainNav" class="bg-gray-800 shadow-sm sticky top-0 z-50" x-data="templateNav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">

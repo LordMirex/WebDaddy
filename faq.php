@@ -113,7 +113,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
             <div id="getting-started" class="mb-8">
                 <h2 class="text-2xl font-bold text-white mb-4">Getting Started</h2>
                 
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="{ open: false }">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="faqItem">
                     <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/70 transition-colors text-left">
                         <h3 class="text-lg font-semibold text-white">How do I get started with WebDaddy Empire?</h3>
                         <svg class="w-5 h-5 text-primary-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +152,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
             <div id="purchasing" class="mb-8">
                 <h2 class="text-2xl font-bold text-white mb-4">Purchasing & Payment</h2>
                 
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="{ open: false }">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="faqItem">
                     <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/70 transition-colors text-left">
                         <h3 class="text-lg font-semibold text-white">What payment methods do you accept?</h3>
                         <svg class="w-5 h-5 text-primary-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +196,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
             <div id="customization" class="mb-8">
                 <h2 class="text-2xl font-bold text-white mb-4">Customization & Features</h2>
                 
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="{ open: false }">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="faqItem">
                     <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/70 transition-colors text-left">
                         <h3 class="text-lg font-semibold text-white">Can I customize the website templates?</h3>
                         <svg class="w-5 h-5 text-primary-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +263,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
             <div id="support" class="mb-8">
                 <h2 class="text-2xl font-bold text-white mb-4">Support & Setup</h2>
                 
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="{ open: false }">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="faqItem">
                     <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/70 transition-colors text-left">
                         <h3 class="text-lg font-semibold text-white">Is technical support included with my purchase?</h3>
                         <svg class="w-5 h-5 text-primary-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,7 +310,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
             <div id="technical" class="mb-8">
                 <h2 class="text-2xl font-bold text-white mb-4">Technical Questions</h2>
                 
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="{ open: false }">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="faqItem">
                     <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/70 transition-colors text-left">
                         <h3 class="text-lg font-semibold text-white">What technical skills do I need?</h3>
                         <svg class="w-5 h-5 text-primary-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,7 +394,7 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
             <div id="licensing" class="mb-8">
                 <h2 class="text-2xl font-bold text-white mb-4">Licensing & Updates</h2>
                 
-                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="{ open: false }">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg overflow-hidden" x-data="faqItem">
                     <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-800/70 transition-colors text-left">
                         <h3 class="text-lg font-semibold text-white">Can I use the templates for multiple websites?</h3>
                         <svg class="w-5 h-5 text-primary-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,6 +455,13 @@ $pageKeywords = 'website templates FAQ, digital tools, pricing, delivery, custom
     <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
     <script src="/assets/js/nav-smartness.js"></script>
     <script>
+        // Alpine.js CSP FAQ Accordion Component
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('faqItem', () => ({
+                open: false
+            }));
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             setupCartDrawer();
             updateCartBadge();
