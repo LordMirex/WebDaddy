@@ -56,7 +56,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
         <div class="mb-8 lg:mb-0 lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
             <div class="lg:col-span-4 text-center lg:text-left mb-8 lg:mb-0">
                 <div class="flex items-center gap-3 mb-4 justify-center lg:justify-start">
-                    <img src="<?php echo BASE_PATH; ?>assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-10 md:h-12" loading="lazy" decoding="async">
+                    <img src="/assets/images/webdaddy-logo.png" alt="<?= SITE_NAME ?>" class="h-10 md:h-12" loading="lazy" decoding="async">
                     <span class="text-xl md:text-lg font-bold"><?= SITE_NAME ?></span>
                 </div>
                 <p class="text-gray-400 text-xs md:text-sm mb-4 font-medium">Professional websites & digital tools. Launch in 24 hours.</p>
@@ -166,6 +166,6 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 <!-- Instant Page Load - Prefetches pages on hover for instant navigation -->
 <script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ez8Mcp8KO4jxRoLVY0U0ZsxaZVB1AvZuCy8qX3qMF4Yh+Q5A" crossorigin="anonymous"></script>
 <!-- Scroll Position Restoration - Remembers where you were on each page -->
-<script src="<?php echo BASE_PATH; ?>assets/js/scroll-restoration.js" defer></script>
+<script src="/assets/js/scroll-restoration.js" defer></script>
 <!-- Aggressive Network & Cache Optimization - Desktop & Mobile Speed -->
-<script src="<?php echo BASE_PATH; ?>assets/js/network-optimization.js" defer></script>
+<script src="/assets/js/network-optimization.js" defer></script>

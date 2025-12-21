@@ -82,24 +82,18 @@ define('USER_REFERRAL_DISCOUNT_RATE', 0.20);   // 20% discount for referred user
 // Site Settings
 if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
     $siteUrl = 'https://webdaddy.online';
-    $basePath = '/';
 } else {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'];
     $siteUrl = $protocol . $host;
-    
-    // Calculate BASE_PATH dynamically for subdirectory installations (cPanel shared hosting)
-    $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
-    $basePath = ($scriptDir !== '/' && $scriptDir !== '.') ? rtrim($scriptDir, '/') . '/' : '/';
 }
 define('SITE_URL', $siteUrl);
-define('BASE_PATH', $basePath);
 define('SITE_NAME', 'WebDaddy Empire');
 define('SUPPORT_EMAIL', 'support@webdaddy.online');
 
 // Upload Settings
 define('UPLOAD_DIR', __DIR__ . '/../uploads');
-define('UPLOAD_URL', SITE_URL . BASE_PATH . 'uploads');
+define('UPLOAD_URL', SITE_URL . '/uploads');
 define('MAX_IMAGE_SIZE', 20 * 1024 * 1024);
 define('MAX_VIDEO_SIZE', 500 * 1024 * 1024); // 500MB for video uploads
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']);

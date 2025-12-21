@@ -189,14 +189,14 @@ if ($autoOpenTool) {
     <link rel="canonical" href="<?php echo $pageUrl; ?>">
     
     <!-- Preload critical images for instant display -->
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/webdaddy-logo.png" fetchpriority="high">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/viralcuts.jpg" fetchpriority="high">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/jasper-ai.jpg">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/webflow.jpg">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/intercom.jpg">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/glide-apps.jpg">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/notion.jpg">
-    <link rel="preload" as="image" href="<?php echo BASE_PATH; ?>assets/images/mockups/runway.jpg">
+    <link rel="preload" as="image" href="/assets/images/webdaddy-logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/viralcuts.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/jasper-ai.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/webflow.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/intercom.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/glide-apps.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/notion.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/runway.jpg">
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     
@@ -255,7 +255,7 @@ if ($autoOpenTool) {
     }
     </script>
     
-    <link rel="icon" type="image/png" href="<?php echo BASE_PATH; ?>assets/images/favicon.png">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     
     <!-- Premium Fonts - Inter and Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -263,7 +263,7 @@ if ($autoOpenTool) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Premium UI/UX Styles -->
-    <link rel="stylesheet" href="<?php echo BASE_PATH; ?>assets/css/premium.css">
+    <link rel="stylesheet" href="/assets/css/premium.css">
     
     <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
@@ -701,16 +701,16 @@ if ($autoOpenTool) {
         }
         /* ========== END CUSTOMER AUTH STYLES ========== */
     </style>
-    <script src="<?php echo BASE_PATH; ?>assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/nav-smartness.js?v=<?php echo time(); ?>"></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/smooth-navigation.js?v=<?php echo time(); ?>"></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/forms.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/lazy-load.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/performance.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/video-preloader.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/video-modal.js?v=<?php echo time(); ?>" defer></script>
-    <script src="<?php echo BASE_PATH; ?>assets/js/share.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/loader-controller.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/nav-smartness.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/smooth-navigation.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/forms.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/lazy-load.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/performance.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/video-preloader.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>" defer></script>
+    <script src="/assets/js/share.js?v=<?php echo time(); ?>"></script>
     <?php if ($autoOpenTool): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -773,7 +773,7 @@ if ($autoOpenTool) {
         </svg>
         <div class="loader-center-glow"></div>
         <div class="loader-logo-container">
-            <img src="<?php echo BASE_PATH; ?>assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo" fetchpriority="high">
+            <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy" class="loader-logo" fetchpriority="high">
         </div>
     </div>
     
@@ -861,7 +861,7 @@ if ($autoOpenTool) {
                                 </div>
                             </div>
                             <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-gray-800 via-navy to-gray-900">
-                                <img src="<?php echo BASE_PATH; ?>assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
+                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700 ease-in-out"
                                          :class="currentSlide === index ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
@@ -920,7 +920,7 @@ if ($autoOpenTool) {
                                 </div>
                             </div>
                             <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-gray-800 via-navy to-gray-900">
-                                <img src="<?php echo BASE_PATH; ?>assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
+                                <img src="/assets/images/mockups/viralcuts.jpg" alt="Viralcuts" loading="eager" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-top transition-opacity duration-700" :class="currentSlide === 0 ? 'opacity-100' : 'opacity-0'" onerror="this.classList.add('image-broken'); this.style.display='none';" onload="this.classList.remove('image-broken');">
                                 <template x-for="(slide, index) in slides" :key="index">
                                     <div class="absolute inset-0 transition-all duration-700"
                                          :class="currentSlide === index ? 'opacity-100' : 'opacity-0'"
@@ -1874,7 +1874,7 @@ if ($autoOpenTool) {
     </script>
     
     <!-- Customer Auth Module -->
-    <script src="<?php echo BASE_PATH; ?>assets/js/customer-auth.js"></script>
+    <script src="/assets/js/customer-auth.js"></script>
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('customer', {
