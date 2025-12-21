@@ -711,6 +711,37 @@ if ($autoOpenTool) {
     <script src="/assets/js/video-preloader.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/video-modal.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/share.js?v=<?php echo time(); ?>"></script>
+    <script src="/assets/js/alpine-fallback.js?v=<?php echo time(); ?>" defer></script>
+    <script>
+        // Fallback functions for menu and cart toggles if Alpine.js fails
+        let mobileMenuOpen = false;
+        function toggleMobileMenu() {
+            const menuBtn = document.querySelector('button[aria-label="Toggle menu"]');
+            const menu = document.querySelector('[x-show="open"]')?.parentElement;
+            if (menu) {
+                mobileMenuOpen = !mobileMenuOpen;
+                menu.style.display = mobileMenuOpen ? 'block' : 'none';
+                const svg1 = menuBtn?.querySelector('svg:first-of-type');
+                const svg2 = menuBtn?.querySelector('svg:last-of-type');
+                if (svg1) svg1.style.display = mobileMenuOpen ? 'none' : 'block';
+                if (svg2) svg2.style.display = mobileMenuOpen ? 'block' : 'none';
+            }
+        }
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer') || document.querySelector('[id*="cart-drawer"]');
+            if (drawer) {
+                const isVisible = drawer.style.display !== 'none';
+                drawer.style.display = isVisible ? 'none' : 'block';
+            }
+        }
+        function closeMenuOnNavClick(e) {
+            if (e && e.closest('a[href]')) {
+                mobileMenuOpen = false;
+                const menu = document.querySelector('[x-show="open"]')?.parentElement;
+                if (menu) menu.style.display = 'none';
+            }
+        }
+    </script>
     <?php if ($autoOpenTool): ?>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
