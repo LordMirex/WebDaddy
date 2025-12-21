@@ -2,6 +2,11 @@
 Options -Indexes
 DirectoryIndex index.php index.html
 
+# Add MIME types for web manifest and feeds
+AddType application/manifest+json .webmanifest
+AddType application/atom+xml .atom
+AddType application/rss+xml .rss
+
 # ------------------------------------------------------------------
 # 1. Force HTTPS + non-www (dynamic domain handling)
 # ------------------------------------------------------------------
