@@ -175,7 +175,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                          alt="<?php echo htmlspecialchars($template['name']); ?>"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                     <?php 
                     $mediaType = $template['media_type'] ?? 'banner';
@@ -275,7 +275,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
                          alt="<?php echo htmlspecialchars($tool['name']); ?>"
                          width="1280" height="720"
                          style="width: 100%; height: 100%; object-fit: cover; transition: all 0.3s ease;"
-                         onerror="this.src='/assets/images/placeholder.jpg'"
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;"
                          decoding="async">
                     <?php 
                     $toolMediaType = $tool['media_type'] ?? 'banner';
