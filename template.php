@@ -134,8 +134,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <link rel="stylesheet" href="/assets/css/premium.css">
     
     <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/assets/alpine-collapse.csp.min.js"></script>
+    <script defer src="/assets/alpine.csp.min.js"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
