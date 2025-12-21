@@ -61,7 +61,7 @@ if ($customerSession && !empty($customerSession['id'])) {
 </script>
 
 <!-- Premium Navigation -->
-<nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50 overflow-visible" x-data="{ open: false }">
+<nav id="mainNav" class="bg-navy border-b border-navy-light/50 sticky top-0 z-50 overflow-visible" x-data="navMenu">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
         <div class="flex justify-between h-16 overflow-visible">
             <!-- Logo -->
@@ -167,4 +167,13 @@ if ($customerSession && !empty($customerSession['id'])) {
         </div>
     </div>
 </nav>
+
+<!-- Alpine.js CSP Navigation Component Registration -->
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('navMenu', () => ({
+        open: false
+    }));
+});
+</script>
 
