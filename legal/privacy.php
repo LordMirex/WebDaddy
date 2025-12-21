@@ -24,7 +24,7 @@ $lastUpdated = 'December 2025';
     <meta property="og:description" content="Privacy Policy for <?php echo $siteName; ?>. Learn how we collect, use, and protect your personal data.">
     <meta property="og:url" content="<?php echo SITE_URL; ?>/legal/privacy.php">
     <meta property="og:image" content="<?php echo SITE_URL; ?>/assets/images/og-image.jpg">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css">
     <script>
         tailwind.config = {
             theme: {

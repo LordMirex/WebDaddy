@@ -263,11 +263,13 @@ if ($autoOpenTool) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Premium UI/UX Styles -->
-    <link rel="stylesheet" href="/assets/css/premium.css">
+    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/cdn-fix.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/premium.css?v=<?php echo time(); ?>">
     
-    <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Local Alpine.js - No CDN Dependency -->
+    <script defer src="/assets/js/alpine-collapse.min.js"></script>
+    <script defer src="/assets/js/alpine.min.js"></script>
     <script>
         // Store WhatsApp number for JavaScript use in dynamic messages
         window.whatsappNumber = '<?php echo $whatsappNumberForJs; ?>';

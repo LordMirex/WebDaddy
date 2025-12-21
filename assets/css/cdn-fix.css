@@ -1,0 +1,45 @@
+/* Emergency CDN Fix - Ensures site always works */
+/* This file ensures all critical styles are available locally */
+
+/* Make sure text is visible */
+body {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Make sure nav is visible and functional */
+nav {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+/* All interactive elements must be clickable */
+button, a, input, select {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Fix any hidden elements */
+[style*="display: none"] {
+    /* Alpine.js will override when loaded */
+}
+
+/* Ensure all links work */
+a {
+    cursor: pointer;
+    user-select: auto;
+}
+
+/* Emergency loading state */
+body.loader-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Make sure images don't break layout */
+img {
+    max-width: 100%;
+    height: auto;
+}

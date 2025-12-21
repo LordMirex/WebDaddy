@@ -85,8 +85,8 @@ $breadcrumbSchema = blogGenerateBreadcrumbSchema(['title' => $category['name']],
     <link rel="stylesheet" href="/assets/css/blog/blocks.css">
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css">
+    <script defer src="/assets/js/alpine-collapse.min.js"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
@@ -293,7 +293,7 @@ $breadcrumbSchema = blogGenerateBreadcrumbSchema(['title' => $category['name']],
     <script src="/assets/js/blog/interactions.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/assets/js/alpine.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             setupCartDrawer();
