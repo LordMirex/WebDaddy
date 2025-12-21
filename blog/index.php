@@ -93,15 +93,15 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700/assets/css/google-fonts.cssfamily=Plus+Jakarta+Sans:wght@600;700;800/assets/css/google-fonts.cssdisplay=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/premium.css">
     <link rel="stylesheet" href="/assets/css/blog/main.css">
     <link rel="stylesheet" href="/assets/css/blog/blocks.css">
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
-    <link rel="stylesheet" href="/assets/css/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
-    <link href="/assets/css/tailwind.min.css" rel="stylesheet"><script defer src="/assets/js/alpine.min.js"></script>
-    <script defer src="/assets/js/alpine-collapse.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
@@ -363,7 +363,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <script src="/assets/js/blog/image-validator.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
-    <script defer src="/assets/js/alpine.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         // Initialize cart drawer and update badge on page load
         document.addEventListener('DOMContentLoaded', function() {

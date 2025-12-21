@@ -611,8 +611,8 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<link href="/assets/css/quill.snow.css" rel="stylesheet">
-<script src="/assets/js/quill.min.js"></script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const unifiedEditorElement = document.getElementById('unified-email-editor');
