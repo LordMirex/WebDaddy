@@ -241,4 +241,33 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     }
     ?>
     
+    <!-- Blog Tags - SEO Optimization for Better Rankings -->
+    <?php 
+    try {
+        $blogTags = $db->query("
+            SELECT DISTINCT t.slug, MAX(t.created_at) as updated_at 
+            FROM blog_tags t
+            INNER JOIN blog_post_tags pt ON t.id = pt.tag_id
+            INNER JOIN blog_posts p ON pt.post_id = p.id
+            WHERE p.status = 'published'
+            GROUP BY t.id, t.slug
+            ORDER BY updated_at DESC
+        ");
+        
+        if ($blogTags) {
+            while ($tag = $blogTags->fetch(PDO::FETCH_ASSOC)): 
+    ?>
+    <url>
+        <loc><?php echo SITE_URL . '/blog/tag/' . htmlspecialchars($tag['slug']) . '/'; ?></loc>
+        <lastmod><?php echo date('Y-m-d', strtotime($tag['updated_at'])); ?></lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+    </url>
+            <?php endwhile;
+        }
+    } catch (Exception $e) {
+        // Silently skip blog tags if there's an error
+    }
+    ?>
+    
 </urlset>
