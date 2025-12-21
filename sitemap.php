@@ -27,7 +27,7 @@ $tools = getTools(true, null, null, null, false);
 
 // Get all published blog posts (Phase 3 SEO)
 $blogPost = new BlogPost($db);
-$allBlogPosts = $db->query("SELECT id, slug, updated_at, publish_date FROM blog_posts WHERE status = 'published' ORDER BY publish_date DESC")->fetchAll(PDO::FETCH_ASSOC);
+$allBlogPosts = $db->query("SELECT id, slug, updated_at, publish_date, featured_image FROM blog_posts WHERE status = 'published' ORDER BY publish_date DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 // Get unique template categories
 $templateCategories = [];
@@ -175,6 +175,21 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <lastmod><?php echo date('Y-m-d', strtotime($post['updated_at'] ?? $post['publish_date'])); ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
+        <?php if (!empty($post['featured_image'])): ?>
+        <image:image>
+            <image:loc><?php 
+                $imgUrl = $post['featured_image'];
+                // Ensure absolute URL - add domain if missing
+                if (strpos($imgUrl, 'http://') !== 0 && strpos($imgUrl, 'https://') !== 0) {
+                    // Remove leading slash if present, then add full URL
+                    $imgUrl = ltrim($imgUrl, '/');
+                    $imgUrl = SITE_URL . '/' . $imgUrl;
+                }
+                echo htmlspecialchars($imgUrl); 
+            ?></image:loc>
+            <image:title><?php echo htmlspecialchars($post['slug']); ?></image:title>
+        </image:image>
+        <?php endif; ?>
     </url>
     <?php endforeach; ?>
     
