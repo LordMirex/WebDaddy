@@ -78,9 +78,15 @@ $toc = blogExtractTableOfContents($blocks);
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">
     <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     
     <?php if ($post['focus_keyword']): ?>
     <meta name="keywords" content="<?= htmlspecialchars($post['focus_keyword']) ?>">
+    <?php endif; ?>
+    
+    <meta name="author" content="<?= htmlspecialchars($post['author_name']) ?>">
+    <meta name="article:author" content="<?= htmlspecialchars($post['author_name']) ?>"><?php if (!empty($post['reading_time_minutes'])): ?>
+    <meta name="reading-time" content="<?= $post['reading_time_minutes'] ?> min">
     <?php endif; ?>
     
     <meta property="og:title" content="<?= htmlspecialchars($post['og_title'] ?: $post['title']) ?>">
@@ -223,9 +229,12 @@ $toc = blogExtractTableOfContents($blocks);
                 <?php if ($post['featured_image']): ?>
                 <div class="blog-article-featured-image-wrapper">
                     <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
-                         alt="<?= htmlspecialchars(blogGetFeaturedImageAlt($post)) ?>"
+                         alt="<?= !empty(blogGetFeaturedImageAlt($post)) ? htmlspecialchars(blogGetFeaturedImageAlt($post)) : htmlspecialchars($post['title']) ?>"
+                         title="<?= htmlspecialchars($post['title']) ?>"
                          class="blog-article-featured-image"
-                         loading="eager">
+                         loading="eager"
+                         width="1200"
+                         height="630">
                 </div>
                 <?php endif; ?>
                 

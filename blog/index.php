@@ -42,10 +42,12 @@ $showMobileCTA = true;
 
 $pageTitle = 'Blog | ' . SITE_NAME;
 $pageDescription = 'Expert insights on website design, SEO, e-commerce, and digital marketing for Nigerian businesses. Learn how to grow your online presence.';
+$isSearchResults = false;
 
 // Search functionality
 $searchQuery = $_GET['search'] ?? '';
 if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
+    $isSearchResults = true;
     $search = '%' . $searchQuery . '%';
     
     // Improved search with relevance ranking
@@ -80,16 +82,47 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">
     <link rel="canonical" href="<?= SITE_URL ?>/blog/">
+    <?php if ($isSearchResults): ?>
+    <meta name="robots" content="noindex, follow">
+    <?php else: ?>
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <?php endif; ?>
     
     <meta property="og:title" content="<?= htmlspecialchars($pageTitle) ?>">
     <meta property="og:description" content="<?= htmlspecialchars($pageDescription) ?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= SITE_URL ?>/blog/">
     <meta property="og:site_name" content="<?= SITE_NAME ?>">
+    <?php if (!empty($posts[0]['featured_image'])): ?>
+    <meta property="og:image" content="<?= htmlspecialchars($posts[0]['featured_image']) ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <?php endif; ?>
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle) ?>">
     <meta name="twitter:description" content="<?= htmlspecialchars($pageDescription) ?>">
+    <?php if (!empty($posts[0]['featured_image'])): ?>
+    <meta name="twitter:image" content="<?= htmlspecialchars($posts[0]['featured_image']) ?>">
+    <?php endif; ?>
+    
+    <!-- Structured Data: Blog Collection -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "<?= htmlspecialchars($pageTitle) ?>",
+        "description": "<?= htmlspecialchars($pageDescription) ?>",
+        "url": "<?= SITE_URL ?>/blog/",
+        "mainEntity": {
+            "@type": "Blog",
+            "name": "WebDaddy Blog",
+            "url": "<?= SITE_URL ?>/blog/",
+            "description": "<?= htmlspecialchars($pageDescription) ?>"
+        }
+    }
+    </script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -216,11 +249,14 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                         <a href="<?= blogGetPostUrl($post, $affiliateCode) ?>" class="blog-card-image-link">
                             <?php if ($post['featured_image']): ?>
                             <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
-                                 alt="<?= htmlspecialchars(blogGetFeaturedImageAlt($post)) ?>"
+                                 alt="<?= !empty(blogGetFeaturedImageAlt($post)) ? htmlspecialchars(blogGetFeaturedImageAlt($post)) : htmlspecialchars($post['title']) ?>"
+                                 title="<?= htmlspecialchars($post['title']) ?>"
                                  class="blog-card-image"
                                  data-validate-image
                                  data-placeholder-id="placeholder-<?= $post['id'] ?>"
-                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>">
+                                 loading="<?= $index < 4 ? 'eager' : 'lazy' ?>"
+                                 width="800"
+                                 height="600">
                             <?php endif; ?>
                             <div class="blog-card-image-placeholder" id="placeholder-<?= $post['id'] ?>" style="display:none;">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
