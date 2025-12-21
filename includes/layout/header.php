@@ -175,9 +175,11 @@ if ($customerSession && !empty($customerSession['id'])) {
 <!-- Alpine.js CSP Navigation Component Registration -->
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('navMenu', () => ({
-        open: false
-    }));
+    if (!Alpine.data('navMenu')) {
+        Alpine.data('navMenu', () => ({
+            open: false
+        }));
+    }
 });
 </script>
 

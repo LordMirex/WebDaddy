@@ -200,6 +200,45 @@ if ($autoOpenTool) {
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     
+    <script>
+    /**
+     * Shared Hosting Image Path Resolver
+     * Ensures images load correctly even if relative paths are inconsistent
+     */
+    function fixImagePath(img) {
+        if (!img || img.dataset.fixed) return;
+        const originalSrc = img.src;
+        
+        // If already a placeholder or remote, stop
+        if (originalSrc.includes('placeholder.jpg') || originalSrc.startsWith('http')) {
+            img.dataset.fixed = 'true';
+            return;
+        }
+
+        // Handle path inconsistencies on shared hosting
+        // Ensure paths always start from root /assets or /uploads
+        const assetsIdx = originalSrc.indexOf('/assets/');
+        const uploadsIdx = originalSrc.indexOf('/uploads/');
+        
+        if (assetsIdx !== -1 || uploadsIdx !== -1) {
+            const rootPath = assetsIdx !== -1 
+                ? originalSrc.substring(assetsIdx) 
+                : originalSrc.substring(uploadsIdx);
+                
+            if (rootPath !== originalSrc) {
+                img.src = rootPath;
+                img.dataset.fixed = 'true';
+            }
+        }
+        
+        img.onerror = function() {
+            this.src = '/assets/images/placeholder.jpg';
+            this.onerror = null;
+            this.dataset.fixed = 'true';
+        };
+    }
+    </script>
+    
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="<?php echo $ogType; ?>">
     <meta property="og:title" content="<?php echo $pageTitle; ?>">

@@ -88,19 +88,19 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                 <div class="text-center lg:text-left">
                     <h4 class="text-white font-semibold text-sm mb-4">Support</h4>
                     <ul class="space-y-2.5">
-                        <li><a href="/faq.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors block py-1">FAQ</a></li>
-                        <li><a href="/contact.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors block py-1">Contact</a></li>
-                        <li><a href="/blog/<?= $affQueryStart ?>" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors block py-1">Blog</a></li>
+                        <li><a href="/faq.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-all duration-200 block py-3 px-2 -mx-2 hover:bg-white/5 rounded-md">FAQ</a></li>
+                        <li><a href="/contact.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-all duration-200 block py-3 px-2 -mx-2 hover:bg-white/5 rounded-md">Contact</a></li>
+                        <li><a href="/blog/<?= $affQueryStart ?>" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-all duration-200 block py-3 px-2 -mx-2 hover:bg-white/5 rounded-md">Blog</a></li>
                     </ul>
                 </div>
 
                 <!-- Company Column -->
                 <div class="text-center lg:text-left">
                     <h4 class="text-white font-semibold text-sm mb-4">Company</h4>
-                    <ul class="space-y-2.5">
-                        <li><a href="/about.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors block py-1">About</a></li>
-                        <li><a href="/careers.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors block py-1">Careers</a></li>
-                        <li><a href="/affiliate/register.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-colors block py-1">Affiliate</a></li>
+                    <ul class="space-y-1">
+                        <li><a href="/about.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-all duration-200 block py-3 px-2 -mx-2 hover:bg-white/5 rounded-md">About</a></li>
+                        <li><a href="/careers.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-all duration-200 block py-3 px-2 -mx-2 hover:bg-white/5 rounded-md">Careers</a></li>
+                        <li><a href="/affiliate/register.php" class="text-gray-400 hover:text-gold text-xs md:text-sm transition-all duration-200 block py-3 px-2 -mx-2 hover:bg-white/5 rounded-md">Affiliate</a></li>
                     </ul>
                 </div>
             </div>

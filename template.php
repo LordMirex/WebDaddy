@@ -197,6 +197,43 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
             transform: translateY(-1px);
         }
     </style>
+    <script>
+    /**
+     * Shared Hosting Image Path Resolver
+     * Ensures images load correctly even if relative paths are inconsistent
+     */
+    function fixImagePath(img) {
+        if (!img || img.dataset.fixed) return;
+        const originalSrc = img.src;
+        
+        // If already a placeholder or remote, stop
+        if (originalSrc.includes('placeholder.jpg') || originalSrc.startsWith('http')) {
+            img.dataset.fixed = 'true';
+            return;
+        }
+
+        // Handle path inconsistencies on shared hosting
+        const assetsIdx = originalSrc.indexOf('/assets/');
+        const uploadsIdx = originalSrc.indexOf('/uploads/');
+        
+        if (assetsIdx !== -1 || uploadsIdx !== -1) {
+            const rootPath = assetsIdx !== -1 
+                ? originalSrc.substring(assetsIdx) 
+                : originalSrc.substring(uploadsIdx);
+                
+            if (rootPath !== originalSrc) {
+                img.src = rootPath;
+                img.dataset.fixed = 'true';
+            }
+        }
+        
+        img.onerror = function() {
+            this.src = '/assets/images/placeholder.jpg';
+            this.onerror = null;
+            this.dataset.fixed = 'true';
+        };
+    }
+    </script>
     <script src="/assets/js/forms.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/cart-and-tools.js?v=<?php echo time(); ?>" defer></script>
     <script src="/assets/js/share.js?v=<?php echo time(); ?>" defer></script>
@@ -335,7 +372,8 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>" 
                          class="w-full rounded-xl shadow-2xl"
-                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null; this.classList.add('opacity-50');">
+                         onload="fixImagePath(this)"
+                         onerror="fixImagePath(this)">
                 </div>
 
                 <?php 
