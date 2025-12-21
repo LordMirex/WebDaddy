@@ -134,9 +134,9 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
         <div class="mt-8 pt-6 border-t border-gray-700/50 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
             <p>&copy; <?= date('Y') ?> <?= SITE_NAME ?></p>
             <div class="flex gap-6">
-                <a href="/legal/privacy.php" class="hover:text-gold transition-colors">Privacy</a>
-                <a href="/legal/terms.php" class="hover:text-gold transition-colors">Terms</a>
-                <a href="/legal/status.php" class="hover:text-gold transition-colors">Status</a>
+                <a href="/legal/privacy.php" class="hover:text-gold transition-colors underline decoration-gold/30">Privacy</a>
+                <a href="/legal/terms.php" class="hover:text-gold transition-colors underline decoration-gold/30">Terms</a>
+                <a href="/legal/status.php" class="hover:text-gold transition-colors underline decoration-gold/30">Status</a>
             </div>
         </div>
     </div>
