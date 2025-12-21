@@ -78,8 +78,7 @@ $pageUrl = SITE_URL . '/careers.php';
             }
         }
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/assets/alpine.csp.min.js"></script>
 </head>
 <body class="bg-navy">
     <?php include 'includes/layout/header.php'; ?>
