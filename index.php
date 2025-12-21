@@ -826,21 +826,7 @@ if ($autoOpenTool) {
             </div>
                 
             <!-- Right Side (40%) - Animated Website Mockup Slideshow with Portfolio Images -->
-            <div class="md:w-2/5 hidden md:block order-2 md:order-2" x-data="{ 
-                    currentSlide: 0,
-                    slides: [
-                        { image: '/assets/images/mockups/viralcuts.jpg', title: 'Viralcuts' },
-                        { image: '/assets/images/mockups/jasper-ai.jpg', title: 'Jasper AI' },
-                        { image: '/assets/images/mockups/webflow.jpg', title: 'Webflow' },
-                        { image: '/assets/images/mockups/intercom.jpg', title: 'Intercom' },
-                        { image: '/assets/images/mockups/glide-apps.jpg', title: 'Glide Apps' },
-                        { image: '/assets/images/mockups/notion.jpg', title: 'Notion' },
-                        { image: '/assets/images/mockups/runway.jpg', title: 'Runway' }
-                    ],
-                    init() {
-                        setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides.length }, 4000)
-                    }
-                }">
+            <div class="md:w-2/5 hidden md:block order-2 md:order-2" x-data="desktopSlider">
                     <div class="relative group">
                         <!-- Subtle glow effect behind the laptop -->
                         <div class="absolute -inset-4 bg-gradient-to-r from-gold/8 via-gold/4 to-gold/8 rounded-2xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
@@ -855,7 +841,7 @@ if ($autoOpenTool) {
                                 <div class="flex-1 ml-3">
                                     <div class="bg-navy/80 backdrop-blur rounded-lg px-3 py-1 text-xs text-gray-400 max-w-xs flex items-center gap-2">
                                         <svg class="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                                        <span x-text="slides[currentSlide].title.toLowerCase().replace(/\s+/g, '') + '.com'"></span>
+                                        <span x-text="slideTitleDomain()"></span>
                                     </div>
                                 </div>
                             </div>
@@ -886,21 +872,7 @@ if ($autoOpenTool) {
                 </div>
                 
             <!-- Mobile Laptop Mockup Slider - Shows on mobile only -->
-            <div class="md:hidden w-full order-2 md:order-2" x-data="{ 
-                    currentSlide: 0,
-                    slides: [
-                        { image: '/assets/images/mockups/viralcuts.jpg', title: 'Viralcuts' },
-                        { image: '/assets/images/mockups/jasper-ai.jpg', title: 'Jasper AI' },
-                        { image: '/assets/images/mockups/webflow.jpg', title: 'Webflow' },
-                        { image: '/assets/images/mockups/intercom.jpg', title: 'Intercom' },
-                        { image: '/assets/images/mockups/glide-apps.jpg', title: 'Glide Apps' },
-                        { image: '/assets/images/mockups/notion.jpg', title: 'Notion' },
-                        { image: '/assets/images/mockups/runway.jpg', title: 'Runway' }
-                    ],
-                    init() {
-                        setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides.length }, 4000)
-                    }
-                }">
+            <div class="md:hidden w-full order-2 md:order-2" x-data="mobileSlider">
                     <div class="relative mx-auto max-w-sm">
                         <!-- Subtle glow effect -->
                         <div class="absolute -inset-2 bg-gradient-to-r from-gold/8 via-gold/3 to-gold/8 rounded-xl blur-lg opacity-50"></div>
@@ -914,7 +886,7 @@ if ($autoOpenTool) {
                                 <div class="flex-1 ml-2">
                                     <div class="bg-navy/80 rounded px-2 py-0.5 text-[10px] text-gray-400 flex items-center gap-1">
                                         <svg class="w-2.5 h-2.5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                                        <span x-text="slides[currentSlide].title.toLowerCase().replace(/\s+/g, '') + '.com'"></span>
+                                        <span x-text="slideTitleDomain()"></span>
                                     </div>
                                 </div>
                             </div>
@@ -1002,54 +974,9 @@ if ($autoOpenTool) {
     </header>
 
     <!-- Smart WhatsApp Button with Message Carousel -->
-    <div x-data="{ 
-        messages: [
-            'Need a custom website?',
-            'Let\'s bring your idea to life',
-            '24/7 support on WhatsApp',
-            'Templates from ₦150,000'
-        ],
-        currentIndex: 0,
-        showMessage: false,
-        isNearHeaderOrFooter: false,
-        init() {
-            this.showMessage = true;
-            setInterval(() => {
-                this.showMessage = false;
-                setTimeout(() => {
-                    this.currentIndex = (this.currentIndex + 1) % this.messages.length;
-                    this.showMessage = true;
-                }, 9000);
-            }, 15000);
-            
-            // Detect when user is near header or footer
-            window.addEventListener('scroll', () => {
-                const scrollPos = window.scrollY;
-                const windowHeight = window.innerHeight;
-                const docHeight = document.documentElement.scrollHeight;
-                const footerStart = docHeight - (windowHeight * 1.5); // Hide when within 1.5x viewport height of footer
-                
-                // Hide message when near header (top 300px) or footer
-                this.isNearHeaderOrFooter = scrollPos < 300 || scrollPos > footerStart;
-            });
-            
-            // Check initial position
-            const scrollPos = window.scrollY;
-            const windowHeight = window.innerHeight;
-            const docHeight = document.documentElement.scrollHeight;
-            const footerStart = docHeight - (windowHeight * 1.5);
-            this.isNearHeaderOrFooter = scrollPos < 300 || scrollPos > footerStart;
-        },
-        getContextualMessage() {
-            const page = window.location.pathname;
-            if (page.includes('template')) return 'Hi! I\'m viewing a template and need help.';
-            if (page.includes('order')) return 'Hi! I\'m on the order page and need assistance.';
-            return 'Hi! I\'m on <?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? 'your website'); ?> and need help.';
-        }
-    }" 
-    class="fixed bottom-4 left-0 z-50">
+    <div x-data="whatsappCarousel" class="fixed bottom-4 left-0 z-50">
         <!-- WhatsApp Icon Button (40px) -->
-        <a :href="'https://wa.me/<?php echo preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER); ?>?text=' + encodeURIComponent(getContextualMessage())" 
+        <a :href="getWhatsAppUrl()" 
            target="_blank"
            x-transition:enter="transition ease-out duration-[2000ms]"
            x-transition:enter-start="opacity-0 -translate-x-4"
@@ -1890,6 +1817,100 @@ if ($autoOpenTool) {
                 customer: null,
                 async init() {
                     this.customer = await checkCustomerSession();
+                }
+            }));
+            
+            // Desktop Slider Component
+            Alpine.data('desktopSlider', () => ({
+                currentSlide: 0,
+                slides: [
+                    { image: '/assets/images/mockups/viralcuts.jpg', title: 'Viralcuts' },
+                    { image: '/assets/images/mockups/jasper-ai.jpg', title: 'Jasper AI' },
+                    { image: '/assets/images/mockups/webflow.jpg', title: 'Webflow' },
+                    { image: '/assets/images/mockups/intercom.jpg', title: 'Intercom' },
+                    { image: '/assets/images/mockups/glide-apps.jpg', title: 'Glide Apps' },
+                    { image: '/assets/images/mockups/notion.jpg', title: 'Notion' },
+                    { image: '/assets/images/mockups/runway.jpg', title: 'Runway' }
+                ],
+                slideTitleDomain() {
+                    const title = this.slides[this.currentSlide].title;
+                    return title.toLowerCase().replaceAll(' ', '') + '.com';
+                },
+                init() {
+                    setInterval(() => {
+                        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                    }, 4000);
+                }
+            }));
+            
+            // Mobile Slider Component
+            Alpine.data('mobileSlider', () => ({
+                currentSlide: 0,
+                slides: [
+                    { image: '/assets/images/mockups/viralcuts.jpg', title: 'Viralcuts' },
+                    { image: '/assets/images/mockups/jasper-ai.jpg', title: 'Jasper AI' },
+                    { image: '/assets/images/mockups/webflow.jpg', title: 'Webflow' },
+                    { image: '/assets/images/mockups/intercom.jpg', title: 'Intercom' },
+                    { image: '/assets/images/mockups/glide-apps.jpg', title: 'Glide Apps' },
+                    { image: '/assets/images/mockups/notion.jpg', title: 'Notion' },
+                    { image: '/assets/images/mockups/runway.jpg', title: 'Runway' }
+                ],
+                slideTitleDomain() {
+                    const title = this.slides[this.currentSlide].title;
+                    return title.toLowerCase().replaceAll(' ', '') + '.com';
+                },
+                init() {
+                    setInterval(() => {
+                        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+                    }, 4000);
+                }
+            }));
+            
+            // WhatsApp Carousel Component
+            Alpine.data('whatsappCarousel', () => ({
+                messages: [
+                    'Need a custom website?',
+                    'Let\'s bring your idea to life',
+                    '24/7 support on WhatsApp',
+                    'Templates from ₦150,000'
+                ],
+                currentIndex: 0,
+                showMessage: false,
+                isNearHeaderOrFooter: false,
+                getContextualMessage() {
+                    const page = window.location.pathname;
+                    if (page.includes('template')) return 'Hi! I\'m viewing a template and need help.';
+                    if (page.includes('order')) return 'Hi! I\'m on the order page and need assistance.';
+                    return 'Hi! I\'m on your website and need help.';
+                },
+                getWhatsAppUrl() {
+                    const phoneNumber = '2349132672126';
+                    const message = this.getContextualMessage();
+                    return 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
+                },
+                init() {
+                    this.showMessage = true;
+                    setInterval(() => {
+                        this.showMessage = false;
+                        setTimeout(() => {
+                            this.currentIndex = (this.currentIndex + 1) % this.messages.length;
+                            this.showMessage = true;
+                        }, 9000);
+                    }, 15000);
+                    
+                    window.addEventListener('scroll', () => {
+                        const scrollPos = window.scrollY;
+                        const windowHeight = window.innerHeight;
+                        const docHeight = document.documentElement.scrollHeight;
+                        const footerStart = docHeight - (windowHeight * 1.5);
+                        this.isNearHeaderOrFooter = scrollPos < 300 || scrollPos > footerStart;
+                    });
+                    
+                    const scrollPos = window.scrollY;
+                    const windowHeight = window.innerHeight;
+                    const docHeight = document.documentElement.scrollHeight;
+                    const footerStart = docHeight - (windowHeight * 1.5);
+                    this.isNearHeaderOrFooter = scrollPos < 300 || scrollPos > footerStart;
                 }
             }));
         });
