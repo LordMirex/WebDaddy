@@ -134,7 +134,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
     <link rel="stylesheet" href="/assets/css/premium.css">
     
     <script src="https://cdn.tailwindcss.com?v=<?php echo time(); ?>"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/csp@3/dist/cdn.min.js"></script>
+    <script defer src="/assets/alpine.csp.min.js"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
