@@ -100,8 +100,8 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <link rel="stylesheet" href="/assets/css/blog/sticky-rail.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <link href="/assets/css/tailwind.min.css" rel="stylesheet"><script defer src="/assets/js/alpine.min.js"></script>
+    <script defer src="/assets/js/alpine-collapse.min.js"></script>
     <script>
         if (typeof tailwind !== 'undefined') {
         tailwind.config = {
@@ -363,7 +363,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <script src="/assets/js/blog/image-validator.js"></script>
     <script src="/assets/js/customer-auth.js"></script>
     <script src="/assets/js/nav-smartness.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="/assets/js/alpine.min.js"></script>
     <script>
         // Initialize cart drawer and update badge on page load
         document.addEventListener('DOMContentLoaded', function() {

@@ -8,7 +8,7 @@ http_response_code(404);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Not Found - <?php echo SITE_NAME; ?></title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/assets/css/tailwind.min.css" rel="stylesheet"><script defer src="/assets/js/alpine.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
