@@ -259,6 +259,10 @@ if ($autoOpenTool) {
     <link rel="manifest" href="/site.webmanifest">
     <link rel="apple-touch-icon" href="/assets/images/favicon.png">
     
+    <!-- Favicon -->
+    <link rel="icon" href="https://webdaddy.online/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://webdaddy.online/favicon.ico" type="image/x-icon">
+    
     <!-- Premium Fonts - Inter and Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

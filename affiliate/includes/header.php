@@ -10,10 +10,12 @@
     <script defer src="/assets/alpine.csp.min.js"></script>
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('sidebarManager', () => ({
-                sidebarOpen: false,
-                open: false
-            }));
+            if (!Alpine.data('sidebarManager')) {
+                Alpine.data('sidebarManager', () => ({
+                    sidebarOpen: false,
+                    open: false
+                }));
+            }
         });
     </script>
     <script>

@@ -335,7 +335,7 @@ $features = $template['features'] ? explode(',', $template['features']) : [];
                     <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                          alt="<?php echo htmlspecialchars($template['name']); ?>" 
                          class="w-full rounded-xl shadow-2xl"
-                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null;">
+                         onerror="this.src='/assets/images/placeholder.jpg'; this.onerror=null; this.classList.add('opacity-50');">
                 </div>
 
                 <?php 
