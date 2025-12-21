@@ -140,21 +140,32 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                     <p class="blog-hero-subtitle">Expert insights on website design, SEO, e-commerce, and digital marketing</p>
                     <p class="blog-hero-count"><?= $totalPosts ?> Articles | Updated Daily</p>
                     
-                    <!-- Search Bar with Autocomplete -->
-                    <form method="GET" action="/blog/" class="blog-search-form" id="blogSearchForm">
-                        <div class="blog-search-wrapper">
+                    <!-- Modern Search UI -->
+                    <form method="GET" action="/blog/" class="blog-search-form-modern" id="blogSearchForm">
+                        <div class="blog-search-modern-wrapper">
+                            <svg class="blog-search-modern-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <polyline points="21 21 11 11"></polyline>
+                            </svg>
                             <input type="text" 
                                    name="search" 
-                                   placeholder="Search blog posts..." 
+                                   placeholder="Search articles..." 
                                    value="<?= htmlspecialchars($searchQuery) ?>"
-                                   class="blog-search-input"
+                                   class="blog-search-modern-input"
                                    aria-label="Search blog posts"
                                    id="blogSearchInput"
                                    autocomplete="off">
-                            <i class="bi bi-search blog-search-icon"></i>
+                            <?php if (!empty($searchQuery)): ?>
+                            <button type="reset" class="blog-search-modern-clear" aria-label="Clear search">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                            <?php endif; ?>
                             
-                            <!-- Autocomplete Dropdown -->
-                            <div class="blog-search-suggestions" id="blogSearchSuggestions"></div>
+                            <!-- Search Suggestions Dropdown -->
+                            <div class="blog-search-suggestions-modern" id="blogSearchSuggestions"></div>
                         </div>
                     </form>
                     
