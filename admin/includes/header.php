@@ -6,7 +6,7 @@
     <title><?php echo $pageTitle ?? 'Admin Panel'; ?> - <?php echo SITE_NAME; ?></title>
     
     <link href="/assets/css/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/assets/css/tailwind.min.css" rel="stylesheet">
     <script defer src="/assets/js/alpine-collapse.min.js"></script>
     <script defer src="/assets/js/alpine.min.js"></script>
     <script>
