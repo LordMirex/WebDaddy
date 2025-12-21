@@ -1974,7 +1974,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     </div>
     
     <!-- Load Paystack SDK -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="/assets/js/paystack.js"></script>
     
     <script>
         // DIRECT radio button selection

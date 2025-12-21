@@ -45,7 +45,7 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
     <title>Create Account - WebDaddy Empire</title>
     <link href="/assets/css/tailwind.min.css" rel="stylesheet"><script defer src="/assets/js/alpine.min.js"></script>
     <script defer src="/assets/js/alpine.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap-icons.css">
     <link rel="icon" href="/assets/images/favicon.png" type="image/png">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">

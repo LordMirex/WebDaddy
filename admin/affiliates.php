@@ -1899,8 +1899,8 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Quill Rich Text Editor -->
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<link href="/assets/css/quill.snow.css" rel="stylesheet">
+<script src="/assets/js/quill.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -320,7 +320,7 @@ $partialDeliveryData = function_exists('getOrdersWithPartialDelivery') ? getOrde
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/assets/js/chart.umd.min.js"></script>
 
 <div class="mb-6 flex items-center justify-between">
     <div>
