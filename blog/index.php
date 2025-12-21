@@ -188,14 +188,12 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                                    aria-label="Search blog posts"
                                    id="blogSearchInput"
                                    autocomplete="off">
-                            <?php if (!empty($searchQuery)): ?>
-                            <button type="reset" class="blog-search-modern-clear" aria-label="Clear search">
+                            <button type="button" class="blog-search-modern-clear" aria-label="Clear search" style="display: none;">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
                                 </svg>
                             </button>
-                            <?php endif; ?>
                             
                             <!-- Search Suggestions Dropdown -->
                             <div class="blog-search-suggestions-modern" id="blogSearchSuggestions"></div>

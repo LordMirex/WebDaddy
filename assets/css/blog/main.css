@@ -144,6 +144,45 @@ html, body { margin: 0; padding: 0; }
 
 .blog-suggestion-item-excerpt { font-size: 12px; color: #888; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 
+/* Modern Search UI */
+.blog-search-form-modern { margin: 30px 0 0 0; max-width: 600px; width: 100%; }
+.blog-search-modern-wrapper { position: relative; display: flex; align-items: center; }
+.blog-search-modern-input { width: 100%; padding: 14px 44px 14px 44px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--blog-text); font-family: var(--font-body); transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); }
+.blog-search-modern-input::placeholder { color: rgba(255, 255, 255, 0.7); }
+.blog-search-modern-input:focus { outline: none; border-color: rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2), 0 0 0 3px rgba(212, 175, 55, 0.08); background: white; }
+.blog-search-modern-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.6); transition: color 0.3s ease; pointer-events: none; }
+.blog-search-modern-input:focus ~ .blog-search-modern-icon { color: var(--blog-accent); }
+
+/* Clear button */
+.blog-search-modern-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: rgba(255, 255, 255, 0.5); padding: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; border-radius: 6px; }
+.blog-search-modern-clear:hover { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
+
+/* Suggestions Dropdown Modern */
+.blog-search-suggestions-modern { position: fixed; background: white; border: none; border-radius: 12px; max-height: 450px; overflow-y: auto; box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15); display: none; z-index: 99999; animation: slideDown 0.2s ease; }
+.blog-search-suggestions-modern.active { display: block; }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar modern */
+.blog-search-suggestions-modern::-webkit-scrollbar { width: 8px; }
+.blog-search-suggestions-modern::-webkit-scrollbar-track { background: transparent; }
+.blog-search-suggestions-modern::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
+.blog-search-suggestions-modern::-webkit-scrollbar-thumb:hover { background: #d0d0d0; }
+
+/* Suggestion Items Modern */
+.blog-suggestion-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: var(--blog-text); transition: all 0.2s ease; }
+.blog-suggestion-item:hover { background-color: #fafafa; border-left: 3px solid var(--blog-accent); padding-left: 13px; }
+.blog-suggestion-item:last-child { border-bottom: none; }
+.blog-suggestion-item::before { content: '📄'; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+
+.blog-suggestion-item-title { font-size: 14px; font-weight: 600; margin: 0 0 3px 0; color: var(--blog-text); }
+.blog-suggestion-item-title mark { background-color: #fef08a; padding: 2px 4px; border-radius: 3px; font-weight: 700; }
+
+.blog-suggestion-item-excerpt { font-size: 12px; color: #999; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
 /* Article Styling - Enhanced Typography & Readability */
 .blog-article {
     background-color: var(--blog-bg-light);
