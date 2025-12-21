@@ -49,7 +49,7 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
     <link rel="icon" href="/assets/images/favicon.png" type="image/png">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md" x-data="registrationFlow()">
+    <div class="w-full max-w-md" x-data="registrationFlow">
         <div class="text-center mb-8">
             <a href="/">
                 <img src="/assets/images/webdaddy-logo.png" alt="WebDaddy Empire" class="h-12 mx-auto mb-4">
@@ -256,8 +256,8 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
     </div>
     
     <script>
-    function registrationFlow() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('registrationFlow', () => ({
             step: 1,
             email: '',
             otpCode: '',
@@ -442,8 +442,8 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     }
                 }, 1000);
             }
-        }
-    }
+        }));
+    });
     </script>
 </body>
 </html>

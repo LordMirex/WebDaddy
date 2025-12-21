@@ -1666,7 +1666,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                             <h3 class="text-xl sm:text-2xl font-extrabold text-white">Your Information</h3>
                         </div>
                         
-                        <div id="checkout-auth-section" x-data="checkoutAuth()">
+                        <div id="checkout-auth-section" x-data="checkoutAuth">
                             <!-- Email Input Step -->
                             <div x-show="step === 'email'" x-cloak class="mb-6">
                                 <label class="block text-sm font-bold text-gray-100 mb-2">
@@ -2531,8 +2531,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     
     <!-- Checkout Auth Alpine Component -->
     <script>
-    function checkoutAuth() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('checkoutAuth', () => ({
             // State
             step: 'email', // 'email', 'password', 'otp', 'authenticated'
             email: '',
@@ -2773,8 +2773,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 // Dispatch event to notify submit button
                 window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'email' } }));
             }
-        };
-    }
+        }));
+    });
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
