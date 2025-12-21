@@ -112,17 +112,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function displaySuggestions(data, query) {
         if (data.length === 0) {
-            suggestionsBox.innerHTML = '<div style="padding: 16px; color: #999; text-align: center; font-size: 13px;">No articles found for "' + escapeHtml(query) + '"</div>';
+            suggestionsBox.innerHTML = '<div style="padding: 20px; color: #64748b; text-align: center; font-size: 0.95rem; font-weight: 500;">No articles found for "' + escapeHtml(query) + '"</div>';
             suggestionsBox.classList.add('active');
             positionDropdown();
             return;
         }
         
         suggestionsBox.innerHTML = data.map(item => `
-            <a href="/blog/${item.slug}/" class="blog-suggestion-item">
+            <a href="/blog/${item.slug}/" class="blog-suggestion-item group">
+                <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gray-100 overflow-hidden hidden md:block">
+                    <img src="${item.featured_image || '/assets/images/placeholder.png'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onerror="this.src='/assets/images/placeholder.png'">
+                </div>
                 <div style="flex: 1;">
-                    <div class="blog-suggestion-item-title">${highlightMatch(item.title, query)}</div>
-                    <div class="blog-suggestion-item-excerpt">${item.excerpt ? escapeHtml(item.excerpt.substring(0, 80)) + '...' : 'No description'}</div>
+                    <div class="blog-suggestion-item-title group-hover:text-gold transition-colors">${highlightMatch(item.title, query)}</div>
+                    <div class="blog-suggestion-item-excerpt">${item.excerpt ? escapeHtml(item.excerpt.substring(0, 100)) + '...' : 'Dive into the full article to learn more.'}</div>
                 </div>
             </a>
         `).join('');
@@ -130,12 +133,13 @@ document.addEventListener('DOMContentLoaded', function() {
         suggestionsBox.classList.add('active');
         positionDropdown();
     }
-    
+
     function positionDropdown() {
-        const rect = searchInput.getBoundingClientRect();
+        const rect = searchInput.parentElement.getBoundingClientRect();
         suggestionsBox.style.left = rect.left + 'px';
-        suggestionsBox.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+        suggestionsBox.style.top = (rect.bottom + window.scrollY + 12) + 'px';
         suggestionsBox.style.width = rect.width + 'px';
+        suggestionsBox.style.borderRadius = '1.25rem';
     }
     
     // Reposition dropdown on scroll and resize
