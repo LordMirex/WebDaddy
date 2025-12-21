@@ -39,6 +39,10 @@ if ($customerSession && !empty($customerSession['id'])) {
     }
 }
 ?>
+<!-- Favicon -->
+<link rel="icon" href="https://webdaddy.online/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="https://webdaddy.online/favicon.ico" type="image/x-icon">
+
 <!-- Navigation Schema for SEO -->
 <script type="application/ld+json">
 {
