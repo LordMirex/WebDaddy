@@ -256,6 +256,8 @@ if ($autoOpenTool) {
     </script>
     
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" href="/assets/images/favicon.png">
     
     <!-- Premium Fonts - Inter and Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

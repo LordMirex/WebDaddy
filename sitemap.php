@@ -121,8 +121,11 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <image:image>
             <image:loc><?php 
                 $imgUrl = $template['thumbnail_url'];
-                if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, '//') !== 0) {
-                    $imgUrl = SITE_URL . $imgUrl;
+                // Ensure absolute URL - add domain if missing
+                if (strpos($imgUrl, 'http://') !== 0 && strpos($imgUrl, 'https://') !== 0) {
+                    // Remove leading slash if present, then add full URL
+                    $imgUrl = ltrim($imgUrl, '/');
+                    $imgUrl = SITE_URL . '/' . $imgUrl;
                 }
                 echo htmlspecialchars($imgUrl); 
             ?></image:loc>
@@ -143,8 +146,11 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <image:image>
             <image:loc><?php 
                 $imgUrl = $tool['thumbnail_url'];
-                if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, '//') !== 0) {
-                    $imgUrl = SITE_URL . $imgUrl;
+                // Ensure absolute URL - add domain if missing
+                if (strpos($imgUrl, 'http://') !== 0 && strpos($imgUrl, 'https://') !== 0) {
+                    // Remove leading slash if present, then add full URL
+                    $imgUrl = ltrim($imgUrl, '/');
+                    $imgUrl = SITE_URL . '/' . $imgUrl;
                 }
                 echo htmlspecialchars($imgUrl); 
             ?></image:loc>

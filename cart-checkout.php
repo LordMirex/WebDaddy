@@ -549,6 +549,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title><?php echo $pageTitle; ?></title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" href="/assets/images/favicon.png">
     
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
