@@ -52,7 +52,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Homepage - Highest Priority -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?></loc>
+        <loc><?php echo SITE_URL . '/'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
@@ -60,28 +60,28 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Public Pages - About, Contact, FAQ -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>about.php</loc>
+        <loc><?php echo SITE_URL . '/about.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>contact.php</loc>
+        <loc><?php echo SITE_URL . '/contact.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>faq.php</loc>
+        <loc><?php echo SITE_URL . '/faq.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.85</priority>
     </url>
     
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>careers.php</loc>
+        <loc><?php echo SITE_URL . '/careers.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
@@ -89,14 +89,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Legal Pages -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>legal/privacy.php</loc>
+        <loc><?php echo SITE_URL . '/legal/privacy.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
     </url>
     
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>legal/terms.php</loc>
+        <loc><?php echo SITE_URL . '/legal/terms.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.5</priority>
@@ -104,7 +104,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Cart/Checkout Page -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>cart-checkout.php</loc>
+        <loc><?php echo SITE_URL . '/cart-checkout.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
@@ -119,7 +119,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <priority>0.9</priority>
         <?php if (!empty($template['thumbnail_url'])): ?>
         <image:image>
-            <image:loc><?php echo htmlspecialchars($template['thumbnail_url']); ?></image:loc>
+            <image:loc><?php 
+                $imgUrl = $template['thumbnail_url'];
+                if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, '//') !== 0) {
+                    $imgUrl = SITE_URL . $imgUrl;
+                }
+                echo htmlspecialchars($imgUrl); 
+            ?></image:loc>
             <image:title><?php echo htmlspecialchars($template['name']); ?></image:title>
         </image:image>
         <?php endif; ?>
@@ -135,7 +141,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <priority>0.9</priority>
         <?php if (!empty($tool['thumbnail_url'])): ?>
         <image:image>
-            <image:loc><?php echo htmlspecialchars($tool['thumbnail_url']); ?></image:loc>
+            <image:loc><?php 
+                $imgUrl = $tool['thumbnail_url'];
+                if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, '//') !== 0) {
+                    $imgUrl = SITE_URL . $imgUrl;
+                }
+                echo htmlspecialchars($imgUrl); 
+            ?></image:loc>
             <image:title><?php echo htmlspecialchars($tool['name']); ?></image:title>
         </image:image>
         <?php endif; ?>
@@ -144,7 +156,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Blog Index Page - Phase 3 SEO -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>blog/</loc>
+        <loc><?php echo SITE_URL . '/blog/'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>daily</changefreq>
         <priority>0.95</priority>
@@ -162,13 +174,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Affiliate Program -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>affiliate/register.php</loc>
+        <loc><?php echo SITE_URL . '/affiliate/register.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>affiliate/login.php</loc>
+        <loc><?php echo SITE_URL . '/affiliate/login.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
@@ -176,7 +188,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     
     <!-- Customer Portal -->
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>customer/login.php</loc>
+        <loc><?php echo SITE_URL . '/customer/login.php'; ?></loc>
         <lastmod><?php echo date('Y-m-d'); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
@@ -197,13 +209,19 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
             while ($post = $blogPosts->fetch(PDO::FETCH_ASSOC)): 
     ?>
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>blog/<?php echo htmlspecialchars($post['slug']); ?>/</loc>
+        <loc><?php echo SITE_URL . '/blog/' . htmlspecialchars($post['slug']) . '/'; ?></loc>
         <lastmod><?php echo date('Y-m-d', strtotime($post['updated_at'])); ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
         <?php if (!empty($post['featured_image'])): ?>
         <image:image>
-            <image:loc><?php echo htmlspecialchars($post['featured_image']); ?></image:loc>
+            <image:loc><?php 
+                $imgUrl = $post['featured_image'];
+                if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, '//') !== 0) {
+                    $imgUrl = SITE_URL . $imgUrl;
+                }
+                echo htmlspecialchars($imgUrl); 
+            ?></image:loc>
         </image:image>
         <?php endif; ?>
     </url>
@@ -228,7 +246,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
             while ($cat = $blogCats->fetch(PDO::FETCH_ASSOC)): 
     ?>
     <url>
-        <loc><?php echo SITE_URL . BASE_PATH; ?>blog/category/<?php echo htmlspecialchars($cat['slug']); ?>/</loc>
+        <loc><?php echo SITE_URL . '/blog/category/' . htmlspecialchars($cat['slug']) . '/'; ?></loc>
         <lastmod><?php echo date('Y-m-d', strtotime($cat['updated_at'])); ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
