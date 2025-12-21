@@ -550,8 +550,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     <title><?php echo $pageTitle; ?></title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css">
+    <link rel="stylesheet" href="/assets/css/tailwind-fallback.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/assets/css/cdn-fix.css?v=<?php echo time(); ?>">
     <script defer src="/assets/js/alpine-collapse.min.js"></script>
     <script defer src="/assets/js/alpine.min.js"></script>
     <script>

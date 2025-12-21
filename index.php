@@ -197,8 +197,6 @@ if ($autoOpenTool) {
     <link rel="preload" as="image" href="/assets/images/mockups/glide-apps.jpg">
     <link rel="preload" as="image" href="/assets/images/mockups/notion.jpg">
     <link rel="preload" as="image" href="/assets/images/mockups/runway.jpg">
-    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:type" content="<?php echo $ogType; ?>">
