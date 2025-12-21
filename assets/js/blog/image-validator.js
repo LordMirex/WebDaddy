@@ -21,12 +21,12 @@ function validateBlogImages() {
             showImagePlaceholder(img, placeholderId);
         };
         
-        // Set timeout for slow/unresponsive images
+        // Set timeout for slow/unresponsive images (increased to 10s for reliability)
         const timeoutId = setTimeout(function() {
             if (!img.classList.contains('image-loaded')) {
                 showImagePlaceholder(img, placeholderId);
             }
-        }, 5000);
+        }, 10000);
         
         img.onload = function() {
             clearTimeout(timeoutId);
