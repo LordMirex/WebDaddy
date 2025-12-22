@@ -91,9 +91,9 @@ class UploadHandler {
         
         // Ensure directory exists
         if (!is_dir($uploadDir)) {
-            if (!mkdir($uploadDir, 0775, true)) {
-                $response['error'] = 'Failed to create upload directory: ' . $uploadDir;
-                error_log('UploadHandler: Failed to create directory - ' . $uploadDir);
+            if (!@mkdir($uploadDir, 0775, true)) {
+                $response['error'] = 'Failed to create upload directory. Please ensure the uploads folder exists and is writable.';
+                error_log('UploadHandler: Failed to create directory - ' . $uploadDir . ' (Check permissions and open_basedir)');
                 return $response;
             }
         }
