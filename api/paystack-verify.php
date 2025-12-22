@@ -109,6 +109,7 @@ try {
             error_log("✅ PAYSTACK VERIFY: Payment succeeded! Marking order as PAID");
             
             // Update order status with retry handling/check
+            // CRITICAL FIX: Ensure 'failed' status is included so retries work
             $stmt = $db->prepare("
                 UPDATE pending_orders 
                 SET status = 'paid', 

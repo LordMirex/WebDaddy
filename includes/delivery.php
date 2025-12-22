@@ -132,9 +132,15 @@ function createDeliveryRecords($orderId) {
 function createToolDelivery($orderId, $item, $retryAttempt = 0) {
     $db = getDb();
     
-    $stmt = $db->prepare("SELECT customer_email, customer_name FROM pending_orders WHERE id = ?");
-    $stmt->execute([$orderId]);
-    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Get order details for email - ensure we check both paid and completed
+        $stmt = $db->prepare("SELECT customer_email, customer_name, status FROM pending_orders WHERE id = ?");
+        $stmt->execute([$orderId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order || !in_array($order['status'], ['paid', 'completed'])) {
+            error_log("❌ sendAllToolDeliveryEmailsForOrder: Order #$orderId not ready for delivery (Status: " . ($order['status'] ?? 'NULL') . ")");
+            return false;
+        }
     
     // CRITICAL FIX: Check if tool is marked as upload_complete before generating download links
     $stmt = $db->prepare("SELECT upload_complete FROM tools WHERE id = ?");

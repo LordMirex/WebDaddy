@@ -156,7 +156,7 @@ function handleSuccessfulPayment($data) {
             SET status = 'paid',
                 payment_verified_at = datetime('now', '+1 hour'),
                 payment_method = 'paystack'
-            WHERE id = ? AND status = 'pending'
+            WHERE id = ? AND status IN ('pending', 'failed')
         ");
         $stmt->execute([$payment['pending_order_id']]);
         $affectedRows = $stmt->rowCount();
