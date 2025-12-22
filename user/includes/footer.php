@@ -76,32 +76,48 @@
     
     <!-- Global Event Delegation for Template Details -->
     <script>
-    document.addEventListener('click', function(e) {
-        // Target specifically template details links
-        const templateLink = e.target.closest('a[href*="view=templates-details"]');
-        
-        if (templateLink) {
-            const href = templateLink.getAttribute('href');
-            if (href && href.includes('view=templates-details')) {
-                // If it's a template detail link, we want to ensure it's handled by our JS
-                // instead of a full page reload or being blocked by other scripts.
+    (function() {
+        // Universal click handler for template details
+        function handleTemplateClick(e) {
+            const target = e.target.closest('a[href*="view=templates-details"], .btn-template-details, [data-template-id]');
+            if (!target) return;
+            
+            const href = target.getAttribute('href') || '';
+            const slug = target.getAttribute('data-slug') || (href.match(/[?&]slug=([^&]+)/) || [])[1];
+            
+            if (slug) {
+                // Try to use the modern popup method first
+                if (typeof window.openTemplateDetails === 'function') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.openTemplateDetails(slug);
+                    return false;
+                }
                 
-                // Extract slug from href
-                const urlParams = new URLSearchParams(href.split('?')[1]);
-                const slug = urlParams.get('slug');
-                
-                if (slug) {
-                    // Check if the global opening function exists (from cart-and-tools.js)
-                    if (typeof window.openTemplateDetails === 'function') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        window.openTemplateDetails(slug);
-                        return false;
-                    }
+                // Fallback for tools or cases where slug is in a different param
+                const templateId = target.getAttribute('data-template-id');
+                if (templateId && typeof window.openToolModal === 'function') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.openToolModal(templateId);
+                    return false;
                 }
             }
+            
+            // If we are here, let the normal navigation happen (safety fallback)
+            console.log('Template click detected, falling back to standard navigation');
         }
-    }, true); // Use capture phase to ensure we catch it before other listeners
+
+        // Attach to document to handle dynamically loaded content (search/pagination)
+        document.addEventListener('click', handleTemplateClick, true);
+        
+        // Add a secondary check for elements that might have their own click handlers blocking us
+        window.addEventListener('load', function() {
+            document.querySelectorAll('a[href*="view=templates-details"]').forEach(function(el) {
+                el.setAttribute('onclick', 'if(window.openTemplateDetails) { event.preventDefault(); window.openTemplateDetails(new URLSearchParams(this.href.split("?")[1]).get("slug")); return false; }');
+            });
+        });
+    })();
     </script>
 </body>
 </html>

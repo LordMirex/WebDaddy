@@ -238,14 +238,13 @@
     if (!shouldUseSmoothNav(href)) return;
     
     // Don't interfere with special handlers or buttons with onclick
-    if (link.onclick || link.target) return;
-    if (link.hasAttribute('onclick')) return;
+    if (link.onclick || link.target || link.hasAttribute('onclick')) return;
     
     // Skip cart buttons and other special UI elements
     if (link.id && (link.id.includes('cart') || link.id.includes('toggle') || link.id.includes('modal') || link.id.includes('menu'))) return;
     
-    // Skip template details buttons explicitly
-    if (href.includes('view=templates-details') || href.includes('template=') || link.hasAttribute('data-template-id')) return;
+    // Skip template details buttons explicitly and anything with view=templates-details
+    if (href.includes('view=templates-details') || href.includes('template=') || link.hasAttribute('data-template-id') || link.classList.contains('btn-template-details')) return;
     
     // Skip links that look like buttons or have specific classes
     if (link.classList.contains('btn') || link.classList.contains('button') || link.closest('.footer') || link.closest('footer')) return;
