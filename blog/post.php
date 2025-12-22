@@ -95,7 +95,7 @@ $toc = blogExtractTableOfContents($blocks);
     <meta property="og:url" content="<?= htmlspecialchars($canonicalUrl) ?>">
     <meta property="og:site_name" content="<?= SITE_NAME ?>">
     <?php if ($post['og_image'] || $post['featured_image']): ?>
-    <meta property="og:image" content="<?= htmlspecialchars($post['og_image'] ?: $post['featured_image']) ?>">
+    <meta property="og:image" content="<?= htmlspecialchars(getMediaUrl($post['og_image'] ?: $post['featured_image'])) ?>">
     <?php endif; ?>
     <meta property="article:published_time" content="<?= date('c', strtotime($post['publish_date'])) ?>">
     <meta property="article:modified_time" content="<?= date('c', strtotime($post['updated_at'])) ?>">
@@ -107,7 +107,7 @@ $toc = blogExtractTableOfContents($blocks);
     <meta name="twitter:title" content="<?= htmlspecialchars($post['twitter_title'] ?: $post['title']) ?>">
     <meta name="twitter:description" content="<?= htmlspecialchars($post['twitter_description'] ?: $pageDescription) ?>">
     <?php if ($post['twitter_image'] || $post['featured_image']): ?>
-    <meta name="twitter:image" content="<?= htmlspecialchars($post['twitter_image'] ?: $post['featured_image']) ?>">
+    <meta name="twitter:image" content="<?= htmlspecialchars(getMediaUrl($post['twitter_image'] ?: $post['featured_image'])) ?>">
     <?php endif; ?>
     
     <script type="application/ld+json"><?= json_encode($articleSchema, JSON_UNESCAPED_SLASHES) ?></script>
@@ -228,7 +228,7 @@ $toc = blogExtractTableOfContents($blocks);
                 <!-- Featured Image Below -->
                 <?php if ($post['featured_image']): ?>
                 <div class="blog-article-featured-image-wrapper">
-                    <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
+                    <img src="<?= htmlspecialchars(getMediaUrl($post['featured_image'])) ?>" 
                          alt="<?= !empty(blogGetFeaturedImageAlt($post)) ? htmlspecialchars(blogGetFeaturedImageAlt($post)) : htmlspecialchars($post['title']) ?>"
                          title="<?= htmlspecialchars($post['title']) ?>"
                          class="blog-article-featured-image"
@@ -488,7 +488,7 @@ $toc = blogExtractTableOfContents($blocks);
                         <article class="blog-card <?= $affiliateCode ? 'affiliate-aware' : '' ?>">
                             <a href="<?= blogGetPostUrl($related, $affiliateCode) ?>" class="blog-card-image-link">
                                 <?php if ($related['featured_image']): ?>
-                                <img src="<?= htmlspecialchars($related['featured_image']) ?>" 
+                                <img src="<?= htmlspecialchars(getMediaUrl($related['featured_image'])) ?>" 
                                      alt="<?= htmlspecialchars($related['title']) ?>"
                                      class="blog-card-image" loading="lazy">
                                 <?php else: ?>

@@ -94,7 +94,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <meta property="og:url" content="<?= SITE_URL ?>/blog/">
     <meta property="og:site_name" content="<?= SITE_NAME ?>">
     <?php if (!empty($posts[0]['featured_image'])): ?>
-    <meta property="og:image" content="<?= htmlspecialchars($posts[0]['featured_image']) ?>">
+    <meta property="og:image" content="<?= htmlspecialchars(getMediaUrl($posts[0]['featured_image'])) ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:type" content="image/jpeg">
@@ -104,7 +104,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
     <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle) ?>">
     <meta name="twitter:description" content="<?= htmlspecialchars($pageDescription) ?>">
     <?php if (!empty($posts[0]['featured_image'])): ?>
-    <meta name="twitter:image" content="<?= htmlspecialchars($posts[0]['featured_image']) ?>">
+    <meta name="twitter:image" content="<?= htmlspecialchars(getMediaUrl($posts[0]['featured_image'])) ?>">
     <?php endif; ?>
     
     <!-- Structured Data: Blog Collection -->
@@ -272,7 +272,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                     <article class="blog-card <?= $index === 0 && $page === 1 ? 'blog-card-featured' : '' ?> <?= $validationClass ?>">
                         <a href="<?= blogGetPostUrl($post, $affiliateCode) ?>" class="blog-card-image-link">
                             <?php if ($post['featured_image']): ?>
-                            <img src="<?= htmlspecialchars($post['featured_image']) ?>" 
+                            <img src="<?= htmlspecialchars(getMediaUrl($post['featured_image'])) ?>" 
                                  alt="<?= !empty(blogGetFeaturedImageAlt($post)) ? htmlspecialchars(blogGetFeaturedImageAlt($post)) : htmlspecialchars($post['title']) ?>"
                                  title="<?= htmlspecialchars($post['title']) ?>"
                                  class="blog-card-image"
@@ -381,7 +381,7 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                         <?php foreach ($popularPosts as $popPost): ?>
                         <a href="<?= blogGetPostUrl($popPost, $affiliateCode) ?>" class="blog-sidebar-post">
                             <?php if ($popPost['featured_image']): ?>
-                            <img src="<?= htmlspecialchars($popPost['featured_image']) ?>" 
+                            <img src="<?= htmlspecialchars(getMediaUrl($popPost['featured_image'])) ?>" 
                                  alt="<?= htmlspecialchars($popPost['title']) ?>" 
                                  class="blog-sidebar-post-img" 
                                  data-validate-image

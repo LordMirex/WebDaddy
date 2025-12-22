@@ -2552,19 +2552,18 @@ function getMediaUrl($url) {
         if (preg_match('#^https?://[^/]+(/uploads/.+)$#i', $url, $matches)) {
             return $matches[1];
         }
-        
         return $url;
     }
     
     if (strpos($url, '/uploads/') === 0) {
-        return $url;
+        return UPLOAD_URL . substr($url, 8);
     }
     
     if (strpos($url, 'uploads/') === 0) {
-        return '/' . $url;
+        return UPLOAD_URL . '/' . substr($url, 8);
     }
     
-    return $url;
+    return UPLOAD_URL . '/' . $url;
 }
 
 /**
