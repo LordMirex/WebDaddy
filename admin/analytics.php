@@ -20,30 +20,61 @@ $dateFilter_pi = "";
 $dateFilter_session = "";
 $dateFilterSales = "";
 
+// Get database type for correct date syntax
+$dbType = getDbType();
+$today = date('Y-m-d');
+$sevenDaysAgo = date('Y-m-d', strtotime('-7 days'));
+$thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
+$ninetyDaysAgo = date('Y-m-d', strtotime('-90 days'));
+
+// Build date filters based on database type
+function buildDateFilter($column, $operator, $value, $dbType) {
+    if ($dbType === 'sqlite') {
+        // SQLite uses DATE() function
+        if (strpos($value, '-') === 0) {
+            // Relative dates like '-7 days'
+            return "AND DATE($column) $operator DATE('now', '$value')";
+        } else {
+            // Absolute dates
+            return "AND DATE($column) $operator '$value'";
+        }
+    } else {
+        // MySQL/PostgreSQL use DATE_FORMAT or different functions
+        if (strpos($value, '-') === 0) {
+            // For relative dates, convert to absolute
+            $days = abs(intval($value));
+            return "AND DATE($column) $operator DATE(DATE_SUB(NOW(), INTERVAL $days DAY))";
+        } else {
+            // Absolute dates
+            return "AND DATE($column) $operator '$value'";
+        }
+    }
+}
+
 switch ($period) {
     case 'today':
-        $dateFilter = "AND DATE(created_at) = DATE('now')";
-        $dateFilter_pi = "AND DATE(pi.created_at) = DATE('now')";
-        $dateFilter_session = "AND DATE(first_visit) = DATE('now')";
-        $dateFilterSales = "AND DATE(s.created_at) = DATE('now')";
+        $dateFilter = buildDateFilter('created_at', '=', $today, $dbType);
+        $dateFilter_pi = buildDateFilter('pi.created_at', '=', $today, $dbType);
+        $dateFilter_session = buildDateFilter('first_visit', '=', $today, $dbType);
+        $dateFilterSales = buildDateFilter('s.created_at', '=', $today, $dbType);
         break;
     case '7days':
-        $dateFilter = "AND DATE(created_at) >= DATE('now', '-7 days')";
-        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-7 days')";
-        $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-7 days')";
-        $dateFilterSales = "AND DATE(s.created_at) >= DATE('now', '-7 days')";
+        $dateFilter = buildDateFilter('created_at', '>=', $sevenDaysAgo, $dbType);
+        $dateFilter_pi = buildDateFilter('pi.created_at', '>=', $sevenDaysAgo, $dbType);
+        $dateFilter_session = buildDateFilter('first_visit', '>=', $sevenDaysAgo, $dbType);
+        $dateFilterSales = buildDateFilter('s.created_at', '>=', $sevenDaysAgo, $dbType);
         break;
     case '30days':
-        $dateFilter = "AND DATE(created_at) >= DATE('now', '-30 days')";
-        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-30 days')";
-        $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-30 days')";
-        $dateFilterSales = "AND DATE(s.created_at) >= DATE('now', '-30 days')";
+        $dateFilter = buildDateFilter('created_at', '>=', $thirtyDaysAgo, $dbType);
+        $dateFilter_pi = buildDateFilter('pi.created_at', '>=', $thirtyDaysAgo, $dbType);
+        $dateFilter_session = buildDateFilter('first_visit', '>=', $thirtyDaysAgo, $dbType);
+        $dateFilterSales = buildDateFilter('s.created_at', '>=', $thirtyDaysAgo, $dbType);
         break;
     case '90days':
-        $dateFilter = "AND DATE(created_at) >= DATE('now', '-90 days')";
-        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('now', '-90 days')";
-        $dateFilter_session = "AND DATE(first_visit) >= DATE('now', '-90 days')";
-        $dateFilterSales = "AND DATE(s.created_at) >= DATE('now', '-90 days')";
+        $dateFilter = buildDateFilter('created_at', '>=', $ninetyDaysAgo, $dbType);
+        $dateFilter_pi = buildDateFilter('pi.created_at', '>=', $ninetyDaysAgo, $dbType);
+        $dateFilter_session = buildDateFilter('first_visit', '>=', $ninetyDaysAgo, $dbType);
+        $dateFilterSales = buildDateFilter('s.created_at', '>=', $ninetyDaysAgo, $dbType);
         break;
 }
 
@@ -268,16 +299,16 @@ $totalSourceVisits = array_sum(array_column($trafficSources, 'visit_count'));
 $dateFilterDelivery = "";
 switch ($period) {
     case 'today':
-        $dateFilterDelivery = "AND DATE(d.created_at) = DATE('now')";
+        $dateFilterDelivery = buildDateFilter('d.created_at', '=', $today, $dbType);
         break;
     case '7days':
-        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('now', '-7 days')";
+        $dateFilterDelivery = buildDateFilter('d.created_at', '>=', $sevenDaysAgo, $dbType);
         break;
     case '30days':
-        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('now', '-30 days')";
+        $dateFilterDelivery = buildDateFilter('d.created_at', '>=', $thirtyDaysAgo, $dbType);
         break;
     case '90days':
-        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('now', '-90 days')";
+        $dateFilterDelivery = buildDateFilter('d.created_at', '>=', $ninetyDaysAgo, $dbType);
         break;
 }
 

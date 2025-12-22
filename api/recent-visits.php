@@ -6,25 +6,50 @@ require_once __DIR__ . '/../includes/db.php';
 
 $db = getDb();
 
+require_once __DIR__ . '/../includes/functions.php';
+
 $period = $_GET['period'] ?? '7days';
 $page = max(1, (int)($_GET['page'] ?? 1));
 $ipFilter = trim($_GET['ip'] ?? '');
 $perPage = 20;
 
-// Date filters
+// Date filters - database-agnostic
 $dateFilter = '';
+$today = date('Y-m-d');
+$sevenDaysAgo = date('Y-m-d', strtotime('-7 days'));
+$thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
+$ninetyDaysAgo = date('Y-m-d', strtotime('-90 days'));
+$dbType = getDbType();
+
 switch ($period) {
     case '24hours':
-        $dateFilter = " AND visit_date = DATE('now')";
+    case 'today':
+        if ($dbType === 'sqlite') {
+            $dateFilter = " AND visit_date = DATE('now')";
+        } else {
+            $dateFilter = " AND DATE(visit_date) = DATE(NOW())";
+        }
         break;
     case '7days':
-        $dateFilter = " AND visit_date >= DATE('now', '-7 days')";
+        if ($dbType === 'sqlite') {
+            $dateFilter = " AND visit_date >= DATE('now', '-7 days')";
+        } else {
+            $dateFilter = " AND DATE(visit_date) >= DATE(DATE_SUB(NOW(), INTERVAL 7 DAY))";
+        }
         break;
     case '30days':
-        $dateFilter = " AND visit_date >= DATE('now', '-30 days')";
+        if ($dbType === 'sqlite') {
+            $dateFilter = " AND visit_date >= DATE('now', '-30 days')";
+        } else {
+            $dateFilter = " AND DATE(visit_date) >= DATE(DATE_SUB(NOW(), INTERVAL 30 DAY))";
+        }
         break;
     case '90days':
-        $dateFilter = " AND visit_date >= DATE('now', '-90 days')";
+        if ($dbType === 'sqlite') {
+            $dateFilter = " AND visit_date >= DATE('now', '-90 days')";
+        } else {
+            $dateFilter = " AND DATE(visit_date) >= DATE(DATE_SUB(NOW(), INTERVAL 90 DAY))";
+        }
         break;
     case 'all':
         $dateFilter = '';
