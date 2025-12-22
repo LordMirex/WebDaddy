@@ -7,12 +7,6 @@ require_once __DIR__ . '/includes/analytics.php';
 require_once __DIR__ . '/includes/tools.php';
 require_once __DIR__ . '/includes/cart.php';
 
-// Security headers - prevent XSS and CSP violations
-header("Content-Security-Policy: default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://instant.page https://js.paystack.co https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.quilljs.com; img-src 'self' data: https:; font-src 'self' https: data: https://cdn.jsdelivr.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https: wss:; base-uri 'self'", false);
-header("X-Content-Type-Options: nosniff", false);
-header("X-Frame-Options: SAMEORIGIN", false);
-header("X-XSS-Protection: 1; mode=block", false);
-
 // Set cache headers - no caching for dynamic pages
 header('Cache-Control: no-cache, no-store, must-revalidate', false);
 header('Pragma: no-cache', false);
