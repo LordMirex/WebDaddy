@@ -213,7 +213,7 @@ require_once __DIR__ . '/includes/header.php';
                             </button>
                         </div>
                         
-                        <div x-cloak x-show="showDetails" x-collapse class="mt-4 pt-4 border-t">
+                        <div x-cloak x-show="showDetails" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="mt-4 pt-4 border-t">
                             <div class="bg-gray-50 p-4 rounded mb-4">
                                 <p class="font-semibold text-sm mb-2">Original Message:</p>
                                 <p class="text-sm"><?php echo nl2br(htmlspecialchars($ticket['message'])); ?></p>

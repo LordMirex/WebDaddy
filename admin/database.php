@@ -871,7 +871,7 @@ require_once __DIR__ . '/includes/header.php';
                         </form>
                     </div>
                     
-                    <div x-cloak x-show="showSchema" x-collapse class="mt-3 pt-3 border-t border-gray-300">
+                    <div x-cloak x-show="showSchema" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="mt-3 pt-3 border-t border-gray-300">
                         <template x-if="schema && schema.length">
                             <div class="bg-white rounded p-3 text-xs space-y-2">
                                 <p class="font-semibold text-gray-700 mb-2"><i class="bi bi-list-columns"></i> Columns:</p>
