@@ -173,9 +173,8 @@ function paystackApiCall($url, $fields = null, $method = 'POST') {
         CURLOPT_TIMEOUT => 30,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_HTTPHEADER => $headers,
-        // Handle both HTTP and HTTPS
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
     ]);
     
     if ($method === 'POST' && $fields) {

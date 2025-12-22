@@ -104,18 +104,12 @@ try {
         require_once __DIR__ . '/includes/email_queue.php';
         require_once __DIR__ . '/includes/functions.php';
         
-        // Queue the payment confirmation email
-        addEmailToQueue([
-            'to' => $order['customer_email'],
-            'subject' => 'Payment Confirmed - Order #' . $orderId,
-            'template' => 'payment_confirmed',
-            'data' => [
-                'order_id' => $orderId,
-                'customer_name' => $order['customer_id'],
-                'amount' => $event['data']['amount'] / 100
-            ]
-        ]);
+        $amount = number_format($event['data']['amount'] / 100, 2);
+        $subject = 'Payment Confirmed - Order #' . $orderId;
+        $body = "Your payment of ₦{$amount} for Order #{$orderId} has been confirmed. Your digital products are now available for download in your account.";
+        $htmlBody = "<h2>Payment Confirmed!</h2><p>Your payment of <strong>₦{$amount}</strong> for Order #{$orderId} has been confirmed.</p><p>Your digital products are now available for download in your account.</p><p>Thank you for your purchase!</p>";
         
+        queueEmail($order['customer_email'], 'payment_confirmed', $subject, $body, $htmlBody, $orderId);
         processEmailQueue();
     }
     
