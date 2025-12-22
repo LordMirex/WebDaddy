@@ -137,7 +137,7 @@ define('MAILTRAP_API_HOST', 'send.api.mailtrap.io');
 // GMAIL SMTP CONFIGURATION (For User OTP Emails)
 // ============================================
 // Gmail SMTP for instant OTP delivery to users
-// OTP emails only - all other user emails remain on Resend
+// OTP emails only - all other user emails go through Mailtrap API
 
 
 

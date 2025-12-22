@@ -1,7 +1,7 @@
 <?php
 /**
  * Request OTP for email verification at checkout
- * Sends EMAIL OTP via Resend API
+ * Sends EMAIL OTP via Gmail SMTP for instant delivery
  */
 
 require_once __DIR__ . '/../../includes/config.php';
