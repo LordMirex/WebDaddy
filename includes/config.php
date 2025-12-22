@@ -50,15 +50,11 @@ define('SMTP_PASS', 'ItuZq%kF%5oE');
 define('SMTP_FROM_EMAIL', 'admin@webdaddy.online');
 define('SMTP_FROM_NAME', 'WebDaddy Empire');
 
-// PAYSTACK CONFIGURATION - TEST MODE (To restore live keys, uncomment lines below and comment out test keys)
-// LIVE KEYS - COMMENTED OUT FOR TESTING (Restore by uncommenting these 2 lines)
-// define('PAYSTACK_SECRET_KEY', 'sk_live_7a98b3f6c784370454b96340b08836d518405b55');
-// define('PAYSTACK_PUBLIC_KEY', 'pk_live_3d212bae617ffaedeaa3319351b283356498824e');
-
-// TEST MODE KEYS - ACTIVE
-define('PAYSTACK_SECRET_KEY', 'sk_test_5bf57d877aacf2a99c2be15a68ec4d611fdf2370');
-define('PAYSTACK_PUBLIC_KEY', 'pk_test_5ba5f49f80b1f7f8f54d22513cc08b31d630e221');
-define('PAYSTACK_MODE', 'test');
+// PAYSTACK CONFIGURATION - LIVE MODE
+// LIVE KEYS - STORED IN ENVIRONMENT VARIABLES (NEVER HARDCODE LIVE KEYS)
+define('PAYSTACK_SECRET_KEY', getenv('PAYSTACK_SECRET_KEY'));
+define('PAYSTACK_PUBLIC_KEY', getenv('PAYSTACK_PUBLIC_KEY'));
+define('PAYSTACK_MODE', 'live');
 
 // WhatsApp Configuration
 $whatsappNumber = '+2349132672126'; // Your WhatsApp number
