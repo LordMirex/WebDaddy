@@ -122,7 +122,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
                             <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', getSetting('whatsapp_number', WHATSAPP_NUMBER)); ?>" 
                                target="_blank" rel="noopener noreferrer"
                                class="text-green-400 hover:text-green-300 font-medium transition-colors">
-                                WhatsApp Number - +2349132672126
+                                WhatsApp Number   +2349132672126
                             </a>
                         </p>
                     </div>

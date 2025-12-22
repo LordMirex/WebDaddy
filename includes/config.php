@@ -141,8 +141,8 @@ define('RESEND_WEBHOOK_SECRET', 'whsec_Ysf6QzDo72obRyZymdLUDF2+1xXoA2ul');
 
 
 
-define('GMAIL_OTP_USER', 'mic71020@gmail.com');
-define('GMAIL_OTP_APP_PASSWORD', 'axbf aftx bpcx eenm');
+define('GMAIL_OTP_USER', 'webdaddyempire@gmail.com');
+define('GMAIL_OTP_APP_PASSWORD', 'dmkx gqts vwao bqth');
 
 // Customer Session Settings
 define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions
