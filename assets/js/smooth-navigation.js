@@ -242,7 +242,10 @@
     if (link.hasAttribute('onclick')) return;
     
     // Skip cart buttons and other special UI elements
-    if (link.id && (link.id.includes('cart') || link.id.includes('toggle') || link.id.includes('modal'))) return;
+    if (link.id && (link.id.includes('cart') || link.id.includes('toggle') || link.id.includes('modal') || link.id.includes('menu'))) return;
+    
+    // Skip links that look like buttons or have specific classes
+    if (link.classList.contains('btn') || link.classList.contains('button') || link.closest('.footer') || link.closest('footer')) return;
     
     e.preventDefault();
     
