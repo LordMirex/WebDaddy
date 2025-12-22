@@ -2442,28 +2442,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             // 5B. AUTO-INSERT BONUS CODE ON INPUT FOCUS (ENHANCED UX)
             <?php if (!empty($activeBonusCode)): ?>
             const affiliateInput = document.getElementById('affiliate_code');
-            const bonusCode = '<?php echo htmlspecialchars($activeBonusCode['code']); ?>';
-            if (affiliateInput) {
-                affiliateInput.addEventListener('focus', function() {
-                    // Only auto-insert if field is empty
-                    if (!this.value) {
-                        this.value = bonusCode;
-                        this.classList.add('bonus-code-inserted');
-                        // Highlight the field to show bonus code was inserted
-                        this.style.borderColor = '#f97316';
-                        this.style.boxShadow = '0 0 0 3px rgba(249, 115, 22, 0.1)';
-                    }
-                });
-                
-                affiliateInput.addEventListener('blur', function() {
-                    // Reset styling if user didn't keep the bonus code
-                    if (this.value !== bonusCode) {
-                        this.classList.remove('bonus-code-inserted');
-                        this.style.borderColor = '';
-                        this.style.boxShadow = '';
-                    }
-                });
-            }
+            // REMOVED: Auto-fill bonus code on input focus was intrusive and annoying to users
+            // Users should deliberately type or click the bonus code banner to apply discounts
             <?php endif; ?>
             
             // 6. FLOATING BONUS OFFER BANNER - SHOW ON CHECKOUT FORM IF BETTER DISCOUNT AVAILABLE
@@ -2472,10 +2452,11 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             <?php 
             // Show bonus code banner if:
             // 1. There's an active bonus code AND
-            // 2. User does NOT have affiliate code (URL or session) AND
+            // 2. User does NOT have affiliate code AND does NOT have referral code AND
             // 3. Either no discount is applied yet OR the bonus code offers a better discount than current affiliate
             $hasAffiliateCode = !empty($affiliateCode);
-            $showBonusBanner = !empty($activeBonusCode) && !$hasAffiliateCode && (
+            $hasReferralCode = !empty($userReferralCode);
+            $showBonusBanner = !empty($activeBonusCode) && !$hasAffiliateCode && !$hasReferralCode && (
                 !$totals['has_discount'] || 
                 ($totals['discount_type'] === 'bonus_code' && $activeBonusCode['discount_percent'] > $totals['discount_percent'])
             );
