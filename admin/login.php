@@ -24,11 +24,7 @@ $step = 'password'; // Always password step when OTP is disabled
 $pending_email = $_SESSION['pending_admin_email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $postedToken = $_POST['csrf_token'] ?? '';
-    if (!validateCsrfToken($postedToken)) {
-        error_log("CSRF Validation Failed - Posted: $postedToken, Session: " . ($_SESSION['csrf_token'] ?? 'NONE'));
-        $error = 'Security validation failed. Please try again.';
-    } elseif ($step === 'password') {
+    if ($step === 'password') {
         // STEP 1: Verify email and password
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -113,7 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Invalid email or password.';
             }
         }
-    } elseif ($step === 'otp') {
+    }
+    if ($step === 'otp') {
         // STEP 2: Verify OTP
         $otpCode = trim($_POST['otp_code'] ?? '');
         $email = $pending_email;
@@ -247,7 +244,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <form method="POST" action="" data-validate data-loading>
-                <?php echo csrfTokenField(); ?>
                 
                 <?php if ($step === 'password'): ?>
                     <!-- PASSWORD STEP -->
