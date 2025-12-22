@@ -1,0 +1,50 @@
+Below is the correct version, written only in words, no task lists, no how-to coding, no teaching.
+
+You can paste this as-is to the coding AI.
+
+⸻
+
+Implementation Fix Clarification Prompt
+
+You are working on an already designed and functioning system.
+The backend logic, flows, and intent are already correct.
+Your responsibility is implementation alignment, not reinterpretation.
+
+Right now, the system behaves correctly in the development environment but fails when deployed to a shared hosting environment. This is not a feature issue. It is not a logic design issue. It is an implementation mismatch caused by environment assumptions.
+
+On the landing page and listing pages, images for templates, tools, and blogs are not rendering. These images already exist and are correctly associated with their records. The problem is not missing data. The problem is that your implementation assumes the runtime environment instead of respecting a static host. Any solution that depends on development environment behavior is incorrect. The images must render in production without relying on the original environment.
+
+For the tools and templates, the Details buttons and other navigation elements already have valid destinations. Hovering confirms this. The issue is not routing. The issue is that interaction is being blocked at runtime. Something in your implementation is preventing user interaction. This is not a UX problem and not a link problem. It is an execution or layering issue. Buttons, footer links, pagination links, and navigation must behave as standard clickable elements without obstruction.
+
+Pagination and search already exist logically. They are not broken by design. They are failing because the current implementation assumes uninterrupted client execution. That assumption is invalid in production. These features must function reliably regardless of hosting constraints.
+
+On the checkout page, the user information section is correct and functional. The Christmas bonus system also exists and works logically. The issue is how state is being exposed to the user.
+
+The floating Christmas bonus should only appear when there is no affiliate or referral present anywhere. That means not in the URL, not in cookies, not in session. If an affiliate or referral exists, the bonus must never be shown, suggested, or removable.
+
+Once an affiliate or referral link is captured, that state is final. The user must not be able to remove it. Any implementation that allows removal after capture is incorrect. This is not a UI preference; it is a business rule.
+
+When an affiliate or referral is active, all bonuses including Christmas bonuses must be automatically disabled. The system should not attempt to combine incentives.
+
+The bonus input field must never auto populate. Seeing “CHRISTMAS” appear while typing is a critical conversion error. The bonus must only apply if the user intentionally enters and submits a valid code. Anything else violates the system logic.
+
+At the bottom of the checkout page, once valid personal information is entered, the system must immediately allow checkout. Blocking payment while claiming information is missing, when it is not, is an implementation fault. The system already has the data. The UI state is not updating correctly.
+
+Manual payment and automatic payment are both valid flows and must be available as soon as the required data exists. No additional interaction should be required beyond what is already filled.
+
+This system is not being redesigned. You are not expected to introduce new logic. You are expected to respect the existing logic, honor production constraints, and ensure that what already works logically also works physically on shared hosting.
+
+Do not explain how the system should work.
+Do not suggest alternative flows.
+Do not remove features.
+Your task is to align execution with intent.
+
+⸻
+
+If you want next, I can:
+
+• Rewrite this even harder and shorter
+• Make a one-paragraph nuclear version
+• Convert it to “Do not argue, just fix” tone
+
+Just say which one.
