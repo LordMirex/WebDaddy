@@ -154,14 +154,43 @@ On shared hosting, Paystack webhooks may not work if:
 - Test products added for development/testing
 - Payment recording system working
 
-## Known Limitations & Solutions
+## Paystack Shared Hosting Configuration (CRITICAL)
 
-### Paystack on Shared Hosting
-**Issue**: Webhooks may not work on shared hosting
+### Dashboard Setup
+1. **Login**: https://dashboard.paystack.com/
+2. **Webhook URL**: `https://yourdomain.com/paystack-verify.php`
+3. **API Keys**: Use LIVE keys (`sk_live_...`, `pk_live_...`)
+4. **Activate Account**: Submit business details to enable live mode
+
+### Security Requirements
+- **HTTPS Required**: Paystack requires SSL certificate
+- **SSL Verification**: Enabled in all cURL calls (CURLOPT_SSL_VERIFYPEER = true)
+- **Signature Verification**: All webhooks verified with hash_hmac('sha512')
+
+### Paystack Webhook IPs (Optional Whitelist)
+- `52.31.139.75`
+- `52.49.173.169`
+- `52.214.14.220`
+(Uncomment IP whitelist in paystack-verify.php for extra security)
+
+### Fallback for Blocked Webhooks
+If shared hosting blocks Paystack webhooks:
+1. Use **Bank Transfer** as primary payment method
+2. Admin manually confirms payments in dashboard
+3. Payment confirmation emails sent after admin approval
+
+### Retry Behavior
+- **Live mode**: Paystack retries every 3 minutes for 4 tries, then hourly for 72 hours
+- **Test mode**: Hourly for 10 hours (30-second timeout)
+
+### Known Limitations & Solutions
+
+### Paystack Webhook Issues
+**Issue**: Some shared hosts block external webhook requests
 **Solution**: 
-1. Use bank transfer as primary payment method
-2. Admin manually verifies payments in dashboard
-3. Configure Paystack to send verification emails
+1. Primary: Bank transfer method (100% reliable)
+2. Admin manually verifies and confirms payments
+3. Paystack callback URL verifies payment status
 
 ### Missing Asset Files
 - Logo images: `/assets/images/webdaddy-logo.png` 404

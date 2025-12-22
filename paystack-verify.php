@@ -3,8 +3,11 @@
  * Paystack Webhook Verification Handler
  * Verifies payment status and updates order accordingly
  * 
- * NOTE: On shared hosting, this endpoint may not receive webhooks from Paystack
- * In such cases, payments should be verified manually or via manual payment confirmation
+ * SHARED HOSTING CONFIGURATION:
+ * 1. Upload this file to your server root
+ * 2. Set webhook URL in Paystack Dashboard: https://yourdomain.com/paystack-verify.php
+ * 3. Ensure HTTPS is enabled (Paystack requires SSL)
+ * 4. Test with a live transaction
  */
 
 require_once __DIR__ . '/includes/config.php';
@@ -15,10 +18,20 @@ require_once __DIR__ . '/includes/delivery.php';
 // Set JSON response type
 header('Content-Type: application/json');
 
+// Paystack webhook IPs (optional extra security - uncomment to enable)
+// $allowedIps = ['52.31.139.75', '52.49.173.169', '52.214.14.220'];
+// $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+// if (!empty($allowedIps) && !in_array($clientIp, $allowedIps)) {
+//     error_log('PAYSTACK: Blocked request from unauthorized IP: ' . $clientIp);
+//     http_response_code(403);
+//     exit;
+// }
+
 // CRITICAL: Log all webhook attempts for debugging
 $logEntry = [
     'timestamp' => date('Y-m-d H:i:s'),
     'method' => $_SERVER['REQUEST_METHOD'],
+    'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
     'headers' => getallheaders(),
     'body' => file_get_contents('php://input'),
 ];
