@@ -8,9 +8,15 @@ require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
 
-if (isset($_SESSION['admin_id'])) {
-    header('Location: /admin/');
-    exit;
+// Check if user is already logged in via token
+if (isset($_COOKIE['admin_token'])) {
+    $db = getDb();
+    $stmt = $db->prepare("SELECT id FROM users WHERE admin_login_token = ? AND role = 'admin'");
+    $stmt->execute([$_COOKIE['admin_token']]);
+    if ($stmt->fetchColumn()) {
+        header('Location: /admin/');
+        exit;
+    }
 }
 
 $error = '';
@@ -23,21 +29,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user) {
         clearLoginAttempts($email, 'admin');
         
-        // Set session variables
+        // Generate unique token
+        $token = bin2hex(random_bytes(32));
+        
+        // Store token in database
+        $db = getDb();
+        $stmt = $db->prepare("UPDATE users SET admin_login_token = ? WHERE id = ?");
+        $stmt->execute([$token, $user['id']]);
+        
+        // Set secure cookie with token
+        setcookie('admin_token', $token, [
+            'expires' => time() + (30 * 86400), // 30 days
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+        
+        // Also set session for backward compatibility
         $_SESSION['admin_id'] = $user['id'];
         $_SESSION['admin_email'] = $user['email'];
         $_SESSION['admin_name'] = $user['name'];
         $_SESSION['admin_role'] = $user['role'];
         
         logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
-        
-        // Explicitly set PHP session cookie
-        setcookie('PHPSESSID', session_id(), [
-            'expires' => time() + 86400,
-            'path' => '/',
-            'httponly' => true,
-            'samesite' => 'Lax'
-        ]);
         
         header('Location: /admin/', true, 302);
         exit;

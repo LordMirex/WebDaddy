@@ -2,6 +2,20 @@
 
 function isAdmin()
 {
+    // Check token-based auth (primary)
+    if (isset($_COOKIE['admin_token'])) {
+        $db = getDb();
+        $stmt = $db->prepare("SELECT id, role FROM users WHERE admin_login_token = ? AND role = 'admin' AND status = 'active'");
+        $stmt->execute([$_COOKIE['admin_token']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user) {
+            $_SESSION['admin_id'] = $user['id'];
+            $_SESSION['admin_role'] = 'admin';
+            return true;
+        }
+    }
+    
+    // Fallback to session
     return isset($_SESSION['admin_id']) && isset($_SESSION['admin_role']) && $_SESSION['admin_role'] === 'admin';
 }
 
@@ -49,7 +63,7 @@ function verifyAdminPassword($email, $password)
 
 function loginAdmin($email, $password)
 {
-    // This now requires OTP verification - see admin/login.php
+    // This now requires token verification - see admin/login.php
     // This function kept for backwards compatibility
     $user = verifyAdminPassword($email, $password);
     if ($user) {
@@ -71,6 +85,21 @@ function logoutAdmin()
     if (isset($_SESSION['admin_id'])) {
         logActivity('admin_logout', 'Admin logged out', $_SESSION['admin_id']);
     }
+    
+    // Clear token from database
+    if (isset($_COOKIE['admin_token'])) {
+        $db = getDb();
+        $stmt = $db->prepare("UPDATE users SET admin_login_token = NULL WHERE admin_login_token = ?");
+        $stmt->execute([$_COOKIE['admin_token']]);
+    }
+    
+    // Clear cookie
+    setcookie('admin_token', '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     
     session_unset();
     session_destroy();
