@@ -79,21 +79,37 @@ define('CUSTOMER_DISCOUNT_RATE', 0.20);     // 20% discount for customers using 
 define('USER_REFERRAL_COMMISSION_RATE', 0.30); // 30% commission for user referrers (of final paid amount)
 define('USER_REFERRAL_DISCOUNT_RATE', 0.20);   // 20% discount for referred users
 
-// Site Settings
+// Site Settings - Works on ANY shared hosting (root or subdirectory)
 if (php_sapi_name() === 'cli' || !isset($_SERVER['HTTP_HOST'])) {
     $siteUrl = 'https://webdaddy.online';
+    $basePath = '';
 } else {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
     $host = $_SERVER['HTTP_HOST'];
     $siteUrl = $protocol . $host;
+    
+    // Calculate base path for subdirectory installations (e.g., /subdir, /webdaddy, etc)
+    // Removes 'index.php' and 'router.php' to get actual app base path
+    $scriptPath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+    $scriptDir = dirname($scriptPath);
+    $basePath = ($scriptDir !== '/' && $scriptDir !== '.') ? rtrim($scriptDir, '/') : '';
+    
+    // Add base path to site URL if in subdirectory
+    if ($basePath) {
+        $siteUrl = $siteUrl . $basePath;
+    }
 }
+
 define('SITE_URL', $siteUrl);
+define('BASE_PATH', $basePath); // Use this for relative path construction
 define('SITE_NAME', 'WebDaddy Empire');
 define('SUPPORT_EMAIL', 'support@webdaddy.online');
 
-// Upload Settings
+// Upload Settings - Works on root and subdirectory installations
 define('UPLOAD_DIR', __DIR__ . '/../uploads');
 define('UPLOAD_URL', SITE_URL . '/uploads');
+define('ASSETS_URL', SITE_URL . '/assets');
+define('BLOG_URL', SITE_URL . '/blog');
 define('MAX_IMAGE_SIZE', 20 * 1024 * 1024);
 define('MAX_VIDEO_SIZE', 500 * 1024 * 1024); // 500MB for video uploads
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']);

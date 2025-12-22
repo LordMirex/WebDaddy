@@ -202,45 +202,47 @@ if ($autoOpenTool) {
     
     <script>
     /**
-     * Shared Hosting Image Path Resolver
-     * Ensures images load correctly even if relative paths are inconsistent
+     * Shared Hosting Image Path Resolver v2
+     * Works on root deployments AND subdirectory installations
+     * Automatically detects base path and corrects image URLs
      */
+    window.BASE_PATH = '<?php echo addslashes(BASE_PATH); ?>';
+    
     function fixImagePath(img) {
         if (!img || img.dataset.fixed) return;
         const originalSrc = img.src;
         
-        // If already a placeholder, stop
-        if (originalSrc.includes('placeholder.jpg')) {
+        // If already a placeholder or absolute URL, stop
+        if (originalSrc.includes('placeholder.jpg') || originalSrc.startsWith('http')) {
             img.dataset.fixed = 'true';
             return;
         }
 
-        // Handle path inconsistencies on shared hosting
-        // Ensure paths always start from root /assets or /uploads
-        const assetsIdx = originalSrc.indexOf('/assets/');
-        const uploadsIdx = originalSrc.indexOf('/uploads/');
-        
-        if (assetsIdx !== -1 || uploadsIdx !== -1) {
-            const rootPath = assetsIdx !== -1 
-                ? originalSrc.substring(assetsIdx) 
-                : originalSrc.substring(uploadsIdx);
-                
-            // Only update if the current source isn't already correct relative to root
-            if (new URL(img.src).pathname !== rootPath) {
-                img.src = rootPath;
-                img.dataset.fixed = 'true';
+        // For relative paths starting with /, prepend BASE_PATH if needed
+        if (originalSrc.startsWith('/')) {
+            // Check if path already includes base path
+            if (window.BASE_PATH && !originalSrc.startsWith(window.BASE_PATH + '/')) {
+                const correctedPath = window.BASE_PATH + originalSrc;
+                if (img.src !== correctedPath) {
+                    img.src = correctedPath;
+                    img.dataset.fixed = 'true';
+                    return;
+                }
             }
         }
         
         img.onerror = function() {
-            // Try fallback to webdaddy.online if local image fails
-            if (!this.src.includes('webdaddy.online')) {
-                const pathOnly = this.src.replace(window.location.origin, '');
-                this.src = 'https://webdaddy.online' + pathOnly;
-            } else {
-                this.src = '/assets/images/placeholder.jpg';
-                this.onerror = null;
+            if (!this.dataset.retried) {
+                this.dataset.retried = 'true';
+                // Retry with BASE_PATH prepended if not already done
+                if (window.BASE_PATH && !this.src.includes(window.BASE_PATH)) {
+                    const pathOnly = this.src.replace(window.location.origin, '');
+                    this.src = window.BASE_PATH + pathOnly;
+                    return;
+                }
             }
+            // Final fallback
+            this.src = (window.BASE_PATH || '') + '/assets/images/placeholder.jpg';
             this.dataset.fixed = 'true';
         };
     }
