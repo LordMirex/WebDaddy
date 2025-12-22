@@ -3,20 +3,18 @@
 function startSecureSession()
 {
     if (session_status() === PHP_SESSION_NONE) {
-        $sessionPath = '/tmp/php_sessions';
+        // On shared hosting, it's safer to use the default session path 
+        // unless we have a specific private directory. /tmp/php_sessions 
+        // might not be writable or shared across users.
+        $sessionPath = __DIR__ . '/../cache/sessions';
         if (!is_dir($sessionPath)) {
-            if (!mkdir($sessionPath, 0777, true)) {
-                error_log('Unable to create custom session path: ' . $sessionPath . '. Using system default.');
-                $sessionPath = null;
-            }
-        } elseif (!is_writable($sessionPath)) {
-            error_log('Session path not writable: ' . $sessionPath . '. Using system default.');
-            $sessionPath = null;
+            @mkdir($sessionPath, 0755, true);
         }
         
-        if ($sessionPath) {
+        if (is_dir($sessionPath) && is_writable($sessionPath)) {
             session_save_path($sessionPath);
         }
+        
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_samesite', 'Lax');
