@@ -122,6 +122,17 @@ On shared hosting, Paystack webhooks may not work if:
 - Token stored in database and secure httpOnly cookie
 - Admin redirect and dashboard access working
 
+### Alpine.js CSP Compatibility Fixes
+- Fixed admin/tools.php "Type your own" tool type selector
+  - Converted inline x-data functions to Alpine.data('toolTypeSelector') registration
+  - Now CSP-safe with proper mode/customValue/handleChange/reset methods
+- Template category selectors already using proper Alpine.data() pattern
+
+### Template Details Navigation
+- Added `openTemplateDetails(slug)` function to cart-and-tools.js
+- Uses `/template.php?slug=` format for dev server compatibility
+- Also works on shared hosting via .htaccess rewrite rules
+
 ### Checkout & Orders
 - Complete order creation workflow implemented
 - Both payment methods fully integrated
