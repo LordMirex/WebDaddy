@@ -1,4 +1,13 @@
 <?php
+error_reporting(E_ALL);
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("ERROR[$errno]: $errstr in $errfile:$errline");
+    return false;
+});
+set_exception_handler(function($e) {
+    error_log("EXCEPTION: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+});
+
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/session.php';
@@ -12,34 +21,39 @@ header('Cache-Control: no-cache, no-store, must-revalidate', false);
 header('Pragma: no-cache', false);
 header('Expires: 0', false);
 
-startSecureSession();
-handleAffiliateTracking();
-handleUserReferralTracking();
+// Startup functions wrapped to prevent fatal errors
+@startSecureSession();
+@handleAffiliateTracking();
+@handleUserReferralTracking();
 
 // Expose WhatsApp number to JavaScript for dynamic links
 $whatsappNumberForJs = preg_replace('/[^0-9]/', '', WHATSAPP_NUMBER);
 
 // AUTO-RESTORE SAVED CART FROM PREVIOUS VISIT (if not already loaded)
 if (empty(getCart())) {
-    $db = getDb();
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    $stmt = $db->prepare('
-        SELECT id, cart_snapshot FROM draft_orders 
-        WHERE ip_address = ? AND created_at > datetime("now", "-7 days")
-        ORDER BY created_at DESC
-        LIMIT 1
-    ');
-    $stmt->execute([$ip]);
-    $draft = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($draft) {
-        $draftData = json_decode($draft['cart_snapshot'], true);
-        if (!empty($draftData['cart_items'])) {
-            $_SESSION['cart'] = $draftData['cart_items'];
-            if (!empty($draftData['affiliate_code'])) {
-                $_SESSION['affiliate_code'] = $draftData['affiliate_code'];
+    try {
+        $db = getDb();
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $stmt = $db->prepare('
+            SELECT id, cart_snapshot FROM draft_orders 
+            WHERE ip_address = ? AND created_at > datetime("now", "-7 days")
+            ORDER BY created_at DESC
+            LIMIT 1
+        ');
+        $stmt->execute([$ip]);
+        $draft = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($draft) {
+            $draftData = json_decode($draft['cart_snapshot'], true);
+            if (!empty($draftData['cart_items'])) {
+                $_SESSION['cart'] = $draftData['cart_items'];
+                if (!empty($draftData['affiliate_code'])) {
+                    $_SESSION['affiliate_code'] = $draftData['affiliate_code'];
+                }
             }
         }
+    } catch (Exception $e) {
+        error_log('Cart restore failed: ' . $e->getMessage());
     }
 }
 
