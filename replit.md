@@ -167,12 +167,6 @@ On shared hosting, Paystack webhooks may not work if:
 - **SSL Verification**: Enabled in all cURL calls (CURLOPT_SSL_VERIFYPEER = true)
 - **Signature Verification**: All webhooks verified with hash_hmac('sha512')
 
-### Paystack Webhook IPs (Optional Whitelist)
-- `52.31.139.75`
-- `52.49.173.169`
-- `52.214.14.220`
-(Uncomment IP whitelist in paystack-verify.php for extra security)
-
 ### Fallback for Blocked Webhooks
 If shared hosting blocks Paystack webhooks:
 1. Use **Bank Transfer** as primary payment method

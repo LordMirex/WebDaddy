@@ -21,18 +21,7 @@ header('Content-Type: application/json');
 // Read request body once (php://input can only be read once)
 $body = file_get_contents('php://input');
 
-// Paystack webhook IPs (optional extra security - uncomment to enable)
-// Note: For X-Forwarded-For, we extract only the first IP (client IP) from comma-separated list
-// $allowedIps = ['52.31.139.75', '52.49.173.169', '52.214.14.220'];
-// $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
-// $clientIp = $forwardedFor ? trim(explode(',', $forwardedFor)[0]) : ($_SERVER['REMOTE_ADDR'] ?? '');
-// if (!empty($allowedIps) && !in_array($clientIp, $allowedIps)) {
-//     error_log('PAYSTACK: Blocked request from unauthorized IP: ' . $clientIp);
-//     http_response_code(403);
-//     exit;
-// }
-
-// CRITICAL: Log all webhook attempts for debugging
+// Log all webhook attempts for debugging
 $logEntry = [
     'timestamp' => date('Y-m-d H:i:s'),
     'method' => $_SERVER['REQUEST_METHOD'],
