@@ -1,0 +1,87 @@
+now have done my thinking for errors noe you find your own errors on the code base especially the core system functionality that you knwo woukd break whgen we move toi shared hhostuing envbirenment
+
+are yoou sure this is perfect and no erro, forn my db leave it as it is i dont eant to swrtch from sqlite but for the enviorment fool create the complete .emv and make sure that everyewher on trhe site is not still tryhing to use the old method and i want my exact creditials that weree on config befoe to bve on the env i dont hafve time to start finsing api keys again
+\
+ 
+### Strict Implementation Prompt for Coding Agent
+
+**Agent Instructions: Follow this prompt EXACTLY as written. Do NOT make any changes to CSS files, Tailwind configurations, or any styling-related code (e.g., classes, inline styles, themes). Your fixes MUST NOT affect the visual appearance, layout, or customized styling of the site in any way—preserve all advanced customizations. Only modify JavaScript, PHP, HTML, or server configs where specified. Test each fix in a staging environment first, ensuring no regressions. . Do not introduce new dependencies unless explicitly listed. Log all changes in a commit message like "Fix [issue]: [brief description]". Provide a summary report after implementation.**
+
+#### 1. **Fix CSP Violations (Security Policy Blocking Resources)**
+   - Do NOT change any existing CSP directives. ONLY ADD the minimum required sources to allow blocked resources without broadening security.
+   - In the main PHP header file (likely includes/header.php or similar), update the Content-Security-Policy header:
+     - Add to `script-src`: `https://js.paystack.co https://cdn.quilljs.com`
+     - Add to `style-src`: `https://cdn.quilljs.com`
+     - Add `frame-src`: `https://www.youtube.com https://www.youtube-nocookie.com` (for YouTube modals)
+     - Add to `default-src`: `https://js.paystack.co https://cdn.quilljs.com` (as fallback)
+   - Example updated header: `header("Content-Security-Policy: default-src 'self' https://cdn.jsdelivr.net https://wa.me https://js.paystack.co https://cdn.quilljs.com; script-src 'self' 'unsafe-inline' https://instant.page https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://www.googletagmanager.com https://js.paystack.co https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.quilljs.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com;");`
+   - Test: Reload pages like cart-checkout.php and user-campaign.php. Confirm no CSP violations in console for Paystack, Quill, or YouTube. Ensure Quill editor loads on user-campaign.php without "Quill is not defined" error.
+
+#### 2. **Fix Alpine.js Collapse Plugin Missing**
+   - Add the Collapse plugin without altering any existing Alpine code or elements.
+   - In the HTML head or footer (where Alpine is loaded), add: `<script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>` after the Alpine script tag.
+   - Update CSP if needed (already covered in step 1, as cdn.jsdelivr.net is allowed).
+   - Apply x-cloak to any collapse elements: Find divs with `x-collapse` and wrap or add `x-cloak` to their parent if not present, e.g., `<div x-data x-cloak> <div x-collapse>...</div> </div>`.
+   - Test: Interact with collapsible sections (e.g., accordions in footer or nav). Confirm no warnings in console.
+
+#### 3. **Fix Tailwind CDN Production Warning**
+   - Do NOT change any styling or Tailwind classes. Ignore the warning for now, but to suppress it:
+   - Install Tailwind via CLI for production: Run `npx tailwindcss init` if not done, then build a local CSS file: In package.json, add script `"build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify"`.
+   - Replace CDN link with local: Change `<script src="https://cdn.tailwindcss.com"></script>` to `<link href="/dist/output.css" rel="stylesheet">`.
+   - Ensure output.css is generated and matches current styling exactly (run build command).
+   - Test: Reload site; confirm identical appearance and no warning.
+
+#### 4. **Fix Instant.page Integrity Block**
+   - Update the script tag in HTML: Compute new SHA-384 hash for https://instant.page/5.2.0 (download file, use tool like openssl: `openssl dgst -sha384 -binary instant.page.js | openssl base64 -A`).
+   - Replace: `<script src="https://instant.page/5.2.0" type="module" integrity="sha384-NEW-COMPUTED-HASH" defer></script>`.
+   - If hash matches 'jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z', investigate file version mismatch and update to latest.
+   - Test: Reload; confirm resource loads without block.
+
+#### 5. **Fix Navigation to 'Tools' Section**
+   - In cart-and-tools.js (around line 1357), fix JSON parse error causing load failures: Add try-catch in switchView: `try { const data = await response.json(); ... } catch (e) { console.error('API returned invalid JSON:', await response.text()); return; }`.
+   - Ensure API /api/ajax-products.php?action=load_view&view=tools&page=1 returns valid JSON (in PHP, always `header('Content-Type: application/json'); echo json_encode($data); exit;`). Handle errors as JSON: `echo json_encode(['error' => 'Message']);`.
+   - Add x-cloak to tools section container: `<div id="tools-section" x-cloak x-data="{ loaded: false }" @load.window="loaded = true"> ... </div>`.
+   - Test: Click 'Tools' nav; confirm loads without error.
+
+#### 6. **Fix Empty Categories Dropdown**
+   - Check API call for categories (likely /api/ajax-products.php or similar). Ensure it returns JSON array.
+   - In JS (probably cart-and-tools.js or interactions.js), add error handling: `fetch(url).then(res => res.json()).catch(e => { console.error(e); dropdown.innerHTML = '<option>Error loading categories</option>'; });`.
+   - If populated via Alpine, add x-cloak: `<select x-cloak x-data="..." x-init="fetchCategories()">...</select>`.
+   - Test: Open dropdown; confirm options appear.
+
+#### 7. **Fix Template Details Clicks on Index Page Not Working**
+   - In index.php or cart-and-tools.js (around onclick handlers like line 918/924), ensure event listeners attach after DOM load: Wrap in `document.addEventListener('DOMContentLoaded', () => { ... });`.
+   - Fix any ReferenceError (e.g., isConfirmationPage): Define globally if needed: `<script>window.isConfirmationPage = false;</script>` on index.
+   - Handle click: If using switchView, ensure it doesn't throw JSON error (fixed in step 5).
+   - Add x-cloak to template cards: `<div class="template-card" x-cloak onclick="...">...</div>`.
+   - Test: Click template; confirm details load.
+
+#### 8. **Fix Footer Links Not Redirecting (Except Blog, Inconsistent Across Pages)**
+   - Check footer HTML for links (e.g., <a href="/about.php">About</a>). Ensure no JS overriding clicks (e.g., in interactions.js, remove any preventDefault on footer if present).
+   - If Alpine-intercepted, add `x-on:click.prevent="false"` to links.
+   - For inconsistency: Ensure footer is included uniformly (e.g., via PHP include) without page-specific overrides.
+   - Test: Click footer links on index and other pages; confirm redirects.
+
+#### 9. **Fix YouTube and Video Modals Not Working**
+   - In video-modal.js (lines 729-742), fix CSP (already in step 1).
+   - Handle autoplay error (line 485): Replace `video.play()` with `video.play().catch(e => console.warn('Autoplay blocked:', e));`.
+   - Fix preloading (line 209): Add fallback: `if (error) { video.src = url; video.load(); }`.
+   - Ensure modal open uses allowed domains.
+   - Add x-cloak to modal elements: `<div id="video-modal" x-cloak x-data="videoModal">...</div>`.
+   - Test: Click video/YouTube triggers; confirm modal opens and plays.
+
+#### 10. **Fix Payment Final Pay Button Not Enabling**
+   - In cart-checkout.php (around lines 777-797, 1352-1509), fix validation: In Alpine data, add watchers: `x-data="{ formValid: false, ... }" x-init=" $watch('formFields', () => validateForm()) "`.
+   - In validateForm JS: Check all fields (email, OTP, etc.) are filled: `this.formValid = this.email && this.otp && ...;`.
+   - Handle 401 logout: In customer-auth.js (line 111), on error: `if (status === 401) { alert('Session expired. Please log in again.'); location.reload(); }`.
+   - Apply x-cloak to steps: For registration/checkout, structure as multi-step with x-cloak per step: `<div x-cloak x-show="step === 1">Personal Info</div> <div x-cloak x-show="step === 2">Payment</div>`.
+   - Ensure submit button: `<button x-bind:disabled="!formValid">Pay</button>`.
+   - Test: Fill form, verify OTP, select method; confirm button enables and submits.
+
+#### 11. **Fix Slow Resources and General Performance**
+   - Do NOT change frontend. Server-side: In APIs (e.g., cart.php, ajax-products.php), add caching (e.g., use APCu or file cache for frequent queries).
+   - Compress videos/images: Run server script to optimize /uploads/* with tools like ffmpeg/imagemagick.
+   - In network-optimization.js (line 71), increase slow threshold to 5000ms to reduce warnings.
+   - Test: Monitor load times; confirm under 2s for APIs.
+
+**Final Agent Tasks: Implement all steps in order. After fixes, clear browser cache, test on multiple browsers/devices. Report any conflicts immediately without proceeding. If an issue persists, add console logs for debugging (e.g., console.log('Step X reached')). Do NOT add new features or optimizations beyond this prompt.**
