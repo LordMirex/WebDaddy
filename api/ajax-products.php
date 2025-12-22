@@ -76,6 +76,33 @@ if ($action === 'load_view') {
     
     $html = ob_get_clean();
     $categories = $view === 'templates' ? getTemplateCategories() : getToolTypes();
+    
+    // Inject fixImagePath function if not already available
+    $scriptInject = '<script>
+    if (!window.fixImagePath) {
+        window.fixImagePath = function(img) {
+            if (!img || img.dataset.fixed) return;
+            const originalSrc = img.src;
+            if (originalSrc.includes("placeholder.jpg")) {
+                img.dataset.fixed = "true";
+                return;
+            }
+            const assetsIdx = originalSrc.indexOf("/assets/");
+            const uploadsIdx = originalSrc.indexOf("/uploads/");
+            if (assetsIdx !== -1 || uploadsIdx !== -1) {
+                const rootPath = assetsIdx !== -1 
+                    ? originalSrc.substring(assetsIdx) 
+                    : originalSrc.substring(uploadsIdx);
+                if (new URL(img.src).pathname !== rootPath) {
+                    img.src = rootPath;
+                    img.dataset.fixed = "true";
+                }
+            }
+        };
+    }
+    </script>';
+    
+    $html = $scriptInject . $html;
     echo json_encode(['success' => true, 'html' => $html, 'view' => $view, 'page' => $page, 'categories' => $categories]);
     exit;
 }
