@@ -157,7 +157,7 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
                     </form>
                     
                     <div class="mt-4 text-center">
-                        <button @click="otpSent = false; otpCode = ''; error = ''" class="text-gray-500 hover:text-gray-700 text-sm">
+                        <button @click="goBackToEmail()" class="text-gray-500 hover:text-gray-700 text-sm">
                             <i class="bi-arrow-left mr-1"></i> Change email
                         </button>
                     </div>
@@ -271,6 +271,13 @@ if (isset($_SESSION['reg_customer_id']) && isset($_SESSION['reg_email_verified']
             error: '',
             success: '',
             resendCooldown: 0,
+            
+            // CSP-safe helper to go back to email entry
+            goBackToEmail() {
+                this.otpSent = false;
+                this.otpCode = '';
+                this.error = '';
+            },
             
             async sendEmailOTP() {
                 if (!this.email || !this.email.includes('@')) {

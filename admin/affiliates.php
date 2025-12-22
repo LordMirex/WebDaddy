@@ -672,7 +672,9 @@ require_once __DIR__ . '/includes/header.php';
     showAnnouncementModal: false,
     showBonusCodeModal: false,
     editBonusCode: null,
-    processWithdrawalId: null
+    processWithdrawalId: null,
+    openBonusCodeModal() { this.showBonusCodeModal = true; this.editBonusCode = null; },
+    openEditBonusCodeModal(bc) { this.showBonusCodeModal = true; this.editBonusCode = bc; }
 }">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
@@ -1218,7 +1220,7 @@ require_once __DIR__ . '/includes/header.php';
                 <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <i class="bi bi-gift text-orange-600"></i> Manage Bonus Codes
                 </h3>
-                <button @click="showBonusCodeModal = true; editBonusCode = null;" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors text-sm">
+                <button @click="openBonusCodeModal()" class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors text-sm">
                     <i class="bi bi-plus-circle mr-1"></i> Create Bonus Code
                 </button>
             </div>
@@ -1257,7 +1259,7 @@ require_once __DIR__ . '/includes/header.php';
                                 <td colspan="8" class="text-center py-12">
                                     <i class="bi bi-gift text-6xl text-gray-300"></i>
                                     <p class="text-gray-500 mt-4">No bonus codes yet</p>
-                                    <button @click="showBonusCodeModal = true; editBonusCode = null;" class="mt-4 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
+                                    <button @click="openBonusCodeModal()" class="mt-4 px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors">
                                         <i class="bi bi-plus-circle mr-2"></i> Create First Bonus Code
                                     </button>
                                 </td>
@@ -1330,7 +1332,7 @@ require_once __DIR__ . '/includes/header.php';
                                         </form>
                                         <?php endif; ?>
                                         <?php endif; ?>
-                                        <button @click="showBonusCodeModal = true; editBonusCode = <?php echo htmlspecialchars(json_encode($bc)); ?>" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-medium" title="Edit">
+                                        <button @click="openEditBonusCodeModal(<?php echo htmlspecialchars(json_encode($bc)); ?>)" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-medium" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </button>
                                         <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this bonus code?');">

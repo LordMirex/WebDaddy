@@ -1667,7 +1667,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                 <div class="bg-blue-900/30 border border-blue-700 p-4 rounded-lg mb-4">
                                     <p class="text-blue-200">
                                         Welcome back! Login as <strong class="text-blue-100" x-text="email"></strong>
-                                        <button type="button" @click="step = 'email'; error = ''" class="text-blue-400 underline ml-2 text-sm hover:text-blue-300">change</button>
+                                        <button type="button" @click="changeEmail()" class="text-blue-400 underline ml-2 text-sm hover:text-blue-300">change</button>
                                     </p>
                                 </div>
                                 <label class="block text-sm font-bold text-gray-100 mb-2">Password</label>
@@ -1707,7 +1707,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                     <p class="text-green-200">
                                         <svg class="w-5 h-5 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                                         Verification code sent to <strong class="text-green-100" x-text="email"></strong>
-                                        <button type="button" @click="step = 'email'; error = ''" class="text-green-400 underline ml-2 text-sm hover:text-green-300">change</button>
+                                        <button type="button" @click="changeEmail()" class="text-green-400 underline ml-2 text-sm hover:text-green-300">change</button>
                                     </p>
                                 </div>
                                 
@@ -2500,6 +2500,12 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                     console.error('Init error:', e);
                     window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'email' } }));
                 }
+            },
+            
+            // Go back to email step (CSP-safe helper)
+            changeEmail() {
+                this.step = 'email';
+                this.error = '';
             },
             
             // Set authenticated state with customer data

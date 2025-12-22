@@ -198,6 +198,8 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
     showCreateModal: false, 
     showEditModal: <?php echo $editDomain ? 'true' : 'false'; ?>, 
     showBulkModal: false,
+    closeCreateModal() { this.showCreateModal = false; this.resetCreateForm(); },
+    closeBulkModal() { this.showBulkModal = false; this.resetBulkForm(); },
     resetCreateForm() {
         const form = this.$el.querySelector('#create-domain-form');
         if (form) {
@@ -444,7 +446,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
             <form method="POST" id="create-domain-form">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900">Add New Domain</h3>
-                    <button type="button" @click="showCreateModal = false; resetCreateForm()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <button type="button" @click="closeCreateModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -472,7 +474,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <button type="button" @click="showCreateModal = false; resetCreateForm()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <button type="button" @click="closeCreateModal()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
@@ -575,7 +577,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
             <form method="POST" id="bulk-domain-form">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
                     <h3 class="text-2xl font-bold text-gray-900">Bulk Add Domains</h3>
-                    <button type="button" @click="showBulkModal = false; resetBulkForm()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <button type="button" @click="closeBulkModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -600,7 +602,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <button type="button" @click="showBulkModal = false; resetBulkForm()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <button type="button" @click="closeBulkModal()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg transition-all shadow-lg">
