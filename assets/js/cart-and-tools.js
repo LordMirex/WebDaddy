@@ -30,6 +30,16 @@ async function openToolModal(toolId) {
     }
 }
 
+// Global function to open template details page - accessible from HTML onclick attributes
+function openTemplateDetails(slug) {
+    if (!slug) {
+        console.error('No template slug provided');
+        return;
+    }
+    // Navigate to template detail page
+    window.location.href = '/' + encodeURIComponent(slug);
+}
+
 function trackTemplateClick(templateId) {
     if (!templateId) return;
     fetch('/api/analytics.php', {
