@@ -99,6 +99,13 @@ const CustomerAuth = {
                 credentials: 'include',
                 body: JSON.stringify({ email, password })
             });
+            
+            if (response.status === 401) {
+                alert('Session expired. Please log in again.');
+                location.reload();
+                return { success: false, error: 'Session expired' };
+            }
+            
             return await response.json();
         } catch (e) {
             console.error('CustomerAuth.login error:', e);

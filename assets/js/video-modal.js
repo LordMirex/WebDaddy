@@ -495,8 +495,7 @@ class VideoModal {
         
         if (playPromise !== undefined) {
             playPromise.catch(error => {
-                console.error('VideoModal: Autoplay failed', error);
-                // Show play button if autoplay fails
+                console.warn('VideoModal: Autoplay blocked or failed:', error);
                 this.playOverlay.style.display = 'flex';
             });
         }

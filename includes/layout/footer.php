@@ -164,7 +164,7 @@ $affQueryStart = $affiliateCode ? '?aff=' . urlencode($affiliateCode) : '';
 <?php endif; ?>
 
 <!-- Instant Page Load - Prefetches pages on hover for instant navigation -->
-<script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ez8Mcp8KO4jxRoLVY0U0ZsxaZVB1AvZuCy8qX3qMF4Yh+Q5A" crossorigin="anonymous"></script>
+<script src="https://instant.page/5.2.0" type="module" integrity="sha384-jnZyxPjiipYXnSU0ygqeac2q7CVYMbh84q0uHVRRxEtvFPiQYbXWUorga2aqZJ0z" crossorigin="anonymous" defer></script>
 <!-- Scroll Position Restoration - Remembers where you were on each page -->
 <script src="/assets/js/scroll-restoration.js" defer></script>
 <!-- Aggressive Network & Cache Optimization - Desktop & Mobile Speed -->

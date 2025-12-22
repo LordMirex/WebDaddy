@@ -1279,10 +1279,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fetch categories for the current view even from cache
             // Make a lightweight API call to get just the categories
             fetch(`/api/ajax-products.php?action=get_categories&view=${view}`)
-                .then(r => r.json().catch(e => {
-                    console.error('API returned invalid JSON for categories');
-                    return { categories: [] };
-                }))
+                .then(async r => {
+                    try {
+                        return await r.json();
+                    } catch (e) {
+                        console.error('API returned invalid JSON for categories:', e);
+                        return { categories: [] };
+                    }
+                })
                 .then(data => {
                     if (data.categories && data.categories.length > 0) {
                         setupCategoryDropdown(data.categories);
@@ -1325,11 +1329,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 data = await response.json();
             } catch (parseError) {
                 const responseText = await response.text();
-                console.error('❌ JSON Parse Error for view:', view);
+                console.error('API returned invalid JSON:', responseText);
+                console.error('JSON Parse Error for view:', view);
                 console.error('Response status:', response.status);
                 console.error('Response first 500 chars:', responseText.substring(0, 500));
                 console.error('Parse error:', parseError.message);
-                throw new Error(`Failed to parse Tools API response: ${parseError.message}`);
+                showNotification('Failed to load content. Please refresh the page.', 'error');
+                return;
             }
             
             if (!data.success) {
