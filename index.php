@@ -209,8 +209,8 @@ if ($autoOpenTool) {
         if (!img || img.dataset.fixed) return;
         const originalSrc = img.src;
         
-        // If already a placeholder or remote, stop
-        if (originalSrc.includes('placeholder.jpg') || originalSrc.startsWith('http')) {
+        // If already a placeholder, stop
+        if (originalSrc.includes('placeholder.jpg')) {
             img.dataset.fixed = 'true';
             return;
         }
@@ -225,15 +225,22 @@ if ($autoOpenTool) {
                 ? originalSrc.substring(assetsIdx) 
                 : originalSrc.substring(uploadsIdx);
                 
-            if (rootPath !== originalSrc) {
+            // Only update if the current source isn't already correct relative to root
+            if (new URL(img.src).pathname !== rootPath) {
                 img.src = rootPath;
                 img.dataset.fixed = 'true';
             }
         }
         
         img.onerror = function() {
-            this.src = '/assets/images/placeholder.jpg';
-            this.onerror = null;
+            // Try fallback to webdaddy.online if local image fails
+            if (!this.src.includes('webdaddy.online')) {
+                const pathOnly = this.src.replace(window.location.origin, '');
+                this.src = 'https://webdaddy.online' + pathOnly;
+            } else {
+                this.src = '/assets/images/placeholder.jpg';
+                this.onerror = null;
+            }
             this.dataset.fixed = 'true';
         };
     }
