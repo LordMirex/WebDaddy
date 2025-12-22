@@ -294,13 +294,12 @@ if ($autoOpenTool) {
     }
     </script>
     
+    <meta name="theme-color" content="#001f3f">
     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="/assets/images/favicon.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="https://webdaddy.online/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="https://webdaddy.online/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="/site.webmanifest">
     
     <!-- Premium Fonts - Inter and Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
