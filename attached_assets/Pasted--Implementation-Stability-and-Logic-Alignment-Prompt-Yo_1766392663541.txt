@@ -1,0 +1,30 @@
+⸻
+
+Implementation Stability and Logic Alignment Prompt
+
+You have already made progress. The checkout now renders after login or after user details are entered, which confirms that the core flow is reachable. However, there are still serious implementation faults that must be addressed carefully, because they can break payments, conversions, and trust.
+
+First, there is an issue with WhatsApp number handling during checkout. The system keeps prompting or reusing the WhatsApp number even after it has already been provided. This makes it unclear whether the payment flow is incorrectly depending on the WhatsApp field to initialize. The system should not repeatedly request or block progress because of a field that is already filled and validated. Whatever state check is being used here is unstable and must be corrected so that once the WhatsApp number is present, it is accepted permanently for that session.
+
+Affiliate handling is now closer to the intended behavior, since users can no longer remove an affiliate once it is stored. That part is correct. However, there is a very dangerous bug when applying an affiliate code or bonus code. Sometimes, after entering the code and clicking apply, the entire cart is cleared and the user is redirected back to the index page. This must never happen under any circumstance. Applying an affiliate or bonus code should never reset the cart, navigate away, or invalidate the current checkout state.
+
+Closely related to this, the approval process for affiliate and bonus codes is inconsistent. Sometimes it works instantly, other times it delays for too long, and sometimes it triggers a reset. This behavior strongly suggests that success and error states are duplicated or competing. It feels like more than one response handler is firing at the same time. This must be stabilized so that each apply action results in exactly one outcome, either approved or rejected, without side effects. Approval should be immediate once the code is validated, using the existing data, without clearing state or reloading the page.
+
+Now to the most critical issue: payments.
+
+For Paystack, the payment is being initiated, but it never completes properly. The loader spins indefinitely, and even when the system appears to reach the approval stage, nothing finalizes. This means the transaction flow is not completing, callbacks are not resolving, or the success state is never being acknowledged. A payment flow must never stall silently. If Paystack is initiated, it must either complete successfully or fail clearly, not hang forever.
+
+For manual payment, the system correctly navigates to the payment details page, but the page itself is blank. This confirms that the route exists but fails at runtime. This strongly indicates server errors, missing data, or rendering failures. A blank payment page is unacceptable. The manual payment flow must always render its content once reached.
+
+At this point, it is very likely that multiple 500-level errors exist across the site, especially around checkout related routes. These errors must be identified and eliminated because they directly affect revenue paths.
+
+Returning to the index and listing pages, the Details buttons for templates and tools are still not working. These buttons should not be complex. They do not need advanced JavaScript behavior. They simply need to redirect the user to another page. Right now, JavaScript appears to be interfering with basic navigation. The same problem exists in the footer. The links visually show correct destinations, but clicking them does nothing. This is not a routing issue. It is an interaction blocking issue. The implementation must allow plain, reliable navigation without JavaScript preventing clicks.
+
+Finally, the image problem remains unresolved. Images for templates, tools, and blogs are still not rendering. The data exists and the database paths are correct, but the images do not display in production. This confirms that the issue is not missing records, but how paths are resolved or served in the hosting environment. The blog images being completely blank is especially critical, because it affects content credibility and SEO. This must be fixed so images load consistently in production, not just in development.
+
+Overall, the system logic is already defined and correct. What is failing is execution stability. Features partially work, then reset, hang, or disappear. Your task is to make the behavior consistent, predictable, and safe for users. No feature should ever clear the cart unexpectedly, block payment silently, or prevent basic navigation.
+
+Do not redesign the system.
+Do not add new flows.
+Do not introduce workarounds that hide errors.
+.
