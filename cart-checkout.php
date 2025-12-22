@@ -70,27 +70,19 @@ $success = '';
 // Track submitted affiliate code for error display
 $submittedAffiliateCode = '';
 
-// Handle discount code removal
+// Handle discount code removal - ONLY allow removal of bonus codes
+// Affiliate and referral codes are PERMANENT once set and cannot be removed
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_discount'])) {
     if (validateCsrfToken($_POST['csrf_token'] ?? '')) {
-        // Clear bonus code
+        // ONLY clear bonus code - affiliate and referral codes CANNOT be removed
+        // This is a business rule: once captured, affiliate/referral state is final
         $appliedBonusCode = null;
         unset($_SESSION['applied_bonus_code']);
         
-        // Clear affiliate code
-        $affiliateCode = null;
-        unset($_SESSION['affiliate_code']);
-        setcookie('affiliate_code', '', time() - 3600, '/');
+        // Recalculate totals with affiliate/referral still active (if they were set)
+        $totals = getCartTotal(null, $affiliateCode, null, $userReferralCode);
         
-        // Clear user referral code
-        $userReferralCode = null;
-        unset($_SESSION['referral_code']);
-        setcookie('referral_code', '', time() - 3600, '/');
-        
-        // Recalculate totals without any discount
-        $totals = getCartTotal(null, null, null, null);
-        
-        $success = 'Discount code removed.';
+        $success = 'Bonus code removed.';
     }
 }
 
@@ -1571,7 +1563,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 
                 <!-- Discount Code Section -->
                 <?php if ($totals['has_discount']): ?>
-                <!-- Applied Discount Banner with Cancel Option -->
+                <!-- Applied Discount Banner with Cancel Option (only for bonus codes) -->
                 <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center">
@@ -1588,6 +1580,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs sm:text-sm font-bold text-green-900">-<?php echo formatCurrency($totals['discount']); ?></span>
+                            <!-- Only show Remove button for bonus codes, NOT for affiliate/referral (those are permanent) -->
+                            <?php if ($totals['discount_type'] === 'bonus_code'): ?>
                             <form method="POST" action="" class="inline" id="removeDiscountForm">
                                 <?php echo csrfTokenField(); ?>
                                 <input type="hidden" name="remove_discount" value="1">
@@ -1596,13 +1590,14 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                 <input type="hidden" name="customer_phone" id="remove_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
                                 <button type="submit" 
                                         class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-600 hover:text-red-700 font-medium rounded transition-colors"
-                                        title="Remove this discount">
+                                        title="Remove this bonus code">
                                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
                                     </svg>
                                     Remove
                                 </button>
                             </form>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -1971,22 +1966,14 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 
                 
                 <!-- Submit Button Container - controlled by Alpine state -->
-                <div id="submit-btn-container" x-data="{ authStep: 'email' }" 
+                <div id="submit-btn-container" x-data="{ authStep: 'authenticated' }" 
                      x-init="window.addEventListener('checkout-auth-ready', e => { authStep = e.detail.step; console.log('Auth state updated:', e.detail.step); });">
                     
-                    <!-- Show prompt when not authenticated -->
-                    <div x-show="authStep !== 'authenticated'" x-cloak class="bg-yellow-900/30 border border-yellow-600/50 rounded-xl p-4 mb-4 text-center">
-                        <p class="text-yellow-200 text-sm">
-                            <svg class="w-5 h-5 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                            Please verify your email above to continue checkout
-                        </p>
-                    </div>
-                    
-                    <!-- Submit button - only enabled when authenticated -->
+                    <!-- Submit button - enable as soon as personal info is valid (no more email verification blocking) -->
                     <button type="submit" 
                             id="submit-btn"
-                            :disabled="authStep !== 'authenticated' || <?php echo !$validation['valid'] ? 'true' : 'false'; ?>"
-                            :class="authStep !== 'authenticated' ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'"
+                            :disabled="<?php echo !$validation['valid'] ? 'true' : 'false'; ?>"
+                            :class="<?php echo !$validation['valid'] ? 'true' : 'false'; ?> ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'"
                             class="w-full disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
