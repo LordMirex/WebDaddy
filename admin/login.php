@@ -51,6 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin_role'] = $user['role'];
                 
                 error_log("DEBUG: Session set - admin_id={$_SESSION['admin_id']}, admin_role={$_SESSION['admin_role']}");
+                error_log("DEBUG: Session ID: " . session_id());
+                error_log("DEBUG: Session file: " . session_save_path() . '/sess_' . session_id());
+                
+                // Force session to be written to disk before redirect
+                session_write_close();
                 
                 logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
                 error_log("✅ Admin logged in WITHOUT OTP (TESTING MODE): {$email}");
