@@ -151,7 +151,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-10" data-templates-grid>
             <?php foreach ($templates as $idx => $template): ?>
-            <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col">
+            <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" x-cloak>
                 <div class="relative overflow-hidden h-40 md:h-48 bg-navy">
                     <img <?php echo $idx < 3 ? 'loading="eager"' : 'loading="lazy"'; ?>
                          src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
@@ -227,7 +227,7 @@ function renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $pag
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-10" data-tools-grid>
             <?php foreach ($tools as $idx => $tool): ?>
-            <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" data-tool-id="<?php echo $tool['id']; ?>">
+            <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" data-tool-id="<?php echo $tool['id']; ?>" x-cloak>
                 <div class="relative overflow-hidden h-40 md:h-48 bg-navy">
                     <img <?php echo $idx < 3 ? 'loading="eager"' : 'loading="lazy"'; ?>
                          src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"

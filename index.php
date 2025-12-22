@@ -1052,7 +1052,7 @@ if ($autoOpenTool) {
     </div>
 
     <!-- Products Section (Templates & Tools) -->
-    <section class="py-6 md:py-12 bg-navy-dark" id="products">
+    <section class="py-6 md:py-12 bg-navy-dark" id="products" x-cloak>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- View Toggle Tabs with Gold Underline -->
             <div class="flex justify-center mb-6 sm:mb-8">
@@ -1161,7 +1161,7 @@ if ($autoOpenTool) {
                      data-template-name="<?php echo htmlspecialchars($template['name']); ?>"
                      data-template-category="<?php echo htmlspecialchars($template['category']); ?>"
                      data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
-                    <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col">
+                    <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" x-cloak>
                         <div class="relative overflow-hidden h-40 md:h-48 bg-navy">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
@@ -1356,7 +1356,7 @@ if ($autoOpenTool) {
             <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
                 <?php foreach ($tools as $tool): ?>
-                <div class="tool-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" 
+                <div class="tool-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col" x-cloak 
                      data-tool-id="<?php echo $tool['id']; ?>">
                     <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
                         <img src="<?php echo htmlspecialchars($tool['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"

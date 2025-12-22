@@ -856,6 +856,39 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     </style>
     
     <script>
+        // Global state - prevent ReferenceError for isConfirmationPage
+        window.isConfirmationPage = false;
+        window.authStep = 'email';
+        window.formValid = false;
+        
+        // Form validation watcher - watch for changes and update button state
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (!submitBtn) return;
+            
+            // Watch auth step changes
+            window.addEventListener('checkout-auth-ready', function(e) {
+                window.authStep = e.detail?.step || 'email';
+                updateSubmitButtonState();
+            });
+            
+            // Watch form validity - enable button only when auth is complete AND form is valid
+            function updateSubmitButtonState() {
+                const isAuthComplete = window.authStep === 'authenticated';
+                const cartValid = document.querySelectorAll('input[required]').length === 0 || 
+                                   Array.from(document.querySelectorAll('input[required]')).every(i => i.value.trim());
+                
+                window.formValid = isAuthComplete && cartValid;
+                if (submitBtn) {
+                    submitBtn.disabled = !window.formValid;
+                }
+            }
+            
+            // Listen to all input changes
+            document.addEventListener('input', updateSubmitButtonState);
+            updateSubmitButtonState();
+        });
+        
         // Determine back URL based on referrer or stored session value - persists through form submissions
         window.getBackUrl = function() {
             // First check if we already stored the referrer in this session
