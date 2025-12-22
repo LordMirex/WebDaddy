@@ -188,8 +188,8 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                     <!-- Professional Search UI -->
                     <div class="relative max-w-2xl mx-auto group">
                         <form method="GET" action="/blog/" class="relative" id="blogSearchForm">
-                            <div class="relative flex items-center bg-white/5 backdrop-blur-xl border-2 border-white/10 group-focus-within:border-gold/50 rounded-2xl p-1 transition-all duration-300 shadow-2xl">
-                                <div class="pl-4 pr-2 text-gray-400">
+                            <div class="relative flex flex-wrap items-center bg-white/5 backdrop-blur-xl border-2 border-white/10 group-focus-within:border-gold/50 rounded-2xl p-1 transition-all duration-300 shadow-2xl sm:flex-nowrap">
+                                <div class="pl-4 pr-2 text-gray-400 flex-shrink-0">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                     </svg>
@@ -198,11 +198,11 @@ if (!empty($searchQuery) && strlen($searchQuery) >= 1) {
                                        name="search" 
                                        placeholder="Search 100+ expert articles..." 
                                        value="<?= htmlspecialchars($searchQuery) ?>"
-                                       class="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-gray-400 py-4 text-lg font-medium"
+                                       class="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-gray-400 py-4 text-lg font-medium min-w-0"
                                        aria-label="Search blog posts"
                                        id="blogSearchInput"
                                        autocomplete="off">
-                                <button type="submit" class="btn-gold-shine px-8 py-4 rounded-xl text-navy font-bold text-lg transition-all hover:scale-105 active:scale-95 ml-2">
+                                <button type="submit" class="btn-gold-shine px-4 sm:px-8 py-4 rounded-xl text-navy font-bold text-base sm:text-lg transition-all hover:scale-105 active:scale-95 ml-1 sm:ml-2 flex-shrink-0 whitespace-nowrap">
                                     Search
                                 </button>
                             </div>
