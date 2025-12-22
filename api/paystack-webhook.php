@@ -48,6 +48,13 @@ switch ($event['event']) {
         handleFailedPayment($event['data']);
         break;
         
+    case 'transfer.success':
+    case 'transfer.failed':
+    case 'transfer.reversed':
+        // Handle transfer related events if needed
+        logPaymentEvent('transfer_event_received', 'paystack', 'info', null, null, null, $event);
+        break;
+        
     default:
         // Log but don't process
         logPaymentEvent('webhook_ignored', 'paystack', 'ignored', null, null, null, ['event' => $event['event']]);

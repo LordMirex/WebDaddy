@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Send admin notification email about pending payment
         try {
-            require_once __DIR__ . '/../../includes/notifications.php';
-            $adminEmail = ADMIN_EMAIL ?? 'webdaddyempire@gmail.com';
+            require_once __DIR__ . '/../../includes/mailer.php';
+            $adminEmail = defined('ADMIN_EMAIL') ? ADMIN_EMAIL : 'webdaddyempire@gmail.com';
             $subject = "Manual Payment Notification - Order #$orderId";
             $message = "A customer has indicated they've made a bank transfer payment.\n\n";
             $message .= "Order ID: #$orderId\n";
@@ -65,8 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message .= "Customer Email: " . $order['customer_email'] . "\n\n";
             $message .= "Please verify the payment in your bank account and update the order status.";
             
+            // Use existing mailer functionality if available
             if (function_exists('sendAdminNotification')) {
                 sendAdminNotification($subject, $message);
+            } else if (function_exists('sendCustomEmail')) {
+                sendCustomEmail($adminEmail, $subject, $message);
+            } else {
+                // Fallback to PHP mail if no mailer function exists
+                $headers = "From: WebDaddy Platform <noreply@webdaddy.online>\r\n";
+                mail($adminEmail, $subject, $message, $headers);
             }
         } catch (Exception $e) {
             // Log but don't fail

@@ -108,7 +108,7 @@ try {
             // PAYMENT SUCCEEDED: Mark order as PAID
             error_log("✅ PAYSTACK VERIFY: Payment succeeded! Marking order as PAID");
             
-            // Update order status
+            // Update order status with retry handling/check
             $stmt = $db->prepare("
                 UPDATE pending_orders 
                 SET status = 'paid', 
@@ -120,6 +120,16 @@ try {
             $affectedRows = $stmt->rowCount();
             
             error_log("✅ PAYSTACK VERIFY: Update executed. Affected rows: " . $affectedRows);
+            
+            // SECURITY: Verify the verification source and amount
+            $paystackAmount = (int)($verification['data']['amount'] ?? 0);
+            $expectedAmount = (int)(round($order['final_amount'] * 100));
+            
+            if ($paystackAmount < $expectedAmount) {
+                error_log("❌ PAYSTACK VERIFY: SECURITY ALERT - Amount mismatch! Received: $paystackAmount, Expected: $expectedAmount");
+                $db->rollBack();
+                throw new Exception('Payment amount verification failed. Amount paid is less than order total.');
+            }
             
             // IDEMPOTENCY: If 0 rows affected, order was already processed (by webhook or another verify call)
             if ($affectedRows === 0) {
