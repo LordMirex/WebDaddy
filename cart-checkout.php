@@ -155,10 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             $errors[] = 'Please enter a valid email address';
         }
         
-        if (empty($customerPhone) && !isLoggedIn()) {
-            $errors[] = 'Please enter your WhatsApp number';
-        }
-        
         // Revalidate cart
         $validation = validateCart();
         if (!$validation['valid']) {
@@ -1761,22 +1757,6 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                                         Switch
                                     </button>
-                                </div>
-                                
-                                <!-- Phone input if customer doesn't have one -->
-                                <div x-show="!customerPhone" x-cloak class="mt-4">
-                                    <label class="block text-sm font-bold text-gray-100 mb-2">
-                                        WhatsApp Number <span class="text-red-500">*</span>
-                                    </label>
-                                    <input 
-                                        type="tel" 
-                                        x-model="phone"
-                                        name="customer_phone_input"
-                                        id="customer_phone"
-                                        class="w-full px-4 py-3 text-gray-900 placeholder:text-gray-500 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                        placeholder="+234 800 000 0000"
-                                    >
-                                    <p class="text-sm text-gray-400 mt-1">For order updates and support</p>
                                 </div>
                                 
                             </div>
