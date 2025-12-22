@@ -857,35 +857,27 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     </style>
     
     <script>
-        // Global state - prevent ReferenceError for isConfirmationPage
+        // Global state
         window.isConfirmationPage = false;
-        window.authStep = 'authenticated'; // START authenticated - form data validation is sufficient
-        window.formValid = false;
         
-        // Form validation watcher - watch for changes and update button state
+        // Form validation - button enabled when customer provides name, email, phone
         document.addEventListener('DOMContentLoaded', function() {
             const submitBtn = document.querySelector('button[type="submit"]');
             if (!submitBtn) return;
             
-            // Enable button immediately when form has valid data - no email verification blocking
             function updateSubmitButtonState() {
-                // Check if all form inputs are filled (no required=empty)
                 const nameInput = document.getElementById('customer_name');
                 const emailInput = document.getElementById('customer_email');
                 const phoneInput = document.getElementById('customer_phone');
                 
-                // Form is valid if all visible fields have values
+                // Button enabled when all three fields have values
                 const formValid = (nameInput && nameInput.value.trim()) && 
                                  (emailInput && emailInput.value.trim()) && 
                                  (phoneInput && phoneInput.value.trim());
                 
-                window.formValid = formValid;
-                if (submitBtn) {
-                    submitBtn.disabled = !window.formValid;
-                }
+                submitBtn.disabled = !formValid;
             }
             
-            // Listen to all input changes and enable button immediately when form is complete
             document.addEventListener('input', updateSubmitButtonState);
             updateSubmitButtonState();
         });

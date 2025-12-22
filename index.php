@@ -202,48 +202,25 @@ if ($autoOpenTool) {
     
     <script>
     /**
-     * Shared Hosting Image Path Resolver v2
-     * Works on root deployments AND subdirectory installations
-     * Automatically detects base path and corrects image URLs
+     * Image Path Handler for webdaddy.online
+     * All paths are ROOT-based: /assets/, /uploads/, /blog/
+     * Database images (thumbnail_url, demo_video_url) are already full URLs from uploads
      */
-    window.BASE_PATH = '<?php echo addslashes(BASE_PATH); ?>';
-    
     function fixImagePath(img) {
         if (!img || img.dataset.fixed) return;
-        const originalSrc = img.src;
         
-        // If already a placeholder or absolute URL, stop
-        if (originalSrc.includes('placeholder.jpg') || originalSrc.startsWith('http')) {
-            img.dataset.fixed = 'true';
+        img.dataset.fixed = 'true';
+        
+        // If image is already loaded or is placeholder/absolute URL, leave it
+        if (img.complete || img.src.includes('placeholder.jpg') || img.src.startsWith('http')) {
             return;
         }
-
-        // For relative paths starting with /, prepend BASE_PATH if needed
-        if (originalSrc.startsWith('/')) {
-            // Check if path already includes base path
-            if (window.BASE_PATH && !originalSrc.startsWith(window.BASE_PATH + '/')) {
-                const correctedPath = window.BASE_PATH + originalSrc;
-                if (img.src !== correctedPath) {
-                    img.src = correctedPath;
-                    img.dataset.fixed = 'true';
-                    return;
-                }
-            }
-        }
         
+        // Setup error handler for failed loads
         img.onerror = function() {
-            if (!this.dataset.retried) {
-                this.dataset.retried = 'true';
-                // Retry with BASE_PATH prepended if not already done
-                if (window.BASE_PATH && !this.src.includes(window.BASE_PATH)) {
-                    const pathOnly = this.src.replace(window.location.origin, '');
-                    this.src = window.BASE_PATH + pathOnly;
-                    return;
-                }
+            if (!this.src.includes('placeholder.jpg')) {
+                this.src = '/assets/images/placeholder.jpg';
             }
-            // Final fallback
-            this.src = (window.BASE_PATH || '') + '/assets/images/placeholder.jpg';
-            this.dataset.fixed = 'true';
         };
     }
     </script>
