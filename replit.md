@@ -184,6 +184,34 @@ On shared hosting, Paystack webhooks may not work if:
 - ✅ Order creation and tracking
 - ✅ Payment method options available
 
+## Alpine.js CSP Compatibility (IMPORTANT)
+This project uses Alpine.js CSP build (`assets/alpine.csp.min.js`) which cannot parse inline JavaScript functions in x-data attributes.
+
+### CSP-Safe Patterns:
+1. **Use Alpine.data() for complex components:**
+   ```javascript
+   Alpine.data('componentName', () => ({
+       property: false,
+       methodName() { /* logic here */ }
+   }));
+   ```
+   Then use: `x-data="componentName"`
+
+2. **Use single function calls for event handlers:**
+   - WRONG: `@click="showModal = false; resetForm()"`
+   - RIGHT: `@click="closeModal()"` (where closeModal() is defined in Alpine.data)
+
+3. **Avoid x-collapse plugin - use x-transition instead:**
+   ```html
+   x-transition:enter="transition ease-out duration-200"
+   x-transition:enter-start="opacity-0"
+   x-transition:enter-end="opacity-100"
+   ```
+
+4. **For conditional @change handlers, use helper functions:**
+   - WRONG: `@change="if(val === 'x') { mode = 'y' }"`
+   - RIGHT: `@change="handleChange($event.target.value)"`
+
 ## User Preferences
 - PHP-based architecture (no Node.js)
 - SQLite for simplicity
@@ -191,4 +219,5 @@ On shared hosting, Paystack webhooks may not work if:
 - Shared hosting compatible
 - Email-based OTP for verification
 - Paystack LIVE keys (production-ready)
+- Alpine.js CSP build for shared hosting compatibility
 
