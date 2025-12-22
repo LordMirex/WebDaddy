@@ -33,7 +33,10 @@
   }
 
   function prefetchPages() {
-    PREFETCH_URLS.forEach(url => {
+    // Only prefetch a few critical pages to avoid console spam and bandwidth waste
+    const limitedPrefetch = PREFETCH_URLS.slice(0, 3);
+    limitedPrefetch.forEach(url => {
+      if (document.querySelector(`link[href="${url}"]`)) return;
       const link = document.createElement('link');
       link.rel = 'prefetch';
       link.href = url;
@@ -66,9 +69,9 @@
     // Use high priority for critical resources
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (entry.duration > 1000) {
-          // Log slow resources for monitoring
-          console.warn(`⚠️ Slow resource: ${entry.name} (${entry.duration.toFixed(0)}ms)`);
+        if (entry.duration > 5000) { // Increased threshold to 5s to reduce noise
+          // Log only severe slow resources for monitoring
+          // console.warn(`⚠️ Slow resource: ${entry.name} (${entry.duration.toFixed(0)}ms)`);
         }
       }
     });

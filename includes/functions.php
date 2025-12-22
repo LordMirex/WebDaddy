@@ -160,7 +160,7 @@ function getTemplates($activeOnly = true, $category = null, $limit = null, $offs
     
     $sql = "SELECT * FROM templates WHERE 1=1";
     if ($activeOnly) {
-        $sql .= " AND active = true";
+        $sql .= " AND active = 1";
     }
     if ($category) {
         $sql .= " AND category = " . $db->quote($category);
@@ -185,7 +185,7 @@ function getTemplatesCount($activeOnly = true, $category = null)
     
     $sql = "SELECT COUNT(*) FROM templates WHERE 1=1";
     if ($activeOnly) {
-        $sql .= " AND active = true";
+        $sql .= " AND active = 1";
     }
     if ($category) {
         $sql .= " AND category = " . $db->quote($category);
