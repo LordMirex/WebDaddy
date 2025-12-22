@@ -82,6 +82,9 @@
             const target = e.target.closest('a[href*="view=templates-details"], .btn-template-details, [data-template-id]');
             if (!target) return;
             
+            // Skip if it's already being handled or has specific skip markers
+            if (target.dataset.navProcessed) return;
+
             const href = target.getAttribute('href') || '';
             const slug = target.getAttribute('data-slug') || (href.match(/[?&]slug=([^&]+)/) || [])[1];
             
@@ -93,28 +96,16 @@
                     window.openTemplateDetails(slug);
                     return false;
                 }
-                
-                // Fallback for tools or cases where slug is in a different param
-                const templateId = target.getAttribute('data-template-id');
-                if (templateId && typeof window.openToolModal === 'function') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.openToolModal(templateId);
-                    return false;
-                }
             }
-            
-            // If we are here, let the normal navigation happen (safety fallback)
-            console.log('Template click detected, falling back to standard navigation');
         }
 
-        // Attach to document to handle dynamically loaded content (search/pagination)
+        // Attach to document with useCapture=true to intercept before smooth-navigation
         document.addEventListener('click', handleTemplateClick, true);
         
-        // Add a secondary check for elements that might have their own click handlers blocking us
+        // Mark footer links as processed so smooth-navigation skips them
         window.addEventListener('load', function() {
-            document.querySelectorAll('a[href*="view=templates-details"]').forEach(function(el) {
-                el.setAttribute('onclick', 'if(window.openTemplateDetails) { event.preventDefault(); window.openTemplateDetails(new URLSearchParams(this.href.split("?")[1]).get("slug")); return false; }');
+            document.querySelectorAll('footer a, .footer a').forEach(function(el) {
+                el.dataset.navProcessed = 'true';
             });
         });
     })();

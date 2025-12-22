@@ -243,6 +243,9 @@
     // Skip cart buttons and other special UI elements
     if (link.id && (link.id.includes('cart') || link.id.includes('toggle') || link.id.includes('modal') || link.id.includes('menu'))) return;
     
+    // Skip processed elements (like footer links or manually handled buttons)
+    if (link.dataset.navProcessed) return;
+    
     // Skip template details buttons explicitly and anything with view=templates-details
     if (href.includes('view=templates-details') || href.includes('template=') || link.hasAttribute('data-template-id') || link.classList.contains('btn-template-details')) return;
     
