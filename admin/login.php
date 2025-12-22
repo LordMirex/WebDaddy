@@ -8,6 +8,9 @@ require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
 
+// Ensure CSRF token is generated for display
+$csrfToken = getCsrfToken();
+
 if (isset($_SESSION['admin_id'])) {
     header('Location: /admin/');
     exit;
@@ -21,7 +24,9 @@ $step = 'password'; // Always password step when OTP is disabled
 $pending_email = $_SESSION['pending_admin_email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    $postedToken = $_POST['csrf_token'] ?? '';
+    if (!validateCsrfToken($postedToken)) {
+        error_log("CSRF Validation Failed - Posted: $postedToken, Session: " . ($_SESSION['csrf_token'] ?? 'NONE'));
         $error = 'Security validation failed. Please try again.';
     } elseif ($step === 'password') {
         // STEP 1: Verify email and password

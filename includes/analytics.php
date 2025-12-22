@@ -38,6 +38,11 @@ function trackPageVisit($pageUrl, $pageTitle = '') {
         $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $deviceType = getDeviceType($userAgent);
         
+        // Skip analytics if session ID is invalid
+        if (empty($sessionId) || strlen($sessionId) < 10) {
+            return false;
+        }
+        
         $stmt = $db->prepare("
             INSERT INTO page_visits (session_id, page_url, page_title, referrer, user_agent, ip_address, device_type, visit_date, visit_time)
             VALUES (?, ?, ?, ?, ?, ?, ?, DATE('now'), TIME('now'))
