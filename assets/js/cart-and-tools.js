@@ -37,7 +37,9 @@ function openTemplateDetails(slug) {
         return;
     }
     // Navigate to template detail page
-    window.location.href = '/' + encodeURIComponent(slug);
+    // Use template.php?slug= format for dev server compatibility
+    // On shared hosting with .htaccess, /slug also works
+    window.location.href = '/template.php?slug=' + encodeURIComponent(slug);
 }
 
 function trackTemplateClick(templateId) {
