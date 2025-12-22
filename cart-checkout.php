@@ -1779,12 +1779,13 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                     <p class="text-sm text-gray-400 mt-1">For order updates and support</p>
                                 </div>
                                 
-                                <!-- Hidden fields for form submission -->
-                                <input type="hidden" name="customer_id" :value="customerId">
-                                <input type="hidden" name="customer_email" id="customer_email" :value="email">
-                                <input type="hidden" name="customer_name" id="customer_name" :value="customerUsername || ''">
-                                <input type="hidden" name="customer_phone" id="customer_phone_hidden" :value="customerPhone || phone">
                             </div>
+                            
+                            <!-- Hidden fields for form submission - ALWAYS present regardless of step -->
+                            <input type="hidden" name="customer_id" :value="customerId">
+                            <input type="hidden" name="customer_email" id="customer_email" :value="email">
+                            <input type="hidden" name="customer_name" id="customer_name" :value="customerUsername || ''">
+                            <input type="hidden" name="customer_phone" id="customer_phone_hidden" :value="customerPhone || phone">
                         </div>
                     </div>
                 </div>
@@ -1892,14 +1893,23 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 <!-- Submit Button Container - Form validity controls button state -->
                 <div id="submit-btn-container">
                     
-                    <!-- Submit button - Enabled when customer provides name, email, and phone -->
+                    <!-- Auth required message - shown until user authenticates -->
+                    <div id="auth-required-msg" class="bg-amber-900/50 border border-amber-500 rounded-lg p-4 mb-4 text-center">
+                        <p class="text-amber-200 font-medium">
+                            <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path></svg>
+                            Complete email verification above to continue
+                        </p>
+                    </div>
+                    
+                    <!-- Submit button - Disabled until user authenticates -->
                     <button type="submit" 
                             id="submit-btn"
-                            class="w-full disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2 bg-primary-600 hover:bg-primary-700">
+                            disabled
+                            class="w-full disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2 bg-primary-600 hover:bg-primary-700">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
-                        <span id="submit-text">Confirm Order - Manual Payment</span>
+                        <span id="submit-text">Complete Email Verification First</span>
                     </button>
                 </div>
                 
@@ -1968,10 +1978,49 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             methodAutomatic.addEventListener('change', function() {
                 console.log('✅ Automatic radio changed - checked:', this.checked);
                 if (this.checked) {
-                    document.getElementById('submit-text').textContent = 'Proceed to Card Payment →';
+                    const submitText = document.getElementById('submit-text');
+                    const submitBtn = document.getElementById('submit-btn');
+                    if (submitText && !submitBtn.disabled) {
+                        submitText.textContent = 'Proceed to Card Payment →';
+                    }
                 }
             });
         }
+        
+        // Listen for auth state changes and enable/disable submit button
+        window.addEventListener('checkout-auth-ready', function(e) {
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const authMsg = document.getElementById('auth-required-msg');
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
+            
+            if (e.detail && e.detail.step === 'authenticated') {
+                // User is authenticated - enable the button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('disabled:bg-gray-500');
+                }
+                if (submitText) {
+                    submitText.textContent = paymentMethod === 'automatic' ? 'Proceed to Card Payment →' : 'Confirm Order - Manual Payment';
+                }
+                if (authMsg) {
+                    authMsg.style.display = 'none';
+                }
+                console.log('✅ User authenticated - submit button enabled');
+            } else {
+                // User not authenticated - keep button disabled
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+                if (submitText) {
+                    submitText.textContent = 'Complete Email Verification First';
+                }
+                if (authMsg) {
+                    authMsg.style.display = 'block';
+                }
+                console.log('⏳ User not authenticated - submit button disabled');
+            }
+        });
         
         // AJAX Checkout Form Handler
         function handleCheckoutSubmit(event) {
@@ -1979,6 +2028,13 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             const form = event.target;
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
+            
+            // Validate email is present before submission
+            const customerEmail = form.querySelector('input[name="customer_email"]')?.value;
+            if (!customerEmail || !customerEmail.includes('@')) {
+                alert('Please complete email verification before placing your order.');
+                return;
+            }
             
             const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
             
