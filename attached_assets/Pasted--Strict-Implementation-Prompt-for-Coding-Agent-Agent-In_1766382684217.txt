@@ -1,0 +1,27 @@
+### Strict Implementation Prompt for Coding Agent
+
+**Agent Instructions: Follow this prompt EXACTLY as written. Do NOT make any changes to CSS files, Tailwind configurations, or any styling-related code (e.g., classes, inline styles, themes). Your fixes MUST NOT affect the visual appearance, layout, or customized styling of the site in any way—preserve all advanced customizations. Only modify JavaScript, PHP, HTML, or server configs where specified. Test each fix in a staging environment first, ensuring no regressions. . Do not introduce new dependencies unless explicitly listed. Log all changes in a commit message like "Fix [issue]: [brief description]". Provide a summary report after implementation.**
+
+#### 1. **Fix CSP Violations (Security Policy Blocking Resources)**
+   - Do NOT change any existing CSP directives. ONLY ADD the minimum required sources to allow blocked resources without broadening security.
+   - In the main PHP header file (likely includes/header.php or similar), update the Content-Security-Policy header:
+     - Add to `script-src`: `https://js.paystack.co https://cdn.quilljs.com`
+     - Add to `style-src`: `https://cdn.quilljs.com`
+     - Add `frame-src`: `https://www.youtube.com https://www.youtube-nocookie.com` (for YouTube modals)
+     - Add to `default-src`: `https://js.paystack.co https://cdn.quilljs.com` (as fallback)
+   - Example updated header: `header("Content-Security-Policy: default-src 'self' https://cdn.jsdelivr.net https://wa.me https://js.paystack.co https://cdn.quilljs.com; script-src 'self' 'unsafe-inline' https://instant.page https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://www.googletagmanager.com https://js.paystack.co https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.quilljs.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com;");`
+   - Test: Reload pages like cart-checkout.php and user-campaign.php. Confirm no CSP violations in console for Paystack, Quill, or YouTube. Ensure Quill editor loads on user-campaign.php without "Quill is not defined" error.
+
+#### 2. **Fix Alpine.js Collapse Plugin Missing**
+   - Add the Collapse plugin without altering any existing Alpine code or elements.
+   - In the HTML head or footer (where Alpine is loaded), add: `<script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>` after the Alpine script tag.
+   - Update CSP if needed (already covered in step 1, as cdn.jsdelivr.net is allowed).
+   - Apply x-cloak to any collapse elements: Find divs with `x-collapse` and wrap or add `x-cloak` to their parent if not present, e.g., `<div x-data x-cloak> <div x-collapse>...</div> </div>`.
+   - Test: Interact with collapsible sections (e.g., accordions in footer or nav). Confirm no warnings in console.
+
+#### 3. **Fix Tailwind CDN Production Warning**
+   - Do NOT change any styling or Tailwind classes. Ignore the warning for now, but to suppress it:
+   - Install Tailwind via CLI for production: Run `npx tailwindcss init` if not done, then build a local CSS file: In package.json, add script `"build:css": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify"`.
+   - Replace CDN link with local: Change `<script src="https://cdn.tailwindcss.com"></script>` to `<link href="/dist/output.css" rel="stylesheet">`.
+   - Ensure output.css is generated and matches current styling exactly (run build command).
+   - Test: Reload site; confirm identical appearance and no warning.
