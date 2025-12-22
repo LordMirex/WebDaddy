@@ -1279,13 +1279,21 @@ document.addEventListener('DOMContentLoaded', function() {
             // Fetch categories for the current view even from cache
             // Make a lightweight API call to get just the categories
             fetch(`/api/ajax-products.php?action=get_categories&view=${view}`)
-                .then(r => r.json())
+                .then(r => r.json().catch(e => {
+                    console.error('API returned invalid JSON for categories');
+                    return { categories: [] };
+                }))
                 .then(data => {
-                    if (data.categories) {
+                    if (data.categories && data.categories.length > 0) {
                         setupCategoryDropdown(data.categories);
+                    } else {
+                        setupCategoryDropdown([]);
                     }
                 })
-                .catch(() => setupCategoryDropdown());
+                .catch(e => {
+                    console.error('Error loading categories:', e);
+                    setupCategoryDropdown([]);
+                });
             return;
         }
         
@@ -1312,7 +1320,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             const response = await fetch(`/api/ajax-products.php?${params.toString()}`);
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                const responseText = await response.text();
+                console.error('API returned invalid JSON:', responseText);
+                throw new Error('Invalid response format from server');
+            }
             
             if (data.success && data.html) {
                 // Cache the view HTML (only main page, not filtered/paginated)
