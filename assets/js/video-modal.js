@@ -14,6 +14,7 @@ class VideoModal {
         this.autoplayTimeout = null;
         this.instructionInterval = null;
         this.loadingInstructions = [
+            { title: "Starting video load...", text: "Buffering content" },
             { title: "Please be patient...", text: "Video is loading" },
             { title: "Almost there!", text: "Buffering video content" },
             { title: "Tip: Tap video to pause/play", text: "Interactive controls available" },
@@ -73,7 +74,7 @@ class VideoModal {
                             <video id="modalVideo" 
                                    class="object-contain"
                                    style="max-width: 100%; max-height: 85vh; width: auto; height: auto; position: relative; z-index: 1;"
-                                   preload="metadata"
+                                   preload="auto"
                                    playsinline
                                    muted
                                    crossOrigin="anonymous"
@@ -290,7 +291,14 @@ class VideoModal {
         this.video.style.display = 'block';
         this.updateLoadingInstruction();
         
-        // Rotate instructions every 400ms for faster visual feedback
+        // Show buffering progress immediately
+        const bufferBar = this.modal.querySelector('[data-buffering-bar]');
+        if (bufferBar) {
+            bufferBar.classList.remove('hidden');
+            bufferBar.style.opacity = '1';
+        }
+        
+        // Rotate instructions every 300ms for faster feedback (video loads faster now)
         this.instructionInterval = setInterval(() => {
             this.currentInstructionIndex++;
             if (this.currentInstructionIndex < this.loadingInstructions.length) {
@@ -299,7 +307,7 @@ class VideoModal {
                 clearInterval(this.instructionInterval);
                 this.instructionInterval = null;
             }
-        }, 400);
+        }, 300);
         
         // Check if video is already preloaded
         let preloadedVideo = null;
@@ -336,7 +344,7 @@ class VideoModal {
             this.video.load();
         }
         
-        // After 2 seconds: force hide loader and start playback or show play button (optimized)
+        // After 1 second: force hide loader and start playback or show play button (FASTER with preload="auto")
         this.autoplayTimeout = setTimeout(() => {
             if (this.instructionInterval) {
                 clearInterval(this.instructionInterval);
@@ -344,8 +352,14 @@ class VideoModal {
             }
             
             if (this.isOpen) {
-                console.log('VideoModal: 2-second loading complete - optimized');
+                console.log('⚡ 1-second loading complete - video ready!');
                 this.loader.style.display = 'none';
+                
+                // Hide buffering progress bar
+                const bufferBar = this.modal.querySelector('[data-buffering-bar]');
+                if (bufferBar) {
+                    bufferBar.classList.add('hidden');
+                }
                 
                 // Try to play if not already playing
                 if (this.video.paused && !this.playbackAttempted) {
@@ -356,7 +370,7 @@ class VideoModal {
                     this.playOverlay.style.display = 'flex';
                 }
             }
-        }, 2000);
+        }, 1000);
         
         // Track analytics
         if (typeof trackEvent === 'function') {
@@ -378,24 +392,23 @@ class VideoModal {
     }
 
     onVideoLoadedMetadata() {
-        console.log('Video metadata loaded - ready for playback');
-        // Video metadata is loaded, but keep showing instructions for full 5 seconds
-        // Don't hide loader yet - let the 5-second timer handle it
+        console.log('✅ Video metadata loaded - ready for playback');
+        // With preload="auto", video is already buffering
         
-        // Try to start buffering/playing in background
+        // Try to start buffering/playing in background immediately
         if (!this.playbackAttempted) {
             this.playbackAttempted = true;
-            // Attempt playback silently - will be visible after 5-second loader
+            // Attempt playback silently - will be visible after 1-second loader
             this.video.play().catch(err => {
-                console.log('Auto-play blocked, will show play button after 5s:', err);
+                console.log('Auto-play blocked (browser policy), will show play button:', err);
             });
         }
     }
 
     onVideoCanPlay() {
-        console.log('Video can play - buffered and ready');
-        // Video is ready but keep showing 5-second instructions
-        // The autoplayTimeout will handle hiding the loader
+        console.log('▶️ Video can play immediately - fully buffered!');
+        // Video is ready to play - with preload="auto" this happens almost instantly
+        // The autoplayTimeout will handle hiding the loader quickly
     }
 
     close() {
@@ -634,6 +647,7 @@ class YouTubeModal {
         this.overlayTimeout = null;
         this.instructionInterval = null;
         this.loadingInstructions = [
+            { title: "Starting video load...", text: "Buffering content" },
             { title: "Please be patient...", text: "YouTube video is loading" },
             { title: "Almost there!", text: "Connecting to YouTube" },
             { title: "Tip: Click to pause/play", text: "Interactive controls available" },
@@ -749,7 +763,7 @@ class YouTubeModal {
         this.overlayTimeout = setTimeout(() => {
             this.loader.style.display = 'none';
             this.clearInstructionInterval();
-        }, 500);
+        }, 300); // Even faster - YouTube loads very quickly!
     }
     
     startInstructionRotation() {
@@ -830,6 +844,7 @@ class DemoModal {
         this.hasLoaded = false;
         this.instructionInterval = null;
         this.loadingInstructions = [
+            { title: "Starting video load...", text: "Buffering content" },
             { title: "Please be patient...", text: "Page is loading" },
             { title: "Almost there!", text: "Fetching website content" },
             { title: "Tip: Scroll to explore", text: "Full interactive preview" },
