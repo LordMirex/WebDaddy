@@ -1320,7 +1320,7 @@ HTML;
 }
 
 /**
- * Send password set confirmation email (via Resend)
+ * Send password set confirmation email (via Mailtrap)
  * @param string $email Customer email
  * @param string $name Customer name
  * @return bool Success status
@@ -1416,7 +1416,7 @@ function sendRecoveryOTPEmail($email, $otpCode) {
 }
 
 /**
- * Send template delivery notification (via Resend)
+ * Send template delivery notification (via Mailtrap)
  * Notifies customer their website is live - credentials in dashboard only for security
  * @param string $email Customer email
  * @param string $name Customer name
@@ -1473,7 +1473,7 @@ HTML;
 }
 
 /**
- * Send ticket confirmation email (via Resend)
+ * Send ticket confirmation email (via Mailtrap)
  * @param string $email Customer email
  * @param string $name Customer name
  * @param int $ticketId Ticket ID
@@ -1517,7 +1517,7 @@ HTML;
 }
 
 /**
- * Send ticket reply notification email (via Resend)
+ * Send ticket reply notification email (via Mailtrap)
  * @param string $email Customer email
  * @param string $name Customer name
  * @param int $ticketId Ticket ID

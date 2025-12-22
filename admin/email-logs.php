@@ -24,7 +24,7 @@ $logs = getMailtrapEmailLogs(100, 0, $statusFilter, $typeFilter);
 $webhookLogs = [];
 try {
     $webhookLogs = $db->query("
-        SELECT * FROM resend_webhook_logs 
+        SELECT * FROM mailtrap_webhook_logs 
         ORDER BY created_at DESC 
         LIMIT 50
     ")->fetchAll(PDO::FETCH_ASSOC);
@@ -210,8 +210,8 @@ require_once __DIR__ . '/includes/header.php';
             <i class="bi bi-info-circle text-xl"></i>
             <div>
                 <p class="font-medium">No webhook events received yet.</p>
-                <p class="text-sm mt-1">Webhook URL: <code class="bg-blue-100 px-2 py-0.5 rounded"><?php echo SITE_URL; ?>/webhooks/resend.php</code></p>
-                <p class="text-sm mt-1">Configure this URL in your Resend dashboard to receive delivery events.</p>
+                <p class="text-sm mt-1">Webhook URL: <code class="bg-blue-100 px-2 py-0.5 rounded"><?php echo SITE_URL; ?>/api/mailtrap-webhook.php</code></p>
+                <p class="text-sm mt-1">Configure this URL in your Mailtrap dashboard to receive delivery events.</p>
             </div>
         </div>
         <?php else: ?>
