@@ -162,7 +162,14 @@ require_once __DIR__ . '/includes/header.php';
                                 </button>
                             </div>
                             
-                            <div x-cloak x-show="showReplies" x-collapse class="mt-4 pt-4 border-t">
+                            <div x-cloak x-show="showReplies" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="mt-4 pt-4 border-t">
                                 <?php foreach ($ticketReplies as $reply): ?>
                                     <div class="mb-3 p-3 <?php echo $reply['is_admin'] ? 'bg-blue-50 border-l-4 border-blue-500' : 'bg-gray-50'; ?> rounded">
                                         <div class="text-xs font-semibold mb-1"><?php echo $reply['is_admin'] ? '🛡️ Admin' : '👤 You'; ?> - <?php echo date('M d, Y H:i', strtotime($reply['created_at'])); ?></div>
