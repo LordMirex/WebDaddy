@@ -74,15 +74,18 @@ $submittedAffiliateCode = '';
 // Affiliate and referral codes are PERMANENT once set and cannot be removed
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_discount'])) {
     if (validateCsrfToken($_POST['csrf_token'] ?? '')) {
-        // ONLY clear bonus code - affiliate and referral codes CANNOT be removed
-        // This is a business rule: once captured, affiliate/referral state is final
-        $appliedBonusCode = null;
-        unset($_SESSION['applied_bonus_code']);
+        // Remove bonus code (PRIORITY) - this is allowed
+        if ($appliedBonusCode) {
+            $appliedBonusCode = null;
+            unset($_SESSION['applied_bonus_code']);
+            $success = 'Bonus code removed.';
+        } else {
+            // Cannot remove affiliate or referral codes
+            $errors[] = 'This discount code cannot be removed once applied.';
+        }
         
-        // Recalculate totals with affiliate/referral still active (if they were set)
-        $totals = getCartTotal(null, $affiliateCode, null, $userReferralCode);
-        
-        $success = 'Bonus code removed.';
+        // Recalculate totals
+        $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode, $userReferralCode);
     }
 }
 
@@ -94,7 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
         $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
         
         if (!empty($submittedAffiliateCode)) {
-            // PRIORITY 1: Check if it's a valid bonus code first
+            // Check if already applied
+            if ($submittedAffiliateCode === $appliedBonusCode || $submittedAffiliateCode === $affiliateCode) {
+                $errors[] = 'Code already applied.';
+            } else {
+                // PRIORITY 1: Check if it's a valid bonus code first
             $bonusCodeData = getBonusCodeByCode($submittedAffiliateCode);
             if ($bonusCodeData && $bonusCodeData['is_active'] && 
                 (!$bonusCodeData['expires_at'] || strtotime($bonusCodeData['expires_at']) >= time())) {
@@ -215,7 +222,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
         $customerPhone = trim($_POST['customer_phone'] ?? '');
         $paymentMethod = trim($_POST['payment_method'] ?? 'manual');
         
-        // customer_name is no longer required - username is auto-generated from email
+        // Handle logged-in user data
+        if (isLoggedIn()) {
+            $customer = requireCustomer();
+            if (empty($customerEmail)) $customerEmail = $customer['email'];
+            if (empty($customerName)) $customerName = $customer['name'];
+            if (empty($customerPhone)) $customerPhone = $customer['phone'];
+        }
         
         if (empty($customerEmail)) {
             $errors[] = 'Please enter your email address';
