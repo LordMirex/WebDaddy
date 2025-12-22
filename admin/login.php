@@ -29,22 +29,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         
+        error_log("DEBUG: Login attempt for email: $email, password: $password");
+        
         if (isRateLimited($email, 'admin')) {
             $error = getRateLimitMessage($email, 'admin');
+            error_log("DEBUG: Rate limited for $email");
         } else {
             $user = verifyAdminPassword($email, $password);
+            error_log("DEBUG: verifyAdminPassword returned: " . ($user ? 'USER FOUND' : 'USER NOT FOUND'));
             if ($user) {
+                error_log("DEBUG: Admin user data: " . json_encode($user));
                 clearLoginAttempts($email, 'admin');
                 
                 // ⏸️ TESTING MODE: Skip OTP and login directly (for speed)
                 // Uncomment the OTP section below when returning to production
                 
                 // Direct login without OTP verification
-                session_regenerate_id(true);
                 $_SESSION['admin_id'] = $user['id'];
                 $_SESSION['admin_email'] = $user['email'];
                 $_SESSION['admin_name'] = $user['name'];
                 $_SESSION['admin_role'] = $user['role'];
+                
+                error_log("DEBUG: Session set - admin_id={$_SESSION['admin_id']}, admin_role={$_SESSION['admin_role']}");
                 
                 logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
                 error_log("✅ Admin logged in WITHOUT OTP (TESTING MODE): {$email}");
