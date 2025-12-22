@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             $errors[] = 'Please enter a valid email address';
         }
         
-        if (empty($customerPhone)) {
+        if (empty($customerPhone) && !isLoggedIn()) {
             $errors[] = 'Please enter your WhatsApp number';
         }
         
@@ -392,6 +392,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             'payment_method' => $paymentMethod
         ];
         
+        // Populate customer phone from session if missing (for returning users)
+        if (empty($orderData['customer_phone']) && isLoggedIn()) {
+            $orderData['customer_phone'] = $customer['phone'] ?? '';
+        }
+        
         $orderId = createOrderWithItems($orderData, $orderItems);
         
         if (!$orderId) {
@@ -504,8 +509,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             // Clear cart only on successful order creation
             clearCart();
             
-            // CRITICAL: Different handling for payment methods - both return JSON for AJAX
-            header('Content-Type: application/json');
+            if ($paymentMethod === 'manual') {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Order created successfully!',
+                    'redirect' => '/user/order-detail.php?id=' . $orderId
+                ]);
+                exit;
+            }
             
             // NEW FLOW: Redirect to user order detail page, not checkout confirmation
             $orderDetailUrl = '/user/order-detail.php?id=' . $orderId;
