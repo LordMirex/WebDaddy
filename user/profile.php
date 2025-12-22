@@ -272,7 +272,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="flex gap-2 items-center">
                         <input type="email" value="<?= htmlspecialchars($customer['email']) ?>" disabled
                                class="flex-1 px-4 py-3 border rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
-                        <button type="button" onclick="document.getElementById('emailChangeForm').classList.toggle('hidden'); this.blur();"
+                        <button type="button" onclick="const form = document.getElementById('emailChangeForm'); form.classList.toggle('hidden'); if(!form.classList.contains('hidden')) form.querySelector('input[type=email]').focus(); this.blur();"
                                 class="px-4 py-3 text-amber-600 hover:bg-amber-50 border border-amber-200 rounded-lg font-semibold transition flex items-center gap-2 whitespace-nowrap">
                             <i class="bi-pencil"></i><span>Change</span>
                         </button>

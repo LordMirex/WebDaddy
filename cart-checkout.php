@@ -1556,38 +1556,29 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 <!-- Discount Code Section -->
                 <?php if ($totals['has_discount']): ?>
                 <!-- Applied Discount Banner with Cancel Option (only for bonus codes) -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4">
-                    <div class="flex items-center justify-between flex-wrap gap-2">
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded p-2 mb-3 text-xs sm:text-sm">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            <span class="text-xs sm:text-sm font-semibold text-green-900">
+                            <span class="font-semibold text-green-900 truncate">
                                 <?php 
                                     $displayDiscountPct = number_format($totals['discount_percent'], 0);
                                     $displayDiscountType = $totals['discount_type'] === 'bonus_code' ? 'Bonus Code' : 'Affiliate';
-                                    echo $displayDiscountPct . '% OFF! ' . $displayDiscountType . ': ' . htmlspecialchars($totals['discount_code']);
+                                    echo $displayDiscountPct . '% OFF! ' . htmlspecialchars($totals['discount_code']);
                                 ?>
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs sm:text-sm font-bold text-green-900">-<?php echo formatCurrency($totals['discount']); ?></span>
-                            <!-- Only show Remove button for bonus codes, NOT for affiliate/referral (those are permanent) -->
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <span class="font-bold text-green-900">-<?php echo formatCurrency($totals['discount']); ?></span>
                             <?php if ($totals['discount_type'] === 'bonus_code'): ?>
-                            <form method="POST" action="" class="inline" id="removeDiscountForm">
+                            <button type="button" onclick="document.getElementById('removeDiscountForm').submit();" 
+                                    class="p-1 text-red-600 hover:text-red-700 font-bold text-lg leading-none"
+                                    title="Remove this bonus code">×</button>
+                            <form method="POST" action="" id="removeDiscountForm" style="display:none;">
                                 <?php echo csrfTokenField(); ?>
                                 <input type="hidden" name="remove_discount" value="1">
-                                <input type="hidden" name="customer_name" id="remove_customer_name" value="<?php echo htmlspecialchars($_POST['customer_name'] ?? ''); ?>">
-                                <input type="hidden" name="customer_email" id="remove_customer_email" value="<?php echo htmlspecialchars($_POST['customer_email'] ?? ''); ?>">
-                                <input type="hidden" name="customer_phone" id="remove_customer_phone" value="<?php echo htmlspecialchars($_POST['customer_phone'] ?? ''); ?>">
-                                <button type="submit" 
-                                        class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 text-red-600 hover:text-red-700 font-medium rounded transition-colors"
-                                        title="Remove this bonus code">
-                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                    </svg>
-                                    Remove
-                                </button>
                             </form>
                             <?php endif; ?>
                         </div>
@@ -1616,15 +1607,12 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
 
                 <!-- SUCCESS MESSAGE DISPLAY -->
                 <?php if (!empty($success)): ?>
-                <div class="bg-green-50 border-2 border-green-500 rounded-lg p-4 sm:p-6 mb-6">
-                    <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        <div class="flex-1">
-                            <p class="font-bold text-green-900">✓ <?php echo htmlspecialchars($success); ?></p>
-                        </div>
-                    </div>
+                <div class="bg-green-50 border border-green-300 rounded p-2 mb-4 text-xs sm:text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="font-semibold text-green-900">✓ <?php echo htmlspecialchars($success); ?></p>
+                    <button type="button" onclick="this.parentElement.remove();" class="ml-auto text-green-600 hover:text-green-800 font-bold">×</button>
                 </div>
                 <?php endif; ?>
 
