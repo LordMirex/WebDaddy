@@ -12,11 +12,11 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = urldecode($uri);
 
 // Remove query string for routing decisions
-$path = strtok($uri, '?');
+$path = parse_url($uri, PHP_URL_PATH);
 
 // Serve static files directly
 if ($path !== '/' && file_exists(__DIR__ . $path)) {
-    return false; // Serve the requested resource as-is
+    return false;
 }
 
 // Block access to sensitive directories
@@ -64,7 +64,6 @@ if (preg_match('#^/blog/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
 }
 
 // Tool detail page routing: /tool/slug-name → index.php?tool=slug-name
-// Tools open as modals on the index page, not a separate page
 if (preg_match('#^/tool/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
     $_GET['tool'] = $matches[1];
     $_SERVER['SCRIPT_NAME'] = '/index.php';
@@ -72,19 +71,13 @@ if (preg_match('#^/tool/([a-zA-Z0-9\-_]+)/?$#i', $path, $matches)) {
     exit;
 }
 
-// NOTE: ?tool=name parameter is handled by index.php for modal preview
-// Do NOT redirect it to tool.php - let it stay on index.php
-
 // Template slug routing: /slug-name → template.php?slug=slug-name
-// Must not match admin, affiliate, assets, api, uploads, mailer directories
-// Must match pattern: /lowercase-slug-with-hyphens
+// Must not match admin, affiliate, assets, api, uploads, mailer, user directories
 if (preg_match('#^/([a-z0-9_-]+)/?$#i', $path, $matches)) {
-    // Exclude specific directories/files
     $excluded = ['admin', 'affiliate', 'user', 'assets', 'api', 'uploads', 'mailer', 'index', 'template', 'sitemap', 'tool', 'robots'];
     $slug = $matches[1];
     
     if (!in_array(strtolower($slug), $excluded) && !file_exists(__DIR__ . '/' . $slug . '.php')) {
-        // Route to template.php with slug parameter
         $_GET['slug'] = $slug;
         $_SERVER['SCRIPT_NAME'] = '/template.php';
         require __DIR__ . '/template.php';
@@ -92,22 +85,25 @@ if (preg_match('#^/([a-z0-9_-]+)/?$#i', $path, $matches)) {
     }
 }
 
-// Fallback: 404 for unmatched routes, index for root
+// Fallback: serve files or 404
 if ($path === '/') {
     $_SERVER['SCRIPT_NAME'] = '/index.php';
     require __DIR__ . '/index.php';
     exit;
-} elseif (!file_exists(__DIR__ . $path)) {
+}
+
+// Try to serve the file directly if it ends with .php
+if (preg_match('/\.php$/', $path) && file_exists(__DIR__ . $path)) {
+    $_SERVER['SCRIPT_NAME'] = $path;
+    require __DIR__ . $path;
+    exit;
+}
+
+// 404 for everything else
+if (!file_exists(__DIR__ . $path)) {
     $_SERVER['SCRIPT_NAME'] = '/404.php';
     require __DIR__ . '/404.php';
     exit;
 }
 
-// For PHP files, serve them directly
-if (preg_match('/\.php$/', $path)) {
-    require __DIR__ . $path;
-    exit;
-}
-
-// If we get here, return false to let PHP serve the file
 return false;
