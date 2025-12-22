@@ -1162,11 +1162,12 @@ if ($autoOpenTool) {
                      data-template-category="<?php echo htmlspecialchars($template['category']); ?>"
                      data-template-price="<?php echo htmlspecialchars($template['price']); ?>">
                     <div class="template-card group bg-navy-light rounded-lg md:rounded-xl shadow-md overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gold/30 hover:-translate-y-1 h-full flex flex-col">
-                        <div class="relative overflow-hidden h-28 md:h-40 bg-navy">
+                        <div class="relative overflow-hidden h-40 md:h-48 bg-navy">
                             <img src="<?php echo htmlspecialchars($template['thumbnail_url'] ?? '/assets/images/placeholder.jpg'); ?>"
                                  alt="<?php echo htmlspecialchars($template['name']); ?>"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                 onerror="this.src='/assets/images/placeholder.jpg'">
+                                 onload="fixImagePath(this)"
+                                 onerror="fixImagePath(this)">
                             <?php 
                             $mediaType = $template['media_type'] ?? 'banner';
                             $hasDemo = !empty($template['demo_url']) || !empty($template['demo_video_url']) || !empty($template['preview_youtube']);
