@@ -73,5 +73,35 @@
         };
     }
     </script>
+    
+    <!-- Global Event Delegation for Template Details -->
+    <script>
+    document.addEventListener('click', function(e) {
+        // Target specifically template details links
+        const templateLink = e.target.closest('a[href*="view=templates-details"]');
+        
+        if (templateLink) {
+            const href = templateLink.getAttribute('href');
+            if (href && href.includes('view=templates-details')) {
+                // If it's a template detail link, we want to ensure it's handled by our JS
+                // instead of a full page reload or being blocked by other scripts.
+                
+                // Extract slug from href
+                const urlParams = new URLSearchParams(href.split('?')[1]);
+                const slug = urlParams.get('slug');
+                
+                if (slug) {
+                    // Check if the global opening function exists (from cart-and-tools.js)
+                    if (typeof window.openTemplateDetails === 'function') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.openTemplateDetails(slug);
+                        return false;
+                    }
+                }
+            }
+        }
+    }, true); // Use capture phase to ensure we catch it before other listeners
+    </script>
 </body>
 </html>
