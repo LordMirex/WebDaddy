@@ -17,7 +17,7 @@ ini_set('memory_limit', '256M');
 // ============================================
 $logDir = __DIR__ . '/../logs';
 if (!file_exists($logDir)) {
-    @mkdir($logDir, 0755, true);
+    mkdir($logDir, 0755, true);
 }
 $errorLogPath = $logDir . '/error.log';
 ini_set('error_log', $errorLogPath);
@@ -41,24 +41,24 @@ if (!function_exists('logError')) {
 // ============================================
 
 // SMTP/Email Configuration - FOR ADMIN EMAILS ONLY
-// Use environment variables or fallback to defaults for shared hosting compatibility
-define('SMTP_HOST', $_ENV['SMTP_HOST'] ?? getenv('SMTP_HOST') ?? 'mail.webdaddy.online');
-define('SMTP_PORT', (int)($_ENV['SMTP_PORT'] ?? getenv('SMTP_PORT') ?? 465));
-define('SMTP_SECURE', $_ENV['SMTP_SECURE'] ?? getenv('SMTP_SECURE') ?? 'ssl');
-define('SMTP_USER', $_ENV['SMTP_USER'] ?? getenv('SMTP_USER') ?? 'admin@webdaddy.online');
-define('SMTP_PASS', $_ENV['SMTP_PASS'] ?? getenv('SMTP_PASS') ?? '');
-define('SMTP_FROM_EMAIL', $_ENV['SMTP_FROM_EMAIL'] ?? getenv('SMTP_FROM_EMAIL') ?? 'admin@webdaddy.online');
-define('SMTP_FROM_NAME', $_ENV['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?? 'WebDaddy Empire');
+// Admin emails stay on SMTP (admin@webdaddy.online)
+define('SMTP_HOST', 'mail.webdaddy.online');
+define('SMTP_PORT', 465);
+define('SMTP_SECURE', 'ssl');
+define('SMTP_USER', 'admin@webdaddy.online');
+define('SMTP_PASS', 'ItuZq%kF%5oE');
+define('SMTP_FROM_EMAIL', 'admin@webdaddy.online');
+define('SMTP_FROM_NAME', 'WebDaddy Empire');
 
 // PAYSTACK CONFIGURATION - TEST MODE (To restore live keys, uncomment lines below and comment out test keys)
 // LIVE KEYS - COMMENTED OUT FOR TESTING (Restore by uncommenting these 2 lines)
 // define('PAYSTACK_SECRET_KEY', 'sk_live_7a98b3f6c784370454b96340b08836d518405b55');
 // define('PAYSTACK_PUBLIC_KEY', 'pk_live_3d212bae617ffaedeaa3319351b283356498824e');
 
-// PAYSTACK KEYS - Use environment variables for security
-define('PAYSTACK_SECRET_KEY', $_ENV['PAYSTACK_SECRET_KEY'] ?? getenv('PAYSTACK_SECRET_KEY') ?? 'sk_test_5bf57d877aacf2a99c2be15a68ec4d611fdf2370');
-define('PAYSTACK_PUBLIC_KEY', $_ENV['PAYSTACK_PUBLIC_KEY'] ?? getenv('PAYSTACK_PUBLIC_KEY') ?? 'pk_test_5ba5f49f80b1f7f8f54d22513cc08b31d630e221');
-define('PAYSTACK_MODE', $_ENV['PAYSTACK_MODE'] ?? getenv('PAYSTACK_MODE') ?? 'test');
+// TEST MODE KEYS - ACTIVE
+define('PAYSTACK_SECRET_KEY', 'sk_test_5bf57d877aacf2a99c2be15a68ec4d611fdf2370');
+define('PAYSTACK_PUBLIC_KEY', 'pk_test_5ba5f49f80b1f7f8f54d22513cc08b31d630e221');
+define('PAYSTACK_MODE', 'test');
 
 // WhatsApp Configuration
 $whatsappNumber = '+2349132672126'; // Your WhatsApp number
@@ -127,10 +127,10 @@ define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 // Mailtrap API for fast, reliable email delivery to users
 // All user-facing emails (OTP, notifications, deliveries) go through Mailtrap
 // Using hello@ domain-verified sender for better inbox delivery
-define('MAILTRAP_API_KEY', $_ENV['MAILTRAP_API_KEY'] ?? getenv('MAILTRAP_API_KEY') ?? '7c7fe934790facba06a11568cfdead8a');
-define('MAILTRAP_FROM_EMAIL', $_ENV['MAILTRAP_FROM_EMAIL'] ?? getenv('MAILTRAP_FROM_EMAIL') ?? 'hello@webdaddy.online');
-define('MAILTRAP_FROM_NAME', $_ENV['MAILTRAP_FROM_NAME'] ?? getenv('MAILTRAP_FROM_NAME') ?? 'WebDaddy Empire');
-define('MAILTRAP_API_HOST', $_ENV['MAILTRAP_API_HOST'] ?? getenv('MAILTRAP_API_HOST') ?? 'send.api.mailtrap.io');
+define('MAILTRAP_API_KEY', '7c7fe934790facba06a11568cfdead8a');
+define('MAILTRAP_FROM_EMAIL', 'hello@webdaddy.online');
+define('MAILTRAP_FROM_NAME', 'WebDaddy Empire');
+define('MAILTRAP_API_HOST', 'send.api.mailtrap.io');
 // Webhook URL: https://webdaddy.online/api/mailtrap-webhook.php
 
 // ============================================
@@ -141,8 +141,8 @@ define('MAILTRAP_API_HOST', $_ENV['MAILTRAP_API_HOST'] ?? getenv('MAILTRAP_API_H
 
 
 
-define('GMAIL_OTP_USER', $_ENV['GMAIL_OTP_USER'] ?? getenv('GMAIL_OTP_USER') ?? 'webdaddyempire@gmail.com');
-define('GMAIL_OTP_APP_PASSWORD', $_ENV['GMAIL_OTP_APP_PASSWORD'] ?? getenv('GMAIL_OTP_APP_PASSWORD') ?? '');
+define('GMAIL_OTP_USER', 'webdaddyempire@gmail.com');
+define('GMAIL_OTP_APP_PASSWORD', 'dmkx gqts vwao bqth');
 
 // Customer Session Settings
 define('CUSTOMER_SESSION_LIFETIME_DAYS', 365);  // 12-month sessions
