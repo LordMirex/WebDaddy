@@ -29,16 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         
-        error_log("DEBUG: Login attempt for email: $email, password: $password");
-        
         if (isRateLimited($email, 'admin')) {
             $error = getRateLimitMessage($email, 'admin');
-            error_log("DEBUG: Rate limited for $email");
         } else {
             $user = verifyAdminPassword($email, $password);
-            error_log("DEBUG: verifyAdminPassword returned: " . ($user ? 'USER FOUND' : 'USER NOT FOUND'));
             if ($user) {
-                error_log("DEBUG: Admin user data: " . json_encode($user));
                 clearLoginAttempts($email, 'admin');
                 
                 // ⏸️ TESTING MODE: Skip OTP and login directly (for speed)
@@ -50,15 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin_name'] = $user['name'];
                 $_SESSION['admin_role'] = $user['role'];
                 
-                error_log("DEBUG: Session set - admin_id={$_SESSION['admin_id']}, admin_role={$_SESSION['admin_role']}");
-                error_log("DEBUG: Session ID: " . session_id());
-                error_log("DEBUG: Session file: " . session_save_path() . '/sess_' . session_id());
-                
-                // Force session to be written to disk before redirect
-                session_write_close();
-                
                 logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
-                error_log("✅ Admin logged in WITHOUT OTP (TESTING MODE): {$email}");
                 
                 header('Location: /admin/');
                 exit;

@@ -19,6 +19,13 @@ if ($path !== '/' && file_exists(__DIR__ . $path)) {
     return false;
 }
 
+// Admin routing: /admin → admin/index.php
+if ($path === '/admin' || $path === '/admin/') {
+    $_SERVER['SCRIPT_NAME'] = '/admin/index.php';
+    require __DIR__ . '/admin/index.php';
+    exit;
+}
+
 // Block access to sensitive directories
 if (preg_match('#^/(includes|database|uploads/private)/#', $path)) {
     $_SERVER['SCRIPT_NAME'] = '/403.php';
