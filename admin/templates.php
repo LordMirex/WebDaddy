@@ -513,19 +513,19 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                             <p class="text-xs text-gray-500 mb-3">Add a video preview or demo website link for customers to see your template in action.</p>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400 border-primary-600 bg-primary-50" id="video-type-none-label-create">
-                                    <input type="radio" name="video_type" value="none" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600" checked>
+                                    <input type="radio" name="video_type_create" value="none" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600" checked>
                                     <span class="font-medium text-sm">🚫 None</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-video-label-create">
-                                    <input type="radio" name="video_type" value="video" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
+                                    <input type="radio" name="video_type_create" value="video" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
                                     <span class="font-medium text-sm">🎥 Video</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-youtube-label-create">
-                                    <input type="radio" name="video_type" value="youtube" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
+                                    <input type="radio" name="video_type_create" value="youtube" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
                                     <span class="font-medium text-sm">📺 YouTube</span>
                                 </label>
                                 <label class="flex items-center gap-2 px-4 py-3 border-2 rounded-lg cursor-pointer transition-all hover:border-primary-400" id="video-type-demo-url-label-create">
-                                    <input type="radio" name="video_type" value="demo_url" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
+                                    <input type="radio" name="video_type_create" value="demo_url" onchange="handleVideoTypeChange('create')" class="w-4 h-4 text-primary-600">
                                     <span class="font-medium text-sm">🌐 Demo URL</span>
                                 </label>
                             </div>
