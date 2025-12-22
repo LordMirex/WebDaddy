@@ -1,7 +1,8 @@
 <?php
 /**
- * Paystack Integration
- * Handles payment initialization, verification, and webhook processing
+ * Paystack Integration - Shared Hosting Compatible
+ * Uses Redirect + Verify Flow (no webhooks required)
+ * Works on shared hosting with proper User-Agent headers
  */
 
 require_once __DIR__ . '/config.php';
@@ -9,6 +10,7 @@ require_once __DIR__ . '/db.php';
 
 /**
  * Initialize a payment with Paystack
+ * Returns authorization URL for redirect flow
  */
 function initializePayment($orderData) {
     $secretKey = defined('PAYSTACK_SECRET_KEY') ? PAYSTACK_SECRET_KEY : getenv('PAYSTACK_SECRET_KEY');
@@ -26,7 +28,7 @@ function initializePayment($orderData) {
         'amount' => $orderData['amount'] * 100, // Convert to kobo
         'currency' => $orderData['currency'] ?? 'NGN',
         'reference' => generatePaymentReference(),
-        'callback_url' => $orderData['callback_url'] ?? (defined('SITE_URL') ? SITE_URL : '') . '/cart-checkout.php',
+        'callback_url' => $orderData['callback_url'] ?? (defined('SITE_URL') ? SITE_URL : '') . '/paystack-callback.php',
         'metadata' => [
             'order_id' => $orderData['order_id'],
             'customer_name' => $orderData['customer_name'] ?? '',
@@ -34,19 +36,17 @@ function initializePayment($orderData) {
         ]
     ];
     
-    $response = paystackApiCall($url, $fields);
+    $response = paystackApiCall($url, $fields, 'POST');
     
     if ($response && isset($response['status']) && $response['status']) {
-        // Store payment record - check if exists first to avoid constraint violation
+        // Store payment record
         $db = getDb();
         
-        // Check if payment already exists for this order
         $checkStmt = $db->prepare("SELECT id FROM payments WHERE pending_order_id = ?");
         $checkStmt->execute([$orderData['order_id']]);
         $existingPayment = $checkStmt->fetch(PDO::FETCH_ASSOC);
         
         if ($existingPayment) {
-            // Update existing payment record
             $stmt = $db->prepare("
                 UPDATE payments 
                 SET amount_requested = ?, currency = ?,
@@ -64,7 +64,6 @@ function initializePayment($orderData) {
                 $orderData['order_id']
             ]);
         } else {
-            // Insert new payment record
             $stmt = $db->prepare("
                 INSERT INTO payments (
                     pending_order_id, payment_method, amount_requested, currency,
@@ -81,7 +80,6 @@ function initializePayment($orderData) {
             ]);
         }
         
-        // Log event
         logPaymentEvent('initialize', 'paystack', 'success', $orderData['order_id'], null, $fields, $response);
         
         return [
@@ -92,7 +90,6 @@ function initializePayment($orderData) {
         ];
     }
     
-    // Log failure
     logPaymentEvent('initialize', 'paystack', 'failed', $orderData['order_id'], null, $fields, $response);
     
     return [
@@ -102,22 +99,25 @@ function initializePayment($orderData) {
 }
 
 /**
- * Verify a payment with Paystack
+ * Verify a payment with Paystack (via callback, not webhook)
+ * This is called when user is redirected back from Paystack
  */
 function verifyPayment($reference) {
-    $url = "https://api.paystack.co/transaction/verify/" . $reference;
+    $url = "https://api.paystack.co/transaction/verify/" . rawurlencode($reference);
     
     $response = paystackApiCall($url, null, 'GET');
     
-    if ($response && isset($response['status']) && $response['status'] && isset($response['data']['status']) && $response['data']['status'] === 'success') {
-        // Update payment record
+    if ($response && isset($response['status']) && $response['status'] && 
+        isset($response['data']['status']) && $response['data']['status'] === 'success') {
+        
+        // Payment successful
         $db = getDb();
         $stmt = $db->prepare("
             UPDATE payments 
             SET status = 'completed',
                 amount_paid = ?,
                 paystack_response = ?,
-                payment_verified_at = datetime('now', '+1 hour')
+                payment_verified_at = datetime('now')
             WHERE paystack_reference = ?
         ");
         $stmt->execute([
@@ -126,21 +126,17 @@ function verifyPayment($reference) {
             $reference
         ]);
         
-        // Get payment details
-        $payment = getPaymentByReference($reference);
-        
-        // Log event
-        logPaymentEvent('verify', 'paystack', 'success', $payment['pending_order_id'], $payment['id'], null, $response);
+        logPaymentEvent('verify', 'paystack', 'success', null, $reference, [], $response);
         
         return [
             'success' => true,
-            'order_id' => $payment['pending_order_id'],
-            'amount' => $response['data']['amount'] / 100
+            'amount' => $response['data']['amount'] / 100,
+            'status' => $response['data']['status'],
+            'reference' => $reference
         ];
     }
     
-    // Log failure
-    logPaymentEvent('verify', 'paystack', 'failed', null, null, ['reference' => $reference], $response);
+    logPaymentEvent('verify', 'paystack', 'failed', null, $reference, [], $response);
     
     return [
         'success' => false,
@@ -150,88 +146,97 @@ function verifyPayment($reference) {
 
 /**
  * Make API call to Paystack
+ * Includes User-Agent header for shared hosting compatibility
  */
 function paystackApiCall($url, $fields = null, $method = 'POST') {
     $secretKey = defined('PAYSTACK_SECRET_KEY') ? PAYSTACK_SECRET_KEY : getenv('PAYSTACK_SECRET_KEY');
+    
     if (!$secretKey) {
-        return ['status' => false, 'message' => 'Paystack secret key not configured'];
+        error_log('Paystack error: Secret key not configured');
+        return null;
     }
     
     $ch = curl_init();
     
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $secretKey,
-        'Content-Type: application/json'
+    $headers = [
+        "Authorization: Bearer {$secretKey}",
+        "Content-Type: application/json",
+        "Cache-Control: no-cache",
+        // CRITICAL: Add User-Agent header for shared hosting compatibility
+        // Many shared hosts block CURL requests without a proper User-Agent
+        "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    ];
+    
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_HTTPHEADER => $headers,
+        // Handle both HTTP and HTTPS
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
     ]);
     
     if ($method === 'POST' && $fields) {
-        curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
     }
     
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-    if (curl_errno($ch)) {
-        $error = curl_error($ch);
-        curl_close($ch);
-        return ['status' => false, 'message' => 'cURL Error: ' . $error];
-    }
-    
+    $curlError = curl_error($ch);
     curl_close($ch);
     
-    return json_decode($response, true);
+    if ($curlError) {
+        error_log("Paystack CURL Error: " . $curlError);
+        return null;
+    }
+    
+    if ($httpCode !== 200) {
+        error_log("Paystack API Error (HTTP $httpCode): " . substr($response, 0, 200));
+        return null;
+    }
+    
+    $result = json_decode($response, true);
+    return $result;
 }
 
 /**
  * Generate unique payment reference
  */
 function generatePaymentReference() {
-    return 'WDE_' . time() . '_' . bin2hex(random_bytes(8));
+    return 'ORDER-' . time() . '-' . mt_rand(100000, 999999);
 }
 
 /**
- * Get payment by reference
+ * Log payment events for debugging
  */
-function getPaymentByReference($reference) {
+function logPaymentEvent($action, $method, $status, $orderId = null, $reference = null, $request = [], $response = []) {
     $db = getDb();
-    $stmt = $db->prepare("SELECT * FROM payments WHERE paystack_reference = ?");
-    $stmt->execute([$reference]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-/**
- * Get payment by order ID
- */
-function getPaymentByOrderId($orderId) {
-    $db = getDb();
-    $stmt = $db->prepare("SELECT * FROM payments WHERE pending_order_id = ?");
-    $stmt->execute([$orderId]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-/**
- * Log payment event
- */
-function logPaymentEvent($eventType, $provider, $status, $orderId = null, $paymentId = null, $request = null, $response = null) {
-    $db = getDb();
+    
+    $logData = [
+        'action' => $action,
+        'method' => $method,
+        'status' => $status,
+        'order_id' => $orderId,
+        'reference' => $reference,
+        'request' => json_encode($request),
+        'response' => json_encode($response),
+        'timestamp' => date('Y-m-d H:i:s'),
+        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
+    ];
+    
     $stmt = $db->prepare("
         INSERT INTO payment_logs (
-            pending_order_id, payment_id, event_type, provider, status,
-            request_data, response_data, ip_address, user_agent
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            action, payment_method, status, order_id, reference, request_data, response_data, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
     ");
     $stmt->execute([
-        $orderId,
-        $paymentId,
-        $eventType,
-        $provider,
-        $status,
-        $request ? json_encode($request) : null,
-        $response ? json_encode($response) : null,
-        $_SERVER['REMOTE_ADDR'] ?? null,
-        $_SERVER['HTTP_USER_AGENT'] ?? null
+        $action, $method, $status, $orderId, $reference,
+        $logData['request'], $logData['response']
     ]);
+    
+    // Also log to error.log for debugging
+    error_log(json_encode($logData));
 }
+?>
