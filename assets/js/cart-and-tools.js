@@ -554,6 +554,9 @@ async function addProductToCart(productType, productId, productName, quantity = 
             localStorage.setItem('cartBadgeCount', cartCount.toString());
             localStorage.setItem('cartBadgeTime', now.toString());
             
+            // CRITICAL: Refresh cart display so slider shows items immediately
+            loadCartItems();
+            
             animateCartBadge();
             
             if (window.location.pathname === '/' || window.location.pathname.includes('index.php')) {

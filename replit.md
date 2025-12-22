@@ -115,12 +115,16 @@ On shared hosting, Paystack webhooks may not work if:
 - Tool: "Budget Pro Tool" (₦3,500)
 - Template: "SaaS Website Template" (₦8,500)
 
-## Recent Fixes (Dec 22, 2025)
+## Recent Fixes (Dec 22, 2025 - FINAL SESSION)
 
-### Admin Authentication
-- Implemented token-based login to bypass router session issues
-- Token stored in database and secure httpOnly cookie
-- Admin redirect and dashboard access working
+### Critical Cart Display Fix
+- **Disabled API response caching** for cart GET endpoint
+  - Removed 5-minute cache that prevented real-time updates
+  - Cart now always returns fresh data with no caching (no-cache, no-store, must-revalidate)
+- **Added loadCartItems() call after adding products**
+  - Cart slider now updates immediately when items are added
+  - Items display in cart without requiring drawer toggle
+  - Works for both tools and templates
 
 ### Alpine.js CSP Compatibility Fixes
 - Fixed admin/tools.php "Type your own" tool type selector
