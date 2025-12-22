@@ -1,0 +1,48 @@
+Prompt for Coding Agent:**
+
+You are tasked with fixing issues on the checkout page (cart-checkout.php and related files) for the WebDaddy.online site. The site works fine on Replit but breaks on shared hosting. Use the provided browser console logs to guide your debugging. Focus on these specific user-reported problems:
+
+1. **Bonus and Affiliate Code Application/Removal:**
+   - Implement functionality to apply both bonus codes and affiliate codes during checkout.
+   - Users should be able to enter a code in an input field (e.g., via a form), submit it, and have the system validate and apply it (e.g., update cart totals, discounts, or bonuses via API calls like api/cart.php or similar).
+   - Allow removal of bonus codes only (not affiliate codes). Add a "Remove" button or link next to applied bonus codes that triggers an API call to undo the bonus (e.g., reset discounts) and refresh the cart UI.
+   - Affiliate codes should be appliable but non-removable by the user (perhaps for tracking purposes).
+   - Handle edge cases: invalid codes (show error message), already applied codes, and updates to order totals in real-time (using JS like Alpine.js or vanilla).
+   - Test: Ensure this works without breaking cart recovery or pre-cached views (as seen in logs: "✅ Pre-cached 2 views for instant switching").
+
+2. **WhatsApp Number Validation and User Flow Breaking (New/Returning Users, OTP Verification):**
+   - The system breaks when mixing user flows, e.g., starting as a returning user (login + OTP verification), then switching to or entering details as a new user (including WhatsApp number). This leads to errors like "❌ Order error: Please enter your WhatsApp number" (seen in the second log) even when proceeding to payment.
+   - Fix the validation logic in cart-checkout.php (around line 975 in the log) and related API endpoints (e.g., api/customer/check-email.php, api/customer/logout.php, or order creation APIs).
+   - For logged-in/returning users (after successful login or OTP verify via customer-auth.js): Do not require WhatsApp number if it's already stored in the user's profile or session. Auto-populate it if available, and make it optional or editable but not mandatory for order submission.
+   - For new users: Require WhatsApp only if selected as part of the flow, but ensure it's not enforced redundantly during payment.
+   - Handle flow switching gracefully: If a user logs in mid-checkout, merge session data (e.g., cart items, user details) without resetting or triggering validation errors. Use JS to detect changes (e.g., in Alpine.js evaluators around lines like cart-checkout.php:1274 or customer-auth.js:22/111).
+   - Prevent breakage at payment stage: Ensure that when submitting the order (manual or Paystack), the form data includes WhatsApp if required, but skip validation if user is authenticated and it's already known.
+   - Related log insights: POSTs to logout.php and check-email.php succeed, but the WhatsApp error blocks order creation. Check for session mismatches or incomplete form data in shared hosting (Replit might handle sessions differently due to env configs).
+
+3. **Payment Issues (Paystack and Manual) and Confirmation Errors:**
+   - **Paystack Payment:** Fix CSP (Content Security Policy) violations blocking Paystack integration (seen in both logs):
+     - Refused stylesheet 'https://paystack.com/public/css/button.min.css' – Update CSP 'style-src' directive to include 'https://paystack.com' (and possibly 'https://*.paystack.com'). Current CSP: "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.quilljs.com".
+     - Refused frame 'https://checkout.paystack.com/' – Update 'frame-src' directive to include 'https://checkout.paystack.com' (and 'https://*.paystack.com'). Current: "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://js.paystack.co".
+     - Set CSP via .htaccess, PHP headers (e.g., in index.php or a config file), or server config. Test that inline.js:1 (cssLoad) and js.paystack.co/ can load without errors.
+     - After CSP fix, ensure Paystack modal opens correctly (log: "💳 Opening Paystack payment for Order #22" and "📝 Payment record created"). Handle any follow-up fetches that fail (many "Fetch finished loading: GET <URL>" in logs – replace placeholders with actual URLs if needed for debugging).
+   - **Manual Payment:** For logged-in users, manual orders create but lead to 500 error on order-details.php?id=22 (confirmation page).
+     - Debug order-details.php: Check for server-side errors (e.g., PHP logs on shared hosting). Common causes: Missing order ID handling, database query failures (e.g., if order #22 isn't found or permissions issue), or undefined variables.
+     - Ensure the page loads data correctly (e.g., via API or direct DB query) and handles GET params securely (sanitize id).
+     - Test redirection after manual order creation – it should go to order-details without 500.
+   - **Automatic Payment Modal:** The modal never loads for automatic payments (log shows "🔘 Automatic option clicked" and "✅ Automatic radio changed", but no further success).
+     - Fix in cart-checkout.php (around lines 815/835/882): Ensure the modal (likely Paystack or a custom one) triggers after radio selection. Check for JS errors blocking it (e.g., in cart-and-tools.js or inline.js).
+     - Handle shared hosting differences: Replit might allow more lenient CORS or fetches; ensure APIs like api/cart.php?action=get work (log: "Fetch failed loading: GET https://webdaddy.online/api/cart.php?action=get" in service-worker.php:80 – fix service worker to handle this, perhaps by adjusting caching or proxy rules).
+   - General Payment Fixes: Ensure both Paystack and manual work after user flows (new/returning). Test end-to-end: Fill form, apply codes, select payment, submit – no WhatsApp errors or blocks.
+
+**General Instructions:**
+- **Hosting Differences:** Compare Replit vs. shared hosting configs (e.g., PHP version, session handling, .htaccess for CSP/headers, file permissions on api/ folders). Shared hosting might have stricter security (e.g., mod_security) blocking fetches or CSP – adjust accordingly.
+- **Tailwind Warning:** Ignore for now (log: "cdn.tailwindcss.com should not be used in production"), but consider installing Tailwind properly later if performance is an issue.
+- **Testing:** Reproduce issues using the logs (e.g., trigger OTP, switch user types, apply payments). Test on shared hosting after each fix. Log more details if needed (e.g., add console.logs or server-side error_log).
+- **Security/Best Practices:** Sanitize all inputs (codes, WhatsApp, etc.). No hardcoding – use configs for CSP domains.
+- **No Major Refactors:** Fix minimally without rewriting the whole system, focusing on the described breaks.
+
+Once fixed, confirm with the user by testing the flows end-to-end.
+
+---
+
+This prompt is self-contained, detailed, and references the logs directly to help your agent debug efficiently. If you provide more details (e.g., server logs or code snippets), I can refine it further.

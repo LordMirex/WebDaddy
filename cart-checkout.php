@@ -95,121 +95,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
     } else {
         $submittedAffiliateCode = strtoupper(trim($_POST['affiliate_code'] ?? ''));
-        
         if (!empty($submittedAffiliateCode)) {
-            // Check if already applied
             if ($submittedAffiliateCode === $appliedBonusCode || $submittedAffiliateCode === $affiliateCode) {
                 $errors[] = 'Code already applied.';
             } else {
-                // PRIORITY 1: Check if it's a valid bonus code first
-            $bonusCodeData = getBonusCodeByCode($submittedAffiliateCode);
-            if ($bonusCodeData && $bonusCodeData['is_active'] && 
-                (!$bonusCodeData['expires_at'] || strtotime($bonusCodeData['expires_at']) >= time())) {
-                
-                // Apply bonus code (no affiliate commission)
-                $appliedBonusCode = $submittedAffiliateCode;
-                $_SESSION['applied_bonus_code'] = $appliedBonusCode;
-                
-                // Clear any affiliate code since bonus code takes precedence
-                $affiliateCode = null;
-                unset($_SESSION['affiliate_code']);
-                setcookie('affiliate_code', '', time() - 3600, '/');
-                
-                // Clear any referral code
-                $userReferralCode = null;
-                unset($_SESSION['referral_code']);
-                setcookie('referral_code', '', time() - 3600, '/');
-                
-                // Recalculate totals with bonus code
-                $totals = getCartTotal(null, null, $appliedBonusCode, null);
-                
-                $success = $bonusCodeData['discount_percent'] . '% discount applied with code ' . $submittedAffiliateCode . '!';
-                $submittedAffiliateCode = '';
-            } else {
-                // PRIORITY 2: Check if it's a valid affiliate code
-                $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
-                
-                if ($lookupAffiliate && $lookupAffiliate['status'] === 'active') {
-                    $affiliateCode = $submittedAffiliateCode;
-                    
-                    // Clear any bonus code
-                    $appliedBonusCode = null;
-                    unset($_SESSION['applied_bonus_code']);
-                    
-                    // Clear any referral code
-                    $userReferralCode = null;
-                    unset($_SESSION['referral_code']);
-                    setcookie('referral_code', '', time() - 3600, '/');
-                    
-                    $_SESSION['affiliate_code'] = $affiliateCode;
-                    setcookie(
-                        'affiliate_code',
-                        $affiliateCode,
-                        time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
-                        '/',
-                        '',
-                        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-                        true
-                    );
-                    
-                    // Increment affiliate clicks
-                    if (function_exists('incrementAffiliateClick')) {
-                        incrementAffiliateClick($affiliateCode);
-                    }
-                    
-                    // Recalculate totals with discount
-                    $totals = getCartTotal(null, $affiliateCode, null, null);
-                    
-                    $success = (CUSTOMER_DISCOUNT_RATE * 100) . '% affiliate discount applied successfully!';
+                $bonusCodeData = getBonusCodeByCode($submittedAffiliateCode);
+                if ($bonusCodeData && $bonusCodeData['is_active'] && (!$bonusCodeData['expires_at'] || strtotime($bonusCodeData['expires_at']) >= time())) {
+                    $appliedBonusCode = $submittedAffiliateCode;
+                    $_SESSION['applied_bonus_code'] = $appliedBonusCode;
+                    $affiliateCode = null; unset($_SESSION['affiliate_code']);
+                    $userReferralCode = null; unset($_SESSION['referral_code']);
+                    $totals = getCartTotal(null, null, $appliedBonusCode, null);
+                    $success = $bonusCodeData['discount_percent'] . '% discount applied!';
                     $submittedAffiliateCode = '';
                 } else {
-                    // PRIORITY 3: Check if it's a valid user referral code
-                    $lookupReferral = getUserReferralByCode($submittedAffiliateCode);
-                    
-                    if ($lookupReferral && $lookupReferral['status'] === 'active') {
-                        $userReferralCode = $submittedAffiliateCode;
-                        
-                        // Clear any bonus code
-                        $appliedBonusCode = null;
-                        unset($_SESSION['applied_bonus_code']);
-                        
-                        // Clear any affiliate code
-                        $affiliateCode = null;
-                        unset($_SESSION['affiliate_code']);
-                        setcookie('affiliate_code', '', time() - 3600, '/');
-                        
-                        $_SESSION['referral_code'] = $userReferralCode;
-                        setcookie(
-                            'referral_code',
-                            $userReferralCode,
-                            time() + (defined('AFFILIATE_COOKIE_DAYS') ? AFFILIATE_COOKIE_DAYS : 30) * 86400,
-                            '/',
-                            '',
-                            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-                            true
-                        );
-                        
-                        // Increment referral clicks
-                        if (function_exists('incrementUserReferralClick')) {
-                            incrementUserReferralClick($userReferralCode);
-                        }
-                        
-                        // Recalculate totals with discount
-                        $totals = getCartTotal(null, null, null, $userReferralCode);
-                        
-                        $success = (CUSTOMER_DISCOUNT_RATE * 100) . '% referral discount applied successfully!';
-                        $submittedAffiliateCode = '';
+                    $lookupAffiliate = getAffiliateByCode($submittedAffiliateCode);
+                    if ($lookupAffiliate && $lookupAffiliate['status'] === 'active') {
+                        $affiliateCode = $submittedAffiliateCode; $appliedBonusCode = null;
+                        $_SESSION['affiliate_code'] = $affiliateCode;
+                        if (function_exists('incrementAffiliateClick')) incrementAffiliateClick($affiliateCode);
+                        $totals = getCartTotal(null, $affiliateCode, null, null);
+                        $success = 'Affiliate discount applied!';
                     } else {
-                        $errors[] = 'Invalid or inactive discount code.';
+                        $lookupReferral = getUserReferralByCode($submittedAffiliateCode);
+                        if ($lookupReferral && $lookupReferral['status'] === 'active') {
+                            $userReferralCode = $submittedAffiliateCode; $appliedBonusCode = null;
+                            $_SESSION['referral_code'] = $userReferralCode;
+                            $totals = getCartTotal(null, null, null, $userReferralCode);
+                            $success = 'Referral discount applied!';
+                        } else { $errors[] = 'Invalid code.'; }
                     }
                 }
             }
-        } else {
-            $errors[] = 'Please enter a discount code.';
-        }
+        } else { $errors[] = 'Please enter a code.'; }
     }
-
-// Handle form submission (skip if applying/removing discount codes)
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount'])) {
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
