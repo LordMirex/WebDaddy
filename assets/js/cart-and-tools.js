@@ -1325,8 +1325,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 data = await response.json();
             } catch (parseError) {
                 const responseText = await response.text();
-                console.error('API returned invalid JSON:', responseText);
-                throw new Error('Invalid response format from server');
+                console.error('❌ JSON Parse Error for view:', view);
+                console.error('Response status:', response.status);
+                console.error('Response first 500 chars:', responseText.substring(0, 500));
+                console.error('Parse error:', parseError.message);
+                throw new Error(`Failed to parse Tools API response: ${parseError.message}`);
+            }
+            
+            if (!data.success) {
+                console.error('API returned error:', data.error || 'Unknown error');
+                throw new Error(data.error || 'Failed to load products');
             }
             
             if (data.success && data.html) {

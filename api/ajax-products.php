@@ -1,4 +1,12 @@
 <?php
+// Set error handling BEFORE any other code
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error [$errno]: $errstr in $errfile:$errline");
+    return true;
+});
+
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
@@ -7,16 +15,25 @@ require_once __DIR__ . '/../includes/tools.php';
 require_once __DIR__ . '/../includes/cache.php';
 require_once __DIR__ . '/../includes/access_log.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-cache, must-revalidate');
+header('Pragma: no-cache');
+
+// Ensure output buffering is clean
+while (ob_get_level()) { ob_end_clean(); }
 
 $startTime = microtime(true);
 $action = $_GET['action'] ?? '';
 
 if ($action === 'get_categories') {
     $view = $_GET['view'] ?? 'templates';
-    header('Content-Type: application/json');
-    $categories = $view === 'templates' ? getTemplateCategories() : getToolTypes();
-    echo json_encode(['success' => true, 'categories' => $categories]);
+    try {
+        $categories = $view === 'templates' ? getTemplateCategories() : getToolTypes();
+        echo json_encode(['success' => true, 'categories' => $categories ?: []]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage(), 'categories' => []]);
+    }
     exit;
 }
 
@@ -59,23 +76,35 @@ if ($action === 'load_view') {
         renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $totalPages, $page, $category, $affiliateCode);
     } else {
         $perPage = 18;
-        $allTools = getToolsByType(true, $category, null, null, true);
-        usort($allTools, function($a, $b) {
-            $aPriority = ($a['priority_order'] !== null && $a['priority_order'] !== '') ? intval($a['priority_order']) : 999;
-            $bPriority = ($b['priority_order'] !== null && $b['priority_order'] !== '') ? intval($b['priority_order']) : 999;
-            return $aPriority != $bPriority ? $aPriority <=> $bPriority : strtotime($b['created_at'] ?? '0') <=> strtotime($a['created_at'] ?? '0');
-        });
-        $totalTools = count($allTools);
-        $totalPages = max(1, ceil($totalTools / $perPage));
-        $page = max(1, min($page, $totalPages));
-        $offset = ($page - 1) * $perPage;
-        $tools = array_slice($allTools, $offset, $perPage);
-        $toolCategories = getToolTypes();
-        renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $category, $affiliateCode);
+        try {
+            $allTools = getToolsByType(true, $category, null, null, true);
+            if (!is_array($allTools)) {
+                $allTools = [];
+            }
+            usort($allTools, function($a, $b) {
+                $aPriority = ($a['priority_order'] !== null && $a['priority_order'] !== '') ? intval($a['priority_order']) : 999;
+                $bPriority = ($b['priority_order'] !== null && $b['priority_order'] !== '') ? intval($b['priority_order']) : 999;
+                return $aPriority != $bPriority ? $aPriority <=> $bPriority : strtotime($b['created_at'] ?? '0') <=> strtotime($a['created_at'] ?? '0');
+            });
+            $totalTools = count($allTools);
+            $totalPages = max(1, ceil($totalTools / $perPage));
+            $page = max(1, min($page, $totalPages));
+            $offset = ($page - 1) * $perPage;
+            $tools = array_slice($allTools, $offset, $perPage);
+            $toolCategories = getToolTypes();
+            renderToolsGrid($tools, $toolCategories, $totalTools, $totalPages, $page, $category, $affiliateCode);
+        } catch (Exception $e) {
+            error_log("Tools load error: " . $e->getMessage());
+            echo '<div class="col-span-full text-center py-12"><p class="text-red-400">Error loading tools. Please refresh.</p></div>';
+        }
     }
     
     $html = ob_get_clean();
     $categories = $view === 'templates' ? getTemplateCategories() : getToolTypes();
+    
+    if (!$html) {
+        $html = '<div class="col-span-full text-center py-12"><p class="text-gray-400">No items found.</p></div>';
+    }
     
     // Inject fixImagePath function if not already available
     $scriptInject = '<script>
@@ -103,7 +132,14 @@ if ($action === 'load_view') {
     </script>';
     
     $html = $scriptInject . $html;
-    echo json_encode(['success' => true, 'html' => $html, 'view' => $view, 'page' => $page, 'categories' => $categories]);
+    $response = [
+        'success' => true,
+        'html' => $html,
+        'view' => $view,
+        'page' => (int)$page,
+        'categories' => is_array($categories) ? $categories : []
+    ];
+    echo json_encode($response);
     exit;
 }
 
