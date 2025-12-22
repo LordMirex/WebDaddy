@@ -958,7 +958,13 @@ require_once __DIR__ . '/includes/header.php';
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'create')" id="tool-thumbnail-upload-btn-create" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-create">
-                            <input type="text" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" placeholder="https://example.com/image.jpg or /uploads/image.jpg">
+                            <input type="text" id="tool-thumbnail-url-input-create" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" placeholder="https://example.com/image.jpg or /uploads/image.jpg" oninput="updateToolImagePreview('create')">
+                            <div id="tool-image-preview-create" class="mt-3" style="display: none;">
+                                <img id="tool-image-preview-img-create" src="" alt="Preview" class="max-w-xs max-h-40 rounded-lg border border-gray-200 shadow-sm" onerror="document.getElementById('tool-image-preview-create').style.display='none';document.getElementById('tool-image-preview-error-create').style.display='block';">
+                            </div>
+                            <div id="tool-image-preview-error-create" class="mt-2 text-red-500 text-sm" style="display: none;">
+                                <i class="bi bi-exclamation-circle"></i> Unable to load image. Please check the URL.
+                            </div>
                         </div>
                         <div id="tool-thumbnail-upload-mode-create" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-create" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -1184,7 +1190,13 @@ require_once __DIR__ . '/includes/header.php';
                             <button type="button" onclick="toggleToolThumbnailMode('upload', 'edit')" id="tool-thumbnail-upload-btn-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Upload & Crop</button>
                         </div>
                         <div id="tool-thumbnail-url-mode-edit">
-                            <input type="text" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg or /uploads/image.jpg">
+                            <input type="text" id="tool-thumbnail-url-input-edit" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" name="thumbnail_url" value="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" placeholder="https://example.com/image.jpg or /uploads/image.jpg" oninput="updateToolImagePreview('edit')">
+                            <div id="tool-image-preview-edit" class="mt-3" style="<?php echo !empty($editTool['thumbnail_url']) ? '' : 'display: none;'; ?>">
+                                <img id="tool-image-preview-img-edit" src="<?php echo htmlspecialchars($editTool['thumbnail_url'] ?? ''); ?>" alt="Preview" class="max-w-xs max-h-40 rounded-lg border border-gray-200 shadow-sm" onerror="document.getElementById('tool-image-preview-edit').style.display='none';document.getElementById('tool-image-preview-error-edit').style.display='block';">
+                            </div>
+                            <div id="tool-image-preview-error-edit" class="mt-2 text-red-500 text-sm" style="display: none;">
+                                <i class="bi bi-exclamation-circle"></i> Unable to load image. Please check the URL.
+                            </div>
                         </div>
                         <div id="tool-thumbnail-upload-mode-edit" style="display: none;">
                             <input type="file" id="tool-thumbnail-file-input-edit" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm">
@@ -1814,6 +1826,35 @@ if (editForm) {
     });
 }
 
+// Tool Image Preview Handler
+function updateToolImagePreview(formType) {
+    const urlInput = document.getElementById(`tool-thumbnail-url-input-${formType}`);
+    const previewDiv = document.getElementById(`tool-image-preview-${formType}`);
+    const previewImg = document.getElementById(`tool-image-preview-img-${formType}`);
+    const errorDiv = document.getElementById(`tool-image-preview-error-${formType}`);
+    
+    if (!urlInput || !previewDiv || !previewImg || !errorDiv) return;
+    
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        previewDiv.style.display = 'none';
+        errorDiv.style.display = 'none';
+        return;
+    }
+    
+    errorDiv.style.display = 'none';
+    previewImg.onload = function() {
+        previewDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+    };
+    previewImg.onerror = function() {
+        previewDiv.style.display = 'none';
+        errorDiv.style.display = 'block';
+    };
+    previewImg.src = url;
+}
+
 // Tool Video Type Handler
 let toolVideoTypeInitialized = { create: false, edit: false };
 
@@ -1894,8 +1935,13 @@ function handleToolVideoTypeChange(formType) {
     toolVideoTypeInitialized[formType] = true;
 }
 
-// Initialize video type on page load for edit form
+// Initialize video type on page load for both forms
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize create form if present
+    if (document.getElementById('tool-video-type-video-label-create')) {
+        handleToolVideoTypeChange('create');
+    }
+    // Initialize edit form if present
     if (document.getElementById('tool-video-type-video-label-edit')) {
         handleToolVideoTypeChange('edit');
     }
