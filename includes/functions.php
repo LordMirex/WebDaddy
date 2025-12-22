@@ -2762,3 +2762,28 @@ function getEncryptionKey() {
     
     return hash('sha256', implode(':', $keyComponents), true);
 }
+
+/**
+ * Get order for customer with authorization check
+ */
+function getOrderForCustomer($orderId, $customerId) {
+    $db = getDb();
+    try {
+        $stmt = $db->prepare("
+            SELECT po.* FROM pending_orders po
+            WHERE po.id = ? AND po.customer_id = ?
+        ");
+        $stmt->execute([$orderId, $customerId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log('Error fetching customer order: ' . $e->getMessage());
+        return null;
+    }
+}
+
+/**
+ * Get order items with delivery tracking
+ */
+function getOrderItemsWithDelivery($orderId) {
+    return getOrderItems($orderId);
+}
