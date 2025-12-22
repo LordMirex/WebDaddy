@@ -18,9 +18,14 @@ require_once __DIR__ . '/includes/delivery.php';
 // Set JSON response type
 header('Content-Type: application/json');
 
+// Read request body once (php://input can only be read once)
+$body = file_get_contents('php://input');
+
 // Paystack webhook IPs (optional extra security - uncomment to enable)
+// Note: For X-Forwarded-For, we extract only the first IP (client IP) from comma-separated list
 // $allowedIps = ['52.31.139.75', '52.49.173.169', '52.214.14.220'];
-// $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+// $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+// $clientIp = $forwardedFor ? trim(explode(',', $forwardedFor)[0]) : ($_SERVER['REMOTE_ADDR'] ?? '');
 // if (!empty($allowedIps) && !in_array($clientIp, $allowedIps)) {
 //     error_log('PAYSTACK: Blocked request from unauthorized IP: ' . $clientIp);
 //     http_response_code(403);
@@ -33,7 +38,7 @@ $logEntry = [
     'method' => $_SERVER['REQUEST_METHOD'],
     'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
     'headers' => getallheaders(),
-    'body' => file_get_contents('php://input'),
+    'body' => $body,
 ];
 error_log('PAYSTACK WEBHOOK ATTEMPT: ' . json_encode($logEntry));
 
@@ -46,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Verify Paystack signature
 $signature = $_SERVER['HTTP_X_PAYSTACK_SIGNATURE'] ?? '';
-$body = file_get_contents('php://input');
 
 $hash = hash_hmac('sha512', $body, PAYSTACK_SECRET_KEY);
 
