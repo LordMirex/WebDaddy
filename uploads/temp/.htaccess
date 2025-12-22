@@ -1,8 +1,0 @@
-# Temporary Upload Directory - Extra Security
-# Files here should be processed and moved quickly
-
-# Deny all direct access
-Order Deny,Allow
-Deny from all
-
-# No exceptions - temp files should never be accessed directly
