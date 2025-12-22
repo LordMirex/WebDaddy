@@ -34,14 +34,11 @@
             open: false,
             notifications: [],
             unreadCount: 0,
-            
-            init() {
-                setInterval(() => this.loadNotifications(), 30000);
-            },
+            loaded: false,
             
             toggle() {
                 this.open = !this.open;
-                if (this.open) {
+                if (this.open && !this.loaded) {
                     this.loadNotifications();
                     if (this.unreadCount > 0) {
                         this.markAllRead();
@@ -55,6 +52,7 @@
                     const data = await response.json();
                     this.notifications = data.notifications || [];
                     this.unreadCount = data.unread_count || 0;
+                    this.loaded = true;
                 } catch (err) {
                     console.error('Failed to load notifications');
                 }
