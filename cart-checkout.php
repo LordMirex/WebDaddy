@@ -208,7 +208,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
             $errors[] = 'Please enter a discount code.';
         }
     }
-}
 
 // Handle form submission (skip if applying/removing discount codes)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount'])) {

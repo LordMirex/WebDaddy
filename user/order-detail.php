@@ -7,6 +7,11 @@
 require_once __DIR__ . '/includes/auth.php';
 $customer = requireCustomer(true);
 
+// Add missing functions or include the file that has them
+if (!function_exists('getOrderForCustomer')) {
+    require_once __DIR__ . '/includes/auth.php';
+}
+
 $orderId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!$orderId) {
@@ -207,7 +212,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <!-- Card Payment -->
-            <div x-show="paymentTab === 'card'" x-transition class="space-y-3">
+            <div x-show="paymentTab === 'card'" x-cloak x-transition class="space-y-3">
                 <p class="text-sm text-gray-600">
                     <i class="bi-shield-check text-green-600 mr-1"></i>
                     Pay instantly with your card via Paystack. Your order will be processed immediately.
@@ -234,7 +239,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             
             <!-- Bank Transfer -->
-            <div x-show="paymentTab === 'bank'" x-transition class="space-y-3">
+            <div x-show="paymentTab === 'bank'" x-cloak x-transition class="space-y-3">
                 <div class="bg-gray-50 rounded-lg p-3 space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="text-xs text-gray-500">Bank</span>
