@@ -54,9 +54,9 @@ try {
 
 // Resend Email API check (replaces SMS - all notifications via email now)
 if (defined('RESEND_API_KEY') && !empty(RESEND_API_KEY)) {
-    $health['checks']['resend_email'] = ['status' => 'configured'];
+    $health['checks']['mailtrap_message'] = ['status' => 'configured'];
 } else {
-    $health['checks']['resend_email'] = ['status' => 'not_configured'];
+    $health['checks']['mailtrap_message'] = ['status' => 'not_configured'];
 }
 
 http_response_code($health['status'] === 'ok' ? 200 : ($health['status'] === 'warning' ? 200 : 503));

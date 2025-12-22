@@ -1,10 +1,10 @@
 <?php
-$pageTitle = 'Email Logs (Resend)';
+$pageTitle = 'Email Logs (Mailtrap)';
 
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/resend.php';
+require_once __DIR__ . '/../includes/mailtrap.php';
 require_once __DIR__ . '/includes/auth.php';
 
 startSecureSession();
@@ -12,14 +12,14 @@ requireAdmin();
 
 $db = getDb();
 
-ensureResendLogsTable($db);
+ensureMailtrapLogsTable($db);
 
-$stats = getResendEmailStats();
+$stats = getMailtrapEmailStats();
 
 $statusFilter = $_GET['status'] ?? null;
 $typeFilter = $_GET['type'] ?? null;
 
-$logs = getResendEmailLogs(100, 0, $statusFilter, $typeFilter);
+$logs = getMailtrapEmailLogs(100, 0, $statusFilter, $typeFilter);
 
 $webhookLogs = [];
 try {
@@ -36,9 +36,9 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-        <i class="bi bi-envelope-paper text-primary-600"></i> Email Logs (Resend)
+        <i class="bi bi-envelope-paper text-primary-600"></i> Email Logs (Mailtrap)
     </h1>
-    <p class="text-gray-600 mt-2">Monitor OTP email delivery status via Resend</p>
+    <p class="text-gray-600 mt-2">Monitor OTP email delivery status via Mailtrap</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -108,7 +108,7 @@ require_once __DIR__ . '/includes/header.php';
         <?php if (empty($logs)): ?>
         <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg flex items-center gap-3">
             <i class="bi bi-info-circle text-xl"></i>
-            <span>No email logs found. Logs will appear when OTP emails are sent via Resend.</span>
+            <span>No email logs found. Logs will appear when OTP emails are sent via Mailtrap.</span>
         </div>
         <?php else: ?>
         <div class="overflow-x-auto">
@@ -187,7 +187,7 @@ require_once __DIR__ . '/includes/header.php';
                             <?php endif; ?>
                         </td>
                         <td class="py-3 px-4 text-gray-500 text-xs font-mono">
-                            <?php echo htmlspecialchars(substr($log['resend_email_id'] ?? '-', 0, 20)); ?>
+                            <?php echo htmlspecialchars(substr($log['mailtrap_email_id'] ?? '-', 0, 20)); ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -254,7 +254,7 @@ require_once __DIR__ . '/includes/header.php';
                             <?php echo htmlspecialchars($log['recipient_email'] ?? '-'); ?>
                         </td>
                         <td class="py-3 px-4 text-gray-500 text-xs font-mono">
-                            <?php echo htmlspecialchars(substr($log['resend_email_id'] ?? '-', 0, 20)); ?>
+                            <?php echo htmlspecialchars(substr($log['mailtrap_email_id'] ?? '-', 0, 20)); ?>
                         </td>
                         <td class="py-3 px-4 text-gray-500 text-xs">
                             <?php echo htmlspecialchars($log['ip_address'] ?? '-'); ?>

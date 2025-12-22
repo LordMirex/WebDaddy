@@ -122,16 +122,16 @@ define('DELIVERY_RETRY_BASE_DELAY_SECONDS', 60);
 define('TEMPLATE_DELIVERY_REMINDER_HOURS', 24);
 
 // ============================================
-// RESEND EMAIL CONFIGURATION (For User Emails)
+// MAILTRAP EMAIL CONFIGURATION (For User Emails)
 // ============================================
-// Resend API for fast, reliable email delivery to users
-// All user-facing emails (OTP, notifications, deliveries) go through Resend
+// Mailtrap API for fast, reliable email delivery to users
+// All user-facing emails (OTP, notifications, deliveries) go through Mailtrap
 // Using hello@ domain-verified sender for better inbox delivery
-define('RESEND_API_KEY', 're_FPAp2CGb_6hu6jpqt9rXZTFSeKbAa1bvo');
-define('RESEND_FROM_EMAIL', 'hello@webdaddy.online');
-define('RESEND_FROM_NAME', 'WebDaddy Empire');
-define('RESEND_WEBHOOK_SECRET', 'whsec_Ysf6QzDo72obRyZymdLUDF2+1xXoA2ul');
-// Webhook URL: https://webdaddy.online/api/resend-webhook.php
+define('MAILTRAP_API_KEY', '7c7fe934790facba06a11568cfdead8a');
+define('MAILTRAP_FROM_EMAIL', 'hello@webdaddy.online');
+define('MAILTRAP_FROM_NAME', 'WebDaddy Empire');
+define('MAILTRAP_API_HOST', 'send.api.mailtrap.io');
+// Webhook URL: https://webdaddy.online/api/mailtrap-webhook.php
 
 // ============================================
 // GMAIL SMTP CONFIGURATION (For User OTP Emails)

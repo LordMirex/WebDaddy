@@ -298,7 +298,7 @@ function sendEnhancedPaymentConfirmationEmail($order, $orderItems, $domainName =
 }
 
 /**
- * Send order confirmation email to customer (via Resend)
+ * Send order confirmation email to customer (via Mailtrap)
  */
 function sendOrderConfirmationEmail($orderId, $customerName, $customerEmail, $templateName, $price) {
     $subject = "Order Received - Order #{$orderId}";
@@ -401,7 +401,7 @@ function sendPaymentConfirmationEmail($customerEmail, $customerName, $orderId, $
 }
 
 /**
- * Send order success email - simple confirmation (via Resend)
+ * Send order success email - simple confirmation (via Mailtrap)
  * Used for manual payment orders
  */
 function sendOrderSuccessEmail($customerEmail, $customerName, $orderId, $orderItems = [], $affiliateCode = null) {
@@ -515,7 +515,7 @@ HTML;
 }
 
 /**
- * Send commission earned notification to affiliate (via Resend)
+ * Send commission earned notification to affiliate (via Mailtrap)
  * @param string $affiliateName Affiliate name
  * @param string $affiliateEmail Affiliate email
  * @param int $orderId Order ID
@@ -597,7 +597,7 @@ HTML;
 }
 
 /**
- * Send withdrawal rejected notification to affiliate (via Resend)
+ * Send withdrawal rejected notification to affiliate (via Mailtrap)
  */
 function sendWithdrawalRejectedEmail($affiliateName, $affiliateEmail, $amount, $withdrawalId, $reason = '') {
     $subject = "Withdrawal Request Update - ID #{$withdrawalId}";
@@ -624,7 +624,7 @@ HTML;
 }
 
 /**
- * Send custom email to affiliate (via Resend)
+ * Send custom email to affiliate (via Mailtrap)
  */
 function sendCustomEmailToAffiliate($affiliateName, $affiliateEmail, $subject, $message) {
     // Sanitize HTML content - remove dangerous attributes while preserving formatting
@@ -837,7 +837,7 @@ HTML;
 }
 
 /**
- * Send notification when admin replies to customer support ticket (via Resend)
+ * Send notification when admin replies to customer support ticket (via Mailtrap)
  */
 function sendCustomerTicketReplyEmail($customerName, $customerEmail, $ticketId, $ticketSubject, $adminReply) {
     $subject = "Support Ticket Reply - #{$ticketId}";
@@ -871,7 +871,7 @@ HTML;
 }
 
 /**
- * Send notification when support ticket is closed (via Resend)
+ * Send notification when support ticket is closed (via Mailtrap)
  */
 function sendSupportTicketClosedEmail($affiliateName, $affiliateEmail, $ticketId, $ticketSubject) {
     $subject = "Support Ticket Closed - #{$ticketId}";
@@ -1250,7 +1250,7 @@ function sendOTPEmail($email, $otpCode) {
 }
 
 /**
- * Send user-facing email via Resend API with SMTP fallback
+ * Send user-facing email via Mailtrap API with SMTP fallback
  * All customer emails should use this function for fast, reliable delivery
  * @param string $email Recipient email address
  * @param string $subject Email subject
@@ -1259,24 +1259,24 @@ function sendOTPEmail($email, $otpCode) {
  * @return bool Success status
  */
 function sendUserEmail($email, $subject, $htmlContent, $emailType = 'notification') {
-    require_once __DIR__ . '/resend.php';
+    require_once __DIR__ . '/mailtrap.php';
     
     $siteName = defined('SITE_NAME') ? SITE_NAME : 'WebDaddy Empire';
     
-    // Try Resend first (fast, reliable)
-    $result = sendResendEmail($email, $subject, $htmlContent, $siteName, $emailType);
+    // Try Mailtrap first (fast, reliable)
+    $result = sendMailtrapEmail($email, $subject, $htmlContent, $siteName, $emailType);
     
     if ($result['success']) {
         return true;
     }
     
-    // Fall back to SMTP if Resend fails
-    error_log("Resend failed for {$emailType} email to {$email}, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
+    // Fall back to SMTP if Mailtrap fails
+    error_log("Mailtrap failed for {$emailType} email to {$email}, falling back to SMTP: " . ($result['error'] ?? 'Unknown error'));
     return sendEmail($email, $subject, $htmlContent);
 }
 
 /**
- * Send welcome email to new customer (via Resend)
+ * Send welcome email to new customer (via Mailtrap)
  * @param string $email Customer email
  * @param string $name Customer name
  * @return bool Success status
