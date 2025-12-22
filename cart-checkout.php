@@ -859,7 +859,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     <script>
         // Global state - prevent ReferenceError for isConfirmationPage
         window.isConfirmationPage = false;
-        window.authStep = 'email';
+        window.authStep = 'authenticated'; // START authenticated - form data validation is sufficient
         window.formValid = false;
         
         // Form validation watcher - watch for changes and update button state
@@ -867,25 +867,25 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             const submitBtn = document.querySelector('button[type="submit"]');
             if (!submitBtn) return;
             
-            // Watch auth step changes
-            window.addEventListener('checkout-auth-ready', function(e) {
-                window.authStep = e.detail?.step || 'email';
-                updateSubmitButtonState();
-            });
-            
-            // Watch form validity - enable button only when auth is complete AND form is valid
+            // Enable button immediately when form has valid data - no email verification blocking
             function updateSubmitButtonState() {
-                const isAuthComplete = window.authStep === 'authenticated';
-                const cartValid = document.querySelectorAll('input[required]').length === 0 || 
-                                   Array.from(document.querySelectorAll('input[required]')).every(i => i.value.trim());
+                // Check if all form inputs are filled (no required=empty)
+                const nameInput = document.getElementById('customer_name');
+                const emailInput = document.getElementById('customer_email');
+                const phoneInput = document.getElementById('customer_phone');
                 
-                window.formValid = isAuthComplete && cartValid;
+                // Form is valid if all visible fields have values
+                const formValid = (nameInput && nameInput.value.trim()) && 
+                                 (emailInput && emailInput.value.trim()) && 
+                                 (phoneInput && phoneInput.value.trim());
+                
+                window.formValid = formValid;
                 if (submitBtn) {
                     submitBtn.disabled = !window.formValid;
                 }
             }
             
-            // Listen to all input changes
+            // Listen to all input changes and enable button immediately when form is complete
             document.addEventListener('input', updateSubmitButtonState);
             updateSubmitButtonState();
         });
@@ -1965,16 +1965,13 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 </div>
                 
                 
-                <!-- Submit Button Container - controlled by Alpine state -->
-                <div id="submit-btn-container" x-data="{ authStep: 'authenticated' }" 
-                     x-init="window.addEventListener('checkout-auth-ready', e => { authStep = e.detail.step; console.log('Auth state updated:', e.detail.step); });">
+                <!-- Submit Button Container - Form validity controls button state -->
+                <div id="submit-btn-container">
                     
-                    <!-- Submit button - enable as soon as personal info is valid (no more email verification blocking) -->
+                    <!-- Submit button - Enabled when customer provides name, email, and phone -->
                     <button type="submit" 
                             id="submit-btn"
-                            :disabled="<?php echo !$validation['valid'] ? 'true' : 'false'; ?>"
-                            :class="<?php echo !$validation['valid'] ? 'true' : 'false'; ?> ? 'bg-gray-500 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'"
-                            class="w-full disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2">
+                            class="w-full disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl mb-2 bg-primary-600 hover:bg-primary-700">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
