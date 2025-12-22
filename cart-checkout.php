@@ -800,7 +800,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
         // Global state
         window.isConfirmationPage = false;
         
-        // Form validation - button enabled when customer provides name, email, phone
+        // Form validation - button enabled when customer provides name and email (phone is optional)
         document.addEventListener('DOMContentLoaded', function() {
             const submitBtn = document.querySelector('button[type="submit"]');
             if (!submitBtn) return;
@@ -808,12 +808,10 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             function updateSubmitButtonState() {
                 const nameInput = document.getElementById('customer_name');
                 const emailInput = document.getElementById('customer_email');
-                const phoneInput = document.getElementById('customer_phone');
                 
-                // Button enabled when all three fields have values
+                // Button enabled when name and email have values (phone is optional)
                 const formValid = (nameInput && nameInput.value.trim()) && 
-                                 (emailInput && emailInput.value.trim()) && 
-                                 (phoneInput && phoneInput.value.trim());
+                                 (emailInput && emailInput.value.trim());
                 
                 submitBtn.disabled = !formValid;
             }
