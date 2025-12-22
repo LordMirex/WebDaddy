@@ -4,7 +4,7 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-header("Content-Security-Policy: default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://instant.page; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https: data: https://cdn.jsdelivr.net");
+header("Content-Security-Policy: default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://unpkg.com https://instant.page https://js.paystack.co https://cdn.quilljs.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdn.quilljs.com; img-src 'self' data: https:; font-src 'self' https: data: https://cdn.jsdelivr.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https: wss:");
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 
@@ -34,6 +34,7 @@ $navItems = [
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/assets/css/premium.css?v=<?= time() ?>">
     <script defer src="/assets/alpine.csp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="icon" href="/assets/images/favicon.png" type="image/png">
     <style>
         [x-cloak] { display: none !important; }

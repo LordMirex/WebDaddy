@@ -737,7 +737,7 @@ require_once __DIR__ . '/includes/header.php';
                 ></textarea>
             </div>
             
-            <div x-show="isDestructive" class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-lg flex items-start gap-3">
+            <div x-cloak x-show="isDestructive" class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-lg flex items-start gap-3">
                 <i class="bi bi-exclamation-triangle-fill text-xl flex-shrink-0 mt-0.5"></i>
                 <div>
                     <p class="font-bold">Destructive Query Warning!</p>
@@ -871,7 +871,7 @@ require_once __DIR__ . '/includes/header.php';
                         </form>
                     </div>
                     
-                    <div x-show="showSchema" x-collapse class="mt-3 pt-3 border-t border-gray-300">
+                    <div x-cloak x-show="showSchema" x-collapse class="mt-3 pt-3 border-t border-gray-300">
                         <template x-if="schema && schema.length">
                             <div class="bg-white rounded p-3 text-xs space-y-2">
                                 <p class="font-semibold text-gray-700 mb-2"><i class="bi bi-list-columns"></i> Columns:</p>
