@@ -13,6 +13,32 @@ let cartDataCache = {
     timestamp: 0
 };
 
+// Global function to open template details - accessible from HTML onclick attributes
+async function openTemplateDetails(slug) {
+    if (!slug) return;
+    
+    // Ensure modal container exists
+    let modal = document.getElementById('template-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'template-modal';
+        modal.className = 'fixed inset-0 z-50 overflow-y-auto hidden';
+        document.body.appendChild(modal);
+    }
+    
+    try {
+        const response = await fetch(`/api/tools.php?action=get_template&slug=${slug}`);
+        const data = await response.json();
+        
+        if (data.success && data.template) {
+            showTemplateModal(data.template);
+            trackTemplateClick(data.template.id);
+        }
+    } catch (error) {
+        console.error('Failed to load template details:', error);
+    }
+}
+
 // Global function to open tool modal - accessible from HTML onclick attributes
 async function openToolModal(toolId) {
     try {

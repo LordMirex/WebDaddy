@@ -198,7 +198,7 @@ function renderTemplatesGrid($templates, $templateCategories, $totalTemplates, $
                             <span class="text-base md:text-lg font-extrabold text-gold"><?php echo formatCurrency($template['price']); ?></span>
                         </div>
                         <div class="flex gap-1.5">
-                            <button onclick="openTemplateModal(<?php echo $template['id']; ?>)" 
+                            <button onclick="openTemplateDetails('<?php echo htmlspecialchars($template['slug'], ENT_QUOTES); ?>')" 
                                     class="inline-flex items-center justify-center px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-600 text-[10px] md:text-xs font-semibold rounded-md md:rounded-lg text-gray-300 bg-transparent hover:bg-navy hover:border-gray-500 transition-all whitespace-nowrap">
                                 Details
                             </button>
