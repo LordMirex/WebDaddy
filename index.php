@@ -1679,7 +1679,7 @@ if ($autoOpenTool) {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div x-show="selected === 1" x-collapse class="px-6 pb-4 text-gray-300 border-t border-gray-700/50">
+                    <div x-show="selected === 1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="px-6 pb-4 text-gray-300 border-t border-gray-700/50">
                         Complete website template, premium domain name, hosting setup, and full customization access. You get everything needed to launch your business online.
                     </div>
                 </div>
@@ -1690,7 +1690,7 @@ if ($autoOpenTool) {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div x-show="selected === 2" x-collapse class="px-6 pb-4 text-gray-300 border-t border-gray-700/50">
+                    <div x-show="selected === 2" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="px-6 pb-4 text-gray-300 border-t border-gray-700/50">
                         Your website will be ready within 24 hours after payment confirmation. We handle all the technical setup so you can focus on your business.
                     </div>
                 </div>
@@ -1701,7 +1701,7 @@ if ($autoOpenTool) {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
-                    <div x-show="selected === 3" x-collapse class="px-6 pb-4 text-gray-300 border-t border-gray-700/50">
+                    <div x-show="selected === 3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="px-6 pb-4 text-gray-300 border-t border-gray-700/50">
                         We offer 24/7 support via WhatsApp at <?php echo WHATSAPP_NUMBER; ?>. Our team is always ready to help you with any questions or issues.
                     </div>
                 </div>

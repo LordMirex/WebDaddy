@@ -228,46 +228,7 @@ $closeParams = $_GET;
 unset($closeParams['edit']);
 $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($closeParams) : '');
 ?>
-<div x-data="{ 
-    showCreateModal: false, 
-    showEditModal: <?php echo $editTemplate ? 'true' : 'false'; ?>,
-    resetCreateForm() {
-        const form = document.getElementById('create-template-form');
-        if (form) {
-            // Use native form reset first
-            form.reset();
-            // Reset video type radio to 'none' and trigger UI update
-            const noneRadio = form.querySelector('input[name=video_type][value=none]');
-            if (noneRadio) {
-                noneRadio.checked = true;
-                noneRadio.dispatchEvent(new Event('change'));
-            }
-            // Reset video type UI sections visibility
-            if (typeof handleVideoTypeChange === 'function') handleVideoTypeChange('create');
-            // Reset banner mode to URL
-            if (typeof toggleBannerMode === 'function') toggleBannerMode('url', 'create');
-            // Clear hidden fields
-            const croppedData = document.getElementById('banner-cropped-data-create');
-            if (croppedData) croppedData.value = '';
-            const videoUrl = document.getElementById('video-uploaded-url-create');
-            if (videoUrl) videoUrl.value = '';
-            // Reset select dropdowns to first option
-            form.querySelectorAll('select[name=category], select[name=priority_order]').forEach(sel => {
-                sel.selectedIndex = 0;
-            });
-            // Reset Alpine.js nested components (categoryMode)
-            form.querySelectorAll('[x-data]').forEach(el => {
-                if (el._x_dataStack && el._x_dataStack[0]) {
-                    const data = el._x_dataStack[0];
-                    if ('categoryMode' in data) {
-                        data.categoryMode = 'select';
-                        data.customCategory = '';
-                    }
-                }
-            });
-        }
-    }
-}">
+<div x-data="templatePageManager">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-3 sm:gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
@@ -471,7 +432,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4"
          style="display: none;">
-        <div @click.away="showCreateModal = false; resetCreateForm()" 
+        <div @click.away="closeCreateModal()" 
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 transform scale-95"
              x-transition:enter-end="opacity-100 transform scale-100"
@@ -482,7 +443,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
             <form method="POST" id="create-template-form">
                 <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl">
                     <h3 class="text-2xl font-bold text-gray-900">Add New Template</h3>
-                    <button type="button" @click="showCreateModal = false; resetCreateForm()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <button type="button" @click="closeCreateModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -503,10 +464,10 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                             <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" name="slug" required>
                             <small class="text-gray-500 text-xs">URL-friendly name (e.g., ecommerce-store)</small>
                         </div>
-                        <div x-data="{ categoryMode: 'select', customCategory: '' }">
+                        <div x-data="categorySelector">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
                             <div class="flex gap-2">
-                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
+                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" @change="handleCategoryChange($event.target.value)">
                                     <option value="">Select Category</option>
                                     <?php foreach ($categories as $cat): ?>
                                     <option value="<?php echo htmlspecialchars($cat); ?>"><?php echo htmlspecialchars($cat); ?></option>
@@ -514,7 +475,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                                     <option value="__others__">Others (Type your own)</option>
                                 </select>
                                 <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="Enter custom category">
-                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                <button x-show="categoryMode === 'custom'" type="button" @click="resetToSelect()" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
                                     <i class="bi bi-arrow-left"></i>
                                 </button>
                             </div>
@@ -635,7 +596,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
-                    <button type="button" @click="showCreateModal = false; resetCreateForm()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                    <button type="button" @click="closeCreateModal()" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                         Cancel
                     </button>
                     <button type="submit" class="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold rounded-lg transition-all shadow-lg">
@@ -694,10 +655,10 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                         $currentTemplateCategory = $editTemplate['category'] ?? '';
                         $isCustomTemplateCategory = !empty($currentTemplateCategory) && !in_array($currentTemplateCategory, $categories);
                         ?>
-                        <div x-data="{ categoryMode: '<?php echo $isCustomTemplateCategory ? 'custom' : 'select'; ?>', customCategory: '<?php echo $isCustomTemplateCategory ? htmlspecialchars($currentTemplateCategory) : ''; ?>' }">
+                        <div x-data="categorySelector" x-init="categoryMode = '<?php echo $isCustomTemplateCategory ? 'custom' : 'select'; ?>'; customCategory = '<?php echo $isCustomTemplateCategory ? htmlspecialchars($currentTemplateCategory) : ''; ?>'">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
                             <div class="flex gap-2">
-                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" @change="if($event.target.value === '__others__') { categoryMode = 'custom'; $event.target.value = ''; }">
+                                <select x-show="categoryMode === 'select'" x-bind:name="categoryMode === 'select' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" @change="handleCategoryChange($event.target.value)">
                                     <option value="">Select Category</option>
                                     <?php foreach ($categories as $cat): ?>
                                     <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo (!$isCustomTemplateCategory && $currentTemplateCategory === $cat) ? 'selected' : ''; ?>><?php echo htmlspecialchars($cat); ?></option>
@@ -705,7 +666,7 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
                                     <option value="__others__">Others (Type your own)</option>
                                 </select>
                                 <input x-show="categoryMode === 'custom'" x-model="customCategory" type="text" x-bind:name="categoryMode === 'custom' ? 'category' : ''" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="Enter custom category">
-                                <button x-show="categoryMode === 'custom'" type="button" @click="categoryMode = 'select'; customCategory = ''" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                                <button x-show="categoryMode === 'custom'" type="button" @click="resetToSelect()" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
                                     <i class="bi bi-arrow-left"></i>
                                 </button>
                             </div>
@@ -833,6 +794,65 @@ $closeUrl = $_SERVER['PHP_SELF'] . ($closeParams ? '?' . http_build_query($close
 
 <script src="/assets/js/image-cropper.js"></script>
 <script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('templatePageManager', () => ({
+        showCreateModal: false,
+        showEditModal: <?php echo $editTemplate ? 'true' : 'false'; ?>,
+        closeCreateModal() {
+            this.showCreateModal = false;
+            this.resetCreateForm();
+        },
+        resetCreateForm() {
+            const form = document.getElementById('create-template-form');
+            if (form) {
+                form.reset();
+                const noneRadio = form.querySelector('input[name=video_type][value=none]');
+                if (noneRadio) {
+                    noneRadio.checked = true;
+                    noneRadio.dispatchEvent(new Event('change'));
+                }
+                if (typeof handleVideoTypeChange === 'function') handleVideoTypeChange('create');
+                if (typeof toggleBannerMode === 'function') toggleBannerMode('url', 'create');
+                const croppedData = document.getElementById('banner-cropped-data-create');
+                if (croppedData) croppedData.value = '';
+                const videoUrl = document.getElementById('video-uploaded-url-create');
+                if (videoUrl) videoUrl.value = '';
+                form.querySelectorAll('select[name=category], select[name=priority_order]').forEach(sel => {
+                    sel.selectedIndex = 0;
+                });
+            }
+        }
+    }));
+    
+    Alpine.data('categorySelector', () => ({
+        categoryMode: 'select',
+        customCategory: '',
+        handleCategoryChange(value) {
+            if (value === '__others__') {
+                this.categoryMode = 'custom';
+            }
+        },
+        resetToSelect() {
+            this.categoryMode = 'select';
+            this.customCategory = '';
+        }
+    }));
+    
+    Alpine.data('categorySelectorEdit', (initialMode, initialValue) => ({
+        categoryMode: initialMode || 'select',
+        customCategory: initialValue || '',
+        handleCategoryChange(value) {
+            if (value === '__others__') {
+                this.categoryMode = 'custom';
+            }
+        },
+        resetToSelect() {
+            this.categoryMode = 'select';
+            this.customCategory = '';
+        }
+    }));
+});
+
 let bannerCropperCreate = null;
 let bannerCropperEdit = null;
 let videoUploadInProgress = false;
