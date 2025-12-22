@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 $pageTitle = 'Analytics Dashboard';
 
 require_once __DIR__ . '/../includes/config.php';
@@ -168,94 +166,48 @@ $avgTimeData = $db->query("
 
 $avgTimeOnSite = $avgTimeData ? gmdate('i:s', round($avgTimeData)) : '00:00';
 
-// Use standardized financial metrics
-$revenueMetrics = ['total_revenue' => 0, 'total_sales' => 0];
-$totalRevenue = 0;
-$totalSales = 0;
-try {
-    $revenueMetrics = getRevenueMetrics($db, $dateFilterSales);
-    $totalRevenue = $revenueMetrics['total_revenue'];
-    $totalSales = $revenueMetrics['total_sales'];
-} catch (Exception $e) {
-    error_log('Analytics revenue error: ' . $e->getMessage());
-}
+// Use standardized financial metrics - set defaults
+$revenueMetrics = getRevenueMetrics($db, $dateFilterSales) ?? ['total_revenue' => 0, 'total_sales' => 0];
+$totalRevenue = $revenueMetrics['total_revenue'] ?? 0;
+$totalSales = $revenueMetrics['total_sales'] ?? 0;
 
 // Get revenue breakdown by order type
-$orderTypeBreakdown = ['mixed' => ['revenue' => 0, 'orders' => 0]];
-$mixedRevenue = 0;
-$mixedOrders = 0;
-try {
-    $orderTypeBreakdown = getRevenueByOrderType($db, $dateFilterSales);
-    $mixedRevenue = $orderTypeBreakdown['mixed']['revenue'];
-    $mixedOrders = $orderTypeBreakdown['mixed']['orders'];
-} catch (Exception $e) {
-    error_log('Analytics breakdown error: ' . $e->getMessage());
-}
+$orderTypeBreakdown = getRevenueByOrderType($db, $dateFilterSales) ?? ['mixed' => ['revenue' => 0, 'orders' => 0]];
+$mixedRevenue = $orderTypeBreakdown['mixed']['revenue'] ?? 0;
+$mixedOrders = $orderTypeBreakdown['mixed']['orders'] ?? 0;
 
 // Get actual tool and template sales
-$toolMetrics = ['revenue' => 0, 'orders' => 0];
-$toolRevenue = 0;
-$toolOrders = 0;
-try {
-    $toolMetrics = getToolSalesMetrics($db, $dateFilterSales);
-    $toolRevenue = $toolMetrics['revenue'];
-    $toolOrders = $toolMetrics['orders'];
-} catch (Exception $e) {
-    error_log('Analytics tools error: ' . $e->getMessage());
-}
+$toolMetrics = getToolSalesMetrics($db, $dateFilterSales) ?? ['revenue' => 0, 'orders' => 0];
+$toolRevenue = $toolMetrics['revenue'] ?? 0;
+$toolOrders = $toolMetrics['orders'] ?? 0;
 
-$templateMetrics = ['revenue' => 0, 'orders' => 0];
-$templateRevenue = 0;
-$templateOrders = 0;
-try {
-    $templateMetrics = getTemplateSalesMetrics($db, $dateFilterSales);
-    $templateRevenue = $templateMetrics['revenue'];
-    $templateOrders = $templateMetrics['orders'];
-} catch (Exception $e) {
-    error_log('Analytics templates error: ' . $e->getMessage());
-}
+$templateMetrics = getTemplateSalesMetrics($db, $dateFilterSales) ?? ['revenue' => 0, 'orders' => 0];
+$templateRevenue = $templateMetrics['revenue'] ?? 0;
+$templateOrders = $templateMetrics['orders'] ?? 0;
 
 // Get discount metrics
-$discountMetrics = ['total_discount' => 0, 'orders_with_discount' => 0];
-$totalDiscount = 0;
-$discountOrders = 0;
-try {
-    $discountMetrics = getDiscountMetrics($db, $dateFilterSales);
-    $totalDiscount = $discountMetrics['total_discount'];
-    $discountOrders = $discountMetrics['orders_with_discount'];
-} catch (Exception $e) {
-    error_log('Analytics discount error: ' . $e->getMessage());
-}
+$discountMetrics = getDiscountMetrics($db, $dateFilterSales) ?? ['total_discount' => 0, 'orders_with_discount' => 0];
+$totalDiscount = $discountMetrics['total_discount'] ?? 0;
+$discountOrders = $discountMetrics['orders_with_discount'] ?? 0;
 
 // Get direct sales (no affiliate) and affiliate sales breakdown
-$directSalesRevenue = 0;
-try {
-    $directSalesResult = $db->query("
-        SELECT COALESCE(SUM(s.amount_paid), 0) as direct_sales
-        FROM sales s
-        WHERE s.affiliate_id IS NULL
-    ")->fetch(PDO::FETCH_ASSOC);
-    $directSalesRevenue = (float)($directSalesResult['direct_sales'] ?? 0);
-} catch (Exception $e) {
-    error_log('Analytics direct sales error: ' . $e->getMessage());
-}
+$directSalesResult = $db->query("
+    SELECT COALESCE(SUM(s.amount_paid), 0) as direct_sales
+    FROM sales s
+    WHERE s.affiliate_id IS NULL
+")->fetch(PDO::FETCH_ASSOC);
+$directSalesRevenue = (float)($directSalesResult['direct_sales'] ?? 0);
 
 // Get affiliate sales profit
-$affiliateSalesRevenue = 0;
-$commissionPaid = 0;
-try {
-    $affiliateSalesResult = $db->query("
-        SELECT 
-            COALESCE(SUM(s.amount_paid), 0) as affiliate_revenue,
-            COALESCE(SUM(s.commission_amount), 0) as commission_paid
-        FROM sales s
-        WHERE s.affiliate_id IS NOT NULL
-    ")->fetch(PDO::FETCH_ASSOC);
-    $affiliateSalesRevenue = (float)($affiliateSalesResult['affiliate_revenue'] ?? 0);
-    $commissionPaid = (float)($affiliateSalesResult['commission_paid'] ?? 0);
-} catch (Exception $e) {
-    error_log('Analytics affiliate sales error: ' . $e->getMessage());
-}
+$affiliateSalesResult = $db->query("
+    SELECT 
+        COALESCE(SUM(s.amount_paid), 0) as affiliate_revenue,
+        COALESCE(SUM(s.commission_amount), 0) as commission_paid
+    FROM sales s
+    WHERE s.affiliate_id IS NOT NULL
+")->fetch(PDO::FETCH_ASSOC);
+$affiliateSalesRevenue = (float)($affiliateSalesResult['affiliate_revenue'] ?? 0);
+$commissionPaid = (float)($affiliateSalesResult['commission_paid'] ?? 0);
 
 $affiliateProfitKeep = $affiliateSalesRevenue - $commissionPaid;
 $yourActualProfit = $directSalesRevenue + $affiliateProfitKeep;
