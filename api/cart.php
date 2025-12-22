@@ -48,10 +48,12 @@ try {
     // Get action from GET parameter for GET requests
     $action = $_GET['action'] ?? '';
     
-    // GET requests - add caching headers
+    // GET requests - NO caching for cart data (must be fresh)
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Cache GET responses for 5 minutes
-        header('Cache-Control: public, max-age=300');
+        // Cart data must never be cached - it changes with every add/remove
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
         header('Vary: Accept-Encoding');
         if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false) {
             ob_start('ob_gzhandler');
