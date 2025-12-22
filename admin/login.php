@@ -45,9 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['admin_name'] = $user['name'];
                 $_SESSION['admin_role'] = $user['role'];
                 
+                // Ensure session is saved and cookie is set
+                session_write_close();
+                
                 logActivity('admin_login', 'Admin logged in: ' . $user['email'], $user['id']);
                 
-                header('Location: /admin/');
+                // Redirect to admin dashboard
+                header('Location: /admin/', true, 302);
                 exit;
                 
                 /*
