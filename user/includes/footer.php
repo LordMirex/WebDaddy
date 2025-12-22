@@ -36,7 +36,6 @@
             unreadCount: 0,
             
             init() {
-                this.loadNotifications();
                 setInterval(() => this.loadNotifications(), 30000);
             },
             

@@ -135,14 +135,12 @@ require_once __DIR__ . '/includes/header.php';
         
         <div class="p-6">
             <?php if ($success): ?>
-            <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg p-4 mb-6 flex items-center gap-3 animate-in fade-in duration-300">
-                <i class="bi-check-circle-fill text-lg flex-shrink-0"></i>
-                <div>
-                    <p class="font-semibold"><?= strpos($success, 'Email address updated') !== false ? 'Email Updated Successfully!' : htmlspecialchars($success) ?></p>
-                    <?php if (strpos($success, 'Your email is now') !== false): ?>
-                        <p class="text-sm mt-1 font-mono text-green-800"><?= htmlspecialchars($customer['email']) ?></p>
-                    <?php endif; ?>
+            <div class="bg-green-50 border border-green-200 text-green-700 rounded-lg p-3 mb-4 flex items-center gap-2 animate-in fade-in duration-300 text-sm" id="successAlert">
+                <i class="bi-check-circle-fill flex-shrink-0"></i>
+                <div class="flex-1">
+                    <p class="font-medium"><?= strpos($success, 'Email address updated') !== false ? 'Email Updated!' : htmlspecialchars($success) ?></p>
                 </div>
+                <button type="button" onclick="document.getElementById('successAlert').remove()" class="flex-shrink-0 text-green-600 hover:text-green-800 font-bold">×</button>
             </div>
             <?php endif; ?>
             

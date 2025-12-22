@@ -117,7 +117,7 @@ $navItems = [
                             <button @click="toggle()" class="relative p-2 text-gray-600 hover:text-gray-900">
                                 <i class="bi-bell text-xl"></i>
                                 <span x-show="unreadCount > 0" x-text="unreadCount" 
-                                      class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"></span>
+                                      class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center leading-none pt-0.5"></span>
                             </button>
                             
                             <div x-show="open" x-cloak @click.away="open = false" x-transition
