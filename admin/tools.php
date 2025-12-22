@@ -926,18 +926,18 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
                     
-                    <div x-data="{ toolTypeMode: 'select', customToolType: '', resetToolType() { this.toolTypeMode = 'select'; this.customToolType = ''; }, handleToolTypeChange(val) { if(val === '__others__') { this.toolTypeMode = 'custom'; } } }">
+                    <div x-data="toolTypeSelector">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
                         <div class="flex gap-2">
-                            <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="handleToolTypeChange($event.target.value)">
+                            <select x-show="mode === 'select'" x-bind:name="mode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="handleChange($event.target.value)">
                                 <?php foreach ($allToolTypes as $typeValue => $typeLabel): ?>
                                 <option value="<?php echo htmlspecialchars($typeValue); ?>"><?php echo htmlspecialchars($typeLabel); ?></option>
                                 <?php endforeach; ?>
                                 <option value="__others__">Others (Type your own)</option>
                             </select>
-                            <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
-                            <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
-                            <button x-show="toolTypeMode === 'custom'" type="button" @click="resetToolType()" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                            <input x-show="mode === 'custom'" x-model="customValue" type="text" x-bind:name="mode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
+                            <input x-show="mode === 'custom'" type="hidden" name="tool_type" value="__others__">
+                            <button x-show="mode === 'custom'" type="button" @click="reset()" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
                                 <i class="bi bi-arrow-left"></i>
                             </button>
                         </div>
@@ -1158,18 +1158,18 @@ require_once __DIR__ . '/includes/header.php';
                     $currentToolType = strtolower(trim($editTool['tool_type'] ?? ''));
                     $isInDropdown = isset($allToolTypes[$currentToolType]);
                     ?>
-                    <div x-data="{ toolTypeMode: 'select', customToolType: '', resetToolType() { this.toolTypeMode = 'select'; this.customToolType = ''; }, handleToolTypeChange(val) { if(val === '__others__') { this.toolTypeMode = 'custom'; } } }">
+                    <div x-data="toolTypeSelector">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tool Type <span class="text-red-600">*</span></label>
                         <div class="flex gap-2">
-                            <select x-show="toolTypeMode === 'select'" x-bind:name="toolTypeMode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="handleToolTypeChange($event.target.value)">
+                            <select x-show="mode === 'select'" x-bind:name="mode === 'select' ? 'tool_type' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" @change="handleChange($event.target.value)">
                                 <?php foreach ($allToolTypes as $typeValue => $typeLabel): ?>
                                 <option value="<?php echo htmlspecialchars($typeValue); ?>" <?php echo ($currentToolType === $typeValue) ? 'selected' : ''; ?>><?php echo htmlspecialchars($typeLabel); ?></option>
                                 <?php endforeach; ?>
                                 <option value="__others__">Others (Type your own)</option>
                             </select>
-                            <input x-show="toolTypeMode === 'custom'" x-model="customToolType" type="text" x-bind:name="toolTypeMode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
-                            <input x-show="toolTypeMode === 'custom'" type="hidden" name="tool_type" value="__others__">
-                            <button x-show="toolTypeMode === 'custom'" type="button" @click="resetToolType()" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
+                            <input x-show="mode === 'custom'" x-model="customValue" type="text" x-bind:name="mode === 'custom' ? 'tool_type_custom' : ''" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter custom tool type">
+                            <input x-show="mode === 'custom'" type="hidden" name="tool_type" value="__others__">
+                            <button x-show="mode === 'custom'" type="button" @click="reset()" class="px-3 py-2 text-gray-500 hover:text-gray-700" title="Back to list">
                                 <i class="bi bi-arrow-left"></i>
                             </button>
                         </div>
@@ -1602,6 +1602,22 @@ require_once __DIR__ . '/includes/header.php';
 
 <script src="/assets/js/image-cropper.js"></script>
 <script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('toolTypeSelector', () => ({
+        mode: 'select',
+        customValue: '',
+        handleChange(val) {
+            if (val === '__others__') {
+                this.mode = 'custom';
+            }
+        },
+        reset() {
+            this.mode = 'select';
+            this.customValue = '';
+        }
+    }));
+});
+
 let toolThumbnailCropperCreate = null;
 let toolThumbnailCropperEdit = null;
 
