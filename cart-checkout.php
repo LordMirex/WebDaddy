@@ -44,21 +44,16 @@ $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode, $userReferralCod
 
 // Check if this is an AJAX request
 $isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' ||
-                 ($_SERVER['REQUEST_METHOD'] === 'POST' && 
-                  !isset($_POST['apply_affiliate']) && 
-                  !isset($_POST['remove_discount']) &&
-                  (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false ||
-                   isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false));
+                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
-// If cart is empty, redirect to homepage (or return JSON error for AJAX)
+// If cart is empty, redirect to homepage
 if (empty($cartItems)) {
-    if ($isAjaxRequest || ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount']))) {
+    if ($isAjaxRequest) {
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Your cart is empty. Please add items before checkout.']);
         exit;
     }
-    header('Location: /?' . ($affiliateCode ? 'aff=' . urlencode($affiliateCode) : '') . '#products');
+    header('Location: /' . ($affiliateCode ? '?aff=' . urlencode($affiliateCode) : '') . '#products');
     exit;
 }
 
