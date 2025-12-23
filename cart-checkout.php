@@ -2023,6 +2023,9 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             const authStep = authComponent?.step;
             if (authStep !== 'authenticated') {
                 alert('Please complete email verification first.');
+                // CRITICAL: Reset button state so it doesn't stay stuck
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
                 return false;
             }
             
@@ -2195,6 +2198,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 } else {
                     console.error('❌ Order error:', result.text || result.data?.message || 'Unknown error');
                     alert('An error occurred: ' + (result.data?.message || 'Please try again.'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 }
             })
             .catch(error => {
