@@ -101,11 +101,19 @@ function initializePayment($orderData) {
 /**
  * Verify a payment with Paystack (via callback, not webhook)
  * This is called when user is redirected back from Paystack
+ * Includes retry mechanism for race conditions
  */
-function verifyPayment($reference) {
+function verifyPayment($reference, $retryCount = 0) {
+    $maxRetries = 3;
+    $retryDelaySeconds = 2;
+    
     $url = "https://api.paystack.co/transaction/verify/" . rawurlencode($reference);
     
+    error_log("PAYSTACK VERIFY API: Attempt " . ($retryCount + 1) . " for reference: $reference");
+    
     $response = paystackApiCall($url, null, 'GET');
+    
+    error_log("PAYSTACK VERIFY API: Response: " . json_encode($response));
     
     if ($response && isset($response['status']) && $response['status'] && 
         isset($response['data']['status']) && $response['data']['status'] === 'success') {
@@ -132,7 +140,33 @@ function verifyPayment($reference) {
             'success' => true,
             'amount' => $response['data']['amount'] / 100,
             'status' => $response['data']['status'],
-            'reference' => $reference
+            'reference' => $reference,
+            'data' => $response['data']
+        ];
+    }
+    
+    // Check for "no active transaction" error - might be a race condition
+    // Retry with delay if we haven't exceeded max retries
+    $errorMessage = $response['message'] ?? 'Payment verification failed';
+    $isNoTransaction = stripos($errorMessage, 'no active transaction') !== false || 
+                       stripos($errorMessage, 'transaction not found') !== false ||
+                       stripos($errorMessage, 'invalid transaction') !== false;
+    
+    if ($isNoTransaction && $retryCount < $maxRetries) {
+        error_log("PAYSTACK VERIFY API: Got '$errorMessage' - retrying in {$retryDelaySeconds}s (attempt " . ($retryCount + 2) . ")");
+        sleep($retryDelaySeconds);
+        return verifyPayment($reference, $retryCount + 1);
+    }
+    
+    // Check if transaction exists but payment failed/abandoned
+    if ($response && isset($response['data']['status'])) {
+        $txStatus = $response['data']['status'];
+        error_log("PAYSTACK VERIFY API: Transaction status is '$txStatus' (not success)");
+        
+        return [
+            'success' => false,
+            'message' => "Payment was not completed. Status: $txStatus",
+            'data' => $response['data'] ?? null
         ];
     }
     
@@ -140,7 +174,8 @@ function verifyPayment($reference) {
     
     return [
         'success' => false,
-        'message' => isset($response['message']) ? $response['message'] : 'Payment verification failed'
+        'message' => $errorMessage,
+        'data' => $response['data'] ?? null
     ];
 }
 
