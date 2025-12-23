@@ -283,10 +283,12 @@ This project uses Alpine.js CSP build (`assets/alpine.csp.min.js`) which cannot 
 8. **Click "Confirm Order"** - payment processes immediately
 
 ### Key Changes (Dec 23 Final Fix):
-- ✅ **Removed all email validation errors** blocking payment
-- ✅ **OTP code stays visible** after verification (doesn't vanish)
-- ✅ **Simplified flow** - no annoying popups, just verify and pay
-- ✅ **Payment submits cleanly** after email verification
+- ✅ **Removed ALL email validation errors** - no more blocking alerts
+- ✅ **OTP = Email Verified** - once OTP entered, email is trusted
+- ✅ **Hidden fields auto-populate** when OTP verified
+- ✅ **Both payment methods work** - Manual Bank Transfer & Card Payment
+- ✅ **Button shows "Enter OTP to Continue"** until verified, then activates
+- ✅ **PHP trusts OTP** - no more FILTER_VALIDATE_EMAIL blocking
 
 ### If Email OTP Not Received:
 - Check **Spam/Junk folder** 

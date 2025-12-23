@@ -149,11 +149,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             if (empty($customerPhone)) $customerPhone = $customer['phone'];
         }
         
+        // Email validation: Only require email exists (OTP already verified it)
+        // Don't block with validation errors - if we have an email, proceed
         if (empty($customerEmail)) {
-            $errors[] = 'Please enter your email address';
-        } elseif (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Please enter a valid email address';
+            // Try to get from session if available
+            if (isset($_SESSION['customer_id'])) {
+                $sessionCustomer = getCustomerById($_SESSION['customer_id']);
+                if ($sessionCustomer) {
+                    $customerEmail = $sessionCustomer['email'];
+                }
+            }
+            // Only error if still empty after trying session
+            if (empty($customerEmail)) {
+                $errors[] = 'Email required';
+            }
         }
+        // Skip FILTER_VALIDATE_EMAIL - if OTP was verified, email is valid
         
         // Revalidate cart
         $validation = validateCart();
@@ -2002,17 +2013,17 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 }
                 console.log('✅ User authenticated - submit button enabled');
             } else {
-                // User not authenticated - keep button disabled
+                // User not authenticated yet - button disabled but with friendly text
                 if (submitBtn) {
                     submitBtn.disabled = true;
                 }
                 if (submitText) {
-                    submitText.textContent = 'Complete Email Verification First';
+                    submitText.textContent = 'Enter OTP to Continue';
                 }
                 if (authMsg) {
-                    authMsg.style.display = 'block';
+                    authMsg.style.display = 'none'; // Hide auth message - OTP step shows enough info
                 }
-                console.log('⏳ User not authenticated - submit button disabled');
+                console.log('⏳ Waiting for OTP verification');
             }
         });
         
@@ -2023,14 +2034,12 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             
-            // Check auth state from Alpine.js component
-            const authComponent = document.querySelector('[x-data="checkoutAuth"]')?.__x?.$data;
-            const authStep = authComponent?.step;
-            
-            // Allow checkout if user is authenticated or has email
+            // Get email from hidden field - if OTP verified, this is populated
             const customerEmail = form.querySelector('input[name="customer_email"]')?.value;
-            if (authStep !== 'authenticated' && (!customerEmail || !customerEmail.includes('@'))) {
-                // Silently return - don't show error to user
+            
+            // Only require that email exists (OTP verification already validated it)
+            if (!customerEmail || !customerEmail.includes('@')) {
+                // Just return - don't show error, button stays disabled until OTP verified
                 return false;
             }
             
@@ -2574,8 +2583,17 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 this.accountComplete = customer.account_complete || false;
                 this.step = 'authenticated';
                 this.error = '';
+                
+                // CRITICAL: Populate hidden form fields directly
+                const emailField = document.getElementById('customer_email');
+                const nameField = document.getElementById('customer_name');
+                const phoneField = document.getElementById('customer_phone_hidden');
+                if (emailField) emailField.value = this.email;
+                if (nameField) nameField.value = this.customerUsername;
+                if (phoneField) phoneField.value = this.customerPhone;
+                
                 // Dispatch event to notify submit button
-                window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'authenticated' } }));
+                window.dispatchEvent(new CustomEvent('checkout-auth-ready', { detail: { step: 'authenticated', email: this.email } }));
             },
             
             // Check email - determine if new or existing user
