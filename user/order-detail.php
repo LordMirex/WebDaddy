@@ -1039,7 +1039,7 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
                             </p>
                         </div>
                         
-                        <button @click="showModal = false; location.reload()" 
+                        <button @click="closeAndRefresh()" 
                                 class="w-full bg-amber-600 text-white py-3 rounded-lg font-semibold hover:bg-amber-700 transition">
                             View Order Details
                         </button>
@@ -1062,6 +1062,11 @@ document.addEventListener('alpine:init', () => {
         confirmPassword: '',
         whatsappNumber: '<?= htmlspecialchars($existingWhatsApp) ?>',
         skipWhatsApp: <?= $skipWhatsAppStep ? 'true' : 'false' ?>,
+        
+        closeAndRefresh() {
+            this.showModal = false;
+            location.reload();
+        },
         
         async saveCredentials() {
             if (this.password !== this.confirmPassword) {
