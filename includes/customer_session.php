@@ -39,7 +39,10 @@ function createCustomerSession($customerId, $rememberMe = true) {
         $expiresAt
     ]);
     
+    // CRITICAL: For iframe environments (Replit proxy), use SameSite=None with Secure
     $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+    $sameSite = $secure ? 'None' : 'Lax'; // SameSite=None requires Secure
+    
     setcookie(
         CUSTOMER_SESSION_COOKIE,
         $token,
@@ -49,7 +52,7 @@ function createCustomerSession($customerId, $rememberMe = true) {
             'domain' => '',
             'secure' => $secure,
             'httponly' => true,
-            'samesite' => 'Lax'
+            'samesite' => $sameSite
         ]
     );
     
@@ -122,13 +125,16 @@ function destroyCustomerSession() {
         ")->execute([$token]);
     }
     
+    $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+    $sameSite = $secure ? 'None' : 'Lax';
+    
     setcookie(CUSTOMER_SESSION_COOKIE, '', [
         'expires' => time() - 3600,
         'path' => '/',
         'domain' => '',
-        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'secure' => $secure,
         'httponly' => true,
-        'samesite' => 'Lax'
+        'samesite' => $sameSite
     ]);
 }
 
