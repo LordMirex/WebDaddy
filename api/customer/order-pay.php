@@ -47,6 +47,14 @@ if ($order['status'] !== 'pending' && $order['status'] !== 'failed') {
     exit;
 }
 
+// If order is failed, reset to pending before attempting payment
+// This allows user to retry unlimited times or switch to manual payment
+if ($order['status'] === 'failed') {
+    $resetStmt = $db->prepare("UPDATE pending_orders SET status = 'pending', payment_method = 'automatic' WHERE id = ?");
+    $resetStmt->execute([$orderId]);
+    error_log("Order #$orderId reset from 'failed' to 'pending' for card payment retry");
+}
+
 // Initialize Paystack payment
 try {
     $amount = (int)($order['final_amount'] * 100); // Convert to kobo
