@@ -27,55 +27,37 @@ $sevenDaysAgo = date('Y-m-d', strtotime('-7 days'));
 $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
 $ninetyDaysAgo = date('Y-m-d', strtotime('-90 days'));
 
-// Build date filters based on database type
-function buildDateFilter($column, $operator, $value, $dbType) {
-    if ($dbType === 'sqlite') {
-        // SQLite uses DATE() function
-        if (strpos($value, '-') === 0) {
-            // Relative dates like '-7 days'
-            return "AND DATE($column) $operator DATE('now', '$value')";
-        } else {
-            // Absolute dates
-            return "AND DATE($column) $operator '$value'";
-        }
-    } else {
-        // MySQL/PostgreSQL use DATE_FORMAT or different functions
-        if (strpos($value, '-') === 0) {
-            // For relative dates, convert to absolute
-            $days = abs(intval($value));
-            return "AND DATE($column) $operator DATE(DATE_SUB(NOW(), INTERVAL $days DAY))";
-        } else {
-            // Absolute dates
-            return "AND DATE($column) $operator '$value'";
-        }
-    }
-}
-
+// Build date filters for SQLite
 switch ($period) {
     case 'today':
-        $dateFilter = buildDateFilter('created_at', '=', $today, $dbType);
-        $dateFilter_pi = buildDateFilter('pi.created_at', '=', $today, $dbType);
-        $dateFilter_session = buildDateFilter('first_visit', '=', $today, $dbType);
-        $dateFilterSales = buildDateFilter('s.created_at', '=', $today, $dbType);
+        $dateFilter = "AND DATE(created_at) = DATE('$today')";
+        $dateFilter_pi = "AND DATE(pi.created_at) = DATE('$today')";
+        $dateFilter_session = "AND DATE(first_visit) = DATE('$today')";
+        $dateFilterSales = "AND DATE(s.created_at) = DATE('$today')";
         break;
     case '7days':
-        $dateFilter = buildDateFilter('created_at', '>=', $sevenDaysAgo, $dbType);
-        $dateFilter_pi = buildDateFilter('pi.created_at', '>=', $sevenDaysAgo, $dbType);
-        $dateFilter_session = buildDateFilter('first_visit', '>=', $sevenDaysAgo, $dbType);
-        $dateFilterSales = buildDateFilter('s.created_at', '>=', $sevenDaysAgo, $dbType);
+        $dateFilter = "AND DATE(created_at) >= DATE('$sevenDaysAgo')";
+        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('$sevenDaysAgo')";
+        $dateFilter_session = "AND DATE(first_visit) >= DATE('$sevenDaysAgo')";
+        $dateFilterSales = "AND DATE(s.created_at) >= DATE('$sevenDaysAgo')";
         break;
     case '30days':
-        $dateFilter = buildDateFilter('created_at', '>=', $thirtyDaysAgo, $dbType);
-        $dateFilter_pi = buildDateFilter('pi.created_at', '>=', $thirtyDaysAgo, $dbType);
-        $dateFilter_session = buildDateFilter('first_visit', '>=', $thirtyDaysAgo, $dbType);
-        $dateFilterSales = buildDateFilter('s.created_at', '>=', $thirtyDaysAgo, $dbType);
+        $dateFilter = "AND DATE(created_at) >= DATE('$thirtyDaysAgo')";
+        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('$thirtyDaysAgo')";
+        $dateFilter_session = "AND DATE(first_visit) >= DATE('$thirtyDaysAgo')";
+        $dateFilterSales = "AND DATE(s.created_at) >= DATE('$thirtyDaysAgo')";
         break;
     case '90days':
-        $dateFilter = buildDateFilter('created_at', '>=', $ninetyDaysAgo, $dbType);
-        $dateFilter_pi = buildDateFilter('pi.created_at', '>=', $ninetyDaysAgo, $dbType);
-        $dateFilter_session = buildDateFilter('first_visit', '>=', $ninetyDaysAgo, $dbType);
-        $dateFilterSales = buildDateFilter('s.created_at', '>=', $ninetyDaysAgo, $dbType);
+        $dateFilter = "AND DATE(created_at) >= DATE('$ninetyDaysAgo')";
+        $dateFilter_pi = "AND DATE(pi.created_at) >= DATE('$ninetyDaysAgo')";
+        $dateFilter_session = "AND DATE(first_visit) >= DATE('$ninetyDaysAgo')";
+        $dateFilterSales = "AND DATE(s.created_at) >= DATE('$ninetyDaysAgo')";
         break;
+    default:
+        $dateFilter = "";
+        $dateFilter_pi = "";
+        $dateFilter_session = "";
+        $dateFilterSales = "";
 }
 
 if (isset($_GET['export_csv'])) {
@@ -140,31 +122,39 @@ if (isset($_GET['export_csv'])) {
     exit;
 }
 
-$totalVisits = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter")->fetchColumn();
+$totalVisits = 0;
+$uniqueVisitors = 0;
+$bounceRate = 0;
+$avgTimeOnSite = '00:00';
 
-$uniqueVisitors = $db->query("SELECT COUNT(DISTINCT session_id) FROM page_visits WHERE 1=1 $dateFilter")->fetchColumn();
-
-$bounceData = $db->query("
-    SELECT 
-        COUNT(*) as total_sessions,
-        SUM(is_bounce) as bounce_sessions
-    FROM session_summary
-    WHERE 1=1 $dateFilter_session
-")->fetch(PDO::FETCH_ASSOC);
-
-$bounceRate = $bounceData['total_sessions'] > 0 
-    ? round(($bounceData['bounce_sessions'] / $bounceData['total_sessions']) * 100, 1) 
-    : 0;
-
-$avgTimeData = $db->query("
-    SELECT AVG(
-        CAST((julianday(last_visit) - julianday(first_visit)) * 24 * 60 * 60 AS INTEGER)
-    ) as avg_time
-    FROM session_summary
-    WHERE is_bounce = 0 $dateFilter_session
-")->fetchColumn();
-
-$avgTimeOnSite = $avgTimeData ? gmdate('i:s', round($avgTimeData)) : '00:00';
+try {
+    $totalVisits = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter")->fetchColumn() ?? 0;
+    $uniqueVisitors = $db->query("SELECT COUNT(DISTINCT session_id) FROM page_visits WHERE 1=1 $dateFilter")->fetchColumn() ?? 0;
+    
+    $bounceData = $db->query("
+        SELECT 
+            COUNT(*) as total_sessions,
+            COALESCE(SUM(is_bounce), 0) as bounce_sessions
+        FROM session_summary
+        WHERE 1=1 $dateFilter_session
+    ")->fetch(PDO::FETCH_ASSOC);
+    
+    $bounceRate = (isset($bounceData['total_sessions']) && $bounceData['total_sessions'] > 0) 
+        ? round(($bounceData['bounce_sessions'] / $bounceData['total_sessions']) * 100, 1) 
+        : 0;
+    
+    $avgTimeData = $db->query("
+        SELECT AVG(
+            CAST((julianday(last_visit) - julianday(first_visit)) * 24 * 60 * 60 AS INTEGER)
+        ) as avg_time
+        FROM session_summary
+        WHERE is_bounce = 0 $dateFilter_session
+    ")->fetchColumn();
+    
+    $avgTimeOnSite = $avgTimeData ? gmdate('i:s', round($avgTimeData)) : '00:00';
+} catch (Exception $e) {
+    error_log('Analytics basic metrics failed: ' . $e->getMessage());
+}
 
 // Use standardized financial metrics - set defaults
 $revenueMetrics = getRevenueMetrics($db, $dateFilterSales) ?? ['total_revenue' => 0, 'total_sales' => 0];
@@ -191,77 +181,105 @@ $totalDiscount = $discountMetrics['total_discount'] ?? 0;
 $discountOrders = $discountMetrics['orders_with_discount'] ?? 0;
 
 // Get direct sales (no affiliate) and affiliate sales breakdown
-$directSalesResult = $db->query("
-    SELECT COALESCE(SUM(s.amount_paid), 0) as direct_sales
-    FROM sales s
-    WHERE s.affiliate_id IS NULL
-")->fetch(PDO::FETCH_ASSOC);
-$directSalesRevenue = (float)($directSalesResult['direct_sales'] ?? 0);
+$directSalesRevenue = 0;
+$affiliateSalesRevenue = 0;
+$commissionPaid = 0;
 
-// Get affiliate sales profit
-$affiliateSalesResult = $db->query("
-    SELECT 
-        COALESCE(SUM(s.amount_paid), 0) as affiliate_revenue,
-        COALESCE(SUM(s.commission_amount), 0) as commission_paid
-    FROM sales s
-    WHERE s.affiliate_id IS NOT NULL
-")->fetch(PDO::FETCH_ASSOC);
-$affiliateSalesRevenue = (float)($affiliateSalesResult['affiliate_revenue'] ?? 0);
-$commissionPaid = (float)($affiliateSalesResult['commission_paid'] ?? 0);
+try {
+    $directSalesResult = $db->query("
+        SELECT COALESCE(SUM(amount_paid), 0) as direct_sales
+        FROM sales
+        WHERE affiliate_id IS NULL
+    ")->fetch(PDO::FETCH_ASSOC);
+    $directSalesRevenue = (float)($directSalesResult['direct_sales'] ?? 0);
+
+    $affiliateSalesResult = $db->query("
+        SELECT 
+            COALESCE(SUM(amount_paid), 0) as affiliate_revenue,
+            COALESCE(SUM(commission_amount), 0) as commission_paid
+        FROM sales
+        WHERE affiliate_id IS NOT NULL
+    ")->fetch(PDO::FETCH_ASSOC);
+    $affiliateSalesRevenue = (float)($affiliateSalesResult['affiliate_revenue'] ?? 0);
+    $commissionPaid = (float)($affiliateSalesResult['commission_paid'] ?? 0);
+} catch (Exception $e) {
+    error_log('Analytics sales query failed: ' . $e->getMessage());
+}
 
 $affiliateProfitKeep = $affiliateSalesRevenue - $commissionPaid;
 $yourActualProfit = $directSalesRevenue + $affiliateProfitKeep;
 
-$visitsOverTime = $db->query("
-    SELECT 
-        visit_date,
-        COUNT(*) as visits,
-        COUNT(DISTINCT session_id) as unique_visitors
-    FROM page_visits
-    WHERE 1=1 $dateFilter
-    GROUP BY visit_date
-    ORDER BY visit_date ASC
-")->fetchAll(PDO::FETCH_ASSOC);
+$visitsOverTime = [];
+$topTemplateViews = [];
+$topToolViews = [];
+$topPages = [];
 
-$topTemplateViews = $db->query("
-    SELECT 
-        t.id,
-        t.name,
-        t.price,
-        COUNT(pi.id) as view_count
-    FROM page_interactions pi
-    JOIN templates t ON pi.template_id = t.id
-    WHERE pi.action_type = 'view' $dateFilter_pi
-    GROUP BY t.id, t.name, t.price
-    ORDER BY view_count DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $visitsOverTime = $db->query("
+        SELECT 
+            visit_date,
+            COUNT(*) as visits,
+            COUNT(DISTINCT session_id) as unique_visitors
+        FROM page_visits
+        WHERE 1=1 $dateFilter
+        GROUP BY visit_date
+        ORDER BY visit_date ASC
+    ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) {
+    error_log('Analytics visits over time failed: ' . $e->getMessage());
+}
 
-$topToolViews = $db->query("
-    SELECT 
-        t.id,
-        t.name,
-        t.price,
-        COUNT(pi.id) as view_count
-    FROM page_interactions pi
-    JOIN tools t ON pi.tool_id = t.id
-    WHERE pi.action_type = 'view' $dateFilter_pi
-    GROUP BY t.id, t.name, t.price
-    ORDER BY view_count DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $topTemplateViews = $db->query("
+        SELECT 
+            t.id,
+            t.name,
+            t.price,
+            COUNT(pi.id) as view_count
+        FROM page_interactions pi
+        JOIN templates t ON pi.template_id = t.id
+        WHERE pi.action_type = 'view' $dateFilter_pi
+        GROUP BY t.id, t.name, t.price
+        ORDER BY view_count DESC
+        LIMIT 10
+    ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) {
+    error_log('Analytics top templates failed: ' . $e->getMessage());
+}
 
-$topPages = $db->query("
-    SELECT 
-        page_url,
-        page_title,
-        COUNT(*) as visit_count
-    FROM page_visits
-    WHERE 1=1 $dateFilter
-    GROUP BY page_url, page_title
-    ORDER BY visit_count DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $topToolViews = $db->query("
+        SELECT 
+            t.id,
+            t.name,
+            t.price,
+            COUNT(pi.id) as view_count
+        FROM page_interactions pi
+        JOIN tools t ON pi.tool_id = t.id
+        WHERE pi.action_type = 'view' $dateFilter_pi
+        GROUP BY t.id, t.name, t.price
+        ORDER BY view_count DESC
+        LIMIT 10
+    ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) {
+    error_log('Analytics top tools failed: ' . $e->getMessage());
+}
+
+try {
+    $topPages = $db->query("
+        SELECT 
+            page_url,
+            page_title,
+            COUNT(*) as visit_count
+        FROM page_visits
+        WHERE 1=1 $dateFilter
+        GROUP BY page_url, page_title
+        ORDER BY visit_count DESC
+        LIMIT 10
+    ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) {
+    error_log('Analytics top pages failed: ' . $e->getMessage());
+}
 
 $ipFilter = trim($_GET['ip'] ?? '');
 $ipFilterQuery = '';
@@ -270,18 +288,25 @@ if (!empty($ipFilter)) {
 }
 
 // Pagination for Recent Visits (via AJAX)
-$totalRecentVisitsCount = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter $ipFilterQuery")->fetchColumn();
+$totalRecentVisitsCount = 0;
+try {
+    $totalRecentVisitsCount = $db->query("SELECT COUNT(*) FROM page_visits WHERE 1=1 $dateFilter $ipFilterQuery")->fetchColumn();
+} catch (Exception $e) {
+    error_log('Analytics recent visits count failed: ' . $e->getMessage());
+}
 $visitsPerPage = 20;
 $totalVisitsPages = ceil($totalRecentVisitsCount / $visitsPerPage);
 $recentVisits = []; // Will be loaded via AJAX
 
-$trafficSources = $db->query("
-    SELECT 
-        CASE 
-            WHEN referrer IS NULL OR referrer = '' THEN 'Direct'
-            WHEN referrer LIKE '%google%' THEN 'Google'
-            WHEN referrer LIKE '%bing%' OR referrer LIKE '%yahoo%' THEN 'Search Engines'
-            WHEN referrer LIKE '%facebook%' OR referrer LIKE '%twitter%' OR referrer LIKE '%instagram%' OR referrer LIKE '%linkedin%' THEN 'Social Media'
+$trafficSources = [];
+try {
+    $trafficSources = $db->query("
+        SELECT 
+            CASE 
+                WHEN referrer IS NULL OR referrer = '' THEN 'Direct'
+                WHEN referrer LIKE '%google%' THEN 'Google'
+                WHEN referrer LIKE '%bing%' OR referrer LIKE '%yahoo%' THEN 'Search Engines'
+                WHEN referrer LIKE '%facebook%' OR referrer LIKE '%twitter%' OR referrer LIKE '%instagram%' OR referrer LIKE '%linkedin%' THEN 'Social Media'
             WHEN referrer LIKE '%?aff=%' OR referrer LIKE '%&aff=%' THEN 'Affiliate Links'
             ELSE 'Other Referrals'
         END as source_type,
@@ -291,7 +316,10 @@ $trafficSources = $db->query("
     WHERE 1=1 $dateFilter
     GROUP BY source_type
     ORDER BY visit_count DESC
-")->fetchAll(PDO::FETCH_ASSOC);
+")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Exception $e) {
+    error_log('Analytics traffic sources failed: ' . $e->getMessage());
+}
 
 $totalSourceVisits = array_sum(array_column($trafficSources, 'visit_count'));
 
