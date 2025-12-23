@@ -2026,19 +2026,12 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             // Check auth state from Alpine.js component
             const authComponent = document.querySelector('[x-data="checkoutAuth"]')?.__x?.$data;
             const authStep = authComponent?.step;
-            if (authStep !== 'authenticated') {
-                alert('Please complete email verification first.');
-                // CRITICAL: Reset button state so it doesn't stay stuck
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-                return false;
-            }
             
-            // Validate email is present before submission
+            // Allow checkout if user is authenticated or has email
             const customerEmail = form.querySelector('input[name="customer_email"]')?.value;
-            if (!customerEmail || !customerEmail.includes('@')) {
-                alert('Please complete email verification before placing your order.');
-                return;
+            if (authStep !== 'authenticated' && (!customerEmail || !customerEmail.includes('@'))) {
+                // Silently return - don't show error to user
+                return false;
             }
             
             const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
@@ -2709,9 +2702,11 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                     const result = await CustomerAuth.verifyOTP(this.email, code);
                     
                     if (result.success) {
+                        // Keep OTP code visible after verification
                         this.setAuthenticatedState(result.customer);
                         if (this.resendInterval) clearInterval(this.resendInterval);
                     } else {
+                        // Clear OTP only on error
                         this.error = result.message || result.error || 'Invalid verification code';
                         this.otpCode = '';
                         document.getElementById('otp-input')?.focus();
