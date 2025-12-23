@@ -266,22 +266,15 @@ function getTemplateUrl($template, $affiliateCode = null)
 {
     if (is_array($template)) {
         $slug = $template['slug'] ?? '';
-        $id = $template['id'] ?? '';
     } else {
         $slug = $template;
-        $id = '';
     }
     
-    // Use slug if available, otherwise fallback to ID
-    $identifier = !empty($slug) ? $slug : $id;
-    
-    // Clean URL format: /{slug}
-    // Router.php handles this for PHP built-in server
-    // .htaccess handles this for Apache/cPanel
-    $url = '/' . urlencode($identifier);
+    // Direct URL format for shared hosting compatibility
+    $url = SITE_URL . '/template.php?slug=' . urlencode($slug);
     
     if ($affiliateCode) {
-        $url .= '?aff=' . urlencode($affiliateCode);
+        $url .= '&aff=' . urlencode($affiliateCode);
     }
     
     return $url;
@@ -290,24 +283,16 @@ function getTemplateUrl($template, $affiliateCode = null)
 function getToolUrl($tool, $affiliateCode = null)
 {
     if (is_array($tool)) {
-        $slug = $tool['slug'] ?? '';
         $id = $tool['id'] ?? '';
     } else {
-        $slug = $tool;
-        $id = '';
+        $id = $tool;
     }
     
-    // Use slug if available, otherwise fallback to ID
-    $identifier = !empty($slug) ? $slug : $id;
-    
-    // Clean URL format: /tool/{slug}
-    // This routes to index.php?tool={slug} which opens the tool modal
-    // Router.php handles this for PHP built-in server
-    // .htaccess handles this for Apache/cPanel
-    $url = '/tool/' . urlencode($identifier);
+    // Direct URL format for shared hosting compatibility
+    $url = SITE_URL . '/tool.php?id=' . urlencode($id);
     
     if ($affiliateCode) {
-        $url .= '?aff=' . urlencode($affiliateCode);
+        $url .= '&aff=' . urlencode($affiliateCode);
     }
     
     return $url;
