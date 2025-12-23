@@ -152,16 +152,18 @@ const PaymentManager = {
             
             if (status.success && status.status === 'paid') {
                 this.showSuccessAndRedirect(orderId);
-            } else if (status.status === 'pending') {
-                this.hideOverlay();
-                this.showRecoveryOptions(orderId, reference, 'Payment window closed. Your payment may still be processing.');
             } else {
+                // ALWAYS redirect to order details after payment attempt
+                // User can see their order status and retry payment from there
                 this.hideOverlay();
-                this.resetPayButton();
+                this.clearPendingPayment();
+                window.location.href = '/user/order-detail.php?id=' + orderId;
             }
         } catch (error) {
+            // Even on error, redirect to order details so user can see their order
             this.hideOverlay();
-            this.resetPayButton();
+            this.clearPendingPayment();
+            window.location.href = '/user/order-detail.php?id=' + orderId;
         }
     },
     
@@ -212,7 +214,10 @@ const PaymentManager = {
                 return;
             }
             
-            this.showRecoveryOptions(orderId, reference, error.message || 'Payment verification failed');
+            // ALWAYS redirect to order details after verification attempt
+            // User can see their order status and retry from there
+            this.clearPendingPayment();
+            window.location.href = '/user/order-detail.php?id=' + orderId;
         }
     },
     

@@ -2200,17 +2200,16 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                                 window.location.href = '/user/order-detail.php?id=' + data.order_id;
                                             }, 1200);
                                         } else {
-                                            if (overlay) overlay.classList.remove('show');
-                                            alert('Payment verification failed: ' + (data.message || 'Unknown error'));
-                                            submitBtn.disabled = false;
-                                            submitBtn.innerHTML = originalText;
+                                            // Verification failed - redirect to order details
+                                            // User can see order status and retry from there
+                                            console.log('⚠️ Verification failed, redirecting to order details');
+                                            window.location.href = '/user/order-detail.php?id=' + paymentData.order_id;
                                         }
                                     })
                                     .catch(err => {
-                                        if (overlay) overlay.classList.remove('show');
-                                        alert('Error: ' + err.message);
-                                        submitBtn.disabled = false;
-                                        submitBtn.innerHTML = originalText;
+                                        // On error, redirect to order details so user can see their order
+                                        console.error('Verification error:', err);
+                                        window.location.href = '/user/order-detail.php?id=' + paymentData.order_id;
                                     });
                                 }
                             });
@@ -2300,10 +2299,9 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                         window.location.href = '/user/order-detail.php?id=' + orderId;
                     })
                     .catch(err => {
-                        console.error('Error:', err);
-                        btn.disabled = false;
-                        btn.textContent = '💳 Retry Payment';
-                        if (overlay) overlay.classList.remove('show');
+                        // On error, still redirect to order details
+                        console.error('Error marking payment failed:', err);
+                        window.location.href = '/user/order-detail.php?id=' + orderId;
                     });
                 },
                 callback: function(response) {
@@ -2322,16 +2320,14 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                 window.location.href = '/user/order-detail.php?id=' + data.order_id;
                             }, 1000);
                         } else {
-                            btn.disabled = false;
-                            btn.textContent = '💳 Retry Payment';
-                            if (overlay) overlay.classList.remove('show');
-                            alert('Payment verification failed: ' + (data.message || 'Unknown error'));
+                            // Verification failed - redirect to order details
+                            console.log('Verification failed, redirecting to order details');
+                            window.location.href = '/user/order-detail.php?id=' + orderId;
                         }
                     }).catch(err => {
-                        btn.disabled = false;
-                        btn.textContent = '💳 Retry Payment';
-                        if (overlay) overlay.classList.remove('show');
-                        alert('Error: ' + err.message);
+                        // On error, redirect to order details
+                        console.error('Verification error:', err);
+                        window.location.href = '/user/order-detail.php?id=' + orderId;
                     });
                 }
             });
