@@ -1,0 +1,305 @@
+(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+api/customer/profile.php:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+cart-checkout.php:847 ⏳ Waiting for OTP verification
+cart-checkout.php:1252 ✅ Cart Recovery Features Initialized
+button.min.css:1  Failed to load resource: net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin
+cart-and-tools.js:912 ✅ Pre-cached 2 views for instant switching
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+Fetch finished loading: POST "<URL>".
+cart-checkout.php:835 ✅ User authenticated - submit button enabled
+cart-checkout.php:785 🔘 Automatic option clicked
+cart-checkout.php:805 ✅ Automatic radio changed - checked: true
+cart-checkout.php:785 🔘 Automatic option clicked
+cart-checkout.php:805 ✅ Automatic radio changed - checked: true
+cart-checkout.php:1027 ❌ Order error: <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>WebDaddy Empire - Professional Website Templates & Digital Working Tools</title>
+    <meta name="description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta name="keywords" content="website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools">
+    <meta name="author" content="WebDaddy Empire">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev">
+    
+    <!-- Preload critical images for instant display -->
+    <link rel="preload" as="image" href="/assets/images/webdaddy-logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/viralcuts.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/jasper-ai.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/webflow.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/intercom.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/glide-apps.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/notion.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/runway.jpg">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    
+    <script>
+    /**
+     * Image Path Handler for webdaddy.online
+     * All paths are ROOT-based: /assets/, /uploads/, /blog/
+     * Database images (thumbnail_url, demo_video_url) are already full URLs from uploads
+     */
+    function fixImagePath(img) {
+        if (!img || img.dataset.fixed) return;
+        
+        img.dataset.fixed = 'true';
+        
+        // If image is already loaded or is placeholder/absolute URL, leave it
+        if (img.complete || img.src.includes('placeholder.jpg') || img.src.startsWith('http')) {
+            return;
+        }
+        
+        // Setup error handler for failed loads
+        img.onerror = function() {
+            if (!this.src.includes('placeholder.jpg')) {
+                this.src = '/assets/images/placeholder.jpg';
+            }
+        };
+    }
+    </script>
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WebDaddy Empire - Professional Website Templates & Digital Working Tools">
+    <meta property="og:description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta property="og:url" content="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev">
+    <meta property="og:site_name" content="WebDaddy Empire">
+    <meta property="og:image" content="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/assets/images/og-image.jpg?v=1766461659">
+    <meta property="og:image:width" content="1500">
+    <meta property="og:image:height" content="1000">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:locale" content="en_NG">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WebDaddy Empire - Professional Website Templates & Digital Working Tools">
+    <meta name="twitter:description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta name="twitter:image" content="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/assets/images/og-image.jpg">
+    <meta name="twitter:image:alt" content="WebDaddy Empire - Professional Templates and Digital Tools">
+    
+    <!-- Structured Data (Schema.org) for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "WebDaddy Empire",
+      "url": "http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev",
+      "logo": "http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/assets/images/webdaddy-logo.png",
+      "descripti
+(anonymous) @ cart-checkout.php:1027
+Promise.then
+handleCheckoutSubmit @ cart-checkout.php:887
+onsubmit @ cart-checkout.php:460
+cart-checkout.php:775 🔘 Manual option clicked
+cart-checkout.php:796 ✅ Manual radio changed - checked: true
+cart-checkout.php:775 🔘 Manual option clicked
+cart-checkout.php:796 ✅ Manual radio changed - checked: true
+cart-checkout.php:1027 ❌ Order error: <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>WebDaddy Empire - Professional Website Templates & Digital Working Tools</title>
+    <meta name="description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta name="keywords" content="website templates, digital tools, API keys, business software, working tools, automation software, web templates, software licenses, ChatGPT API, digital products, online tools">
+    <meta name="author" content="WebDaddy Empire">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev">
+    
+    <!-- Preload critical images for instant display -->
+    <link rel="preload" as="image" href="/assets/images/webdaddy-logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/viralcuts.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="/assets/images/mockups/jasper-ai.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/webflow.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/intercom.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/glide-apps.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/notion.jpg">
+    <link rel="preload" as="image" href="/assets/images/mockups/runway.jpg">
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    
+    <script>
+    /**
+     * Image Path Handler for webdaddy.online
+     * All paths are ROOT-based: /assets/, /uploads/, /blog/
+     * Database images (thumbnail_url, demo_video_url) are already full URLs from uploads
+     */
+    function fixImagePath(img) {
+        if (!img || img.dataset.fixed) return;
+        
+        img.dataset.fixed = 'true';
+        
+        // If image is already loaded or is placeholder/absolute URL, leave it
+        if (img.complete || img.src.includes('placeholder.jpg') || img.src.startsWith('http')) {
+            return;
+        }
+        
+        // Setup error handler for failed loads
+        img.onerror = function() {
+            if (!this.src.includes('placeholder.jpg')) {
+                this.src = '/assets/images/placeholder.jpg';
+            }
+        };
+    }
+    </script>
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WebDaddy Empire - Professional Website Templates & Digital Working Tools">
+    <meta property="og:description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta property="og:url" content="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev">
+    <meta property="og:site_name" content="WebDaddy Empire">
+    <meta property="og:image" content="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/assets/images/og-image.jpg?v=1766461685">
+    <meta property="og:image:width" content="1500">
+    <meta property="og:image:height" content="1000">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:locale" content="en_NG">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WebDaddy Empire - Professional Website Templates & Digital Working Tools">
+    <meta name="twitter:description" content="Get professional website templates and digital working tools for your business. API keys, software licenses, automation tools, and custom web templates. Launch your website in 24 hours with domain included.">
+    <meta name="twitter:image" content="http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/assets/images/og-image.jpg">
+    <meta name="twitter:image:alt" content="WebDaddy Empire - Professional Templates and Digital Tools">
+    
+    <!-- Structured Data (Schema.org) for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "WebDaddy Empire",
+      "url": "http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev",
+      "logo": "http://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/assets/images/webdaddy-logo.png",
+      "descripti
+(anonymous) @ cart-checkout.php:1027
+Promise.then
+handleCheckoutSubmit @ cart-checkout.php:887
+onsubmit @ cart-checkout.php:460

@@ -47,9 +47,11 @@ $cartItems = getCart();
 // Pass user referral code to getCartTotal - it handles priority (bonus > affiliate > referral)
 $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode, $userReferralCode);
 
-// Check if this is an AJAX request
-$isAjaxRequest = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+// Check if this is an AJAX request (multiple detection methods for reliability)
+$isAjaxRequest = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ||
+                 (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) ||
+                 (!empty($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false && $_SERVER['REQUEST_METHOD'] === 'POST');
 
 // If cart is empty, redirect to homepage
 if (empty($cartItems)) {
@@ -2054,7 +2056,10 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             
             fetch(form.action || '/cart-checkout.php', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             })
             .then(response => {
                 if (response.headers.get('Content-Type')?.includes('application/json')) {
