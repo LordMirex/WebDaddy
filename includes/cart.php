@@ -26,6 +26,7 @@ function getCartSessionId() {
 /**
  * Get all cart items for current session with product details
  * Supports both templates and tools based on product_type
+ * Now also checks customer_id for logged-in users
  * 
  * @param string $sessionId Optional session ID (uses current if not provided)
  * @return array Array of cart items with product details
@@ -37,8 +38,17 @@ function getCart($sessionId = null) {
         $sessionId = getCartSessionId();
     }
     
-    $stmt = $db->prepare("SELECT * FROM cart_items WHERE session_id = ? ORDER BY created_at DESC");
-    $stmt->execute([$sessionId]);
+    // Get customer_id if logged in
+    $customerId = $_SESSION['customer_id'] ?? null;
+    
+    // Look for cart items by session_id OR customer_id (for logged-in users)
+    if ($customerId) {
+        $stmt = $db->prepare("SELECT * FROM cart_items WHERE session_id = ? OR customer_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$sessionId, $customerId]);
+    } else {
+        $stmt = $db->prepare("SELECT * FROM cart_items WHERE session_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$sessionId]);
+    }
     $cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     $result = [];

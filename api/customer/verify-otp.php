@@ -101,6 +101,15 @@ try {
 
     $_SESSION['customer_id'] = $customerId;
     $_SESSION['customer_session_token'] = $sessionResult['token'];
+    
+    // CRITICAL: Migrate cart items from session to customer
+    // This ensures cart persists even if session ID changes
+    $sessionId = session_id();
+    if ($sessionId && $customerId) {
+        $db = getDb();
+        $stmt = $db->prepare("UPDATE cart_items SET customer_id = ? WHERE session_id = ? AND customer_id IS NULL");
+        $stmt->execute([$customerId, $sessionId]);
+    }
 
     setcookie('customer_session', $sessionResult['token'], [
         'expires' => strtotime('+1 year'),
