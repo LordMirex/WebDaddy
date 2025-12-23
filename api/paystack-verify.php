@@ -159,15 +159,18 @@ try {
             $stmt->execute([$amountPaid, $orderId]);
             
             $db->commit();
-            
-            // Log payment completed event for dashboard tracking
-            logPaymentEvent('payment_completed', 'paystack', 'success', $orderId, null, null, [
-                'reference' => $reference,
-                'amount' => $order['final_amount'],
-                'customer_email' => $order['customer_email']
-            ]);
-            
             error_log("✅ PAYSTACK VERIFY: Transaction committed");
+            
+            // Log payment completed event for dashboard tracking (non-critical - don't break flow if fails)
+            try {
+                logPaymentEvent('payment_completed', 'paystack', 'success', $orderId, null, null, [
+                    'reference' => $reference,
+                    'amount' => $order['final_amount'],
+                    'customer_email' => $order['customer_email']
+                ]);
+            } catch (Exception $logError) {
+                error_log("⚠️ PAYSTACK VERIFY: Failed to log payment event (non-critical): " . $logError->getMessage());
+            }
             
             // PROCESS COMMISSION: Unified processor for affiliate payments (CRITICAL FIX)
             error_log("✅ PAYSTACK VERIFY: Processing affiliate commission");

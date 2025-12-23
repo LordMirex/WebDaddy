@@ -209,33 +209,39 @@ function generatePaymentReference() {
 
 /**
  * Log payment events for debugging
+ * CRITICAL: This function must NEVER throw exceptions - it's called from critical payment paths
  */
 function logPaymentEvent($action, $method, $status, $orderId = null, $reference = null, $request = [], $response = []) {
-    $db = getDb();
-    
     $logData = [
         'action' => $action,
         'method' => $method,
         'status' => $status,
         'order_id' => $orderId,
         'reference' => $reference,
-        'request' => json_encode($request),
-        'response' => json_encode($response),
+        'request' => json_encode($request ?? []),
+        'response' => json_encode($response ?? []),
         'timestamp' => date('Y-m-d H:i:s'),
         'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
     ];
     
-    $stmt = $db->prepare("
-        INSERT INTO payment_logs (
-            action, payment_method, status, order_id, reference, request_data, response_data, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
-    ");
-    $stmt->execute([
-        $action, $method, $status, $orderId, $reference,
-        $logData['request'], $logData['response']
-    ]);
+    // Always log to error.log first (guaranteed to work)
+    error_log("PAYMENT_LOG: " . json_encode($logData));
     
-    // Also log to error.log for debugging
-    error_log(json_encode($logData));
+    // Try to log to database, but don't break payment flow if it fails
+    try {
+        $db = getDb();
+        $stmt = $db->prepare("
+            INSERT INTO payment_logs (
+                action, payment_method, status, order_id, reference, request_data, response_data, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ");
+        $stmt->execute([
+            $action, $method, $status, $orderId, $reference,
+            $logData['request'], $logData['response']
+        ]);
+    } catch (Exception $e) {
+        // Log the error but don't throw - payment processing must continue
+        error_log("PAYMENT_LOG_DB_ERROR: " . $e->getMessage());
+    }
 }
 ?>
