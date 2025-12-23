@@ -1,0 +1,120 @@
+(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+cart-checkout.php:1255 ✅ Cart Recovery Features Initialized
+cart-checkout.php:835 ✅ User authenticated - submit button enabled
+cart-and-tools.js:912 ✅ Pre-cached 2 views for instant switching
+cart-checkout.php:775 🔘 Manual option clicked
+cart-checkout.php:796 ✅ Manual radio changed - checked: true
+cart-checkout.php:775 🔘 Manual option clicked
+cart-checkout.php:796 ✅ Manual radio changed - checked: true
+cart-checkout.php:775 🔘 Manual option clicked
+cart-checkout.php:796 ✅ Manual radio changed - checked: true
+cart-checkout.php:775 🔘 Manual option clicked
+cart-checkout.php:796 ✅ Manual radio changed - checked: true
+vendor-C31BE1_7.js:1 Datadog Browser SDK: No storage available for session. We will not send any data.
+h @ vendor-C31BE1_7.js:1
+main.js:1 ObjectuYln4: "g"[[Prototype]]: Object
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "<URL>".
+Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/".
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+cart-checkout.php:785 🔘 Automatic option clicked
+cart-checkout.php:805 ✅ Automatic radio changed - checked: true
+cart-checkout.php:785 🔘 Automatic option clicked
+cart-checkout.php:805 ✅ Automatic radio changed - checked: true
+cart-checkout.php:876 Fetch finished loading: POST "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/cart-checkout.php".
+handleCheckoutSubmit @ cart-checkout.php:876
+onsubmit @ cart-checkout.php:460
+cart-checkout.php:1030 ❌ Order error: Your cart is empty. Please add items before checkout.
+(anonymous) @ cart-checkout.php:1030
+Promise.then
+handleCheckoutSubmit @ cart-checkout.php:890
+onsubmit @ cart-checkout.php:460

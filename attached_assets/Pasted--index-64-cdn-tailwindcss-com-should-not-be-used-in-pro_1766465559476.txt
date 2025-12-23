@@ -1,0 +1,68 @@
+(index):64  cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+cart-checkout.php:1271 ✅ Cart Recovery Features Initialized
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+Tracking Prevention blocked access to storage for <URL>.
+api/customer/profile.php:1   Failed to load resource: the server responded with a status of 401 (Unauthorized)
+cart-checkout.php:863 ⏳ Waiting for OTP verification
+cart-and-tools.js:912 ✅ Pre-cached 2 views for instant switching
+vendor-C31BE1_7.js:1  Datadog Browser SDK: No storage available for session. We will not send any data.
+h @ vendor-C31BE1_7.js:1
+cart-checkout.php:1  Tracking Prevention blocked access to storage for https://checkout.paystack.com/cdn-cgi/challenge-platform/h/g/scripts/jsd/d39f91d70ce1/main.js?.
+cart-checkout.php:1  Tracking Prevention blocked access to storage for https://checkout.paystack.com/cdn-cgi/challenge-platform/h/g/scripts/jsd/d39f91d70ce1/main.js?.
+cart-checkout.php:1  Tracking Prevention blocked access to storage for https://checkout.paystack.com/cdn-cgi/challenge-platform/h/g/scripts/jsd/d39f91d70ce1/main.js?.
+cart-checkout.php:1  Tracking Prevention blocked access to storage for https://checkout.paystack.com/cdn-cgi/challenge-platform/h/g/scripts/jsd/d39f91d70ce1/main.js?.
+main.js:1 Object
+cart-checkout.php:851 ✅ User authenticated - submit button enabled
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605
+service-worker.php:80 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+(anonymous) @ service-worker.php:80
+cart-and-tools.js:605 Fetch finished loading: GET "https://fc7b4057-f973-4030-bc2b-2628d82d4d4f-00-32m14b6lexz6w.kirk.replit.dev/api/cart.php?action=get".
+updateCartBadge @ cart-and-tools.js:605

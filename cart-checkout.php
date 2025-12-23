@@ -473,6 +473,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
+                    'payment_method' => 'manual',
                     'message' => 'Order created successfully!',
                     'redirect' => '/user/order-detail.php?id=' . $orderId
                 ]);
