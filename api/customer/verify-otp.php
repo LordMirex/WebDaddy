@@ -111,11 +111,16 @@ try {
         $stmt->execute([$customerId, $sessionId]);
     }
 
+    // Detect if running in HTTPS (for iframe/proxy compatibility)
+    $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+    $isSecure = $isSecure || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    
     setcookie('customer_session', $sessionResult['token'], [
         'expires' => strtotime('+1 year'),
         'path' => '/',
         'httponly' => true,
-        'samesite' => 'Lax'
+        'secure' => $isSecure,
+        'samesite' => $isSecure ? 'None' : 'Lax'
     ]);
 
     // Determine if this is a new user (account_complete = 0 or no password)

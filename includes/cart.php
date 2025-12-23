@@ -106,10 +106,18 @@ function getCartCount($sessionId = null) {
         $sessionId = getCartSessionId();
     }
     
-    $sql = "SELECT COALESCE(SUM(quantity), 0) as total FROM cart_items WHERE session_id = ?";
+    // Also check by customer_id for logged-in users
+    $customerId = $_SESSION['customer_id'] ?? null;
     
-    $stmt = $db->prepare($sql);
-    $stmt->execute([$sessionId]);
+    if ($customerId) {
+        $sql = "SELECT COALESCE(SUM(quantity), 0) as total FROM cart_items WHERE session_id = ? OR customer_id = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$sessionId, $customerId]);
+    } else {
+        $sql = "SELECT COALESCE(SUM(quantity), 0) as total FROM cart_items WHERE session_id = ?";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$sessionId]);
+    }
     
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     return (int)$result['total'];
@@ -164,9 +172,15 @@ function addProductToCart($productType, $productId, $quantity = 1, $sessionId = 
     }
     
     try {
-        // Check if item already in cart
-        $stmt = $db->prepare("SELECT id, quantity FROM cart_items WHERE session_id = ? AND product_type = ? AND product_id = ?");
-        $stmt->execute([$sessionId, $productType, $productId]);
+        // Check if item already in cart - also check by customer_id for logged-in users
+        $customerId = $_SESSION['customer_id'] ?? null;
+        if ($customerId) {
+            $stmt = $db->prepare("SELECT id, quantity FROM cart_items WHERE (session_id = ? OR customer_id = ?) AND product_type = ? AND product_id = ?");
+            $stmt->execute([$sessionId, $customerId, $productType, $productId]);
+        } else {
+            $stmt = $db->prepare("SELECT id, quantity FROM cart_items WHERE session_id = ? AND product_type = ? AND product_id = ?");
+            $stmt->execute([$sessionId, $productType, $productId]);
+        }
         $existing = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($existing) {
@@ -186,13 +200,14 @@ function addProductToCart($productType, $productId, $quantity = 1, $sessionId = 
             
             return ['success' => true, 'message' => 'Cart updated', 'action' => 'updated'];
         } else {
-            // Add new item
+            // Add new item - include customer_id if logged in
+            $customerId = $_SESSION['customer_id'] ?? null;
             $stmt = $db->prepare("
-                INSERT INTO cart_items (session_id, product_type, product_id, tool_id, quantity, price_at_add)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO cart_items (session_id, customer_id, product_type, product_id, tool_id, quantity, price_at_add)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             $toolId = $productType === 'tool' ? $productId : null;
-            $stmt->execute([$sessionId, $productType, $productId, $toolId, $quantity, $product['price']]);
+            $stmt->execute([$sessionId, $customerId, $productType, $productId, $toolId, $quantity, $product['price']]);
             
             return ['success' => true, 'message' => 'Added to cart', 'action' => 'added'];
         }
@@ -281,9 +296,15 @@ function removeFromCart($cartItemId, $sessionId = null) {
     }
     
     try {
-        // Verify item belongs to session (security)
-        $stmt = $db->prepare("DELETE FROM cart_items WHERE id = ? AND session_id = ?");
-        $result = $stmt->execute([$cartItemId, $sessionId]);
+        // Verify item belongs to session or customer (security)
+        $customerId = $_SESSION['customer_id'] ?? null;
+        if ($customerId) {
+            $stmt = $db->prepare("DELETE FROM cart_items WHERE id = ? AND (session_id = ? OR customer_id = ?)");
+            $result = $stmt->execute([$cartItemId, $sessionId, $customerId]);
+        } else {
+            $stmt = $db->prepare("DELETE FROM cart_items WHERE id = ? AND session_id = ?");
+            $result = $stmt->execute([$cartItemId, $sessionId]);
+        }
         
         if ($stmt->rowCount() > 0) {
             return ['success' => true, 'message' => 'Item removed'];
@@ -310,9 +331,17 @@ function clearCart($sessionId = null) {
         $sessionId = getCartSessionId();
     }
     
+    // Also clear by customer_id for logged-in users
+    $customerId = $_SESSION['customer_id'] ?? null;
+    
     try {
-        $stmt = $db->prepare("DELETE FROM cart_items WHERE session_id = ?");
-        return $stmt->execute([$sessionId]);
+        if ($customerId) {
+            $stmt = $db->prepare("DELETE FROM cart_items WHERE session_id = ? OR customer_id = ?");
+            return $stmt->execute([$sessionId, $customerId]);
+        } else {
+            $stmt = $db->prepare("DELETE FROM cart_items WHERE session_id = ?");
+            return $stmt->execute([$sessionId]);
+        }
     } catch (PDOException $e) {
         error_log("Error clearing cart: " . $e->getMessage());
         return false;
