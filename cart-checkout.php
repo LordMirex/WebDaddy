@@ -519,6 +519,8 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
     <link rel="apple-touch-icon" href="/assets/images/favicon.png">
     
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://js.paystack.co">
+    <link rel="preload" href="https://js.paystack.co/v1/inline.js" as="script">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="/assets/alpine.csp.min.js"></script>
     <script>
@@ -2213,7 +2215,7 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                                 }
                             });
                             handler.openIframe();
-                        }, 400);
+                        }, 100);
                     } else if (result.data.payment_method === 'manual') {
                         // Manual payment: Direct redirect, no overlay
                         console.log('Manual payment selected - redirecting to order...');
