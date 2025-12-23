@@ -11,6 +11,11 @@ require_once __DIR__ . '/includes/email_queue.php';
 require_once __DIR__ . '/includes/delivery.php';
 require_once __DIR__ . '/includes/bonus_codes.php';
 
+// CRITICAL: Disable all caching for checkout page
+header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: -1');
+
 startSecureSession();
 handleAffiliateTracking();
 handleUserReferralTracking();

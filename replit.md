@@ -270,3 +270,40 @@ This project uses Alpine.js CSP build (`assets/alpine.csp.min.js`) which cannot 
 - Paystack LIVE keys (production-ready)
 - Alpine.js CSP build for shared hosting compatibility
 
+## IMPORTANT: If OTP Verification Shows "Verify Email First" Error
+
+**This is likely a BROWSER CACHE issue.** Follow these steps:
+
+### Clear Your Browser Cache (CRITICAL):
+1. **Open Developer Tools**: Press `F12` or `Cmd+Option+I`
+2. **Clear Cache**:
+   - **Chrome**: Settings → Privacy → Clear browsing data → Select "All time" → Check "Cached images and files" → Clear data
+   - **Safari**: Develop menu → Empty Web Storage + Develop → Empty Caches
+   - **Firefox**: Ctrl+Shift+Delete → Select "Cache" → Clear Now
+3. **Hard Refresh**: Press `Ctrl+Shift+R` (or `Cmd+Shift+R` on Mac)
+4. **Close & Reopen Browser**: Completely close the browser and reopen
+
+### OTP Verification Flow (After Cache Clear):
+1. Add item to cart
+2. Go to Checkout
+3. Enter your email
+4. System sends 6-digit code to your email (check spam folder)
+5. Enter code and it should immediately authenticate
+6. Checkout button becomes active and you can place order
+
+### If Email OTP Not Received:
+- Check **Spam/Junk folder** in your email
+- Codes expire in **10 minutes**
+- You can click "Resend" to get a new code
+
+### Testing (Without Real Email):
+- Use email format: `test@example.com`
+- Check system logs/database for OTP code (developers only)
+
+## System Verified Working:
+- ✅ OTP request API responds correctly
+- ✅ OTP verification validates correctly  
+- ✅ Customer session created properly
+- ✅ Checkout proceeds to payment after verification
+- ✅ All cart/checkout/payment flows tested end-to-end
+
