@@ -52,3 +52,9 @@ package-lock.json
 /webdaddy.db-shm
 /webdaddy.db-wal
 
+# SQLite database - exclude from git for easy sync with shared host
+database/webdaddy.db
+database/webdaddy.db-shm
+database/webdaddy.db-wal
+database/backups/
+
