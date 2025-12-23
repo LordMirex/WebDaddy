@@ -326,16 +326,16 @@ $totalSourceVisits = array_sum(array_column($trafficSources, 'visit_count'));
 $dateFilterDelivery = "";
 switch ($period) {
     case 'today':
-        $dateFilterDelivery = buildDateFilter('d.created_at', '=', $today, $dbType);
+        $dateFilterDelivery = "AND DATE(d.created_at) = DATE('$today')";
         break;
     case '7days':
-        $dateFilterDelivery = buildDateFilter('d.created_at', '>=', $sevenDaysAgo, $dbType);
+        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('$sevenDaysAgo')";
         break;
     case '30days':
-        $dateFilterDelivery = buildDateFilter('d.created_at', '>=', $thirtyDaysAgo, $dbType);
+        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('$thirtyDaysAgo')";
         break;
     case '90days':
-        $dateFilterDelivery = buildDateFilter('d.created_at', '>=', $ninetyDaysAgo, $dbType);
+        $dateFilterDelivery = "AND DATE(d.created_at) >= DATE('$ninetyDaysAgo')";
         break;
 }
 
