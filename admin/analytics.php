@@ -721,14 +721,14 @@ require_once __DIR__ . '/includes/header.php';
                     <?php foreach ($trafficSources as $source): ?>
                         <?php 
                         $percentage = $totalSourceVisits > 0 ? round(($source['visit_count'] / $totalSourceVisits) * 100, 1) : 0;
-                        $iconClass = match($source['source_type']) {
-                            'Direct' => 'bi-link-45deg text-gray-600',
-                            'Google' => 'bi-google text-blue-600',
-                            'Search Engines' => 'bi-search text-purple-600',
-                            'Social Media' => 'bi-share text-pink-600',
-                            'Affiliate Links' => 'bi-people text-green-600',
-                            default => 'bi-globe text-gray-600'
-                        };
+                        switch($source['source_type']) {
+                            case 'Direct': $iconClass = 'bi-link-45deg text-gray-600'; break;
+                            case 'Google': $iconClass = 'bi-google text-blue-600'; break;
+                            case 'Search Engines': $iconClass = 'bi-search text-purple-600'; break;
+                            case 'Social Media': $iconClass = 'bi-share text-pink-600'; break;
+                            case 'Affiliate Links': $iconClass = 'bi-people text-green-600'; break;
+                            default: $iconClass = 'bi-globe text-gray-600';
+                        }
                         ?>
                         <div class="border border-gray-200 rounded-lg p-4">
                             <div class="flex items-center justify-between mb-2">

@@ -70,13 +70,13 @@ require_once __DIR__ . '/includes/header.php';
             <?php foreach ($orders as $order): ?>
             <?php 
                 $isHighlighted = ($confirmedOrderId && $confirmedOrderId == $order['id']);
-                $statusColor = match($order['status']) {
-                    'paid' => 'bg-blue-100 text-blue-700',
-                    'completed' => 'bg-green-100 text-green-700',
-                    'pending' => 'bg-yellow-100 text-yellow-700',
-                    'cancelled' => 'bg-red-100 text-red-700',
-                    default => 'bg-gray-100 text-gray-700'
-                };
+                switch($order['status']) {
+                    case 'paid': $statusColor = 'bg-blue-100 text-blue-700'; break;
+                    case 'completed': $statusColor = 'bg-green-100 text-green-700'; break;
+                    case 'pending': $statusColor = 'bg-yellow-100 text-yellow-700'; break;
+                    case 'cancelled': $statusColor = 'bg-red-100 text-red-700'; break;
+                    default: $statusColor = 'bg-gray-100 text-gray-700';
+                }
             ?>
             <div class="p-4 <?= $isHighlighted ? 'bg-green-50 ring-2 ring-green-500 ring-inset' : 'hover:bg-gray-50' ?> transition">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

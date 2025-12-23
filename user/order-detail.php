@@ -51,17 +51,26 @@ $isFailedPayment = $lastPayment && $lastPayment['status'] === 'failed';
 $page = 'orders';
 $pageTitle = 'Order #' . $orderId;
 
-$statusColor = match($order['status']) {
-    'paid' => 'bg-blue-100 text-blue-700 border-blue-200',
-    'completed' => 'bg-green-100 text-green-700 border-green-200',
-    'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    'failed' => 'bg-red-100 text-red-700 border-red-200',
-    'cancelled' => 'bg-red-100 text-red-700 border-red-200',
-    default => 'bg-gray-100 text-gray-700 border-gray-200'
-};
+switch($order['status']) {
+    case 'paid':
+        $statusColor = 'bg-blue-100 text-blue-700 border-blue-200';
+        break;
+    case 'completed':
+        $statusColor = 'bg-green-100 text-green-700 border-green-200';
+        break;
+    case 'pending':
+        $statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        break;
+    case 'failed':
+    case 'cancelled':
+        $statusColor = 'bg-red-100 text-red-700 border-red-200';
+        break;
+    default:
+        $statusColor = 'bg-gray-100 text-gray-700 border-gray-200';
+}
 
-$templateItems = array_filter($orderItems, fn($i) => $i['product_type'] === 'template');
-$toolItems = array_filter($orderItems, fn($i) => $i['product_type'] === 'tool');
+$templateItems = array_filter($orderItems, function($i) { return $i['product_type'] === 'template'; });
+$toolItems = array_filter($orderItems, function($i) { return $i['product_type'] === 'tool'; });
 $itemCount = count($orderItems);
 
 $itemNames = [];
@@ -469,14 +478,14 @@ require_once __DIR__ . '/includes/header.php';
                 <?php foreach ($templateItems as $item): ?>
                 <?php
                     $deliveryStatus = $item['delivery_status'] ?? 'pending';
-                    $deliveryColor = match($deliveryStatus) {
-                        'delivered' => 'bg-green-100 text-green-700 border-green-200',
-                        'sent' => 'bg-blue-100 text-blue-700 border-blue-200',
-                        'ready' => 'bg-purple-100 text-purple-700 border-purple-200',
-                        'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                        'failed' => 'bg-red-100 text-red-700 border-red-200',
-                        default => 'bg-gray-100 text-gray-700 border-gray-200'
-                    };
+                    switch($deliveryStatus) {
+                        case 'delivered': $deliveryColor = 'bg-green-100 text-green-700 border-green-200'; break;
+                        case 'sent': $deliveryColor = 'bg-blue-100 text-blue-700 border-blue-200'; break;
+                        case 'ready': $deliveryColor = 'bg-purple-100 text-purple-700 border-purple-200'; break;
+                        case 'pending': $deliveryColor = 'bg-yellow-100 text-yellow-700 border-yellow-200'; break;
+                        case 'failed': $deliveryColor = 'bg-red-100 text-red-700 border-red-200'; break;
+                        default: $deliveryColor = 'bg-gray-100 text-gray-700 border-gray-200';
+                    }
                 ?>
                 <div class="border rounded-xl p-4 hover:shadow-md transition">
                     <div class="flex gap-4">
@@ -525,13 +534,13 @@ require_once __DIR__ . '/includes/header.php';
                                 <?php 
                                     $siteUrl = $item['domain_login_url'] ?? '';
                                     $hostingType = $item['hosting_provider'] ?? '';
-                                    $hostingLabel = match($hostingType) {
-                                        'wordpress' => 'WordPress',
-                                        'cpanel' => 'cPanel',
-                                        'static' => 'Static Site',
-                                        'custom' => 'Custom Admin',
-                                        default => ''
-                                    };
+                                    switch($hostingType) {
+                                        case 'wordpress': $hostingLabel = 'WordPress'; break;
+                                        case 'cpanel': $hostingLabel = 'cPanel'; break;
+                                        case 'static': $hostingLabel = 'Static Site'; break;
+                                        case 'custom': $hostingLabel = 'Custom Admin'; break;
+                                        default: $hostingLabel = '';
+                                    }
                                 ?>
                                 <div class="bg-white rounded-lg border divide-y">
                                     <?php if (!empty($item['hosted_domain'])): ?>
@@ -648,14 +657,14 @@ require_once __DIR__ . '/includes/header.php';
                 <?php foreach ($toolItems as $item): ?>
                 <?php
                     $deliveryStatus = $item['delivery_status'] ?? 'pending';
-                    $deliveryColor = match($deliveryStatus) {
-                        'delivered' => 'bg-green-100 text-green-700 border-green-200',
-                        'sent' => 'bg-blue-100 text-blue-700 border-blue-200',
-                        'ready' => 'bg-purple-100 text-purple-700 border-purple-200',
-                        'pending' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                        'failed' => 'bg-red-100 text-red-700 border-red-200',
-                        default => 'bg-gray-100 text-gray-700 border-gray-200'
-                    };
+                    switch($deliveryStatus) {
+                        case 'delivered': $deliveryColor = 'bg-green-100 text-green-700 border-green-200'; break;
+                        case 'sent': $deliveryColor = 'bg-blue-100 text-blue-700 border-blue-200'; break;
+                        case 'ready': $deliveryColor = 'bg-purple-100 text-purple-700 border-purple-200'; break;
+                        case 'pending': $deliveryColor = 'bg-yellow-100 text-yellow-700 border-yellow-200'; break;
+                        case 'failed': $deliveryColor = 'bg-red-100 text-red-700 border-red-200'; break;
+                        default: $deliveryColor = 'bg-gray-100 text-gray-700 border-gray-200';
+                    }
                     $downloadFiles = [];
                     if (!empty($item['download_link'])) {
                         $downloadFiles = json_decode($item['download_link'], true) ?: [];

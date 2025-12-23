@@ -222,14 +222,16 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4 text-sm">
-                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-medium
-                                        <?php echo match($post['status']) {
-                                            'draft' => 'bg-gray-200 text-gray-700',
-                                            'published' => 'bg-green-100 text-green-700',
-                                            'scheduled' => 'bg-yellow-100 text-yellow-700',
-                                            'archived' => 'bg-red-100 text-red-700',
-                                            default => 'bg-gray-100 text-gray-700'
-                                        }; ?>">
+                                    <?php
+                                        switch($post['status']) {
+                                            case 'draft': $postStatusColor = 'bg-gray-200 text-gray-700'; break;
+                                            case 'published': $postStatusColor = 'bg-green-100 text-green-700'; break;
+                                            case 'scheduled': $postStatusColor = 'bg-yellow-100 text-yellow-700'; break;
+                                            case 'archived': $postStatusColor = 'bg-red-100 text-red-700'; break;
+                                            default: $postStatusColor = 'bg-gray-100 text-gray-700';
+                                        }
+                                    ?>
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-medium <?php echo $postStatusColor; ?>">
                                         <?php echo ucfirst(htmlspecialchars($post['status'])); ?>
                                     </span>
                                 </td>

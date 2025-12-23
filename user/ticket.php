@@ -49,22 +49,22 @@ $replies = getTicketReplies($ticketId);
 $page = 'support';
 $pageTitle = 'Ticket #' . $ticketId;
 
-$statusColor = match($ticket['status']) {
-    'open' => 'bg-blue-100 text-blue-700 border-blue-200',
-    'in_progress' => 'bg-purple-100 text-purple-700 border-purple-200',
-    'awaiting_reply' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    'resolved' => 'bg-green-100 text-green-700 border-green-200',
-    'closed' => 'bg-gray-100 text-gray-700 border-gray-200',
-    default => 'bg-gray-100 text-gray-700 border-gray-200'
-};
+switch($ticket['status']) {
+    case 'open': $statusColor = 'bg-blue-100 text-blue-700 border-blue-200'; break;
+    case 'in_progress': $statusColor = 'bg-purple-100 text-purple-700 border-purple-200'; break;
+    case 'awaiting_reply': $statusColor = 'bg-yellow-100 text-yellow-700 border-yellow-200'; break;
+    case 'resolved': $statusColor = 'bg-green-100 text-green-700 border-green-200'; break;
+    case 'closed': $statusColor = 'bg-gray-100 text-gray-700 border-gray-200'; break;
+    default: $statusColor = 'bg-gray-100 text-gray-700 border-gray-200';
+}
 
-$priorityColor = match($ticket['priority']) {
-    'low' => 'bg-gray-100 text-gray-600',
-    'normal' => 'bg-blue-100 text-blue-600',
-    'high' => 'bg-orange-100 text-orange-600',
-    'urgent' => 'bg-red-100 text-red-600',
-    default => 'bg-gray-100 text-gray-600'
-};
+switch($ticket['priority']) {
+    case 'low': $priorityColor = 'bg-gray-100 text-gray-600'; break;
+    case 'normal': $priorityColor = 'bg-blue-100 text-blue-600'; break;
+    case 'high': $priorityColor = 'bg-orange-100 text-orange-600'; break;
+    case 'urgent': $priorityColor = 'bg-red-100 text-red-600'; break;
+    default: $priorityColor = 'bg-gray-100 text-gray-600';
+}
 
 require_once __DIR__ . '/includes/header.php';
 ?>

@@ -74,23 +74,23 @@ require_once __DIR__ . '/includes/header.php';
         <div class="divide-y">
             <?php foreach ($tickets as $ticket): ?>
             <?php
-                $statusColor = match($ticket['status']) {
-                    'open' => 'bg-blue-100 text-blue-700',
-                    'in_progress' => 'bg-purple-100 text-purple-700',
-                    'awaiting_reply' => 'bg-yellow-100 text-yellow-700',
-                    'resolved' => 'bg-green-100 text-green-700',
-                    'closed' => 'bg-gray-100 text-gray-700',
-                    default => 'bg-gray-100 text-gray-700'
-                };
+                switch($ticket['status']) {
+                    case 'open': $statusColor = 'bg-blue-100 text-blue-700'; break;
+                    case 'in_progress': $statusColor = 'bg-purple-100 text-purple-700'; break;
+                    case 'awaiting_reply': $statusColor = 'bg-yellow-100 text-yellow-700'; break;
+                    case 'resolved': $statusColor = 'bg-green-100 text-green-700'; break;
+                    case 'closed': $statusColor = 'bg-gray-100 text-gray-700'; break;
+                    default: $statusColor = 'bg-gray-100 text-gray-700';
+                }
                 
-                $categoryIcon = match($ticket['category']) {
-                    'order' => 'bi-bag',
-                    'delivery' => 'bi-truck',
-                    'refund' => 'bi-arrow-counterclockwise',
-                    'technical' => 'bi-gear',
-                    'account' => 'bi-person',
-                    default => 'bi-question-circle'
-                };
+                switch($ticket['category']) {
+                    case 'order': $categoryIcon = 'bi-bag'; break;
+                    case 'delivery': $categoryIcon = 'bi-truck'; break;
+                    case 'refund': $categoryIcon = 'bi-arrow-counterclockwise'; break;
+                    case 'technical': $categoryIcon = 'bi-gear'; break;
+                    case 'account': $categoryIcon = 'bi-person'; break;
+                    default: $categoryIcon = 'bi-question-circle';
+                }
                 
                 $hasNewReply = $ticket['last_reply_by'] === 'admin' && 
                                $ticket['status'] !== 'resolved' && 
