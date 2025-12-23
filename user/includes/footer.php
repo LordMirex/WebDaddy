@@ -29,8 +29,8 @@
     </div>
     
     <script>
-    function notificationBell() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('notificationBell', () => ({
             open: false,
             notifications: [],
             unreadCount: 0,
@@ -70,8 +70,8 @@
                     console.error('Failed to mark notifications as read');
                 }
             }
-        };
-    }
+        }));
+    });
     </script>
     
     <!-- Global Event Delegation for Template Details -->

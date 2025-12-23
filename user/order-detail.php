@@ -183,7 +183,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <?php if ($order['status'] === 'pending' || $order['status'] === 'failed'): ?>
     <!-- Payment Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="orderPayment()">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="orderPayment">
         <div class="bg-amber-50 border-b border-amber-100 px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <i class="bi-credit-card-2-front text-amber-600"></i>
@@ -360,8 +360,8 @@ require_once __DIR__ . '/includes/header.php';
     </div>
     
     <script>
-    function orderPayment() {
-        return {
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('orderPayment', () => ({
             paymentTab: '<?= $order['status'] === 'failed' ? 'card' : 'card' ?>',
             loading: false,
             notifyLoading: false,
@@ -435,8 +435,8 @@ require_once __DIR__ . '/includes/header.php';
                 
                 this.notifyLoading = false;
             }
-        };
-    }
+        }))
+    });
     </script>
     <?php endif; ?>
 

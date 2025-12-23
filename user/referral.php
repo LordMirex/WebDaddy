@@ -261,7 +261,7 @@ require_once __DIR__ . '/includes/header.php';
                                        required>
                             </div>
                             
-                            <div x-data="bankSearch()">
+                            <div x-data="bankSearch">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
                                 <div class="relative">
                                     <input type="text" 
@@ -294,7 +294,7 @@ require_once __DIR__ . '/includes/header.php';
                                 </div>
                             </div>
                             
-                            <div x-data="accountValidator()">
+                            <div x-data="accountValidator">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
                                 <input type="text" 
                                        name="account_number" 
@@ -458,9 +458,10 @@ function copyReferralLink(e) {
     });
 }
 
-// Bank Dropdown Component with Custom Entry Support
-function bankSearch() {
-    return {
+// Initialize Alpine.js CSP-safe components
+document.addEventListener('alpine:init', () => {
+    // Bank Dropdown Component with Custom Entry Support
+    Alpine.data('bankSearch', () => ({
         banks: [],
         filteredBanks: [],
         searchQuery: '',
@@ -493,7 +494,6 @@ function bankSearch() {
         selectBankItem(bank) {
             this.searchQuery = bank.name;
             this.showDropdown = false;
-            // Keep filteredBanks populated so dropdown can be opened again
             this.filterBanks();
         },
         
@@ -502,17 +502,14 @@ function bankSearch() {
                 this.selectBankItem(this.filteredBanks[this.selectedIndex]);
             }
         }
-    };
-}
+    }));
 
-// Account Number Validator Component
-function accountValidator() {
-    return {
+    // Account Number Validator Component
+    Alpine.data('accountValidator', () => ({
         validationError: '',
         
         validateAccount(event) {
             const input = event.target;
-            // Only allow numbers
             input.value = input.value.replace(/[^0-9]/g, '');
             
             if (input.value.length > 0 && input.value.length < 10) {
@@ -535,12 +532,7 @@ function accountValidator() {
                 this.validationError = '';
             }
         }
-    };
-}
-
-// Initialize on DOM ready
-document.addEventListener('alpine:init', () => {
-    console.log('Bank dropdown initialized');
+    }));
 });
 </script>
 

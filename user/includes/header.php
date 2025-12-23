@@ -113,7 +113,7 @@ $navItems = [
                     
                     <div class="flex items-center space-x-4">
                         <!-- Notifications -->
-                        <div x-data="notificationBell()" class="relative">
+                        <div x-data="notificationBell" class="relative">
                             <button @click="toggle()" class="relative p-2 text-gray-600 hover:text-gray-900">
                                 <i class="bi-bell text-xl"></i>
                                 <span x-show="unreadCount > 0" x-text="unreadCount" 
