@@ -465,8 +465,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
                 processEmailQueue();
             }
             
-            // Clear cart only on successful order creation
-            clearCart();
+            // IMPORTANT: Do NOT clear cart here! 
+            // Cart will be cleared on order-detail.php AFTER successful page load
+            // This prevents empty cart if redirect fails (e.g., iframe/popup blocker issues)
             
             if ($paymentMethod === 'manual') {
                 header('Content-Type: application/json');

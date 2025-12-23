@@ -26,6 +26,12 @@ if (!$order) {
     exit;
 }
 
+// CRITICAL: Clear cart here AFTER successful page load (not before redirect)
+// This ensures cart only clears when user actually reaches the order page
+// Prevents empty cart issues if checkout redirect fails
+require_once __DIR__ . '/../includes/cart.php';
+clearCart();
+
 $orderItems = getOrderItemsWithDelivery($orderId);
 
 $db = getDb();
