@@ -69,7 +69,13 @@ RewriteCond %{REQUEST_URI} !^/(admin|affiliate|assets|api|uploads|mailer|legal|i
 RewriteRule ^([a-zA-Z0-9_-]+)/?$ template.php?slug=$1 [QSA,L]
 
 # ------------------------------------------------------------------
-# 9. Everything else → index.php (root / and catch-all)
+# 9. STATIC ASSETS - Serve directly, don't route through PHP
+#    (Explicit bypass for shared hosting where -f check may fail)
+# ------------------------------------------------------------------
+RewriteRule ^(uploads|assets|attached_assets)/.*\.(jpg|jpeg|png|gif|webp|svg|ico|css|js|woff2?|ttf|mp4|webm|pdf)$ - [L,NC]
+
+# ------------------------------------------------------------------
+# 10. Everything else → index.php (root / and catch-all)
 # ------------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
