@@ -1,0 +1,106 @@
+You're right to be cautious! Let me analyze the entire checkout flow more carefully. I see several issues:
+
+## Critical Issues I Found:
+
+### 1. **Empty Cart AJAX Detection is Broken** (lines 37-45)
+Your current check is catching normal form submissions as AJAX. Fixed above.
+
+### 2. **Missing AJAX Response Headers** (line 168)
+When returning JSON errors for validation, you're not setting Content-Type header:
+
+```php
+// Line 168 - ADD header before json_encode
+if (!empty($errors) && $isAjaxRequest) {
+    header('Content-Type: application/json'); // ADD THIS
+    echo json_encode([
+        'success' => false,
+        'message' => implode(' ', $errors)
+    ]);
+    exit;
+}
+```
+
+### 3. **Form Submission Handler Expects JSON but May Get HTML** (lines 950-1010)
+Your JavaScript expects JSON but if there's a PHP error or redirect, it gets HTML:
+
+```javascript
+// Around line 970 - REPLACE the .then(response => {...}) block with:
+.then(response => {
+    const contentType = response.headers.get('Content-Type');
+    if (!contentType || !contentType.includes('application/json')) {
+        // Not JSON - probably an error or redirect
+        return response.text().then(html => {
+            throw new Error('Server returned non-JSON response. Please refresh and try again.');
+        });
+    }
+    return response.json();
+})
+.then(data => {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+    
+    if (data.success) {
+        // ... rest of your code
+```
+
+### 4. **Payment Method Not Being Captured in FormData** (line 963)
+You're setting it in FormData but it might not persist:
+
+```javascript
+// Line 963 - ENSURE it's in the form itself before FormData creation
+const formData = new FormData(form);
+// Make absolutely sure payment_method is included
+const paymentMethod = form.querySelector('input[name="payment_method"]:checked')?.value || 'manual';
+formData.set('payment_method', paymentMethod);
+console.log('Payment method being sent:', paymentMethod); // Debug log
+```
+
+### 5. **Auth State Not Blocking Form Submission** (line 919)
+The form can still be submitted via Enter key even when disabled:
+
+```javascript
+// Add this around line 919, INSIDE the handleCheckoutSubmit function:
+function handleCheckoutSubmit(event) {
+    event.preventDefault();
+    
+    // BLOCK submission if not authenticated
+    const authStep = document.querySelector('[x-data="checkoutAuth"]')?.__x?.$data?.step;
+    if (authStep !== 'authenticated') {
+        alert('Please complete email verification first');
+        return false;
+    }
+    
+    const form = event.target;
+    // ... rest of your code
+```
+
+### 6. **Customer Auth Hidden Fields Not Always Populated** (line 702)
+The hidden fields use Alpine.js binding but might not be set on submit:
+
+```php
+<!-- Around line 702 - ADD manual sync before form submit -->
+<script>
+document.getElementById('orderForm')?.addEventListener('submit', function(e) {
+    // Manually sync Alpine data to hidden fields
+    const authComponent = document.querySelector('[x-data="checkoutAuth"]')?.__x?.$data;
+    if (authComponent) {
+        document.querySelector('[name="customer_email"]').value = authComponent.email || '';
+        document.querySelector('[name="customer_name"]').value = authComponent.customerUsername || '';
+        document.querySelector('[name="customer_phone"]').value = authComponent.customerPhone || authComponent.phone || '';
+    }
+}, true); // Use capture phase to run BEFORE other handlers
+</script>
+```
+
+## Quick Test Checklist:
+
+After applying all fixes, test this flow:
+
+1. ✅ Visit checkout with empty cart → Should redirect to homepage
+2. ✅ Add items, go to checkout → Should show form
+3. ✅ Try submitting without email → Should show "Complete email verification" message
+4. ✅ Enter email, get OTP, verify → Should enable submit button
+5. ✅ Select manual payment → Should create order and redirect to order detail page
+6. ✅ Try automatic payment → Should open Paystack popup
+
+Would you like me to create a complete fixed version of the file with all these changes applied?

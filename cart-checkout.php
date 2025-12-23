@@ -1607,8 +1607,24 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
                 </div>
                 <?php endif; ?>
                 
-                <form method="POST" action="" id="orderForm" data-loading onsubmit="handleCheckoutSubmit(event); return false;">
+                <form method="POST" action="" id="orderForm" data-loading onsubmit="syncAuthDataBeforeSubmit(); handleCheckoutSubmit(event); return false;">
                 <?php echo csrfTokenField(); ?>
+                
+                <script>
+                // Sync Alpine.js auth data to hidden form fields before submission
+                function syncAuthDataBeforeSubmit() {
+                    const authComponent = document.querySelector('[x-data="checkoutAuth"]')?.__x?.$data;
+                    if (authComponent) {
+                        const emailField = document.querySelector('[name="customer_email"]');
+                        const nameField = document.querySelector('[name="customer_name"]');
+                        const phoneField = document.querySelector('[name="customer_phone"]');
+                        
+                        if (emailField) emailField.value = authComponent.email || '';
+                        if (nameField) nameField.value = authComponent.customerUsername || '';
+                        if (phoneField) phoneField.value = authComponent.customerPhone || authComponent.phone || '';
+                    }
+                }
+                </script>
                 
                 <!-- Step 1: Your Information -->
                 <div class="bg-gray-800 rounded-xl shadow-md border border-gray-700 mb-6 overflow-hidden">
@@ -2001,6 +2017,14 @@ $pageTitle = 'Checkout - ' . SITE_NAME;
             const form = event.target;
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
+            
+            // Check auth state from Alpine.js component
+            const authComponent = document.querySelector('[x-data="checkoutAuth"]')?.__x?.$data;
+            const authStep = authComponent?.step;
+            if (authStep !== 'authenticated') {
+                alert('Please complete email verification first.');
+                return false;
+            }
             
             // Validate email is present before submission
             const customerEmail = form.querySelector('input[name="customer_email"]')?.value;
