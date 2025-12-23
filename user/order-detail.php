@@ -929,7 +929,7 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
 
 <?php if ($needsSetup): ?>
 <!-- Account Completion Modal -->
-<div x-data="accountSetupModal()" x-init="showModal = true">
+<div x-data="accountSetupModal">
     <div x-show="showModal" x-cloak 
          class="fixed inset-0 z-50 overflow-y-auto" 
          @keydown.escape.window="null">
@@ -1045,8 +1045,8 @@ $skipWhatsAppStep = !empty($existingWhatsApp) && strlen(preg_replace('/[^0-9]/',
 </div>
 
 <script>
-function accountSetupModal() {
-    return {
+document.addEventListener('alpine:init', () => {
+    Alpine.data('accountSetupModal', () => ({
         showModal: true,
         step: 1,
         loading: false,
@@ -1137,8 +1137,8 @@ function accountSetupModal() {
             
             this.loading = false;
         }
-    };
-}
+    }))
+});
 </script>
 <?php endif; ?>
 
