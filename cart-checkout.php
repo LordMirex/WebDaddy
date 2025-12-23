@@ -487,6 +487,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
                 // Automatic payment: Return payment data to trigger Paystack popup immediately
                 // Payment will be initialized by Paystack JavaScript
                 // Admin will be notified AFTER payment verification (success or failure)
+                header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
                     'payment_method' => 'automatic',
@@ -500,6 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
             } else {
                 // Manual payment: Redirect to order detail page
                 // Bank details and "I Have Paid" button now shown on order detail page
+                header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
                     'payment_method' => 'manual',
