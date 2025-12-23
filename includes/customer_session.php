@@ -41,6 +41,7 @@ function createCustomerSession($customerId, $rememberMe = true) {
     
     // CRITICAL: For iframe environments (Replit proxy), use SameSite=None with Secure
     $secure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+    $secure = $secure || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
     $sameSite = $secure ? 'None' : 'Lax'; // SameSite=None requires Secure
     
     setcookie(
