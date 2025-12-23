@@ -133,6 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_affiliate'])) {
     }
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) && !isset($_POST['remove_discount'])) {
+    // DEBUG: Log session state at checkout submit
+    $debugSessionId = session_id();
+    $debugCustomerId = $_SESSION['customer_id'] ?? 'NOT_SET';
+    error_log("CHECKOUT DEBUG: session_id={$debugSessionId}, customer_id={$debugCustomerId}");
+    
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Security validation failed. Please refresh the page and try again.';
     }
@@ -190,8 +195,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
         $cartItems = getCart();
         $totals = getCartTotal(null, $affiliateCode, $appliedBonusCode, $userReferralCode, $customerEmail);
         
+        // DEBUG: Log cart state
+        error_log("CHECKOUT CART: items=" . count($cartItems) . ", customer_id=" . ($_SESSION['customer_id'] ?? 'NOT_SET'));
+        
         // Double-check cart is still not empty
         if (empty($cartItems)) {
+            // For AJAX requests, return JSON error instead of redirect
+            if ($isAjaxRequest) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Your cart is empty. Please add items before checkout.',
+                    'debug' => ['session_id' => session_id(), 'customer_id' => $_SESSION['customer_id'] ?? null]
+                ]);
+                exit;
+            }
             header('Location: /?' . ($affiliateCode ? 'aff=' . urlencode($affiliateCode) : '') . '#products');
             exit;
         }

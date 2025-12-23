@@ -8,18 +8,17 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/tools.php';
+require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/../user/includes/auth.php';
 
 /**
  * Get current session's cart ID
- * Ensures session is started
+ * Ensures session is started using consistent configuration
  * 
  * @return string Session ID
  */
 function getCartSessionId() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    startSecureSession();
     return session_id();
 }
 

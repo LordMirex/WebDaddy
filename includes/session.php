@@ -15,9 +15,16 @@ function startSecureSession()
             session_save_path($sessionPath);
         }
         
+        // Detect if running in HTTPS (for iframe/proxy compatibility)
+        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+        $isSecure = $isSecure || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        
         ini_set('session.cookie_httponly', 1);
         ini_set('session.use_only_cookies', 1);
-        ini_set('session.cookie_samesite', 'Lax');
+        // Use SameSite=None for iframe compatibility (requires Secure)
+        // Falls back to Lax on HTTP for local development
+        ini_set('session.cookie_samesite', $isSecure ? 'None' : 'Lax');
+        ini_set('session.cookie_secure', $isSecure ? 1 : 0);
         ini_set('session.cookie_lifetime', 0);
         ini_set('session.gc_maxlifetime', SESSION_LIFETIME ?: 86400);
         
