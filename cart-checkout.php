@@ -499,16 +499,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['apply_affiliate']) &
                     'redirect_on_failure' => $fallbackUrl
                 ]);
                 exit;
-            } else {
-                // Manual payment: Redirect to order detail page
-                // Bank details and "I Have Paid" button now shown on order detail page
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'success' => true,
-                    'payment_method' => 'manual',
-                    'redirect' => $orderDetailUrl
-                ]);
-                exit;
             }
         }
     }
