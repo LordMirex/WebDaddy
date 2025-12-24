@@ -40,9 +40,14 @@ uploads/templates/*
 !uploads/templates/*.gif
 !uploads/templates/*.webp
 
-# Allow blog images
+# Allow blog images (single unified folder)
 !uploads/blog/
-!uploads/blog-images/
+uploads/blog/*
+!uploads/blog/*.jpg
+!uploads/blog/*.jpeg
+!uploads/blog/*.png
+!uploads/blog/*.gif
+!uploads/blog/*.webp
 
 # Temp folder structure
 !uploads/temp/
