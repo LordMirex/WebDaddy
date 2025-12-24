@@ -31,14 +31,16 @@ uploads/*
 !uploads/.htaccess
 !uploads/index.php
 
-# Allow template images
+# Allow template images (organized in images subfolder)
 !uploads/templates/
-uploads/templates/*
-!uploads/templates/*.jpg
-!uploads/templates/*.jpeg
-!uploads/templates/*.png
-!uploads/templates/*.gif
-!uploads/templates/*.webp
+!uploads/templates/images/
+uploads/templates/images/*
+!uploads/templates/images/*.jpg
+!uploads/templates/images/*.jpeg
+!uploads/templates/images/*.png
+!uploads/templates/images/*.gif
+!uploads/templates/images/*.webp
+!uploads/templates/videos/
 
 # Allow blog images (single unified folder)
 !uploads/blog/

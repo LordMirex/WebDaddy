@@ -37,7 +37,13 @@ The platform features customer, affiliate, and admin dashboards. Design prioriti
 - **PHP-based Backend**: Leverages PHP for server-side logic, optimized for performance and maintainability.
 - **SQLite Database**: Utilizes SQLite (`./database/webdaddy.db`) for simplicity and ease of deployment, with auto-backup functionality.
 - **Modular Structure**: Organized codebase with clear separation of concerns (admin, affiliate, user, API, includes, assets).
-- **Workflow Configuration**: Designed to run with PHP's built-in web server (`php -S 0.0.0.0:5000`) for development, with considerations for `.htaccess` rewrites on shared hosting.
+- **Workflow Configuration**: Designed to run with PHP's built-in web server using `router.php` for URL rewriting (`php -S 0.0.0.0:5000 router.php`). Production uses `.htaccess` rewrites on Apache shared hosting.
+
+### File Structure
+- **Template Images**: `/uploads/templates/images/` - All template thumbnail images
+- **Template Videos**: `/uploads/templates/videos/` - Template preview videos
+- **Blog Images**: `/uploads/blog/` - All blog post featured images
+- **Database Paths**: Template images stored as `/uploads/templates/images/filename.jpg`, blog images as `/uploads/blog/filename.jpg`
 
 ## External Dependencies
 
