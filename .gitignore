@@ -26,10 +26,12 @@ temp/
 *.bak
 *.backup
 
-# Upload directories - Keep security files but allow templates
+# Upload directories - Keep security files but allow templates and blog images
 uploads/*
 !uploads/.htaccess
 !uploads/index.php
+
+# Allow template images
 !uploads/templates/
 uploads/templates/*
 !uploads/templates/*.jpg
@@ -37,6 +39,12 @@ uploads/templates/*
 !uploads/templates/*.png
 !uploads/templates/*.gif
 !uploads/templates/*.webp
+
+# Allow blog images
+!uploads/blog/
+!uploads/blog-images/
+
+# Temp folder structure
 !uploads/temp/
 uploads/temp/*
 !uploads/temp/.htaccess
