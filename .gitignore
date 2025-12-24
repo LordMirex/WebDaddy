@@ -58,4 +58,28 @@ package-lock.json
 /webdaddy.db
 /webdaddy.db-shm
 /webdaddy.db-wal
+/database.db
+
+# Database backups and corrupt files
+database/*_backup*.db
+database/*_corrupt*.db
+
+# Replit internal/temporary folders
+attached_assets/
+.cache/
+.upm/
+
+# One-time utility scripts (should not be in production)
+fix_syntax.php
+download-alpine-csp.php
+
+# Cache folder contents (keep folder structure)
+cache/*
+!cache/.htaccess
+!cache/index.php
+
+# Logs folder contents
+logs/*
+!logs/.htaccess
+!logs/index.php
 
